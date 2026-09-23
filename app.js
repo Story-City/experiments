@@ -17,7 +17,7 @@ const ART = [
   { file: 'night-watch.jpg', title: 'The Night Watch', artist: 'Rembrandt van Rijn', year: 1642 },
 ];
 
-const LOOK_DEFAULTS = { pixel: 1, hue: 0, sepia: 0, saturate: 100, contrast: 100, blur: 0, aberration: 0, fisheye: 0, tilt: 0 };
+const LOOK_DEFAULTS = { pixel: 1, hue: 0, sepia: 0, saturate: 100, contrast: 100, blur: 0, aberration: 0, fisheye: 0, tilt: 0, shapes: 0, posterize: 0 };
 const PHOTO_DEFAULTS = { opacity: 100, feather: 35, size: 40, shape: 'circle', blend: 'source-over' };
 const PHOTO_MAX = 900;
 const UNDO_MAX = 10;
@@ -32,7 +32,7 @@ const state = {
   base: null,
   undo: [],
   tool: 'move',
-  smudge: { brush: 50, strength: 70 },
+  smudge: { brush: 50, strength: 70, mode: 'marble' },
   artIndex: 0,
   photo: null,
   masked: null,
@@ -275,6 +275,76 @@ function applyFisheye() {
   ctx.putImageData(img, 0, 0);
 }
 
+let cellCache = null;
+
+function seededRand(n) {
+  let x = Math.imul(n ^ 0x9e3779b9, 0x85ebca6b);
+  x ^= x >>> 13; x = Math.imul(x, 0xc2b2ae35); x ^= x >>> 16;
+  return (x >>> 0) / 4294967296;
+}
+
+function cellLabels(W, H, sz) {
+  const key = `${W}x${H}@${sz}`;
+  if (cellCache && cellCache.key === key) return cellCache;
+  const gw = Math.ceil(W / sz), gh = Math.ceil(H / sz);
+  const seeds = new Float32Array(gw * gh * 2);
+  for (let g = 0; g < gw * gh; g++) {
+    seeds[g * 2] = ((g % gw) + 0.1 + 0.8 * seededRand(g * 2)) * sz;
+    seeds[g * 2 + 1] = (((g / gw) | 0) + 0.1 + 0.8 * seededRand(g * 2 + 1)) * sz;
+  }
+  const labels = new Int32Array(W * H);
+  for (let y = 0; y < H; y++) {
+    const cy = (y / sz) | 0;
+    for (let x = 0; x < W; x++) {
+      const cx = (x / sz) | 0;
+      let best = 0, bd = Infinity;
+      for (let j = Math.max(0, cy - 1); j <= Math.min(gh - 1, cy + 1); j++) {
+        for (let i = Math.max(0, cx - 1); i <= Math.min(gw - 1, cx + 1); i++) {
+          const g = j * gw + i, dx = seeds[g * 2] - x, dy = seeds[g * 2 + 1] - y, dd = dx * dx + dy * dy;
+          if (dd < bd) { bd = dd; best = g; }
+        }
+      }
+      labels[y * W + x] = best;
+    }
+  }
+  cellCache = { key, labels, count: gw * gh };
+  return cellCache;
+}
+
+function applyShapes() {
+  const v = state.look.shapes;
+  if (v === 0) return;
+  const W = stage.width, H = stage.height;
+  const { labels, count } = cellLabels(W, H, Math.max(6, Math.round(v * W / 1000)));
+  const img = ctx.getImageData(0, 0, W, H);
+  const d = img.data;
+  const sum = new Float32Array(count * 4);
+  for (let p = 0; p < labels.length; p++) {
+    const g = labels[p] * 4, n = p * 4;
+    sum[g] += d[n]; sum[g + 1] += d[n + 1]; sum[g + 2] += d[n + 2]; sum[g + 3]++;
+  }
+  for (let p = 0; p < labels.length; p++) {
+    const g = labels[p] * 4, n = p * 4, c = sum[g + 3];
+    d[n] = sum[g] / c; d[n + 1] = sum[g + 1] / c; d[n + 2] = sum[g + 2] / c;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+function applyPosterize() {
+  const v = state.look.posterize;
+  if (v === 0) return;
+  const levels = Math.round(16 - v * 0.14);
+  const q = 255 / (levels - 1);
+  const img = ctx.getImageData(0, 0, stage.width, stage.height);
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    d[i] = Math.round(d[i] / q) * q;
+    d[i + 1] = Math.round(d[i + 1] / q) * q;
+    d[i + 2] = Math.round(d[i + 2] / q) * q;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
 function render() {
   if (!state.art) return;
   const { look } = state;
@@ -288,8 +358,10 @@ function render() {
     if (look.blur > 6) resample(0.5, true);
   }
   applyTiltShift();
+  applyShapes();
   if (look.pixel > 1) resample(1 / look.pixel, false);
   applyColor();
+  applyPosterize();
   applyAberration();
   applyFisheye();
 }
@@ -319,10 +391,11 @@ function syncPhotoUI() {
   document.getElementById('photoEmpty').hidden = has;
   document.getElementById('photoControls').hidden = !has;
   const hint = document.getElementById('hint');
-  hint.textContent = state.tool === 'smudge' ? 'Drag to smudge the paint' : 'Drag to move · pinch to resize and turn';
+  hint.textContent = state.tool === 'smudge' ? (state.smudge.mode === 'marble' ? 'Drag to swirl the colours' : 'Drag to smear the paint') : 'Drag to move · pinch to resize and turn';
   hint.hidden = !has && state.tool !== 'smudge';
   document.querySelectorAll('#shapeSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.shape === state.layer.shape)));
   document.querySelectorAll('#blendSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.blend === state.layer.blend)));
+  document.querySelectorAll('#paintSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === state.smudge.mode)));
   document.querySelectorAll('input[data-key]').forEach(inp => {
     const k = inp.dataset.key;
     inp.value = k in state.look ? state.look[k] : k in state.smudge ? state.smudge[k] : state.layer[k];
@@ -350,6 +423,8 @@ function rollDice() {
     aberration: chance(0.4) ? rand(4, 20) : 0,
     fisheye: chance(0.3) ? rand(20, 80) : 0,
     tilt: chance(0.3) ? rand(30, 90) : 0,
+    shapes: chance(0.25) ? rand(15, 60) : 0,
+    posterize: chance(0.25) ? rand(40, 100) : 0,
   };
   if (state.photo) {
     const blends = ['source-over', 'multiply', 'screen', 'overlay', 'difference'];
@@ -463,14 +538,49 @@ function dab(cx, cy) {
   b.putImageData(img, x0, y0);
 }
 
+function marbleDab(cx, cy, mx, my) {
+  const d = stroke.d;
+  const R = Math.round(d * 1.5), lam = d / 4, size = R * 2;
+  const x0 = Math.round(cx - R), y0 = Math.round(cy - R);
+  const b = baseCtx();
+  const img = b.getImageData(x0, y0, size, size);
+  const px = img.data;
+  const src = new Uint8ClampedArray(px);
+  const k = state.smudge.strength / 100 * 1.6;
+  const c = lam / (R + lam);
+  for (let j = 0; j < size; j++) {
+    for (let i = 0; i < size; i++) {
+      const dist = Math.hypot(i + 0.5 - R, j + 0.5 - R);
+      if (dist >= R) continue;
+      const n = (j * size + i) * 4;
+      if (src[n + 3] === 0) continue;
+      const w = k * (lam / (dist + lam) - c) / (1 - c);
+      const sx = Math.min(size - 1.001, Math.max(0, i - mx * w));
+      const sy = Math.min(size - 1.001, Math.max(0, j - my * w));
+      const ix = sx | 0, iy = sy | 0, fx = sx - ix, fy = sy - iy;
+      const a = (iy * size + ix) * 4, bb = a + 4, cc = a + size * 4, dd = cc + 4;
+      if (src[a + 3] === 0 || src[dd + 3] === 0) continue;
+      for (let ch = 0; ch < 3; ch++) {
+        const top = src[a + ch] + (src[bb + ch] - src[a + ch]) * fx;
+        const bot = src[cc + ch] + (src[dd + ch] - src[cc + ch]) * fx;
+        px[n + ch] = top + (bot - top) * fy;
+      }
+    }
+  }
+  b.putImageData(img, x0, y0);
+}
+
 function moveStroke(p) {
   const { last, d } = stroke;
-  const step = Math.max(1, d / 6);
+  const marble = state.smudge.mode === 'marble';
+  const step = Math.max(1, d / (marble ? 10 : 6));
   const dist = Math.hypot(p.x - last.x, p.y - last.y);
   const n = Math.floor(dist / step);
   for (let s = 1; s <= n; s++) {
     const t = (s * step) / dist;
-    dab(last.x + (p.x - last.x) * t, last.y + (p.y - last.y) * t);
+    const x = last.x + (p.x - last.x) * t, y = last.y + (p.y - last.y) * t;
+    if (marble) marbleDab(x, y, (p.x - last.x) / dist * step, (p.y - last.y) / dist * step);
+    else dab(x, y);
   }
   if (n > 0) {
     const t = (n * step) / dist;
@@ -588,6 +698,10 @@ document.querySelectorAll('#blendSeg button').forEach(b => b.addEventListener('c
   state.layer.blend = b.dataset.blend;
   syncPhotoUI();
   requestRender();
+}));
+document.querySelectorAll('#paintSeg button').forEach(b => b.addEventListener('click', () => {
+  state.smudge.mode = b.dataset.mode;
+  syncPhotoUI();
 }));
 document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => selectTab(b.dataset.tab)));
 

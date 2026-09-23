@@ -32,7 +32,7 @@
   <div class="tabs" role="tablist">
     <button role="tab" aria-selected="true" data-tab="photo">Your photo</button>
     <button role="tab" aria-selected="false" data-tab="look">Look</button>
-    <button role="tab" aria-selected="false" data-tab="smudge">Smudge</button>
+    <button role="tab" aria-selected="false" data-tab="smudge">Paint</button>
   </div>
 
   <section class="panel" data-panel="photo">
@@ -67,15 +67,21 @@
     <label class="slider">Colour split <input type="range" min="0" max="30" value="0" data-key="aberration"></label>
     <label class="slider">Fisheye <input type="range" min="0" max="100" value="0" data-key="fisheye"></label>
     <label class="slider">Tilt shift <input type="range" min="0" max="100" value="0" data-key="tilt"></label>
+    <label class="slider">Shapes <input type="range" min="0" max="80" value="0" data-key="shapes"></label>
+    <label class="slider">Posterize <input type="range" min="0" max="100" value="0" data-key="posterize"></label>
   </section>
 
   <section class="panel" data-panel="smudge" hidden>
-    <p class="empty">Drag on the painting to push the paint around. Smudging locks your photo into the painting.</p>
+    <div class="seg" id="paintSeg">
+      <button data-mode="marble" aria-pressed="true">Marble</button>
+      <button data-mode="smear" aria-pressed="false">Smear</button>
+    </div>
+    <p class="empty">Drag on the painting to move the paint. Painting locks your photo into the picture.</p>
     <label class="slider">Brush <input type="range" min="10" max="150" value="50" data-key="brush"></label>
     <label class="slider">Strength <input type="range" min="10" max="95" value="70" data-key="strength"></label>
     <div class="row2">
       <button class="btn" id="undo" disabled>↶ Undo</button>
-      <button class="btn ghost" id="clearSmudge">Clear smudges</button>
+      <button class="btn ghost" id="clearSmudge">Start over</button>
     </div>
   </section>
 
