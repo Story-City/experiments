@@ -1,0 +1,433 @@
+import { STORY, CAST, CHAPTERS, SHARED, SHARED_CHOICES, SHARED_ACTIONS, SHARED_WALKS } from './story.js';
+
+const $ = (id) => document.getElementById(id);
+const phone = $('phone');
+const thread = $('thread');
+const choicesEl = $('choices');
+const field = $('field');
+const sendBtn = $('sendBtn');
+const speedBtn = $('speedBtn');
+
+const SPEEDS = [1, 2, 4];
+const ABORT = Symbol('abort');
+let speed = 1;
+let gen = 0;
+let pending = [];
+let lastSide = null;
+let lastRow = null;
+let lastReceipt = null;
+let activeThread = null;
+const canvases = {};
+
+const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+function wait(ms, skippable = true) {
+  const myGen = gen;
+  return new Promise((resolve, reject) => {
+    const entry = { done: () => { clearTimeout(t); myGen === gen ? resolve() : reject(ABORT); }, skippable };
+    const t = setTimeout(() => {
+      pending = pending.filter((p) => p !== entry);
+      entry.done();
+    }, ms / speed);
+    pending.push(entry);
+  });
+}
+
+function skip() {
+  const now = pending.filter((p) => p.skippable);
+  pending = pending.filter((p) => !p.skippable);
+  now.forEach((p) => p.done());
+}
+
+function abortAll() {
+  gen++;
+  const all = pending;
+  pending = [];
+  all.forEach((p) => p.done());
+}
+
+function scrollDown() {
+  thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' });
+}
+
+function setThread(key) {
+  activeThread = key;
+  const who = CAST[key];
+  $('headAvatar').src = who.avatar;
+  $('headName').textContent = who.name;
+  phone.classList.toggle('hacked', key === 'crispe');
+  setStatus();
+}
+
+function setStatus(typing = false) {
+  const el = $('headStatus');
+  el.textContent = typing ? 'typing…' : CAST[activeThread].status;
+  el.classList.toggle('typing', typing);
+}
+
+function glass(el) {
+  el.classList.add('glass');
+  return el;
+}
+
+function addRow(side, from, content) {
+  const row = document.createElement('div');
+  row.className = `row ${side}`;
+  const key = side === 'them' ? `them:${from}` : 'me';
+  if (lastSide === key && lastRow) lastRow.classList.remove('last');
+  else if (lastSide) row.classList.add('gap');
+  row.classList.add('last');
+  if (side === 'them') {
+    const mini = document.createElement('img');
+    mini.className = 'mini';
+    mini.src = CAST[from].avatar;
+    mini.alt = '';
+    row.append(mini);
+  }
+  row.append(content);
+  thread.append(row);
+  lastSide = key;
+  lastRow = row;
+  scrollDown();
+  return row;
+}
+
+function addSystem(text, cls = '') {
+  const el = glass(document.createElement('div'));
+  el.className += ` system ${cls}`;
+  el.textContent = text;
+  thread.append(el);
+  lastSide = null;
+  lastRow = null;
+  scrollDown();
+}
+
+function markRead() {
+  if (lastReceipt && lastReceipt.dataset.state === 'delivered') {
+    const t = new Date();
+    lastReceipt.textContent = `Read ${t.getHours() % 12 || 12}:${String(t.getMinutes()).padStart(2, '0')}`;
+    lastReceipt.dataset.state = 'read';
+  }
+}
+
+async function showTyping(from, ms) {
+  const bubble = glass(document.createElement('div'));
+  bubble.className += ' bubble typing-bubble';
+  bubble.innerHTML = '<i></i><i></i><i></i>';
+  const prevSide = lastSide;
+  const prevRow = lastRow;
+  const row = addRow('them', from, bubble);
+  setStatus(true);
+  markRead();
+  try {
+    await wait(ms);
+  } finally {
+    row.remove();
+    lastSide = prevSide;
+    lastRow = prevRow;
+    if (prevRow) prevRow.classList.add('last');
+    setStatus(false);
+  }
+}
+
+function typingTime(text) {
+  return Math.min(2600, Math.max(700, 350 + text.length * 26));
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function drawPixelated(canvas, img, size) {
+  const ctx = canvas.getContext('2d');
+  const w = Math.max(1, Math.round(canvas.width / size));
+  const h = Math.max(1, Math.round(canvas.height / size));
+  const tmp = document.createElement('canvas');
+  tmp.width = w;
+  tmp.height = h;
+  tmp.getContext('2d').drawImage(img, 0, 0, w, h);
+  ctx.imageSmoothingEnabled = size <= 1;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
+}
+
+function scribble(canvas, count) {
+  const ctx = canvas.getContext('2d');
+  const colors = [cssVar('--glitch-a'), cssVar('--glitch-b'), cssVar('--hacker')];
+  for (let i = 0; i < count; i++) {
+    ctx.fillStyle = colors[i % colors.length];
+    const bw = 8 + Math.random() * 60;
+    ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, bw, 4 + Math.random() * 14);
+  }
+}
+
+function drawCorrupt(canvas, img) {
+  drawPixelated(canvas, img, 22);
+  scribble(canvas, 18);
+}
+
+function drawRemix(canvas, img, t) {
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d = data.data;
+  const levels = 4;
+  const step = 255 / (levels - 1);
+  for (let i = 0; i < d.length; i += 4) {
+    const r = d[i], g = d[i + 1], b = d[i + 2];
+    d[i] = Math.round(b / step) * step;
+    d[i + 1] = Math.round(r / step) * step;
+    d[i + 2] = Math.round(g / step) * step;
+  }
+  ctx.putImageData(data, 0, 0);
+  const slices = 10;
+  for (let s = 0; s < slices; s++) {
+    const y = Math.random() * canvas.height;
+    const h = 4 + Math.random() * 20;
+    const dx = (Math.random() - 0.5) * 40 * t;
+    ctx.drawImage(canvas, 0, y, canvas.width, h, dx, y, canvas.width, h);
+  }
+  ctx.save();
+  ctx.translate(canvas.width * 0.5, canvas.height * 0.82);
+  ctx.rotate(-0.18);
+  ctx.font = `900 ${Math.round(canvas.width * 0.16)}px ui-monospace, Menlo, monospace`;
+  ctx.textAlign = 'center';
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = cssVar('--glitch-ground');
+  ctx.strokeText('crisp-E', 0, 0);
+  ctx.fillStyle = cssVar('--hacker');
+  ctx.fillText('crisp-E', 0, 0);
+  ctx.restore();
+}
+
+async function addImage(beat) {
+  const img = await loadImage(beat.image);
+  const canvas = document.createElement('canvas');
+  canvas.width = 440;
+  canvas.height = Math.round(440 * (img.height / img.width));
+  canvas.getContext('2d', { willReadFrequently: true });
+  if (beat.effect === 'corrupt') drawCorrupt(canvas, img);
+  else drawPixelated(canvas, img, 1);
+  if (beat.id) canvases[beat.id] = { canvas, img };
+  const bubble = glass(document.createElement('div'));
+  bubble.className += ` bubble media from-${beat.from}`;
+  bubble.append(canvas);
+  addRow('them', beat.from, bubble);
+}
+
+async function runEffect(action) {
+  const { canvas, img } = canvases[action.target];
+  canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  await wait(400, false);
+  if (action.effect === 'restore') {
+    for (const size of [22, 16, 12, 8, 5, 3, 2, 1]) {
+      drawPixelated(canvas, img, size);
+      if (size > 5) scribble(canvas, Math.round(size / 2));
+      await wait(170, false);
+    }
+    addSystem('Node transmitted to S.A.D. server');
+  } else {
+    for (let i = 0; i < 7; i++) {
+      drawRemix(canvas, img, 1 - i / 7);
+      await wait(150, false);
+    }
+    addSystem('Node remixed · original overwritten');
+  }
+  await wait(700);
+}
+
+async function flicker(label) {
+  const el = $('headFlicker');
+  el.textContent = label;
+  for (const on of [true, false, true, false, true, false]) {
+    el.hidden = !on;
+    await wait(on ? 90 : 60, false);
+  }
+  el.hidden = true;
+}
+
+async function glitch() {
+  phone.classList.remove('glitching');
+  void phone.offsetWidth;
+  phone.classList.add('glitching');
+  await wait(550, false);
+  phone.classList.remove('glitching');
+}
+
+function expand(beats) {
+  return beats.flatMap((b) => (b.ref ? SHARED[b.ref] : [b]));
+}
+
+async function runBeat(beat) {
+  if (beat.glitch) return glitch();
+  if (beat.system) {
+    addSystem(beat.system);
+    return wait(700);
+  }
+  if (beat.thread) {
+    setThread(beat.thread);
+    return wait(300);
+  }
+  if (beat.flicker) return flicker(beat.flicker);
+  if (beat.hesitate) {
+    await wait(500);
+    await showTyping(beat.hesitate, 1400);
+    return wait(900);
+  }
+  await wait(lastSide && lastSide.startsWith('them') ? 280 : 650);
+  if (beat.image) {
+    await showTyping(beat.from, 1100);
+    await addImage(beat);
+    return wait(500);
+  }
+  await showTyping(beat.from, typingTime(beat.text));
+  const bubble = glass(document.createElement('div'));
+  bubble.className += ` bubble from-${beat.from}`;
+  bubble.textContent = beat.text;
+  if (beat.cut) bubble.classList.add('cut');
+  addRow('them', beat.from, bubble);
+}
+
+function offer(options) {
+  choicesEl.innerHTML = '';
+  return new Promise((resolve) => {
+    options.forEach((opt, i) => {
+      const b = glass(document.createElement('button'));
+      b.className += ` choice${opt.kind ? ' action' : ''}`;
+      b.style.animationDelay = `${i * 70}ms`;
+      b.textContent = opt.text;
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        choicesEl.innerHTML = '';
+        resolve(opt);
+      });
+      choicesEl.append(b);
+    });
+  });
+}
+
+async function typeAndSend(text) {
+  field.innerHTML = '';
+  const span = document.createElement('span');
+  const caret = document.createElement('span');
+  caret.className = 'caret';
+  field.append(span, caret);
+  for (const ch of text) {
+    span.textContent += ch;
+    await wait(ch === ' ' ? 45 : 28 + Math.random() * 55, false);
+  }
+  sendBtn.disabled = false;
+  await wait(380, false);
+  sendBtn.classList.add('pulse');
+  await wait(120, false);
+  sendBtn.classList.remove('pulse');
+  sendBtn.disabled = true;
+  field.innerHTML = '<span class="placeholder">iMessage</span>';
+
+  const bubble = glass(document.createElement('div'));
+  bubble.className += ' bubble';
+  bubble.textContent = text;
+  if (lastReceipt) lastReceipt.remove();
+  addRow('me', null, bubble);
+  lastReceipt = document.createElement('div');
+  lastReceipt.className = 'receipt';
+  lastReceipt.textContent = 'Delivered';
+  lastReceipt.dataset.state = 'delivered';
+  thread.append(lastReceipt);
+  scrollDown();
+}
+
+async function walkTo(walk) {
+  const card = glass(document.createElement('div'));
+  card.className += ' walk-card';
+  card.innerHTML = `
+    <div class="pin"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div>
+    <div><div class="label">Walk to</div><div class="place"></div><div class="dist"></div></div>`;
+  card.querySelector('.place').textContent = walk.place;
+  const dist = card.querySelector('.dist');
+  thread.append(card);
+  lastSide = null;
+  lastRow = null;
+  scrollDown();
+  const total = 240;
+  for (let m = total; m >= 0; m -= 20) {
+    dist.textContent = m ? `${m} m away` : 'You’ve arrived';
+    await wait(180);
+  }
+  addSystem(`📍 ${walk.place}`, 'arrive');
+  await wait(900);
+}
+
+async function play(id) {
+  const ch = CHAPTERS[id];
+  if (ch.thread) setThread(ch.thread);
+  for (const beat of expand(ch.beats)) await runBeat(beat);
+
+  if (ch.end) {
+    await wait(900);
+    $('endTitle').textContent = ch.end.title;
+    $('endBody').textContent = ch.end.body;
+    $('endCard').hidden = false;
+    return;
+  }
+  if (ch.choices) {
+    const options = typeof ch.choices === 'string' ? SHARED_CHOICES[ch.choices] : ch.choices;
+    const pick = await offer(options);
+    await typeAndSend(pick.text);
+    return play(pick.to);
+  }
+  if (ch.walk) {
+    const walk = typeof ch.walk === 'string' ? SHARED_WALKS[ch.walk] : ch.walk;
+    await offer([{ ...walk, kind: 'action' }]);
+    await walkTo(walk);
+    return play(walk.to);
+  }
+  if (ch.action) {
+    const action = typeof ch.action === 'string' ? SHARED_ACTIONS[ch.action] : ch.action;
+    await offer([{ ...action, kind: 'action' }]);
+    await runEffect(action);
+    return play(action.to);
+  }
+}
+
+function reset() {
+  abortAll();
+  thread.innerHTML = '';
+  choicesEl.innerHTML = '';
+  field.innerHTML = '<span class="placeholder">iMessage</span>';
+  lastSide = null;
+  lastRow = null;
+  lastReceipt = null;
+  $('endCard').hidden = true;
+  setThread(CHAPTERS[STORY.start].thread);
+}
+
+async function start() {
+  reset();
+  try {
+    await play(STORY.start);
+  } catch (e) {
+    if (e !== ABORT) throw e;
+  }
+}
+
+thread.addEventListener('click', skip);
+speedBtn.addEventListener('click', () => {
+  speed = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
+  speedBtn.textContent = `${speed}×`;
+});
+$('restartBtn').addEventListener('click', start);
+$('replayBtn').addEventListener('click', start);
+$('startBtn').addEventListener('click', () => {
+  $('intro').hidden = true;
+  start();
+});
+
+document.title = STORY.title;
+setThread(CHAPTERS[STORY.start].thread);

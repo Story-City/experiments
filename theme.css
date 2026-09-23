@@ -1,0 +1,33 @@
+:root {
+  --night-950: #07080f;
+  --night-900: #0d1020;
+  --white: #ffffff;
+  --mist-300: #c9cde0;
+  --ios-blue-500: #0a84ff;
+  --ios-blue-300: #6ab4ff;
+  --neon-lime-400: #b6ff3b;
+  --neon-magenta-500: #ff2bd6;
+  --neon-cyan-400: #2bf3ff;
+
+  --bg: var(--night-950);
+  --text: var(--white);
+  --text-muted: var(--mist-300);
+  --accent: var(--ios-blue-500);
+  --accent-soft: var(--ios-blue-300);
+  --hacker: var(--neon-lime-400);
+  --glitch-a: var(--neon-magenta-500);
+  --glitch-b: var(--neon-cyan-400);
+  --glitch-ground: var(--night-900);
+
+  --glass-fill: rgba(255, 255, 255, 0.14);
+  --glass-fill-strong: rgba(255, 255, 255, 0.22);
+  --glass-edge: rgba(255, 255, 255, 0.34);
+  --glass-shine: rgba(255, 255, 255, 0.55);
+  --glass-shade: rgba(0, 0, 0, 0.28);
+  --mine-fill: rgba(10, 132, 255, 0.62);
+  --mine-fill-deep: rgba(10, 90, 220, 0.72);
+  --hacker-fill: rgba(182, 255, 59, 0.16);
+  --hacker-edge: rgba(182, 255, 59, 0.45);
+  --scrim: rgba(7, 8, 15, 0.32);
+  --scrim-heavy: rgba(7, 8, 15, 0.82);
+}
