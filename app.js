@@ -17,7 +17,7 @@ const ART = [
   { file: 'night-watch.jpg', title: 'The Night Watch', artist: 'Rembrandt van Rijn', year: 1642 },
 ];
 
-const LOOK_DEFAULTS = { pixel: 1, hue: 0, sepia: 0, saturate: 100, contrast: 100, blur: 0, aberration: 0 };
+const LOOK_DEFAULTS = { pixel: 1, hue: 0, sepia: 0, saturate: 100, contrast: 100, blur: 0, aberration: 0, fisheye: 0, tilt: 0 };
 const PHOTO_DEFAULTS = { opacity: 100, feather: 35, size: 40, shape: 'circle', blend: 'source-over' };
 const PHOTO_MAX = 900;
 const UNDO_MAX = 10;
@@ -141,6 +141,35 @@ function drawPhoto(ctx) {
   ctx.restore();
 }
 
+const tiltBlur = document.createElement('canvas');
+const tiltSmall = document.createElement('canvas');
+
+function applyTiltShift() {
+  const t = state.look.tilt;
+  if (t === 0) return;
+  const W = stage.width, H = stage.height;
+  const f = 1 / (1 + t * 0.2);
+  tiltSmall.width = Math.max(1, Math.round(W * f));
+  tiltSmall.height = Math.max(1, Math.round(H * f));
+  const sc = tiltSmall.getContext('2d');
+  sc.imageSmoothingQuality = 'high';
+  sc.drawImage(stage, 0, 0, tiltSmall.width, tiltSmall.height);
+  tiltBlur.width = W; tiltBlur.height = H;
+  const bc = tiltBlur.getContext('2d');
+  bc.imageSmoothingQuality = 'high';
+  bc.drawImage(tiltSmall, 0, 0, W, H);
+  bc.globalCompositeOperation = 'destination-in';
+  const g = bc.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, 'rgba(0,0,0,1)');
+  g.addColorStop(0.3, 'rgba(0,0,0,0)');
+  g.addColorStop(0.62, 'rgba(0,0,0,0)');
+  g.addColorStop(1, 'rgba(0,0,0,1)');
+  bc.fillStyle = g;
+  bc.fillRect(0, 0, W, H);
+  bc.globalCompositeOperation = 'source-over';
+  ctx.drawImage(tiltBlur, 0, 0);
+}
+
 function resample(factor, smooth) {
   const W = stage.width, H = stage.height;
   const w = Math.max(1, Math.round(W * factor)), h = Math.max(1, Math.round(H * factor));
@@ -219,6 +248,33 @@ function applyAberration() {
   ctx.putImageData(img, 0, 0);
 }
 
+function applyFisheye() {
+  const k = state.look.fisheye / 100 * 0.85;
+  if (k === 0) return;
+  const W = stage.width, H = stage.height;
+  const img = ctx.getImageData(0, 0, W, H);
+  const src = new Uint8ClampedArray(img.data);
+  const out = img.data;
+  const cx = (W - 1) / 2, cy = (H - 1) / 2, R = Math.hypot(cx, cy);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const dx = x - cx, dy = y - cy;
+      const f = 1 - k + k * Math.sqrt(dx * dx + dy * dy) / R;
+      const sx = Math.min(W - 1.001, Math.max(0, cx + dx * f));
+      const sy = Math.min(H - 1.001, Math.max(0, cy + dy * f));
+      const x0 = sx | 0, y0 = sy | 0, fx = sx - x0, fy = sy - y0;
+      const a = (y0 * W + x0) * 4, b = a + 4, c = a + W * 4, d = c + 4;
+      const o = (y * W + x) * 4;
+      for (let ch = 0; ch < 3; ch++) {
+        const top = src[a + ch] + (src[b + ch] - src[a + ch]) * fx;
+        const bot = src[c + ch] + (src[d + ch] - src[c + ch]) * fx;
+        out[o + ch] = top + (bot - top) * fy;
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
 function render() {
   if (!state.art) return;
   const { look } = state;
@@ -231,9 +287,11 @@ function render() {
     resample(1 / (1 + look.blur * 0.6), true);
     if (look.blur > 6) resample(0.5, true);
   }
+  applyTiltShift();
   if (look.pixel > 1) resample(1 / look.pixel, false);
   applyColor();
   applyAberration();
+  applyFisheye();
 }
 
 async function loadPhoto(file) {
@@ -290,6 +348,8 @@ function rollDice() {
     contrast: rand(75, 170),
     blur: chance(0.15) ? rand(2, 8) : 0,
     aberration: chance(0.4) ? rand(4, 20) : 0,
+    fisheye: chance(0.3) ? rand(20, 80) : 0,
+    tilt: chance(0.3) ? rand(30, 90) : 0,
   };
   if (state.photo) {
     const blends = ['source-over', 'multiply', 'screen', 'overlay', 'difference'];
