@@ -1,0 +1,36 @@
+:root {
+  --ink-900: #16131a;
+  --ink-800: #211d27;
+  --ink-700: #2d2834;
+  --ink-500: #6b6474;
+  --paper-50: #fbf8f3;
+  --paper-100: #f3eee5;
+  --paper-200: #e4ddd0;
+  --paper-400: #a79f92;
+  --saffron-400: #f2b84b;
+  --saffron-500: #e3a12c;
+  --saffron-900: #3a2a0c;
+
+  --bg: var(--paper-50);
+  --surface: var(--paper-100);
+  --border: var(--paper-200);
+  --text: var(--ink-900);
+  --text-muted: var(--ink-500);
+  --accent: var(--saffron-500);
+  --accent-text: var(--ink-900);
+  --canvas-well: var(--ink-800);
+  --overlay-scrim: rgba(22, 19, 26, 0.55);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: var(--ink-900);
+    --surface: var(--ink-800);
+    --border: var(--ink-700);
+    --text: var(--paper-50);
+    --text-muted: var(--paper-400);
+    --accent: var(--saffron-400);
+    --accent-text: var(--saffron-900);
+    --canvas-well: var(--ink-800);
+  }
+}
