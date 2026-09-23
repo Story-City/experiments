@@ -93,7 +93,7 @@ body {
 
 .tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   margin: 16px 0 0;
   border-bottom: 1px solid var(--border);
 }
@@ -139,3 +139,5 @@ body {
 
 .actions { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px; margin-top: 16px; }
 #removePhoto { width: 100%; margin-top: 6px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.btn:disabled { opacity: 0.45; cursor: default; }

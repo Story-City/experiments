@@ -6,11 +6,21 @@ const ART = [
   { file: 'van-gogh-bedroom.jpg', title: 'The Bedroom', artist: 'Vincent van Gogh', year: 1888 },
   { file: 'great-wave.jpg', title: 'The Great Wave off Kanagawa', artist: 'Katsushika Hokusai', year: '1831' },
   { file: 'grande-jatte.jpg', title: 'A Sunday on La Grande Jatte', artist: 'Georges Seurat', year: '1884–86' },
+  { file: 'starry-night.jpg', title: 'The Starry Night', artist: 'Vincent van Gogh', year: 1889 },
+  { file: 'the-scream.jpg', title: 'The Scream', artist: 'Edvard Munch', year: 1893 },
+  { file: 'birth-of-venus.jpg', title: 'The Birth of Venus', artist: 'Sandro Botticelli', year: '1484–86' },
+  { file: 'the-kiss.jpg', title: 'The Kiss', artist: 'Gustav Klimt', year: '1907–08' },
+  { file: 'arnolfini.jpg', title: 'The Arnolfini Portrait', artist: 'Jan van Eyck', year: 1434 },
+  { file: 'whistlers-mother.jpg', title: "Whistler's Mother", artist: 'James McNeill Whistler', year: 1871 },
+  { file: 'wanderer.jpg', title: 'Wanderer above the Sea of Fog', artist: 'Caspar David Friedrich', year: 1818 },
+  { file: 'vertumnus.jpg', title: 'Vertumnus', artist: 'Giuseppe Arcimboldo', year: 1591 },
+  { file: 'night-watch.jpg', title: 'The Night Watch', artist: 'Rembrandt van Rijn', year: 1642 },
 ];
 
 const LOOK_DEFAULTS = { pixel: 1, hue: 0, sepia: 0, saturate: 100, contrast: 100, blur: 0, aberration: 0 };
 const PHOTO_DEFAULTS = { opacity: 100, feather: 35, size: 40, shape: 'circle', blend: 'source-over' };
 const PHOTO_MAX = 900;
+const UNDO_MAX = 10;
 
 const stage = document.getElementById('stage');
 const ctx = stage.getContext('2d', { willReadFrequently: true });
@@ -19,6 +29,10 @@ const workCtx = work.getContext('2d');
 
 const state = {
   art: null,
+  base: null,
+  undo: [],
+  tool: 'move',
+  smudge: { brush: 50, strength: 70 },
   artIndex: 0,
   photo: null,
   masked: null,
@@ -49,6 +63,12 @@ async function selectArt(i) {
   state.art = await loadImage('art/' + a.file);
   stage.width = state.art.naturalWidth;
   stage.height = state.art.naturalHeight;
+  state.base = document.createElement('canvas');
+  state.base.width = stage.width;
+  state.base.height = stage.height;
+  state.base.getContext('2d', { willReadFrequently: true }).drawImage(state.art, 0, 0);
+  state.undo = [];
+  syncUndo();
   placeLayer();
   document.getElementById('credit').textContent = `${a.title} — ${a.artist}, ${a.year}`;
   document.querySelectorAll('#artStrip button').forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
@@ -107,7 +127,7 @@ function buildMasked() {
   return c;
 }
 
-function drawPhoto() {
+function drawPhoto(ctx) {
   const { layer } = state;
   const masked = buildMasked();
   const scale = (layer.size / 100) * stage.width / masked.width;
@@ -205,8 +225,8 @@ function render() {
   ctx.globalCompositeOperation = 'source-over';
   ctx.globalAlpha = 1;
   ctx.clearRect(0, 0, stage.width, stage.height);
-  ctx.drawImage(state.art, 0, 0);
-  if (state.photo) drawPhoto();
+  ctx.drawImage(state.base, 0, 0);
+  if (state.photo) drawPhoto(ctx);
   if (look.blur > 0) {
     resample(1 / (1 + look.blur * 0.6), true);
     if (look.blur > 6) resample(0.5, true);
@@ -240,18 +260,22 @@ function syncPhotoUI() {
   const has = !!state.photo;
   document.getElementById('photoEmpty').hidden = has;
   document.getElementById('photoControls').hidden = !has;
-  document.getElementById('hint').hidden = !has;
+  const hint = document.getElementById('hint');
+  hint.textContent = state.tool === 'smudge' ? 'Drag to smudge the paint' : 'Drag to move · pinch to resize and turn';
+  hint.hidden = !has && state.tool !== 'smudge';
   document.querySelectorAll('#shapeSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.shape === state.layer.shape)));
   document.querySelectorAll('#blendSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.blend === state.layer.blend)));
   document.querySelectorAll('input[data-key]').forEach(inp => {
     const k = inp.dataset.key;
-    inp.value = k in state.look ? state.look[k] : state.layer[k];
+    inp.value = k in state.look ? state.look[k] : k in state.smudge ? state.smudge[k] : state.layer[k];
   });
 }
 
 function selectTab(name) {
   document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
   document.querySelectorAll('[data-panel]').forEach(p => { p.hidden = p.dataset.panel !== name; });
+  state.tool = name === 'smudge' ? 'smudge' : 'move';
+  syncPhotoUI();
 }
 
 function rand(min, max) { return Math.round(min + Math.random() * (max - min)); }
@@ -301,6 +325,100 @@ async function save() {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
+function baseCtx() {
+  return state.base.getContext('2d', { willReadFrequently: true });
+}
+
+function pushUndo() {
+  state.undo.push({
+    pixels: baseCtx().getImageData(0, 0, stage.width, stage.height),
+    photo: state.photo,
+    layer: { ...state.layer },
+  });
+  if (state.undo.length > UNDO_MAX) state.undo.shift();
+  syncUndo();
+}
+
+function undo() {
+  const snap = state.undo.pop();
+  if (!snap) return;
+  baseCtx().putImageData(snap.pixels, 0, 0);
+  state.photo = snap.photo;
+  Object.assign(state.layer, snap.layer);
+  state.masked = null;
+  syncPhotoUI();
+  syncUndo();
+  requestRender();
+}
+
+function syncUndo() {
+  document.getElementById('undo').disabled = state.undo.length === 0;
+}
+
+function clearSmudges() {
+  pushUndo();
+  const b = baseCtx();
+  b.clearRect(0, 0, stage.width, stage.height);
+  b.drawImage(state.art, 0, 0);
+  requestRender();
+}
+
+let stroke = null;
+
+function startStroke(p) {
+  pushUndo();
+  if (state.photo) {
+    drawPhoto(baseCtx());
+    state.photo = null;
+    state.masked = null;
+    syncPhotoUI();
+  }
+  const d = Math.max(4, Math.round(state.smudge.brush * stage.width / 1000));
+  const x = Math.round(p.x - d / 2), y = Math.round(p.y - d / 2);
+  stroke = { d, buf: Float32Array.from(baseCtx().getImageData(x, y, d, d).data), last: p };
+}
+
+function dab(cx, cy) {
+  const { d, buf } = stroke;
+  const r = d / 2;
+  const x0 = Math.round(cx - r), y0 = Math.round(cy - r);
+  const b = baseCtx();
+  const img = b.getImageData(x0, y0, d, d);
+  const px = img.data;
+  const k = state.smudge.strength / 100;
+  for (let j = 0; j < d; j++) {
+    for (let i = 0; i < d; i++) {
+      const dist = Math.hypot(i + 0.5 - r, j + 0.5 - r);
+      if (dist > r) continue;
+      const n = (j * d + i) * 4;
+      if (px[n + 3] === 0 || buf[n + 3] === 0) continue;
+      const w = k * (1 - dist / r);
+      for (let c = 0; c < 3; c++) {
+        const v = px[n + c] + (buf[n + c] - px[n + c]) * w;
+        px[n + c] = v;
+        buf[n + c] += (v - buf[n + c]) * (1 - k);
+      }
+    }
+  }
+  b.putImageData(img, x0, y0);
+}
+
+function moveStroke(p) {
+  const { last, d } = stroke;
+  const step = Math.max(1, d / 6);
+  const dist = Math.hypot(p.x - last.x, p.y - last.y);
+  const n = Math.floor(dist / step);
+  for (let s = 1; s <= n; s++) {
+    const t = (s * step) / dist;
+    dab(last.x + (p.x - last.x) * t, last.y + (p.y - last.y) * t);
+  }
+  if (n > 0) {
+    const t = (n * step) / dist;
+    stroke.last = { x: last.x + (p.x - last.x) * t, y: last.y + (p.y - last.y) * t };
+  }
+  requestRender();
+}
+
 const pointers = new Map();
 let gesture = null;
 
@@ -327,6 +445,13 @@ function startGesture() {
 }
 
 stage.addEventListener('pointerdown', e => {
+  if (state.tool === 'smudge') {
+    if (stroke) return;
+    stage.setPointerCapture(e.pointerId);
+    startStroke(toCanvas(e));
+    stroke.id = e.pointerId;
+    return;
+  }
   if (!state.photo) return;
   stage.setPointerCapture(e.pointerId);
   pointers.set(e.pointerId, toCanvas(e));
@@ -334,6 +459,10 @@ stage.addEventListener('pointerdown', e => {
 });
 
 stage.addEventListener('pointermove', e => {
+  if (stroke) {
+    if (e.pointerId === stroke.id) moveStroke(toCanvas(e));
+    return;
+  }
   if (!pointers.has(e.pointerId) || !gesture) return;
   pointers.set(e.pointerId, toCanvas(e));
   const pts = [...pointers.values()];
@@ -354,6 +483,7 @@ stage.addEventListener('pointermove', e => {
 });
 
 function endPointer(e) {
+  if (stroke && e.pointerId === stroke.id) stroke = null;
   pointers.delete(e.pointerId);
   gesture = null;
   if (pointers.size) startGesture();
@@ -362,7 +492,7 @@ stage.addEventListener('pointerup', endPointer);
 stage.addEventListener('pointercancel', endPointer);
 
 stage.addEventListener('wheel', e => {
-  if (!state.photo) return;
+  if (!state.photo || state.tool === 'smudge') return;
   e.preventDefault();
   state.layer.size = Math.min(150, Math.max(5, state.layer.size * (e.deltaY < 0 ? 1.08 : 0.92)));
   document.querySelector('input[data-key="size"]').value = state.layer.size;
@@ -373,6 +503,7 @@ document.querySelectorAll('input[data-key]').forEach(inp => {
   inp.addEventListener('input', () => {
     const k = inp.dataset.key, v = Number(inp.value);
     if (k in state.look) state.look[k] = v;
+    else if (k in state.smudge) state.smudge[k] = v;
     else {
       state.layer[k] = v;
       if (k === 'feather') state.masked = null;
@@ -407,6 +538,8 @@ document.getElementById('removePhoto').addEventListener('click', () => {
   requestRender();
 });
 document.getElementById('dice').addEventListener('click', rollDice);
+document.getElementById('undo').addEventListener('click', undo);
+document.getElementById('clearSmudge').addEventListener('click', clearSmudges);
 document.getElementById('reset').addEventListener('click', reset);
 document.getElementById('save').addEventListener('click', save);
 

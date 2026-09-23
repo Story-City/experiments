@@ -32,6 +32,7 @@
   <div class="tabs" role="tablist">
     <button role="tab" aria-selected="true" data-tab="photo">Your photo</button>
     <button role="tab" aria-selected="false" data-tab="look">Look</button>
+    <button role="tab" aria-selected="false" data-tab="smudge">Smudge</button>
   </div>
 
   <section class="panel" data-panel="photo">
@@ -64,6 +65,16 @@
     <label class="slider">Contrast <input type="range" min="40" max="220" value="100" data-key="contrast"></label>
     <label class="slider">Blur <input type="range" min="0" max="20" value="0" data-key="blur"></label>
     <label class="slider">Colour split <input type="range" min="0" max="30" value="0" data-key="aberration"></label>
+  </section>
+
+  <section class="panel" data-panel="smudge" hidden>
+    <p class="empty">Drag on the painting to push the paint around. Smudging locks your photo into the painting.</p>
+    <label class="slider">Brush <input type="range" min="10" max="150" value="50" data-key="brush"></label>
+    <label class="slider">Strength <input type="range" min="10" max="95" value="70" data-key="strength"></label>
+    <div class="row2">
+      <button class="btn" id="undo" disabled>↶ Undo</button>
+      <button class="btn ghost" id="clearSmudge">Clear smudges</button>
+    </div>
   </section>
 
   <div class="actions">
