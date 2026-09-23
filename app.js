@@ -8,7 +8,7 @@ const ART = [
   { file: 'grande-jatte.jpg', title: 'A Sunday on La Grande Jatte', artist: 'Georges Seurat', year: '1884–86' },
 ];
 
-const LOOK_DEFAULTS = { pixel: 1, hue: 0, sepia: 0, saturate: 100, contrast: 100, blur: 0 };
+const LOOK_DEFAULTS = { pixel: 1, hue: 0, sepia: 0, saturate: 100, contrast: 100, blur: 0, aberration: 0 };
 const PHOTO_DEFAULTS = { opacity: 100, feather: 35, size: 40, shape: 'circle', blend: 'source-over' };
 const PHOTO_MAX = 900;
 
@@ -181,6 +181,24 @@ function applyColor() {
   ctx.putImageData(img, 0, 0);
 }
 
+function applyAberration() {
+  const d = Math.round(state.look.aberration * stage.width / 1000);
+  if (d === 0) return;
+  const W = stage.width, H = stage.height;
+  const img = ctx.getImageData(0, 0, W, H);
+  const src = new Uint8ClampedArray(img.data);
+  const out = img.data;
+  for (let y = 0; y < H; y++) {
+    const row = y * W;
+    for (let x = 0; x < W; x++) {
+      const i = (row + x) * 4;
+      out[i] = src[(row + Math.max(0, x - d)) * 4];
+      out[i + 2] = src[(row + Math.min(W - 1, x + d)) * 4 + 2];
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
 function render() {
   if (!state.art) return;
   const { look } = state;
@@ -195,6 +213,7 @@ function render() {
   }
   if (look.pixel > 1) resample(1 / look.pixel, false);
   applyColor();
+  applyAberration();
 }
 
 async function loadPhoto(file) {
@@ -246,6 +265,7 @@ function rollDice() {
     saturate: rand(40, 230),
     contrast: rand(75, 170),
     blur: chance(0.15) ? rand(2, 8) : 0,
+    aberration: chance(0.4) ? rand(4, 20) : 0,
   };
   if (state.photo) {
     const blends = ['source-over', 'multiply', 'screen', 'overlay', 'difference'];
