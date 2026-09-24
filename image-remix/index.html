@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Remix a Masterpiece</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <h1>Remix a Masterpiece</h1>
+  <p class="sub">Pick a painting, add your photo, make it yours.</p>
+</header>
+
+<nav class="art-strip" id="artStrip" aria-label="Paintings"></nav>
+
+<main>
+  <div class="well">
+    <canvas id="stage" aria-label="Your remix"></canvas>
+    <p class="hint" id="hint" hidden>Drag to move · pinch to resize and turn</p>
+  </div>
+  <p class="credit" id="credit"></p>
+
+  <div class="photo-row">
+    <label class="btn"><input type="file" accept="image/*" capture="user" data-photo hidden>Selfie</label>
+    <label class="btn"><input type="file" accept="image/*" capture="environment" data-photo hidden>Snap nearby</label>
+    <label class="btn"><input type="file" accept="image/*" data-photo hidden>From gallery</label>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="photo">Your photo</button>
+    <button role="tab" aria-selected="false" data-tab="look">Look</button>
+    <button role="tab" aria-selected="false" data-tab="smudge">Paint</button>
+  </div>
+
+  <section class="panel" data-panel="photo">
+    <p class="empty" id="photoEmpty">Add a photo above to stamp it onto the painting.</p>
+    <div id="photoControls" hidden>
+      <div class="seg" id="shapeSeg">
+        <button data-shape="circle" aria-pressed="true">Circle</button>
+        <button data-shape="square" aria-pressed="false">Square</button>
+        <button data-shape="full" aria-pressed="false">Whole photo</button>
+      </div>
+      <div class="seg" id="blendSeg">
+        <button data-blend="source-over" aria-pressed="true">Stamp</button>
+        <button data-blend="multiply" aria-pressed="false">Ink</button>
+        <button data-blend="screen" aria-pressed="false">Ghost</button>
+        <button data-blend="overlay" aria-pressed="false">Blend</button>
+        <button data-blend="difference" aria-pressed="false">Trippy</button>
+      </div>
+      <label class="slider">Strength <input type="range" min="0" max="100" value="100" data-key="opacity"></label>
+      <label class="slider">Soft edge <input type="range" min="0" max="100" value="35" data-key="feather"></label>
+      <label class="slider">Size <input type="range" min="5" max="150" value="40" data-key="size"></label>
+      <button class="btn ghost" id="removePhoto">Remove photo</button>
+    </div>
+  </section>
+
+  <section class="panel" data-panel="look" hidden>
+    <label class="slider">Pixelate <input type="range" min="1" max="40" value="1" data-key="pixel"></label>
+    <label class="slider">Hue <input type="range" min="0" max="360" value="0" data-key="hue"></label>
+    <label class="slider">Sepia <input type="range" min="0" max="100" value="0" data-key="sepia"></label>
+    <label class="slider">Colour <input type="range" min="0" max="250" value="100" data-key="saturate"></label>
+    <label class="slider">Contrast <input type="range" min="40" max="220" value="100" data-key="contrast"></label>
+    <label class="slider">Blur <input type="range" min="0" max="20" value="0" data-key="blur"></label>
+    <label class="slider">Colour split <input type="range" min="0" max="30" value="0" data-key="aberration"></label>
+    <label class="slider">Fisheye <input type="range" min="0" max="100" value="0" data-key="fisheye"></label>
+    <label class="slider">Tilt shift <input type="range" min="0" max="100" value="0" data-key="tilt"></label>
+    <label class="slider">Shapes <input type="range" min="0" max="80" value="0" data-key="shapes"></label>
+    <label class="slider">Posterize <input type="range" min="0" max="100" value="0" data-key="posterize"></label>
+  </section>
+
+  <section class="panel" data-panel="smudge" hidden>
+    <div class="seg" id="paintSeg">
+      <button data-mode="marble" aria-pressed="true">Marble</button>
+      <button data-mode="smear" aria-pressed="false">Smear</button>
+    </div>
+    <p class="empty">Drag on the painting to move the paint. Painting locks your photo into the picture.</p>
+    <label class="slider">Brush <input type="range" min="10" max="150" value="50" data-key="brush"></label>
+    <label class="slider">Strength <input type="range" min="10" max="95" value="70" data-key="strength"></label>
+    <div class="row2">
+      <button class="btn" id="undo" disabled>↶ Undo</button>
+      <button class="btn ghost" id="clearSmudge">Start over</button>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button class="btn" id="dice">🎲 Roll</button>
+    <button class="btn ghost" id="reset">Reset</button>
+    <button class="btn primary" id="save">Save</button>
+  </div>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
