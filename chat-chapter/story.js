@@ -18,15 +18,17 @@ export const CHAPTERS = {
     thread: 'friends',
     history: [
       { system: 'Today 8:52 AM' },
-      { from: 'jonah', text: 'movie sunday still on?' },
-      { from: 'maya', text: 'yes! my pick this time' },
+      { from: 'jonah', text: 'anyone free this weekend? need help moving a couch' },
+      { from: 'maya', text: 'you reply to everything within 30 seconds lol' },
     ],
     beats: [
-      { from: 'maya', text: 'at the lecture. saved you a seat, back row' },
+      { from: 'maya', text: 'also where’d you get that jacket' },
     ],
     choices: [
-      { text: 'On my way 👋', to: 'hacked' },
-      { text: 'Running late, keep it warm', to: 'hacked' },
+      { text: 'Thrift store. Six bucks.', to: 'hacked' },
+      { text: 'Made it myself 🧵', to: 'hacked' },
+      { text: 'Stole it from my dad', to: 'hacked' },
+      { text: 'Vintage. Don’t ask what it cost.', to: 'hacked' },
     ],
   },
   hacked: {
