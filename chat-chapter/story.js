@@ -125,7 +125,7 @@ export const CHAPTERS = {
       { from: 'quillbus', text: 'Don’t worry, they didn’t damage it beyond repair. Together, we can fix this piece and transmit it back home to me, where I can keep it safe.' },
       { from: 'quillbus', text: 'You’re going to need photos of your location to remove this horrible fuzziness, one of each of the specified colours if you can. Hurry, quickly now!' },
     ],
-    action: { text: 'Decrypt image', target: 'node1', editor: true, title: 'Decrypt · Sunflowers', credit: 'Sunflowers — Vincent van Gogh, 1888', done: 'Node transmitted to S.A.D. server', to: 'c8', alt: 'Your decrypted Sunflowers' },
+    action: { text: 'Decrypt image', target: 'node1', game: 'decrypt', title: 'Decrypt · Sunflowers', done: 'Node transmitted to S.A.D. server', to: 'c8', alt: 'Van Gogh’s Sunflowers, restored' },
   },
   c8: {
     beats: [

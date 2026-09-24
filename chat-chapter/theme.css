@@ -9,6 +9,9 @@
   --neon-magenta-500: #ff2bd6;
   --neon-cyan-400: #2bf3ff;
   --slate-300: #a4a9b8;
+  --sunflower-400: #f2c230;
+  --leaf-500: #5f9a3a;
+  --marigold-500: #e8842a;
   --slate-500: #6e7385;
 
   --bg: var(--night-950);
@@ -23,6 +26,9 @@
   --avatar-top: var(--slate-300);
   --avatar-bottom: var(--slate-500);
   --avatar-text: var(--white);
+  --target-yellow: var(--sunflower-400);
+  --target-green: var(--leaf-500);
+  --target-orange: var(--marigold-500);
 
   --glass-fill: rgba(255, 255, 255, 0.14);
   --glass-fill-strong: rgba(255, 255, 255, 0.22);

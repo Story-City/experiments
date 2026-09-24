@@ -354,6 +354,194 @@ function openRemix(action) {
   });
 }
 
+const DECRYPT_STEPS = [22, 14, 9, 5, 3, 2, 1];
+const DECRYPT_MODES = {
+  tap: { cols: 3, rows: 4 },
+  photo: {
+    cols: 1,
+    rows: 3,
+    targets: [
+      { name: 'yellow', hue: 52, token: '--target-yellow' },
+      { name: 'green', hue: 110, token: '--target-green' },
+      { name: 'orange', hue: 28, token: '--target-orange' },
+    ],
+  },
+};
+
+function drawCell(ctx, img, col, row, size, cw, ch) {
+  const x = col * cw;
+  const y = row * ch;
+  const sx = (x / ctx.canvas.width) * img.width;
+  const sy = (y / ctx.canvas.height) * img.height;
+  const sw = (cw / ctx.canvas.width) * img.width;
+  const sh = (ch / ctx.canvas.height) * img.height;
+  if (size <= 1) {
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(img, sx, sy, sw, sh, x, y, cw, ch);
+    return;
+  }
+  const w = Math.max(1, Math.round(cw / size));
+  const h = Math.max(1, Math.round(ch / size));
+  const tmp = document.createElement('canvas');
+  tmp.width = w;
+  tmp.height = h;
+  tmp.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(tmp, 0, 0, w, h, x, y, cw, ch);
+  if (size > 6) {
+    const colors = [cssVar('--glitch-a'), cssVar('--glitch-b'), cssVar('--hacker')];
+    for (let i = 0; i < 3; i++) {
+      ctx.fillStyle = colors[i];
+      ctx.fillRect(x + Math.random() * cw, y + Math.random() * ch, 6 + Math.random() * 30, 3 + Math.random() * 8);
+    }
+  }
+}
+
+function averageColor(img) {
+  const c = document.createElement('canvas');
+  c.width = c.height = 24;
+  const ctx = c.getContext('2d', { willReadFrequently: true });
+  const s = Math.min(img.width, img.height) * 0.5;
+  ctx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 24, 24);
+  const d = ctx.getImageData(0, 0, 24, 24).data;
+  let r = 0, g = 0, b = 0;
+  for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+  const n = d.length / 4;
+  r /= n; g /= n; b /= n;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let hue = 0;
+  if (max !== min) {
+    if (max === r) hue = ((g - b) / (max - min)) * 60;
+    else if (max === g) hue = (2 + (b - r) / (max - min)) * 60;
+    else hue = (4 + (r - g) / (max - min)) * 60;
+  }
+  return { css: `rgb(${r | 0}, ${g | 0}, ${b | 0})`, hue: (hue + 360) % 360, sat: max ? (max - min) / max : 0 };
+}
+
+function hueMatches(color, target) {
+  const d = Math.abs(color.hue - target.hue);
+  return color.sat > 0.18 && Math.min(d, 360 - d) <= 35;
+}
+
+function openDecrypt(action) {
+  const { img } = canvases[action.target];
+  const sheet = $('decryptSheet');
+  const canvas = $('decryptCanvas');
+  const hint = $('decryptHint');
+  const stageEl = $('decryptStage');
+  const fileInput = $('decryptFile');
+  const myGen = gen;
+  canvas.width = 600;
+  canvas.height = Math.round(600 * (img.height / img.width));
+  const ctx = canvas.getContext('2d');
+  let mode, cw, ch, total, state, cleared, snapFor, snaps = [];
+
+  const showProgress = () => { hint.textContent = `${cleared}/${total} sectors decrypted`; };
+
+  async function decryptCell(i) {
+    const col = i % mode.cols;
+    const row = Math.floor(i / mode.cols);
+    state[i] = 'working';
+    for (const size of DECRYPT_STEPS.slice(1)) {
+      drawCell(ctx, img, col, row, size, cw, ch);
+      await new Promise((r) => setTimeout(r, 55));
+    }
+    state[i] = 'clear';
+    cleared++;
+    showProgress();
+    if (cleared === total) {
+      hint.textContent = 'Node decrypted';
+      setTimeout(() => close(true), 800);
+    }
+  }
+
+  function setup(name) {
+    mode = DECRYPT_MODES[name];
+    cw = canvas.width / mode.cols;
+    ch = canvas.height / mode.rows;
+    total = mode.cols * mode.rows;
+    state = Array(total).fill('locked');
+    cleared = 0;
+    for (let i = 0; i < total; i++) drawCell(ctx, img, i % mode.cols, Math.floor(i / mode.cols), DECRYPT_STEPS[0], cw, ch);
+    snaps.forEach((el) => el.remove());
+    snaps = (mode.targets || []).map((t, i) => {
+      const b = document.createElement('button');
+      b.className = 'snap glass';
+      b.style.top = `${(i + 0.5) * (100 / mode.rows)}%`;
+      b.innerHTML = '<span class="swatch"></span><span class="snap-text"></span>';
+      b.querySelector('.swatch').style.background = `var(${t.token})`;
+      b.querySelector('.snap-text').textContent = `Snap something ${t.name}`;
+      b.addEventListener('click', () => { snapFor = i; fileInput.value = ''; fileInput.click(); });
+      stageEl.append(b);
+      return b;
+    });
+    document.querySelectorAll('#decryptModes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === name)));
+    showProgress();
+  }
+
+  const onTap = (e) => {
+    if (mode.targets) return;
+    const r = canvas.getBoundingClientRect();
+    const col = Math.min(mode.cols - 1, Math.floor(((e.clientX - r.left) / r.width) * mode.cols));
+    const row = Math.min(mode.rows - 1, Math.floor(((e.clientY - r.top) / r.height) * mode.rows));
+    const i = row * mode.cols + col;
+    if (state[i] === 'locked') decryptCell(i);
+  };
+
+  const onPhoto = async () => {
+    const file = fileInput.files[0];
+    const i = snapFor;
+    if (!file || i == null || state[i] !== 'locked') return;
+    const url = URL.createObjectURL(file);
+    try {
+      const photo = await loadImage(url);
+      const color = averageColor(photo);
+      const target = mode.targets[i];
+      const btn = snaps[i];
+      btn.querySelector('.swatch').style.background = color.css;
+      if (hueMatches(color, target)) {
+        btn.hidden = true;
+        decryptCell(i);
+      } else {
+        btn.querySelector('.snap-text').textContent = `Not ${target.name} enough. Try again`;
+      }
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const onMode = (e) => {
+    const name = e.target.closest('button')?.dataset.mode;
+    if (name && cleared < total) setup(name);
+  };
+
+  let resolveFn, rejectFn, entry;
+  function close(result) {
+    canvas.removeEventListener('pointerdown', onTap);
+    fileInput.removeEventListener('change', onPhoto);
+    $('decryptModes').removeEventListener('click', onMode);
+    $('decryptClose').removeEventListener('click', onCancel);
+    pending = pending.filter((p) => p !== entry);
+    sheet.hidden = true;
+    result === ABORT ? rejectFn(ABORT) : resolveFn(result);
+  }
+  const onCancel = () => close(null);
+
+  setup('tap');
+  $('decryptTitle').textContent = action.title;
+  sheet.hidden = false;
+  return new Promise((resolve, reject) => {
+    resolveFn = resolve;
+    rejectFn = reject;
+    entry = { done: () => close(myGen === gen ? null : ABORT), skippable: false };
+    pending.push(entry);
+    canvas.addEventListener('pointerdown', onTap);
+    fileInput.addEventListener('change', onPhoto);
+    $('decryptModes').addEventListener('click', onMode);
+    $('decryptClose').addEventListener('click', onCancel);
+  });
+}
+
 async function overwriteNode(id, src, alt) {
   const { canvas } = canvases[id];
   const img = await loadImage(src);
@@ -582,6 +770,19 @@ async function play(id) {
   }
   if (ch.action) {
     const action = typeof ch.action === 'string' ? SHARED_ACTIONS[ch.action] : ch.action;
+    if (action.game === 'decrypt') {
+      let solved = null;
+      while (!solved) {
+        await offer([{ ...action, kind: 'action' }]);
+        solved = await openDecrypt(action);
+      }
+      const { canvas, img } = canvases[action.target];
+      drawPixelated(canvas, img, 1);
+      canvas.setAttribute('aria-label', action.alt);
+      addSystem(action.done);
+      await wait(700);
+      return play(action.to);
+    }
     if (action.editor) {
       let remix = null;
       while (!remix) {

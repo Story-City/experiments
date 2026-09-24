@@ -53,6 +53,26 @@ document.write(`<link rel="stylesheet" href="theme.css${CACHE_V}"><link rel="sty
     </div>
   </section>
 
+  <section class="card-overlay remix-sheet" id="decryptSheet" hidden>
+    <div class="sheet glass" role="dialog" aria-modal="true" aria-labelledby="decryptTitle">
+      <div class="sheet-bar">
+        <span id="decryptTitle"></span>
+        <button class="pill-btn" id="decryptClose">Cancel</button>
+      </div>
+      <div class="decrypt-body">
+        <div class="seg-modes" id="decryptModes" role="group" aria-label="Decrypt game">
+          <button class="pill-btn" data-mode="tap" aria-pressed="true">Tap</button>
+          <button class="pill-btn" data-mode="photo" aria-pressed="false">Photo</button>
+        </div>
+        <div class="decrypt-stage" id="decryptStage">
+          <canvas id="decryptCanvas" role="img" aria-label="Corrupted node. Decrypt each sector."></canvas>
+        </div>
+        <p class="decrypt-hint" id="decryptHint"></p>
+        <input type="file" id="decryptFile" accept="image/*" capture="environment" hidden>
+      </div>
+    </div>
+  </section>
+
   <section class="card-overlay remix-sheet" id="remixSheet" hidden>
     <div class="sheet glass" role="dialog" aria-modal="true" aria-labelledby="remixTitle">
       <div class="sheet-bar">
