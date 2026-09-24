@@ -103,6 +103,7 @@ svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width:
   flex-direction: column;
   gap: 3px;
   scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, var(--text) 70px);
   mask-image: linear-gradient(to bottom, transparent 0, var(--text) 70px);
 }
 .thread::-webkit-scrollbar { display: none; }

@@ -75,12 +75,12 @@ export const CHAPTERS = {
   c7: {
     beats: [
       { from: 'quillbus', text: 'You made it!' },
-      { from: 'quillbus', image: 'img/node-sunflowers.jpg', effect: 'corrupt', id: 'node1' },
+      { from: 'quillbus', image: 'img/node-sunflowers.jpg', effect: 'corrupt', id: 'node1', alt: 'Van Gogh’s Sunflowers, pixelated and streaked with coloured noise' },
       { from: 'quillbus', text: 'My word! The node here is corrupted. It must have been done by a digital anarchist known only as crisp-E.' },
       { from: 'quillbus', text: 'Don’t worry, they didn’t damage it beyond repair. Together, we can fix this piece and transmit it back home to me, where I can keep it safe.' },
       { from: 'quillbus', text: 'You’re going to need photos of your location to remove this horrible fuzziness, one of each of the specified colours if you can. Hurry, quickly now!' },
     ],
-    action: { text: 'Decrypt image', target: 'node1', effect: 'restore', to: 'c8' },
+    action: { text: 'Decrypt image', target: 'node1', effect: 'restore', to: 'c8', alt: 'Van Gogh’s Sunflowers, restored' },
   },
   c8: {
     beats: [
@@ -124,7 +124,7 @@ export const CHAPTERS = {
       { from: 'crispe', text: 'what it’s the least i can do for my new biggest fan' },
       { from: 'crispe', text: 'nevermind i hacked your camera' },
       { from: 'crispe', text: 'here’s what you look like' },
-      { from: 'crispe', image: 'img/node-scream.jpg' },
+      { from: 'crispe', image: 'img/node-scream.jpg', alt: 'Munch’s The Scream, sent as a drawing of you' },
     ],
     choices: [
       { text: 'Wow, you are a menace.', to: 'c12' },
@@ -252,7 +252,7 @@ export const SHARED = {
   ],
   remix: [
     { from: 'crispe', text: 'anyway you can access the node but I didn’t do anything yet' },
-    { from: 'crispe', image: 'img/node-kiss.jpg', id: 'node2' },
+    { from: 'crispe', image: 'img/node-kiss.jpg', id: 'node2', alt: 'Klimt’s The Kiss' },
     { from: 'crispe', text: '… can you do it for me??' },
     { from: 'crispe', text: 'come onnnnn it’ll be funnnnn' },
   ],
@@ -276,7 +276,7 @@ export const SHARED_CHOICES = {
 };
 
 export const SHARED_ACTIONS = {
-  remix: { text: 'Remix art piece', target: 'node2', effect: 'remix', to: 'c18' },
+  remix: { text: 'Remix art piece', target: 'node2', effect: 'remix', to: 'c18', alt: 'Klimt’s The Kiss, recoloured, sliced and tagged crisp-E' },
 };
 
 export const SHARED_WALKS = {

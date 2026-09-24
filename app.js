@@ -214,6 +214,8 @@ async function addImage(beat) {
   canvas.getContext('2d', { willReadFrequently: true });
   if (beat.effect === 'corrupt') drawCorrupt(canvas, img);
   else drawPixelated(canvas, img, 1);
+  canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', beat.alt);
   if (beat.id) canvases[beat.id] = { canvas, img };
   const bubble = glass(document.createElement('div'));
   bubble.className += ` bubble media from-${beat.from}`;
@@ -222,7 +224,12 @@ async function addImage(beat) {
 }
 
 async function runEffect(action) {
-  const { canvas, img } = canvases[action.target];
+  const target = canvases[action.target];
+  if (!target) {
+    console.warn(`No image with id "${action.target}" for ${action.effect}`);
+    return;
+  }
+  const { canvas, img } = target;
   canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
   await wait(400, false);
   if (action.effect === 'restore') {
@@ -231,12 +238,14 @@ async function runEffect(action) {
       if (size > 5) scribble(canvas, Math.round(size / 2));
       await wait(170, false);
     }
+    canvas.setAttribute('aria-label', action.alt);
     addSystem('Node transmitted to S.A.D. server');
   } else {
     for (let i = 0; i < 7; i++) {
       drawRemix(canvas, img, 1 - i / 7);
       await wait(150, false);
     }
+    canvas.setAttribute('aria-label', action.alt);
     addSystem('Node remixed · original overwritten');
   }
   await wait(700);
@@ -245,19 +254,25 @@ async function runEffect(action) {
 async function flicker(label) {
   const el = $('headFlicker');
   el.textContent = label;
-  for (const on of [true, false, true, false, true, false]) {
-    el.hidden = !on;
-    await wait(on ? 90 : 60, false);
+  try {
+    for (const on of [true, false, true, false, true, false]) {
+      el.hidden = !on;
+      await wait(on ? 90 : 60, false);
+    }
+  } finally {
+    el.hidden = true;
   }
-  el.hidden = true;
 }
 
 async function glitch() {
   phone.classList.remove('glitching');
   void phone.offsetWidth;
   phone.classList.add('glitching');
-  await wait(550, false);
-  phone.classList.remove('glitching');
+  try {
+    await wait(550, false);
+  } finally {
+    phone.classList.remove('glitching');
+  }
 }
 
 function expand(beats) {
@@ -296,7 +311,9 @@ async function runBeat(beat) {
 
 function offer(options) {
   choicesEl.innerHTML = '';
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    const entry = { done: () => reject(ABORT), skippable: false };
+    pending.push(entry);
     options.forEach((opt, i) => {
       const b = glass(document.createElement('button'));
       b.className += ` choice${opt.kind ? ' action' : ''}`;
@@ -305,6 +322,7 @@ function offer(options) {
       b.addEventListener('click', (e) => {
         e.stopPropagation();
         choicesEl.innerHTML = '';
+        pending = pending.filter((p) => p !== entry);
         resolve(opt);
       });
       choicesEl.append(b);
@@ -328,7 +346,7 @@ async function typeAndSend(text) {
   await wait(120, false);
   sendBtn.classList.remove('pulse');
   sendBtn.disabled = true;
-  field.innerHTML = '<span class="placeholder">iMessage</span>';
+  field.innerHTML = '<span class="placeholder">Message</span>';
 
   const bubble = glass(document.createElement('div'));
   bubble.className += ' bubble';
@@ -400,7 +418,7 @@ function reset() {
   abortAll();
   thread.innerHTML = '';
   choicesEl.innerHTML = '';
-  field.innerHTML = '<span class="placeholder">iMessage</span>';
+  field.innerHTML = '<span class="placeholder">Message</span>';
   lastSide = null;
   lastRow = null;
   lastReceipt = null;
