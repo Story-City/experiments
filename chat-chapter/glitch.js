@@ -107,7 +107,7 @@ export function createGlitches({ phone, thread, sleep }) {
     return () => { running = false; c.remove(); };
   }
 
-  async function blackout() {
+  async function blackout(onDark) {
     const black = overlay('glitch-blackout');
     const label = document.createElement('div');
     label.className = 'glitch-label glass';
@@ -116,6 +116,7 @@ export function createGlitches({ phone, thread, sleep }) {
     try {
       await sleep(220);
       stop();
+      onDark?.();
       phone.append(label);
       await sleep(500);
       label.remove();
@@ -161,10 +162,10 @@ export function createGlitches({ phone, thread, sleep }) {
     }
   }
 
-  async function hack() {
+  async function hack(onDark) {
     await flicker();
     await slices(600);
-    await blackout();
+    await blackout(onDark);
   }
 
   return { flicker, slices, rgb, blackout, melt, scramble, hack };

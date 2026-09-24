@@ -1,20 +1,45 @@
 export const STORY = {
   title: 'Operation COPY/WRITE',
-  start: 'c0',
+  start: 'pre',
 };
 
 export const CAST = {
   quillbus: { name: 'Quillbus Aldersley', avatar: 'img/quillbus.jpg', status: 'Society for Art Demarcation' },
   crispe: { name: 'crisp-E', avatar: 'img/crispe.jpg', status: 'hijacked your thread' },
+  maya: { name: 'Maya', initials: ['M'] },
+  jonah: { name: 'Jonah', initials: ['J'] },
+  friends: { name: 'First Years', initials: ['M', 'J'], status: 'Maya, Jonah', group: true },
 };
 
 const HEAD_TO = 'Head to the next node';
 
 export const CHAPTERS = {
+  pre: {
+    thread: 'friends',
+    history: [
+      { system: 'Today 8:52 AM' },
+      { from: 'jonah', text: 'movie sunday still on?' },
+      { from: 'maya', text: 'yes! my pick this time' },
+    ],
+    beats: [
+      { from: 'maya', text: 'at the lecture. saved you a seat, back row' },
+    ],
+    choices: [
+      { text: 'On my way 👋', to: 'hacked' },
+      { text: 'Running late, keep it warm', to: 'hacked' },
+    ],
+  },
+  hacked: {
+    beats: [
+      { typing: 'maya', ms: 1600 },
+      { glitch: 'hack', clear: true },
+      { thread: 'quillbus', scramble: true },
+    ],
+    next: 'c0',
+  },
   c0: {
     thread: 'quillbus',
     beats: [
-      { glitch: 'flicker' },
       { system: 'Incoming transmission · encrypted' },
       { from: 'quillbus', text: 'Hello? Did I get through?' },
       { from: 'quillbus', text: 'Please, push one of the buttons on your screen if you can hear me.' },

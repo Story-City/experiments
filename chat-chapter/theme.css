@@ -8,6 +8,8 @@
   --neon-lime-400: #b6ff3b;
   --neon-magenta-500: #ff2bd6;
   --neon-cyan-400: #2bf3ff;
+  --slate-300: #a4a9b8;
+  --slate-500: #6e7385;
 
   --bg: var(--night-950);
   --text: var(--white);
@@ -18,6 +20,9 @@
   --glitch-a: var(--neon-magenta-500);
   --glitch-b: var(--neon-cyan-400);
   --glitch-ground: var(--night-900);
+  --avatar-top: var(--slate-300);
+  --avatar-bottom: var(--slate-500);
+  --avatar-text: var(--white);
 
   --glass-fill: rgba(255, 255, 255, 0.14);
   --glass-fill-strong: rgba(255, 255, 255, 0.22);

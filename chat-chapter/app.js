@@ -97,12 +97,55 @@ function glass(el) {
   return el;
 }
 
+function initialsAvatar(letters) {
+  const size = 96;
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const disc = (x, y, r, text) => {
+    const g = ctx.createLinearGradient(0, y - r, 0, y + r);
+    g.addColorStop(0, cssVar('--avatar-top') || cssVar('--text-muted'));
+    g.addColorStop(1, cssVar('--avatar-bottom') || cssVar('--text-muted'));
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = cssVar('--avatar-text') || cssVar('--text');
+    ctx.font = `600 ${Math.round(r * 0.95)}px -apple-system, system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, x, y + r * 0.05);
+  };
+  if (letters.length === 1) {
+    disc(48, 48, 48, letters[0]);
+  } else {
+    disc(34, 36, 30, letters[0]);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(62, 60, 35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    disc(62, 60, 30, letters[1]);
+  }
+  return c.toDataURL();
+}
+
+Object.values(CAST).forEach((who) => {
+  if (!who.avatar) who.avatar = initialsAvatar(who.initials);
+});
+
 function addRow(side, from, content) {
   const row = document.createElement('div');
   row.className = `row ${side}`;
   const key = side === 'them' ? `them:${from}` : 'me';
   if (lastSide === key && lastRow) lastRow.classList.remove('last');
   else if (lastSide) row.classList.add('gap');
+  if (side === 'them' && lastSide !== key && CAST[activeThread].group) {
+    row.label = document.createElement('div');
+    row.label.className = 'sender';
+    row.label.textContent = CAST[from].name;
+    thread.append(row.label);
+  }
   row.classList.add('last');
   if (side === 'them') {
     const mini = document.createElement('img');
@@ -150,6 +193,7 @@ async function showTyping(from, ms) {
     await wait(ms);
   } finally {
     row.remove();
+    row.label?.remove();
     lastSide = prevSide;
     lastRow = prevRow;
     if (prevRow) prevRow.classList.add('last');
@@ -353,9 +397,35 @@ async function flicker(label) {
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
-async function glitch(kind) {
-  if (reducedMotion.matches) return wait(300);
-  return kind === 'hack' ? fx.hack() : fx.flicker();
+function clearThread() {
+  thread.innerHTML = '';
+  lastSide = null;
+  lastRow = null;
+  lastReceipt = null;
+}
+
+async function glitch(kind, clear) {
+  const onDark = clear ? clearThread : undefined;
+  if (reducedMotion.matches) {
+    onDark?.();
+    return wait(300);
+  }
+  return kind === 'hack' ? fx.hack(onDark) : fx.flicker();
+}
+
+function addHistory(items) {
+  for (const item of items) {
+    if (item.system) {
+      addSystem(item.system);
+      continue;
+    }
+    const bubble = glass(document.createElement('div'));
+    bubble.className += ' bubble';
+    bubble.textContent = item.text;
+    if (item.from === 'me') addRow('me', null, bubble);
+    else addRow('them', item.from, bubble);
+  }
+  thread.querySelectorAll('.bubble, .system').forEach((el) => { el.style.animation = 'none'; });
 }
 
 async function takeOver(key) {
@@ -374,7 +444,8 @@ function expand(beats) {
 }
 
 async function runBeat(beat) {
-  if (beat.glitch) return glitch(beat.glitch);
+  if (beat.glitch) return glitch(beat.glitch, beat.clear);
+  if (beat.typing) return showTyping(beat.typing, beat.ms);
   if (beat.system) {
     addSystem(beat.system);
     return wait(700);
@@ -480,8 +551,10 @@ async function walkTo(walk) {
 async function play(id) {
   const ch = CHAPTERS[id];
   if (ch.thread) setThread(ch.thread);
+  if (ch.history) addHistory(ch.history);
   for (const beat of expand(ch.beats)) await runBeat(beat);
 
+  if (ch.next) return play(ch.next);
   if (ch.end) {
     await wait(900);
     $('endTitle').textContent = ch.end.title;
