@@ -34,6 +34,7 @@ export const CHAPTERS = {
       { text: 'Me!', to: 'pre2' },
       { text: 'I’m free', to: 'pre2' },
       { text: 'Sure, what time?', to: 'pre2' },
+      { text: 'I’m free but… ugh. Is there pizza?', to: 'pre2' },
     ],
   },
   pre2: {
