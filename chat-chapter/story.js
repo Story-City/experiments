@@ -16,9 +16,9 @@ const HEAD_TO = 'Head to the next node';
 function replyJoke(s) {
   const secs = s === 1 ? '1 second' : `${s} seconds`;
   if (s <= 5) return `${secs}, new record 😂`;
-  if (s <= 20) return `${secs}, you’re slipping 😂`;
-  if (s <= 60) return `a whole ${secs}? are you ok 😂`;
-  return 'took you long enough 😂';
+  if (s <= 20) return `${secs}?? do you sleep holding your phone 😂`;
+  if (s <= 60) return 'under a minute, as always 😂';
+  return 'still faster than Jonah answers anything 😂';
 }
 
 export const CHAPTERS = {
