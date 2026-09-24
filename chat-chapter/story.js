@@ -276,7 +276,7 @@ export const SHARED_CHOICES = {
 };
 
 export const SHARED_ACTIONS = {
-  remix: { text: 'Remix art piece', target: 'node2', effect: 'remix', to: 'c18', alt: 'Klimt’s The Kiss, recoloured, sliced and tagged crisp-E' },
+  remix: { text: 'Remix art piece', target: 'node2', editor: true, title: 'Remix · The Kiss', credit: 'The Kiss — Gustav Klimt, 1907–08', to: 'c18', alt: 'Your remix of Klimt’s The Kiss' },
 };
 
 export const SHARED_WALKS = {

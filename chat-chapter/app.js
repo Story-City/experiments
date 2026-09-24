@@ -69,9 +69,8 @@ function markUserScroll() {
 
 ['wheel', 'touchmove', 'keydown'].forEach((ev) => thread.addEventListener(ev, markUserScroll, { passive: true }));
 thread.addEventListener('scroll', () => {
-  if (!userScrolling) return;
-  markUserScroll();
-  stuck = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 48;
+  if (thread.scrollHeight - thread.scrollTop - thread.clientHeight < 48) stuck = true;
+  else if (userScrolling) stuck = false;
 });
 new ResizeObserver(scrollDown).observe(thread);
 new MutationObserver(scrollDown).observe(thread, { childList: true, subtree: true, characterData: true });
@@ -256,6 +255,7 @@ async function runEffect(action) {
     return;
   }
   const { canvas, img } = target;
+  userScrolling = false;
   canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
   await wait(400, false);
   if (action.effect === 'restore') {
@@ -277,6 +277,65 @@ async function runEffect(action) {
   await wait(700);
 }
 
+function openRemix(action) {
+  const target = canvases[action.target];
+  const sheet = $('remixSheet');
+  const frame = $('remixFrame');
+  const myGen = gen;
+  $('remixTitle').textContent = action.title;
+  const params = new URLSearchParams({ embed: '1', src: target.img.src, credit: action.credit });
+  frame.src = `../image-remix/?${params}`;
+  sheet.hidden = false;
+  return new Promise((resolve, reject) => {
+    const close = (result) => {
+      window.removeEventListener('message', onMessage);
+      $('remixClose').removeEventListener('click', onCancel);
+      pending = pending.filter((p) => p !== entry);
+      sheet.hidden = true;
+      frame.src = 'about:blank';
+      result === ABORT ? reject(ABORT) : resolve(result);
+    };
+    const onMessage = (e) => {
+      if (e.origin !== location.origin || e.source !== frame.contentWindow) return;
+      if (e.data?.type === 'remix' && typeof e.data.dataUrl === 'string') close(e.data.dataUrl);
+    };
+    const onCancel = () => close(null);
+    const entry = { done: () => close(myGen === gen ? null : ABORT), skippable: false };
+    pending.push(entry);
+    window.addEventListener('message', onMessage);
+    $('remixClose').addEventListener('click', onCancel);
+  });
+}
+
+async function overwriteNode(id, src, alt) {
+  const { canvas } = canvases[id];
+  const img = await loadImage(src);
+  canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+  canvas.setAttribute('aria-label', alt);
+  canvases[id].img = img;
+}
+
+async function sendImage(src, alt) {
+  const img = await loadImage(src);
+  const canvas = document.createElement('canvas');
+  canvas.width = 440;
+  canvas.height = Math.round(440 * (img.height / img.width));
+  canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+  canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', alt);
+  const bubble = glass(document.createElement('div'));
+  bubble.className += ' bubble media';
+  bubble.append(canvas);
+  if (lastReceipt) lastReceipt.remove();
+  addRow('me', null, bubble);
+  lastReceipt = document.createElement('div');
+  lastReceipt.className = 'receipt';
+  lastReceipt.textContent = 'Delivered';
+  lastReceipt.dataset.state = 'delivered';
+  thread.append(lastReceipt);
+  await wait(900);
+}
+
 async function flicker(label) {
   const el = $('headFlicker');
   el.textContent = label;
@@ -295,7 +354,7 @@ async function glitch() {
   void phone.offsetWidth;
   phone.classList.add('glitching');
   try {
-    await wait(550, false);
+    await wait(1600, false);
   } finally {
     phone.classList.remove('glitching');
   }
@@ -434,6 +493,18 @@ async function play(id) {
   }
   if (ch.action) {
     const action = typeof ch.action === 'string' ? SHARED_ACTIONS[ch.action] : ch.action;
+    if (action.editor) {
+      let remix = null;
+      while (!remix) {
+        await offer([{ ...action, kind: 'action' }]);
+        remix = await openRemix(action);
+      }
+      await sendImage(remix, action.alt);
+      await overwriteNode(action.target, remix, action.alt);
+      addSystem('Node remixed · original overwritten');
+      await wait(700);
+      return play(action.to);
+    }
     await offer([{ ...action, kind: 'action' }]);
     await runEffect(action);
     return play(action.to);

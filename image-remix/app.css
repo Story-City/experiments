@@ -141,3 +141,6 @@ body {
 #removePhoto { width: 100%; margin-top: 6px; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
 .btn:disabled { opacity: 0.45; cursor: default; }
+
+body.embed .top, body.embed .art-strip { display: none; }
+body.embed { padding-top: 8px; }

@@ -17,6 +17,11 @@ const ART = [
   { file: 'night-watch.jpg', title: 'The Night Watch', artist: 'Rembrandt van Rijn', year: 1642 },
 ];
 
+const PARAMS = new URLSearchParams(location.search);
+const EMBED = PARAMS.has('embed') && parent !== window;
+const EMBED_SRC = PARAMS.get('src') || '';
+const EMBED_CREDIT = PARAMS.get('credit') || '';
+
 const LOOK_DEFAULTS = { pixel: 1, hue: 0, sepia: 0, saturate: 100, contrast: 100, blur: 0, aberration: 0, fisheye: 0, tilt: 0, shapes: 0, posterize: 0 };
 const PHOTO_DEFAULTS = { opacity: 100, feather: 35, size: 40, shape: 'circle', blend: 'source-over' };
 const PHOTO_MAX = 900;
@@ -60,7 +65,12 @@ function loadImage(src) {
 async function selectArt(i) {
   state.artIndex = i;
   const a = ART[i];
-  state.art = await loadImage('art/' + a.file);
+  await loadArt('art/' + a.file, `${a.title} — ${a.artist}, ${a.year}`);
+  document.querySelectorAll('#artStrip button').forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
+}
+
+async function loadArt(src, credit) {
+  state.art = await loadImage(src);
   stage.width = state.art.naturalWidth;
   stage.height = state.art.naturalHeight;
   state.base = document.createElement('canvas');
@@ -70,8 +80,7 @@ async function selectArt(i) {
   state.undo = [];
   syncUndo();
   placeLayer();
-  document.getElementById('credit').textContent = `${a.title} — ${a.artist}, ${a.year}`;
-  document.querySelectorAll('#artStrip button').forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
+  document.getElementById('credit').textContent = credit;
   requestRender();
 }
 
@@ -446,6 +455,10 @@ function reset() {
 }
 
 async function save() {
+  if (EMBED) {
+    parent.postMessage({ type: 'remix', dataUrl: stage.toDataURL('image/jpeg', 0.85) }, location.origin);
+    return;
+  }
   const blob = await new Promise(r => stage.toBlob(r, 'image/jpeg', 0.9));
   const name = `remix-${ART[state.artIndex].file}`;
   const file = new File([blob], name, { type: 'image/jpeg' });
@@ -727,4 +740,12 @@ ART.forEach((a, i) => {
 });
 
 syncPhotoUI();
-selectArt(0);
+if (EMBED) {
+  document.body.classList.add('embed');
+  document.getElementById('save').textContent = 'Send';
+  const src = new URL(EMBED_SRC, location.href);
+  if (EMBED_SRC && src.origin === location.origin) loadArt(src.href, EMBED_CREDIT);
+  else selectArt(0);
+} else {
+  selectArt(0);
+}
