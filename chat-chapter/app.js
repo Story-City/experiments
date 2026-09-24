@@ -589,7 +589,7 @@ async function play(id) {
       }
       await sendImage(remix, action.alt);
       await overwriteNode(action.target, remix, action.alt);
-      addSystem('Node remixed · original overwritten');
+      addSystem(action.done);
       await wait(700);
       return play(action.to);
     }
@@ -615,7 +615,8 @@ function reset() {
 async function start() {
   reset();
   try {
-    await play(STORY.start);
+    const at = new URLSearchParams(location.search).get('at');
+    await play(CHAPTERS[at] ? at : STORY.start);
   } catch (e) {
     if (e !== ABORT) throw e;
   }

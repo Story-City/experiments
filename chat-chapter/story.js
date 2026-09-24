@@ -117,6 +117,7 @@ export const CHAPTERS = {
     end: { title: 'Greatness called and you hung up.', body: 'Play again to see if you can reach a different end.' },
   },
   c7: {
+    thread: 'quillbus',
     beats: [
       { from: 'quillbus', text: 'You made it!' },
       { from: 'quillbus', image: 'img/node-sunflowers.jpg', effect: 'corrupt', id: 'node1', alt: 'Van Gogh’s Sunflowers, pixelated and streaked with coloured noise' },
@@ -124,7 +125,7 @@ export const CHAPTERS = {
       { from: 'quillbus', text: 'Don’t worry, they didn’t damage it beyond repair. Together, we can fix this piece and transmit it back home to me, where I can keep it safe.' },
       { from: 'quillbus', text: 'You’re going to need photos of your location to remove this horrible fuzziness, one of each of the specified colours if you can. Hurry, quickly now!' },
     ],
-    action: { text: 'Decrypt image', target: 'node1', effect: 'restore', to: 'c8', alt: 'Van Gogh’s Sunflowers, restored' },
+    action: { text: 'Decrypt image', target: 'node1', editor: true, title: 'Decrypt · Sunflowers', credit: 'Sunflowers — Vincent van Gogh, 1888', done: 'Node transmitted to S.A.D. server', to: 'c8', alt: 'Your decrypted Sunflowers' },
   },
   c8: {
     beats: [
@@ -320,7 +321,7 @@ export const SHARED_CHOICES = {
 };
 
 export const SHARED_ACTIONS = {
-  remix: { text: 'Remix art piece', target: 'node2', editor: true, title: 'Remix · The Kiss', credit: 'The Kiss — Gustav Klimt, 1907–08', to: 'c18', alt: 'Your remix of Klimt’s The Kiss' },
+  remix: { text: 'Remix art piece', target: 'node2', editor: true, done: 'Node remixed · original overwritten', title: 'Remix · The Kiss', credit: 'The Kiss — Gustav Klimt, 1907–08', to: 'c18', alt: 'Your remix of Klimt’s The Kiss' },
 };
 
 export const SHARED_WALKS = {
