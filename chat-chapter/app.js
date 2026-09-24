@@ -1,5 +1,6 @@
-import { createGlitches } from './glitch.js';
-import { STORY, CAST, CHAPTERS, SHARED, SHARED_CHOICES, SHARED_ACTIONS, SHARED_WALKS } from './story.js';
+const V = new URL(import.meta.url).search;
+const { createGlitches } = await import(`./glitch.js${V}`);
+const { STORY, CAST, CHAPTERS, SHARED, SHARED_CHOICES, SHARED_ACTIONS, SHARED_WALKS } = await import(`./story.js${V}`);
 
 const $ = (id) => document.getElementById(id);
 const phone = $('phone');
