@@ -50,7 +50,8 @@ document.write(`<link rel="stylesheet" href="theme.css${CACHE_V}"><link rel="sty
     <button class="pill-btn glass" data-g="blackout">Blackout static</button>
     <button class="pill-btn glass" data-g="melt">Melt</button>
     <button class="pill-btn glass" data-g="takeover">Name takeover</button>
-    <button class="pill-btn glass" data-g="hack">Full hack</button>
+    <button class="pill-btn glass" data-g="hack">Full hack (crisp-E)</button>
+    <button class="pill-btn glass" data-g="quiet">Quiet takeover (Quillbus)</button>
   </nav>
 </div>
 
@@ -84,6 +85,18 @@ const RUN = {
   melt: () => fx.melt(),
   takeover,
   hack: async () => { await fx.hack(); await takeover(); },
+  quiet: async () => {
+    const saved = $('thread').innerHTML;
+    await fx.quiet(() => { $('thread').innerHTML = ''; });
+    who = 'quillbus';
+    phone.classList.remove('hacked');
+    $('headAvatar').src = PEOPLE.quillbus.avatar;
+    $('headStatus').textContent = '';
+    await fx.typeIn($('headName'), PEOPLE.quillbus.name);
+    await fx.typeIn($('headStatus'), PEOPLE.quillbus.status, 30);
+    await new Promise((r) => setTimeout(r, 1200));
+    $('thread').innerHTML = saved;
+  },
 };
 
 document.querySelectorAll('[data-g]').forEach((b) => b.addEventListener('click', async () => {

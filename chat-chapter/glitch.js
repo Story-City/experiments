@@ -162,11 +162,36 @@ export function createGlitches({ phone, thread, sleep }) {
     }
   }
 
+  async function quiet(onDark) {
+    await frames('glitch-dim', [[true, 140], [false, 90], [true, 260]]);
+    const items = [...thread.children].reverse();
+    try {
+      for (const el of items) {
+        el.classList.add('glitch-dissolve');
+        await sleep(70);
+      }
+      await sleep(450);
+    } finally {
+      onDark?.();
+    }
+  }
+
+  async function typeIn(el, text, ms = 60) {
+    try {
+      for (let i = 1; i <= text.length; i++) {
+        el.textContent = text.slice(0, i);
+        await sleep(ms);
+      }
+    } finally {
+      el.textContent = text;
+    }
+  }
+
   async function hack(onDark) {
     await flicker();
     await slices(600);
     await blackout(onDark);
   }
 
-  return { flicker, slices, rgb, blackout, melt, scramble, hack };
+  return { flicker, slices, rgb, blackout, melt, scramble, quiet, typeIn, hack };
 }

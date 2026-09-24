@@ -599,7 +599,9 @@ async function glitch(kind, clear) {
     onDark?.();
     return wait(300);
   }
-  return kind === 'hack' ? fx.hack(onDark) : fx.flicker();
+  if (kind === 'hack') return fx.hack(onDark);
+  if (kind === 'quiet') return fx.quiet(onDark);
+  return fx.flicker();
 }
 
 function addHistory(items) {
@@ -617,10 +619,16 @@ function addHistory(items) {
   thread.querySelectorAll('.bubble, .system').forEach((el) => { el.style.animation = 'none'; });
 }
 
-async function takeOver(key) {
+async function takeOver(key, style) {
   setThread(key);
   if (reducedMotion.matches) return;
   const who = CAST[key];
+  if (style === 'type') {
+    $('headStatus').textContent = '';
+    await fx.typeIn($('headName'), who.name);
+    await fx.typeIn($('headStatus'), who.status, 30);
+    return;
+  }
   await Promise.all([
     fx.scramble($('headName'), who.name),
     fx.scramble($('headStatus'), who.status),
@@ -640,7 +648,7 @@ async function runBeat(beat) {
     return wait(700);
   }
   if (beat.thread) {
-    if (beat.scramble) await takeOver(beat.thread);
+    if (beat.takeover) await takeOver(beat.thread, beat.takeover);
     else setThread(beat.thread);
     return wait(300);
   }

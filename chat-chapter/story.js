@@ -51,8 +51,8 @@ export const CHAPTERS = {
   hacked: {
     beats: [
       { typing: 'maya', ms: 1600 },
-      { glitch: 'hack', clear: true },
-      { thread: 'quillbus', scramble: true },
+      { glitch: 'quiet', clear: true },
+      { thread: 'quillbus', takeover: 'type' },
     ],
     next: 'c0',
   },
@@ -160,11 +160,12 @@ export const CHAPTERS = {
     walk: { text: 'Head to the second node', place: 'The Quad', to: 'c11' },
   },
   c11: {
+    thread: 'quillbus',
     beats: [
       { from: 'quillbus', text: 'Excellent. You’re almost at the next node, I’m rea–', cut: true },
       { glitch: 'hack' },
       { system: 'crisp-E hijacked this conversation' },
-      { thread: 'crispe', scramble: true },
+      { thread: 'crispe', takeover: 'scramble' },
       { from: 'crispe', text: 'heeey send me a pic and i’ll draw you' },
       { from: 'crispe', text: 'what it’s the least i can do for my new biggest fan' },
       { from: 'crispe', text: 'nevermind i hacked your camera' },
