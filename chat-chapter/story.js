@@ -19,10 +19,10 @@ export const CHAPTERS = {
     history: [
       { system: 'Today 8:52 AM' },
       { from: 'jonah', text: 'anyone free this weekend? need help moving a couch' },
-      { from: 'maya', text: 'you reply to everything within 30 seconds lol' },
+      { from: 'me', text: 'Me!' },
     ],
     beats: [
-      { from: 'maya', text: 'also where’d you get that jacket' },
+      { from: 'maya', text: '4 seconds, new record 😂 where’d you get that jacket btw' },
     ],
     choices: [
       { text: 'Thrift store. Six bucks.', to: 'hacked' },
