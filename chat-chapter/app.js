@@ -46,9 +46,35 @@ function abortAll() {
   all.forEach((p) => p.done());
 }
 
+let stuck = true;
+let userScrolling = false;
+let userScrollTimer;
+
+let scrollQueued = false;
+
 function scrollDown() {
-  thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' });
+  if (!stuck || scrollQueued) return;
+  scrollQueued = true;
+  requestAnimationFrame(() => {
+    scrollQueued = false;
+    if (stuck) thread.scrollTop = thread.scrollHeight;
+  });
 }
+
+function markUserScroll() {
+  userScrolling = true;
+  clearTimeout(userScrollTimer);
+  userScrollTimer = setTimeout(() => { userScrolling = false; }, 250);
+}
+
+['wheel', 'touchmove', 'keydown'].forEach((ev) => thread.addEventListener(ev, markUserScroll, { passive: true }));
+thread.addEventListener('scroll', () => {
+  if (!userScrolling) return;
+  markUserScroll();
+  stuck = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 48;
+});
+new ResizeObserver(scrollDown).observe(thread);
+new MutationObserver(scrollDown).observe(thread, { childList: true, subtree: true, characterData: true });
 
 function setThread(key) {
   activeThread = key;
@@ -416,6 +442,7 @@ async function play(id) {
 
 function reset() {
   abortAll();
+  stuck = true;
   thread.innerHTML = '';
   choicesEl.innerHTML = '';
   field.innerHTML = '<span class="placeholder">Message</span>';
