@@ -18,9 +18,17 @@ export const CHAPTERS = {
     thread: 'friends',
     history: [
       { system: 'Today 8:52 AM' },
-      { from: 'jonah', text: 'anyone free this weekend? need help moving a couch' },
-      { from: 'me', text: 'Me!' },
     ],
+    beats: [
+      { from: 'jonah', text: 'anyone free this weekend? need help moving a couch' },
+    ],
+    choices: [
+      { text: 'Me!', to: 'pre2' },
+      { text: 'I’m free', to: 'pre2' },
+      { text: 'Sure, what time?', to: 'pre2' },
+    ],
+  },
+  pre2: {
     beats: [
       { from: 'maya', text: '4 seconds, new record 😂 where’d you get that jacket btw' },
     ],
