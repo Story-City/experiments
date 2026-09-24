@@ -89,6 +89,7 @@ svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width:
   color: var(--glitch-b);
   text-shadow: 1px 0 var(--glitch-a), -1px 0 var(--glitch-b);
 }
+.avatar-glitch[hidden] { display: none; }
 .who { min-width: 0; }
 .name { font-weight: 600; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .status { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -316,55 +317,44 @@ svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width:
 }
 .hint { margin: 14px 0 0; font-size: 12px; color: var(--text-muted); }
 
-.phone.glitching { animation: shake 1.6s steps(24) both; }
-.phone.glitching .thread, .phone.glitching .bar, .phone.glitching .dock { animation: tear 1.6s steps(16) both; }
-.phone.glitching::after {
-  content: "";
+.glitch-scan {
   position: absolute;
   inset: 0;
   z-index: 4;
   pointer-events: none;
   background: repeating-linear-gradient(0deg, transparent 0 6px, var(--hacker-fill) 6px 9px);
-  background-size: 100% 18px;
   mix-blend-mode: screen;
-  animation: scan 1.6s linear both;
 }
-@keyframes shake {
-  0% { transform: translate(0); }
-  6% { transform: translate(-8px, 2px) skewX(4deg); }
-  12% { transform: translate(6px, -3px); }
-  18% { transform: translate(-4px, 1px) skewX(-3deg); }
-  24% { transform: none; }
-  40% { transform: none; }
-  46% { transform: translate(10px, 0) skewX(-5deg); }
-  52% { transform: translate(-7px, 3px); }
-  58% { transform: translate(3px, -1px) skewX(2deg); }
-  64% { transform: none; }
-  78% { transform: translate(-5px, 2px); }
-  84% { transform: translate(4px, -2px) skewX(3deg); }
-  90% { transform: translate(-2px, 0); }
-  100% { transform: none; }
+.glitch-flash .thread, .glitch-flash .bar, .glitch-flash .dock { filter: hue-rotate(90deg) contrast(1.5) saturate(2); }
+.glitch-slice {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
 }
-@keyframes tear {
-  0% { filter: hue-rotate(90deg) contrast(1.4); clip-path: inset(0); }
-  10% { filter: hue-rotate(200deg) contrast(1.8) saturate(2); clip-path: inset(12% 0 40% 0); }
-  20% { filter: hue-rotate(90deg) contrast(1.4); clip-path: inset(0); }
-  30% { filter: invert(1) hue-rotate(180deg); clip-path: inset(0); }
-  36% { filter: none; clip-path: inset(0); }
-  48% { filter: hue-rotate(300deg) contrast(1.6); clip-path: inset(55% 0 8% 0); }
-  56% { filter: hue-rotate(90deg) contrast(1.4); clip-path: inset(0 0 70% 0); }
-  64% { filter: none; clip-path: inset(0); }
-  80% { filter: hue-rotate(140deg) contrast(1.5) saturate(3); clip-path: inset(30% 0 30% 0); }
-  90% { filter: hue-rotate(90deg) contrast(1.4); clip-path: inset(0); }
-  100% { filter: none; clip-path: inset(0); }
+.glitch-slice .thread { height: 100%; }
+.glitch-rgb .bubble { text-shadow: 3px 0 var(--glitch-a), -3px 0 var(--glitch-b); }
+.glitch-rgb .bubble.media, .glitch-rgb .avatar { filter: drop-shadow(4px 0 var(--glitch-a)) drop-shadow(-4px 0 var(--glitch-b)); }
+.glitch-rgb .name, .glitch-rgb .status { text-shadow: 2px 0 var(--glitch-a), -2px 0 var(--glitch-b); }
+.glitch-blackout { position: absolute; inset: 0; z-index: 6; background: var(--bg); pointer-events: none; }
+.glitch-noise { position: absolute; inset: 0; z-index: 7; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: screen; }
+.glitch-label {
+  position: absolute;
+  z-index: 8;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font: 600 13px ui-monospace, "SF Mono", Menlo, monospace;
+  color: var(--hacker);
 }
-@keyframes scan {
-  from { background-position: 0 0; opacity: 1; }
-  to { background-position: 0 180px; opacity: 0.6; }
-}
+.glitch-melt .thread { filter: url(#melt); }
 
 @media (prefers-reduced-motion: reduce) {
-  .wallpaper, .phone.glitching, .phone.glitching *, .phone.glitching::after, .bubble, .choice, .system, .walk-card { animation: none; }
+  .wallpaper, .bubble, .choice, .system, .walk-card { animation: none; }
 }
 
 .remix-sheet { place-items: end center; padding: 0; }

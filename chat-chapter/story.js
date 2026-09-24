@@ -14,7 +14,7 @@ export const CHAPTERS = {
   c0: {
     thread: 'quillbus',
     beats: [
-      { glitch: true },
+      { glitch: 'flicker' },
       { system: 'Incoming transmission · encrypted' },
       { from: 'quillbus', text: 'Hello? Did I get through?' },
       { from: 'quillbus', text: 'Please, push one of the buttons on your screen if you can hear me.' },
@@ -117,9 +117,9 @@ export const CHAPTERS = {
   c11: {
     beats: [
       { from: 'quillbus', text: 'Excellent. You’re almost at the next node, I’m rea–', cut: true },
-      { glitch: true },
+      { glitch: 'hack' },
       { system: 'crisp-E hijacked this conversation' },
-      { thread: 'crispe' },
+      { thread: 'crispe', scramble: true },
       { from: 'crispe', text: 'heeey send me a pic and i’ll draw you' },
       { from: 'crispe', text: 'what it’s the least i can do for my new biggest fan' },
       { from: 'crispe', text: 'nevermind i hacked your camera' },

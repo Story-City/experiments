@@ -1,3 +1,4 @@
+import { createGlitches } from './glitch.js';
 import { STORY, CAST, CHAPTERS, SHARED, SHARED_CHOICES, SHARED_ACTIONS, SHARED_WALKS } from './story.js';
 
 const $ = (id) => document.getElementById(id);
@@ -18,6 +19,7 @@ let lastRow = null;
 let lastReceipt = null;
 let activeThread = null;
 const canvases = {};
+const fx = createGlitches({ phone, thread, sleep: (ms) => wait(ms, false) });
 
 const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -349,15 +351,22 @@ async function flicker(label) {
   }
 }
 
-async function glitch() {
-  phone.classList.remove('glitching');
-  void phone.offsetWidth;
-  phone.classList.add('glitching');
-  try {
-    await wait(1600, false);
-  } finally {
-    phone.classList.remove('glitching');
-  }
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+async function glitch(kind) {
+  if (reducedMotion.matches) return wait(300);
+  return kind === 'hack' ? fx.hack() : fx.flicker();
+}
+
+async function takeOver(key) {
+  setThread(key);
+  if (reducedMotion.matches) return;
+  const who = CAST[key];
+  await Promise.all([
+    fx.scramble($('headName'), who.name),
+    fx.scramble($('headStatus'), who.status),
+    fx.rgb(),
+  ]);
 }
 
 function expand(beats) {
@@ -365,13 +374,14 @@ function expand(beats) {
 }
 
 async function runBeat(beat) {
-  if (beat.glitch) return glitch();
+  if (beat.glitch) return glitch(beat.glitch);
   if (beat.system) {
     addSystem(beat.system);
     return wait(700);
   }
   if (beat.thread) {
-    setThread(beat.thread);
+    if (beat.scramble) await takeOver(beat.thread);
+    else setThread(beat.thread);
     return wait(300);
   }
   if (beat.flicker) return flicker(beat.flicker);

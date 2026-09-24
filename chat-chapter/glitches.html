@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Glitch Lab</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📺</text></svg>">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .lab {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+  }
+  .lab button { height: 34px; padding: 0 12px; }
+  a.icon-btn { display: inline-block; color: inherit; }
+</style>
+</head>
+<body>
+<div class="wallpaper" aria-hidden="true"></div>
+
+<div class="phone" id="phone">
+  <header class="bar glass">
+    <a class="icon-btn" href="./" aria-label="Back to the chat chapter"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <div class="contact">
+      <div class="avatar-wrap"><img class="avatar" id="headAvatar" src="img/quillbus.jpg" alt=""></div>
+      <div class="who"><div class="name" id="headName">Quillbus Aldersley</div><div class="status" id="headStatus">Society for Art Demarcation</div></div>
+    </div>
+  </header>
+
+  <main class="thread" id="thread">
+    <div class="glass system">Glitch Lab · tap an effect below</div>
+    <div class="row them"><img class="mini" src="img/quillbus.jpg" alt=""><div class="glass bubble">Hello? Did I get through?</div></div>
+    <div class="row them last"><img class="mini" src="img/quillbus.jpg" alt=""><div class="glass bubble">It is of the utmost urgency and importance!</div></div>
+    <div class="row me gap last"><div class="glass bubble">Uhhhh who are you?</div></div>
+    <div class="row them gap last"><img class="mini" src="img/quillbus.jpg" alt=""><div class="glass bubble">Excellent. You’re almost at the next node, I’m rea–</div></div>
+  </main>
+
+  <nav class="lab">
+    <button class="pill-btn glass" data-g="flicker">Signal flicker</button>
+    <button class="pill-btn glass" data-g="slices">Slice tear</button>
+    <button class="pill-btn glass" data-g="rgb">RGB split</button>
+    <button class="pill-btn glass" data-g="blackout">Blackout static</button>
+    <button class="pill-btn glass" data-g="melt">Melt</button>
+    <button class="pill-btn glass" data-g="takeover">Name takeover</button>
+    <button class="pill-btn glass" data-g="hack">Full hack</button>
+  </nav>
+</div>
+
+<script type="module">
+import { createGlitches } from './glitch.js';
+
+const $ = (id) => document.getElementById(id);
+const phone = $('phone');
+const fx = createGlitches({ phone, thread: $('thread'), sleep: (ms) => new Promise((r) => setTimeout(r, ms)) });
+const PEOPLE = {
+  quillbus: { name: 'Quillbus Aldersley', status: 'Society for Art Demarcation', avatar: 'img/quillbus.jpg' },
+  crispe: { name: 'crisp-E', status: 'hijacked your thread', avatar: 'img/crispe.jpg' },
+};
+let who = 'quillbus';
+let busy = false;
+
+async function takeover() {
+  who = who === 'quillbus' ? 'crispe' : 'quillbus';
+  const p = PEOPLE[who];
+  phone.classList.toggle('hacked', who === 'crispe');
+  $('headAvatar').src = p.avatar;
+  document.querySelectorAll('.row.them .mini').forEach((m) => { m.src = p.avatar; });
+  await Promise.all([fx.scramble($('headName'), p.name), fx.scramble($('headStatus'), p.status), fx.rgb()]);
+}
+
+const RUN = {
+  flicker: () => fx.flicker(),
+  slices: () => fx.slices(),
+  rgb: () => fx.rgb(),
+  blackout: () => fx.blackout(),
+  melt: () => fx.melt(),
+  takeover,
+  hack: async () => { await fx.hack(); await takeover(); },
+};
+
+document.querySelectorAll('[data-g]').forEach((b) => b.addEventListener('click', async () => {
+  if (busy) return;
+  busy = true;
+  try { await RUN[b.dataset.g](); } finally { busy = false; }
+}));
+</script>
+</body>
+</html>
