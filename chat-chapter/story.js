@@ -13,6 +13,14 @@ export const CAST = {
 
 const HEAD_TO = 'Head to the next node';
 
+function replyJoke(s) {
+  const secs = s === 1 ? '1 second' : `${s} seconds`;
+  if (s <= 5) return `${secs}, new record 😂`;
+  if (s <= 20) return `${secs}, you’re slipping 😂`;
+  if (s <= 60) return `a whole ${secs}? are you ok 😂`;
+  return 'took you long enough 😂';
+}
+
 export const CHAPTERS = {
   pre: {
     thread: 'friends',
@@ -30,7 +38,7 @@ export const CHAPTERS = {
   },
   pre2: {
     beats: [
-      { from: 'maya', text: '4 seconds, new record 😂 where’d you get that jacket btw' },
+      { from: 'maya', text: ({ replySeconds: s }) => `${replyJoke(s)} where’d you get that jacket btw` },
     ],
     choices: [
       { text: 'Thrift store. Six bucks.', to: 'hacked' },

@@ -467,16 +467,20 @@ async function runBeat(beat) {
     await addImage(beat);
     return wait(500);
   }
-  await showTyping(beat.from, typingTime(beat.text));
+  const text = typeof beat.text === 'function' ? beat.text(player) : beat.text;
+  await showTyping(beat.from, typingTime(text));
   const bubble = glass(document.createElement('div'));
   bubble.className += ` bubble from-${beat.from}`;
-  bubble.textContent = beat.text;
+  bubble.textContent = text;
   if (beat.cut) bubble.classList.add('cut');
   addRow('them', beat.from, bubble);
 }
 
+const player = { replySeconds: 0 };
+
 function offer(options) {
   choicesEl.innerHTML = '';
+  const shownAt = performance.now();
   return new Promise((resolve, reject) => {
     const entry = { done: () => reject(ABORT), skippable: false };
     pending.push(entry);
@@ -487,6 +491,7 @@ function offer(options) {
       b.textContent = opt.text;
       b.addEventListener('click', (e) => {
         e.stopPropagation();
+        player.replySeconds = Math.max(1, Math.round((performance.now() - shownAt) / 1000));
         choicesEl.innerHTML = '';
         pending = pending.filter((p) => p !== entry);
         resolve(opt);
