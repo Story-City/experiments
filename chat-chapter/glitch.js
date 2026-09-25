@@ -130,7 +130,7 @@ export function createGlitches({ phone, thread, sleep }) {
     await flicker();
   }
 
-  async function melt(ms = 370) {
+  async function melt(ms = 370, onPeak) {
     ensureMeltFilter();
     const map = document.getElementById('meltMap');
     const noise = document.getElementById('meltNoise');
@@ -139,11 +139,13 @@ export function createGlitches({ phone, thread, sleep }) {
       const t0 = performance.now();
       while (performance.now() - t0 < ms) {
         const p = (performance.now() - t0) / ms;
+        if (onPeak && p >= 0.5) { onPeak(); onPeak = null; }
         map.setAttribute('scale', String(Math.sin(p * Math.PI) * 120));
         noise.setAttribute('seed', String(Math.floor(rnd(1, 99))));
         await sleep(30);
       }
     } finally {
+      onPeak?.();
       map.setAttribute('scale', '0');
       phone.classList.remove('glitch-melt');
     }
@@ -164,8 +166,7 @@ export function createGlitches({ phone, thread, sleep }) {
 
   async function quiet(onDark) {
     await flicker();
-    await melt();
-    await blackout(onDark);
+    await melt(undefined, onDark);
   }
 
   async function hack(onDark) {
