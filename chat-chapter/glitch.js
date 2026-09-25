@@ -44,7 +44,7 @@ export function createGlitches({ phone, thread, sleep }) {
     }
   }
 
-  async function slices(ms = 900) {
+  async function slices(ms = 900, { mono = false } = {}) {
     const n = 7;
     const top = thread.offsetTop;
     const height = thread.clientHeight;
@@ -70,7 +70,7 @@ export function createGlitches({ phone, thread, sleep }) {
           const h = i === n - 1 ? 100 - y : rnd(4, 26);
           s.style.clipPath = `inset(${y}% 0 ${Math.max(0, 100 - y - h)}% 0)`;
           s.style.transform = Math.random() < 0.55 ? `translateX(${rnd(-40, 40)}px)` : 'none';
-          s.style.filter = Math.random() < 0.25 ? 'hue-rotate(120deg) saturate(2)' : 'none';
+          s.style.filter = mono ? 'grayscale(1) contrast(1.4)' : Math.random() < 0.25 ? 'hue-rotate(120deg) saturate(2)' : 'none';
           y += h;
         });
         await sleep(rnd(50, 110));
@@ -162,18 +162,44 @@ export function createGlitches({ phone, thread, sleep }) {
     }
   }
 
-  async function quiet(onDark) {
-    await frames('glitch-dim', [[true, 140], [false, 90], [true, 260]]);
-    const items = [...thread.children].reverse();
+  async function coldFlicker() {
+    const scan = overlay('glitch-scan');
     try {
-      for (const el of items) {
-        el.classList.add('glitch-dissolve');
-        await sleep(70);
-      }
-      await sleep(450);
+      await frames('glitch-mono', [[true, 70], [false, 60], [true, 110], [false, 50], [true, 60], [false, 0]]);
     } finally {
-      onDark?.();
+      scan.remove();
     }
+  }
+
+  async function wipe(onDark, ms = 650) {
+    const line = overlay('glitch-wipe');
+    const top = thread.offsetTop;
+    const height = thread.clientHeight;
+    try {
+      const t0 = performance.now();
+      while (performance.now() - t0 < ms) {
+        const p = (performance.now() - t0) / ms;
+        line.style.top = `${top + p * height}px`;
+        thread.style.clipPath = `inset(${p * 100}% 0 0 0)`;
+        await sleep(16);
+      }
+    } finally {
+      line.remove();
+      onDark?.();
+      thread.style.clipPath = '';
+    }
+  }
+
+  async function quiet(onDark) {
+    await coldFlicker();
+    phone.classList.add('glitch-mono');
+    try {
+      await slices(450, { mono: true });
+    } finally {
+      phone.classList.remove('glitch-mono');
+    }
+    await wipe(onDark);
+    await coldFlicker();
   }
 
   async function typeIn(el, text, ms = 60) {

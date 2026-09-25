@@ -437,5 +437,23 @@ svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width:
 .snap .swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--glass-edge); }
 .snap[hidden] { display: none; }
 
-.glitch-dim .thread, .glitch-dim .bar { filter: brightness(0.55); transition: filter 0.12s; }
-.glitch-dissolve { transition: opacity 0.45s ease, filter 0.45s ease; opacity: 0; filter: blur(6px); }
+.glitch-mono .thread, .glitch-mono .bar, .glitch-mono .dock { filter: grayscale(1) contrast(1.8) brightness(1.15); }
+.glitch-mono::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  -webkit-backdrop-filter: grayscale(1) contrast(1.8) brightness(1.2);
+  backdrop-filter: grayscale(1) contrast(1.8) brightness(1.2);
+}
+.glitch-wipe {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  height: 3px;
+  pointer-events: none;
+  background: var(--text);
+  box-shadow: 0 0 18px 4px var(--glass-shine), 0 -40px 60px var(--glass-fill);
+}
