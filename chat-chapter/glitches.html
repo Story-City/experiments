@@ -51,7 +51,7 @@ document.write(`<link rel="stylesheet" href="theme.css${CACHE_V}"><link rel="sty
     <button class="pill-btn glass" data-g="melt">Melt</button>
     <button class="pill-btn glass" data-g="takeover">Name takeover</button>
     <button class="pill-btn glass" data-g="hack">Full hack (crisp-E)</button>
-    <button class="pill-btn glass" data-g="quiet">Quiet takeover (Quillbus)</button>
+    <button class="pill-btn glass" data-g="quiet">Quillbus takeover</button>
   </nav>
 </div>
 
@@ -91,9 +91,7 @@ const RUN = {
     who = 'quillbus';
     phone.classList.remove('hacked');
     $('headAvatar').src = PEOPLE.quillbus.avatar;
-    $('headStatus').textContent = '';
-    await fx.typeIn($('headName'), PEOPLE.quillbus.name);
-    await fx.typeIn($('headStatus'), PEOPLE.quillbus.status, 30);
+    await Promise.all([fx.scramble($('headName'), PEOPLE.quillbus.name), fx.scramble($('headStatus'), PEOPLE.quillbus.status)]);
     await new Promise((r) => setTimeout(r, 1200));
     $('thread').innerHTML = saved;
   },

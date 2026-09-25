@@ -52,7 +52,7 @@ export const CHAPTERS = {
     beats: [
       { typing: 'maya', ms: 1600 },
       { glitch: 'quiet', clear: true },
-      { thread: 'quillbus', takeover: 'type' },
+      { thread: 'quillbus', takeover: 'quiet' },
     ],
     next: 'c0',
   },
@@ -165,7 +165,7 @@ export const CHAPTERS = {
       { from: 'quillbus', text: 'Excellent. You’re almost at the next node, I’m rea–', cut: true },
       { glitch: 'hack' },
       { system: 'crisp-E hijacked this conversation' },
-      { thread: 'crispe', takeover: 'scramble' },
+      { thread: 'crispe', takeover: 'loud' },
       { from: 'crispe', text: 'heeey send me a pic and i’ll draw you' },
       { from: 'crispe', text: 'what it’s the least i can do for my new biggest fan' },
       { from: 'crispe', text: 'nevermind i hacked your camera' },

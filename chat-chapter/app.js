@@ -623,16 +623,10 @@ async function takeOver(key, style) {
   setThread(key);
   if (reducedMotion.matches) return;
   const who = CAST[key];
-  if (style === 'type') {
-    $('headStatus').textContent = '';
-    await fx.typeIn($('headName'), who.name);
-    await fx.typeIn($('headStatus'), who.status, 30);
-    return;
-  }
   await Promise.all([
     fx.scramble($('headName'), who.name),
     fx.scramble($('headStatus'), who.status),
-    fx.rgb(),
+    style === 'loud' ? fx.rgb() : null,
   ]);
 }
 
