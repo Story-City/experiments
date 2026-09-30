@@ -18,69 +18,147 @@
     font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
   h1 { margin: 0 0 4px; font-size: 26px; }
-  .sub { margin: 0 0 24px; color: var(--text-muted); }
+  h2 { margin: 32px 0 12px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+  .sub { margin: 0 0 16px; color: var(--text-muted); }
   ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-  a.card {
+  li { --who: var(--author-other); }
+  li[data-author="brett"], .chip[data-author="brett"] { --who: var(--author-brett); }
+  li[data-author="melissa"], .chip[data-author="melissa"] { --who: var(--author-melissa); }
+  li[hidden] { display: none; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; }
+  .chip {
+    --who: var(--accent);
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .chip[aria-pressed="true"] {
+    border-color: var(--who);
+    background: color-mix(in srgb, var(--who) 18%, var(--surface));
+    font-weight: 600;
+  }
+
+  a.card, details.card {
     display: block;
     padding: 16px;
     border: 1px solid var(--border);
+    border-left: 4px solid var(--who);
     border-radius: 16px;
     background: var(--surface);
     color: inherit;
     text-decoration: none;
   }
-  a.card:hover, a.card:focus-visible { border-color: var(--accent); }
+  a.card:hover, a.card:focus-visible { border-color: var(--who); }
   .name { font-weight: 600; font-size: 18px; }
   .what { margin: 4px 0 0; color: var(--text-muted); }
-  .date { margin: 6px 0 0; font-size: 13px; color: var(--text-muted); }
+  .meta { margin: 6px 0 0; font-size: 13px; color: var(--text-muted); }
+  .by { color: var(--who); font-weight: 600; }
+
+  details.card { padding: 10px 16px; opacity: .75; }
+  details.card[open] { opacity: 1; padding-bottom: 16px; }
+  details.card summary { cursor: pointer; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  details.card summary .name { font-size: 15px; }
+  details.card a { color: var(--who); }
+  .tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
 </style>
 </head>
 <body>
 <h1>Story City Experiments</h1>
 <p class="sub">Throwaway prototypes for playtests. Open them on a phone.</p>
-<ul>
-  <li>
+<div class="filters" role="group" aria-label="Filter by author"></div>
+
+<ul id="live">
+  <li data-author="melissa">
     <a class="card" href="first-steps/?v=summons">
       <div class="name">First steps: The Summons</div>
       <p class="what">First-time user tour. The welcome screen glitches and Wren, a secret-society agent, hacks in to teach location, walk to unlock, the colour-photo puzzle, nearby spots, a scavenger hunt, a first location gem, sign-up and the paywall.</p>
-      <p class="date">September 2026</p>
+      <p class="meta"><span class="by">Melissa</span> · September 2026</p>
     </a>
   </li>
-  <li>
+  <li data-author="melissa">
     <a class="card" href="first-steps/?v=knight">
       <div class="name">First steps: The Knight</div>
       <p class="what">The same tour told by Sir Wendell, a knight chasing an invisible dragon: parchment-scrap messages on a castle wall, a torn-map jigsaw, and olde-English lines.</p>
-      <p class="date">September 2026</p>
+      <p class="meta"><span class="by">Melissa</span> · September 2026</p>
     </a>
   </li>
-  <li>
+  <li data-author="brett">
     <a class="card" href="chat-chapter/">
       <div class="name">Chat chapter</div>
       <p class="what">The opening of Operation COPY/WRITE told as a text-message thread, with typing indicators and crisp-E hijacking the chat.</p>
-      <p class="date">September 2026</p>
+      <p class="meta"><span class="by">Brett</span> · September 2026</p>
     </a>
   </li>
-  <li>
+  <li data-author="brett">
     <a class="card" href="chat-chapter/glitches.html">
       <div class="name">Glitch Lab</div>
       <p class="what">Seven hack and signal-loss effects for the chat chapter, one button each. Full hack chains them into crisp-E taking over the thread.</p>
-      <p class="date">September 2026</p>
+      <p class="meta"><span class="by">Brett</span> · September 2026</p>
     </a>
   </li>
-  <li>
+  <li data-author="melissa">
     <a class="card" href="remixer/">
       <div class="name">The Remixer</div>
       <p class="what">crisp-E's remix tool at Loc 3i: three tabs of one-tap effects (Mix it, Shape it, Wreck it), colour and contrast grids, and Save unlocks once you've used a tool from each tab.</p>
-      <p class="date">September 2026</p>
-    </a>
-  </li>
-  <li>
-    <a class="card" href="image-remix/">
-      <div class="name">Remix a masterpiece</div>
-      <p class="what">Stamp a photo onto a public-domain painting, then pixelate, smear and recolour it.</p>
-      <p class="date">September 2026</p>
+      <p class="meta"><span class="by">Melissa</span> · September 2026</p>
     </a>
   </li>
 </ul>
+
+<h2 id="archived-heading">Archived</h2>
+<ul id="archived">
+  <li data-author="brett">
+    <details class="card">
+      <summary><span class="name">Remix a masterpiece</span><span class="tag">Archived</span></summary>
+      <p class="what">Stamp a photo onto a public-domain painting, then pixelate, smear and recolour it. Superseded by The Remixer.</p>
+      <p class="meta"><span class="by">Brett</span> · September 2026 · <a href="image-remix/">Open it</a></p>
+    </details>
+  </li>
+</ul>
+
+<script>
+  const items = [...document.querySelectorAll('li[data-author]')];
+  const authors = new Map();
+  for (const li of items) authors.set(li.dataset.author, li.querySelector('.by').textContent);
+
+  const bar = document.querySelector('.filters');
+  const chips = [['', 'Everyone'], ...authors].map(([key, label]) => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.type = 'button';
+    b.textContent = label;
+    if (key) b.dataset.author = key;
+    b.addEventListener('click', () => apply(key));
+    bar.append(b);
+    return b;
+  });
+
+  function apply(key) {
+    if (key && !authors.has(key)) key = '';
+    for (const b of chips) b.setAttribute('aria-pressed', String((b.dataset.author || '') === key));
+    for (const li of items) li.hidden = !!key && li.dataset.author !== key;
+    document.getElementById('archived-heading').hidden =
+      ![...document.querySelectorAll('#archived li')].some(li => !li.hidden);
+    const url = new URL(location.href);
+    key ? url.searchParams.set('by', key) : url.searchParams.delete('by');
+    history.replaceState(null, '', url);
+  }
+
+  apply(new URLSearchParams(location.search).get('by') || '');
+</script>
 </body>
 </html>

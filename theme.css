@@ -8,6 +8,10 @@
   --paper-400: #a79f92;
   --saffron-400: #f2b84b;
   --saffron-500: #e3a12c;
+  --teal-300: #6fcfc2;
+  --teal-600: #1f8a7e;
+  --rose-300: #f28db2;
+  --rose-600: #c23a6c;
 
   --bg: var(--paper-50);
   --surface: var(--paper-100);
@@ -15,6 +19,9 @@
   --text: var(--ink-900);
   --text-muted: var(--ink-500);
   --accent: var(--saffron-500);
+  --author-brett: var(--teal-600);
+  --author-melissa: var(--rose-600);
+  --author-other: var(--ink-500);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -25,5 +32,8 @@
     --text: var(--paper-50);
     --text-muted: var(--paper-400);
     --accent: var(--saffron-400);
+    --author-brett: var(--teal-300);
+    --author-melissa: var(--rose-300);
+    --author-other: var(--paper-400);
   }
 }
