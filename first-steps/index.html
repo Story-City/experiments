@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="robots" content="noindex">
+<title>Story City · First steps</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;900&family=IM+Fell+English:ital@0;1&display=swap">
+<script>
+window.CACHE_V = '?v=' + Date.now();
+document.write(`<link rel="stylesheet" href="theme.css${CACHE_V}"><link rel="stylesheet" href="app.css${CACHE_V}">`);
+</script>
+</head>
+<body>
+<div class="wallpaper" aria-hidden="true"></div>
+
+<div class="phone" id="phone">
+  <header class="bar glass">
+    <button class="icon-btn" id="restartBtn" aria-label="Restart">
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="contact">
+      <div class="avatar-wrap">
+        <img class="avatar" id="headAvatar" alt="">
+        <span class="avatar-glitch" id="headFlicker" hidden></span>
+      </div>
+      <div class="who">
+        <div class="name" id="headName"></div>
+        <div class="status" id="headStatus"></div>
+      </div>
+    </div>
+    <button class="pill-btn" id="speedBtn" aria-label="Playback speed">1×</button>
+  </header>
+
+  <main class="thread" id="thread" aria-live="polite"></main>
+
+  <footer class="dock">
+    <div class="choices" id="choices"></div>
+    <div class="composer glass">
+      <div class="field" id="field"><span class="placeholder">Message</span></div>
+      <button class="send" id="sendBtn" aria-label="Send" disabled>
+        <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+    </div>
+  </footer>
+
+  <nav class="tabbar glass" id="tabbar" hidden>
+    <button data-tab="chat" class="on"><span>💬</span>Chat</button>
+    <button data-tab="map"><span>🗺️</span>Map</button>
+    <button data-tab="stories" id="storiesTab"><span>📚</span>Stories</button>
+    <button data-tab="me"><span>👤</span>Me</button>
+  </nav>
+
+  <div class="spotlight" id="spotlight" hidden>
+    <div class="spot-hole" id="spotHole"></div>
+    <div class="spot-tip glass" id="spotTip"></div>
+  </div>
+
+  <section class="welcome" id="intro">
+    <div class="mock-switch" role="group" aria-label="Mockup version">
+      <span>Mockup</span>
+      <button data-v="summons" aria-pressed="true">A · Summons</button>
+      <button data-v="knight" aria-pressed="false">B · Knight</button>
+    </div>
+    <div class="welcome-art" aria-hidden="true"></div>
+    <div class="welcome-copy">
+      <div class="wordmark">STORY CITY</div>
+      <h1 class="welcome-title">Turn any walk into<br><span class="rotator" id="rotator">an adventure</span>.</h1>
+      <p class="welcome-sub">Don’t just walk — Explore.</p>
+      <div class="dots"><i class="on"></i><i></i><i></i></div>
+      <button class="gradient-btn" id="startBtn">Start Exploring</button>
+      <button class="signin-link">Already have an account? Sign in</button>
+    </div>
+  </section>
+
+  <section class="explainer" id="explainer" hidden>
+    <div class="ex-art" aria-hidden="true"></div>
+    <div class="ex-top">
+      <span class="wordmark">STORY CITY</span>
+      <button class="ex-skip">Skip</button>
+    </div>
+    <div class="ex-body">
+      <h2 class="ex-title">Step into the story.</h2>
+      <p class="ex-sub">Tired of boring walks?</p>
+      <ol class="ex-list">
+        <li>Pick a story.</li>
+        <li>Go for a walk.</li>
+        <li>Unlock the next chapter.</li>
+        <li>Choose how it ends.</li>
+      </ol>
+    </div>
+    <div class="dots ex-dots"><i></i><i class="on"></i><i></i></div>
+    <button class="gradient-btn" id="exNext">Next</button>
+  </section>
+
+  <section class="card-overlay remix-sheet" id="decryptSheet" hidden>
+    <div class="sheet glass" role="dialog" aria-modal="true" aria-labelledby="decryptTitle">
+      <div class="sheet-bar">
+        <span id="decryptTitle"></span>
+        <button class="pill-btn" id="decryptClose">Cancel</button>
+      </div>
+      <div class="decrypt-body">
+        <div class="seg-modes" id="decryptModes" role="group" aria-label="Decrypt game">
+          <button class="pill-btn" data-mode="tap" aria-pressed="true">Tap</button>
+          <button class="pill-btn" data-mode="photo" aria-pressed="false">Photo</button>
+        </div>
+        <div class="decrypt-stage" id="decryptStage">
+          <canvas id="decryptCanvas" role="img" aria-label="Corrupted node. Decrypt each sector."></canvas>
+        </div>
+        <p class="decrypt-hint" id="decryptHint"></p>
+        <input type="file" id="decryptFile" accept="image/*" capture="environment" hidden>
+      </div>
+    </div>
+  </section>
+
+  <section class="card-overlay remix-sheet" id="remixSheet" hidden>
+    <div class="sheet glass" role="dialog" aria-modal="true" aria-labelledby="remixTitle">
+      <div class="sheet-bar">
+        <span id="remixTitle"></span>
+        <button class="pill-btn" id="remixClose">Cancel</button>
+      </div>
+      <iframe id="remixFrame" title="Remix editor"></iframe>
+    </div>
+  </section>
+
+  <section class="card-overlay" id="endCard" hidden>
+    <div class="title-card glass">
+      <p class="eyebrow">End of mockup</p>
+      <h1 id="endTitle"></h1>
+      <p class="blurb" id="endBody"></p>
+      <button class="cta" id="replayBtn">Play again</button>
+      <button class="cta ghost" id="otherBtn"></button>
+    </div>
+  </section>
+
+  <section class="card-overlay" id="modal" hidden></section>
+</div>
+
+<script type="module">import(`./app.js${window.CACHE_V}`);</script>
+</body>
+</html>
