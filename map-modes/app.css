@@ -1,0 +1,151 @@
+:root {
+  /* Real app surfaces (mobile-rn defaultTheme) */
+  --bg: #170c35;
+  --raised: #241b46;
+  --road: #3a2f66;
+  --park: #1f3a3a;
+  --text: #ffffff;
+  --muted: #b2b5b4;
+  --accent: #009eff;
+  --accent-deep: #0259a1;
+  /* Map modes (29 Sept data meeting) */
+  --walk-start: #f2c230;
+  --walk-end: #3ddc84;
+  --pin: #2f8bff;
+  --hunt: #b36bff;
+  --hunt-fill: rgba(179, 107, 255, 0.14);
+  --story: #ffb347;
+  --gem: #3ddc84;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #07080f; color: var(--text); }
+body { font: 15px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.phone { position: relative; height: 100dvh; max-width: 440px; margin: 0 auto; overflow: hidden; background: var(--bg); }
+
+/* map */
+.map { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ground { fill: var(--bg); }
+.block { fill: var(--raised); }
+.park { fill: var(--park); }
+.road { stroke: var(--road); stroke-width: 14; }
+.road.main { stroke-width: 22; }
+.tree { fill: #2d6b4a; }
+.label { fill: var(--muted); font: 600 11px -apple-system, system-ui, sans-serif; letter-spacing: 0.04em; }
+.label.small { font-size: 9px; }
+.pin-label { fill: var(--text); font-size: 12px; paint-order: stroke; stroke: var(--bg); stroke-width: 4px; }
+.story circle { fill: var(--raised); stroke: var(--story); stroke-width: 2; }
+.story path { fill: none; stroke: var(--story); stroke-width: 1.6; }
+.gem path { fill: var(--gem); opacity: 0.85; }
+.dest circle { fill: var(--raised); stroke: var(--text); stroke-width: 2; stroke-dasharray: 3 3; }
+.dest path { fill: none; stroke: var(--text); stroke-width: 2; stroke-linecap: round; }
+.me .dot { fill: var(--text); stroke: var(--accent); stroke-width: 4; }
+.me .pulse { fill: var(--accent); opacity: 0.25; animation: pulse 1.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes pulse { from { transform: scale(0.5); opacity: 0.5; } to { transform: scale(1.8); opacity: 0; } }
+
+.ring { fill: none; stroke-width: 1.3; transition: stroke 0.3s; }
+.route { fill: none; stroke: var(--pin); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; opacity: 0.55; }
+.pin { animation: drop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+.pin-body { fill: var(--pin); stroke: var(--text); stroke-width: 2; }
+.pin-icon { fill: none; stroke: var(--text); stroke-width: 2.2; stroke-linecap: round; }
+@keyframes drop { from { opacity: 0; translate: 0 -30px; } }
+.search { fill: none; stroke: var(--pin); stroke-width: 1.4; stroke-dasharray: 4 7; opacity: 0.7; animation: searching 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes searching { 50% { opacity: 0.25; transform: scale(0.94); } }
+.zone-fill { fill: var(--hunt-fill); }
+.zone-edge { fill: none; stroke: var(--hunt); stroke-width: 1.4; stroke-dasharray: 3 6; }
+.sweep { fill: var(--hunt); opacity: 0.22; }
+.crumb-walk, .crumb-hunt { opacity: 0.95; }
+.crumb-hunt { opacity: 0.55; }
+.burst line { stroke: var(--walk-end); stroke-width: 3; stroke-linecap: round; animation: burst 0.85s ease-out both; }
+@keyframes burst { to { opacity: 0; transform: scale(1.7); } }
+
+/* hunt viewfinder corners frame the whole map */
+.viewfinder { position: absolute; inset: 132px 14px 300px; pointer-events: none; }
+.viewfinder[hidden] { display: none; }
+.viewfinder i { position: absolute; width: 40px; height: 40px; border: 3px solid var(--hunt); filter: drop-shadow(0 0 6px var(--hunt)); }
+.viewfinder i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; border-top-left-radius: 18px; }
+.viewfinder i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; border-top-right-radius: 18px; }
+.viewfinder i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; border-bottom-left-radius: 18px; }
+.viewfinder i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; border-bottom-right-radius: 18px; }
+
+/* top HUD */
+.top { position: absolute; top: 0; left: 0; right: 0; padding: calc(10px + env(safe-area-inset-top)) 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.hud { padding: 10px 14px; border-radius: 18px; background: color-mix(in srgb, var(--raised) 86%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.12); }
+.chip { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bg); transition: background 0.3s; }
+body[data-mode="walk"] .chip { background: linear-gradient(90deg, var(--walk-start), var(--walk-end)); }
+body[data-mode="pin"] .chip { background: var(--pin); color: var(--text); }
+body[data-mode="hunt"] .chip { background: var(--hunt); color: var(--text); }
+.hud-title { margin-top: 5px; font: 700 22px/1.1 "Darker Grotesque", system-ui, sans-serif; }
+.demo { display: flex; gap: 6px; justify-content: flex-end; }
+.demo button { border: 1px dashed rgba(255, 255, 255, 0.3); background: rgba(7, 8, 15, 0.6); border-radius: 999px; padding: 4px 10px; font-size: 11px; color: var(--muted); }
+.demo button[aria-pressed="true"] { border-style: solid; border-color: var(--pin); color: var(--text); }
+
+.toast {
+  position: absolute; left: 50%; bottom: 284px; transform: translateX(-50%);
+  padding: 8px 14px; border-radius: 999px; white-space: nowrap; font-size: 13px; font-weight: 600;
+  background: color-mix(in srgb, var(--raised) 92%, transparent); border: 1px solid rgba(255, 255, 255, 0.18);
+  animation: rise 0.3s ease both;
+}
+.toast[hidden] { display: none; }
+@keyframes rise { from { opacity: 0; transform: translate(-50%, 8px); } }
+
+/* chapter card with the mode switch */
+.card {
+  position: absolute; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom));
+  padding: 14px; border-radius: 24px; display: flex; flex-direction: column; gap: 12px;
+  background: color-mix(in srgb, var(--raised) 94%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+.story { display: flex; gap: 12px; align-items: center; }
+.cover { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(150deg, #3a1f6e, #0a0518); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15); position: relative; }
+.cover::after { content: ""; position: absolute; inset: 12px; border: 2px solid #b6ff3b; border-radius: 50%; }
+.story-name { font-size: 12px; color: var(--muted); letter-spacing: 0.02em; }
+.next { font: 600 20px/1.05 "Darker Grotesque", system-ui, sans-serif; }
+.next b { font-weight: 900; }
+
+.switch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 16px; background: rgba(7, 8, 15, 0.55); }
+.seg { display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; background: none; border-radius: 12px; padding: 10px 6px; font-weight: 700; color: var(--muted); transition: background 0.25s, color 0.25s; position: relative; }
+.seg svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; }
+.seg[aria-selected="true"] { color: var(--bg); }
+.seg-walk[aria-selected="true"] { background: linear-gradient(90deg, var(--walk-start), var(--walk-end)); }
+.seg-pin[aria-selected="true"] { background: var(--pin); color: var(--text); }
+.seg-hunt[aria-selected="true"] { background: var(--hunt); color: var(--text); }
+.seg.none::after { content: "none nearby"; position: absolute; top: -7px; right: 4px; font-size: 9px; padding: 1px 5px; border-radius: 999px; background: var(--raised); color: var(--muted); border: 1px solid rgba(255, 255, 255, 0.2); }
+.seg:disabled { opacity: 0.5; cursor: default; }
+
+.status { font-size: 14px; color: var(--muted); }
+.status b { color: var(--text); }
+.status .done { color: var(--walk-end); font-weight: 800; font-size: 17px; }
+.bar { margin-top: 8px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
+.bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--walk-start), var(--walk-end)); }
+.actions { display: flex; gap: 8px; justify-content: center; }
+.btn { flex: 1; border: 0; border-radius: 999px; padding: 13px 16px; font: 700 18px "Darker Grotesque", system-ui, sans-serif; }
+.btn.primary { background: linear-gradient(90deg, var(--accent-deep), var(--accent)); }
+.btn.primary.walk { background: linear-gradient(90deg, var(--walk-start), var(--walk-end)); color: var(--bg); }
+.btn.primary.pin { background: var(--pin); }
+.btn.ghost { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); }
+.btn.shutter { flex: 0 0 auto; width: 66px; height: 66px; padding: 5px; border: 4px solid var(--hunt); background: none; box-shadow: 0 0 18px var(--hunt); position: relative; }
+.btn.shutter::after { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: var(--text); }
+.hint { margin: -4px 0 0; text-align: center; font-size: 12px; color: var(--muted); }
+
+/* pretend camera */
+.cam { position: absolute; inset: 0; z-index: 9; background: #000; display: flex; flex-direction: column; animation: fade 0.25s ease both; }
+@keyframes fade { from { opacity: 0; } }
+.cam-view { flex: 1; overflow: hidden; }
+.cam-view img { width: 100%; height: 100%; object-fit: cover; animation: camdrift 1.8s ease-out both; }
+@keyframes camdrift { from { transform: scale(1.25) translate(4%, -3%) rotate(-2deg); filter: blur(4px); } 60% { filter: blur(0); } to { transform: scale(1.05); } }
+.cam-top { position: absolute; top: calc(14px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); padding: 6px 14px; border-radius: 999px; background: rgba(0, 0, 0, 0.55); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.cam-focus { position: absolute; left: 50%; top: 42%; width: 110px; height: 110px; margin: -55px; border: 2px solid #ffd60a; animation: camfocus 1.2s ease-out 0.3s both; }
+@keyframes camfocus { from { transform: scale(1.6); opacity: 0; } 50% { transform: scale(0.95); opacity: 1; } to { opacity: 1; } }
+.cam-bottom { height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #ffd60a; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; }
+.cam-shutter { width: 72px; height: 72px; border-radius: 50%; border: 5px solid #fff; background: #fff; box-shadow: inset 0 0 0 4px #000; }
+.cam-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.cam.snapped .cam-flash { animation: flash 0.38s ease-out; }
+@keyframes flash { from { opacity: 0.95; } to { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse, .search, .pin, .toast, .cam-view img, .cam-focus { animation: none; }
+}
