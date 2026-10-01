@@ -1,0 +1,98 @@
+[
+  {
+    "slug": "map-modes-always",
+    "path": "map-modes/?v=always",
+    "title": "Map modes: always a pin",
+    "what": "No Pin mode: just Walk and Hunt, with whatever the chapter needs (a fountain, a street corner, a bench) always pinned nearby. Reaching the pin unlocks the chapter in either mode.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-09",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "map-modes",
+    "path": "map-modes/",
+    "title": "Map modes: Walk, Pin, Hunt",
+    "what": "One map, three ways to unlock the next chapter: Walk, Pin and Hunt, switched from the chapter card. Steps always count when you switch, and there's a \"no pin nearby\" state.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-09",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "first-steps-summons",
+    "path": "first-steps/?v=summons",
+    "title": "First steps: The Summons",
+    "what": "First-time user tour. The welcome screen glitches and Wren, a secret-society agent, hacks in to teach location, walk to unlock, the colour-photo puzzle, nearby spots, a scavenger hunt, a first location gem, sign-up and the paywall.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-09",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "first-steps-knight",
+    "path": "first-steps/?v=knight",
+    "title": "First steps: The Knight",
+    "what": "The same tour told by Sir Wendell, a knight chasing an invisible dragon: parchment-scrap messages on a castle wall, a torn-map jigsaw, and olde-English lines.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-09",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "chat-chapter",
+    "path": "chat-chapter/",
+    "title": "Chat chapter",
+    "what": "The opening of Operation COPY/WRITE told as a text-message thread, with typing indicators and crisp-E hijacking the chat.",
+    "author": "brett",
+    "authorName": "Brett",
+    "date": "2026-09",
+    "archived": false,
+    "notionPageId": "3e566b10-71fa-81fa-8ee5-eb18a5871cea",
+    "jira": null
+  },
+  {
+    "slug": "glitch-lab",
+    "path": "chat-chapter/glitches.html",
+    "title": "Glitch Lab",
+    "what": "Seven hack and signal-loss effects for the chat chapter, one button each. Full hack chains them into crisp-E taking over the thread.",
+    "author": "brett",
+    "authorName": "Brett",
+    "date": "2026-09",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "remixer",
+    "path": "remixer/",
+    "title": "The Remixer",
+    "what": "crisp-E's remix tool at Loc 3i: three tabs of one-tap effects (Mix it, Shape it, Wreck it), colour and contrast grids, and Save unlocks once you've used a tool from each tab.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-09",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "image-remix",
+    "path": "image-remix/",
+    "title": "Remix a masterpiece",
+    "what": "Stamp a photo onto a public-domain painting, then pixelate, smear and recolour it. Superseded by The Remixer.",
+    "author": "brett",
+    "authorName": "Brett",
+    "date": "2026-09",
+    "archived": true,
+    "notionPageId": null,
+    "jira": null
+  }
+]

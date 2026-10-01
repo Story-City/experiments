@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isTeam() {
+      return signedIn() && request.auth.token.email_verified == true
+        && request.auth.token.email in [];
+    }
+    function validNew() {
+      let d = request.resource.data;
+      return d.text is string && d.text.size() > 0 && d.text.size() <= 2000
+        && d.slug is string && d.slug.size() <= 80
+        && d.author.uid == request.auth.uid
+        && d.author.name is string && d.author.name.size() <= 60
+        && (!('screenshot' in d) || d.screenshot == null || d.screenshot.size() <= 280000)
+        && d.status == 'open';
+    }
+    match /comments/{id} {
+      allow read: if true;
+      allow create: if signedIn() && validNew();
+      allow update: if signedIn() && (
+        isTeam() ||
+        (resource.data.author.uid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text']))
+      );
+      allow delete: if isTeam();
+    }
+  }
+}

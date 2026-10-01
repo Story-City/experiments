@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Experiment viewer</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="hub/view.css">
+</head>
+<body>
+<header class="bar">
+  <a class="back" href="./" aria-label="Back to all experiments">‹ All</a>
+  <div class="title"><span id="title"></span> <span id="status" class="status" hidden></span></div>
+  <a id="direct" class="direct" href="#" target="_blank" rel="noopener">Open alone</a>
+</header>
+
+<main class="stage">
+  <div class="frame-wrap">
+    <iframe id="frame" title="Experiment"></iframe>
+    <div id="overlay" class="overlay" hidden></div>
+  </div>
+  <aside id="panel" class="panel" aria-label="Comments">
+    <div class="panel-head">
+      <h2>Comments <span id="open-count"></span></h2>
+      <button id="close" class="icon" type="button" aria-label="Close comments">×</button>
+    </div>
+    <div id="links" class="links"></div>
+    <div id="notion" class="notion"></div>
+    <div id="me" class="me"></div>
+    <div class="actions">
+      <button id="pin-mode" class="primary" type="button">Add a comment</button>
+      <label class="filter"><input id="show-resolved" type="checkbox"> Show resolved</label>
+    </div>
+    <p id="notice" class="notice" hidden></p>
+    <ol id="list" class="list"></ol>
+  </aside>
+</main>
+<button id="fab" class="fab" type="button" aria-label="Open comments">💬 <span id="fab-count"></span></button>
+
+<dialog id="compose" class="compose">
+  <form method="dialog" id="compose-form">
+    <h3 id="compose-title">Comment</h3>
+    <img id="shot" alt="Screenshot of the spot" hidden>
+    <label>Your name <input id="name" maxlength="60" autocomplete="name" required></label>
+    <label>Comment <textarea id="text" rows="4" maxlength="2000" required></textarea></label>
+    <div class="row">
+      <button value="cancel" type="button" id="cancel">Cancel</button>
+      <button id="send" class="primary" type="submit">Send</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module" src="hub/view.js"></script>
+</body>
+</html>
