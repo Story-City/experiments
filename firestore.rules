@@ -4,7 +4,7 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function isTeam() {
       return signedIn() && request.auth.token.email_verified == true
-        && request.auth.token.email in [];
+        && request.auth.token.email.matches('.*@storycity[.]app');
     }
     function validNew() {
       let d = request.resource.data;
