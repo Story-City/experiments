@@ -11,7 +11,24 @@ const MODES = {
   hunt: { label: 'Hunt', chip: 'Scavenger hunt' },
 };
 const GOAL = 240; // steps to unlock in Walk mode
-const PIN = { at: [280, 230], name: 'Streetlight' };
+let PIN = { at: [280, 230], name: 'Streetlight', icon: 'light' };
+// "Always a pin" version (?v=always): no Pin mode. Whatever real place the
+// chapter needs is always on the map nearby, and reaching it unlocks the
+// chapter in any mode. Cycle these with the mockup button.
+const ALWAYS = new URLSearchParams(location.search).get('v') === 'always';
+const NEEDS = [
+  { at: [245, 300], name: 'Fountain', need: 'a fountain', icon: 'fountain' },
+  { at: [280, 300], name: 'Street corner', need: 'a street corner', icon: 'corner' },
+  { at: [120, 470], name: 'Park bench', need: 'a bench', icon: 'bench' },
+];
+const PIN_ICONS = {
+  light: 'M-4 -30 h8 M0 -30 v10 M-5 -20 h10',
+  fountain: 'M0 -33 v9 M-7 -20 h14 M-5 -27 q5 -7 10 0 M-5 -20 v-3 M5 -20 v-3',
+  corner: 'M-5 -31 v11 h11',
+  bench: 'M-7 -28 h14 M-7 -24 h14 M-5 -24 v5 M5 -24 v5',
+};
+if (ALWAYS) PIN = NEEDS[0];
+const modeKeys = () => (ALWAYS ? ['walk', 'hunt'] : Object.keys(MODES));
 const HUNT_FIND = 'the tallest tree nearby';
 const START = [195, 380];
 // Pretend streets the player wanders along in Walk and Hunt.
@@ -90,6 +107,7 @@ const state = {
   walking: false,
   unlocked: false,
   noPin: params.get('pin') === 'none',
+  toPin: false, // heading to the nearby pin (always-a-pin version)
   path: null, // current path being walked
   along: 0,
   lastDot: 0,
@@ -112,6 +130,16 @@ function walkPath(from) {
   return ahead.length ? [from, ...ahead] : [from, ...TRACK.slice(0, -1).reverse()];
 }
 
+let routeEl = null;
+function drawPin(routeClass) {
+  routeEl = el('path', { d: poly(pinRoute(state.pos)), class: routeClass }, live);
+  const pin = el('g', { class: 'pin', transform: `translate(${PIN.at[0]} ${PIN.at[1]})` }, live);
+  el('path', { d: 'M0 0 C-4 -8 -14 -14 -14 -24 A14 14 0 1 1 14 -24 C14 -14 4 -8 0 0Z', class: 'pin-body' }, pin);
+  el('path', { d: PIN_ICONS[PIN.icon], class: 'pin-icon' }, pin);
+  const t = el('text', { x: 0, y: -44, class: 'label pin-label', 'text-anchor': 'middle' }, pin);
+  t.textContent = PIN.name;
+}
+
 let ring;
 let sweep;
 let searchRing;
@@ -128,13 +156,7 @@ function drawMode() {
     if (state.noPin) {
       searchRing = el('circle', { class: 'search', cx: state.pos[0], cy: state.pos[1], r: 150 }, live);
     } else {
-      const route = pinRoute(state.pos);
-      el('path', { d: poly(route), class: 'route' }, live);
-      const pin = el('g', { class: 'pin', transform: `translate(${PIN.at[0]} ${PIN.at[1]})` }, live);
-      el('path', { d: 'M0 0 C-4 -8 -14 -14 -14 -24 A14 14 0 1 1 14 -24 C14 -14 4 -8 0 0Z', class: 'pin-body' }, pin);
-      el('path', { d: 'M-4 -30 h8 M0 -30 v10 M-5 -20 h10', class: 'pin-icon' }, pin);
-      const t = el('text', { x: 0, y: -44, class: 'label pin-label', 'text-anchor': 'middle' }, pin);
-      t.textContent = PIN.name;
+      drawPin('route');
     }
   } else {
     const zone = el('g', { class: 'zone', transform: `translate(${state.pos[0]} ${state.pos[1]})` }, live);
@@ -143,6 +165,7 @@ function drawMode() {
     sweep = el('path', { d: 'M0 0 L130 0 A130 130 0 0 0 92 -92 Z', class: 'sweep' }, zone);
     sweep.parentNode.dataset.follow = '1';
   }
+  if (ALWAYS) drawPin(state.toPin ? 'route' : 'route hint');
   update();
 }
 
@@ -160,6 +183,8 @@ function update() {
   }
   live.querySelectorAll('[data-follow]').forEach((g) => g.setAttribute('transform', `translate(${state.pos[0]} ${state.pos[1]})`));
   if (searchRing) { searchRing.setAttribute('cx', state.pos[0]); searchRing.setAttribute('cy', state.pos[1]); }
+  // keep the route to the pin starting from wherever you are now
+  if (routeEl && routeEl.isConnected && !state.unlocked) routeEl.setAttribute('d', poly(state.toPin && state.path ? [state.pos, ...state.path.filter((p, i) => i > 0 && pathLen(state.path.slice(0, i + 1)) > state.along)] : pinRoute(state.pos)));
 
   // HUD
   let title = '';
@@ -183,7 +208,8 @@ function renderSwitch() {
   switchKey = key;
   const sw = $('switch');
   sw.innerHTML = '';
-  Object.entries(MODES).forEach(([key, m]) => {
+  sw.style.gridTemplateColumns = `repeat(${modeKeys().length}, 1fr)`;
+  modeKeys().map((k) => [k, MODES[k]]).forEach(([key, m]) => {
     const b = document.createElement('button');
     b.className = `seg seg-${key}`;
     b.setAttribute('role', 'tab');
@@ -206,7 +232,7 @@ function renderCard() {
   const { mode, walked } = state;
   const st = $('status');
   const act = $('actions');
-  const key = [mode, state.walking, state.unlocked, state.noPin, walked > 0].join();
+  const key = [mode, state.walking, state.unlocked, state.noPin, walked > 0, state.toPin, PIN.name].join();
   const rebuild = key !== cardKey;
   cardKey = key;
   if (rebuild) act.innerHTML = '';
@@ -226,9 +252,20 @@ function renderCard() {
     btn('Read chapter 2', 'primary', reset);
     return;
   }
+  if (ALWAYS && state.toPin) {
+    st.innerHTML = `<div class="row">Heading to the <b>${PIN.name.toLowerCase()}</b>, ${stepsToPin()} steps to go. You'll unlock the chapter when you get there.</div>`;
+    btn(state.walking ? 'Pause' : 'Keep going', 'primary pin', toggleWalk);
+    return;
+  }
+  const pinRow = () => {
+    if (!ALWAYS) return '';
+    return `<div class="pin-row"><span class="pin-dot">${ICONS.pin}</span><span>This chapter happens at <b>${PIN.need}</b>. There's one ${stepsToPin()} steps away.</span></div>`;
+  };
+  const goPin = () => btn(`Go to the ${PIN.name.toLowerCase()}`, 'ghost pin-go', headToPin);
   if (mode === 'walk') {
-    st.innerHTML = `<div class="row"><b>${left} steps</b> to unlock</div><div class="bar"><i style="width:${Math.min(100, (walked / GOAL) * 100)}%"></i></div>`;
+    st.innerHTML = `<div class="row"><b>${left} steps</b> to unlock</div><div class="bar"><i style="width:${Math.min(100, (walked / GOAL) * 100)}%"></i></div>${pinRow()}`;
     btn(state.walking ? 'Pause' : walked ? 'Keep walking' : 'Start walking', 'primary walk', toggleWalk);
+    if (ALWAYS) goPin();
   } else if (mode === 'pin') {
     if (state.noPin) {
       st.innerHTML = '<div class="row"><b>No pins near you right now.</b> Nothing on the map fits this chapter within a short walk.</div>';
@@ -241,8 +278,9 @@ function renderCard() {
     st.innerHTML = `<div class="row"><b>${PIN.name}</b>, ${pinSteps} steps away${quicker}</div>`;
     btn(state.walking ? 'Pause' : `Go to the ${PIN.name.toLowerCase()}`, 'primary pin', toggleWalk);
   } else {
-    st.innerHTML = `<div class="row">Find <b>${HUNT_FIND}</b>. It might take a short walk. Snap it when you find it.</div>`;
+    st.innerHTML = `<div class="row">Find <b>${HUNT_FIND}</b>. It might take a short walk. Snap it when you find it.</div>${pinRow()}`;
     btn('', 'shutter', snap).setAttribute('aria-label', 'Take photo');
+    if (ALWAYS) goPin();
   }
 }
 
@@ -259,6 +297,7 @@ function switchTo(mode) {
   const wasWalking = state.walking;
   stopWalking();
   state.mode = mode;
+  state.toPin = false;
   drawMode();
   if (state.walked >= 1) toast(`You've walked ${Math.round(state.walked)} steps. They still count.`);
   if (wasWalking && mode !== 'hunt' && !(mode === 'pin' && state.noPin)) toggleWalk();
@@ -276,11 +315,18 @@ function stopWalking() {
 function toggleWalk() {
   if (state.walking) { stopWalking(); renderCard(); return; }
   state.walking = true;
-  state.path = state.mode === 'pin' ? pinRoute(state.pos) : walkPath(state.pos);
+  state.path = state.mode === 'pin' || state.toPin ? pinRoute(state.pos) : walkPath(state.pos);
   state.along = 0;
   last = performance.now();
   raf = requestAnimationFrame(tick);
   renderCard();
+}
+
+function headToPin() {
+  stopWalking();
+  state.toPin = true;
+  drawMode();
+  toggleWalk();
 }
 
 function startWander() {
@@ -294,7 +340,7 @@ function startWander() {
 
 function dropDot() {
   const t = Math.min(1, state.walked / GOAL);
-  const fill = state.mode === 'walk' ? mix(css('--walk-start'), css('--walk-end'), t) : state.mode === 'pin' ? css('--pin') : css('--hunt');
+  const fill = state.toPin ? css('--pin') : state.mode === 'walk' ? mix(css('--walk-start'), css('--walk-end'), t) : state.mode === 'pin' ? css('--pin') : css('--hunt');
   el('circle', { cx: state.pos[0], cy: state.pos[1], r: state.mode === 'pin' ? 3.2 : 2.6, fill, class: `crumb crumb-${state.mode}` }, trails);
 }
 
@@ -302,7 +348,7 @@ function tick(now) {
   if (!state.walking) return;
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
-  const pace = state.mode === 'hunt' ? PACE * 0.45 : PACE;
+  const pace = state.mode === 'hunt' && !state.toPin ? PACE * 0.45 : PACE;
   const stepPx = pace * dt * STEP_PX;
   const len = pathLen(state.path);
   state.along = Math.min(len, state.along + stepPx);
@@ -312,7 +358,7 @@ function tick(now) {
   place();
   // unlock conditions
   if (state.mode === 'walk' && state.walked >= GOAL) return unlock();
-  if (state.mode === 'pin' && state.along >= len - 0.5) return unlock();
+  if ((state.mode === 'pin' || state.toPin) && state.along >= len - 0.5) return unlock();
   if (state.along >= len - 0.5) { state.path = walkPath(state.pos); state.along = 0; }
   update();
   raf = requestAnimationFrame(tick);
@@ -360,13 +406,26 @@ function snap() {
 function reset() {
   stopWalking();
   trails.innerHTML = '';
-  Object.assign(state, { mode: 'walk', pos: START.slice(), walked: 0, unlocked: false, lastDot: 0 });
+  Object.assign(state, { mode: 'walk', pos: START.slice(), walked: 0, unlocked: false, lastDot: 0, toPin: false });
   place();
   drawMode();
 }
 
 $('resetBtn').addEventListener('click', reset);
-$('noneBtn').addEventListener('click', () => {
+if (ALWAYS) {
+  let need = 0;
+  const label = () => { $('noneBtn').textContent = `Chapter needs: ${PIN.name} ▸`; };
+  label();
+  $('noneBtn').addEventListener('click', () => {
+    need = (need + 1) % NEEDS.length;
+    PIN = NEEDS[need];
+    label();
+    if (state.toPin) stopWalking();
+    state.toPin = false;
+    drawMode();
+  });
+}
+if (!ALWAYS) $('noneBtn').addEventListener('click', () => {
   state.noPin = !state.noPin;
   $('noneBtn').setAttribute('aria-pressed', String(state.noPin));
   if (state.mode === 'pin') { stopWalking(); drawMode(); } else update();
