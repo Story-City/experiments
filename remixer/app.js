@@ -487,6 +487,9 @@ stage.addEventListener('pointerup', endStroke); stage.addEventListener('pointerc
 
 /* ---------- Lens: a magnifying-glass bulge you drag around the painting ---------- */
 let lens = null, lensBase = null;
+// Bulge slider runs -100…100 with 0 in the middle = no change.
+// Right of zero magnifies like a fisheye; left of zero pinches the spot inwards.
+const bulgeK = v => v >= 0 ? 1 + v/100*2.5 : 1 + v/100*.65;
 function bulge(cx, cy, r, k){
   const x0 = Math.max(0, Math.floor(cx-r)), y0 = Math.max(0, Math.floor(cy-r)), x1 = Math.min(W, Math.ceil(cx+r)), y1 = Math.min(H, Math.ceil(cy+r));
   const w = x1-x0, h = y1-y0; if (w <= 0 || h <= 0) return;
@@ -505,11 +508,11 @@ function drawLens(ring = true){
 }
 function startLens(){
   lensBase = snap();
-  lens = { x:W*.5, y:H*.5, r:+$('#lensSize').value/100*W, k:+$('#lensPow').value/10 };
+  lens = { x:W*.5, y:H*.5, r:+$('#lensSize').value/100*W, k:bulgeK(+$('#lensPow').value) };
   drawLens(); toast('Drag the lens around');
 }
 $('#lensSize').oninput = e => { if (lens){ lens.r = e.target.value/100*W; drawLens(); } };
-$('#lensPow').oninput = e => { if (lens){ lens.k = e.target.value/10; drawLens(); } };
+$('#lensPow').oninput = e => { if (lens){ lens.k = bulgeK(+e.target.value); drawLens(); } };
 $('#lensCancel').onclick = () => { cancelLayer(); setMode(null); };
 $('#lensApply').onclick = () => {
   if (!lens) return;

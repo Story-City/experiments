@@ -238,3 +238,7 @@ body{padding:0;min-height:100%}
 
 .tray .sliders{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .tray .sliders .size{min-width:0}
+
+/* Bulge slider: a small tick marks zero in the middle */
+.tray .sliders label:last-child{position:relative}
+.tray .sliders label:last-child::after{content:"";position:absolute;left:calc(50% + 26px);top:50%;width:2px;height:12px;margin:-6px 0 0 -1px;border-radius:1px;background:rgba(241,236,255,.35);pointer-events:none}

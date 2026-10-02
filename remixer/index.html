@@ -85,7 +85,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
           <p>Drag the lens to any spot on the painting.</p>
           <div class="sliders">
             <label class="size">Size <input type="range" id="lensSize" min="10" max="45" value="24"></label>
-            <label class="size">Bulge <input type="range" id="lensPow" min="12" max="35" value="22"></label>
+            <label class="size">Bulge <input type="range" id="lensPow" min="-100" max="100" value="0" step="1" list="lensZero"><datalist id="lensZero"><option value="0"></option></datalist></label>
           </div>
           <div class="row"><button class="btn2" id="lensCancel">Cancel</button><button class="btn2" id="lensApply" style="border-color:var(--gold);color:var(--gold-soft)">Apply</button></div>
         </div>
