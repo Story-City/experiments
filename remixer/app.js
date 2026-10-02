@@ -471,11 +471,12 @@ function marbleTo(p){
 const capture = e => { try { stage.setPointerCapture(e.pointerId); } catch (_) {} };
 stage.addEventListener('pointerdown', e => {
   if (mode === 'smudge' || mode === 'marble'){ capture(e); stroke = { p:toCanvas(e), last:toCanvas(e), moved:0, pushed:false, tool:mode }; }
-  else if (mode === 'lens' && lens){ capture(e); const p = toCanvas(e); stroke = { drag:'lens', ox:p.x-lens.x, oy:p.y-lens.y }; }
+  else if (mode === 'lens' && lens){ capture(e); const p = toCanvas(e); stroke = lensEdge(p) ? { drag:'lensSize' } : { drag:'lens', ox:p.x-lens.x, oy:p.y-lens.y }; }
   else if (mode === 'me' && layer){ capture(e); const p = toCanvas(e); stroke = { drag:true, ox:p.x-layer.x, oy:p.y-layer.y }; }
 });
 stage.addEventListener('pointermove', e => {
   if (!stroke) return; const p = toCanvas(e);
+  if (stroke.drag === 'lensSize'){ const lo = W*.10, hi = W*.45; lens.r = Math.min(hi, Math.max(lo, Math.hypot(p.x-lens.x, p.y-lens.y))); $('#lensSize').value = lens.r/W*100; drawLens(); return; }
   if (stroke.drag === 'lens'){ lens.x = p.x-stroke.ox; lens.y = p.y-stroke.oy; drawLens(); return; }
   if (stroke.drag){ layer.x = p.x-stroke.ox; layer.y = p.y-stroke.oy; drawLayer(); return; }
   if (!stroke.pushed){ push(); stroke.pushed = true; sync(); }
@@ -501,10 +502,25 @@ function bulge(cx, cy, r, k){
   }
   ctx.putImageData(out, x0, y0);
 }
+// Near the ring's edge = resize; inside = move. The cursor shows which (mouse), and touch works the same way.
+function lensEdge(p){
+  const tol = 16 * W / stage.getBoundingClientRect().width;
+  return Math.abs(Math.hypot(p.x-lens.x, p.y-lens.y) - lens.r) < tol;
+}
+stage.addEventListener('pointermove', e => {
+  if (stroke || mode !== 'lens' || !lens) return;
+  const p = toCanvas(e), dx = p.x-lens.x, dy = p.y-lens.y;
+  if (lensEdge(p)){
+    const deg = (Math.atan2(dy, dx)*180/Math.PI + 22.5 + 360) % 180;
+    stage.style.cursor = ['ew-resize','nwse-resize','ns-resize','nesw-resize'][Math.floor(deg/45)];
+  } else stage.style.cursor = Math.hypot(dx, dy) < lens.r ? 'grab' : '';
+});
 function drawLens(ring = true){
   put(lensBase); bulge(lens.x, lens.y, lens.r, lens.k);
   if (ring){ ctx.strokeStyle = 'rgba(245,214,142,.9)'; ctx.setLineDash([8,6]); ctx.lineWidth = Math.max(2, W/300);
-    ctx.beginPath(); ctx.arc(lens.x, lens.y, lens.r+3, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]); }
+    ctx.beginPath(); ctx.arc(lens.x, lens.y, lens.r+3, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]);
+    // a small handle on the right of the ring hints that the edge can be dragged
+    ctx.fillStyle = '#f5d68e'; ctx.beginPath(); ctx.arc(lens.x+lens.r+3, lens.y, Math.max(5, W/80), 0, 6.2832); ctx.fill(); }
 }
 function startLens(){
   lensBase = snap();
@@ -513,6 +529,14 @@ function startLens(){
 }
 $('#lensSize').oninput = e => { if (lens){ lens.r = e.target.value/100*W; drawLens(); } };
 $('#lensPow').oninput = e => { if (lens){ lens.k = bulgeK(+e.target.value); drawLens(); } };
+// Double-click (or double-tap) a slider's name to reset it: Size to its default, Bulge back to zero.
+[['#lensSize', 24], ['#lensPow', 0]].forEach(([sel, def]) => {
+  const input = $(sel), label = input.closest('label');
+  const reset = e => { e.preventDefault(); input.value = def; input.dispatchEvent(new Event('input')); toast(`${label.firstChild.textContent.trim()} reset`); };
+  label.addEventListener('dblclick', e => { if (e.target !== input) reset(e); });
+  let lastTap = 0;
+  label.addEventListener('pointerup', e => { if (e.pointerType !== 'touch' || e.target === input) return; const now = Date.now(); if (now - lastTap < 350) reset(e); lastTap = now; });
+});
 $('#lensCancel').onclick = () => { cancelLayer(); setMode(null); };
 $('#lensApply').onclick = () => {
   if (!lens) return;
@@ -523,7 +547,7 @@ $('#lensApply').onclick = () => {
 };
 
 function setMode(m){
-  mode = m;
+  mode = m; stage.style.cursor = '';
   document.querySelectorAll('.tool[aria-pressed]').forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === m));
   stage.className = (m === 'smudge' || m === 'marble') ? 'swirl' : (m === 'me' || m === 'lens') ? 'move' : '';
   $('#lensTray').hidden = m !== 'lens';
@@ -619,3 +643,6 @@ $('#backRemix').onclick = () => go('s-remix');
 function flash(btn, msg){ const o = btn.textContent; btn.textContent = msg; setTimeout(() => btn.textContent = o, 1600); }
 $('#shareBtn').onclick = e => flash(e.currentTarget, 'Share sheet opens here');
 $('#continueBtn').onclick = e => flash(e.currentTarget, 'On to crisp-E\'s rant →');
+
+// Test hook for the headless QA run (read-only).
+window.__remixer = { get lens(){ return lens; }, get W(){ return W; } };

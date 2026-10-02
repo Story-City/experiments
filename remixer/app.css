@@ -242,3 +242,10 @@ body{padding:0;min-height:100%}
 /* Bulge slider: a small tick marks zero in the middle */
 .tray .sliders label:last-child{position:relative}
 .tray .sliders label:last-child::after{content:"";position:absolute;left:calc(50% + 26px);top:50%;width:2px;height:12px;margin:-6px 0 0 -1px;border-radius:1px;background:rgba(241,236,255,.35);pointer-events:none}
+
+.tray .sliders .size{cursor:default;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+
+/* Start over sits under Save, away from Undo/Redo, so it is hard to hit by accident */
+.ghost.restart-link{display:flex;flex:none;margin:12px auto 0;font-size:12.5px;color:var(--faint)}
+.sub{justify-content:center;gap:24px}
+.sub .ghost{flex:0 0 auto;padding-inline:12px}

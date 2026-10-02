@@ -82,7 +82,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
         </div>
 
         <div class="tray" id="lensTray" hidden>
-          <p>Drag the lens to any spot on the painting.</p>
+          <p>Drag the lens to move it, or its edge to resize.</p>
           <div class="sliders">
             <label class="size">Size <input type="range" id="lensSize" min="10" max="45" value="24"></label>
             <label class="size">Bulge <input type="range" id="lensPow" min="-100" max="100" value="0" step="1" list="lensZero"><datalist id="lensZero"><option value="0"></option></datalist></label>
@@ -107,10 +107,10 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
         <div class="sub">
           <button class="ghost" id="undo" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Undo</button>
           <button class="ghost" id="redo" disabled><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg>Redo</button>
-          <button class="ghost" id="restart" disabled><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5M4 4v4.5h4.5"/></svg>Start over</button>
         </div>
 
         <button class="cta" id="doSave" disabled>Save it</button>
+        <button class="ghost restart-link" id="restart" disabled><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5M4 4v4.5h4.5"/></svg>Start over</button>
       </section>
 
       <!-- Step 3: crisp-E reacts (Loc 3j) -->
