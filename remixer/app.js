@@ -186,30 +186,38 @@ Object.assign(TOOLS, {
     await animate(650, t => { put(before); ctx.globalAlpha = ease(t); ctx.drawImage(after,0,0); ctx.globalAlpha = 1; });
   },
   // Stained glass (the original look). Each tap changes the piece size and how rich the colours are.
+  // Stained glass at full resolution. Lead lines are anti-aliased using each pixel's distance to the
+  // border between its two nearest pieces, so edges are smooth and an even width.
   async glass(before, size){
     const k = shapeT(size);
-    const w = Math.round(W/2), h = Math.round(H/2), gx = Math.round(lerp(40,7,k)), cs = w/gx, gy = Math.ceil(h/cs), pop = rnd(1.3,1.8);
+    const gx = Math.round(lerp(40,7,k)), cs = W/gx, gy = Math.ceil(H/cs), pop = rnd(1.3,1.8);
     const seeds = [];
     for (let j=0;j<gy;j++) for (let i=0;i<gx;i++) seeds.push({ x:(i+rnd(.1,.9))*cs, y:(j+rnd(.1,.9))*cs, r:0,g:0,b:0,n:0 });
-    const sm = document.createElement('canvas'); sm.width = w; sm.height = h; const sc = sm.getContext('2d');
-    sc.drawImage(before,0,0,w,h); const src = sc.getImageData(0,0,w,h), sp = src.data;
-    const lab = new Int32Array(w*h);
-    for (let y=0;y<h;y++) for (let x=0;x<w;x++){
-      const ci = Math.floor(x/cs), cj = Math.floor(y/cs); let best = 1e9, bi = 0;
-      for (let dj=-2;dj<=2;dj++) for (let di=-2;di<=2;di++){ const ii=ci+di, jj=cj+dj; if (ii<0||jj<0||ii>=gx||jj>=gy) continue;
-        const k = jj*gx+ii, s = seeds[k], d = (s.x-x)**2+(s.y-y)**2; if (d<best){ best=d; bi=k; } }
-      lab[y*w+x] = bi; const s = seeds[bi], o = (y*w+x)*4; s.r+=sp[o]; s.g+=sp[o+1]; s.b+=sp[o+2]; s.n++;
-    }
-    const out = sc.createImageData(w,h), op = out.data;
-    for (let y=0;y<h;y++) for (let x=0;x<w;x++){
-      const k = y*w+x, l = lab[k], o = k*4;
-      const edge = (x>0&&lab[k-1]!==l)||(x<w-1&&lab[k+1]!==l)||(y>0&&lab[k-w]!==l)||(y<h-1&&lab[k+w]!==l);
-      if (edge){ op[o]=sp[o]*.3; op[o+1]=sp[o+1]*.3; op[o+2]=sp[o+2]*.3; op[o+3]=255; continue; }  // soft lead: darkened paint, not black
-      const s = seeds[l], n = s.n||1, avg = (s.r+s.g+s.b)/(3*n), glow = 1.1-.2*Math.hypot(s.x-x, s.y-y)/cs;
-      op[o] = (avg+(s.r/n-avg)*pop)*glow; op[o+1] = (avg+(s.g/n-avg)*pop)*glow; op[o+2] = (avg+(s.b/n-avg)*pop)*glow; op[o+3] = 255;
+    const sm = document.createElement('canvas'); sm.width = W; sm.height = H; const sc = sm.getContext('2d');
+    sc.drawImage(before,0,0); const sp = sc.getImageData(0,0,W,H).data;
+    const lab = new Int32Array(W*H), edge = new Float32Array(W*H);
+    for (let y=0;y<H;y++){ const cj = Math.floor((y+.5)/cs);
+      for (let x=0;x<W;x++){
+        const px = x+.5, py = y+.5, ci = Math.floor(px/cs); let d1 = 1e12, d2 = 1e12, b1 = 0, b2 = 0;
+        for (let dj=-2;dj<=2;dj++) for (let di=-2;di<=2;di++){ const ii=ci+di, jj=cj+dj; if (ii<0||jj<0||ii>=gx||jj>=gy) continue;
+          const q = jj*gx+ii, sd = seeds[q], d = (sd.x-px)**2+(sd.y-py)**2;
+          if (d < d1){ d2 = d1; b2 = b1; d1 = d; b1 = q; } else if (d < d2){ d2 = d; b2 = q; } }
+        const a = seeds[b1], b = seeds[b2], p = y*W+x, o = p*4;
+        lab[p] = b1; edge[p] = (d2-d1)/(2*Math.hypot(a.x-b.x, a.y-b.y));   // distance in pixels to the border
+        a.r+=sp[o]; a.g+=sp[o+1]; a.b+=sp[o+2]; a.n++;
+      } }
+    const lw = Math.max(.9, cs*.035);   // half the lead width
+    const out = sc.createImageData(W,H), op = out.data;
+    for (let p=0;p<W*H;p++){
+      const sd = seeds[lab[p]], n = sd.n||1, avg = (sd.r+sd.g+sd.b)/(3*n), o = p*4, x = p%W, y = (p/W)|0;
+      const glow = 1.1-.2*Math.min(1.4, Math.hypot(sd.x-x, sd.y-y)/cs);
+      let r = (avg+(sd.r/n-avg)*pop)*glow, g = (avg+(sd.g/n-avg)*pop)*glow, b = (avg+(sd.b/n-avg)*pop)*glow;
+      const lead = Math.max(0, Math.min(1, lw + .6 - edge[p]));   // 1 on the line, fading over ~1px
+      if (lead > 0){ r += (sp[o]*.3 - r)*lead; g += (sp[o+1]*.3 - g)*lead; b += (sp[o+2]*.3 - b)*lead; }
+      op[o] = r; op[o+1] = g; op[o+2] = b; op[o+3] = 255;
     }
     sc.putImageData(out,0,0);
-    await animate(700, t => { put(before); ctx.globalAlpha = .8*ease(t); ctx.drawImage(sm,0,0,W,H); ctx.globalAlpha = 1; });
+    await animate(700, t => { put(before); ctx.globalAlpha = .8*ease(t); ctx.drawImage(sm,0,0); ctx.globalAlpha = 1; });
   },
 });
 
