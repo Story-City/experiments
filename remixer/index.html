@@ -53,7 +53,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
           <div class="toast off" id="toast"></div>
         </div>
 
-        <div class="goal"><div class="pips" id="pips" aria-hidden="true"><i>1</i><i>2</i><i>3</i></div><span id="goalTxt">Use <b>1 tool from each section</b> to remix it</span></div>
+        <div class="goal"><div class="pips" id="pips" aria-hidden="true"><i>1</i><i>2</i></div><span id="goalTxt">Use <b>2 tools</b> to remix it</span></div>
 
         <div class="modtabs" role="tablist" aria-label="Tool sets">
           <button role="tab" aria-selected="true" data-mod="yours" data-n="1" style="--mod:var(--m-yours)"><span class="tn">Mix it</span></button>
@@ -77,10 +77,16 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
             <button class="tool tile" data-tool="glitch"><span class="thumb"><img alt="" data-thumb="glitch"></span><span class="lbl">Glitch</span></button>
             <button class="tool tile" data-tool="shuffle"><span class="thumb"><img alt="" data-thumb="shuffle"></span><span class="lbl">Shuffle</span></button>
             <button class="tool tile" data-tool="marble" aria-pressed="false"><span class="thumb"><img alt="" data-thumb="marble"><span class="drag">drag</span></span><span class="lbl">Marble</span></button>
-            <button class="tool tile" data-tool="smudge" aria-pressed="false"><span class="thumb"><img alt="" data-thumb="smudge"><span class="drag">drag</span></span><span class="lbl">Smudge</span></button>
+            <button class="tool tile" data-tool="lens" aria-pressed="false"><span class="thumb"><img alt="" data-thumb="lens"><span class="drag">drag</span></span><span class="lbl">Lens</span></button>
           </div>
         </div>
 
+        <div class="tray" id="lensTray" hidden>
+          <p>Drag the lens to any spot on the painting.</p>
+          <label class="size">Size <input type="range" id="lensSize" min="10" max="45" value="24"></label>
+          <label class="size">Bulge <input type="range" id="lensPow" min="12" max="35" value="22"></label>
+          <div class="row"><button class="btn2" id="lensCancel">Cancel</button><button class="btn2" id="lensApply" style="border-color:var(--gold);color:var(--gold-soft)">Apply</button></div>
+        </div>
         <div class="tray" id="meTray" hidden>
           <p id="meHint">Take a pic and slap it on the painting.</p>
           <div id="meSrc" style="display:grid;gap:8px">

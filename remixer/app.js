@@ -41,26 +41,23 @@ function toast(msg, center = false, hold = 1800){
 
 function markUsed(tool){
   used.add(tool);
-  document.querySelector(`.tool[data-tool="${tool}"]`).classList.add('used');
+  document.querySelector(`.tool[data-tool="${tool}"], #${tool}`).classList.add('used');
   sync();
 }
-// Goal: use at least one tool from each of the three sections. Save stays locked until then.
-const SECTIONS = { yours:['me','recolour','contrast'], rebuild:['dots','pixel','shapes','glass'], wreck:['glitch','shuffle','marble','smudge'] };
+// Goal: use any 2 different tools. Save stays locked until then. Surprise me counts as one tool.
 function sync(){
-  const done = Object.keys(SECTIONS).map(k => SECTIONS[k].some(t => used.has(t)));
-  const left = done.map((d,i) => d ? null : i+1).filter(Boolean);
-  document.querySelectorAll('#pips i').forEach((p,i) => p.classList.toggle('on', done[i]));
-  document.querySelectorAll('.modtabs button').forEach((b,i) => b.classList.toggle('done', done[i]));
-  $('#goalTxt').innerHTML = !left.length ? '<b>Remixed!</b> Keep going or save it.'
-    : left.length === 3 ? 'Use <b>1 tool from each section</b> to remix it'
-    : `Nice. Still to go: section <b>${left.join('</b> and <b>')}</b>`;
-  $('#doSave').disabled = left.length > 0;
+  const n = used.size;
+  document.querySelectorAll('#pips i').forEach((p,i) => p.classList.toggle('on', i < n));
+  $('#goalTxt').innerHTML = n >= 2 ? '<b>Remixed!</b> Keep going or save it.'
+    : n === 1 ? 'Nice. <b>1 more tool</b> to remix it'
+    : 'Use <b>2 tools</b> to remix it';
+  $('#doSave').disabled = n < 2;
   // A tool you just used shows a small re-roll symbol: tapping it again gives a different version.
   document.querySelectorAll('.tile').forEach(b => b.classList.toggle('can-again', !!lastTool && (b.dataset.tool || b.id) === lastTool));
   $('#undo').disabled = hist.length === 0;
   $('#redo').disabled = future.length === 0;
   $('#restart').disabled = hist.length === 0;
-  document.querySelectorAll('.tool').forEach(b => { if (!used.has(b.dataset.tool)) b.classList.remove('used'); });
+  document.querySelectorAll('.tool').forEach(b => { if (!used.has(b.dataset.tool || b.id)) b.classList.remove('used'); });
 }
 
 /* ---------- colour matrix (from experiment) ---------- */
@@ -430,6 +427,7 @@ async function makeThumbs(){
   }
   put(orig); ctx.drawImage(baked({ recolour:7, contrast:1 }),0,0); set('surprise', shot());
   put(orig); for (let i=0;i<3;i++){ let p = path(0); for (let t=.02;t<=1;t+=.02){ const q = path(t); q.y += (i-1)*H*.18; if (t===.02) p = {x:path(0).x,y:path(0).y+(i-1)*H*.18}; smear(p,q); p = q; } } set('smudge', shot());
+  put(orig); lensBase = snap(); lens = { x:W*.5, y:H*.62, r:W*.24, k:2.2 }; drawLens(false); lens = null; lensBase = null; set('lens', shot());
   put(orig); for (let i=0;i<2;i++){ stroke = { last:{ x:path(0).x, y:path(0).y+(i-.5)*H*.3 } }; for (let t=.02;t<=1;t+=.02){ const q = path(t); q.y += (i-.5)*H*.3; marbleTo(q); } } stroke = null; set('marble', shot());
   instant = false; put(keep);
 }
@@ -470,12 +468,15 @@ function marbleTo(p){
   for (let s=1;s<=n;s++){ const t = s*step/dist; marbleDab(last.x+(p.x-last.x)*t, last.y+(p.y-last.y)*t, (p.x-last.x)/dist*step, (p.y-last.y)/dist*step); }
   if (n > 0){ const t = n*step/dist; stroke.last = { x:last.x+(p.x-last.x)*t, y:last.y+(p.y-last.y)*t }; }
 }
+const capture = e => { try { stage.setPointerCapture(e.pointerId); } catch (_) {} };
 stage.addEventListener('pointerdown', e => {
-  if (mode === 'smudge' || mode === 'marble'){ stage.setPointerCapture(e.pointerId); stroke = { p:toCanvas(e), last:toCanvas(e), moved:0, pushed:false, tool:mode }; }
-  else if (mode === 'me' && layer){ stage.setPointerCapture(e.pointerId); const p = toCanvas(e); stroke = { drag:true, ox:p.x-layer.x, oy:p.y-layer.y }; }
+  if (mode === 'smudge' || mode === 'marble'){ capture(e); stroke = { p:toCanvas(e), last:toCanvas(e), moved:0, pushed:false, tool:mode }; }
+  else if (mode === 'lens' && lens){ capture(e); const p = toCanvas(e); stroke = { drag:'lens', ox:p.x-lens.x, oy:p.y-lens.y }; }
+  else if (mode === 'me' && layer){ capture(e); const p = toCanvas(e); stroke = { drag:true, ox:p.x-layer.x, oy:p.y-layer.y }; }
 });
 stage.addEventListener('pointermove', e => {
   if (!stroke) return; const p = toCanvas(e);
+  if (stroke.drag === 'lens'){ lens.x = p.x-stroke.ox; lens.y = p.y-stroke.oy; drawLens(); return; }
   if (stroke.drag){ layer.x = p.x-stroke.ox; layer.y = p.y-stroke.oy; drawLayer(); return; }
   if (!stroke.pushed){ push(); stroke.pushed = true; sync(); }
   if (stroke.tool === 'marble') marbleTo(p); else smear(stroke.p, p);
@@ -484,10 +485,45 @@ stage.addEventListener('pointermove', e => {
 const endStroke = () => { if (stroke && !stroke.drag && stroke.moved > W*.15) markUsed(stroke.tool); stroke = null; };
 stage.addEventListener('pointerup', endStroke); stage.addEventListener('pointercancel', endStroke);
 
+/* ---------- Lens: a magnifying-glass bulge you drag around the painting ---------- */
+let lens = null, lensBase = null;
+function bulge(cx, cy, r, k){
+  const x0 = Math.max(0, Math.floor(cx-r)), y0 = Math.max(0, Math.floor(cy-r)), x1 = Math.min(W, Math.ceil(cx+r)), y1 = Math.min(H, Math.ceil(cy+r));
+  const w = x1-x0, h = y1-y0; if (w <= 0 || h <= 0) return;
+  const src = lens.src || (lens.src = lensBase.getContext('2d').getImageData(0,0,W,H).data), out = ctx.getImageData(x0,y0,w,h), d = out.data;
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++){
+    const dx = x+x0-cx, dy = y+y0-cy, q = Math.hypot(dx,dy)/r; if (q >= 1) continue;
+    const f = Math.pow(q, k-1), sx = Math.min(W-1, Math.max(0, Math.round(cx+dx*f))), sy = Math.min(H-1, Math.max(0, Math.round(cy+dy*f)));
+    const i = (y*w+x)*4, j = (sy*W+sx)*4; d[i]=src[j]; d[i+1]=src[j+1]; d[i+2]=src[j+2];
+  }
+  ctx.putImageData(out, x0, y0);
+}
+function drawLens(ring = true){
+  put(lensBase); bulge(lens.x, lens.y, lens.r, lens.k);
+  if (ring){ ctx.strokeStyle = 'rgba(245,214,142,.9)'; ctx.setLineDash([8,6]); ctx.lineWidth = Math.max(2, W/300);
+    ctx.beginPath(); ctx.arc(lens.x, lens.y, lens.r+3, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]); }
+}
+function startLens(){
+  lensBase = snap();
+  lens = { x:W*.5, y:H*.5, r:+$('#lensSize').value/100*W, k:+$('#lensPow').value/10 };
+  drawLens(); toast('Drag the lens around');
+}
+$('#lensSize').oninput = e => { if (lens){ lens.r = e.target.value/100*W; drawLens(); } };
+$('#lensPow').oninput = e => { if (lens){ lens.k = e.target.value/10; drawLens(); } };
+$('#lensCancel').onclick = () => { cancelLayer(); setMode(null); };
+$('#lensApply').onclick = () => {
+  if (!lens) return;
+  drawLens(false); const done = snap();
+  put(lensBase); push(); put(done);
+  lens = null; lensBase = null; setMode(null);
+  markUsed('lens');
+};
+
 function setMode(m){
   mode = m;
   document.querySelectorAll('.tool[aria-pressed]').forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === m));
-  stage.className = (m === 'smudge' || m === 'marble') ? 'swirl' : m === 'me' ? 'move' : '';
+  stage.className = (m === 'smudge' || m === 'marble') ? 'swirl' : (m === 'me' || m === 'lens') ? 'move' : '';
+  $('#lensTray').hidden = m !== 'lens';
   $('#meTray').hidden = m !== 'me';
   $('#pickTray').hidden = !(m === 'recolour' || m === 'contrast');
 }
@@ -514,6 +550,8 @@ function drawLayer(ring = true){
     ctx.beginPath(); ctx.arc(layer.x, layer.y, s/2+4, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]); }
 }
 function cancelLayer(){
+  if (lens && lensBase) put(lensBase);
+  lens = null; lensBase = null;
   if (layer && layerBase) put(layerBase);
   layer = null; layerBase = null;
   $('#meSrc').hidden = false; $('#meAdjust').hidden = true; $('#meHint').textContent = 'Take a pic and slap it on the painting.';
@@ -540,6 +578,7 @@ $('#meStamp').onclick = () => {
 /* ---------- tool buttons ---------- */
 document.querySelectorAll('.tool').forEach(b => b.onclick = () => {
   const t = b.dataset.tool; if (!t) return;
+  if (t === 'lens'){ if (mode === 'lens'){ cancelLayer(); setMode(null); } else { cancelLayer(); setMode('lens'); startLens(); } return; }
   if (t === 'smudge' || t === 'marble'){ cancelLayer(); const on = mode !== t; setMode(on ? t : null); if (on) toast(t === 'marble' ? 'Drag to pull the paint into swirls' : 'Drag on the painting to smudge it'); return; }
   if (t === 'recolour' || t === 'contrast'){ if (mode === t) setMode(null); else openPicker(t); return; }
   if (t === 'me'){ if (mode === 'me'){ cancelLayer(); setMode(null); } else setMode('me'); return; }
@@ -563,7 +602,7 @@ $('#surprise').onclick = async () => {
   await bleed(out, 'diag', 950);
   setAdj(next); wipe.hidden = true;
   busy = false; $('#tools').classList.remove('busy');
-  markUsed('recolour'); markUsed('contrast');
+  markUsed('surprise');
 };
 
 /* ---------- save + crisp-E reacts ---------- */
