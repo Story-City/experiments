@@ -551,20 +551,29 @@ stage.addEventListener('pointermove', e => {
 // Guide rings live on their own canvas above the painting, so Colour/Contrast never tint them.
 const ui = $('#ui'), uctx = ui.getContext('2d');
 function uiClear(){ if (ui.width !== W || ui.height !== H){ ui.width = W; ui.height = H; } else uctx.clearRect(0,0,W,H); }
-function uiRing(x, y, rad, handle){
-  // Two-tone so it shows on any colour: a dark outline under gold dashes.
-  const lw = Math.max(2, W/300);
-  uiClear();
-  uctx.beginPath(); uctx.arc(x, y, rad, 0, 6.2832);
-  uctx.strokeStyle = 'rgba(12,9,24,.75)'; uctx.lineWidth = lw*2.6; uctx.stroke();
-  uctx.strokeStyle = '#f5d68e'; uctx.lineWidth = lw; uctx.setLineDash([8,6]); uctx.stroke(); uctx.setLineDash([]);
+// Each dash looks at the painting behind it (after Colour/Contrast) and goes black on light areas, white on dark.
+function uiRing(x, y, rad, handle, src){
+  const lw = Math.max(2, W/300), M = adjMat(adj), A = M.A, o = M.o;
+  const shade = (px, py) => {
+    const ix = Math.min(W-1, Math.max(0, Math.round(px))), iy = Math.min(H-1, Math.max(0, Math.round(py))), i = (iy*W+ix)*4;
+    const r = src[i], g = src[i+1], b = src[i+2];
+    const R = A[0]*r+A[1]*g+A[2]*b+o[0], G = A[3]*r+A[4]*g+A[5]*b+o[1], B = A[6]*r+A[7]*g+A[8]*b+o[2];
+    return (.2126*R + .7152*G + .0722*B) > 140 ? '#0c0918' : '#ffffff';
+  };
+  uiClear(); uctx.lineWidth = lw; uctx.lineCap = 'round';
+  const dash = 8*W/600, gap = 6*W/600, step = (dash+gap)/rad;
+  for (let a = 0; a < 6.2832; a += step){
+    const a1 = Math.min(a + dash/rad, 6.2832), am = (a+a1)/2;
+    uctx.strokeStyle = shade(x+Math.cos(am)*(rad+lw*2), y+Math.sin(am)*(rad+lw*2));
+    uctx.beginPath(); uctx.arc(x, y, rad, a, a1); uctx.stroke();
+  }
   // a small handle on the right of the ring hints that the edge can be dragged
-  if (handle){ const hr = Math.max(5, W/80); uctx.beginPath(); uctx.arc(x+rad, y, hr, 0, 6.2832);
-    uctx.fillStyle = '#f5d68e'; uctx.fill(); uctx.strokeStyle = 'rgba(12,9,24,.8)'; uctx.lineWidth = lw*1.2; uctx.stroke(); }
+  if (handle){ const hr = Math.max(5, W/80), c = shade(x+rad+hr*1.6, y); uctx.beginPath(); uctx.arc(x+rad, y, hr, 0, 6.2832);
+    uctx.fillStyle = c; uctx.fill(); uctx.strokeStyle = c === '#ffffff' ? '#0c0918' : '#ffffff'; uctx.lineWidth = lw*.8; uctx.stroke(); }
 }
 function drawLens(ring = true){
   put(lensBase); bulge(lens.x, lens.y, lens.r, lens.k);
-  ring ? uiRing(lens.x, lens.y, lens.r+3, true) : uiClear();
+  ring ? uiRing(lens.x, lens.y, lens.r+3, true, lens.src || (lens.src = lensBase.getContext('2d').getImageData(0,0,W,H).data)) : uiClear();
 }
 function startLens(){
   lensBase = snap();
@@ -632,7 +641,7 @@ function startLayer(crop){
 function drawLayer(ring = true){
   put(layerBase);
   const s = layer.size; ctx.drawImage(layer.img, layer.x-s/2, layer.y-s/2, s, s);
-  ring ? uiRing(layer.x, layer.y, s/2+4, false) : uiClear();
+  ring ? uiRing(layer.x, layer.y, s/2+4, false, layer.src || (layer.src = layerBase.getContext('2d').getImageData(0,0,W,H).data)) : uiClear();
 }
 function cancelLayer(){
   if (W) uiClear();
