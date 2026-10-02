@@ -317,11 +317,13 @@ document.querySelectorAll('.modtabs button').forEach(t => t.onclick = () => {
 
 
 /* ---------- Colour & Contrast pickers: a grid of named options with previews ---------- */
+const ORIGINAL = { name:'Original', none:true };
 const PRESETS = {
-  recolour: [ {name:'Ember',h:20,s:1.35},  {name:'Gold',h:50,s:1.35},   {name:'Lime',h:90,s:1.3},
+  // The first square in each grid is Original: it removes that setting.
+  recolour: [ ORIGINAL,                     {name:'Ember',h:20,s:1.35},  {name:'Gold',h:50,s:1.35},
               {name:'Jade',h:130,s:1.3},   {name:'Lagoon',h:165,s:1.3}, {name:'Ocean',h:200,s:1.35},
               {name:'Violet',h:245,s:1.3}, {name:'Magenta',h:285,s:1.4}, {name:'Rose',h:320,s:1.35} ],
-  contrast: LOOKS,
+  contrast: [ ORIGINAL, ...LOOKS.filter(l => l.name !== 'Crisp') ],
 };
 /* Colour and Contrast are settings, not layers: the painting keeps at most one of each,
    applied as a live colour matrix on top. Picking a new one replaces the old one. */
@@ -346,8 +348,9 @@ function combine(a, b){ // b after a
 }
 function adjMat(state){
   let M = { A:[1,0,0,0,1,0,0,0,1], o:[0,0,0] };
-  if (state.recolour != null) M = combine(M, colourMat(PRESETS.recolour[state.recolour]));
-  if (state.contrast != null) M = combine(M, contrastMat(PRESETS.contrast[state.contrast]));
+  const c = state.recolour != null && PRESETS.recolour[state.recolour], k = state.contrast != null && PRESETS.contrast[state.contrast];
+  if (c && !c.none) M = combine(M, colourMat(c));
+  if (k && !k.none) M = combine(M, contrastMat(k));
   return M;
 }
 function applyMat(p, M){
@@ -380,25 +383,26 @@ function openPicker(t){
   const grid = $('#pickGrid'); grid.innerHTML = '';
   PRESETS[t].forEach((pr, i) => {
     const d = new ImageData(new Uint8ClampedArray(src.data), 150, 150);
-    applyMat(d.data, adjMat({ ...adj, [t]:i })); sc.putImageData(d,0,0);
+    applyMat(d.data, adjMat({ ...adj, [t]: pr.none ? null : i })); sc.putImageData(d,0,0);
     const b = document.createElement('button'); b.className = 'opt';
-    b.setAttribute('aria-pressed', adj[t] === i);
+    b.setAttribute('aria-pressed', pr.none ? adj[t] == null : adj[t] === i);
     b.innerHTML = `<img alt="" src="${sm.toDataURL('image/jpeg', .85)}"><span>${pr.name}</span>`;
     b.onclick = e => { e.stopPropagation(); if (busy) return; setMode(null); choosePreset(t, i); };
     grid.appendChild(b);
   });
 }
 async function choosePreset(t, i){
-  if (busy || adj[t] === i) return;
+  const val = PRESETS[t][i].none ? null : i;
+  if (busy || adj[t] === val) return;
   busy = true; $('#tools').classList.add('busy');
   push();
-  const next = { ...adj, [t]:i }, out = baked(next);
+  const next = { ...adj, [t]:val }, out = baked(next);
   // Wipe the new look across, then hand over to the live filter.
   // Colour travels the long side of the painting, so it gets more time to feel the same pace as Contrast.
   await bleed(out, t === 'recolour' ? 'across' : 'down', t === 'recolour' ? 1400 : 900);
   setAdj(next); $('#wipe').hidden = true;
   busy = false; $('#tools').classList.remove('busy');
-  markUsed(t);
+  if (val != null) markUsed(t);
 }
 
 /* ---------- bleed: new colour soaks across the painting like ink on wet paper ---------- */
@@ -693,7 +697,7 @@ $('#surprise').onclick = async () => {
   busy = true; $('#tools').classList.add('busy');
   if (lastTool !== 'surprise'){ push(); lastTool = 'surprise'; }
   else future = [];
-  const roll = (k) => { let i; do { i = Math.random()*PRESETS[k].length|0; } while (i === adj[k]); return i; };
+  const roll = (k) => { let i; do { i = 1 + (Math.random()*(PRESETS[k].length-1)|0); } while (i === adj[k]); return i; };  // never Original
   const next = { recolour:roll('recolour'), contrast:roll('contrast') }, out = baked(next), wipe = $('#wipe');
   // The name fades in as the new look starts bleeding in, holds a moment, then fades out.
   toast(`${PRESETS.recolour[next.recolour].name} + ${PRESETS.contrast[next.contrast].name}`, 'small', 1700);
