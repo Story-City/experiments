@@ -45,6 +45,7 @@ function markUsed(tool){
   sync();
 }
 // Goal: use any 2 different tools. Save stays locked until then. Surprise me counts as one tool.
+const SHAPE = ['dots','pixel','shapes','glass'];
 function sync(){
   const n = used.size;
   document.querySelectorAll('#pips i').forEach((p,i) => p.classList.toggle('on', i < n));
@@ -53,7 +54,7 @@ function sync(){
     : 'Use <b>2 tools</b> to remix it';
   $('#doSave').disabled = n < 2;
   // A tool you just used shows a small re-roll symbol: tapping it again gives a different version.
-  document.querySelectorAll('.tile').forEach(b => b.classList.toggle('can-again', !!lastTool && (b.dataset.tool || b.id) === lastTool));
+  document.querySelectorAll('.tile').forEach(b => { const k = b.dataset.tool || b.id; b.classList.toggle('can-again', !!lastTool && (k === lastTool || (SHAPE.includes(k) && SHAPE.includes(lastTool)))); });
   $('#undo').disabled = hist.length === 0;
   $('#redo').disabled = future.length === 0;
   $('#restart').disabled = hist.length === 0;
@@ -223,7 +224,8 @@ async function runTool(name){
   busy = true; $('#tools').classList.add('busy');
   // Tapping the same tool again swaps in a new version instead of stacking on top.
   let before;
-  if (name === lastTool && lastBase){ before = lastBase; future = []; }
+  // The four Shape it effects replace each other: Dots then Glass swaps Dots out instead of layering.
+  if ((name === lastTool || (SHAPE.includes(name) && SHAPE.includes(lastTool))) && lastBase){ before = lastBase; future = []; lastTool = name; }
   else { push(); before = snap(); lastTool = name; lastBase = before; }
   await TOOLS[name](before);
   busy = false; $('#tools').classList.remove('busy');

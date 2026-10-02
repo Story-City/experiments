@@ -185,7 +185,7 @@ body{background:var(--void);color:var(--ink);font:15px/1.5 var(--body);padding-i
 .tray .row{display:flex;gap:8px}
 .btn2 .ic{width:18px;height:18px;stroke:var(--gold-soft);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .tray label.size{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
-.tray input[type=range]{accent-color:var(--gold);width:100%}
+.tray input[type=range]{accent-color:var(--m-yours);width:100%}
 
 .cta{appearance:none;width:100%;border:0;border-radius:14px;background:var(--gold);color:var(--gold-ink);font:700 16px var(--body);padding:15px;cursor:pointer;margin-top:16px;transition:opacity .2s,transform .1s}
 .cta:active{transform:scale(.98)}
@@ -249,3 +249,7 @@ body{padding:0;min-height:100%}
 .ghost.restart-link{display:flex;flex:none;margin:12px auto 0;font-size:12.5px;color:var(--faint)}
 .sub{justify-content:center;gap:24px}
 .sub .ghost{flex:0 0 auto;padding-inline:12px}
+
+/* Save matches the blue of the tabs and progress dots */
+#doSave{background:var(--m-yours);color:#0b1630}
+#doSave:disabled{background:var(--plum-2);color:var(--faint)}
