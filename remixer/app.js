@@ -305,6 +305,8 @@ $('#toRemix').onclick = async () => {
 
 /* ---------- tool-set tabs ---------- */
 document.querySelectorAll('.modtabs button').forEach(t => t.onclick = () => {
+  // Switching sections closes whatever tool panel is open (a lens is kept, since it autosaves).
+  if (mode && !busy){ cancelLayer(); setMode(null); }
   setTimeout(sync);
   document.querySelectorAll('.modtabs button').forEach(b => b.setAttribute('aria-selected', b === t));
   document.querySelectorAll('.mod').forEach(m => m.hidden = m.dataset.mod !== t.dataset.mod);
