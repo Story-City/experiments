@@ -261,8 +261,8 @@ body{padding:0;min-height:100%}
 .lens-row{display:flex;align-items:center;gap:12px}
 .lens-row .size{flex:1;position:relative}
 .lens-row .size::after{content:"";position:absolute;left:calc(50% + 26px);top:50%;width:2px;height:12px;margin:-6px 0 0 -1px;border-radius:1px;background:rgba(241,236,255,.35);pointer-events:none}
-.plus{appearance:none;flex:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--m-yours);background:transparent;display:grid;place-items:center;cursor:pointer}
-.plus svg{width:18px;height:18px;stroke:var(--m-yours);fill:none;stroke-width:2.2;stroke-linecap:round}
+.plus{appearance:none;flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--m-yours);background:transparent;display:grid;place-items:center;cursor:pointer}
+.plus svg{width:13px;height:13px;stroke:var(--m-yours);fill:none;stroke-width:2.4;stroke-linecap:round}
 .plus:hover{background:color-mix(in srgb,var(--m-yours) 15%,transparent)}
 .plus:focus-visible{outline:2px solid var(--m-yours);outline-offset:2px}
 .btn2.blue{border-color:var(--m-yours);color:var(--m-yours)}
