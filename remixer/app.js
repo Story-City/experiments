@@ -124,16 +124,17 @@ const TOOLS = {
     });
   },
   async dots(before){
-    const step = Math.max(6, Math.round(W/rnd(48,80))), cols = Math.ceil(W/step), rows = Math.ceil(H/step);
+    // Finer, gentler versions so the painting stays readable: small dots over a dimmed copy, not black.
+    const step = Math.max(4, Math.round(W/rnd(105,150))), cols = Math.ceil(W/step), rows = Math.ceil(H/step);
     const sm = document.createElement('canvas'); sm.width = cols; sm.height = rows;
     const sc = sm.getContext('2d'); sc.drawImage(before,0,0,cols,rows);
     const px = sc.getImageData(0,0,cols,rows).data;
     await animate(650, t => {
       t = ease(t); put(before);
-      ctx.fillStyle = `rgba(16,12,32,${.92*t})`; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = `rgba(16,12,32,${.5*t})`; ctx.fillRect(0,0,W,H);
       for (let y=0;y<rows;y++) for (let x=0;x<cols;x++){
         const i=(y*cols+x)*4, r=px[i],g=px[i+1],b=px[i+2], lum=(.3*r+.59*g+.11*b)/255;
-        const rad = step*.5*(.3+.75*lum)*t; if (rad<.3) continue;
+        const rad = step*.5*(.55+.55*lum)*t; if (rad<.3) continue;
         ctx.fillStyle = `rgb(${Math.min(255,r*1.15)},${Math.min(255,g*1.15)},${Math.min(255,b*1.15)})`;
         ctx.beginPath(); ctx.arc(x*step+step/2, y*step+step/2, rad, 0, 6.2832); ctx.fill();
       }
@@ -142,7 +143,8 @@ const TOOLS = {
 };
 Object.assign(TOOLS, {
   async pixel(before){
-    const target = Math.round(W/rnd(26,48)), sm = document.createElement('canvas'), sc = sm.getContext('2d');
+    const target = Math.round(rnd(110,170)),  // columns of pixels at the end: more columns = finer
+      sm = document.createElement('canvas'), sc = sm.getContext('2d');
     await animate(600, t => {
       const cols = Math.max(target, Math.round(W/(1+(W/target-1)*ease(t))));
       sm.width = cols; sm.height = Math.max(1, Math.round(cols*H/W));
@@ -152,7 +154,7 @@ Object.assign(TOOLS, {
   },
   // Brett's "Shapes" effect from the Remix a Masterpiece experiment: flat-colour Voronoi cells.
   async shapes(before){
-    const sz = Math.max(6, Math.round(rnd(15,60)*W/1000)), salt = (Math.random()*1e6)|0;
+    const sz = Math.max(5, Math.round(rnd(7,16)*W/1000)), salt = (Math.random()*1e6)|0;
     const hash = n => { let x = Math.imul((n+salt) ^ 0x9e3779b9, 0x85ebca6b); x ^= x>>>13; x = Math.imul(x, 0xc2b2ae35); x ^= x>>>16; return (x>>>0)/4294967296; };
     const gw = Math.ceil(W/sz), gh = Math.ceil(H/sz), count = gw*gh, seeds = new Float32Array(count*2);
     for (let g=0;g<count;g++){ seeds[g*2] = ((g%gw)+.1+.8*hash(g*2))*sz; seeds[g*2+1] = (((g/gw)|0)+.1+.8*hash(g*2+1))*sz; }
@@ -168,7 +170,7 @@ Object.assign(TOOLS, {
   },
   // Stained glass (the original look). Each tap changes the piece size and how rich the colours are.
   async glass(before){
-    const w = Math.round(W/2), h = Math.round(H/2), gx = 9 + (Math.random()*14|0), cs = w/gx, gy = Math.ceil(h/cs), pop = rnd(1.3,1.8);
+    const w = Math.round(W/2), h = Math.round(H/2), gx = 24 + (Math.random()*14|0), cs = w/gx, gy = Math.ceil(h/cs), pop = rnd(1.3,1.8);
     const seeds = [];
     for (let j=0;j<gy;j++) for (let i=0;i<gx;i++) seeds.push({ x:(i+rnd(.1,.9))*cs, y:(j+rnd(.1,.9))*cs, r:0,g:0,b:0,n:0 });
     const sm = document.createElement('canvas'); sm.width = w; sm.height = h; const sc = sm.getContext('2d');
@@ -184,12 +186,12 @@ Object.assign(TOOLS, {
     for (let y=0;y<h;y++) for (let x=0;x<w;x++){
       const k = y*w+x, l = lab[k], o = k*4;
       const edge = (x>0&&lab[k-1]!==l)||(x<w-1&&lab[k+1]!==l)||(y>0&&lab[k-w]!==l)||(y<h-1&&lab[k+w]!==l);
-      if (edge){ op[o]=22; op[o+1]=18; op[o+2]=28; op[o+3]=255; continue; }
-      const s = seeds[l], n = s.n||1, avg = (s.r+s.g+s.b)/(3*n), glow = 1.18-.35*Math.hypot(s.x-x, s.y-y)/cs;
+      if (edge){ op[o]=sp[o]*.3; op[o+1]=sp[o+1]*.3; op[o+2]=sp[o+2]*.3; op[o+3]=255; continue; }  // soft lead: darkened paint, not black
+      const s = seeds[l], n = s.n||1, avg = (s.r+s.g+s.b)/(3*n), glow = 1.1-.2*Math.hypot(s.x-x, s.y-y)/cs;
       op[o] = (avg+(s.r/n-avg)*pop)*glow; op[o+1] = (avg+(s.g/n-avg)*pop)*glow; op[o+2] = (avg+(s.b/n-avg)*pop)*glow; op[o+3] = 255;
     }
     sc.putImageData(out,0,0);
-    await animate(700, t => { put(before); ctx.globalAlpha = ease(t); ctx.drawImage(sm,0,0,W,H); ctx.globalAlpha = 1; });
+    await animate(700, t => { put(before); ctx.globalAlpha = .8*ease(t); ctx.drawImage(sm,0,0,W,H); ctx.globalAlpha = 1; });
   },
 });
 
@@ -476,7 +478,7 @@ stage.addEventListener('pointerdown', e => {
 });
 stage.addEventListener('pointermove', e => {
   if (!stroke) return; const p = toCanvas(e);
-  if (stroke.drag === 'lensSize'){ const lo = W*.10, hi = W*.45; lens.r = Math.min(hi, Math.max(lo, Math.hypot(p.x-lens.x, p.y-lens.y))); $('#lensSize').value = lens.r/W*100; drawLens(); return; }
+  if (stroke.drag === 'lensSize'){ const lo = W*.04, hi = W*.45; lens.r = Math.min(hi, Math.max(lo, Math.hypot(p.x-lens.x, p.y-lens.y))); $('#lensSize').value = lens.r/W*100; drawLens(); return; }
   if (stroke.drag === 'lens'){ lens.x = p.x-stroke.ox; lens.y = p.y-stroke.oy; drawLens(); return; }
   if (stroke.drag){ layer.x = p.x-stroke.ox; layer.y = p.y-stroke.oy; drawLayer(); return; }
   if (!stroke.pushed){ push(); stroke.pushed = true; sync(); }
@@ -529,8 +531,8 @@ function startLens(){
 }
 $('#lensSize').oninput = e => { if (lens){ lens.r = e.target.value/100*W; drawLens(); } };
 $('#lensPow').oninput = e => { if (lens){ lens.k = bulgeK(+e.target.value); drawLens(); } };
-// Double-click (or double-tap) a slider's name to reset it: Size to its default, Bulge back to zero.
-[['#lensSize', 24], ['#lensPow', 0]].forEach(([sel, def]) => {
+// Double-click (or double-tap) a slider's name to reset it to where it started.
+[['#lensSize', 24], ['#lensPow', 35]].forEach(([sel, def]) => {
   const input = $(sel), label = input.closest('label');
   const reset = e => { e.preventDefault(); input.value = def; input.dispatchEvent(new Event('input')); toast(`${label.firstChild.textContent.trim()} reset`); };
   label.addEventListener('dblclick', e => { if (e.target !== input) reset(e); });
@@ -538,12 +540,22 @@ $('#lensPow').oninput = e => { if (lens){ lens.k = bulgeK(+e.target.value); draw
   label.addEventListener('pointerup', e => { if (e.pointerType !== 'touch' || e.target === input) return; const now = Date.now(); if (now - lastTap < 350) reset(e); lastTap = now; });
 });
 $('#lensCancel').onclick = () => { cancelLayer(); setMode(null); };
-$('#lensApply').onclick = () => {
-  if (!lens) return;
+function commitLens(){
   drawLens(false); const done = snap();
   put(lensBase); push(); put(done);
-  lens = null; lensBase = null; setMode(null);
+  const was = lens; lens = null; lensBase = null;
   markUsed('lens');
+  return was;
+}
+$('#lensApply').onclick = () => { if (!lens) return; commitLens(); setMode(null); };
+// Keep this lens and drop a fresh one somewhere else, with the same size and bulge.
+$('#lensMore').onclick = () => {
+  if (!lens) return;
+  const was = commitLens();
+  startLens();
+  lens.x = was.x < W/2 ? Math.min(W*.8, was.x + W*.35) : Math.max(W*.2, was.x - W*.35);
+  lens.y = was.y < H/2 ? Math.min(H*.75, was.y + H*.3) : Math.max(H*.25, was.y - H*.3);
+  drawLens(); toast('Lens added. Drag the new one');
 };
 
 function setMode(m){
