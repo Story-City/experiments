@@ -235,3 +235,6 @@ body{padding:0;min-height:100%}
 .appbar{position:sticky;top:0;z-index:4;background:var(--night)}
 .sheet{position:fixed}
 @media (min-width:600px){ body{padding-block:24px} .phone{min-height:0;border:1px solid var(--line);border-radius:36px;box-shadow:0 30px 80px -30px #000,0 0 0 8px #07060f;overflow:hidden} .screen{height:720px;overflow-y:auto} .sheet{position:absolute} }
+
+.tray .sliders{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tray .sliders .size{min-width:0}
