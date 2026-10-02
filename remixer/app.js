@@ -13,6 +13,8 @@ function go(id){
   const n = STEPS.indexOf(id);
   document.querySelectorAll('.steps i').forEach((el,i) => el.classList.toggle('on', i <= n));
   $('#appTitle').textContent = TITLES[id];
+  // The Remixer itself has no header: the painting sits right at the top.
+  document.querySelector('.appbar').hidden = id === 's-remix';
   $('#screen').scrollTop = 0;
 }
 
