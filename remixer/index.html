@@ -49,6 +49,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
         <div class="easel">
           <canvas id="stage" aria-label="Your borked painting"></canvas>
           <canvas id="wipe" hidden aria-hidden="true"></canvas>
+          <canvas id="ui" aria-hidden="true"></canvas>
           <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="adjF" color-interpolation-filters="sRGB"><feColorMatrix id="adjM" type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0"/></filter></svg>
           <div class="toast off" id="toast"></div>
         </div>

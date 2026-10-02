@@ -548,12 +548,18 @@ stage.addEventListener('pointermove', e => {
     stage.style.cursor = ['ew-resize','nwse-resize','ns-resize','nesw-resize'][Math.floor(deg/45)];
   } else stage.style.cursor = Math.hypot(dx, dy) < lens.r ? 'grab' : '';
 });
+// Guide rings live on their own canvas above the painting, so Colour/Contrast never tint them.
+const ui = $('#ui'), uctx = ui.getContext('2d');
+function uiClear(){ if (ui.width !== W || ui.height !== H){ ui.width = W; ui.height = H; } else uctx.clearRect(0,0,W,H); }
+function uiRing(x, y, rad, handle){
+  uiClear(); uctx.strokeStyle = 'rgba(245,214,142,.95)'; uctx.setLineDash([8,6]); uctx.lineWidth = Math.max(2, W/300);
+  uctx.beginPath(); uctx.arc(x, y, rad, 0, 6.2832); uctx.stroke(); uctx.setLineDash([]);
+  // a small handle on the right of the ring hints that the edge can be dragged
+  if (handle){ uctx.fillStyle = '#f5d68e'; uctx.beginPath(); uctx.arc(x+rad, y, Math.max(5, W/80), 0, 6.2832); uctx.fill(); }
+}
 function drawLens(ring = true){
   put(lensBase); bulge(lens.x, lens.y, lens.r, lens.k);
-  if (ring){ ctx.strokeStyle = 'rgba(245,214,142,.9)'; ctx.setLineDash([8,6]); ctx.lineWidth = Math.max(2, W/300);
-    ctx.beginPath(); ctx.arc(lens.x, lens.y, lens.r+3, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]);
-    // a small handle on the right of the ring hints that the edge can be dragged
-    ctx.fillStyle = '#f5d68e'; ctx.beginPath(); ctx.arc(lens.x+lens.r+3, lens.y, Math.max(5, W/80), 0, 6.2832); ctx.fill(); }
+  ring ? uiRing(lens.x, lens.y, lens.r+3, true) : uiClear();
 }
 function startLens(){
   lensBase = snap();
@@ -621,10 +627,10 @@ function startLayer(crop){
 function drawLayer(ring = true){
   put(layerBase);
   const s = layer.size; ctx.drawImage(layer.img, layer.x-s/2, layer.y-s/2, s, s);
-  if (ring){ ctx.strokeStyle = 'rgba(245,214,142,.9)'; ctx.setLineDash([8,6]); ctx.lineWidth = Math.max(2, W/300);
-    ctx.beginPath(); ctx.arc(layer.x, layer.y, s/2+4, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]); }
+  ring ? uiRing(layer.x, layer.y, s/2+4, false) : uiClear();
 }
 function cancelLayer(){
+  if (W) uiClear();
   // The lens autosaves: leaving it (another tool, Undo, Save, tapping Lens again) keeps what's there.
   if (lens && lensBase) commitLens();
   lens = null; lensBase = null;
