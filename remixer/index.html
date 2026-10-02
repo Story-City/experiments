@@ -68,9 +68,9 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
             <button class="tool tile" id="surprise"><span class="thumb"><img alt="" data-thumb="surprise"><span class="badge"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2" class="dot"/><circle cx="15" cy="15" r="1.2" class="dot"/><circle cx="15" cy="9" r="1.2" class="dot"/><circle cx="9" cy="15" r="1.2" class="dot"/><circle cx="12" cy="12" r="1.2" class="dot"/></svg></span></span><span class="lbl">Surprise me</span></button>
           </div>
           <div class="mod" data-mod="rebuild" style="--mod:var(--m-rebuild)" hidden>
-            <button class="tool tile" data-tool="dots"><span class="thumb"><img alt="" data-thumb="dots"></span><span class="lbl">Dots</span></button>
+            <button class="tool tile" data-tool="dots"><span class="thumb"><img alt="" data-thumb="dots"></span><span class="lbl">Dot</span></button>
             <button class="tool tile" data-tool="pixel"><span class="thumb"><img alt="" data-thumb="pixel"></span><span class="lbl">Pixel</span></button>
-            <button class="tool tile" data-tool="shapes"><span class="thumb"><img alt="" data-thumb="shapes"></span><span class="lbl">Facets</span></button>
+            <button class="tool tile" data-tool="shapes"><span class="thumb"><img alt="" data-thumb="shapes"></span><span class="lbl">Facet</span></button>
             <button class="tool tile" data-tool="glass" title="Stained glass"><span class="thumb"><img alt="" data-thumb="glass"></span><span class="lbl">Glass</span></button>
           </div>
           <div class="mod" data-mod="wreck" style="--mod:var(--m-wreck)" hidden>
@@ -86,12 +86,11 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
           <div class="ends"><span>fine</span><span>chunky</span></div>
         </div>
         <div class="tray" id="lensTray" hidden>
-          <p>Drag the lens to move it, or its edge to resize.</p>
+          <p>Drag the lens to move it, or its edge to resize. It saves as you go.</p>
           <div class="lens-row">
             <label class="size">Bulge <input type="range" id="lensPow" min="-100" max="100" value="35" step="1" list="lensZero"><datalist id="lensZero"><option value="0"></option></datalist></label>
             <button class="plus" id="lensMore" aria-label="Add another lens" title="Add another lens"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
           </div>
-          <div class="row"><button class="btn2" id="lensCancel">Cancel</button><button class="btn2 blue" id="lensApply">Apply</button></div>
         </div>
         <div class="tray" id="meTray" hidden>
           <p id="meHint">Take a pic and slap it on the painting.</p>

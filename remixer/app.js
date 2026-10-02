@@ -556,7 +556,7 @@ function drawLens(ring = true){
 function startLens(){
   lensBase = snap();
   lens = { x:W*.5, y:H*.5, r:lensR || W*.24, k:bulgeK(+$('#lensPow').value) };
-  drawLens(); toast('Drag the lens around');
+  drawLens(); markUsed('lens'); toast('Drag the lens around');
 }
 $('#lensPow').oninput = e => { if (lens){ lens.k = bulgeK(+e.target.value); drawLens(); } };
 // Double-click (or double-tap) a slider's name to reset it to where it started.
@@ -574,7 +574,6 @@ $('#shapeSize').oninput = e => {
   shapeFrame = requestAnimationFrame(() => { instant = true; put(lastBase); runSeeded(lastTool, lastBase, shapeSeed, e.target.value/100); instant = false; });
 };
 $('#shapeSize').closest('label').addEventListener('dblclick', e => { const i = $('#shapeSize'); if (e.target === i) return; i.value = 20; i.dispatchEvent(new Event('input')); });
-$('#lensCancel').onclick = () => { cancelLayer(); setMode(null); };
 function commitLens(){
   drawLens(false); const done = snap();
   put(lensBase); push(); put(done);
@@ -582,7 +581,6 @@ function commitLens(){
   markUsed('lens');
   return was;
 }
-$('#lensApply').onclick = () => { if (!lens) return; commitLens(); setMode(null); };
 // Keep this lens and drop a fresh one somewhere else, with the same size and bulge.
 $('#lensMore').onclick = () => {
   if (!lens) return;
@@ -625,7 +623,8 @@ function drawLayer(ring = true){
     ctx.beginPath(); ctx.arc(layer.x, layer.y, s/2+4, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]); }
 }
 function cancelLayer(){
-  if (lens && lensBase) put(lensBase);
+  // The lens autosaves: leaving it (another tool, Undo, Save, tapping Lens again) keeps what's there.
+  if (lens && lensBase) commitLens();
   lens = null; lensBase = null;
   if (layer && layerBase) put(layerBase);
   layer = null; layerBase = null;
