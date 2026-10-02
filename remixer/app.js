@@ -552,10 +552,15 @@ stage.addEventListener('pointermove', e => {
 const ui = $('#ui'), uctx = ui.getContext('2d');
 function uiClear(){ if (ui.width !== W || ui.height !== H){ ui.width = W; ui.height = H; } else uctx.clearRect(0,0,W,H); }
 function uiRing(x, y, rad, handle){
-  uiClear(); uctx.strokeStyle = 'rgba(245,214,142,.95)'; uctx.setLineDash([8,6]); uctx.lineWidth = Math.max(2, W/300);
-  uctx.beginPath(); uctx.arc(x, y, rad, 0, 6.2832); uctx.stroke(); uctx.setLineDash([]);
+  // Two-tone so it shows on any colour: a dark outline under gold dashes.
+  const lw = Math.max(2, W/300);
+  uiClear();
+  uctx.beginPath(); uctx.arc(x, y, rad, 0, 6.2832);
+  uctx.strokeStyle = 'rgba(12,9,24,.75)'; uctx.lineWidth = lw*2.6; uctx.stroke();
+  uctx.strokeStyle = '#f5d68e'; uctx.lineWidth = lw; uctx.setLineDash([8,6]); uctx.stroke(); uctx.setLineDash([]);
   // a small handle on the right of the ring hints that the edge can be dragged
-  if (handle){ uctx.fillStyle = '#f5d68e'; uctx.beginPath(); uctx.arc(x+rad, y, Math.max(5, W/80), 0, 6.2832); uctx.fill(); }
+  if (handle){ const hr = Math.max(5, W/80); uctx.beginPath(); uctx.arc(x+rad, y, hr, 0, 6.2832);
+    uctx.fillStyle = '#f5d68e'; uctx.fill(); uctx.strokeStyle = 'rgba(12,9,24,.8)'; uctx.lineWidth = lw*1.2; uctx.stroke(); }
 }
 function drawLens(ring = true){
   put(lensBase); bulge(lens.x, lens.y, lens.r, lens.k);
