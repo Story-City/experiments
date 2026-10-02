@@ -253,3 +253,8 @@ body{padding:0;min-height:100%}
 /* Save matches the blue of the tabs and progress dots */
 #doSave{background:var(--m-yours);color:#0b1630}
 #doSave:disabled{background:var(--plum-2);color:var(--faint)}
+
+/* Shape it size slider */
+.tray .sliders.one{grid-template-columns:1fr}
+#shapeTray{gap:2px}
+#shapeTray .ends{display:flex;justify-content:space-between;margin-left:46px;font-size:11px;color:var(--faint)}

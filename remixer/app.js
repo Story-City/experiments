@@ -55,6 +55,8 @@ function sync(){
   $('#doSave').disabled = n < 2;
   // A tool you just used shows a small re-roll symbol: tapping it again gives a different version.
   document.querySelectorAll('.tile').forEach(b => { const k = b.dataset.tool || b.id; b.classList.toggle('can-again', !!lastTool && (k === lastTool || (SHAPE.includes(k) && SHAPE.includes(lastTool)))); });
+  const onShapeTab = document.querySelector('.modtabs [data-mod=rebuild]')?.getAttribute('aria-selected') === 'true';
+  $('#shapeTray').hidden = !(SHAPE.includes(lastTool) && onShapeTab && !mode);
   $('#undo').disabled = hist.length === 0;
   $('#redo').disabled = future.length === 0;
   $('#restart').disabled = hist.length === 0;
@@ -76,6 +78,17 @@ function recolourCanvas(src){
 }
 
 /* ---------- tap tools ---------- */
+/* ---------- Shape it size: 0 = fine, 1 = chunky. A tap picks a gentle size; the slider changes it. ---------- */
+const lerp = (a,b,t) => a+(b-a)*t;
+let lastShapeSize = .2, shapeSeed = 1;
+function shapeT(size){ const t = typeof size === 'number' ? size : rnd(.06,.3); lastShapeSize = t; return t; }
+// Same seed = same piece layout, so sliding only changes the size of the pieces.
+function seeded(seed){ let a = seed>>>0; return () => { a = (a+0x6D2B79F5)>>>0; let t = a; t = Math.imul(t^t>>>15, t|1); t ^= t+Math.imul(t^t>>>7, t|61); return ((t^t>>>14)>>>0)/4294967296; }; }
+async function runSeeded(name, before, seed, size){
+  const real = Math.random; Math.random = seeded(seed); let p;
+  try { p = TOOLS[name](before, size); } finally { Math.random = real; }
+  await p;
+}
 const TOOLS = {
   async recolour(before){
     const after = recolourCanvas(before);
@@ -124,9 +137,10 @@ const TOOLS = {
       for (let k=0;k<8;k++){ const y=rnd(0,H), h=rnd(3,H/12); ctx.drawImage(before,0,y,W,h,rnd(-.15,.15)*W*t*1.5,y,W,h); }
     });
   },
-  async dots(before){
+  async dots(before, size){
+    const k = shapeT(size);
     // Finer, gentler versions so the painting stays readable: small dots over a dimmed copy, not black.
-    const step = Math.max(4, Math.round(W/rnd(105,150))), cols = Math.ceil(W/step), rows = Math.ceil(H/step);
+    const step = Math.max(4, Math.round(W/lerp(160,35,k))), cols = Math.ceil(W/step), rows = Math.ceil(H/step);
     const sm = document.createElement('canvas'); sm.width = cols; sm.height = rows;
     const sc = sm.getContext('2d'); sc.drawImage(before,0,0,cols,rows);
     const px = sc.getImageData(0,0,cols,rows).data;
@@ -143,8 +157,9 @@ const TOOLS = {
   },
 };
 Object.assign(TOOLS, {
-  async pixel(before){
-    const target = Math.round(rnd(110,170)),  // columns of pixels at the end: more columns = finer
+  async pixel(before, size){
+    const k = shapeT(size);
+    const target = Math.round(lerp(180,25,k)),  // columns of pixels at the end: more columns = finer
       sm = document.createElement('canvas'), sc = sm.getContext('2d');
     await animate(600, t => {
       const cols = Math.max(target, Math.round(W/(1+(W/target-1)*ease(t))));
@@ -154,8 +169,9 @@ Object.assign(TOOLS, {
     });
   },
   // Brett's "Shapes" effect from the Remix a Masterpiece experiment: flat-colour Voronoi cells.
-  async shapes(before){
-    const sz = Math.max(5, Math.round(rnd(7,16)*W/1000)), salt = (Math.random()*1e6)|0;
+  async shapes(before, size){
+    const k = shapeT(size);
+    const sz = Math.max(4, Math.round(lerp(5,50,k)*W/1000)), salt = (Math.random()*1e6)|0;
     const hash = n => { let x = Math.imul((n+salt) ^ 0x9e3779b9, 0x85ebca6b); x ^= x>>>13; x = Math.imul(x, 0xc2b2ae35); x ^= x>>>16; return (x>>>0)/4294967296; };
     const gw = Math.ceil(W/sz), gh = Math.ceil(H/sz), count = gw*gh, seeds = new Float32Array(count*2);
     for (let g=0;g<count;g++){ seeds[g*2] = ((g%gw)+.1+.8*hash(g*2))*sz; seeds[g*2+1] = (((g/gw)|0)+.1+.8*hash(g*2+1))*sz; }
@@ -170,8 +186,9 @@ Object.assign(TOOLS, {
     await animate(650, t => { put(before); ctx.globalAlpha = ease(t); ctx.drawImage(after,0,0); ctx.globalAlpha = 1; });
   },
   // Stained glass (the original look). Each tap changes the piece size and how rich the colours are.
-  async glass(before){
-    const w = Math.round(W/2), h = Math.round(H/2), gx = 24 + (Math.random()*14|0), cs = w/gx, gy = Math.ceil(h/cs), pop = rnd(1.3,1.8);
+  async glass(before, size){
+    const k = shapeT(size);
+    const w = Math.round(W/2), h = Math.round(H/2), gx = Math.round(lerp(40,7,k)), cs = w/gx, gy = Math.ceil(h/cs), pop = rnd(1.3,1.8);
     const seeds = [];
     for (let j=0;j<gy;j++) for (let i=0;i<gx;i++) seeds.push({ x:(i+rnd(.1,.9))*cs, y:(j+rnd(.1,.9))*cs, r:0,g:0,b:0,n:0 });
     const sm = document.createElement('canvas'); sm.width = w; sm.height = h; const sc = sm.getContext('2d');
@@ -227,7 +244,8 @@ async function runTool(name){
   // The four Shape it effects replace each other: Dots then Glass swaps Dots out instead of layering.
   if ((name === lastTool || (SHAPE.includes(name) && SHAPE.includes(lastTool))) && lastBase){ before = lastBase; future = []; lastTool = name; }
   else { push(); before = snap(); lastTool = name; lastBase = before; }
-  await TOOLS[name](before);
+  if (SHAPE.includes(name)){ shapeSeed = (Math.random()*1e9)|0; await runSeeded(name, before, shapeSeed); $('#shapeSize').value = Math.round(lastShapeSize*100); }
+  else await TOOLS[name](before);
   busy = false; $('#tools').classList.remove('busy');
   markUsed(name);
 }
@@ -279,6 +297,7 @@ $('#toRemix').onclick = async () => {
 
 /* ---------- tool-set tabs ---------- */
 document.querySelectorAll('.modtabs button').forEach(t => t.onclick = () => {
+  setTimeout(sync);
   document.querySelectorAll('.modtabs button').forEach(b => b.setAttribute('aria-selected', b === t));
   document.querySelectorAll('.mod').forEach(m => m.hidden = m.dataset.mod !== t.dataset.mod);
 });
@@ -541,6 +560,13 @@ $('#lensPow').oninput = e => { if (lens){ lens.k = bulgeK(+e.target.value); draw
   let lastTap = 0;
   label.addEventListener('pointerup', e => { if (e.pointerType !== 'touch' || e.target === input) return; const now = Date.now(); if (now - lastTap < 350) reset(e); lastTap = now; });
 });
+let shapeFrame = 0;
+$('#shapeSize').oninput = e => {
+  if (busy || !SHAPE.includes(lastTool) || !lastBase) return;
+  cancelAnimationFrame(shapeFrame);
+  shapeFrame = requestAnimationFrame(() => { instant = true; put(lastBase); runSeeded(lastTool, lastBase, shapeSeed, e.target.value/100); instant = false; });
+};
+$('#shapeSize').closest('label').addEventListener('dblclick', e => { const i = $('#shapeSize'); if (e.target === i) return; i.value = 20; i.dispatchEvent(new Event('input')); });
 $('#lensCancel').onclick = () => { cancelLayer(); setMode(null); };
 function commitLens(){
   drawLens(false); const done = snap();
@@ -562,6 +588,7 @@ $('#lensMore').onclick = () => {
 
 function setMode(m){
   mode = m; stage.style.cursor = '';
+  if (m) $('#shapeTray').hidden = true;
   document.querySelectorAll('.tool[aria-pressed]').forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === m));
   stage.className = (m === 'smudge' || m === 'marble') ? 'swirl' : (m === 'me' || m === 'lens') ? 'move' : '';
   $('#lensTray').hidden = m !== 'lens';
