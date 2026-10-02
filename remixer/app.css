@@ -267,3 +267,7 @@ body{padding:0;min-height:100%}
 .plus:focus-visible{outline:2px solid var(--m-yours);outline-offset:2px}
 .btn2.blue{border-color:var(--m-yours);color:var(--m-yours)}
 .btn2.blue:hover{background:color-mix(in srgb,var(--m-yours) 12%,var(--plum))}
+
+/* Share button on the end screen */
+.btn2.share{background:var(--m-yours);border-color:var(--m-yours);color:#0b1630}
+.btn2.share svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}

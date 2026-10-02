@@ -710,13 +710,31 @@ $('#surprise').onclick = async () => {
 /* ---------- save + crisp-E reacts ---------- */
 $('#doSave').onclick = () => {
   cancelLayer(); setMode(null);
-  $('#finalImg').src = baked().toDataURL('image/jpeg', .9);
+  const final = baked();
+  $('#finalImg').src = final.toDataURL('image/jpeg', .9);
+  // Make the file now, so the share sheet can open straight from the tap (phones require that).
+  shareFile = null; final.toBlob(b => { shareFile = new File([b], 'story-city-remix.jpg', { type:'image/jpeg' }); }, 'image/jpeg', .9);
   go('s-saved');
   const c = $('#reactChat'); c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
 };
 $('#backRemix').onclick = () => go('s-remix');
 function flash(btn, msg){ const o = btn.textContent; btn.textContent = msg; setTimeout(() => btn.textContent = o, 1600); }
-$('#shareBtn').onclick = e => flash(e.currentTarget, 'Share sheet opens here');
+// Share: the phone's own share sheet (Instagram, Messages, WhatsApp…) with the image attached.
+// Where there's no share sheet (most computers), the image downloads instead.
+let shareFile = null;
+const SHARE_TEXT = 'I remixed a masterpiece in Story City #messwithQ';
+function shareLabel(msg){ const l = $('#shareBtn span'); l.textContent = msg; setTimeout(() => l.textContent = 'Share', 1800); }
+$('#shareBtn').onclick = async () => {
+  if (!shareFile) return shareLabel('One sec…');
+  const data = { files:[shareFile], title:'My Story City remix', text:SHARE_TEXT };
+  if (navigator.canShare && navigator.canShare(data)){
+    try { await navigator.share(data); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(shareFile); a.download = shareFile.name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  try { await navigator.clipboard.writeText(SHARE_TEXT); } catch (e) {}
+  shareLabel('Image saved');
+};
 $('#continueBtn').onclick = e => flash(e.currentTarget, 'On to crisp-E\'s rant →');
 
 // Test hook for the headless QA run (read-only).
