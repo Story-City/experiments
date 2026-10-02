@@ -494,12 +494,12 @@ function marbleTo(p){
 const capture = e => { try { stage.setPointerCapture(e.pointerId); } catch (_) {} };
 stage.addEventListener('pointerdown', e => {
   if (mode === 'smudge' || mode === 'marble'){ capture(e); stroke = { p:toCanvas(e), last:toCanvas(e), moved:0, pushed:false, tool:mode }; }
-  else if (mode === 'lens' && lens){ capture(e); const p = toCanvas(e); stroke = lensEdge(p) ? { drag:'lensSize' } : { drag:'lens', ox:p.x-lens.x, oy:p.y-lens.y }; }
+  else if (mode === 'lens' && lens){ capture(e); const p = toCanvas(e); stroke = lensEdge(p) ? { drag:'lensResize' } : { drag:'lens', ox:p.x-lens.x, oy:p.y-lens.y }; }
   else if (mode === 'me' && layer){ capture(e); const p = toCanvas(e); stroke = { drag:true, ox:p.x-layer.x, oy:p.y-layer.y }; }
 });
 stage.addEventListener('pointermove', e => {
   if (!stroke) return; const p = toCanvas(e);
-  if (stroke.drag === 'lensSize'){ const lo = W*.04, hi = W*.45; lens.r = Math.min(hi, Math.max(lo, Math.hypot(p.x-lens.x, p.y-lens.y))); $('#lensSize').value = lens.r/W*100; drawLens(); return; }
+  if (stroke.drag === 'lensResize'){ const lo = W*.04, hi = W*.45; lens.r = lensR = Math.min(hi, Math.max(lo, Math.hypot(p.x-lens.x, p.y-lens.y))); drawLens(); return; }
   if (stroke.drag === 'lens'){ lens.x = p.x-stroke.ox; lens.y = p.y-stroke.oy; drawLens(); return; }
   if (stroke.drag){ layer.x = p.x-stroke.ox; layer.y = p.y-stroke.oy; drawLayer(); return; }
   if (!stroke.pushed){ push(); stroke.pushed = true; sync(); }
@@ -510,7 +510,7 @@ const endStroke = () => { if (stroke && !stroke.drag && stroke.moved > W*.15) ma
 stage.addEventListener('pointerup', endStroke); stage.addEventListener('pointercancel', endStroke);
 
 /* ---------- Lens: a magnifying-glass bulge you drag around the painting ---------- */
-let lens = null, lensBase = null;
+let lens = null, lensBase = null, lensR = 0;  // lensR: last size, so new lenses match
 // Bulge slider runs -100…100 with 0 in the middle = no change.
 // Right of zero magnifies like a fisheye; left of zero pinches the spot inwards.
 const bulgeK = v => v >= 0 ? 1 + v/100*2.5 : 1 + v/100*.65;
@@ -547,13 +547,12 @@ function drawLens(ring = true){
 }
 function startLens(){
   lensBase = snap();
-  lens = { x:W*.5, y:H*.5, r:+$('#lensSize').value/100*W, k:bulgeK(+$('#lensPow').value) };
+  lens = { x:W*.5, y:H*.5, r:lensR || W*.24, k:bulgeK(+$('#lensPow').value) };
   drawLens(); toast('Drag the lens around');
 }
-$('#lensSize').oninput = e => { if (lens){ lens.r = e.target.value/100*W; drawLens(); } };
 $('#lensPow').oninput = e => { if (lens){ lens.k = bulgeK(+e.target.value); drawLens(); } };
 // Double-click (or double-tap) a slider's name to reset it to where it started.
-[['#lensSize', 24], ['#lensPow', 35]].forEach(([sel, def]) => {
+[['#lensPow', 35]].forEach(([sel, def]) => {
   const input = $(sel), label = input.closest('label');
   const reset = e => { e.preventDefault(); input.value = def; input.dispatchEvent(new Event('input')); toast(`${label.firstChild.textContent.trim()} reset`); };
   label.addEventListener('dblclick', e => { if (e.target !== input) reset(e); });
