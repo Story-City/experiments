@@ -292,7 +292,7 @@ async function shareCard() {
 $('#shutter').addEventListener('click', () => settle(capture()));
 $('#fakeMatch').addEventListener('click', () => settle(fakeCapture(colours[current])));
 $('#camBack').addEventListener('click', closeCamera);
-$('#restart').addEventListener('click', () => { found = new Set(); results = []; $('#done').hidden = true; tip('Tap a colour. Find something nearby that matches it, and snap it.'); draw(); layout(); });
+$('#restart').addEventListener('click', () => { found = new Set(); results = []; $('#done').hidden = true; tip('Tap a colour. Find something nearby that matches, and snap a photo.'); draw(); layout(); });
 $('#done').addEventListener('click', showCard);
 $('#share').addEventListener('click', shareCard);
 $('#cardBack').addEventListener('click', () => { $('#s-card').hidden = true; $('#s-puzzle').hidden = false; requestAnimationFrame(layout); });
