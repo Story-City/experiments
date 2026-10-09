@@ -1,0 +1,102 @@
+/* The Decryptor. Phone frame, easel and buttons are copied from The Remixer (remixer/app.css)
+   so the two read as one family; if the Remixer's photo frame changes, change it here too. */
+html{height:auto}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+
+:root{
+  color-scheme:dark;
+  --void:#0b0916; --night:#141029; --plum:#1e1939; --plum-2:#29224b; --line:#3a3163;
+  --ink:#f1ecff; --muted:#a79fc8; --faint:#6f6795;
+  --gold:#e9b84c; --gold-soft:#f5d68e; --gold-ink:#2a1c03;
+  --blue:#009eff;
+  --display:"Marcellus","Cormorant Garamond",Georgia,serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --chip-radius:22px;
+}
+*{box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font:15px/1.5 var(--body);padding-inline:16px;padding-block:28px 48px}
+.wrap{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:400px 1fr;gap:48px;align-items:start}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:32px}.phone{margin:0 auto}}
+
+/* ---------- Phone (from the Remixer) ---------- */
+.phone{position:relative;width:100%;max-width:400px;background:var(--night);border:1px solid var(--line);border-radius:36px;overflow:hidden;
+  box-shadow:0 30px 80px -30px #000,0 0 0 8px #07060f}
+.appbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px;border-bottom:1px solid var(--line)}
+.appbar .ch{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.appbar .ttl{font-family:var(--display);font-size:19px;margin-top:2px}
+.appbar .steps{display:flex;gap:5px}
+.appbar .steps i{width:18px;height:18px;border-radius:6px;border:1.5px solid var(--line);background:var(--pip,transparent);opacity:.5}
+.appbar .steps i.on{opacity:1;border-color:#fff}
+.screen{position:relative;padding:18px 20px 22px;height:680px;overflow-y:auto;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+
+/* ---------- Easel (the Remixer's photo frame) ---------- */
+.easel{position:relative;background:#07060f;border-radius:10px;padding:10px;border:1px solid var(--line);margin-top:24px}
+#stage{display:block;width:100%;height:auto;border-radius:3px}
+#leads{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+#leads line{stroke:#fff;stroke-width:1.5;stroke-dasharray:3 3}
+#leads circle{fill:#fff;stroke:#07060f;stroke-width:1.5}
+
+/* Rounded-square swatches pointing at each colour (same shape as the camera's chip window). */
+/* Sized to the picture (about an eighth of its width) so they look the same on any screen. */
+.swatch{position:absolute;width:clamp(28px,12.5%,44px);aspect-ratio:1/1;transform:translate(-50%,-50%);border-radius:12px;border:3px solid #fff;background:var(--c);
+  box-shadow:0 6px 16px -6px #000;cursor:pointer;padding:0;appearance:none;transition:transform .15s}
+.swatch:active{transform:translate(-50%,-50%) scale(.92)}
+.swatch.found{border-color:var(--blue);box-shadow:0 0 0 3px #07060f,0 0 16px var(--blue)}
+.swatch.found::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font:800 18px var(--body);text-shadow:0 1px 3px #000}
+
+/* ---------- Elf tip ---------- */
+.elf-tip{position:relative;margin-top:8px;padding:16px 118px 16px 18px;border:3px solid var(--blue);border-radius:28px;min-height:104px;display:flex;align-items:center}
+.elf-tip p{margin:0;font:600 16px/1.35 var(--body)}
+.elf-tip img{position:absolute;right:-8px;bottom:-3px;width:128px}
+.elf-tip.nope{animation:nudge .4s}
+@keyframes nudge{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+
+/* ---------- Brag card ---------- */
+#card{display:block;width:100%;height:auto;aspect-ratio:1/1;border-radius:14px;box-shadow:0 18px 40px -18px #000;margin-top:6px}
+.card-total{font:400 30px var(--display);text-align:center;margin:18px 0 0}
+.history{margin-top:20px;border-top:1px solid var(--line);padding-top:14px}
+.history h3{margin:0;font:700 12px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.history p{margin:6px 0 8px}
+.history ul{list-style:none;margin:0;padding:0}
+.history li{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);color:var(--muted)}
+.history li b{color:var(--ink)}
+
+/* ---------- Buttons (from the Remixer) ---------- */
+.cta{appearance:none;width:100%;border:0;border-radius:14px;background:linear-gradient(90deg,#0259a1,var(--blue));color:#fff;font:700 16px var(--body);padding:15px;cursor:pointer;margin-top:16px}
+.cta:active{transform:scale(.98)}
+.ghost{appearance:none;background:none;border:0;color:var(--muted);font:500 13px var(--body);padding:10px;cursor:pointer;display:block;margin:6px auto 0;text-decoration:underline}
+.ghost.light{color:rgba(255,255,255,.85)}
+.pill{appearance:none;border:0;border-radius:999px;background:rgba(0,0,0,.45);color:#fff;font:600 14px var(--body);padding:7px 14px;cursor:pointer}
+
+/* ---------- Camera ---------- */
+.camera{position:absolute;inset:0;background:#000;overflow:hidden}
+.camera video,.camera #fake{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cam-top{position:absolute;top:14px;left:14px;right:14px;display:flex;align-items:center;gap:10px;z-index:3}
+.cam-top span{font:700 14px var(--body);color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.cam-bottom{position:absolute;left:0;right:0;bottom:18px;display:grid;justify-items:center;gap:4px;z-index:3}
+.shutter{width:72px;height:72px;border-radius:50%;border:5px solid #fff;background:none;padding:5px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+.shutter i{display:block;width:100%;height:100%;border-radius:50%;background:#fff}
+.shutter:active i{transform:scale(.9)}
+.flash{position:absolute;inset:0;background:#fff;z-index:5;animation:flash .35s ease-out forwards}
+@keyframes flash{from{opacity:.95}to{opacity:0}}
+
+/* A: the colour fills everything except a rounded window, like a paint chip card. */
+.chip-frame{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:2}
+.chip-window{width:58%;aspect-ratio:1/1;border-radius:var(--chip-radius);box-shadow:0 0 0 1000px var(--target);outline:3px solid rgba(255,255,255,.9);outline-offset:0}
+/* B: camera on top, the colour to match fills the bottom third. */
+.strip{position:absolute;left:0;right:0;bottom:0;height:33.3%;background:var(--target);z-index:2;display:grid;place-items:end center;padding-bottom:22px;pointer-events:none}
+.strip span{font:700 13px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--on-target,#fff);opacity:.85}
+.camera.v-strip .cam-bottom{bottom:calc(33.3% - 36px)}
+.camera.v-strip .ghost.light{color:var(--on-target,#fff)}
+
+/* ---------- Notes column ---------- */
+.notes h1{font-family:var(--display);font-weight:400;font-size:34px;margin:0 0 8px}
+.notes p,.notes li{color:var(--muted)}
+.notes b{color:var(--ink)}
+.ab{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:18px 0}
+.ab span{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);width:100%}
+.ab a{color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px}
+.ab a.on{background:var(--blue);border-color:var(--blue)}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>The Decryptor</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔓</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700;800&display=swap">
+<script>
+window.CACHE_V = '?v=' + Date.now();
+document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
+</script>
+</head>
+<body>
+<div class="wrap">
+  <div class="phone" aria-label="Clickable prototype">
+    <div class="appbar">
+      <div>
+        <div class="ch">The Summons · The Hiding Spot</div>
+        <div class="ttl">Decrypt the letter</div>
+      </div>
+      <div class="steps" id="pips" aria-label="Colours found"></div>
+    </div>
+
+    <div class="screen" id="screen">
+      <!-- The puzzle: the scrambled image with a colour swatch pointing at each spot -->
+      <section id="s-puzzle">
+        <div class="elf-tip" id="tip">
+          <p id="tipText">Tap a colour. Find something nearby that matches it, and snap it.</p>
+          <img src="img/elf.png" alt="">
+        </div>
+
+        <div class="easel" id="easel">
+          <canvas id="stage" aria-label="The scrambled image"></canvas>
+          <svg id="leads" aria-hidden="true"></svg>
+          <div id="swatches"></div>
+        </div>
+
+        <button class="cta" id="done" hidden>See my match card</button>
+        <button class="ghost" id="restart">Start over</button>
+      </section>
+
+      <!-- Brag card: three rows, the target swatch on the left of each and their photo filling the row -->
+      <section id="s-card" hidden>
+        <canvas id="card" width="1080" height="1080" aria-label="Your colour match card"></canvas>
+        <p class="card-total" id="cardTotal"></p>
+        <button class="cta" id="share">Share my card</button>
+        <button class="ghost" id="cardBack">Back to the letter</button>
+        <div class="history" id="history"></div>
+      </section>
+
+      <!-- Camera, variant A: the colour fills the screen around a chip-shaped window -->
+      <section id="s-camera" class="camera" hidden>
+        <video id="video" playsinline muted autoplay></video>
+        <canvas id="fake" hidden></canvas>
+        <div class="chip-frame" id="chipFrame"><div class="chip-window"></div></div>
+        <div class="strip" id="strip"><span>Match this colour</span></div>
+        <div class="cam-top"><button class="pill" id="camBack">Back</button><span id="camHint">Fill the window with this colour</span></div>
+        <div class="cam-bottom">
+          <button class="shutter" id="shutter" aria-label="Take photo"><i></i></button>
+          <button class="ghost light" id="fakeMatch">No camera? Fake a match (test)</button>
+        </div>
+        <div class="flash" id="flash" hidden></div>
+      </section>
+    </div>
+  </div>
+
+  <aside class="notes">
+    <h1>The Decryptor</h1>
+    <p>The letter comes back scrambled. Each swatch points at a colour in it. Tap one, then photograph something near you that matches it, and that part of the picture comes back.</p>
+    <ul>
+      <li>The camera screen is the colour, except a rounded window in the middle. Fill the window with something that matches, then snap.</li>
+      <li>To pass, the photo has to be in the <b>same colour family</b>. Each match also gets an <b>accuracy score</b> to brag about.</li>
+      <li>Finish all three to get a <b>match card</b> to share, and the score is saved to the story history.</li>
+      <li>On a laptop the camera is your webcam.</li>
+      <li>Frame and photo styling copied from The Remixer.</li>
+    </ul>
+  </aside>
+</div>
+<script type="module">import(`./app.js${window.CACHE_V}`);</script>
+</body>
+</html>
