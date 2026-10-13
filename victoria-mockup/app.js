@@ -1,11 +1,12 @@
 const ART = '../decryptor/art/maynard.jpg';
-const TAP_GAIN = 0.12;
-const SLOW_GAIN = 0.03;
-const RAPID_MS = 380;
-const DECAY_GRACE_MS = 550;
-const DECAY_PER_SEC = 0.48;
+const TAP_GAIN = 0.055;
+const SLOW_GAIN = 0.008;
+const RAPID_MS = 260;
+const DECAY_GRACE_MS = 280;
+const DECAY_PER_SEC = 0.85;
 const BLOCK_MAX = 34;
-const GLOW_COUNT = 2;
+const FIRST_PULSE = 1;
+const THEN_PULSE = 2;
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 4;
 const ZOOM_STEP = 0.35;
@@ -31,6 +32,7 @@ let scale = 1;
 let panX = 0;
 let panY = 0;
 let pinching = false;
+let pulseCount = FIRST_PULSE;
 
 const pointers = new Map();
 
@@ -38,13 +40,14 @@ function glowing() {
   return ZONES.map((_, i) => i)
     .filter((i) => clarity[i] < 1)
     .sort((a, b) => clarity[a] - clarity[b])
-    .slice(0, GLOW_COUNT);
+    .slice(0, pulseCount);
 }
 
 function resetRace() {
   clarity = ZONES.map(() => 0);
   lastClick = ZONES.map(() => 0);
   solved = false;
+  pulseCount = FIRST_PULSE;
   $('shine').classList.remove('on');
   $('again').hidden = true;
   zoneKey = '';
@@ -94,18 +97,12 @@ function frame(now) {
 
 function decay(dt) {
   const now = performance.now();
-  let oldest = -1;
-  let oldestAt = Infinity;
+  const drop = DECAY_PER_SEC * (dt / 1000);
   ZONES.forEach((_, i) => {
     if (clarity[i] <= 0 || !lastClick[i]) return;
     if (now - lastClick[i] < DECAY_GRACE_MS) return;
-    if (lastClick[i] < oldestAt) {
-      oldestAt = lastClick[i];
-      oldest = i;
-    }
+    clarity[i] = Math.max(0, clarity[i] - drop);
   });
-  if (oldest < 0) return;
-  clarity[oldest] = Math.max(0, clarity[oldest] - DECAY_PER_SEC * (dt / 1000));
 }
 
 function paintProgress() {
@@ -135,6 +132,7 @@ function countClick(clientX, clientY) {
   const now = performance.now();
   const slow = lastClick[index] && now - lastClick[index] > RAPID_MS;
   if (clarity[index] < 1) clarity[index] = Math.min(1, clarity[index] + (slow ? SLOW_GAIN : TAP_GAIN));
+  if (clarity[index] >= 1) pulseCount = THEN_PULSE;
   lastClick[index] = now;
   burst(clientX, clientY);
   drawZones();

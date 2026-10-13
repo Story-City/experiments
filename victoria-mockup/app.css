@@ -142,24 +142,22 @@ button { font: inherit; color: inherit; }
 canvas { display: block; width: 100%; height: auto; }
 .zones { position: absolute; inset: 0; pointer-events: none; }
 .zone { position: absolute; }
-.zone.hot::before,
-.zone.hot::after {
+.zone.hot::before {
   content: "";
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 64px;
-  height: 64px;
-  margin: -32px 0 0 -32px;
-  border: 3px solid #fff;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
   border-radius: 50%;
-  box-shadow: 0 0 0 8px rgba(255, 214, 120, 0.35);
-  animation: smash 0.7s ease-out infinite;
+  background: #fff;
+  box-shadow: 0 0 0 6px rgba(255, 214, 120, 0.7);
+  animation: smash 0.45s ease-in-out infinite;
 }
-.zone.hot::after { animation-delay: 0.35s; }
 @keyframes smash {
-  from { transform: scale(0.35); opacity: 0.95; }
-  to { transform: scale(1.7); opacity: 0; }
+  0%, 100% { transform: scale(0.65); }
+  50% { transform: scale(1.35); }
 }
 .burst {
   position: absolute;
