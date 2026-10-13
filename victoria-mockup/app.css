@@ -122,8 +122,8 @@ button { font: inherit; color: inherit; }
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 0 5px rgba(255, 214, 120, 0.75);
+  background: #009EFF;
+  box-shadow: 0 0 0 5px rgba(0, 158, 255, 0.45);
   animation: smash 0.45s ease-in-out infinite;
 }
 .progress {
@@ -139,7 +139,7 @@ button { font: inherit; color: inherit; }
   width: 0;
   min-width: 0;
   border-radius: 7px;
-  background: #f2c230;
+  background: #009EFF;
 }
 
 .viewport {

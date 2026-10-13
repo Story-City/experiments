@@ -1,9 +1,8 @@
 const ART = 'envelope.png';
 const TAP_GAIN = 0.22;
-const DECAY_GRACE_MS = 160;
-const DECAY_PER_SEC = 1.8;
-const WALK_START = [0xf2, 0xc2, 0x30];
-const WALK_END = [0x3d, 0xdc, 0x84];
+const DECAY_GRACE_MS = 220;
+const DECAY_PER_SEC = 1.25;
+const APP_ACCENT = '#009EFF';
 const BLOCK_MAX = 34;
 const GLOW_COUNT = 2;
 const ZOOM_MIN = 1;
@@ -102,16 +101,11 @@ function decay(dt) {
   });
 }
 
-function walkColor(progress) {
-  const mixed = WALK_START.map((value, index) => Math.round(value + (WALK_END[index] - value) * progress));
-  return `rgb(${mixed.join(', ')})`;
-}
-
 function paintProgress() {
   const done = clarity.reduce((sum, amount) => sum + amount, 0) / ZONES.length;
   const fill = $('progress-fill');
   fill.style.width = `${done * 100}%`;
-  fill.style.background = walkColor(done);
+  fill.style.background = APP_ACCENT;
 }
 
 function finish() {
