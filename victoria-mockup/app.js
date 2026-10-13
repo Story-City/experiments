@@ -1,10 +1,9 @@
 const ART = '../decryptor/art/maynard.jpg';
-const CLICKS_TO_CLEAR = 6;
-const RAPID_MS = 380;
-const DECAY_GRACE_MS = 700;
-const DECAY_PER_SEC = 0.34;
+const TAP_GAIN = 0.5;
+const DECAY_GRACE_MS = 3200;
+const DECAY_PER_SEC = 0.1;
 const BLOCK_MAX = 34;
-const TAP_SLOP = 14;
+const GLOW_COUNT = 2;
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 4;
 const ZOOM_STEP = 0.35;
@@ -23,9 +22,7 @@ const sctx = scratch.getContext('2d');
 const img = new Image();
 
 let clarity = ZONES.map(() => 0);
-let streak = ZONES.map(() => 0);
 let lastClick = ZONES.map(() => 0);
-let hot = 0;
 let solved = false;
 let lastFrame = 0;
 let scale = 1;
@@ -35,20 +32,20 @@ let pinching = false;
 
 const pointers = new Map();
 
-function shuffleHot() {
-  const open = ZONES.map((_, i) => i).filter((i) => clarity[i] < 1);
-  hot = open.length ? open[Math.floor(Math.random() * open.length)] : 0;
+function glowing() {
+  return ZONES.map((_, i) => i)
+    .filter((i) => clarity[i] < 1)
+    .sort((a, b) => clarity[a] - clarity[b])
+    .slice(0, GLOW_COUNT);
 }
 
 function resetRace() {
   clarity = ZONES.map(() => 0);
-  streak = ZONES.map(() => 0);
   lastClick = ZONES.map(() => 0);
   solved = false;
   $('shine').classList.remove('on');
   $('again').hidden = true;
   zoneKey = '';
-  shuffleHot();
   drawZones();
   paint();
 }
@@ -106,8 +103,6 @@ function decay(dt) {
   });
   if (oldest < 0) return;
   clarity[oldest] = Math.max(0, clarity[oldest] - DECAY_PER_SEC * (dt / 1000));
-  streak[oldest] = Math.floor(clarity[oldest] * CLICKS_TO_CLEAR);
-  if (clarity[hot] >= 1) shuffleHot();
 }
 
 function finish() {
@@ -128,41 +123,40 @@ function zoneAt(clientX, clientY) {
 function countClick(clientX, clientY) {
   if (solved) return;
   const index = zoneAt(clientX, clientY);
-  if (index !== hot) return;
+  if (index < 0) return;
   const now = performance.now();
-  if (clarity[index] < 1 && now - lastClick[index] > RAPID_MS) streak[index] = 0;
-  if (clarity[index] < 1) {
-    streak[index] = Math.min(CLICKS_TO_CLEAR, streak[index] + 1);
-    clarity[index] = streak[index] / CLICKS_TO_CLEAR;
-  }
+  if (clarity[index] < 1) clarity[index] = Math.min(1, clarity[index] + TAP_GAIN);
   lastClick[index] = now;
-  if (index === hot && clarity[index] >= 1) shuffleHot();
+  burst(clientX, clientY);
   drawZones();
+}
+
+function burst(clientX, clientY) {
+  const rect = $('view').getBoundingClientRect();
+  const el = document.createElement('span');
+  el.className = 'burst';
+  el.style.left = `${(clientX - rect.left) / scale}px`;
+  el.style.top = `${(clientY - rect.top) / scale}px`;
+  $('view').append(el);
+  el.addEventListener('animationend', () => el.remove());
 }
 
 let zoneKey = '';
 
 function drawZones() {
-  const key = solved ? 'done' : `${hot}:${streak.join(',')}`;
+  const glow = glowing();
+  const key = solved ? 'done' : glow.join(',');
   if (key === zoneKey) return;
   zoneKey = key;
   const holder = $('zones');
   holder.innerHTML = '';
   ZONES.forEach((zone, i) => {
     const el = document.createElement('div');
-    el.className = 'zone' + (!solved && i === hot ? ' hot' : '');
+    el.className = 'zone' + (!solved && glow.includes(i) ? ' hot' : '');
     el.style.left = `${zone.x * 100}%`;
     el.style.top = `${zone.y * 100}%`;
     el.style.width = `${zone.w * 100}%`;
     el.style.height = `${zone.h * 100}%`;
-    if (!solved && i === hot) {
-      for (let n = 0; n < CLICKS_TO_CLEAR; n += 1) {
-        const mark = document.createElement('i');
-        mark.style.left = `${12 + n * 14}px`;
-        mark.style.opacity = n < streak[i] ? '1' : '0.25';
-        el.append(mark);
-      }
-    }
     holder.append(el);
   });
 }
@@ -234,6 +228,7 @@ viewport.addEventListener('pointerdown', (event) => {
     ox: event.clientX,
     oy: event.clientY,
   });
+  if (pointers.size <= GLOW_COUNT && !event.target.closest('button')) countClick(event.clientX, event.clientY);
   if (pointers.size === 2) {
     pinching = true;
     pinchDist = pinchSpan();
@@ -246,10 +241,12 @@ viewport.addEventListener('pointermove', (event) => {
   const dy = event.clientY - point.y;
   point.x = event.clientX;
   point.y = event.clientY;
-  if (pointers.size === 2 && pinchDist) {
+  if (pointers.size === 2) {
     const dist = pinchSpan();
-    setZoom(scale * (dist / pinchDist));
-    pinchDist = dist;
+    if (pinchDist && Math.abs(dist - pinchDist) > 18) {
+      setZoom(scale * (dist / pinchDist));
+      pinchDist = dist;
+    }
     return;
   }
   if (scale > 1) {
@@ -261,10 +258,6 @@ viewport.addEventListener('pointermove', (event) => {
 viewport.addEventListener('pointerup', (event) => {
   const point = pointers.get(event.pointerId);
   pointers.delete(event.pointerId);
-  if (point && !pinching && !event.target.closest('button')) {
-    const moved = Math.hypot(event.clientX - point.ox, event.clientY - point.oy);
-    if (moved < TAP_SLOP) countClick(event.clientX, event.clientY);
-  }
   if (pointers.size < 2) pinchDist = 0;
   if (pointers.size === 0) pinching = false;
 });

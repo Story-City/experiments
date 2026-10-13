@@ -5,38 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Decrypt race</title>
-<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app.css?v=2">
 </head>
 <body>
-  <section id="chat" class="chat">
-    <header class="chat-bar">
-      <span class="who">Unknown number</span>
-      <span class="chapter">The Hiding Spot</span>
+<div class="wrap">
+  <div class="phone">
+    <header class="appbar">
+      <p>Mash the glow. Two fingers, two patches. Old ones fog if you wait.</p>
     </header>
-    <div class="thread">
-      <p class="bubble">Now let's take a look at the letter.</p>
-      <p class="bubble">Did you think we'd make it easy? Unscramble it.</p>
-    </div>
-    <div class="dock">
-      <button type="button" id="decrypt" class="creepy">Decrypt the Letter</button>
-    </div>
-    <div id="alpha-lady" hidden></div>
-  </section>
+    <div class="screen">
+      <section id="chat" class="chat">
+        <div class="thread">
+          <p class="who">Unknown number</p>
+          <p class="bubble">Now let's take a look at the letter.</p>
+          <p class="bubble">Did you think we'd make it easy? Unscramble it.</p>
+        </div>
+        <div class="dock">
+          <button type="button" id="decrypt" class="creepy">Decrypt the Letter</button>
+        </div>
+        <div id="alpha-lady" hidden></div>
+      </section>
 
-  <section id="puzzle" class="puzzle" hidden>
-    <div id="viewport" class="viewport">
-      <div id="view" class="view">
-        <canvas id="art"></canvas>
-        <div id="zones" class="zones"></div>
-        <div id="shine" class="shine"></div>
-      </div>
+      <section id="puzzle" class="puzzle" hidden>
+        <div id="viewport" class="viewport">
+          <div id="view" class="view">
+            <canvas id="art"></canvas>
+            <div id="zones" class="zones"></div>
+            <div id="shine" class="shine"></div>
+          </div>
+        </div>
+        <div class="zoom">
+          <button type="button" id="zin" aria-label="Zoom in">+</button>
+          <button type="button" id="zout" aria-label="Zoom out">−</button>
+        </div>
+        <button type="button" id="again" class="again" hidden>Again</button>
+      </section>
     </div>
-    <div class="zoom">
-      <button type="button" id="zin" aria-label="Zoom in">+</button>
-      <button type="button" id="zout" aria-label="Zoom out">−</button>
-    </div>
-    <button type="button" id="again" class="again" hidden>Again</button>
-  </section>
-  <script src="app.js"></script>
+  </div>
+</div>
+<script src="app.js?v=2"></script>
 </body>
 </html>
