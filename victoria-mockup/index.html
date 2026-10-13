@@ -2,35 +2,41 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Victoria's mockup</title>
-<link rel="stylesheet" href="../theme.css">
-<style>
-  body {
-    margin: 0;
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
-    background: var(--bg);
-    color: var(--text);
-    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
-  .screen {
-    width: min(100%, 390px);
-    min-height: 100vh;
-    padding: 32px 20px;
-    background: var(--surface);
-    border-top: 8px solid var(--author-victoria);
-  }
-  h1 { margin: 0 0 8px; font-size: 28px; }
-  p { margin: 0; color: var(--text-muted); }
-</style>
+<title>Decrypt race</title>
+<link rel="stylesheet" href="app.css">
 </head>
 <body>
-  <main class="screen">
-    <h1>Your mockup</h1>
-    <p>Replace this screen with the prototype.</p>
-  </main>
+  <section id="chat" class="chat">
+    <header class="chat-bar">
+      <span class="who">Unknown number</span>
+      <span class="chapter">The Hiding Spot</span>
+    </header>
+    <div class="thread">
+      <p class="bubble">Now let's take a look at the letter.</p>
+      <p class="bubble">Did you think we'd make it easy? Unscramble it.</p>
+    </div>
+    <div class="dock">
+      <button type="button" id="decrypt" class="creepy">Decrypt the Letter</button>
+    </div>
+    <div id="alpha-lady" hidden></div>
+  </section>
+
+  <section id="puzzle" class="puzzle" hidden>
+    <div id="viewport" class="viewport">
+      <div id="view" class="view">
+        <canvas id="art"></canvas>
+        <div id="zones" class="zones"></div>
+        <div id="shine" class="shine"></div>
+      </div>
+    </div>
+    <div class="zoom">
+      <button type="button" id="zin" aria-label="Zoom in">+</button>
+      <button type="button" id="zout" aria-label="Zoom out">−</button>
+    </div>
+    <button type="button" id="again" class="again" hidden>Again</button>
+  </section>
+  <script src="app.js"></script>
 </body>
 </html>
