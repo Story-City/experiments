@@ -1,9 +1,11 @@
 const ART = '../decryptor/art/maynard.jpg';
-const TAP_GAIN = 0.055;
-const SLOW_GAIN = 0.008;
-const RAPID_MS = 260;
-const DECAY_GRACE_MS = 280;
-const DECAY_PER_SEC = 0.85;
+const TAP_GAIN = 0.04;
+const SLOW_GAIN = 0;
+const RAPID_MS = 200;
+const DECAY_GRACE_MS = 0;
+const DECAY_PER_SEC = 2.4;
+const WALK_START = [0xf2, 0xc2, 0x30];
+const WALK_END = [0x3d, 0xdc, 0x84];
 const BLOCK_MAX = 34;
 const FIRST_PULSE = 1;
 const THEN_PULSE = 2;
@@ -105,9 +107,16 @@ function decay(dt) {
   });
 }
 
+function walkColor(progress) {
+  const mixed = WALK_START.map((value, index) => Math.round(value + (WALK_END[index] - value) * progress));
+  return `rgb(${mixed.join(', ')})`;
+}
+
 function paintProgress() {
   const done = clarity.reduce((sum, amount) => sum + amount, 0) / ZONES.length;
-  $('progress-fill').style.transform = `scaleX(${done})`;
+  const fill = $('progress-fill');
+  fill.style.width = done <= 0 ? '0' : `max(14px, ${done * 100}%)`;
+  fill.style.background = walkColor(done);
 }
 
 function finish() {

@@ -120,11 +120,10 @@ button { font: inherit; color: inherit; }
 .progress span {
   display: block;
   height: 100%;
-  width: 100%;
+  width: 0;
+  min-width: 0;
   border-radius: 7px;
-  background: linear-gradient(90deg, #f2c230, #3ddc84);
-  transform: scaleX(0);
-  transform-origin: left center;
+  background: #f2c230;
 }
 
 .viewport {
