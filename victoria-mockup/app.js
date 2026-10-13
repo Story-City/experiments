@@ -1,14 +1,11 @@
-const ART = '../decryptor/art/maynard.jpg';
-const TAP_GAIN = 0.04;
-const SLOW_GAIN = 0;
-const RAPID_MS = 200;
-const DECAY_GRACE_MS = 0;
-const DECAY_PER_SEC = 2.4;
+const ART = 'envelope.png';
+const TAP_GAIN = 0.22;
+const DECAY_GRACE_MS = 160;
+const DECAY_PER_SEC = 1.8;
 const WALK_START = [0xf2, 0xc2, 0x30];
 const WALK_END = [0x3d, 0xdc, 0x84];
 const BLOCK_MAX = 34;
-const FIRST_PULSE = 1;
-const THEN_PULSE = 2;
+const GLOW_COUNT = 2;
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 4;
 const ZOOM_STEP = 0.35;
@@ -34,7 +31,6 @@ let scale = 1;
 let panX = 0;
 let panY = 0;
 let pinching = false;
-let pulseCount = FIRST_PULSE;
 
 const pointers = new Map();
 
@@ -42,14 +38,13 @@ function glowing() {
   return ZONES.map((_, i) => i)
     .filter((i) => clarity[i] < 1)
     .sort((a, b) => clarity[a] - clarity[b])
-    .slice(0, pulseCount);
+    .slice(0, GLOW_COUNT);
 }
 
 function resetRace() {
   clarity = ZONES.map(() => 0);
   lastClick = ZONES.map(() => 0);
   solved = false;
-  pulseCount = FIRST_PULSE;
   $('shine').classList.remove('on');
   $('again').hidden = true;
   zoneKey = '';
@@ -115,7 +110,7 @@ function walkColor(progress) {
 function paintProgress() {
   const done = clarity.reduce((sum, amount) => sum + amount, 0) / ZONES.length;
   const fill = $('progress-fill');
-  fill.style.width = done <= 0 ? '0' : `max(14px, ${done * 100}%)`;
+  fill.style.width = `${done * 100}%`;
   fill.style.background = walkColor(done);
 }
 
@@ -137,11 +132,9 @@ function zoneAt(clientX, clientY) {
 function countClick(clientX, clientY) {
   if (solved) return;
   const index = zoneAt(clientX, clientY);
-  if (index < 0 || !glowing().includes(index)) return;
+  if (index < 0) return;
   const now = performance.now();
-  const slow = lastClick[index] && now - lastClick[index] > RAPID_MS;
-  if (clarity[index] < 1) clarity[index] = Math.min(1, clarity[index] + (slow ? SLOW_GAIN : TAP_GAIN));
-  if (clarity[index] >= 1) pulseCount = THEN_PULSE;
+  if (clarity[index] < 1) clarity[index] = Math.min(1, clarity[index] + TAP_GAIN);
   lastClick[index] = now;
   burst(clientX, clientY);
   drawZones();

@@ -110,12 +110,28 @@ button { font: inherit; color: inherit; }
   text-transform: uppercase;
 }
 .sheet-bar::after { content: ""; width: 32px; }
-.instruction { margin: 0; text-align: center; font-weight: 700; }
+.instruction {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+}
+.hit {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 5px rgba(255, 214, 120, 0.75);
+  animation: smash 0.45s ease-in-out infinite;
+}
 .progress {
   height: 14px;
   border-radius: 7px;
   background: #3a3163;
   overflow: hidden;
+  box-shadow: none;
 }
 .progress span {
   display: block;
@@ -141,22 +157,27 @@ button { font: inherit; color: inherit; }
 canvas { display: block; width: 100%; height: auto; }
 .zones { position: absolute; inset: 0; pointer-events: none; }
 .zone { position: absolute; }
-.zone.hot::before {
+.zone.hot::before,
+.zone.hot::after {
   content: "";
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 16px;
-  height: 16px;
-  margin: -8px 0 0 -8px;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border: 3px solid #fff;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 0 6px rgba(255, 214, 120, 0.7);
-  animation: smash 0.45s ease-in-out infinite;
+  animation: smash-ring 0.7s ease-out infinite;
+}
+.zone.hot::after { animation-delay: 0.35s; }
+@keyframes smash-ring {
+  from { transform: scale(0.35); opacity: 0.95; }
+  to { transform: scale(1.6); opacity: 0; }
 }
 @keyframes smash {
-  0%, 100% { transform: scale(0.65); }
-  50% { transform: scale(1.35); }
+  0%, 100% { transform: scale(0.7); }
+  50% { transform: scale(1.25); }
 }
 .burst {
   position: absolute;
