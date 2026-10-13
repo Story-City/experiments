@@ -91,8 +91,8 @@ button { font: inherit; color: inherit; }
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 0 24px 16px;
+  gap: 12px;
+  padding: 0 0 calc(12px + env(safe-area-inset-bottom));
   background: #170c35;
   transform: translateY(100%);
   transition: transform 0.35s ease-out;
@@ -111,7 +111,7 @@ button { font: inherit; color: inherit; }
 }
 .sheet-bar::after { content: ""; width: 32px; }
 .instruction {
-  margin: 0;
+  margin: 0 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,6 +127,7 @@ button { font: inherit; color: inherit; }
   animation: smash 0.45s ease-in-out infinite;
 }
 .progress {
+  margin: 0 24px;
   height: 14px;
   border-radius: 7px;
   background: #3a3163;
@@ -146,12 +147,12 @@ button { font: inherit; color: inherit; }
   position: relative;
   flex: 1;
   min-height: 0;
+  margin-top: -6px;
   overflow: hidden;
   touch-action: none;
   display: grid;
-  place-items: center;
-  background: #000;
-  border-radius: 8px;
+  place-items: start center;
+  background: transparent;
 }
 .view { position: relative; transform-origin: center center; }
 canvas { display: block; width: 100%; height: auto; }
