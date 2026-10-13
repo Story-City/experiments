@@ -1,7 +1,9 @@
 const ART = '../decryptor/art/maynard.jpg';
-const TAP_GAIN = 0.22;
-const DECAY_GRACE_MS = 1100;
-const DECAY_PER_SEC = 0.28;
+const TAP_GAIN = 0.12;
+const SLOW_GAIN = 0.03;
+const RAPID_MS = 380;
+const DECAY_GRACE_MS = 550;
+const DECAY_PER_SEC = 0.48;
 const BLOCK_MAX = 34;
 const GLOW_COUNT = 2;
 const ZOOM_MIN = 1;
@@ -129,9 +131,10 @@ function zoneAt(clientX, clientY) {
 function countClick(clientX, clientY) {
   if (solved) return;
   const index = zoneAt(clientX, clientY);
-  if (index < 0) return;
+  if (index < 0 || !glowing().includes(index)) return;
   const now = performance.now();
-  if (clarity[index] < 1) clarity[index] = Math.min(1, clarity[index] + TAP_GAIN);
+  const slow = lastClick[index] && now - lastClick[index] > RAPID_MS;
+  if (clarity[index] < 1) clarity[index] = Math.min(1, clarity[index] + (slow ? SLOW_GAIN : TAP_GAIN));
   lastClick[index] = now;
   burst(clientX, clientY);
   drawZones();
@@ -209,7 +212,17 @@ function openPuzzle() {
   requestAnimationFrame(frame);
 }
 
+function closePuzzle() {
+  const puzzle = $('puzzle');
+  puzzle.classList.remove('open');
+  window.setTimeout(() => {
+    if (!puzzle.classList.contains('open')) puzzle.hidden = true;
+  }, 320);
+}
+
 $('decrypt').addEventListener('click', openPuzzle);
+$('sheet-back').addEventListener('click', closePuzzle);
+if (new URLSearchParams(location.search).get('debug') === '1') $('zoom').hidden = false;
 $('again').addEventListener('click', () => {
   resetRace();
   lastFrame = 0;
