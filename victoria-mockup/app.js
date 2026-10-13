@@ -1,7 +1,7 @@
 const ART = '../decryptor/art/maynard.jpg';
-const TAP_GAIN = 0.5;
-const DECAY_GRACE_MS = 3200;
-const DECAY_PER_SEC = 0.1;
+const TAP_GAIN = 0.34;
+const DECAY_GRACE_MS = 1700;
+const DECAY_PER_SEC = 0.2;
 const BLOCK_MAX = 34;
 const GLOW_COUNT = 2;
 const ZOOM_MIN = 1;
@@ -84,6 +84,7 @@ function frame(now) {
   if (!solved && lastFrame) decay(now - lastFrame);
   lastFrame = now;
   paint();
+  paintProgress();
   drawZones();
   if (!solved && clarity.every((amount) => amount >= 1)) finish();
   if (!solved) requestAnimationFrame(frame);
@@ -103,6 +104,11 @@ function decay(dt) {
   });
   if (oldest < 0) return;
   clarity[oldest] = Math.max(0, clarity[oldest] - DECAY_PER_SEC * (dt / 1000));
+}
+
+function paintProgress() {
+  const done = clarity.reduce((sum, amount) => sum + amount, 0) / ZONES.length;
+  $('progress-fill').style.transform = `scaleX(${done})`;
 }
 
 function finish() {
@@ -193,8 +199,9 @@ function setZoom(next, originX, originY) {
 }
 
 function openPuzzle() {
-  $('chat').hidden = true;
-  $('puzzle').hidden = false;
+  const puzzle = $('puzzle');
+  puzzle.hidden = false;
+  requestAnimationFrame(() => puzzle.classList.add('open'));
   resetRace();
   applyView();
   lastFrame = 0;

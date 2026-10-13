@@ -17,12 +17,6 @@ button { font: inherit; color: inherit; }
   overflow: hidden;
   box-shadow: 0 30px 80px -30px #000, 0 0 0 8px #07060f;
 }
-.appbar {
-  padding: 16px 18px 12px;
-  border-bottom: 1px solid #3a3163;
-}
-.appbar p { margin: 0; font-size: 15px; font-weight: 600; }
-
 .screen { position: relative; height: 680px; }
 .chat, .puzzle { position: absolute; inset: 0; }
 .chat {
@@ -62,10 +56,34 @@ button { font: inherit; color: inherit; }
 }
 .creepy:active { transform: scale(0.98); }
 
-.puzzle { background: #07030f; }
+.puzzle {
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  background: #07030f;
+  transform: translateY(100%);
+  transition: transform 0.42s cubic-bezier(0.2, 0.85, 0.2, 1);
+}
+.puzzle.open { transform: none; }
+.decrypt-top { padding: 14px 14px 10px; }
+.decrypt-top p { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
+.progress {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+.progress span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #ffd678;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
 .viewport {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  flex: 1;
   overflow: hidden;
   touch-action: none;
   display: grid;
@@ -75,12 +93,24 @@ button { font: inherit; color: inherit; }
 canvas { display: block; width: 100%; height: auto; }
 .zones { position: absolute; inset: 0; pointer-events: none; }
 .zone { position: absolute; border-radius: 12px; }
-.zone.hot {
-  box-shadow: inset 0 0 0 3px rgba(255, 214, 120, 0.95);
-  animation: pulse 0.9s ease-in-out infinite;
+.zone.hot::before,
+.zone.hot::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 8px rgba(255, 214, 120, 0.35);
+  animation: smash 0.7s ease-out infinite;
 }
-@keyframes pulse {
-  50% { box-shadow: inset 0 0 0 3px rgba(255, 214, 120, 0.35); }
+.zone.hot::after { animation-delay: 0.35s; }
+@keyframes smash {
+  from { transform: scale(0.35); opacity: 0.95; }
+  to { transform: scale(1.7); opacity: 0; }
 }
 .burst {
   position: absolute;
@@ -147,7 +177,7 @@ canvas { display: block; width: 100%; height: auto; }
     border-radius: 0;
     box-shadow: none;
   }
-  .screen { height: calc(100dvh - 68px); }
+  .screen { height: 100dvh; }
   .dock { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
   .zoom, .again { bottom: calc(12px + env(safe-area-inset-bottom)); }
 }
