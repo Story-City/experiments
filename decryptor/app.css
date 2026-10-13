@@ -85,7 +85,7 @@ body{background:var(--void);color:var(--ink);font:15px/1.5 var(--body);padding-i
 
 /* A: the colour fills everything except a rounded window, like a paint chip card. */
 .chip-frame{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:2}
-.chip-window{width:58%;aspect-ratio:1/1;border-radius:var(--chip-radius);box-shadow:0 0 0 1000px var(--target);outline:3px solid rgba(255,255,255,.9);outline-offset:0}
+.chip-window{width:72%;aspect-ratio:1/1;border-radius:var(--chip-radius);box-shadow:0 0 0 1000px var(--target)}
 /* B: camera on top, the colour to match fills the bottom third. */
 .strip{position:absolute;left:0;right:0;bottom:0;height:33.3%;background:var(--target);z-index:2;display:grid;place-items:end center;padding-bottom:22px;pointer-events:none}
 .strip span{font:700 13px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--on-target,#fff);opacity:.85}
