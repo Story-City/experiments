@@ -12,6 +12,8 @@
   --teal-600: #1f8a7e;
   --rose-300: #f28db2;
   --rose-600: #c23a6c;
+  --green-300: #8fd49a;
+  --green-600: #1f8a46;
 
   --bg: var(--paper-50);
   --surface: var(--paper-100);
@@ -21,6 +23,7 @@
   --accent: var(--saffron-500);
   --author-brett: var(--teal-600);
   --author-melissa: var(--rose-600);
+  --author-victoria: var(--green-600);
   --author-other: var(--ink-500);
 }
 
@@ -34,6 +37,7 @@
     --accent: var(--saffron-400);
     --author-brett: var(--teal-300);
     --author-melissa: var(--rose-300);
+    --author-victoria: var(--green-300);
     --author-other: var(--paper-400);
   }
 }
