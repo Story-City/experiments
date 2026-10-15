@@ -156,22 +156,31 @@ button { font: inherit; color: inherit; }
 }
 .view { position: relative; transform-origin: center center; }
 canvas { display: block; width: 100%; height: auto; }
-.zones { position: absolute; inset: 0; pointer-events: none; }
-.zone { position: absolute; }
-.zone.hot::before,
-.zone.hot::after {
-  content: "";
+.mole {
   position: absolute;
-  left: 50%;
-  top: 50%;
   width: 56px;
   height: 56px;
   margin: -28px 0 0 -28px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: #009EFF;
+  box-shadow: 0 0 0 8px rgba(0, 158, 255, 0.45);
+}
+.mole.pop { animation: pop 0.16s ease-out; }
+.mole::before,
+.mole::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
   border: 3px solid #fff;
   border-radius: 50%;
   animation: smash-ring 0.7s ease-out infinite;
 }
-.zone.hot::after { animation-delay: 0.35s; }
+.mole::after { animation-delay: 0.35s; }
+@keyframes pop {
+  from { transform: scale(0.2); }
+  to { transform: scale(1); }
+}
 @keyframes smash-ring {
   from { transform: scale(0.35); opacity: 0.95; }
   to { transform: scale(1.6); opacity: 0; }

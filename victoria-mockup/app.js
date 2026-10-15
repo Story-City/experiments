@@ -1,19 +1,13 @@
 const ART = 'envelope.png';
-const TAP_GAIN = 0.22;
-const DECAY_GRACE_MS = 320;
-const DECAY_PER_SEC = 0.85;
+const HITS_TO_WIN = 10;
 const APP_ACCENT = '#009EFF';
 const BLOCK_MAX = 34;
-const GLOW_COUNT = 2;
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 4;
 const ZOOM_STEP = 0.35;
-
-const ZONES = [
-  { x: 0, y: 0, w: 1, h: 0.46 },
-  { x: 0, y: 0.46, w: 0.5, h: 0.54 },
-  { x: 0.5, y: 0.46, w: 0.5, h: 0.54 },
-];
+const MOLE_EDGE = 0.16;
+const MOLE_GAP_MS = 180;
+const MOLE_SEPARATION = 0.22;
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('art');
@@ -22,33 +16,25 @@ const scratch = document.createElement('canvas');
 const sctx = scratch.getContext('2d');
 const img = new Image();
 
-let clarity = ZONES.map(() => 0);
-let lastClick = ZONES.map(() => 0);
+let hits = 0;
+let mole = null;
 let solved = false;
-let lastFrame = 0;
 let scale = 1;
 let panX = 0;
 let panY = 0;
-let pinching = false;
+let gapTimer = 0;
 
 const pointers = new Map();
 
-function glowing() {
-  return ZONES.map((_, i) => i)
-    .filter((i) => clarity[i] < 1)
-    .sort((a, b) => clarity[a] - clarity[b])
-    .slice(0, GLOW_COUNT);
-}
-
 function resetRace() {
-  clarity = ZONES.map(() => 0);
-  lastClick = ZONES.map(() => 0);
+  hits = 0;
   solved = false;
+  window.clearTimeout(gapTimer);
   $('shine').classList.remove('on');
   $('again').hidden = true;
-  zoneKey = '';
-  drawZones();
+  placeMole();
   paint();
+  paintProgress();
 }
 
 function blockFor(amount) {
@@ -60,78 +46,95 @@ function paint() {
   const width = img.naturalWidth;
   const height = img.naturalHeight;
   if (!width) return;
-  ZONES.forEach((zone, i) => {
-    const sx = zone.x * width;
-    const sy = zone.y * height;
-    const sw = zone.w * width;
-    const sh = zone.h * height;
-    const block = blockFor(clarity[i]);
-    if (block <= 1) {
-      ctx.drawImage(img, sx, sy, sw, sh, sx, sy, sw, sh);
-      return;
-    }
-    const tw = Math.max(1, Math.ceil(sw / block));
-    const th = Math.max(1, Math.ceil(sh / block));
-    scratch.width = tw;
-    scratch.height = th;
-    sctx.imageSmoothingEnabled = true;
-    sctx.drawImage(img, sx, sy, sw, sh, 0, 0, tw, th);
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(scratch, 0, 0, tw, th, sx, sy, sw, sh);
-  });
-}
-
-function frame(now) {
-  if (!solved && lastFrame) decay(now - lastFrame);
-  lastFrame = now;
-  paint();
-  paintProgress();
-  drawZones();
-  if (!solved && clarity.every((amount) => amount >= 1)) finish();
-  if (!solved) requestAnimationFrame(frame);
-}
-
-function decay(dt) {
-  const now = performance.now();
-  const drop = DECAY_PER_SEC * (dt / 1000);
-  ZONES.forEach((_, i) => {
-    if (clarity[i] <= 0 || !lastClick[i]) return;
-    if (now - lastClick[i] < DECAY_GRACE_MS) return;
-    clarity[i] = Math.max(0, clarity[i] - drop);
-  });
+  const amount = solved ? 1 : hits / HITS_TO_WIN;
+  const block = blockFor(amount);
+  if (block <= 1) {
+    ctx.drawImage(img, 0, 0);
+    return;
+  }
+  const tw = Math.max(1, Math.ceil(width / block));
+  const th = Math.max(1, Math.ceil(height / block));
+  scratch.width = tw;
+  scratch.height = th;
+  sctx.imageSmoothingEnabled = true;
+  sctx.drawImage(img, 0, 0, width, height, 0, 0, tw, th);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(scratch, 0, 0, tw, th, 0, 0, width, height);
 }
 
 function paintProgress() {
-  const done = clarity.reduce((sum, amount) => sum + amount, 0) / ZONES.length;
   const fill = $('progress-fill');
-  fill.style.width = `${done * 100}%`;
+  fill.style.width = `${(hits / HITS_TO_WIN) * 100}%`;
   fill.style.background = APP_ACCENT;
 }
 
 function finish() {
   solved = true;
+  mole = null;
+  drawMole();
+  paint();
   $('shine').classList.add('on');
   $('again').hidden = false;
-  drawZones();
 }
 
-function zoneAt(clientX, clientY) {
-  const rect = canvas.getBoundingClientRect();
-  const u = (clientX - rect.left) / rect.width;
-  const v = (clientY - rect.top) / rect.height;
-  if (u < 0 || v < 0 || u > 1 || v > 1) return -1;
-  return ZONES.findIndex((zone) => u >= zone.x && u < zone.x + zone.w && v >= zone.y && v < zone.y + zone.h);
+function randomSpot(previous) {
+  let spot = previous;
+  let guard = 0;
+  do {
+    spot = {
+      x: MOLE_EDGE + Math.random() * (1 - MOLE_EDGE * 2),
+      y: MOLE_EDGE + Math.random() * (1 - MOLE_EDGE * 2),
+    };
+    guard += 1;
+  } while (
+    previous
+    && guard < 8
+    && Math.hypot(spot.x - previous.x, spot.y - previous.y) < MOLE_SEPARATION
+  );
+  return spot;
+}
+
+function placeMole() {
+  if (solved) return;
+  mole = randomSpot(mole);
+  drawMole();
+}
+
+function drawMole() {
+  const el = $('mole');
+  if (!mole || solved) {
+    el.hidden = true;
+    return;
+  }
+  el.hidden = false;
+  el.style.left = `${mole.x * 100}%`;
+  el.style.top = `${mole.y * 100}%`;
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+}
+
+function hitMole(clientX, clientY) {
+  if (solved || !mole) return false;
+  const rect = $('mole').getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  return Math.hypot(clientX - cx, clientY - cy) <= rect.width / 2;
 }
 
 function countClick(clientX, clientY) {
-  if (solved) return;
-  const index = zoneAt(clientX, clientY);
-  if (index < 0) return;
-  const now = performance.now();
-  if (clarity[index] < 1) clarity[index] = Math.min(1, clarity[index] + TAP_GAIN);
-  lastClick[index] = now;
+  if (!hitMole(clientX, clientY)) return;
+  hits += 1;
   burst(clientX, clientY);
-  drawZones();
+  paintProgress();
+  paint();
+  mole = null;
+  drawMole();
+  if (hits >= HITS_TO_WIN) {
+    finish();
+    return;
+  }
+  gapTimer = window.setTimeout(placeMole, MOLE_GAP_MS);
 }
 
 function burst(clientX, clientY) {
@@ -142,26 +145,6 @@ function burst(clientX, clientY) {
   el.style.top = `${(clientY - rect.top) / scale}px`;
   $('view').append(el);
   el.addEventListener('animationend', () => el.remove());
-}
-
-let zoneKey = '';
-
-function drawZones() {
-  const glow = glowing();
-  const key = solved ? 'done' : glow.join(',');
-  if (key === zoneKey) return;
-  zoneKey = key;
-  const holder = $('zones');
-  holder.innerHTML = '';
-  ZONES.forEach((zone, i) => {
-    const el = document.createElement('div');
-    el.className = 'zone' + (!solved && glow.includes(i) ? ' hot' : '');
-    el.style.left = `${zone.x * 100}%`;
-    el.style.top = `${zone.y * 100}%`;
-    el.style.width = `${zone.w * 100}%`;
-    el.style.height = `${zone.h * 100}%`;
-    holder.append(el);
-  });
 }
 
 function applyView() {
@@ -201,9 +184,6 @@ function openPuzzle() {
   requestAnimationFrame(() => puzzle.classList.add('open'));
   resetRace();
   applyView();
-  lastFrame = 0;
-  zoneKey = '';
-  requestAnimationFrame(frame);
 }
 
 function closePuzzle() {
@@ -217,11 +197,7 @@ function closePuzzle() {
 $('decrypt').addEventListener('click', openPuzzle);
 $('sheet-back').addEventListener('click', closePuzzle);
 if (new URLSearchParams(location.search).get('debug') === '1') $('zoom').hidden = false;
-$('again').addEventListener('click', () => {
-  resetRace();
-  lastFrame = 0;
-  requestAnimationFrame(frame);
-});
+$('again').addEventListener('click', resetRace);
 $('zin').addEventListener('click', () => setZoom(scale + ZOOM_STEP));
 $('zout').addEventListener('click', () => setZoom(scale - ZOOM_STEP));
 
@@ -239,14 +215,9 @@ viewport.addEventListener('pointerdown', (event) => {
   pointers.set(event.pointerId, {
     x: event.clientX,
     y: event.clientY,
-    ox: event.clientX,
-    oy: event.clientY,
   });
-  if (pointers.size <= GLOW_COUNT && !event.target.closest('button')) countClick(event.clientX, event.clientY);
-  if (pointers.size === 2) {
-    pinching = true;
-    pinchDist = pinchSpan();
-  }
+  if (pointers.size === 1) countClick(event.clientX, event.clientY);
+  if (pointers.size === 2) pinchDist = pinchSpan();
 });
 viewport.addEventListener('pointermove', (event) => {
   const point = pointers.get(event.pointerId);
@@ -270,15 +241,12 @@ viewport.addEventListener('pointermove', (event) => {
   }
 });
 viewport.addEventListener('pointerup', (event) => {
-  const point = pointers.get(event.pointerId);
   pointers.delete(event.pointerId);
   if (pointers.size < 2) pinchDist = 0;
-  if (pointers.size === 0) pinching = false;
 });
 viewport.addEventListener('pointercancel', (event) => {
   pointers.delete(event.pointerId);
   if (pointers.size < 2) pinchDist = 0;
-  if (pointers.size === 0) pinching = false;
 });
 viewport.addEventListener('wheel', (event) => {
   event.preventDefault();
@@ -290,5 +258,6 @@ img.onload = () => {
   canvas.width = img.naturalWidth;
   canvas.height = img.naturalHeight;
   applyView();
+  paint();
 };
 img.src = ART;
