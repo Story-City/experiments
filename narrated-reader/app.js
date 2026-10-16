@@ -77,7 +77,7 @@ const reader = $('reader'), thread = $('thread'), choicesEl = $('choices'), play
 
 // ---------- start screen ----------
 $('startTitle').textContent = STORY.title;
-$('startChapter').textContent = STORY.chapter;
+setText($('startChapter'), STORY.chapter);
 $('startArt').innerHTML = sceneSvg('a'); $('startArt').classList.add('scene-art'); $('startArt').dataset.s = 'corner';
 function markVariant(){
   document.querySelectorAll('.ab button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === V)));
@@ -116,18 +116,44 @@ function close(){
   reader.hidden = true; $('start').hidden = false;
 }
 
+// ---------- line endings ----------
+// Never one word alone on a line: the last two words are joined with a no-break space
+// (works on every phone), and the CSS (text-wrap: balance) evens out the line lengths.
+function setText(el, text){
+  el.textContent = '';
+  const words = text.trim().split(/\s+/);
+  if (words.length < 3) { el.textContent = words.join('\u00a0'); return; }
+  const tail = document.createElement('span');
+  tail.className = 'tail';     // the sound-wave mark hangs off this, so it never lands on a line by itself
+  tail.textContent = words.slice(-2).join('\u00a0');
+  el.append(words.slice(0, -2).join(' ') + ' ', tail);
+}
+// Balanced text in a bubble leaves a gap on the right; shrink each bubble to its widest line.
+function fitBubble(b){
+  b.style.width = '';
+  const r = document.createRange(); r.selectNodeContents(b);
+  const rects = [...r.getClientRects()].filter(x => x.width > 0);
+  if (new Set(rects.map(x => Math.round(x.top))).size < 2) return;   // one line is already tight
+  const cs = getComputedStyle(b);
+  const w = Math.max(...rects.map(x => x.right)) - Math.min(...rects.map(x => x.left));
+  b.style.width = Math.ceil(w + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 2) + 'px';
+}
+const fitAll = () => thread.querySelectorAll('.bub, .me').forEach(fitBubble);
+addEventListener('resize', fitAll);
+document.fonts && document.fonts.ready.then(fitAll);
+
 // ---------- rendering ----------
 function lineEl(i){
   const l = timeline[i];
   const d = document.createElement('div');
-  if (l.who === 'narrator') { d.className = 'line narr'; d.textContent = l.text; }
-  else if (l.who === 'player') { d.className = 'line me'; d.textContent = l.text; }
+  if (l.who === 'narrator') { d.className = 'line narr'; setText(d, l.text); }
+  else if (l.who === 'player') { d.className = 'line me'; setText(d, l.text); }
   else {
     const prev = timeline[i - 1];
     d.className = 'line say' + (prev && prev.who === l.who ? ' cont' : '');
     d.innerHTML = `<div class="ava">${HOOD}</div><div><div class="who"></div><div class="bub"></div></div>`;
     d.querySelector('.who').textContent = CAST[l.who].name;
-    d.querySelector('.bub').textContent = l.text;
+    setText(d.querySelector('.bub'), l.text);
   }
   return d;
 }
@@ -136,6 +162,7 @@ function reveal(i){
   for (let k = reached + 1; k <= Math.min(i, timeline.length - 1); k++) {
     if (isChoice(k)) continue;
     const d = lineEl(k); d.classList.add('enter'); els[k] = d; thread.appendChild(d);
+    const b = d.querySelector('.bub') || (d.classList.contains('me') ? d : null); if (b) fitBubble(b);
   }
   reached = Math.max(reached, i);
 }
@@ -159,11 +186,11 @@ function paintCaptions(){
   if (box.dataset.k === key) return;
   box.dataset.k = key;
   box.innerHTML = '';
-  if (prev) { const p = document.createElement('div'); p.className = 'cap-prev'; p.textContent = prev.text; box.appendChild(p); }
+  if (prev) { const p = document.createElement('div'); p.className = 'cap-prev'; setText(p, prev.text); box.appendChild(p); }
   const c = document.createElement('div');
   c.className = 'cap-line ' + (cur.who === 'narrator' ? 'n' : cur.who === 'player' ? 'p' : 'f');
   if (cur.who === 'figure') { const w = document.createElement('span'); w.className = 'cap-who'; w.textContent = CAST.figure.name; c.appendChild(w); }
-  c.appendChild(document.createTextNode(cur.text));
+  const body = document.createElement('span'); setText(body, cur.text); c.appendChild(body);
   box.appendChild(c);
 }
 
@@ -286,7 +313,7 @@ function finish(){
     endEl = document.createElement('div');
     endEl.className = 'end';
     endEl.innerHTML = `<b>End of chapter 1</b><p></p><button class="go" id="nextBtn">Next chapter</button><br><button class="again" id="againBtn">Replay chapter</button>`;
-    endEl.querySelector('p').textContent = 'Up next: ' + STORY.next;
+    setText(endEl.querySelector('p'), 'Up next: ' + STORY.next);
     endEl.querySelector('#nextBtn').onclick = e => { e.target.textContent = 'In the app: free-trial screen'; };
     endEl.querySelector('#againBtn').onclick = replay;
     (V === 'captions' ? $('captions') : thread).appendChild(endEl);
