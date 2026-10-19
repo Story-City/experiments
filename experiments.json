@@ -1,5 +1,17 @@
 [
   {
+    "slug": "oxygen-decrypt",
+    "path": "oxygen-decrypt/?v=1",
+    "title": "Decrypt the Artwork",
+    "what": "Reader chapter with the glowing Decrypt the Artwork ticket. Tap it to open Decrypt the Puzzle, pick a colour, then Select colour.",
+    "author": "victoria",
+    "authorName": "Victoria",
+    "date": "2026-10",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "dragon-name-jumble",
     "path": "dragon-name/?v=1",
     "title": "Dragon's name: word jumble",
