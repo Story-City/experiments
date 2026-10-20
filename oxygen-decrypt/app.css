@@ -16,12 +16,12 @@ button {
 }
 [hidden] { display: none !important; }
 
+/* 375×743 design frame — width must shrink with height so the PNG never crops. */
 .phone {
   position: relative;
-  width: min(100vw, 430px);
+  width: min(100vw, 430px, calc(100dvh * 375 / 743));
   margin: 0 auto;
   aspect-ratio: 375 / 743;
-  max-height: 100dvh;
   overflow: hidden;
   background: #0b1033;
 }
@@ -33,7 +33,7 @@ button {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
   pointer-events: none;
   user-select: none;
 }
@@ -41,69 +41,86 @@ button {
   position: absolute;
   z-index: 2;
 }
+
+/* Measured on screen-reader.png: ticket ~76.5–85%. */
 .ticket {
-  left: 3.5%;
-  right: 3.5%;
-  top: 71.5%;
-  height: 12%;
+  left: 3.2%;
+  right: 3.2%;
+  top: 76.5%;
+  height: 8.5%;
   border-radius: 18px;
 }
 .ticket:active { transform: scale(0.985); }
+
 .dismiss {
   left: 0;
   right: 0;
   top: 0;
-  height: 34%;
+  height: 42%;
 }
-.swatches {
+
+/*
+  Circles measured on screen-puzzle.png (375×743):
+  red 57.5,604.5 | cream 116,604 | charcoal 165.5,604
+  Diameter 50px covers the baked-in selection ring on red.
+  Half-size as % of frame: width 6.6665%, height 3.364% (50/2 / 743).
+*/
+.swatch {
+  --swatch: 13.333%;
+  --half-x: 6.6665%;
+  --half-y: 3.364%;
   position: absolute;
   z-index: 3;
-  left: 18%;
-  right: 18%;
-  top: 48%;
-  height: 11%;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  align-items: center;
-  justify-items: center;
-  gap: 4%;
-}
-.swatch {
-  width: min(18vw, 58px);
-  height: min(18vw, 58px);
+  width: var(--swatch);
+  aspect-ratio: 1;
   border-radius: 50%;
   border: 2px solid transparent;
   box-shadow: none;
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition: box-shadow 160ms ease;
 }
-.swatch[data-color="red"] { background: #b3122f; }
-.swatch[data-color="cream"] { background: #e8dfd0; }
-.swatch[data-color="charcoal"] { background: #1c1c1c; border-color: rgba(255,255,255,0.35); }
+.swatch[data-color="red"] {
+  left: calc(15.333% - var(--half-x));
+  top: calc(81.359% - var(--half-y));
+  background: #a11e1e;
+}
+.swatch[data-color="cream"] {
+  left: calc(30.933% - var(--half-x));
+  top: calc(81.292% - var(--half-y));
+  background: #e1dad0;
+}
+.swatch[data-color="charcoal"] {
+  left: calc(44.133% - var(--half-x));
+  top: calc(81.292% - var(--half-y));
+  background: #242222;
+  border-color: rgba(255, 255, 255, 0.28);
+}
 .swatch[aria-checked="true"] {
-  transform: scale(1.12);
   box-shadow: 0 0 0 4px #009eff, 0 0 18px 4px rgba(0, 158, 255, 0.55);
 }
+
+/* Select colour bar ~y 678–724 on the puzzle PNG. */
 .select {
-  left: 8%;
-  right: 8%;
-  top: 78%;
-  height: 9%;
+  left: 10.67%;
+  right: 10.67%;
+  top: 91.25%;
+  height: 6.2%;
   border-radius: 12px;
 }
 .select:active { transform: scale(0.985); }
+
 .status {
   position: absolute;
   z-index: 4;
   left: 8%;
   right: 8%;
-  bottom: 4%;
+  bottom: 1.5%;
   margin: 0;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: 12px;
   text-align: center;
   font-weight: 700;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 15px;
+  line-height: 18px;
   background: rgba(19, 18, 59, 0.92);
   border: 1px solid rgba(0, 158, 255, 0.55);
   box-shadow: 0 0 24px rgba(0, 158, 255, 0.35);
