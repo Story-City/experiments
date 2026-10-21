@@ -1,5 +1,29 @@
 [
   {
+    "slug": "code-entry",
+    "path": "code-entry/?v=digits",
+    "title": "Code entry: numbers",
+    "what": "The end of The Summons. The wax seal stays magnified at the top while you tap its six-digit code into a glowing keypad. The ? gives two hints, then Solve this for me. A wrong code shakes the boxes; the right one opens the staircase.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-10",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "code-entry-letters",
+    "path": "code-entry/?v=letters",
+    "title": "Code entry: word",
+    "what": "The same drop-spot moment with an A to Z keypad and a word on the seal (BISCUIT), for stories that use a word instead of a number.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-10",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "audio-paragraph-viewer",
     "path": "audio-paragraph-viewer/?v=1",
     "title": "Audio matched to paragraphs",
