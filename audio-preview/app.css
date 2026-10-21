@@ -14,6 +14,7 @@
   --elf-clearance: 154px;
   --tip-room: 80px;
   --slide: 320ms;
+  --gap: 8px;
 }
 
 * { box-sizing: border-box; }
@@ -54,8 +55,8 @@ button { font: inherit; color: inherit; }
 
 .cover {
   position: relative;
-  flex: 0 0 46%;
-  min-height: 220px;
+  flex: 0 0 42%;
+  min-height: 200px;
   overflow: hidden;
 }
 .cover img {
@@ -77,10 +78,10 @@ button { font: inherit; color: inherit; }
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 8px 16px 12px;
+  padding: 4px 16px 8px;
 }
 .on-cover h1 {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   font-size: 24px;
   font-weight: 700;
   line-height: 1.05;
@@ -102,7 +103,10 @@ button { font: inherit; color: inherit; }
   flex: 1;
   overflow-x: clip;
   overflow-y: auto;
-  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  padding: var(--gap) 16px calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
 }
 
 .start {
@@ -110,7 +114,7 @@ button { font: inherit; color: inherit; }
   width: 100%;
   border: 0;
   border-radius: 12px;
-  padding: 16px 24px;
+  padding: 12px 20px;
   background: linear-gradient(45deg, var(--blue-800), var(--blue));
   color: var(--text);
   font-size: 20px;
@@ -121,7 +125,7 @@ button { font: inherit; color: inherit; }
 .start.pressed { background: linear-gradient(45deg, var(--blue), var(--blue-800)); }
 
 .summary {
-  margin: 16px 0;
+  margin: 0;
   color: var(--muted);
   font-size: 14px;
   font-weight: 500;
@@ -130,7 +134,7 @@ button { font: inherit; color: inherit; }
 .tabs {
   display: flex;
   gap: 0;
-  margin: 0 0 16px;
+  margin: 0;
   padding: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
@@ -143,7 +147,7 @@ button { font: inherit; color: inherit; }
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 5px 16px;
+  padding: 4px 12px;
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -158,17 +162,17 @@ button { font: inherit; color: inherit; }
 }
 
 #panel-details p {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   font-size: 14px;
   font-weight: 500;
 }
 
-.audio-panel { position: relative; min-height: 240px; }
+.audio-panel { position: relative; min-height: 200px; }
 
 .recall {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 0;
+  right: 0;
   padding: 0;
   border: 0;
   background: none;
@@ -177,54 +181,76 @@ button { font: inherit; color: inherit; }
 
 .tip {
   position: relative;
+  display: block;
+  width: 100%;
   margin-top: var(--tip-room);
   min-height: calc(var(--elf-h) - var(--tip-room));
-  padding: 16px var(--elf-clearance) 16px 16px;
+  padding: 12px var(--elf-clearance) 12px 12px;
   border: 2px solid var(--blue);
   border-radius: 28px;
-  background: var(--bg);
+  background: linear-gradient(45deg, var(--blue-700), var(--blue-500));
+  text-align: left;
   transform: translateX(110%);
   cursor: pointer;
 }
 .tip.in { animation: tip-in var(--slide) cubic-bezier(0.215, 0.61, 0.355, 1) both; }
 .tip.out { animation: tip-out var(--slide) cubic-bezier(0.55, 0.055, 0.675, 0.19) both; }
+.tip.pressed { background: linear-gradient(45deg, var(--blue-500), var(--blue-700)); }
 @keyframes tip-in { from { transform: translateX(110%); } to { transform: none; } }
 @keyframes tip-out { from { transform: none; } to { transform: translateX(110%); } }
 
+.play-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+}
+
+.audio-icon {
+  display: block;
+  flex: 0 0 auto;
+}
+.audio-icon .wave-near,
+.audio-icon .wave-far {
+  transform-origin: 8px 17px;
+  opacity: 0.35;
+}
+.tip.playing .wave-near {
+  animation: wave-near 0.9s ease-in-out infinite;
+}
+.tip.playing .wave-far {
+  animation: wave-far 0.9s ease-in-out infinite 0.15s;
+}
+@keyframes wave-near {
+  0%, 100% { opacity: 0.35; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1); }
+}
+@keyframes wave-far {
+  0%, 100% { opacity: 0.2; transform: scale(0.88); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.tip-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tip-label {
+  font-family: "Darker Grotesque", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+}
 .tip-text {
   margin: 0;
   color: var(--text);
   font-family: Barlow, sans-serif;
   font-size: 15px;
   font-weight: 400;
-  line-height: 21px;
-}
-
-.audio-button {
-  width: 100%;
-  height: 70px;
-  margin: 8px 0;
-  padding: 15px;
-  border: 0;
-  border-radius: 12px;
-  background: linear-gradient(45deg, var(--blue-700), var(--blue-500));
-  cursor: pointer;
-}
-.audio-button.pressed { background: linear-gradient(45deg, var(--blue-500), var(--blue-700)); }
-.button-content {
-  display: flex;
-  align-items: center;
-  max-height: 100%;
-}
-.audio-icon { display: block; flex: 0 0 auto; }
-.audio-text {
-  flex: 1;
-  font-family: "Darker Grotesque", sans-serif;
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text);
-  text-align: center;
-  user-select: none;
+  line-height: 20px;
 }
 
 .sprite {

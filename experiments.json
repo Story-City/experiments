@@ -49,9 +49,9 @@
   },
   {
     "slug": "audio-preview",
-    "path": "audio-preview/?v=1",
+    "path": "audio-preview/?v=2",
     "title": "Story overview: audio preview",
-    "what": "The app's story overview for The Summons, with an Audio tab: the Tap To Play Audio button, and the sample-story character standing on the info panel the way they do in the first-time stories. Tap the panel to put them away; the info icon brings them back.",
+    "what": "Story overview for Tales from the Incident with an Audio tab. The sample-story character panel is the play control: tap it for the opening lines, the speaker waves while it plays. Tighter spacing, no separate audio button.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-10",
