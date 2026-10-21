@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Reader on a phone</title>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="phone.css">
+</head>
+<body>
+<div class="phone" id="phone">
+
+  <section class="hero" id="hero" data-state="loading" aria-label="Chapter image">
+    <img id="heroImg" alt="" decoding="async" referrerpolicy="no-referrer">
+    <p class="hero-none" id="heroNone">No chapter image</p>
+    <button type="button" class="pick" id="pickBtn" aria-haspopup="dialog" aria-controls="sheet">
+      <span class="pick-text">
+        <span class="pick-story" id="pickStory">Story</span>
+        <span class="pick-chapter" id="pickChapter">Chapter</span>
+      </span>
+      <span class="pick-chev" aria-hidden="true">&#9662;</span>
+    </button>
+  </section>
+
+  <main class="reader" id="reader" aria-live="polite">
+    <div class="line prev empty" id="prevLine" role="button" tabindex="0" data-j=""><p class="txt" id="prevText"></p></div>
+    <div class="line main idle" id="mainLine" role="button" tabindex="0" data-j="">
+      <span class="hint" id="hint" hidden>&#9654; Press play</span>
+      <p class="txt" id="mainText"></p>
+    </div>
+    <div class="line next empty" id="nextLine" role="button" tabindex="0" data-j=""><p class="txt" id="nextText"></p></div>
+    <p class="notice" id="notice"></p>
+  </main>
+
+  <footer class="transport" aria-label="Playback">
+    <div class="row-a">
+      <button type="button" class="play" id="playBtn" aria-label="Play">
+        <span id="playIcon" aria-hidden="true">&#9654;</span><span id="playText">Play</span>
+      </button>
+      <input type="range" id="seek" min="0" max="1" step="0.01" value="0" aria-label="Position in chapter">
+    </div>
+    <div class="row-b">
+      <span class="time" id="timeNow">0:00</span>
+      <div class="seg" role="group" aria-label="Playback speed" id="speedSeg">
+        <button type="button" data-speed="0.75" aria-pressed="false">0.75x</button>
+        <button type="button" data-speed="1" aria-pressed="true">1x</button>
+        <button type="button" data-speed="1.25" aria-pressed="false">1.25x</button>
+        <button type="button" data-speed="1.5" aria-pressed="false">1.5x</button>
+      </div>
+      <span class="time end" id="timeEnd">0:00</span>
+    </div>
+  </footer>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-bg" id="sheetBg"></div>
+  <section class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <header class="sheet-head">
+      <h2 id="sheetTitle">Story and chapter</h2>
+      <button type="button" class="btn" id="sheetClose">Close</button>
+    </header>
+    <div class="sheet-body">
+      <div class="field">
+        <span>Timings</span>
+        <div class="seg" role="group" aria-label="Timing model">
+          <button type="button" id="modelSmall" data-model="small" aria-pressed="true">small</button>
+          <button type="button" id="modelLarge" data-model="large" aria-pressed="false">large-v3</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="storySel">Story</label>
+        <select id="storySel"></select>
+      </div>
+      <div class="field">
+        <span>Chapter</span>
+        <ul class="chapters" id="chapterList"></ul>
+      </div>
+    </div>
+    <footer class="sheet-foot">
+      <p id="hiddenNote" class="hidden-note"></p>
+      <a href="index.html" id="desktopLink" class="btn">Desktop viewer</a>
+    </footer>
+  </section>
+</div>
+
+<audio id="audio" preload="metadata"></audio>
+<script src="phone.js"></script>
+</body>
+</html>

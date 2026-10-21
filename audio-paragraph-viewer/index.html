@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Audio and text check</title>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="shell" id="app">
+
+  <header class="bar pickers">
+    <h1 class="sr-only">Audio and text check</h1>
+    <div class="field">
+      <label for="storySel">Story</label>
+      <select id="storySel"></select>
+    </div>
+    <div class="field grow">
+      <label for="chapterSel">Chapter</label>
+      <span class="chapter-row">
+        <button type="button" id="prevCh" class="btn small" aria-label="Previous chapter">&lsaquo;</button>
+        <select id="chapterSel"></select>
+        <button type="button" id="nextCh" class="btn small" aria-label="Next chapter">&rsaquo;</button>
+      </span>
+    </div>
+    <div class="field"><span>View</span>
+      <div class="seg" role="group" aria-label="View">
+        <button type="button" id="modeChat" data-mode="chat" aria-pressed="true">Chat bubbles</button>
+        <button type="button" id="modeVn" data-mode="vn" aria-pressed="false">Visual novel</button>
+      </div>
+    </div>
+    <div class="field"><span>Timings (key M)</span>
+      <div class="seg" role="group" aria-label="Timing model">
+        <button type="button" id="modelSmall" data-model="small" aria-pressed="true">small</button>
+        <button type="button" id="modelLarge" data-model="large" aria-pressed="false">large-v3</button>
+      </div>
+    </div>
+    <a class="btn" id="phoneLink" href="phone.html">Phone view</a>
+  </header>
+
+  <section class="bar transport" aria-label="Playback">
+    <button type="button" id="playBtn" class="btn play" aria-label="Play">
+      <span id="playIcon" aria-hidden="true">&#9654;</span> <span id="playText">Play</span>
+    </button>
+    <span class="time" id="timeNow">0:00.0</span>
+    <input type="range" id="seek" min="0" max="1" step="0.01" value="0" aria-label="Seek">
+    <span class="time" id="timeEnd">0:00.0</span>
+    <div class="field inline"><span>Speed</span>
+      <div class="seg" role="group" aria-label="Playback speed" id="speedSeg">
+        <button type="button" data-speed="0.75" aria-pressed="false">0.75x</button>
+        <button type="button" data-speed="1" aria-pressed="true">1x</button>
+        <button type="button" data-speed="1.25" aria-pressed="false">1.25x</button>
+        <button type="button" data-speed="1.5" aria-pressed="false">1.5x</button>
+      </div>
+    </div>
+    <div class="field inline">
+      <label for="volume">Volume</label>
+      <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
+    </div>
+    <div class="field inline">
+      <label for="pad">Lead-in</label> <output id="padOut" for="pad">150 ms</output>
+      <input type="range" id="pad" min="0" max="500" step="10" value="150">
+    </div>
+  </section>
+
+  <section class="timeline" aria-label="Timeline">
+    <div class="tl-wrap" id="tlWrap">
+      <canvas id="tlBase"></canvas>
+      <canvas id="tlTop"></canvas>
+    </div>
+    <div class="tl-info">
+      <span id="nowLine" class="now-line">Now: -</span>
+      <span id="hoverLine" class="hover-line"></span>
+      <button type="button" id="boundaryBtn" class="btn" title="Play from 300 ms before this paragraph starts to 300 ms after it ends, then stop">Boundary check</button>
+    </div>
+    <div class="legend" aria-label="Timeline legend">
+      <span><i class="sw sw-a"></i> paragraph region, number = paragraph; solid line = start, dashed line = end</span>
+      <span><i class="sw sw-hatch"></i> speech heard, not assigned to any paragraph</span>
+      <span><i class="sw sw-flag"></i> &#9650; other model's boundary where the two models differ by more than 0.5 s</span>
+    </div>
+  </section>
+
+  <main class="stage" id="stage">
+    <div class="chat" id="chat" tabindex="0" aria-label="Paragraphs"></div>
+    <div class="vn" id="vn" hidden aria-live="polite"></div>
+  </main>
+
+  <footer class="keys">
+    <kbd>Space</kbd> play/pause &middot; <kbd>&larr;</kbd> <kbd>&rarr;</kbd> previous / next paragraph start &middot; <kbd>M</kbd> switch timing model &middot; click a paragraph to play it from its start minus the lead-in
+  </footer>
+</div>
+<audio id="audio" preload="metadata"></audio>
+<script src="app.js"></script>
+<script>document.getElementById('phoneLink').addEventListener('click', e => { e.currentTarget.href = 'phone.html' + location.hash; });</script>
+</body>
+</html>

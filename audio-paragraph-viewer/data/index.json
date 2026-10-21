@@ -1,0 +1,1978 @@
+{
+ "stories": [
+  {
+   "id": "pirate",
+   "title": "Pirate Captain",
+   "source": "CMF rewrite, WAV",
+   "chapters": [
+    {
+     "order": 0,
+     "name": "JM1a - Library",
+     "file": "data/pirate/0.json",
+     "duration": 71.025,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 1,
+     "name": "JM1b",
+     "file": "data/pirate/1.json",
+     "duration": 34.285,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 2,
+     "name": "JM1c",
+     "file": "data/pirate/2.json",
+     "duration": 58.048,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 3,
+     "name": "JM2a - Pub or Restaurant on a corner or alley",
+     "file": "data/pirate/3.json",
+     "duration": 57.263,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 4,
+     "name": "JM2b",
+     "file": "data/pirate/4.json",
+     "duration": 44.539,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 5,
+     "name": "JM2c",
+     "file": "data/pirate/5.json",
+     "duration": 70.253,
+     "paragraphs": 9,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 6,
+     "name": "JM3a - Architecturally distinct building",
+     "file": "data/pirate/6.json",
+     "duration": 43.636,
+     "paragraphs": 2,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 7,
+     "name": "JM3b1 - Beg for help",
+     "file": "data/pirate/7.json",
+     "duration": 51.508,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 8,
+     "name": "JM3b2 - Guilt the Kraken",
+     "file": "data/pirate/8.json",
+     "duration": 48.743,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 9,
+     "name": "JM3c",
+     "file": "data/pirate/9.json",
+     "duration": 45.662,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 10,
+     "name": "JM4a - Tower or highpoint",
+     "file": "data/pirate/10.json",
+     "duration": 31.882,
+     "paragraphs": 2,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 11,
+     "name": "JM4b",
+     "file": "data/pirate/11.json",
+     "duration": 56.505,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 12,
+     "name": "JM4c",
+     "file": "data/pirate/12.json",
+     "duration": 53.396,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 13,
+     "name": "JM5a - Irish Bar",
+     "file": "data/pirate/13.json",
+     "duration": 45.964,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 14,
+     "name": "JM5b",
+     "file": "data/pirate/14.json",
+     "duration": 34.555,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 15,
+     "name": "JM5c1 - Let her join",
+     "file": "data/pirate/15.json",
+     "duration": 50.756,
+     "paragraphs": 9,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 16,
+     "name": "JM5c2 - Lie to her",
+     "file": "data/pirate/16.json",
+     "duration": 64.489,
+     "paragraphs": 9,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 17,
+     "name": "JM6a - Amphitheatre or Plaza stage",
+     "file": "data/pirate/17.json",
+     "duration": 56.446,
+     "paragraphs": 10,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 18,
+     "name": "JM6b",
+     "file": "data/pirate/18.json",
+     "duration": 59.639,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 19,
+     "name": "JM6c",
+     "file": "data/pirate/19.json",
+     "duration": 49.146,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 20,
+     "name": "JM7a - Park with a really cool tree",
+     "file": "data/pirate/20.json",
+     "duration": 54.225,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 1
+    },
+    {
+     "order": 21,
+     "name": "JM7b",
+     "file": "data/pirate/21.json",
+     "duration": 25.736,
+     "paragraphs": 3,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 22,
+     "name": "JM7c",
+     "file": "data/pirate/22.json",
+     "duration": 79.655,
+     "paragraphs": 8,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 23,
+     "name": "JM8a - Fast food or burger joint",
+     "file": "data/pirate/23.json",
+     "duration": 25.032,
+     "paragraphs": 2,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 24,
+     "name": "JM8b",
+     "file": "data/pirate/24.json",
+     "duration": 52.349,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 25,
+     "name": "JM8c",
+     "file": "data/pirate/25.json",
+     "duration": 22.521,
+     "paragraphs": 3,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 26,
+     "name": "JM8d",
+     "file": "data/pirate/26.json",
+     "duration": 39.67,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 27,
+     "name": "JM9a - urban water or wave feature",
+     "file": "data/pirate/27.json",
+     "duration": 43.737,
+     "paragraphs": 3,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 28,
+     "name": "JM9b",
+     "file": "data/pirate/28.json",
+     "duration": 36.867,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 29,
+     "name": "JM9c - Path1",
+     "file": "data/pirate/29.json",
+     "duration": 51.784,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 30,
+     "name": "JM9c - Path2",
+     "file": "data/pirate/30.json",
+     "duration": 51.784,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 31,
+     "name": "JM10a - Public sculpture or monument to an explorer",
+     "file": "data/pirate/31.json",
+     "duration": 37.422,
+     "paragraphs": 2,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 32,
+     "name": "JM10b1 - Compass",
+     "file": "data/pirate/32.json",
+     "duration": 57.369,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 33,
+     "name": "JM10b2 - Entice him",
+     "file": "data/pirate/33.json",
+     "duration": 70.612,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 34,
+     "name": "JM10c",
+     "file": "data/pirate/34.json",
+     "duration": 34.134,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 35,
+     "name": "JM11a - Legal Establishment",
+     "file": "data/pirate/35.json",
+     "duration": 48.475,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 36,
+     "name": "JM11b1 - Sneak",
+     "file": "data/pirate/36.json",
+     "duration": 69.345,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 37,
+     "name": "JM11b2 - Walk up",
+     "file": "data/pirate/37.json",
+     "duration": 65.138,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 38,
+     "name": "JM11c - END A",
+     "file": "data/pirate/38.json",
+     "duration": 62.92,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 39,
+     "name": "JM11c - END B",
+     "file": "data/pirate/39.json",
+     "duration": 62.92,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 40,
+     "name": "JM12a - Quirky retail/outdoor gear store",
+     "file": "data/pirate/40.json",
+     "duration": 57.292,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 41,
+     "name": "JM12b1 - Convince",
+     "file": "data/pirate/41.json",
+     "duration": 46.892,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 42,
+     "name": "JM12b2 - Kraken help",
+     "file": "data/pirate/42.json",
+     "duration": 44.313,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 43,
+     "name": "JM12c - END A",
+     "file": "data/pirate/43.json",
+     "duration": 61.608,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 44,
+     "name": "JM12c - END B",
+     "file": "data/pirate/44.json",
+     "duration": 61.608,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 45,
+     "name": "JM13a - Waterfront/water feature",
+     "file": "data/pirate/45.json",
+     "duration": 41.831,
+     "paragraphs": 3,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 47,
+     "name": "JM13b - Path 2",
+     "file": "data/pirate/47.json",
+     "duration": 58.0,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 48,
+     "name": "JM13c - Path 2",
+     "file": "data/pirate/48.json",
+     "duration": 31.294,
+     "paragraphs": 2,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 49,
+     "name": "JM13c - Path 1",
+     "file": "data/pirate/49.json",
+     "duration": 31.294,
+     "paragraphs": 2,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 50,
+     "name": "JM13b - Path 1",
+     "file": "data/pirate/50.json",
+     "duration": 58.0,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 51,
+     "name": "JM13d - END C",
+     "file": "data/pirate/51.json",
+     "duration": 39.115,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 1
+    },
+    {
+     "order": 52,
+     "name": "JM13d - END D",
+     "file": "data/pirate/52.json",
+     "duration": 39.115,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 1
+    },
+    {
+     "order": 53,
+     "name": "JM13d - END B",
+     "file": "data/pirate/53.json",
+     "duration": 39.115,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 1
+    },
+    {
+     "order": 55,
+     "name": "JM13d - END A",
+     "file": "data/pirate/55.json",
+     "duration": 39.115,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 1
+    },
+    {
+     "order": 56,
+     "name": "JM14d - END A",
+     "file": "data/pirate/56.json",
+     "duration": 54.842,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 1
+    },
+    {
+     "order": 57,
+     "name": "JM14c - Path 2",
+     "file": "data/pirate/57.json",
+     "duration": 49.942,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 58,
+     "name": "JM14a - greenspace w war monument",
+     "file": "data/pirate/58.json",
+     "duration": 51.791,
+     "paragraphs": 3,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 59,
+     "name": "JM14b - Freebooter Kate's Terms",
+     "file": "data/pirate/59.json",
+     "duration": 13.276,
+     "paragraphs": 1,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 61,
+     "name": "JM14c - Path 1",
+     "file": "data/pirate/61.json",
+     "duration": 49.942,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 63,
+     "name": "JM14d - END B",
+     "file": "data/pirate/63.json",
+     "duration": 54.842,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 1
+    },
+    {
+     "order": 64,
+     "name": "JM14d - END C",
+     "file": "data/pirate/64.json",
+     "duration": 54.842,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 1
+    },
+    {
+     "order": 65,
+     "name": "JM14d - END D",
+     "file": "data/pirate/65.json",
+     "duration": 54.842,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 1
+    }
+   ]
+  },
+  {
+   "id": "pirate_orig",
+   "title": "A Pirate Captain (Brisbane)",
+   "source": "2014 original, MP3",
+   "chapters": [
+    {
+     "order": 1,
+     "name": "O’Malley’s Pub",
+     "file": "data/pirate_orig/1.json",
+     "duration": 250.56,
+     "paragraphs": 21,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 2,
+     "name": "Reddacliff Place",
+     "file": "data/pirate_orig/2.json",
+     "duration": 253.118,
+     "paragraphs": 14,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 3,
+     "name": "Kurilpa Bridge BBQ Area",
+     "file": "data/pirate_orig/3.json",
+     "duration": 238.502,
+     "paragraphs": 20,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 6
+    },
+    {
+     "order": 4,
+     "name": "Burnett Lane",
+     "file": "data/pirate_orig/4.json",
+     "duration": 249.881,
+     "paragraphs": 19,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 5,
+     "name": "Whale Mall",
+     "file": "data/pirate_orig/5.json",
+     "duration": 231.628,
+     "paragraphs": 28,
+     "unmatched": {
+      "small": 0,
+      "large": 1
+     },
+     "differ": 3
+    },
+    {
+     "order": 6,
+     "name": "Queensland Museum Garden",
+     "file": "data/pirate_orig/6.json",
+     "duration": 187.972,
+     "paragraphs": 12,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 7,
+     "name": "The Courier Mail Statue, Charlotte Street",
+     "file": "data/pirate_orig/7.json",
+     "duration": 157.67,
+     "paragraphs": 15,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 8,
+     "name": "Magistrates Court",
+     "file": "data/pirate_orig/8.json",
+     "duration": 265.968,
+     "paragraphs": 21,
+     "unmatched": {
+      "small": 2,
+      "large": 1
+     },
+     "differ": 3
+    },
+    {
+     "order": 9,
+     "name": "Hungry Jack’s",
+     "file": "data/pirate_orig/9.json",
+     "duration": 236.075,
+     "paragraphs": 19,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 10,
+     "name": "The White Store",
+     "file": "data/pirate_orig/10.json",
+     "duration": 246.465,
+     "paragraphs": 16,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 2
+    },
+    {
+     "order": 11,
+     "name": "North Quay",
+     "file": "data/pirate_orig/11.json",
+     "duration": 304.614,
+     "paragraphs": 18,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 4
+    },
+    {
+     "order": 12,
+     "name": "Queens Park",
+     "file": "data/pirate_orig/12.json",
+     "duration": 254.589,
+     "paragraphs": 22,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 1
+    },
+    {
+     "order": 13,
+     "name": "Waterography, Charlotte Street",
+     "file": "data/pirate_orig/13.json",
+     "duration": 178.237,
+     "paragraphs": 13,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 14,
+     "name": "City Hall",
+     "file": "data/pirate_orig/14.json",
+     "duration": 231.21,
+     "paragraphs": 20,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    }
+   ]
+  },
+  {
+   "id": "tales",
+   "title": "Tales from the Incident",
+   "source": "audio theatre, MP3, first 30 audio chapters",
+   "chapters": [
+    {
+     "order": 0,
+     "name": "[0] EPISODE 1 START: Loc1: Cafe - Intro-a",
+     "file": "data/tales/0.json",
+     "duration": 53.208,
+     "paragraphs": 8,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 1,
+     "name": "[0] EPISODE 2 START - Loc 2 Intro-a",
+     "file": "data/tales/1.json",
+     "duration": 49.752,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 2,
+     "name": "[0] EPISODE 3 START Loc 3-Intro-a",
+     "file": "data/tales/2.json",
+     "duration": 49.752,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 3,
+     "name": "[0] EPISODE 4 START Loc 4-Intro-a",
+     "file": "data/tales/3.json",
+     "duration": 49.752,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 4,
+     "name": "[1] Ep1-Intro-b",
+     "file": "data/tales/4.json",
+     "duration": 20.14,
+     "paragraphs": 1,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 5,
+     "name": "[1] Loc 2-Intro-b",
+     "file": "data/tales/5.json",
+     "duration": 27.84,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 6,
+     "name": "[1] Loc 3-Intro-b",
+     "file": "data/tales/6.json",
+     "duration": 27.84,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 7,
+     "name": "[1] Loc 4-Intro-b",
+     "file": "data/tales/7.json",
+     "duration": 27.84,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 8,
+     "name": "[2] Loc 2 - Intro d (Interactive Mode)",
+     "file": "data/tales/8.json",
+     "duration": 45.792,
+     "paragraphs": 3,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 9,
+     "name": "[2] Ep1-Intro-c",
+     "file": "data/tales/9.json",
+     "duration": 29.184,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 10,
+     "name": "[2] Loc 3-Intro-c (Interactive)",
+     "file": "data/tales/10.json",
+     "duration": 43.128,
+     "paragraphs": 3,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 11,
+     "name": "[2] Loc 4-Intro-c (Interactive)",
+     "file": "data/tales/11.json",
+     "duration": 43.56,
+     "paragraphs": 2,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 12,
+     "name": "[3] Ep1-Intro-d",
+     "file": "data/tales/12.json",
+     "duration": 44.976,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 13,
+     "name": "[3] Loc 2-1a: Detective HQ",
+     "file": "data/tales/13.json",
+     "duration": 109.968,
+     "paragraphs": 11,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 0
+    },
+    {
+     "order": 14,
+     "name": "[3] Loc 3-1a: Antique Shop (Interactive) ",
+     "file": "data/tales/14.json",
+     "duration": 148.088,
+     "paragraphs": 11,
+     "unmatched": {
+      "small": 4,
+      "large": 1
+     },
+     "differ": 4
+    },
+    {
+     "order": 15,
+     "name": "[3] Loc 4-1a: Park Wall/Fence (Interactive)",
+     "file": "data/tales/15.json",
+     "duration": 64.872,
+     "paragraphs": 8,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 16,
+     "name": "[4] Ep1-Intro-e (Interactive)",
+     "file": "data/tales/16.json",
+     "duration": 22.464,
+     "paragraphs": 2,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 17,
+     "name": "[4] Loc 2-1b",
+     "file": "data/tales/17.json",
+     "duration": 177.768,
+     "paragraphs": 18,
+     "unmatched": {
+      "small": 2,
+      "large": 2
+     },
+     "differ": 3
+    },
+    {
+     "order": 18,
+     "name": "[4] Loc 3-1b (Interactive)",
+     "file": "data/tales/18.json",
+     "duration": 130.992,
+     "paragraphs": 14,
+     "unmatched": {
+      "small": 3,
+      "large": 4
+     },
+     "differ": 1
+    },
+    {
+     "order": 19,
+     "name": "[4] Loc 4-1b (Interactive)",
+     "file": "data/tales/19.json",
+     "duration": 180.936,
+     "paragraphs": 20,
+     "unmatched": {
+      "small": 2,
+      "large": 2
+     },
+     "differ": 0
+    },
+    {
+     "order": 20,
+     "name": "[5] the transit station to inspect the scene of the crime",
+     "file": "data/tales/20.json",
+     "duration": 102.552,
+     "paragraphs": 18,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 21,
+     "name": "[5] Loc 1-1a:Cafe (Interactive)",
+     "file": "data/tales/21.json",
+     "duration": 200.16,
+     "paragraphs": 17,
+     "unmatched": {
+      "small": 2,
+      "large": 2
+     },
+     "differ": 2
+    },
+    {
+     "order": 22,
+     "name": "[5] Loc 3-1c (Interactive)",
+     "file": "data/tales/22.json",
+     "duration": 44.568,
+     "paragraphs": 8,
+     "unmatched": {
+      "small": 2,
+      "large": 2
+     },
+     "differ": 1
+    },
+    {
+     "order": 23,
+     "name": "[5] Loc 4-1c (Interactive)",
+     "file": "data/tales/23.json",
+     "duration": 208.512,
+     "paragraphs": 22,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 24,
+     "name": "[6] Loc 1-1b (Interactive)",
+     "file": "data/tales/24.json",
+     "duration": 73.752,
+     "paragraphs": 16,
+     "unmatched": {
+      "small": 3,
+      "large": 3
+     },
+     "differ": 2
+    },
+    {
+     "order": 25,
+     "name": "[6] Loc 2-2b",
+     "file": "data/tales/25.json",
+     "duration": 124.08,
+     "paragraphs": 12,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 26,
+     "name": "[6] the trashcan to follow Farron's trail",
+     "file": "data/tales/26.json",
+     "duration": 51.696,
+     "paragraphs": 3,
+     "unmatched": {
+      "small": 1,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 27,
+     "name": "[6] The trashcan to find Archivist B",
+     "file": "data/tales/27.json",
+     "duration": 129.504,
+     "paragraphs": 12,
+     "unmatched": {
+      "small": 3,
+      "large": 3
+     },
+     "differ": 1
+    },
+    {
+     "order": 28,
+     "name": "[7] Loc 1-1c (Interactive)",
+     "file": "data/tales/28.json",
+     "duration": 263.808,
+     "paragraphs": 35,
+     "unmatched": {
+      "small": 3,
+      "large": 3
+     },
+     "differ": 5
+    },
+    {
+     "order": 29,
+     "name": "[7] Loc 2-2c",
+     "file": "data/tales/29.json",
+     "duration": 191.016,
+     "paragraphs": 29,
+     "unmatched": {
+      "small": 1,
+      "large": 1
+     },
+     "differ": 2
+    }
+   ]
+  },
+  {
+   "id": "frightnight",
+   "title": "Frightnight Ghost Tours",
+   "source": "WAV, first 30 audio chapters",
+   "chapters": [
+    {
+     "order": 0,
+     "name": "[0] Beat L1-1a: Mural Start",
+     "file": "data/frightnight/0.json",
+     "duration": 9.0,
+     "paragraphs": 2,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 1,
+     "name": "[1] Beat L1-1b: Setup…",
+     "file": "data/frightnight/1.json",
+     "duration": 30.53,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 1,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 2,
+     "name": "[2] Beat L1-1bb: I can't hear you",
+     "file": "data/frightnight/2.json",
+     "duration": 9.0,
+     "paragraphs": 16,
+     "unmatched": {
+      "small": 16,
+      "large": 16
+     },
+     "differ": 0
+    },
+    {
+     "order": 3,
+     "name": "[3] Beat L1-1c: Disclaimer",
+     "file": "data/frightnight/3.json",
+     "duration": 63.0,
+     "paragraphs": 8,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 4,
+     "name": "[4] Beat L1-1d: Pre-Stream Checklist",
+     "file": "data/frightnight/4.json",
+     "duration": 18.0,
+     "paragraphs": 3,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 5,
+     "name": "[5] Beat L1-1e: Warm up Spiritual abilities",
+     "file": "data/frightnight/5.json",
+     "duration": 81.0,
+     "paragraphs": 10,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 6,
+     "name": "[6] Beat L1-1ee: “A man died here…”",
+     "file": "data/frightnight/6.json",
+     "duration": 81.0,
+     "paragraphs": 10,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 7,
+     "name": "[7] Beat L1-1eee: “There’s a spirit of inspiration here…”",
+     "file": "data/frightnight/7.json",
+     "duration": 84.0,
+     "paragraphs": 10,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 8,
+     "name": "[8] Beat L1-2a: Go Live",
+     "file": "data/frightnight/8.json",
+     "duration": 45.0,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 9,
+     "name": "[9] Beat L1-2b: Check Chat",
+     "file": "data/frightnight/9.json",
+     "duration": 33.0,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 10,
+     "name": "[10] Beat L2-1a: Old Building Intro",
+     "file": "data/frightnight/10.json",
+     "duration": 60.0,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 11,
+     "name": "[11] Beat L2-2a: A Gentle Ghost",
+     "file": "data/frightnight/11.json",
+     "duration": 77.838,
+     "paragraphs": 9,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 12,
+     "name": "[12] -1 Beat L2-2aa: Check Chat",
+     "file": "data/frightnight/12.json",
+     "duration": 38.919,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 13,
+     "name": "[13] Beat L2-2b: A Vengeful Ghost",
+     "file": "data/frightnight/13.json",
+     "duration": 79.459,
+     "paragraphs": 9,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 14,
+     "name": "[14] +1 Beat L2-2bb: Check Chat",
+     "file": "data/frightnight/14.json",
+     "duration": 29.189,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 15,
+     "name": "[15] Beat L2-3a: Finish Old Building",
+     "file": "data/frightnight/15.json",
+     "duration": 37.297,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 16,
+     "name": "[16] Beat L3-1a: The School Intro",
+     "file": "data/frightnight/16.json",
+     "duration": 56.629,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 17,
+     "name": "[17] Beat L3-2a: The Janitor Remains as a Protector",
+     "file": "data/frightnight/17.json",
+     "duration": 80.899,
+     "paragraphs": 9,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 18,
+     "name": "[18] +1 Beat L3-2aa: Check Chat",
+     "file": "data/frightnight/18.json",
+     "duration": 32.36,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 19,
+     "name": "[19] Beat L3-2b: The Janitor Remains as a Prisoner",
+     "file": "data/frightnight/19.json",
+     "duration": 64.719,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 3
+    },
+    {
+     "order": 20,
+     "name": "[20] -1 Beat L3-2bb: Check Chat",
+     "file": "data/frightnight/20.json",
+     "duration": 45.754,
+     "paragraphs": 8,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 21,
+     "name": "[21] >=5 Beat L3-3a: Diagnostics",
+     "file": "data/frightnight/21.json",
+     "duration": 26.966,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 22,
+     "name": "[22] <=4 Beat L3-3a: Diagnostics",
+     "file": "data/frightnight/22.json",
+     "duration": 33.951,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 23,
+     "name": "[23] Beat L3-3b: Finish School",
+     "file": "data/frightnight/23.json",
+     "duration": 43.146,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 24,
+     "name": "[24] Beat L4-1a: The Transit Stop Intro",
+     "file": "data/frightnight/24.json",
+     "duration": 52.857,
+     "paragraphs": 6,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 25,
+     "name": "[25] Beat L4-2a: Don’t Listen to the Security Guard",
+     "file": "data/frightnight/25.json",
+     "duration": 64.286,
+     "paragraphs": 9,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 26,
+     "name": "[26] +1 Beat L4-2aa: Check Chat",
+     "file": "data/frightnight/26.json",
+     "duration": 40.0,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 27,
+     "name": "[27] Beat L4-2b: Retrace Your Steps",
+     "file": "data/frightnight/27.json",
+     "duration": 65.714,
+     "paragraphs": 8,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 3
+    },
+    {
+     "order": 28,
+     "name": "[28] -1 Beat L4-2bb: Check Chat",
+     "file": "data/frightnight/28.json",
+     "duration": 41.429,
+     "paragraphs": 8,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 29,
+     "name": "[29] >=5 Beat L4-3a: Diagnostics",
+     "file": "data/frightnight/29.json",
+     "duration": 22.857,
+     "paragraphs": 5,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    }
+   ]
+  },
+  {
+   "id": "squeaky",
+   "title": "Have You Seen Squeaky?",
+   "source": "WAV, all 10 audio chapters",
+   "chapters": [
+    {
+     "order": 0,
+     "name": "[2] Stop #1: Mailbox",
+     "file": "data/squeaky/0.json",
+     "duration": 85.419,
+     "paragraphs": 8,
+     "unmatched": {
+      "small": 3,
+      "large": 3
+     },
+     "differ": 0
+    },
+    {
+     "order": 1,
+     "name": "[3] Stop #2: Creepy House",
+     "file": "data/squeaky/1.json",
+     "duration": 77.688,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 3,
+      "large": 3
+     },
+     "differ": 2
+    },
+    {
+     "order": 2,
+     "name": "[6] Stop #2: Noisy Garage Door",
+     "file": "data/squeaky/2.json",
+     "duration": 69.903,
+     "paragraphs": 12,
+     "unmatched": {
+      "small": 5,
+      "large": 5
+     },
+     "differ": 1
+    },
+    {
+     "order": 3,
+     "name": "[7] Stop #3: Fire Hydrant",
+     "file": "data/squeaky/3.json",
+     "duration": 113.095,
+     "paragraphs": 9,
+     "unmatched": {
+      "small": 4,
+      "large": 4
+     },
+     "differ": 4
+    },
+    {
+     "order": 4,
+     "name": "[8] Stop #3: Playground Slide",
+     "file": "data/squeaky/4.json",
+     "duration": 80.831,
+     "paragraphs": 10,
+     "unmatched": {
+      "small": 4,
+      "large": 4
+     },
+     "differ": 5
+    },
+    {
+     "order": 5,
+     "name": "[9] Stop #4: Corner Store",
+     "file": "data/squeaky/5.json",
+     "duration": 70.779,
+     "paragraphs": 7,
+     "unmatched": {
+      "small": 3,
+      "large": 3
+     },
+     "differ": 0
+    },
+    {
+     "order": 6,
+     "name": "[10] Stop #4: Swing Set",
+     "file": "data/squeaky/6.json",
+     "duration": 79.955,
+     "paragraphs": 38,
+     "unmatched": {
+      "small": 15,
+      "large": 14
+     },
+     "differ": 2
+    },
+    {
+     "order": 7,
+     "name": "[11] Stop #5: Ball Court",
+     "file": "data/squeaky/7.json",
+     "duration": 83.584,
+     "paragraphs": 12,
+     "unmatched": {
+      "small": 5,
+      "large": 5
+     },
+     "differ": 0
+    },
+    {
+     "order": 8,
+     "name": "[12] Stop #5: Tree",
+     "file": "data/squeaky/8.json",
+     "duration": 50.452,
+     "paragraphs": 34,
+     "unmatched": {
+      "small": 14,
+      "large": 13
+     },
+     "differ": 2
+    },
+    {
+     "order": 9,
+     "name": "[13] Stop #5: Squeaky Victory",
+     "file": "data/squeaky/9.json",
+     "duration": 19.783,
+     "paragraphs": 4,
+     "unmatched": {
+      "small": 2,
+      "large": 2
+     },
+     "differ": 0
+    }
+   ]
+  },
+  {
+   "id": "adelaide",
+   "title": "The Adelaide Time Travel Caper",
+   "source": "MP3, all 15 chapters",
+   "chapters": [
+    {
+     "order": 0,
+     "name": "[1] Buffalo’s Head (Berkeley Hotel) (1925 -> 1838)",
+     "file": "data/adelaide/0.json",
+     "duration": 162.0,
+     "paragraphs": 28,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 1,
+     "name": "[2] Darling House (1866->1901)",
+     "file": "data/adelaide/1.json",
+     "duration": 191.616,
+     "paragraphs": 24,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 0
+    },
+    {
+     "order": 2,
+     "name": "[3] Reconciliation Plaza (Tarntanyangga) (1841 -> 40,000 BC)",
+     "file": "data/adelaide/2.json",
+     "duration": 236.088,
+     "paragraphs": 29,
+     "unmatched": {
+      "small": 3,
+      "large": 3
+     },
+     "differ": 0
+    },
+    {
+     "order": 3,
+     "name": "[4] Railway Station (1838 -> 1926)",
+     "file": "data/adelaide/3.json",
+     "duration": 172.656,
+     "paragraphs": 30,
+     "unmatched": {
+      "small": 3,
+      "large": 3
+     },
+     "differ": 1
+    },
+    {
+     "order": 4,
+     "name": "[5] Light Square (1841 -> 1892)",
+     "file": "data/adelaide/4.json",
+     "duration": 204.048,
+     "paragraphs": 28,
+     "unmatched": {
+      "small": 3,
+      "large": 5
+     },
+     "differ": 4
+    },
+    {
+     "order": 5,
+     "name": "[6] Beehive Corner (1866 –> 1901)",
+     "file": "data/adelaide/5.json",
+     "duration": 163.56,
+     "paragraphs": 29,
+     "unmatched": {
+      "small": 0,
+      "large": 2
+     },
+     "differ": 7
+    },
+    {
+     "order": 6,
+     "name": "[7] Central Markets Tower (1901 -> 1975)",
+     "file": "data/adelaide/6.json",
+     "duration": 211.512,
+     "paragraphs": 33,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 7,
+     "name": "[8] Hindley Street (Austral Stores) (1838 -> 1855)",
+     "file": "data/adelaide/7.json",
+     "duration": 210.072,
+     "paragraphs": 25,
+     "unmatched": {
+      "small": 3,
+      "large": 3
+     },
+     "differ": 2
+    },
+    {
+     "order": 8,
+     "name": "[9] Elder Hall (1925 -> 1908)",
+     "file": "data/adelaide/8.json",
+     "duration": 221.256,
+     "paragraphs": 40,
+     "unmatched": {
+      "small": 4,
+      "large": 3
+     },
+     "differ": 2
+    },
+    {
+     "order": 9,
+     "name": "[10] Parliament House (1925 -> 1939)",
+     "file": "data/adelaide/9.json",
+     "duration": 188.472,
+     "paragraphs": 28,
+     "unmatched": {
+      "small": 4,
+      "large": 3
+     },
+     "differ": 1
+    },
+    {
+     "order": 10,
+     "name": "[11] St Francis Xavier Cathedral (1975 -> 1954)",
+     "file": "data/adelaide/10.json",
+     "duration": 237.816,
+     "paragraphs": 32,
+     "unmatched": {
+      "small": 3,
+      "large": 3
+     },
+     "differ": 3
+    },
+    {
+     "order": 11,
+     "name": "[12] Regent Arcade (1901 -> 1925)",
+     "file": "data/adelaide/11.json",
+     "duration": 213.888,
+     "paragraphs": 28,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 2
+    },
+    {
+     "order": 12,
+     "name": "[13] Whitmore Square (Voyagers Sculpture) (1975 -> 1888)",
+     "file": "data/adelaide/12.json",
+     "duration": 196.272,
+     "paragraphs": 25,
+     "unmatched": {
+      "small": 4,
+      "large": 4
+     },
+     "differ": 0
+    },
+    {
+     "order": 13,
+     "name": "[14] Queens Theatre (1901 -> 1841)",
+     "file": "data/adelaide/13.json",
+     "duration": 206.112,
+     "paragraphs": 29,
+     "unmatched": {
+      "small": 0,
+      "large": 0
+     },
+     "differ": 1
+    },
+    {
+     "order": 14,
+     "name": "[15] Town Hall (Present –> 1866)",
+     "file": "data/adelaide/14.json",
+     "duration": 178.44,
+     "paragraphs": 19,
+     "unmatched": {
+      "small": 2,
+      "large": 2
+     },
+     "differ": 2
+    }
+   ]
+  }
+ ]
+}
