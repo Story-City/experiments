@@ -49,9 +49,9 @@
   },
   {
     "slug": "audio-preview",
-    "path": "audio-preview/?v=2",
+    "path": "audio-preview/?v=3",
     "title": "Story overview: audio preview",
-    "what": "Story overview for Tales from the Incident with an Audio tab. The sample-story character panel is the play control: tap it for the opening lines, the speaker waves while it plays. Tighter spacing, no separate audio button.",
+    "what": "Tales from the Incident overview with badges back. Under Details, a quiet voice snippet: tap the speaker, no outline, no transcript, small character tucked aside so it does not cover the description.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-10",
