@@ -49,9 +49,9 @@
   },
   {
     "slug": "audio-preview",
-    "path": "audio-preview/?v=4",
+    "path": "audio-preview/?v=6",
     "title": "Story overview: audio preview",
-    "what": "Tales from the Incident overview with full cover art and badges. Under Details: Tap to play audio snippet, then live vertical bars from the audio. Character tucked aside.",
+    "what": "Tales from the Incident overview with badges. Under Details, the full-size sample-story character panel: Tap to play audio snippet, speaker waves plus a live sound wave from the actual clip. No outline, no Audio tab.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-10",

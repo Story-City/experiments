@@ -1,7 +1,7 @@
 const SNIPPET_START = 0.768;
 const SNIPPET_END = 9.024;
-const BAR_COUNT = 28;
-const BAR_GAP = 3;
+const BAR_COUNT = 32;
+const BAR_GAP = 2;
 const BAR_MIN = 3;
 const LABEL = 'Tap to play audio snippet';
 
@@ -13,6 +13,36 @@ const start = document.getElementById('start');
 const ctx2d = bars.getContext('2d');
 
 let raf = 0;
+let audioCtx = null;
+let analyser = null;
+let sourceNode = null;
+let freq = null;
+let time = null;
+let wired = false;
+
+function ensureGraph() {
+  if (wired) return analyser != null;
+  wired = true;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return false;
+  try {
+    audioCtx = new Ctx();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.65;
+    sourceNode = audioCtx.createMediaElementSource(clip);
+    sourceNode.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    freq = new Uint8Array(analyser.frequencyBinCount);
+    time = new Uint8Array(analyser.fftSize);
+    return true;
+  } catch (err) {
+    analyser = null;
+    freq = null;
+    time = null;
+    return false;
+  }
+}
 
 function drawBars(values) {
   const w = bars.width;
@@ -37,15 +67,26 @@ function drawBars(values) {
   }
 }
 
-// Vertical dictation-style lines, clocked to the playing snippet.
+// Real waveform from the playing audio: blend time-domain peaks with frequency energy.
 function sampleBars() {
-  const values = new Array(BAR_COUNT);
-  const t = clip.currentTime || 0;
+  const values = new Array(BAR_COUNT).fill(0);
+  if (!analyser || !freq || !time) return values;
+
+  analyser.getByteFrequencyData(freq);
+  analyser.getByteTimeDomainData(time);
+
+  const freqStep = Math.max(1, Math.floor(freq.length / BAR_COUNT));
+  const timeStep = Math.max(1, Math.floor(time.length / BAR_COUNT));
+
   for (let i = 0; i < BAR_COUNT; i += 1) {
-    const voice = Math.abs(Math.sin(t * 11.2 + i * 0.63));
-    const breath = Math.abs(Math.sin(t * 2.7 + i * 1.1));
-    const mid = 1 - Math.abs(i - (BAR_COUNT - 1) / 2) / (BAR_COUNT / 2);
-    values[i] = 0.12 + (0.35 + 0.55 * voice) * (0.35 + 0.65 * breath) * (0.55 + 0.45 * mid);
+    let peak = 0;
+    const t0 = i * timeStep;
+    const t1 = Math.min(time.length, t0 + timeStep);
+    for (let t = t0; t < t1; t += 1) {
+      peak = Math.max(peak, Math.abs(time[t] - 128) / 128);
+    }
+    const energy = (freq[Math.min(freq.length - 1, i * freqStep)] || 0) / 255;
+    values[i] = Math.min(1, peak * 0.75 + energy * 0.55);
   }
   return values;
 }
@@ -85,6 +126,10 @@ async function togglePlay() {
     stopClip();
     return;
   }
+  ensureGraph();
+  if (audioCtx && audioCtx.state === 'suspended') {
+    try { await audioCtx.resume(); } catch (err) { /* ignore */ }
+  }
   if (clip.currentTime >= SNIPPET_END || clip.currentTime < SNIPPET_START) {
     clip.currentTime = SNIPPET_START;
   }
@@ -103,9 +148,7 @@ play.addEventListener('click', (event) => {
   togglePlay();
 });
 clip.addEventListener('ended', stopClip);
-clip.addEventListener('error', () => {
-  setPlaying(false);
-});
+clip.addEventListener('error', () => setPlaying(false));
 
 document.querySelectorAll('[role="tab"]').forEach((tab) => {
   tab.addEventListener('click', () => {
