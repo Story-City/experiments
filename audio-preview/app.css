@@ -11,6 +11,7 @@
   --gap: 8px;
   --sprite-w: 88px;
   --sprite-h: 79px;
+  --bar: #b9e5ff;
 }
 
 * { box-sizing: border-box; }
@@ -49,25 +50,28 @@ button { font: inherit; color: inherit; }
   cursor: pointer;
 }
 
+/* Match story overview media card: tall gallery so the full art reads. */
 .cover {
   position: relative;
-  flex: 0 0 44%;
-  min-height: 220px;
+  flex: 0 0 66%;
+  min-height: 280px;
   overflow: hidden;
+  background: #0a0618;
 }
 .cover img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 30%;
+  object-fit: contain;
+  object-position: center center;
 }
 .scrim {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 58%;
-  background: linear-gradient(transparent, rgba(23, 12, 53, 0.72) 50%, rgba(23, 12, 53, 0.92));
+  height: 42%;
+  background: linear-gradient(transparent, rgba(23, 12, 53, 0.75) 45%, rgba(23, 12, 53, 0.96));
+  pointer-events: none;
 }
 .on-cover {
   position: absolute;
@@ -75,6 +79,7 @@ button { font: inherit; color: inherit; }
   right: 0;
   bottom: 0;
   padding: 4px 16px 10px;
+  pointer-events: none;
 }
 .author {
   margin: 0 0 2px;
@@ -112,6 +117,7 @@ button { font: inherit; color: inherit; }
 
 .rest {
   flex: 1;
+  min-height: 0;
   overflow-x: clip;
   overflow-y: auto;
   padding: var(--gap) 16px calc(12px + env(safe-area-inset-bottom));
@@ -186,7 +192,6 @@ button { font: inherit; color: inherit; }
   font-size: 14px;
 }
 
-/* Quiet voice test under the description — no box, no outline, sprite tucked aside. */
 .voice {
   position: relative;
   display: flex;
@@ -194,49 +199,52 @@ button { font: inherit; color: inherit; }
   min-height: var(--sprite-h);
   margin-top: 4px;
   padding-right: calc(var(--sprite-w) * 0.55);
+  z-index: 1;
 }
+
 .voice-play {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  padding: 0;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 16px;
   border: 0;
-  border-radius: 16px;
+  border-radius: 14px;
   background: linear-gradient(45deg, var(--blue-700), var(--blue-500));
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 .voice-play.pressed { background: linear-gradient(45deg, var(--blue-500), var(--blue-700)); }
 
-.audio-icon { display: block; }
-.audio-icon .wave-near,
-.audio-icon .wave-far {
-  transform-origin: 8px 17px;
-  opacity: 0.3;
+.voice-label {
+  font-family: "Darker Grotesque", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text);
+  text-align: center;
+  user-select: none;
 }
-.voice-play.playing .wave-near {
-  animation: wave-near 0.9s ease-in-out infinite;
-}
-.voice-play.playing .wave-far {
-  animation: wave-far 0.9s ease-in-out infinite 0.15s;
-}
-@keyframes wave-near {
-  0%, 100% { opacity: 0.3; transform: scale(0.92); }
-  50% { opacity: 1; transform: scale(1); }
-}
-@keyframes wave-far {
-  0%, 100% { opacity: 0.15; transform: scale(0.88); }
-  50% { opacity: 1; transform: scale(1); }
+
+.voice-bars {
+  display: block;
+  width: 220px;
+  max-width: 70%;
+  height: 36px;
 }
 
 .sprite {
   position: absolute;
   right: -8px;
   bottom: 0;
+  z-index: 0;
   width: var(--sprite-w);
   height: var(--sprite-h);
   object-fit: contain;
   object-position: right bottom;
   pointer-events: none;
-  opacity: 0.92;
+  opacity: 0.9;
 }
