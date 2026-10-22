@@ -382,7 +382,7 @@ function alignGlyphs(){
 // (new ones every time), `rings: [[…], …]` lists each ring's words, and with neither it's the whole alphabet.
 // The rings are endless strips rather than fixed wheels: each draws only what's near the window, evenly spaced,
 // and the list runs straight back round to its start — so nothing is spread thin and there's never a gap. ----------
-const DIAL = { cx: 180, cy: 521, inner: 183, outer: 503, crop: 383, gap: 1.35 };   // a big wheel seen through a narrow window; crop: how much of its top is visible
+const DIAL = { cx: 180, cy: 838, inner: 500, outer: 820, crop: 383, gap: 1.35 };   // a very big wheel seen through a narrow window, so the rings curve gently; crop: how much of its top is visible
 const DIAL_FONT = `system-ui, -apple-system, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif`;   // matches .dial .ring text
 const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 let rings = [];           // { g, syms, M, r, deg, K, texts, step, p, raf } — step: whole turns clockwise (any integer); p: where it's drawn (eases to step)
