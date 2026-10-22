@@ -6,7 +6,6 @@ const READ_PAUSE_MS = 650;
 const HINT_IDLE_MS = 1000;
 const HINT_FADE_MS = 280;
 
-// Copied from mobile-rn ScriptedFtue Summons script (dialogue + choices only).
 const BEATS = [
   {
     id: 'opening',
@@ -34,7 +33,6 @@ const BEATS = [
 ];
 
 const thread = document.getElementById('thread');
-const dock = document.getElementById('dock');
 const choicesEl = document.getElementById('choices');
 
 let hintAnim = null;
@@ -78,7 +76,7 @@ function showTyping() {
   row.className = 'typing';
   row.id = 'typing';
   row.innerHTML = '<i></i><i></i><i></i>';
-  thread.append(row);
+  thread.insertBefore(row, choicesEl);
   scrollEnd();
 }
 
@@ -90,7 +88,7 @@ function addMessage(text, mine) {
   const el = document.createElement('div');
   el.className = mine ? 'msg me' : 'msg';
   el.textContent = text;
-  thread.append(el);
+  thread.insertBefore(el, choicesEl);
   scrollEnd();
 }
 
@@ -150,12 +148,14 @@ function attachHint(button) {
 function clearChoices() {
   destroyHint();
   choicesEl.replaceChildren();
-  dock.hidden = true;
+  choicesEl.hidden = true;
+  choicesEl.classList.remove('is-on');
 }
 
 function showChoices(options) {
   clearChoices();
-  dock.hidden = false;
+  choicesEl.hidden = false;
+  choicesEl.classList.add('is-on');
   let firstButton = null;
 
   options.forEach((option, index) => {
@@ -172,6 +172,12 @@ function showChoices(options) {
 
   attachHint(firstButton);
   scrollEnd();
+}
+
+function clearThreadMessages() {
+  [...thread.children].forEach((node) => {
+    if (node !== choicesEl) node.remove();
+  });
 }
 
 async function playMessages(messages) {
@@ -196,7 +202,7 @@ async function onChoice(label) {
   beatIndex += 1;
   if (beatIndex >= BEATS.length) {
     beatIndex = 0;
-    thread.replaceChildren();
+    clearThreadMessages();
   }
 
   busy = false;

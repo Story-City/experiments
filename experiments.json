@@ -1,9 +1,9 @@
 [
   {
     "slug": "ftue-choice-hints",
-    "path": "ftue-choice-hints/?v=11",
+    "path": "ftue-choice-hints/?v=12",
     "title": "FTUE sample story choices",
-    "what": "Real Summons beats: opening (1 reply), then mailbox (2 replies). White tap-hand overlaps the first option corner; fades in after 1s idle, fades out on pick.",
+    "what": "Real Summons beats: opening (1 reply), then mailbox (2 replies). Choices sit in the chat footer like the app — no dock tray. Tap-hand overlaps first option.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-10",
