@@ -207,18 +207,18 @@ body {
   transform: scale(0.97);
 }
 
-/* Mirrored to the starting edge — nudged outside the bubble so it clears the copy. */
+/* Mirrored on the start side — mostly outside the bubble; fingertip only grazes the corner. */
 .choice .tap-hint {
   position: absolute;
-  left: -28px;
+  left: calc(-1 * var(--hint-size) + 4px);
   right: auto;
-  bottom: -14px;
+  bottom: -18px;
   width: var(--hint-size);
   height: var(--hint-size);
   pointer-events: none;
   z-index: 4;
   opacity: 0;
-  transform: scaleX(-1) rotate(-24deg);
+  transform: scaleX(-1) rotate(-18deg);
   transition: opacity var(--hint-fade-ms) ease;
   filter: brightness(0) invert(1);
 }
