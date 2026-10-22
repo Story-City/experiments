@@ -1,5 +1,5 @@
 // Code entry (V0.5): the end of The Summons. The player enters the code from the letter's wax seal
-// on a glowing in-page keypad. Words live in story.js; this file is behaviour and drawing only.
+// on a glowing in-page keypad (?v=digits, ?v=letters, or the vault-style ?v=glow). Words live in story.js; this file is behaviour and drawing only.
 const { STORY, VARIANTS } = await import(`./story.js${window.CACHE_V || ''}`);
 
 const $ = id => document.getElementById(id);
@@ -9,7 +9,7 @@ const JUMP = /code/.test(location.hash);   // testers' shortcut: #code jumps str
 let vKey = pick();
 let V = VARIANTS[vKey];
 
-// ---------- art (CSS/SVG only, no image files) ----------
+// ---------- art (CSS/SVG; a variant's clue can be an image file instead, see story.js) ----------
 const HOOD = `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4c-8 0-13 7-13 15v17h26V19C33 11 28 4 20 4z" fill="#7c62c9"/><ellipse cx="20" cy="21" rx="7.5" ry="9" fill="#170c35"/><circle cx="17" cy="21" r="1.2" fill="#c9a2ff"/><circle cx="23" cy="21" r="1.2" fill="#c9a2ff"/></svg>`;
 
 // The Society's symbol (same mark as the hoodie and the seal in the FTUE letter): ring, triangle, dot.
@@ -48,29 +48,36 @@ function dropSpot(p){
 </svg>`;
 }
 
-// Wax seal on the envelope, magnified. Gold characters across the middle; the symbol above them.
-function seal(code){
-  const cx = 180, cy = 150, pts = [];
-  for (let i = 0; i < 64; i++) {
-    const a = i / 64 * Math.PI * 2, r = 124 + 6 * Math.sin(a * 7) + 4 * Math.sin(a * 13 + 1);
+// The whole envelope, face down, with a small wax seal at the flap's tip. The code is small on purpose:
+// the player presses and drags the loupe over the seal to read it. p prefixes ids (the loupe draws a second copy).
+function envelope(code, p, decorative){
+  const cx = 180, cy = 132, pts = [];
+  for (let i = 0; i < 48; i++) {
+    const a = i / 48 * Math.PI * 2, r = 25 + 1.4 * Math.sin(a * 7) + 1 * Math.sin(a * 13 + 1);
     pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
   }
   const blob = 'M' + pts.map(([x, y]) => x.toFixed(1) + ' ' + y.toFixed(1)).join(' L') + ' Z';
   const big = code.length <= 6;
-  return `<svg viewBox="0 0 360 300" preserveAspectRatio="xMidYMid meet" style="overflow:visible" role="img" aria-label="${V.sealLabel}">
+  const label = decorative ? 'aria-hidden="true"' : `role="img" aria-label="${V.sealLabel}"`;
+  return `<svg viewBox="0 0 360 250" preserveAspectRatio="xMidYMid meet" ${label}>
   <defs>
-    <radialGradient id="sw" cx="0.38" cy="0.32" r="0.75"><stop offset="0" stop-color="#d9463b"/><stop offset="0.55" stop-color="#8e1a17"/><stop offset="1" stop-color="#560b09"/></radialGradient>
-    <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset="0.5" stop-color="#f5c95a"/><stop offset="1" stop-color="#c8912b"/></linearGradient>
+    <linearGradient id="${p}pa" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6ead0"/><stop offset="1" stop-color="#dcc28a"/></linearGradient>
+    <linearGradient id="${p}fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efdfb6"/><stop offset="1" stop-color="#d9bd84"/></linearGradient>
+    <radialGradient id="${p}sw" cx="0.38" cy="0.32" r="0.75"><stop offset="0" stop-color="#d9463b"/><stop offset="0.55" stop-color="#8e1a17"/><stop offset="1" stop-color="#560b09"/></radialGradient>
+    <linearGradient id="${p}sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset="0.5" stop-color="#f5c95a"/><stop offset="1" stop-color="#c8912b"/></linearGradient>
   </defs>
-  <g stroke="#8b6b3a" stroke-width="2.5" opacity="0.7" fill="none"><path d="M-400 -260 L${cx} ${cy} L760 -260"/><path d="M-400 560 L${cx} ${cy + 40} L760 560" opacity="0.5"/></g>
-  <path d="${blob}" fill="url(#sw)" transform="translate(4 8)" opacity="0.35" style="filter:blur(4px)"/>
-  <path d="${blob}" fill="url(#sw)"/>
-  <circle cx="${cx}" cy="${cy}" r="98" fill="none" stroke="#5a0c0a" stroke-width="6" opacity="0.65"/>
-  <circle cx="${cx}" cy="${cy}" r="94" fill="none" stroke="#e8584c" stroke-width="1.5" opacity="0.5"/>
-  <ellipse cx="${cx - 52}" cy="${cy - 62}" rx="26" ry="12" fill="#fff" opacity="0.14" transform="rotate(-30 ${cx - 52} ${cy - 62})"/>
-  ${symbol(cx, cy - 46, 22, 'url(#sg)', 3.5)}
-  <text x="${cx}" y="${cy + 42}" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="${big ? 50 : 40}"
-    textLength="${big ? 168 : 172}" lengthAdjust="spacingAndGlyphs" fill="url(#sg)" stroke="#3a0705" stroke-width="1.2" paint-order="stroke">${code}</text>
+  <rect x="38" y="42" width="290" height="182" rx="6" fill="#000" opacity="0.35" transform="translate(5 7)" style="filter:blur(5px)"/>
+  <rect x="35" y="38" width="290" height="182" rx="6" fill="url(#${p}pa)"/>
+  <path d="M35 220 L150 128 M325 220 L210 128" stroke="#b89a5e" stroke-width="1.2" opacity="0.55"/>
+  <path d="M35 38 H325 L${cx} ${cy + 6} Z" fill="url(#${p}fl)" stroke="#b89a5e" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M41 42 H319" stroke="#fff" stroke-width="1" opacity="0.5"/>
+  <path d="${blob}" fill="url(#${p}sw)" transform="translate(1.5 3)" opacity="0.35" style="filter:blur(2px)"/>
+  <path d="${blob}" fill="url(#${p}sw)"/>
+  <circle cx="${cx}" cy="${cy}" r="20" fill="none" stroke="#5a0c0a" stroke-width="1.6" opacity="0.65"/>
+  <ellipse cx="${cx - 10}" cy="${cy - 12}" rx="6" ry="2.6" fill="#fff" opacity="0.16" transform="rotate(-30 ${cx - 10} ${cy - 12})"/>
+  ${symbol(cx, cy - 8, 6.5, `url(#${p}sg)`, 1.2)}
+  <text x="${cx}" y="${cy + 11}" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="${big ? 9.5 : 8}"
+    textLength="${big ? 30 : 31}" lengthAdjust="spacingAndGlyphs" fill="url(#${p}sg)" stroke="#3a0705" stroke-width="0.3" paint-order="stroke">${code}</text>
 </svg>`;
 }
 
@@ -180,7 +187,7 @@ function setVariant(k){
   const u = new URL(location.href); u.searchParams.set('v', k); u.hash = ''; history.replaceState(null, '', u);
 }
 setVariant(vKey);
-['topAva', 'sayAva', 'winAva'].forEach(id => $(id).innerHTML = HOOD);
+['topAva', 'winAva'].forEach(id => $(id).innerHTML = HOOD);
 $('topSender').textContent = STORY.sender;
 $('topChapter').textContent = STORY.chapter;
 $('codeTitle').textContent = STORY.chapter;
@@ -189,7 +196,7 @@ $('helpBtn').setAttribute('aria-label', STORY.help);
 let runId = 0;
 function show(id){ ['start', 'chat', 'code', 'win'].forEach(s => $(s).hidden = s !== id); }
 function toStart(){ runId++; show('start'); }
-$('startBtn').onclick = () => { audio(); startChat(); };
+$('startBtn').onclick = () => { audio(); openCode(); };   // no lead-in: Start goes straight to the code (the chat beats in story.js are unused for now)
 $('chatBack').onclick = toStart;
 $('codeBack').onclick = toStart;
 
@@ -238,34 +245,111 @@ async function startChat(){
   }
 }
 
+// ---------- the loupe: press and drag on the envelope to magnify. A ringless glass bubble whose edge fades into the picture ----------
+const ZOOM = 2.5;
+const MAG_SVG = `<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>`;
+let loupeOn = false, loupeUsed = false;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function loupeAt(e){
+  const lens = $('lens'), L = $('loupe'); if (!L) return;
+  const r = lens.getBoundingClientRect(), D = L.offsetWidth, R = D / 2;
+  const x = clamp(e.clientX - r.left, 0, r.width), y = clamp(e.clientY - r.top, 0, r.height);
+  const lift = e.pointerType === 'mouse' ? 0 : R + 22;      // sit above the finger so it doesn't hide the view
+  let cx = x, cy = y - lift;
+  if (lift && cy < R) cx = x > r.width / 2 ? x - lift : x + lift;   // no room above: move to the side instead
+  cx = clamp(cx, R, r.width - R); cy = clamp(cy, R, r.height - R);
+  L.style.transform = `translate(${cx - R}px, ${cy - R}px)`;
+  const img = lens.querySelector('.clue');
+  if (img) {   // clue picture: the loupe is the same image as a background, ZOOM times the size it's drawn at
+    const b = drawnBox(img, r);
+    L.style.backgroundSize = `${b.w * ZOOM}px ${b.h * ZOOM}px`;
+    L.style.backgroundPosition = `${R - (x - b.x) * ZOOM}px ${R - (y - b.y) * ZOOM}px`;
+    return;
+  }
+  const svg = L.firstElementChild;
+  svg.style.width = r.width * ZOOM + 'px'; svg.style.height = r.height * ZOOM + 'px';
+  svg.style.left = (R - x * ZOOM) + 'px'; svg.style.top = (R - y * ZOOM) + 'px';
+}
+// Where the picture is actually drawn inside the panel (object-fit cover or contain, with object-position).
+function drawnBox(img, r){
+  const nw = img.naturalWidth || r.width, nh = img.naturalHeight || r.height, cs = getComputedStyle(img);
+  const s = (cs.objectFit === 'contain' ? Math.min : Math.max)(r.width / nw, r.height / nh);
+  const w = nw * s, h = nh * s, [px, py] = cs.objectPosition.split(' ').map(v => parseFloat(v) / 100);
+  return { w, h, x: (r.width - w) * (isNaN(px) ? 0.5 : px), y: (r.height - h) * (isNaN(py) ? 0.5 : py) };
+}
+function loupeEnd(){
+  if (!loupeOn) return;
+  loupeOn = false; $('lens').classList.remove('peek');
+  if (!loupeUsed) { loupeUsed = true; const h = $('loupeHint'); if (h) h.classList.add('gone'); }
+}
+{
+  const lens = $('lens');
+  lens.addEventListener('pointerdown', e => {
+    if (!e.isPrimary || !$('loupe')) return;
+    e.preventDefault(); idle();
+    try { lens.setPointerCapture(e.pointerId); } catch (err) {}
+    loupeOn = true; loupeAt(e); lens.classList.add('peek');
+  });
+  lens.addEventListener('pointermove', e => { if (loupeOn) loupeAt(e); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => lens.addEventListener(t, loupeEnd));
+  lens.addEventListener('contextmenu', e => e.preventDefault());
+}
+
 // ---------- code entry ----------
 const boxesEl = $('boxes'), keypadEl = $('keypad'), sayLine = $('sayLine'), solveBtn = $('solveBtn');
 let entry = '', busy = false, tier = 0, hintsUsed = 0, wrongs = 0, idleTimer = 0;
 const N = () => V.answer.length;
 
 const BACK_SVG = `<svg viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12z"/><path d="M12.5 9.5l5 5M17.5 9.5l-5 5"/></svg>`;
+// Glow keypad * and #: thin strokes drawn as tall as the digits and centred on them (a typed * sits small and high)
+const GLYPH_SVG = {
+  '*': `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5v21M2.91 6.75l18.18 10.5M2.91 17.25l18.18-10.5"/></svg>`,
+  '#': `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.6 1.5L7.4 22.5M16.6 1.5L14.4 22.5M3.5 8H21M3 16h17.5"/></svg>`,
+};
 const SEND_SVG = `<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>`;
 function buildKeypad(){
-  const chars = V.keypad === 'letters' ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') : '123456789'.split('');
-  const keys = V.keypad === 'letters' ? [...chars, 'back', 'send'] : [...chars, 'back', '0', 'send'];
-  keypadEl.className = 'keypad' + (V.keypad === 'letters' ? ' letters' : '');
+  const letters = V.keypad === 'letters', glow = V.style === 'glow';
+  const chars = letters ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') : '123456789'.split('');
+  const keys = letters ? [...chars, 'back', 'send'] : [...chars, 'back', '0', 'send'];
+  keypadEl.className = 'keypad' + (letters ? ' letters' : '') + (glow ? ' glow' : '');
+  $('code').classList.toggle('glow', glow); $('code').classList.toggle('letters', letters);
   keypadEl.innerHTML = '';
   keys.forEach((k, i) => {
     const b = document.createElement('button');
     b.className = 'key' + (k === 'send' ? ' send' : k === 'back' ? ' back' : '');
     b.dataset.k = k; b.style.setProperty('--i', i);
-    if (k === 'back') { b.innerHTML = BACK_SVG; b.setAttribute('aria-label', 'Delete'); }
+    // Glow keypads: a symbol with a tiny label underneath (* / # like a door keypad), or a short word (DEL / ENTER)
+    if (glow && (k === 'back' || k === 'send')) {
+      const face = k === 'back' ? V.backKey : V.sendKey, label = k === 'back' ? V.backLabel : V.sendLabel;
+      b.innerHTML = face.length > 1 ? `<span class="ch word">${face}</span>` : (GLYPH_SVG[face] ? `<span class="ch glyph">${GLYPH_SVG[face]}</span>` : `<span class="ch">${face}</span>`) + `<small>${label}</small>`;
+      b.setAttribute('aria-label', label);
+    }
+    else if (k === 'back') { b.innerHTML = BACK_SVG; b.setAttribute('aria-label', 'Delete'); }
     else if (k === 'send') { b.innerHTML = SEND_SVG; b.setAttribute('aria-label', 'Send'); }
     else b.textContent = k;
     b.addEventListener('pointerdown', e => { e.preventDefault(); press(k, b); });
     b.addEventListener('click', e => { if (e.detail === 0) press(k, b); });   // keyboard / screen reader activation
     keypadEl.appendChild(b);
   });
+  if (glow) alignGlyphs();
+}
+// Size the drawn * and # to a digit's real height and move them onto the digits' centre line, using the font's own metrics.
+function alignGlyphs(){
+  const zero = keypadEl.querySelector('[data-k="0"]'); if (!zero) return;
+  const cs = getComputedStyle(zero), c = document.createElement('canvas').getContext('2d');
+  c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const m = c.measureText('0');
+  const h = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+  const dy = (m.fontBoundingBoxAscent - m.fontBoundingBoxDescent) / 2 - (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
+  if (!h || isNaN(dy)) return;
+  keypadEl.style.setProperty('--glyph-h', h.toFixed(1) + 'px');
+  keypadEl.style.setProperty('--glyph-dy', dy.toFixed(1) + 'px');
 }
 function sizeBoxes(){
-  const n = N(), gap = n > 6 ? 7 : 8, avail = Math.min($('phone').clientWidth, 440) - 32;
+  if (!boxesEl.clientWidth) return;   // code screen hidden
+  const n = N(), gap = n > 6 ? 4 : 6, avail = boxesEl.clientWidth - 20;   // the field's own width (it matches the keypad) less its padding
   boxesEl.style.setProperty('--gap', gap + 'px');
-  boxesEl.style.setProperty('--bw', Math.min(50, Math.floor((avail - gap * (n - 1)) / n)) + 'px');
+  boxesEl.style.setProperty('--bw', Math.min(44, Math.floor((avail - gap * (n - 1)) / n)) + 'px');
 }
 function renderBoxes(popAt = -1){
   const n = N();
@@ -276,14 +360,18 @@ function renderBoxes(popAt = -1){
     d.classList.toggle('next', i === entry.length && !busy);
     d.classList.toggle('pop', i === popAt);
   });
-  boxesEl.setAttribute('aria-label', entry.length ? `Entered ${entry.split('').join(' ')}, ${entry.length} of ${n}` : `Nothing entered yet, ${n} to go`);
+  boxesEl.setAttribute('aria-label', 'Code: ' + (entry.length ? `${entry.split('').join(' ')}, ${entry.length} of ${n}` : `nothing entered yet, ${n} to go`));
+  [...boxesEl.children].forEach(d => d.setAttribute('aria-hidden', 'true'));
   keypadEl.querySelector('.send').classList.toggle('ready', entry.length === n);
 }
+// The line under the label: hints stay until the next message, wrong-answer replies fade after a few seconds.
+let sayTimer = 0;
 function say(text, kind = ''){
+  clearTimeout(sayTimer);
   setText($('sayText'), text);
   sayLine.className = 'say-line ' + kind;
   void sayLine.offsetWidth; sayLine.classList.add('fresh');
-  fitBubble($('sayText'));
+  if (kind === 'bad' || kind === 'note') sayTimer = setTimeout(() => { sayLine.classList.add('faded'); sayTimer = setTimeout(() => { $('sayText').textContent = ''; }, 500); }, 4000);
 }
 function markHints(){
   $('hintsUsed').hidden = hintsUsed === 0;
@@ -294,12 +382,19 @@ function nudgeHelp(){ const h = $('helpBtn'); h.classList.remove('nudge'); void 
 function idle(){ clearTimeout(idleTimer); idleTimer = setTimeout(() => { if (!$('code').hidden && !busy) nudgeHelp(); }, 15000); }
 
 function openCode(){
+  runId++;
   entry = ''; busy = false; tier = 0; hintsUsed = 0; wrongs = 0;
   show('code');
-  $('lens').innerHTML = seal(V.answer);
+  // The clue: Victoria's art when the variant names an image, otherwise the drawn envelope with the answer on its seal.
+  const clue = V.image
+    ? `<img class="clue" src="${V.image}" alt="${V.imageAlt || V.sealLabel}" draggable="false">` +
+      `<div class="loupe img" id="loupe" aria-hidden="true" style="background-image:url('${V.image}')"></div>`
+    : envelope(V.answer, 'e') + `<div class="loupe" id="loupe" aria-hidden="true">${envelope(V.answer, 'm', true)}</div>`;
+  $('lens').innerHTML = clue +
+    `<div class="loupe-hint${loupeUsed ? ' gone' : ''}" id="loupeHint" aria-hidden="true">${MAG_SVG}<span>${STORY.loupeHint}</span></div>`;
   buildKeypad(); sizeBoxes(); boxesEl.className = 'boxes'; boxesEl.innerHTML = ''; renderBoxes();
   solveBtn.hidden = true; setText(solveBtn, V.solve); markHints();
-  say(V.prompt);
+  setText($('codeLabel'), V.codeLabel); say('');
   idle();
 }
 function flashKey(k){
@@ -311,7 +406,7 @@ function press(k, btn){
   idle();
   if (btn) flashKey(k);
   if (k === 'back') { if (!entry) return; entry = entry.slice(0, -1); sfx.back(); buzz(6); renderBoxes(); return; }
-  if (k === 'send') { if (entry.length < N()) { say(V.notFull); sfx.back(); return; } check(); return; }
+  if (k === 'send') { if (entry.length < N()) { say(V.notFull, 'note'); sfx.back(); return; } check(); return; }
   if (entry.length >= N()) return;
   entry += k; sfx.key(); buzz(8); renderBoxes(entry.length - 1);
 }
@@ -355,7 +450,9 @@ addEventListener('keydown', e => {
   const k = e.key.length === 1 ? e.key.toUpperCase() : e.key;
   if (k === 'Backspace') press('back', true);
   else if (k === 'Enter') { e.preventDefault(); press('send', true); }
-  else if (V.keypad === 'digits' ? /^[0-9]$/.test(k) : /^[A-Z]$/.test(k)) press(k, true);
+  else if (V.backKey === '*' && k === '*') press('back', true);
+  else if (V.sendKey === '#' && k === '#') press('send', true);
+  else if (V.keypad === 'letters' ? /^[A-Z]$/.test(k) : /^[0-9]$/.test(k)) press(k, true);
 });
 
 // ---------- right: the staircase ----------
@@ -371,9 +468,9 @@ async function right(){
   $('winEyebrow').textContent = STORY.win.eyebrow;
   setText($('winTitle'), STORY.win.title);
   $('againBtn').textContent = STORY.win.again;
-  const other = vKey === 'digits' ? 'letters' : 'digits';
+  const other = STORY.win.otherTo[vKey];
   setText($('otherBtn'), STORY.win.other[vKey]);
-  $('otherBtn').onclick = () => { setVariant(other); startChat(); };
+  $('otherBtn').onclick = () => { setVariant(other); openCode(); };
   show('win');
   await sleep(120); w.classList.add('rumble', 'open'); rumbleSound(); buzz([200, 80, 300]);
   await sleep(1400); if (id !== runId) return;
@@ -395,6 +492,6 @@ function sparks(){
     w.appendChild(s); setTimeout(() => s.remove(), 3400);
   }
 }
-$('againBtn').onclick = () => startChat();
+$('againBtn').onclick = () => openCode();
 
 if (JUMP) openCode();

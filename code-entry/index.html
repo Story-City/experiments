@@ -28,6 +28,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
         <span id="abLabel"></span>
         <button data-v="digits"></button>
         <button data-v="letters"></button>
+        <button data-v="glow"></button>
       </div>
     </div>
   </section>
@@ -61,11 +62,11 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 
     <div class="lens" id="lens"></div>
 
-    <div class="say-line" id="sayLine" aria-live="polite">
-      <div class="ava" id="sayAva"></div>
-      <div class="bub" id="sayText"></div>
-    </div>
     <button class="solve" id="solveBtn" hidden></button>
+    <div class="say-line" id="sayLine">
+      <p class="say-text" id="sayText" aria-live="polite"></p>
+      <h2 class="code-label" id="codePrompt"><span id="codeLabel"></span></h2>
+    </div>
 
     <div class="boxes" id="boxes" role="status" aria-live="polite"></div>
     <div class="keypad" id="keypad"></div>
