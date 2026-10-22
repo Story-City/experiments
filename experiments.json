@@ -61,9 +61,9 @@
   },
   {
     "slug": "audio-preview",
-    "path": "audio-preview/?v=17&c=brighid",
+    "path": "audio-preview/?v=18&c=brighid",
     "title": "Story overview: audio preview",
-    "what": "Meet the cast first in Details (title tight above tip for bigger sprites). Hooded guide + Brighid.",
+    "what": "Meet the cast first in Details, higher on the screen. Slightly smaller sprites; titleLarge ExtraBold head.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-10",

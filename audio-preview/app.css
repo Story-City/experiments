@@ -9,15 +9,17 @@
   --blue-800: #0259a1;
   --chip-border: #676767;
   --gap: 8px;
-  /* Tip sprite: a bit larger than FTUE elf; tip-room clears the overhang. */
-  --elf-w: 196px;
-  --elf-h: 188px;
-  --elf-overhang: 16px;
-  --elf-clearance: 178px;
-  --tip-room: 72px;
+  /* Tip sprite — near DecryptPuzzle elf (168×151), tip-room clears the overhang. */
+  --elf-w: 176px;
+  --elf-h: 164px;
+  --elf-overhang: 14px;
+  --elf-clearance: 160px;
+  --tip-room: 44px;
   --tip-radius: 28px;
   --tip-h: 118px;
   --tip-copy-h: 40px;
+  /* V2 titleLarge + ExtraBold weight for section heads. */
+  --title-size: 22px;
 }
 
 * { box-sizing: border-box; }
@@ -58,8 +60,8 @@ button { font: inherit; color: inherit; }
 
 .cover {
   position: relative;
-  flex: 0 0 52%;
-  min-height: 240px;
+  flex: 0 0 38%;
+  min-height: 180px;
   overflow: hidden;
   background: #0a0618;
 }
@@ -197,15 +199,17 @@ button { font: inherit; color: inherit; }
   font-size: 14px;
 }
 
-/* Tip-room padding above this title is the overhang for bigger sprites. */
+/* Tip-room padding above this title is the overhang for the sprite. */
 .section-title {
   position: relative;
   z-index: 1;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   padding-right: var(--elf-clearance);
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.2;
+  font-family: "Darker Grotesque", sans-serif;
+  font-size: var(--title-size);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
   color: var(--text);
 }
 
