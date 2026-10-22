@@ -85,9 +85,8 @@ export const VARIANTS = {
     blurb: 'Turn the rings to line up the word',
     answer: 'CRUMB',
     keypad: 'dial',
-    // One ring per letter, outer ring first. Each ring carries ten letters (the right one plus decoys).
-    rings: ['CAEHLNSTWY', 'RBDGIMOPUZ', 'UACEKNQSVX', 'MBFHJLORTW', 'BADEGINPSU'],
-    startAt: [4, 7, 3, 6, 5],   // how many letters past the answer each ring starts, so none starts solved
+    // One ring per letter, outer ring first. Every ring carries the whole alphabet, in order.
+    startAt: [7, 15, 4, 19, 11],   // how many letters past the answer each ring starts, so none starts solved
     chat: [
       { say: 'You found it.' },
       { image: 'dropspot', alt: 'A glowing mail slot floating in midair, with glowing buttons beside it and the hoodie symbol above' },

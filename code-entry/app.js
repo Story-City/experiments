@@ -355,40 +355,42 @@ function alignGlyphs(){
   keypadEl.style.setProperty('--glyph-dy', dy.toFixed(1) + 'px');
 }
 // ---------- the dial: one ring per letter, outer ring first. Drag a ring (or tap a letter) to turn it;
-// the letters under the gold notch, read outside in, spell the word. The centre hub sends it. ----------
-const DIAL = { c: 180, hub: 44, inner: 56, outer: 166 };
-let rings = [];           // { g, letters, step } — step counts whole 36° turns clockwise (any integer)
+// the letters under the gold notch, read outside in, spell the word. Only the top of the wheel shows
+// (crop, the dial's centre sits below the window) — like the window of a combination lock. SEND sits under it. ----------
+const DIAL = { cx: 180, cy: 222, inner: 85, outer: 210, crop: 150 };   // crop: how much of the wheel's top is visible
+const STEP = 360 / 26;    // every ring carries the whole alphabet, in order
+let rings = [];           // { g, step } — step counts whole one-letter turns clockwise (any integer)
 let activeRing = 0;       // keyboard: ↑/↓ pick a ring, ←/→ turn it, or type the letter you want on top
-const mod10 = x => ((x % 10) + 10) % 10;
-const topIndex = r => mod10(-r.step);
-const dialWord = () => rings.map(r => r.letters[topIndex(r)]).join('');
+const mod26 = x => ((x % 26) + 26) % 26;
+const topIndex = r => mod26(-r.step);
+const dialWord = () => rings.map(r => String.fromCharCode(65 + topIndex(r))).join('');
 
 function buildDial(){
-  const n = N(), bandW = (DIAL.outer - DIAL.inner) / n, c = DIAL.c;
-  let svg = `<svg viewBox="0 0 360 360" aria-hidden="true">`;
-  for (let i = 0; i <= n; i++) svg += `<circle class="${i ? 'sep' : 'sep rim'}" cx="${c}" cy="${c}" r="${DIAL.outer - i * bandW}"/>`;
-  svg += `<circle class="sep rim" cx="${c}" cy="${c}" r="${DIAL.hub + 4}"/>`;
-  svg += `<path class="notch" d="M${c - 8} 2 h16 l-8 11 z"/>`;
-  V.rings.forEach((set, i) => {
-    const r = DIAL.outer - (i + 0.5) * bandW, fs = Math.round(10 + r * 0.055);
-    svg += `<g class="ring" data-i="${i}">` + set.split('').map((ch, k) => {
-      const a = k * 36 * Math.PI / 180, x = c + r * Math.sin(a), y = c - r * Math.cos(a);
-      return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${fs}" transform="rotate(${k * 36} ${x.toFixed(1)} ${y.toFixed(1)})">${ch}</text>`;
-    }).join('') + `</g>`;
-  });
+  const n = N(), bandW = (DIAL.outer - DIAL.inner) / n, cx = DIAL.cx, cy = DIAL.cy;
+  let svg = `<svg viewBox="0 0 360 ${DIAL.crop}" aria-hidden="true">`;
+  for (let i = 0; i <= n; i++) svg += `<circle class="${i ? 'sep' : 'sep rim'}" cx="${cx}" cy="${cy}" r="${DIAL.outer - i * bandW}"/>`;
+  svg += `<path class="notch" d="M${cx - 8} 2 h16 l-8 11 z"/>`;
+  for (let i = 0; i < n; i++) {
+    const r = DIAL.outer - (i + 0.5) * bandW, fs = Math.round(10 + r * 0.03);
+    // every letter is drawn at the top of the wheel, dead centre, then rotated into place about the
+    // wheel's centre — so whichever letter sits under the notch is exactly on the vertical centre line
+    svg += `<g class="ring" data-i="${i}" style="transform-origin:${cx}px ${cy}px">` + Array.from({ length: 26 }, (_, k) =>
+      `<text x="${cx}" y="${(cy - r).toFixed(1)}" font-size="${fs}" transform="rotate(${(k * STEP).toFixed(3)} ${cx} ${cy})">${String.fromCharCode(65 + k)}</text>`
+    ).join('') + `</g>`;
+  }
   svg += `</svg>`;
   keypadEl.innerHTML = svg;
   const hub = keyButton('send'); hub.classList.add('hub');
   keypadEl.appendChild(hub);
-  rings = [...keypadEl.querySelectorAll('.ring')].map((g, i) => ({ g, letters: V.rings[i], step: 0 }));
+  rings = [...keypadEl.querySelectorAll('.ring')].map(g => ({ g, step: 0 }));
   activeRing = 0;
-  rings.forEach((r, i) => setStep(i, -(r.letters.indexOf(V.answer[i]) + V.startAt[i]), true));
+  rings.forEach((r, i) => setStep(i, -(V.answer.charCodeAt(i) - 65 + V.startAt[i]), true));
   entry = dialWord();
   dialDrag(keypadEl.querySelector('svg'));
 }
 function setStep(i, s, quiet){
   const r = rings[i]; r.step = s;
-  r.g.style.transform = `rotate(${s * 36}deg)`;
+  r.g.style.transform = `rotate(${(s * STEP).toFixed(2)}deg)`;
   [...r.g.children].forEach((t, k) => t.classList.toggle('top', k === topIndex(r)));
   if (quiet) return;
   entry = dialWord(); renderBoxes(i);
@@ -396,19 +398,19 @@ function setStep(i, s, quiet){
 // turn ring i the short way round so letter k sits under the notch
 function spinTo(i, k){
   const cur = rings[i].step;
-  setStep(i, cur + mod10(-k - cur + 5) - 5);
+  setStep(i, cur + mod26(-k - cur + 13) - 13);
 }
 function dialDrag(svg){
   let d = null;   // the live drag: which ring, the grab angle, how far it has turned
   const at = e => {
-    const b = svg.getBoundingClientRect();
-    const x = (e.clientX - b.left) / b.width * 360 - DIAL.c, y = (e.clientY - b.top) / b.height * 360 - DIAL.c;
+    const b = svg.getBoundingClientRect(), s = b.width / 360;   // the window shows the wheel's top; its centre sits below
+    const x = (e.clientX - b.left) / s - DIAL.cx, y = (e.clientY - b.top) / s - DIAL.cy;
     return { a: Math.atan2(x, -y) * 180 / Math.PI, dist: Math.hypot(x, y) };
   };
   svg.addEventListener('pointerdown', e => {
     if (busy || !e.isPrimary) return;
     const { a, dist } = at(e);
-    if (dist < DIAL.hub + 4 || dist > DIAL.outer + 10) return;
+    if (dist < DIAL.inner - 6 || dist > DIAL.outer + 12) return;
     e.preventDefault(); idle();
     const bandW = (DIAL.outer - DIAL.inner) / rings.length;
     const i = clamp(Math.floor((DIAL.outer - dist) / bandW), 0, rings.length - 1);
@@ -422,28 +424,28 @@ function dialDrag(svg){
     const { a } = at(e);
     let da = a - d.last; if (da > 180) da -= 360; if (da < -180) da += 360;
     d.acc += da; d.last = a;
-    const r = rings[d.i], live = r.step * 36 + d.acc;   // r.step stays the grab point until release
-    r.g.style.transform = `rotate(${live}deg)`;
-    const det = Math.round(live / 36);                  // the ratchet: tick each time a letter passes the notch
-    if (det !== d.det) { d.det = det; sfx.tick(); buzz(5); [...r.g.children].forEach((t, k) => t.classList.toggle('top', k === mod10(-det))); }
+    const r = rings[d.i], live = r.step * STEP + d.acc;   // r.step stays the grab point until release
+    r.g.style.transform = `rotate(${live.toFixed(2)}deg)`;
+    const det = Math.round(live / STEP);                  // the ratchet: tick each time a letter passes the notch
+    if (det !== d.det) { d.det = det; sfx.tick(); buzz(5); [...r.g.children].forEach((t, k) => t.classList.toggle('top', k === mod26(-det))); }
   });
   const up = () => {
     if (!d) return;
     const { i, acc, a0 } = d; d = null;
     const r = rings[i]; r.g.classList.remove('drag');
-    if (Math.abs(acc) < 9) {   // a tap: bring the tapped letter round to the notch
-      const k = mod10(Math.round(a0 / 36) - r.step);
+    if (Math.abs(acc) < 5) {   // a tap: bring the tapped letter round to the notch
+      const k = mod26(Math.round(a0 / STEP) - r.step);
       if (k !== topIndex(r)) { spinTo(i, k); sfx.tick(); buzz(8); }
       else setStep(i, r.step);
     }
-    else setStep(i, Math.round((r.step * 36 + acc) / 36));
+    else setStep(i, Math.round((r.step * STEP + acc) / STEP));
   };
   ['pointerup', 'pointercancel'].forEach(t => svg.addEventListener(t, up));
 }
 async function dialSolve(){
   for (let i = 0; i < rings.length; i++) {
     await sleep(240);
-    spinTo(i, rings[i].letters.indexOf(V.answer[i])); sfx.tick(); buzz(8);
+    spinTo(i, V.answer.charCodeAt(i) - 65); sfx.tick(); buzz(8);
   }
   await sleep(500);
 }
@@ -557,11 +559,7 @@ addEventListener('keydown', e => {
     if (busy) return;
     if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); idle(); setStep(activeRing, rings[activeRing].step + (k === 'ArrowRight' ? 1 : -1)); sfx.tick(); }
     else if (k === 'ArrowUp' || k === 'ArrowDown') { e.preventDefault(); activeRing = clamp(activeRing + (k === 'ArrowDown' ? 1 : -1), 0, rings.length - 1); }
-    else if (/^[A-Z]$/.test(k)) {
-      let i = rings.findIndex((r, j) => j >= activeRing && r.letters.includes(k));
-      if (i < 0) i = rings.findIndex(r => r.letters.includes(k));
-      if (i >= 0) { idle(); spinTo(i, rings[i].letters.indexOf(k)); sfx.tick(); activeRing = Math.min(i + 1, rings.length - 1); }
-    }
+    else if (/^[A-Z]$/.test(k)) { idle(); spinTo(activeRing, k.charCodeAt(0) - 65); sfx.tick(); activeRing = Math.min(activeRing + 1, rings.length - 1); }
     return;
   }
   if (k === 'Backspace') press('back', true);
