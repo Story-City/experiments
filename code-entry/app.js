@@ -83,6 +83,25 @@ function envelope(code, p, decorative){
 </svg>`;
 }
 
+// A handwritten note on parchment (word dials): a short line, then the code over a few lines (V.note in story.js).
+function note(p, decorative){
+  const label = decorative ? 'aria-hidden="true"' : `role="img" aria-label="${V.sealLabel}"`;
+  const lines = V.note.lines, top = 118 - (lines.length - 1) * 13;
+  return `<svg viewBox="0 0 360 250" preserveAspectRatio="xMidYMid meet" ${label}>
+  <defs>
+    <linearGradient id="${p}np" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6ead0"/><stop offset="1" stop-color="#dcc28a"/></linearGradient>
+  </defs>
+  <g transform="rotate(-2 180 125)">
+    <rect x="62" y="34" width="236" height="186" rx="4" fill="#000" opacity="0.35" transform="translate(5 7)" style="filter:blur(5px)"/>
+    <rect x="58" y="30" width="236" height="186" rx="4" fill="url(#${p}np)"/>
+    <rect x="66" y="38" width="220" height="170" rx="2" fill="none" stroke="#b89a5e" stroke-width="0.8" opacity="0.6"/>
+    <text x="176" y="70" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="12" fill="#6b4a1e">${V.note.intro}</text>
+    ${lines.map((l, i) => `<text x="176" y="${top + i * 26}" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="17" letter-spacing="1.2" fill="#3a2508">${l}</text>`).join('')}
+    ${symbol(176, 190, 9, '#8e1a17', 1.6)}
+  </g>
+</svg>`;
+}
+
 // After the right code: the trap door slides aside to reveal a glowing staircase.
 function stairs(){
   const steps = Array.from({ length: 7 }, (_, i) => {
@@ -301,7 +320,8 @@ function loupeEnd(){
 // ---------- code entry ----------
 const boxesEl = $('boxes'), keypadEl = $('keypad'), sayLine = $('sayLine'), solveBtn = $('solveBtn');
 let entry = '', busy = false, tier = 0, hintsUsed = 0, wrongs = 0, idleTimer = 0;
-const N = () => V.answer.length;
+const parts = t => V.words ? (t ? t.split(' ') : []) : [...t];   // a code is characters, or words on a word dial
+const N = () => parts(V.answer).length;
 
 // Glow keypad * and #: thin strokes drawn as tall as the digits and centred on them (a typed * sits small and high)
 const GLYPH_SVG = {
@@ -354,56 +374,73 @@ function alignGlyphs(){
   keypadEl.style.setProperty('--glyph-h', h.toFixed(1) + 'px');
   keypadEl.style.setProperty('--glyph-dy', dy.toFixed(1) + 'px');
 }
-// ---------- the dial: one ring per character, outer ring first. Drag a ring (or tap a character) to turn it;
-// the characters under the gold notch, read outside in, spell the code. Only the top of the wheel shows
+// ---------- the dial: one ring per character (or word), outer ring first. Drag a ring (or tap one) to turn it;
+// what sits under the gold notch, read outside in, spells the code. Only the top of the wheel shows
 // (crop, the dial's centre sits below the window) — like the window of a combination lock. No send key:
-// the moment the right code lines up, it sends itself. Each variant sets its ring characters in story.js
-// (symbols, repeated `repeat` times; A–Z by default).
-// The rings are endless strips rather than fixed wheels: each draws only the characters near the window, the same
-// distance apart on every ring (GAP × the letter size), and Z runs straight on into A — so the outer rings aren't
-// spread thin and there's never a gap at the end of the alphabet. ----------
+// the moment the right code lines up, it sends itself.
+// What's on each ring comes from story.js: `pick: 5` puts the right letter and 4 random others on each ring
+// (new ones every time), `rings: [[…], …]` lists each ring's words, and with neither it's the whole alphabet.
+// The rings are endless strips rather than fixed wheels: each draws only what's near the window, evenly spaced,
+// and the list runs straight back round to its start — so nothing is spread thin and there's never a gap. ----------
 const DIAL = { cx: 180, cy: 521, inner: 183, outer: 503, crop: 383, gap: 1.35 };   // a big wheel seen through a narrow window; crop: how much of its top is visible
-let SYMS = '', M = 26;    // the characters on each ring, and how many
-let rings = [];           // { g, r, deg, K, texts, step, p, raf } — step: whole turns clockwise (any integer); p: where it's drawn (eases to step)
+const DIAL_FONT = `system-ui, -apple-system, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif`;   // matches .dial .ring text
+const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+let rings = [];           // { g, syms, M, r, deg, K, texts, step, p, raf } — step: whole turns clockwise (any integer); p: where it's drawn (eases to step)
 let dialWon = false;
-let activeRing = 0;       // keyboard: ↑/↓ pick a ring, ←/→ turn it, or type the character you want on top
+let activeRing = 0;       // keyboard: ↑/↓ pick a ring, ←/→ turn it, or type the letter you want on top
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const modM = x => ((x % M) + M) % M;
-const topIndex = r => modM(-r.step);
-const dialWord = () => rings.map(r => SYMS[topIndex(r)]).join('');
-// the copy of character ch on ring i that's the shortest turn away
+const mod = (x, m) => ((x % m) + m) % m;
+const topIndex = r => mod(-r.step, r.M);
+const dialWord = () => rings.map(r => r.syms[topIndex(r)]).join(V.words ? ' ' : '');
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+// what goes round each ring
+function ringLists(){
+  const ans = parts(V.answer);
+  if (V.rings) return V.rings.map(l => [...l]);
+  if (V.pick) return ans.map(ch => shuffle([ch, ...shuffle([...ALPHA].filter(c => c !== ch)).slice(0, V.pick - 1)]));
+  return ans.map(() => [...ALPHA]);
+}
+// the copy of item ch on ring i that's the shortest turn away
 function nearest(i, ch){
+  const r = rings[i];
   let best = -1, bestD = Infinity;
-  for (let k = 0; k < M; k++) if (SYMS[k] === ch) { const d = Math.abs(modM(-k - rings[i].step + M / 2) - M / 2); if (d < bestD) { bestD = d; best = k; } }
+  for (let k = 0; k < r.M; k++) if (r.syms[k] === ch) { const d = Math.abs(mod(-k - r.step + r.M / 2, r.M) - r.M / 2); if (d < bestD) { bestD = d; best = k; } }
   return best;
 }
 
 function buildDial(){
-  SYMS = (V.symbols || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ').repeat(V.repeat || 1); M = SYMS.length;
+  const lists = ringLists(), ans = parts(V.answer);
   const n = N(), bandW = (DIAL.outer - DIAL.inner) / n, { cx, cy } = DIAL;
-  const fs = Math.round(bandW * 0.62), slotW = Math.round(fs * 1.45), gap = fs * DIAL.gap;   // one size and one spacing on every ring
+  const fs = Math.round(bandW * (V.words ? 0.42 : 0.62));   // one size on every ring
+  const ctx = document.createElement('canvas').getContext('2d'); ctx.font = `300 ${fs}px ${DIAL_FONT}`;
+  const w = t => ctx.measureText(t).width;
+  // letters: the same spacing on every ring. Words: each ring spaced for its longest word, and far enough apart
+  // that the words either side of the notch stay clear of the outline (which is as wide as the longest answer word).
+  const slotW = Math.round(V.words ? Math.max(...ans.map(w)) + fs * 0.8 : fs * 1.45);
+  const gaps = lists.map(l => { if (!V.words) return fs * DIAL.gap; const m = Math.max(...l.map(w)); return Math.max(m + fs * 0.9, slotW / 2 + m / 2 + fs * 0.8); });
   let svg = `<svg viewBox="0 0 360 ${DIAL.crop}" aria-hidden="true">`;
   for (let i = 0; i <= n; i++) svg += `<circle class="${i ? 'sep' : 'sep rim'}" cx="${cx}" cy="${cy}" r="${DIAL.outer - i * bandW}"/>`;
   svg += `<path class="notch" d="M${cx - 8} 2 h16 l-8 11 z"/>`;
   const geo = [];
   for (let i = 0; i < n; i++) {
-    const r = DIAL.outer - (i + 0.5) * bandW, deg = gap / r * 180 / Math.PI;
+    const r = DIAL.outer - (i + 0.5) * bandW, deg = gaps[i] / r * 180 / Math.PI;
     // how far round the window reaches on this ring (its side edges, or its bottom), plus one spare each side
     const reach = Math.min(Math.asin(Math.min(1, (cx + 20) / r)), (cy - DIAL.crop) / r < 1 ? Math.acos((cy - DIAL.crop) / r) : Math.PI / 2) * 180 / Math.PI;
     const K = Math.ceil(reach / deg) + 1;
     geo.push({ r, deg, K });
-    // every character is drawn at the top of the wheel, dead centre, then rotated into place about the wheel's
+    // every item is drawn at the top of the wheel, dead centre, then rotated into place about the wheel's
     // centre — so whichever one sits under the notch is exactly on the vertical centre line
     svg += `<g class="ring" data-i="${i}" data-deg="${deg.toFixed(4)}">` +
       Array.from({ length: 2 * K + 1 }, () => `<text x="${cx}" y="${(cy - r).toFixed(1)}" font-size="${fs}"></text>`).join('') + `</g>`;
   }
   // the outline round the lined-up column: this replaces the code field on the dial
-  svg += `<rect class="slot" x="${cx - slotW / 2}" y="${cy - DIAL.outer + 3}" width="${slotW}" height="${DIAL.outer - DIAL.inner - 6}" rx="${Math.round(slotW * 0.28)}"/>`;
+  svg += `<rect class="slot" x="${cx - slotW / 2}" y="${cy - DIAL.outer + 3}" width="${slotW}" height="${DIAL.outer - DIAL.inner - 6}" rx="${Math.round(Math.min(slotW, fs * 1.45) * 0.28)}"/>`;
   svg += `</svg>`;
   keypadEl.innerHTML = svg;
-  rings = [...keypadEl.querySelectorAll('.ring')].map((g, i) => ({ g, ...geo[i], texts: [...g.children], step: 0, p: 0, raf: 0 }));
+  rings = [...keypadEl.querySelectorAll('.ring')].map((g, i) => ({ g, syms: lists[i], M: lists[i].length, ...geo[i], texts: [...g.children], step: 0, p: 0, raf: 0 }));
   activeRing = 0; dialWon = false;
-  rings.forEach((r, i) => setStep(i, -(SYMS.indexOf(V.answer[i]) + V.startAt[i]), true));
+  // each ring starts a random number of places away from its answer, never on it
+  rings.forEach((r, i) => setStep(i, -(r.syms.indexOf(ans[i]) + 1 + Math.floor(Math.random() * (r.M - 1))), true));
   entry = dialWord();
   dialDrag(keypadEl.querySelector('svg'));
 }
@@ -411,7 +448,7 @@ function buildDial(){
 function draw(r){
   const { cx, cy } = DIAL, base = Math.round(-r.p);
   r.texts.forEach((t, j) => {
-    const k = base + j - r.K, ch = SYMS[modM(k)];
+    const k = base + j - r.K, ch = r.syms[mod(k, r.M)];
     t.setAttribute('transform', `rotate(${((k + r.p) * r.deg).toFixed(3)} ${cx} ${cy})`);
     if (t.textContent !== ch) t.textContent = ch;
     t.classList.toggle('top', j === r.K);
@@ -441,8 +478,8 @@ function setStep(i, s, quiet){
 }
 // turn ring i the short way round so character k sits under the notch
 function spinTo(i, k){
-  const cur = rings[i].step, h = Math.floor(M / 2);
-  setStep(i, cur + modM(-k - cur + h) - h);
+  const { step: cur, M } = rings[i], h = Math.floor(M / 2);
+  setStep(i, cur + mod(-k - cur + h, M) - h);
 }
 function dialDrag(svg){
   let d = null;   // the live drag: which ring, the grab angle, where the ring was, how far it has turned
@@ -489,7 +526,7 @@ function dialDrag(svg){
 async function dialSolve(){
   for (let i = 0; i < rings.length; i++) {
     await sleep(240);
-    spinTo(i, nearest(i, V.answer[i])); sfx.tick(); buzz(8);
+    spinTo(i, nearest(i, parts(V.answer)[i])); sfx.tick(); buzz(8);
   }
   await sleep(500);
 }
@@ -503,15 +540,16 @@ function sizeBoxes(){
 function renderBoxes(popAt = -1){
   const n = N();
   if (boxesEl.children.length !== n) { boxesEl.innerHTML = ''; for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'box'; boxesEl.appendChild(d); } }
+  const got = parts(entry);
   [...boxesEl.children].forEach((d, i) => {
-    d.textContent = entry[i] || '';
-    d.classList.toggle('filled', i < entry.length);
-    d.classList.toggle('next', i === entry.length && !busy);
+    d.textContent = got[i] || '';
+    d.classList.toggle('filled', i < got.length);
+    d.classList.toggle('next', i === got.length && !busy);
     d.classList.toggle('pop', i === popAt);
   });
-  boxesEl.setAttribute('aria-label', 'Code: ' + (entry.length ? `${entry.split('').join(' ')}, ${entry.length} of ${n}` : `nothing entered yet, ${n} to go`));
+  boxesEl.setAttribute('aria-label', 'Code: ' + (got.length ? `${got.join(' ')}, ${got.length} of ${n}` : `nothing entered yet, ${n} to go`));
   [...boxesEl.children].forEach(d => d.setAttribute('aria-hidden', 'true'));
-  keypadEl.querySelector('.send')?.classList.toggle('ready', entry.length === n);
+  keypadEl.querySelector('.send')?.classList.toggle('ready', got.length === n);
 }
 // The line under the label: hints stay until the next message, wrong-answer replies fade after a few seconds.
 let sayTimer = 0;
@@ -538,6 +576,7 @@ function openCode(){
   const clue = V.image
     ? `<img class="clue" src="${V.image}" alt="${V.imageAlt || V.sealLabel}" draggable="false">` +
       `<div class="loupe img" id="loupe" aria-hidden="true" style="background-image:url('${V.image}')"></div>`
+    : V.note ? note('e') + `<div class="loupe" id="loupe" aria-hidden="true">${note('m', true)}</div>`
     : envelope(V.answer, 'e') + `<div class="loupe" id="loupe" aria-hidden="true">${envelope(V.answer, 'm', true)}</div>`;
   $('lens').innerHTML = clue +
     `<div class="loupe-hint${loupeUsed ? ' gone' : ''}" id="loupeHint" aria-hidden="true">${MAG_SVG}<span>${STORY.loupeHint}</span></div>`;
@@ -602,7 +641,7 @@ addEventListener('keydown', e => {
     if (busy) return;
     if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); idle(); setStep(activeRing, rings[activeRing].step + (k === 'ArrowRight' ? 1 : -1)); sfx.tick(); }
     else if (k === 'ArrowUp' || k === 'ArrowDown') { e.preventDefault(); activeRing = clamp(activeRing + (k === 'ArrowDown' ? 1 : -1), 0, rings.length - 1); }
-    else if (k.length === 1 && SYMS.includes(k)) { idle(); spinTo(activeRing, nearest(activeRing, k)); sfx.tick(); activeRing = Math.min(activeRing + 1, rings.length - 1); }
+    else if (k.length === 1 && !V.words && rings[activeRing].syms.includes(k)) { idle(); spinTo(activeRing, nearest(activeRing, k)); sfx.tick(); activeRing = Math.min(activeRing + 1, rings.length - 1); }
     return;
   }
   if (k === 'Enter') { e.preventDefault(); press('send', true); }

@@ -1,6 +1,6 @@
 // Every word the player sees lives here, so a wording change is a one-line edit.
 // Pick a version on the start list or with ?v=glow (numbers keypad with Victoria's envelope art, the default),
-// ?v=letters (QWERTY), ?v=dial (dial, 5 letters) or ?v=dial7 (dial, 7 letters). All use the glowing blue style.
+// ?v=letters (QWERTY), ?v=dial (dial, 5 letters), ?v=dial7 (dial, 7 letters) or ?v=dialwords (dial of words). All use the glowing blue style.
 // image: the clue picture (swap the file to change it). Without it, the drawn envelope shows the answer on its seal.
 
 export const STORY = {
@@ -22,8 +22,8 @@ export const STORY = {
     title: 'Welcome to the Society.',
     eyebrow: 'End of mockup',
     again: 'Play again',
-    other: { glow: 'Try the word version', letters: 'Try the dial', dial: 'Try the 7-letter dial', dial7: 'Try the number keypad' },
-    otherTo: { glow: 'letters', letters: 'dial', dial: 'dial7', dial7: 'glow' },
+    other: { glow: 'Try the word version', letters: 'Try the dial', dial: 'Try the 7-letter dial', dial7: 'Try the dial of words', dialwords: 'Try the number keypad' },
+    otherTo: { glow: 'letters', letters: 'dial', dial: 'dial7', dial7: 'dialwords', dialwords: 'glow' },
   },
 };
 
@@ -85,8 +85,8 @@ export const VARIANTS = {
     blurb: 'Turn five rings of letters to line up the word',
     answer: 'CRUMB',
     keypad: 'dial',
-    // One ring per letter, outer ring first. Every ring carries the whole alphabet, in order (the default symbols).
-    startAt: [7, 15, 4, 19, 11],   // how many letters past the answer each ring starts, so none starts solved
+    // One ring per letter, outer ring first. Each ring carries the right letter and 4 random others, repeating as it turns.
+    pick: 5,
     chat: [
       { say: 'You found it.' },
       { image: 'dropspot', alt: 'A glowing mail slot floating in midair, with glowing buttons beside it and the hoodie symbol above' },
@@ -112,8 +112,8 @@ export const VARIANTS = {
     blurb: 'Turn seven rings of letters to line up the word',
     answer: 'BISCUIT',
     keypad: 'dial',
-    // One ring per letter, outer ring first. Every ring carries the whole alphabet, in order.
-    startAt: [7, 15, 4, 19, 11, 22, 9],   // how many letters past the answer each ring starts, so none starts solved
+    // One ring per letter, outer ring first. Each ring carries the right letter and 4 random others, repeating as it turns.
+    pick: 5,
     chat: [
       { say: 'You found it.' },
       { image: 'dropspot', alt: 'A glowing mail slot floating in midair, with glowing buttons beside it and the hoodie symbol above' },
@@ -129,6 +129,38 @@ export const VARIANTS = {
     wrong: 'That’s not it. Look at the seal again.',
     notFull: '',
     sealLabel: 'The wax seal, with the gold word BISCUIT',
+    backKey: '⌫',   // unused on the dial
+    sendKey: 'SEND',
+    backLabel: 'Delete',
+    sendLabel: 'Send',
+  },
+  dialwords: {
+    label: 'Dial · words',
+    blurb: 'Turn five rings of words to line up a name',
+    answer: 'THE GREEN-EYE SHARP-TOOTH FIRE DRAKE',
+    words: true,
+    keypad: 'dial',
+    // One ring per word, outer ring first. Each ring's words repeat as it turns; the right one must be in its list.
+    rings: [
+      ['THE', 'A', 'OLD', 'ONE', 'YOUR'],
+      ['GREEN-EYE', 'RED-EYE', 'GOLD-EYE', 'ONE-EYE', 'BLUE-EYE'],
+      ['SHARP-TOOTH', 'LONG-TAIL', 'IRON-CLAW', 'BIG-WING', 'NO-TOOTH'],
+      ['FIRE', 'ICE', 'MUD', 'STORM', 'SMOKE'],
+      ['DRAKE', 'SNAKE', 'TOAD', 'WYRM', 'DUCK'],
+    ],
+    // The clue: a note on parchment instead of the envelope (a whole name won't fit on a seal)
+    note: { intro: 'Speak the beast’s true name:', lines: ['THE GREEN-EYE', 'SHARP-TOOTH', 'FIRE DRAKE'] },
+    chat: [
+      { say: 'You found it.' },
+      { say: 'Line up its true name and it will let you pass.' },
+      { open: true },
+    ],
+    codeLabel: 'Line up the name',
+    hints: ['It’s written on the note.', 'Read it top to bottom: one word on each ring.'],
+    solve: 'Solve this for me',
+    wrong: 'That’s not it. Read the note again.',
+    notFull: '',
+    sealLabel: 'A note that reads: Speak the beast’s true name: the green-eye sharp-tooth fire drake',
     backKey: '⌫',   // unused on the dial
     sendKey: 'SEND',
     backLabel: 'Delete',
