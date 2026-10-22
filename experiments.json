@@ -1,9 +1,9 @@
 [
   {
     "slug": "ftue-choice-hints",
-    "path": "ftue-choice-hints/?v=12",
+    "path": "ftue-choice-hints/?v=13",
     "title": "FTUE sample story choices",
-    "what": "Real Summons beats: opening (1 reply), then mailbox (2 replies). Choices sit in the chat footer like the app — no dock tray. Tap-hand overlaps first option.",
+    "what": "Summons 1- then 2-reply beats. Tap-hand mirrored on the phrase start edge; on two replies it fades from one choice onto the other.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-10",

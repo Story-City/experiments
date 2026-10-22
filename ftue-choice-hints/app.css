@@ -207,16 +207,18 @@ body {
   transform: scale(0.97);
 }
 
+/* Mirrored to the starting edge of the phrase so the hand doesn't sit on the copy. */
 .choice .tap-hint {
   position: absolute;
-  right: -6px;
+  left: -10px;
+  right: auto;
   bottom: -10px;
   width: var(--hint-size);
   height: var(--hint-size);
   pointer-events: none;
   z-index: 4;
   opacity: 0;
-  transform: rotate(-24deg);
+  transform: scaleX(-1) rotate(-24deg);
   transition: opacity var(--hint-fade-ms) ease;
   filter: brightness(0) invert(1);
 }

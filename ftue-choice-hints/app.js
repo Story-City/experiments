@@ -4,7 +4,9 @@
 const TYPING_DELAY_MS = 550;
 const READ_PAUSE_MS = 650;
 const HINT_IDLE_MS = 1000;
+const HINT_HOLD_MS = 1600;
 const HINT_FADE_MS = 280;
+const HINT_GAP_MS = 320;
 
 const BEATS = [
   {
@@ -37,6 +39,7 @@ const choicesEl = document.getElementById('choices');
 
 let hintAnim = null;
 let hintTimer = null;
+let hintTourToken = 0;
 let audioCtx = null;
 let beatIndex = 0;
 let busy = false;
@@ -101,6 +104,7 @@ function clearHintTimer() {
 
 function destroyHint() {
   clearHintTimer();
+  hintTourToken += 1;
   if (hintAnim) {
     hintAnim.destroy();
     hintAnim = null;
@@ -123,8 +127,7 @@ function fadeOutHint() {
   });
 }
 
-function attachHint(button) {
-  destroyHint();
+function mountHint(button) {
   const hint = document.createElement('div');
   hint.className = 'tap-hint';
   hint.setAttribute('aria-hidden', 'true');
@@ -140,9 +143,50 @@ function attachHint(button) {
     });
   }
 
-  hintTimer = window.setTimeout(() => {
-    hint.classList.add('is-in');
-  }, HINT_IDLE_MS);
+  return hint;
+}
+
+async function showHintOn(button, token) {
+  if (token !== hintTourToken) return;
+  document.querySelectorAll('.tap-hint').forEach((node) => node.remove());
+  if (hintAnim) {
+    hintAnim.destroy();
+    hintAnim = null;
+  }
+
+  const hint = mountHint(button);
+  // next frame so opacity transition runs
+  await wait(16);
+  if (token !== hintTourToken) return;
+  hint.classList.add('is-in');
+}
+
+async function runHintTour(buttons) {
+  const token = ++hintTourToken;
+  if (!buttons.length) return;
+
+  await wait(HINT_IDLE_MS);
+  if (token !== hintTourToken) return;
+
+  // One reply: stay on it. Two replies: first → fade → second → fade → loop.
+  let index = 0;
+  while (token === hintTourToken) {
+    await showHintOn(buttons[index], token);
+    if (token !== hintTourToken) return;
+
+    if (buttons.length === 1) return;
+
+    await wait(HINT_HOLD_MS);
+    if (token !== hintTourToken) return;
+
+    await fadeOutHint();
+    if (token !== hintTourToken) return;
+
+    await wait(HINT_GAP_MS);
+    if (token !== hintTourToken) return;
+
+    index = (index + 1) % buttons.length;
+  }
 }
 
 function clearChoices() {
@@ -156,7 +200,7 @@ function showChoices(options) {
   clearChoices();
   choicesEl.hidden = false;
   choicesEl.classList.add('is-on');
-  let firstButton = null;
+  const buttons = [];
 
   options.forEach((option, index) => {
     const btn = document.createElement('button');
@@ -167,10 +211,10 @@ function showChoices(options) {
     btn.querySelector('.label').textContent = option.label;
     btn.addEventListener('click', () => onChoice(option.label));
     choicesEl.append(btn);
-    if (index === 0) firstButton = btn;
+    buttons.push(btn);
   });
 
-  attachHint(firstButton);
+  runHintTour(buttons);
   scrollEnd();
 }
 
