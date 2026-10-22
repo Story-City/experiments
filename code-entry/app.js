@@ -357,7 +357,7 @@ function alignGlyphs(){
 // ---------- the dial: one ring per letter, outer ring first. Drag a ring (or tap a letter) to turn it;
 // the letters under the gold notch, read outside in, spell the word. Only the top of the wheel shows
 // (crop, the dial's centre sits below the window) — like the window of a combination lock. SEND sits under it. ----------
-const DIAL = { cx: 180, cy: 222, inner: 85, outer: 210, crop: 150 };   // crop: how much of the wheel's top is visible
+const DIAL = { cx: 180, cy: 328, inner: 125, outer: 310, crop: 250, slotW: 40 };   // crop: how much of the wheel's top is visible; slotW: the outline round the lined-up column
 const STEP = 360 / 26;    // every ring carries the whole alphabet, in order
 let rings = [];           // { g, step } — step counts whole one-letter turns clockwise (any integer)
 let activeRing = 0;       // keyboard: ↑/↓ pick a ring, ←/→ turn it, or type the letter you want on top
@@ -370,14 +370,17 @@ function buildDial(){
   let svg = `<svg viewBox="0 0 360 ${DIAL.crop}" aria-hidden="true">`;
   for (let i = 0; i <= n; i++) svg += `<circle class="${i ? 'sep' : 'sep rim'}" cx="${cx}" cy="${cy}" r="${DIAL.outer - i * bandW}"/>`;
   svg += `<path class="notch" d="M${cx - 8} 2 h16 l-8 11 z"/>`;
+  const fs = Math.round(bandW * 0.62);   // one size on every ring, so the word reads as one even column
   for (let i = 0; i < n; i++) {
-    const r = DIAL.outer - (i + 0.5) * bandW, fs = Math.round(10 + r * 0.03);
+    const r = DIAL.outer - (i + 0.5) * bandW;
     // every letter is drawn at the top of the wheel, dead centre, then rotated into place about the
     // wheel's centre — so whichever letter sits under the notch is exactly on the vertical centre line
     svg += `<g class="ring" data-i="${i}" style="transform-origin:${cx}px ${cy}px">` + Array.from({ length: 26 }, (_, k) =>
       `<text x="${cx}" y="${(cy - r).toFixed(1)}" font-size="${fs}" transform="rotate(${(k * STEP).toFixed(3)} ${cx} ${cy})">${String.fromCharCode(65 + k)}</text>`
     ).join('') + `</g>`;
   }
+  // the outline round the lined-up letters: this replaces the code field on the dial
+  svg += `<rect class="slot" x="${cx - DIAL.slotW / 2}" y="${cy - DIAL.outer + 3}" width="${DIAL.slotW}" height="${DIAL.outer - DIAL.inner - 6}" rx="12"/>`;
   svg += `</svg>`;
   keypadEl.innerHTML = svg;
   const hub = keyButton('send'); hub.classList.add('hub');
@@ -518,9 +521,9 @@ function press(k, btn){
 function check(){
   if (entry === V.answer) return right();
   wrongs++; busy = true;
-  boxesEl.classList.add('shake'); sfx.wrong(); buzz([60, 40, 60]);
+  boxesEl.classList.add('shake'); keypadEl.classList.add('shake'); sfx.wrong(); buzz([60, 40, 60]);   // the dial has no field, so its outline shakes instead
   say(V.wrong, 'bad'); lookAtSeal(); nudgeHelp();
-  setTimeout(() => { boxesEl.classList.remove('shake'); entry = V.keypad === 'dial' ? dialWord() : ''; busy = false; renderBoxes(); }, 650);   // the dial keeps its setting
+  setTimeout(() => { boxesEl.classList.remove('shake'); keypadEl.classList.remove('shake'); entry = V.keypad === 'dial' ? dialWord() : ''; busy = false; renderBoxes(); }, 650);   // the dial keeps its setting
 }
 $('helpBtn').onclick = () => {
   audio(); idle();
