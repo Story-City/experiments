@@ -1,5 +1,6 @@
-// Key Pad (V0.7): the end of The Summons. The player enters the code from the letter's wax seal
-// on a glowing in-page keypad (?v=glow, the default, or the QWERTY ?v=letters). Words live in story.js; this file is behaviour and drawing only.
+// Code Entry (V0.8): the end of The Summons. The player enters the code from the letter's wax seal
+// on a glowing numbers keypad (?v=glow, the default), QWERTY keys (?v=letters) or a ring dial (?v=dial).
+// Words and the dial's letters live in story.js; this file is behaviour and drawing only.
 const { STORY, VARIANTS } = await import(`./story.js${window.CACHE_V || ''}`);
 
 const $ = id => document.getElementById(id);
@@ -162,6 +163,7 @@ function rumbleSound(){
 }
 const sfx = {
   key: () => tone(1046, 0.05),
+  tick: () => tone(1568, 0.035, { gain: 0.03 }),   // the dial's ratchet: one soft tick per letter passing the notch
   back: () => tone(622, 0.05),
   wrong: () => { tone(233, 0.13, { type: 'triangle', gain: 0.07 }); tone(175, 0.18, { type: 'triangle', gain: 0.07, at: 0.14 }); },
   right: () => [1046, 1319, 1568, 2093].forEach((f, i) => tone(f, 0.12, { type: 'triangle', gain: 0.05, at: i * 0.08 })),
@@ -171,20 +173,21 @@ function buzz(pattern){
   try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(pattern); } catch (e) {}
 }
 
-// ---------- start ----------
-$('startArt').innerHTML = dropSpot('a');
+// ---------- start: just the list of versions ----------
 $('startKicker').textContent = STORY.start.kicker;
 setText($('startTitle'), STORY.start.title);
 setText($('startSub'), STORY.start.sub);
-$('startBtn').textContent = STORY.start.button;
-$('abLabel').textContent = STORY.start.switchLabel;
-document.querySelectorAll('.ab button').forEach(b => {
-  b.textContent = VARIANTS[b.dataset.v].label;
-  b.onclick = () => setVariant(b.dataset.v);
-});
+for (const k of Object.keys(VARIANTS)) {
+  const b = document.createElement('button');
+  b.className = 'version';
+  b.innerHTML = '<b></b><span></span>';
+  b.querySelector('b').textContent = VARIANTS[k].label;
+  setText(b.querySelector('span'), VARIANTS[k].blurb);
+  b.onclick = () => { audio(); setVariant(k); openCode(); };
+  $('versions').appendChild(b);
+}
 function setVariant(k){
   vKey = k; V = VARIANTS[k];
-  document.querySelectorAll('.ab button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === k)));
   const u = new URL(location.href); u.searchParams.set('v', k); u.hash = ''; history.replaceState(null, '', u);
 }
 setVariant(vKey);
@@ -197,7 +200,6 @@ $('helpBtn').setAttribute('aria-label', STORY.help);
 let runId = 0;
 function show(id){ ['start', 'chat', 'code', 'win'].forEach(s => $(s).hidden = s !== id); }
 function toStart(){ runId++; show('start'); }
-$('startBtn').onclick = () => { audio(); openCode(); };   // no lead-in: Start goes straight to the code (the chat beats in story.js are unused for now)
 $('chatBack').onclick = toStart;
 $('codeBack').onclick = toStart;
 
@@ -325,10 +327,11 @@ function keyButton(k){
   return b;
 }
 function buildKeypad(){
-  const letters = V.keypad === 'letters';
-  keypadEl.className = 'keypad glow' + (letters ? ' letters' : '');
-  $('code').classList.add('glow'); $('code').classList.toggle('letters', letters);
+  const letters = V.keypad === 'letters', dial = V.keypad === 'dial';
+  keypadEl.className = 'keypad glow' + (letters ? ' letters' : '') + (dial ? ' dial' : '');
+  $('code').classList.add('glow'); $('code').classList.toggle('letters', letters); $('code').classList.toggle('dial', dial);
   keypadEl.innerHTML = '';
+  if (dial) { buildDial(); return; }
   if (letters) {
     [QWERTY[0], QWERTY[1], ['back', ...QWERTY[2], 'send']].forEach(row => {
       const r = document.createElement('div'); r.className = 'kb-row';
@@ -351,6 +354,100 @@ function alignGlyphs(){
   keypadEl.style.setProperty('--glyph-h', h.toFixed(1) + 'px');
   keypadEl.style.setProperty('--glyph-dy', dy.toFixed(1) + 'px');
 }
+// ---------- the dial: one ring per letter, outer ring first. Drag a ring (or tap a letter) to turn it;
+// the letters under the gold notch, read outside in, spell the word. The centre hub sends it. ----------
+const DIAL = { c: 180, hub: 44, inner: 56, outer: 166 };
+let rings = [];           // { g, letters, step } — step counts whole 36° turns clockwise (any integer)
+let activeRing = 0;       // keyboard: ↑/↓ pick a ring, ←/→ turn it, or type the letter you want on top
+const mod10 = x => ((x % 10) + 10) % 10;
+const topIndex = r => mod10(-r.step);
+const dialWord = () => rings.map(r => r.letters[topIndex(r)]).join('');
+
+function buildDial(){
+  const n = N(), bandW = (DIAL.outer - DIAL.inner) / n, c = DIAL.c;
+  let svg = `<svg viewBox="0 0 360 360" aria-hidden="true">`;
+  for (let i = 0; i <= n; i++) svg += `<circle class="${i ? 'sep' : 'sep rim'}" cx="${c}" cy="${c}" r="${DIAL.outer - i * bandW}"/>`;
+  svg += `<circle class="sep rim" cx="${c}" cy="${c}" r="${DIAL.hub + 4}"/>`;
+  svg += `<path class="notch" d="M${c - 8} 2 h16 l-8 11 z"/>`;
+  V.rings.forEach((set, i) => {
+    const r = DIAL.outer - (i + 0.5) * bandW, fs = Math.round(10 + r * 0.055);
+    svg += `<g class="ring" data-i="${i}">` + set.split('').map((ch, k) => {
+      const a = k * 36 * Math.PI / 180, x = c + r * Math.sin(a), y = c - r * Math.cos(a);
+      return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${fs}" transform="rotate(${k * 36} ${x.toFixed(1)} ${y.toFixed(1)})">${ch}</text>`;
+    }).join('') + `</g>`;
+  });
+  svg += `</svg>`;
+  keypadEl.innerHTML = svg;
+  const hub = keyButton('send'); hub.classList.add('hub');
+  keypadEl.appendChild(hub);
+  rings = [...keypadEl.querySelectorAll('.ring')].map((g, i) => ({ g, letters: V.rings[i], step: 0 }));
+  activeRing = 0;
+  rings.forEach((r, i) => setStep(i, -(r.letters.indexOf(V.answer[i]) + V.startAt[i]), true));
+  entry = dialWord();
+  dialDrag(keypadEl.querySelector('svg'));
+}
+function setStep(i, s, quiet){
+  const r = rings[i]; r.step = s;
+  r.g.style.transform = `rotate(${s * 36}deg)`;
+  [...r.g.children].forEach((t, k) => t.classList.toggle('top', k === topIndex(r)));
+  if (quiet) return;
+  entry = dialWord(); renderBoxes(i);
+}
+// turn ring i the short way round so letter k sits under the notch
+function spinTo(i, k){
+  const cur = rings[i].step;
+  setStep(i, cur + mod10(-k - cur + 5) - 5);
+}
+function dialDrag(svg){
+  let d = null;   // the live drag: which ring, the grab angle, how far it has turned
+  const at = e => {
+    const b = svg.getBoundingClientRect();
+    const x = (e.clientX - b.left) / b.width * 360 - DIAL.c, y = (e.clientY - b.top) / b.height * 360 - DIAL.c;
+    return { a: Math.atan2(x, -y) * 180 / Math.PI, dist: Math.hypot(x, y) };
+  };
+  svg.addEventListener('pointerdown', e => {
+    if (busy || !e.isPrimary) return;
+    const { a, dist } = at(e);
+    if (dist < DIAL.hub + 4 || dist > DIAL.outer + 10) return;
+    e.preventDefault(); idle();
+    const bandW = (DIAL.outer - DIAL.inner) / rings.length;
+    const i = clamp(Math.floor((DIAL.outer - dist) / bandW), 0, rings.length - 1);
+    d = { i, a0: a, last: a, acc: 0, det: rings[i].step };
+    activeRing = i;
+    rings[i].g.classList.add('drag');
+    try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  svg.addEventListener('pointermove', e => {
+    if (!d) return;
+    const { a } = at(e);
+    let da = a - d.last; if (da > 180) da -= 360; if (da < -180) da += 360;
+    d.acc += da; d.last = a;
+    const r = rings[d.i], live = r.step * 36 + d.acc;   // r.step stays the grab point until release
+    r.g.style.transform = `rotate(${live}deg)`;
+    const det = Math.round(live / 36);                  // the ratchet: tick each time a letter passes the notch
+    if (det !== d.det) { d.det = det; sfx.tick(); buzz(5); [...r.g.children].forEach((t, k) => t.classList.toggle('top', k === mod10(-det))); }
+  });
+  const up = () => {
+    if (!d) return;
+    const { i, acc, a0 } = d; d = null;
+    const r = rings[i]; r.g.classList.remove('drag');
+    if (Math.abs(acc) < 9) {   // a tap: bring the tapped letter round to the notch
+      const k = mod10(Math.round(a0 / 36) - r.step);
+      if (k !== topIndex(r)) { spinTo(i, k); sfx.tick(); buzz(8); }
+      else setStep(i, r.step);
+    }
+    else setStep(i, Math.round((r.step * 36 + acc) / 36));
+  };
+  ['pointerup', 'pointercancel'].forEach(t => svg.addEventListener(t, up));
+}
+async function dialSolve(){
+  for (let i = 0; i < rings.length; i++) {
+    await sleep(240);
+    spinTo(i, rings[i].letters.indexOf(V.answer[i])); sfx.tick(); buzz(8);
+  }
+  await sleep(500);
+}
+
 function sizeBoxes(){
   if (!boxesEl.clientWidth) return;   // code screen hidden
   const n = N(), gap = n > 6 ? 4 : 6, avail = boxesEl.clientWidth - 20;   // the field's own width (it matches the keypad) less its padding
@@ -411,9 +508,9 @@ function press(k, btn){
   if (busy) return;
   idle();
   if (btn) flashKey(k);
-  if (k === 'back') { if (!entry) return; entry = entry.slice(0, -1); sfx.back(); buzz(6); renderBoxes(); return; }
+  if (k === 'back') { if (V.keypad === 'dial' || !entry) return; entry = entry.slice(0, -1); sfx.back(); buzz(6); renderBoxes(); return; }
   if (k === 'send') { if (entry.length < N()) { say(V.notFull, 'note'); sfx.back(); return; } check(); return; }
-  if (entry.length >= N()) return;
+  if (V.keypad === 'dial' || entry.length >= N()) return;
   entry += k; sfx.key(); buzz(8); renderBoxes(entry.length - 1);
 }
 function check(){
@@ -421,7 +518,7 @@ function check(){
   wrongs++; busy = true;
   boxesEl.classList.add('shake'); sfx.wrong(); buzz([60, 40, 60]);
   say(V.wrong, 'bad'); lookAtSeal(); nudgeHelp();
-  setTimeout(() => { boxesEl.classList.remove('shake'); entry = ''; busy = false; renderBoxes(); }, 650);
+  setTimeout(() => { boxesEl.classList.remove('shake'); entry = V.keypad === 'dial' ? dialWord() : ''; busy = false; renderBoxes(); }, 650);   // the dial keeps its setting
 }
 $('helpBtn').onclick = () => {
   audio(); idle();
@@ -434,6 +531,7 @@ function nudgeEl(el){ el.style.animation = 'none'; void el.offsetWidth; el.style
 solveBtn.onclick = async () => {
   if (busy) return;
   busy = true; solveBtn.hidden = true; hintsUsed++; markHints();
+  if (V.keypad === 'dial') { await dialSolve(); right(); return; }   // the rings turn themselves
   entry = ''; renderBoxes();
   for (const ch of V.answer) { await sleep(190); flashKey(ch); entry += ch; sfx.key(); renderBoxes(entry.length - 1); }
   await sleep(260);
@@ -454,8 +552,19 @@ markMute();
 addEventListener('keydown', e => {
   if ($('code').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
   const k = e.key.length === 1 ? e.key.toUpperCase() : e.key;
+  if (k === 'Enter') { e.preventDefault(); press('send', true); return; }
+  if (V.keypad === 'dial') {   // ↑/↓ pick a ring, ←/→ turn it one letter, or type the letter you want on top
+    if (busy) return;
+    if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); idle(); setStep(activeRing, rings[activeRing].step + (k === 'ArrowRight' ? 1 : -1)); sfx.tick(); }
+    else if (k === 'ArrowUp' || k === 'ArrowDown') { e.preventDefault(); activeRing = clamp(activeRing + (k === 'ArrowDown' ? 1 : -1), 0, rings.length - 1); }
+    else if (/^[A-Z]$/.test(k)) {
+      let i = rings.findIndex((r, j) => j >= activeRing && r.letters.includes(k));
+      if (i < 0) i = rings.findIndex(r => r.letters.includes(k));
+      if (i >= 0) { idle(); spinTo(i, rings[i].letters.indexOf(k)); sfx.tick(); activeRing = Math.min(i + 1, rings.length - 1); }
+    }
+    return;
+  }
   if (k === 'Backspace') press('back', true);
-  else if (k === 'Enter') { e.preventDefault(); press('send', true); }
   else if (V.backKey === '*' && k === '*') press('back', true);
   else if (V.sendKey === '#' && k === '#') press('send', true);
   else if (V.keypad === 'letters' ? /^[A-Z]$/.test(k) : /^[0-9]$/.test(k)) press(k, true);
