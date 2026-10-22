@@ -61,7 +61,7 @@
   },
   {
     "slug": "audio-preview",
-    "path": "audio-preview/?v=8",
+    "path": "audio-preview/?v=9",
     "title": "Story overview: audio preview",
     "what": "Swap characters under Details: each one loads its story overview, sprite, and audio snippet. Speaker waves plus a live sound wave from the clip. Drop new art in audio-preview/sprites/.",
     "author": "victoria",

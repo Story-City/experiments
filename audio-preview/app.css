@@ -224,6 +224,29 @@ button { font: inherit; color: inherit; }
   overflow: visible;
 }
 
+/* Sits in the existing tip-room above the panel — does not grow the tip or move the sprite. */
+.voice-by {
+  position: absolute;
+  left: 0;
+  right: var(--elf-clearance);
+  top: 10px;
+  z-index: 1;
+  margin: 0;
+  padding: 0 0 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--muted);
+  pointer-events: none;
+}
+.voice-by-label {
+  color: rgba(238, 238, 238, 0.7);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 /* Sample-story tip panel: character stands out of the right edge. No outline. */
 .tip {
   position: relative;

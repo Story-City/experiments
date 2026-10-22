@@ -4,6 +4,7 @@ export const CAST = [
   {
     id: 'tales',
     character: 'Hooded guide',
+    voiceBy: 'Story City Narration',
     sprite: 'sprites/tales.png',
     spriteFallback: 'https://creator.storycity.app/media/6ad14ddd3f3ee_ftue-door-summons-character.png',
     audio: 'snippet.mp3',
@@ -27,6 +28,7 @@ export const CAST = [
   {
     id: 'frightnight',
     character: 'Night caller',
+    voiceBy: 'Story City Narration',
     sprite: 'sprites/frightnight.png',
     spriteFallback: 'https://creator.storycity.app/media/6ad14ddaebe6c_ftue-door-knight-character.png',
     audio: 'snippet-frightnight.wav',

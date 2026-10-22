@@ -204,6 +204,7 @@ function selectCast(id) {
   active = entry;
   applyStory(entry);
   setSprite(entry);
+  $('voiceBy').textContent = entry.voiceBy || entry.character;
   clip.src = entry.audio;
   clip.load();
   label.textContent = LABEL;
