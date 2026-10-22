@@ -38,6 +38,17 @@ export const CAST = [
     end: 9.5,
     story: TALES_STORY,
   },
+  {
+    id: 'brighid',
+    character: 'Brighid',
+    voiceBy: 'Brighid',
+    sprite: 'sprites/brighid.png',
+    spriteFallback: 'https://creator.storycity.app/media/6ad14ddaebe6c_ftue-door-knight-character.png',
+    audio: 'snippet-tales-brighid.mp3',
+    start: 0.384,
+    end: 8.288,
+    story: TALES_STORY,
+  },
 ];
 
 export const LABEL = 'Tap to play audio snippet';
