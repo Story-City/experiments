@@ -171,12 +171,15 @@ function renderCast() {
   CAST.forEach((entry) => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'cast-chip';
+    btn.className = 'dot';
     btn.setAttribute('role', 'tab');
     btn.setAttribute('aria-selected', String(entry.id === active.id));
+    btn.setAttribute('aria-label', entry.character);
     btn.dataset.id = entry.id;
-    btn.textContent = entry.character;
-    btn.addEventListener('click', () => selectCast(entry.id));
+    btn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      selectCast(entry.id);
+    });
     castEl.append(btn);
   });
 }

@@ -195,56 +195,32 @@ button { font: inherit; color: inherit; }
   font-size: 14px;
 }
 
-.cast {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 10px 0 2px;
-}
-.cast-chip {
-  appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 6px 12px;
-  cursor: pointer;
-}
-.cast-chip[aria-selected="true"] {
-  border-color: var(--blue);
-  background: color-mix(in srgb, var(--blue) 22%, transparent);
-  color: var(--text);
-}
-
 .voice {
   position: relative;
   margin-top: 4px;
   overflow: visible;
 }
 
-/* Sits in the existing tip-room above the panel — does not grow the tip or move the sprite. */
-.voice-by {
-  position: absolute;
-  left: 0;
-  right: var(--elf-clearance);
-  top: 10px;
-  z-index: 1;
-  margin: 0;
-  padding: 0 0 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--muted);
-  pointer-events: none;
+.dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  min-height: 12px;
 }
-.voice-by-label {
-  color: rgba(238, 238, 238, 0.7);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.dot {
+  appearance: none;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+}
+.dot[aria-selected="true"] {
+  background: var(--blue);
 }
 
 /* Sample-story tip panel: character stands out of the right edge. No outline. */
@@ -254,13 +230,36 @@ button { font: inherit; color: inherit; }
   width: 100%;
   margin-top: var(--tip-room);
   min-height: calc(var(--elf-h) - var(--tip-room));
-  padding: 16px var(--elf-clearance) 16px 16px;
+  padding: 16px var(--elf-clearance) 28px 16px;
   border: 0;
   border-radius: var(--tip-radius);
   background: linear-gradient(45deg, var(--blue-700), var(--blue-500));
   text-align: left;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Anchored to the bottom of the tip — does not move the play row or sprite. */
+.voice-by {
+  position: absolute;
+  left: 16px;
+  right: var(--elf-clearance);
+  bottom: 10px;
+  z-index: 1;
+  margin: 0;
+  padding: 6px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.92);
+  pointer-events: none;
+}
+.voice-by-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .tip.pressed { background: linear-gradient(45deg, var(--blue-500), var(--blue-700)); }
 
@@ -269,6 +268,7 @@ button { font: inherit; color: inherit; }
   align-items: center;
   gap: 12px;
   min-height: 48px;
+  padding-bottom: 22px;
 }
 
 .audio-icon {
