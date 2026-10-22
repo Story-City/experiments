@@ -1,4 +1,4 @@
-import { CAST, LABEL } from './cast.js';
+import { CAST, LABEL } from './cast.js?v=14';
 
 const BAR_COUNT = 32;
 const BAR_GAP = 2;

@@ -335,5 +335,6 @@ button { font: inherit; color: inherit; }
   width: var(--elf-w);
   height: var(--elf-h);
   object-fit: contain;
+  object-position: top center;
   pointer-events: none;
 }
