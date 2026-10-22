@@ -9,12 +9,12 @@
   --blue-800: #0259a1;
   --chip-border: #676767;
   --gap: 8px;
-  /* Sample-story tip elf: same sizes as FtueMap / DecryptPuzzle. */
-  --elf-w: 168px;
-  --elf-h: 151px;
-  --elf-overhang: 14px;
-  --elf-clearance: 154px;
-  --tip-room: 52px;
+  /* Tip sprite: a bit larger than FTUE elf; tip-room clears the overhang. */
+  --elf-w: 196px;
+  --elf-h: 188px;
+  --elf-overhang: 16px;
+  --elf-clearance: 178px;
+  --tip-room: 72px;
   --tip-radius: 28px;
   --tip-h: 118px;
   --tip-copy-h: 40px;
@@ -197,8 +197,12 @@ button { font: inherit; color: inherit; }
   font-size: 14px;
 }
 
+/* Tip-room padding above this title is the overhang for bigger sprites. */
 .section-title {
-  margin: 12px 0 0;
+  position: relative;
+  z-index: 1;
+  margin: 0 0 6px;
+  padding-right: var(--elf-clearance);
   font-size: 18px;
   font-weight: 700;
   line-height: 1.2;
@@ -207,7 +211,8 @@ button { font: inherit; color: inherit; }
 
 .voice {
   position: relative;
-  margin-top: 4px;
+  margin: 0 0 12px;
+  padding-top: var(--tip-room);
   overflow: visible;
 }
 
@@ -239,7 +244,7 @@ button { font: inherit; color: inherit; }
   display: block;
   width: 100%;
   height: var(--tip-h);
-  margin-top: var(--tip-room);
+  margin: 0;
   padding: 14px var(--elf-clearance) 30px 16px;
   border: 0;
   border-radius: var(--tip-radius);

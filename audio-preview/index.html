@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=16">
+<link rel="stylesheet" href="app.css?v=17">
 </head>
 <body>
 <main class="screen">
@@ -52,10 +52,8 @@
     </div>
 
     <section id="panel-details" role="tabpanel" aria-labelledby="tab-details" data-panel="details">
-      <div class="description" id="description"></div>
-
-      <h2 class="section-title">Meet the cast</h2>
       <div class="voice" id="voice">
+        <h2 class="section-title">Meet the cast</h2>
         <button type="button" class="tip" id="play" aria-pressed="false" aria-label="Tap to play audio snippet">
           <span class="tip-body">
             <svg class="audio-icon" width="42" height="34" viewBox="0 0 42 34" fill="none" aria-hidden="true">
@@ -75,6 +73,8 @@
         <div class="dots" id="cast" role="tablist" aria-label="Voice demo character"></div>
         <audio id="clip" preload="auto"></audio>
       </div>
+
+      <div class="description" id="description"></div>
     </section>
 
     <section id="panel-reviews" role="tabpanel" aria-labelledby="tab-reviews" data-panel="reviews" hidden>
@@ -82,6 +82,6 @@
     </section>
   </div>
 </main>
-<script type="module" src="app.js?v=16"></script>
+<script type="module" src="app.js?v=17"></script>
 </body>
 </html>
