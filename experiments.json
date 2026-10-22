@@ -61,7 +61,7 @@
   },
   {
     "slug": "audio-preview",
-    "path": "audio-preview/?v=12",
+    "path": "audio-preview/?v=13",
     "title": "Story overview: audio preview",
     "what": "Tales from the Incident overview. Dot carousel swaps characters and Tales audio snippets (incl. Brighid). Voice by at the bottom of the panel. Live sound wave from the clip.",
     "author": "victoria",

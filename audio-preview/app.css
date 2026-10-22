@@ -16,6 +16,8 @@
   --elf-clearance: 154px;
   --tip-room: 52px;
   --tip-radius: 28px;
+  --tip-h: 118px;
+  --tip-copy-h: 40px;
 }
 
 * { box-sizing: border-box; }
@@ -228,15 +230,16 @@ button { font: inherit; color: inherit; }
   position: relative;
   display: block;
   width: 100%;
+  height: var(--tip-h);
   margin-top: var(--tip-room);
-  min-height: calc(var(--elf-h) - var(--tip-room));
-  padding: 16px var(--elf-clearance) 28px 16px;
+  padding: 14px var(--elf-clearance) 30px 16px;
   border: 0;
   border-radius: var(--tip-radius);
   background: linear-gradient(45deg, var(--blue-700), var(--blue-500));
   text-align: left;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  overflow: visible;
 }
 
 /* Anchored to the bottom of the tip — does not move the play row or sprite. */
@@ -267,8 +270,7 @@ button { font: inherit; color: inherit; }
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 48px;
-  padding-bottom: 22px;
+  height: var(--tip-copy-h);
 }
 
 .audio-icon {
@@ -296,27 +298,34 @@ button { font: inherit; color: inherit; }
 }
 
 .tip-copy {
+  position: relative;
   flex: 1;
   min-width: 0;
-  display: flex;
-  align-items: center;
+  height: var(--tip-copy-h);
 }
 
 .voice-label {
-  display: block;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  margin: 0;
   font-family: "Darker Grotesque", sans-serif;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.1;
   color: var(--text);
   user-select: none;
+  white-space: nowrap;
 }
 
 .voice-bars {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   max-width: 240px;
-  height: 40px;
+  height: var(--tip-copy-h);
 }
 
 .sprite {
