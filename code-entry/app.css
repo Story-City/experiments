@@ -223,6 +223,9 @@ h1, p, .bub, .me, .start-sub, .solve, .eyebrow { text-wrap: balance; }
 .dial .sep { fill: none; stroke: rgba(63,180,255,0.13); stroke-width: 1; }
 .dial .rim { stroke: rgba(63,180,255,0.32); stroke-width: 1.5; }
 .dial .notch { fill: var(--gold); filter: drop-shadow(0 0 4px rgba(245,201,90,0.9)); }
+.dial .row-arrow { fill: none; stroke: var(--vault); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none;
+  filter: drop-shadow(0 0 3px rgba(63,180,255,0.8)); }
+.keypad.glow.won .row-arrow { stroke: #8ff0bb; filter: drop-shadow(0 0 4px rgba(61,220,132,0.8)); }
 .dial .ring text { fill: var(--vault); opacity: 0.82; text-anchor: middle; dominant-baseline: central; pointer-events: none;
   font-family: system-ui, -apple-system, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif; font-weight: 300;
   filter: drop-shadow(0 0 4px rgba(63,180,255,0.55)); }

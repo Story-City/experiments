@@ -417,14 +417,16 @@ function buildDial(){
   const w = t => ctx.measureText(t).width;
   // letters: the same spacing on every ring. Words: each ring spaced for its longest word, and far enough apart
   // that the words either side of the notch stay clear of the outline (which is as wide as the longest answer word).
-  const slotW = Math.round(V.words ? Math.max(...ans.map(w)) + fs * 0.8 : fs * 1.45);
+  // (flat rows have extra room inside the outline for a small ‹ › either side of each word)
+  const slotW = Math.round(V.words ? Math.max(...ans.map(w)) + fs * (flat ? 2.2 : 0.8) : fs * 1.45);
+  const arrowX = slotW / 2 - fs * 0.5, arrowHit = arrowX - fs * 0.6;   // where the ‹ › sit, and where a tap counts as hitting one
   const gaps = lists.map(l => { if (!V.words) return fs * DIAL.gap; const m = Math.max(...l.map(w)); return Math.max(m + fs * 0.9, slotW / 2 + m / 2 + fs * 0.8); });
   let svg = `<svg viewBox="0 0 360 ${DIAL.crop}" aria-hidden="true"${flat ? ' data-flat' : ''}>`;
   for (let i = 0; i <= n; i++) {
     const R = DIAL.outer - i * bandW, cls = i ? 'sep' : 'sep rim';
     svg += flat ? `<line class="${cls}" x1="0" x2="360" y1="${cy - R}" y2="${cy - R}"/>` : `<circle class="${cls}" cx="${cx}" cy="${cy}" r="${R}"/>`;
   }
-  svg += `<path class="notch" d="M${cx - 8} 2 h16 l-8 11 z"/>`;
+  if (!flat) svg += `<path class="notch" d="M${cx - 8} 2 h16 l-8 11 z"/>`;   // flat rows use the ‹ › arrows instead
   // every ring turns by the same angle per item, so at rest the items line up along spokes from the centre.
   // That angle is the widest any ring needs (usually the inner ring's), so nothing is ever closer than its gap.
   // Flat rows (words) each keep their own spacing instead: words differ too much in width to share columns,
@@ -437,11 +439,18 @@ function buildDial(){
     // how far round the window reaches on this ring (its side edges, or its bottom), plus one spare each side
     const reach = flat ? cx + 20 : Math.min(Math.asin(Math.min(1, (cx + 20) / r)), (cy - DIAL.crop) / r < 1 ? Math.acos((cy - DIAL.crop) / r) : Math.PI / 2) * 180 / Math.PI;
     const K = Math.ceil(reach / deg) + 1;
-    geo.push({ r, deg, K, flat });
+    geo.push({ r, deg, K, flat, arrowHit });
     // every item is drawn at the top of the wheel, dead centre, then rotated into place about the wheel's
     // centre — so whichever one sits under the notch is exactly on the vertical centre line
     svg += `<g class="ring" data-i="${i}" data-deg="${deg.toFixed(4)}">` +
       Array.from({ length: 2 * K + 1 }, () => `<text x="${cx}" y="${(cy - r).toFixed(1)}" font-size="${fs}"></text>`).join('') + `</g>`;
+  }
+  // flat rows: a small ‹ and › either side of each row's word, just inside the outline (tap one to slide that row)
+  const ah = fs * 0.24, aw = fs * 0.13;
+  if (flat) for (let i = 0; i < n; i++) {
+    const y = cy - radius(i);
+    svg += `<path class="row-arrow" d="M${cx - arrowX + aw} ${y - ah} L${cx - arrowX - aw} ${y} L${cx - arrowX + aw} ${y + ah}"/>` +
+           `<path class="row-arrow" d="M${cx + arrowX - aw} ${y - ah} L${cx + arrowX + aw} ${y} L${cx + arrowX - aw} ${y + ah}"/>`;
   }
   // the outline round the lined-up column: this replaces the code field on the dial
   svg += `<rect class="slot" x="${cx - slotW / 2}" y="${cy - DIAL.outer + 3}" width="${slotW}" height="${DIAL.outer - DIAL.inner - 6}" rx="${Math.round(Math.min(slotW, fs * 1.45) * 0.28)}"/>`;
@@ -526,7 +535,8 @@ function dialDrag(svg){
     const { i, acc, a0 } = d; d = null;
     const r = rings[i];
     if (Math.abs(acc) < r.deg * 0.36) {   // a tap: bring the tapped character round to the notch
-      const j = Math.round(a0 / r.deg - r.p + r.step);   // how many characters right of the notch the tapped one sits
+      let j = Math.round(a0 / r.deg - r.p + r.step);   // how many characters right of the notch the tapped one sits
+      if (!j && r.flat && Math.abs(a0) > r.arrowHit) j = Math.sign(a0);   // tapped a ‹ or ›: slide one word that way
       if (j) { setStep(i, r.step - j); sfx.tick(); buzz(8); }
       else setStep(i, r.step);
     }
