@@ -220,6 +220,23 @@ button { font: inherit; color: inherit; }
   overflow: visible;
 }
 
+.cast-stage {
+  position: relative;
+  /* Padding keeps the overhanging sprite inside the swipe clip box. */
+  padding-top: calc(var(--elf-h) - var(--tip-h) + 12px);
+  margin-top: calc((var(--elf-h) - var(--tip-h) + 12px) * -1);
+  overflow: hidden;
+  border-radius: var(--tip-radius);
+  touch-action: pan-y;
+}
+.cast-stage .tip {
+  touch-action: pan-y;
+  will-change: transform;
+}
+.cast-stage .tip.swiping {
+  cursor: grabbing;
+}
+
 .dots {
   display: flex;
   justify-content: center;
@@ -285,21 +302,21 @@ button { font: inherit; color: inherit; }
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.2);
-  filter: blur(16px) saturate(0.85) brightness(0.55);
+  transform: scale(1.08);
+  filter: blur(6px) saturate(0.95) brightness(0.72);
 }
 .tip-place-scrim {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(10, 6, 24, 0.55) 0%,
-    rgba(10, 6, 24, 0.35) 55%,
-    rgba(10, 6, 24, 0.6) 100%
+    rgba(10, 6, 24, 0.38) 0%,
+    rgba(10, 6, 24, 0.22) 55%,
+    rgba(10, 6, 24, 0.42) 100%
   );
 }
 .tip--place.pressed .tip-place-scrim {
-  background: rgba(10, 6, 24, 0.62);
+  background: rgba(10, 6, 24, 0.5);
 }
 
 .dbg {

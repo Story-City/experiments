@@ -1,10 +1,13 @@
-import { CAST, LABEL } from './cast.js?v=19';
+import { CAST, LABEL } from './cast.js?v=20';
 
 const BAR_COUNT = 32;
 const BAR_GAP = 2;
 const BAR_MIN = 3;
 const TIP_STYLES = ['solid', 'place'];
 const TIP_STYLE_KEY = 'audio-preview-tip-style';
+const SWIPE_THRESHOLD_PX = 56;
+const SWIPE_AXIS_RATIO = 1.2;
+const SWIPE_OUT_MS = 220;
 
 const play = document.getElementById('play');
 const label = document.getElementById('voiceLabel');
@@ -14,6 +17,7 @@ const start = document.getElementById('start');
 const sprite = document.getElementById('sprite');
 const castEl = document.getElementById('cast');
 const tipPlaceImg = document.getElementById('tipPlaceImg');
+const castStage = document.getElementById('castStage');
 const ctx2d = bars.getContext('2d');
 
 const $ = (id) => document.getElementById(id);
@@ -27,6 +31,13 @@ let sourceNode = null;
 let freq = null;
 let time = null;
 let wired = false;
+let swipeStartX = 0;
+let swipeStartY = 0;
+let swipeDx = 0;
+let swipeActive = false;
+let swipeLocked = false;
+let suppressPlayClick = false;
+let swipeAnimating = false;
 
 function ensureGraph() {
   if (wired) return analyser != null;
@@ -199,8 +210,38 @@ function applyStory(entry) {
   $('chipDuration').textContent = story.duration;
   $('summary').textContent = story.summary;
   renderDescription(story.description);
-  tipPlaceImg.src = story.place || '';
+  tipPlaceImg.src = entry.place || story.place || '';
   document.title = `Story overview: ${story.title}`;
+}
+
+function castIndex(id) {
+  const index = CAST.findIndex((item) => item.id === id);
+  return index < 0 ? 0 : index;
+}
+
+function resetTipTransform() {
+  play.style.transition = '';
+  play.style.transform = '';
+  play.classList.remove('swiping');
+}
+
+function finishSwipeTo(nextId, direction) {
+  swipeAnimating = true;
+  play.style.transition = `transform ${SWIPE_OUT_MS}ms ease`;
+  play.style.transform = `translateX(${direction < 0 ? '-110%' : '110%'})`;
+  window.setTimeout(() => {
+    selectCast(nextId, { force: true });
+    play.style.transition = 'none';
+    play.style.transform = `translateX(${direction < 0 ? '110%' : '-110%'})`;
+    // Force layout so the incoming slide animates from off-screen.
+    void play.offsetWidth;
+    play.style.transition = `transform ${SWIPE_OUT_MS}ms ease`;
+    play.style.transform = 'translateX(0)';
+    window.setTimeout(() => {
+      resetTipTransform();
+      swipeAnimating = false;
+    }, SWIPE_OUT_MS);
+  }, SWIPE_OUT_MS);
 }
 
 function syncTipStyleUi() {
@@ -222,9 +263,9 @@ function setTipStyle(next) {
   history.replaceState(null, '', url);
 }
 
-function selectCast(id) {
+function selectCast(id, options = {}) {
   const entry = CAST.find((item) => item.id === id) || CAST[0];
-  if (entry.id === active.id && clip.src) {
+  if (!options.force && entry.id === active.id && clip.src) {
     return;
   }
   stopClip();
@@ -245,8 +286,76 @@ function selectCast(id) {
 
 play.addEventListener('click', (event) => {
   event.preventDefault();
+  if (suppressPlayClick || swipeAnimating) {
+    suppressPlayClick = false;
+    return;
+  }
   togglePlay();
 });
+
+play.addEventListener('pointerdown', (event) => {
+  if (swipeAnimating || event.button !== 0) return;
+  swipeStartX = event.clientX;
+  swipeStartY = event.clientY;
+  swipeDx = 0;
+  swipeActive = true;
+  swipeLocked = false;
+  play.setPointerCapture(event.pointerId);
+});
+
+play.addEventListener('pointermove', (event) => {
+  if (!swipeActive || swipeAnimating) return;
+  const dx = event.clientX - swipeStartX;
+  const dy = event.clientY - swipeStartY;
+  if (!swipeLocked) {
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+    if (Math.abs(dx) < Math.abs(dy) * SWIPE_AXIS_RATIO) {
+      swipeActive = false;
+      resetTipTransform();
+      return;
+    }
+    swipeLocked = true;
+    stopClip();
+    play.classList.add('swiping');
+    play.style.transition = 'none';
+  }
+  swipeDx = dx;
+  play.style.transform = `translateX(${dx}px)`;
+});
+
+function endSwipe(event) {
+  if (!swipeActive) return;
+  swipeActive = false;
+  play.classList.remove('swiping');
+  if (event && play.hasPointerCapture?.(event.pointerId)) {
+    play.releasePointerCapture(event.pointerId);
+  }
+  if (!swipeLocked) {
+    resetTipTransform();
+    return;
+  }
+  suppressPlayClick = true;
+  const index = castIndex(active.id);
+  let nextId = null;
+  let direction = 0;
+  if (swipeDx <= -SWIPE_THRESHOLD_PX && index < CAST.length - 1) {
+    nextId = CAST[index + 1].id;
+    direction = -1;
+  } else if (swipeDx >= SWIPE_THRESHOLD_PX && index > 0) {
+    nextId = CAST[index - 1].id;
+    direction = 1;
+  }
+  if (nextId) {
+    finishSwipeTo(nextId, direction);
+    return;
+  }
+  play.style.transition = `transform ${SWIPE_OUT_MS}ms ease`;
+  play.style.transform = 'translateX(0)';
+  window.setTimeout(resetTipTransform, SWIPE_OUT_MS);
+}
+
+play.addEventListener('pointerup', endSwipe);
+play.addEventListener('pointercancel', endSwipe);
 clip.addEventListener('ended', stopClip);
 clip.addEventListener('error', () => setPlaying(false));
 
