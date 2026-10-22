@@ -61,9 +61,9 @@
   },
   {
     "slug": "audio-preview",
-    "path": "audio-preview/?v=14&c=brighid",
+    "path": "audio-preview/?v=15&c=brighid",
     "title": "Story overview: audio preview",
-    "what": "Tales from the Incident overview. Opens on Brighid. Dot carousel swaps Tales snippets. Voice by at the bottom of the panel. Live sound wave from the clip.",
+    "what": "Tales overview. 3 dots: Hooded guide, Case caller, Brighid — each with its own Tales snippet. Opens on Brighid.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-10",
