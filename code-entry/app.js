@@ -358,12 +358,16 @@ function alignGlyphs(){
 // the characters under the gold notch, read outside in, spell the code. Only the top of the wheel shows
 // (crop, the dial's centre sits below the window) — like the window of a combination lock. No send key:
 // the moment the right code lines up, it sends itself. Each variant sets its ring characters in story.js
-// (symbols, repeated `repeat` times round each ring so the spacing feels the same for 0–9 as for A–Z). ----------
-const DIAL = { cx: 180, cy: 521, inner: 183, outer: 503, crop: 383 };   // a big wheel seen through a narrow window; crop: how much of its top is visible
-let SYMS = '', M = 26, STEP = 360 / 26;   // the characters round each ring, how many, and the angle between them
-let rings = [];           // { g, step } — step counts whole one-character turns clockwise (any integer)
+// (symbols, repeated `repeat` times; A–Z by default).
+// The rings are endless strips rather than fixed wheels: each draws only the characters near the window, the same
+// distance apart on every ring (GAP × the letter size), and Z runs straight on into A — so the outer rings aren't
+// spread thin and there's never a gap at the end of the alphabet. ----------
+const DIAL = { cx: 180, cy: 521, inner: 183, outer: 503, crop: 383, gap: 1.35 };   // a big wheel seen through a narrow window; crop: how much of its top is visible
+let SYMS = '', M = 26;    // the characters on each ring, and how many
+let rings = [];           // { g, r, deg, K, texts, step, p, raf } — step: whole turns clockwise (any integer); p: where it's drawn (eases to step)
 let dialWon = false;
 let activeRing = 0;       // keyboard: ↑/↓ pick a ring, ←/→ turn it, or type the character you want on top
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const modM = x => ((x % M) + M) % M;
 const topIndex = r => modM(-r.step);
 const dialWord = () => rings.map(r => SYMS[topIndex(r)]).join('');
@@ -375,38 +379,65 @@ function nearest(i, ch){
 }
 
 function buildDial(){
-  SYMS = (V.symbols || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ').repeat(V.repeat || 1); M = SYMS.length; STEP = 360 / M;
-  const n = N(), bandW = (DIAL.outer - DIAL.inner) / n, cx = DIAL.cx, cy = DIAL.cy;
-  const fs = Math.round(bandW * 0.62), slotW = Math.round(fs * 1.6);   // one size on every ring, so the code reads as one even column
+  SYMS = (V.symbols || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ').repeat(V.repeat || 1); M = SYMS.length;
+  const n = N(), bandW = (DIAL.outer - DIAL.inner) / n, { cx, cy } = DIAL;
+  const fs = Math.round(bandW * 0.62), slotW = Math.round(fs * 1.45), gap = fs * DIAL.gap;   // one size and one spacing on every ring
   let svg = `<svg viewBox="0 0 360 ${DIAL.crop}" aria-hidden="true">`;
   for (let i = 0; i <= n; i++) svg += `<circle class="${i ? 'sep' : 'sep rim'}" cx="${cx}" cy="${cy}" r="${DIAL.outer - i * bandW}"/>`;
   svg += `<path class="notch" d="M${cx - 8} 2 h16 l-8 11 z"/>`;
+  const geo = [];
   for (let i = 0; i < n; i++) {
-    const r = DIAL.outer - (i + 0.5) * bandW;
-    // every character is drawn at the top of the wheel, dead centre, then rotated into place about the
-    // wheel's centre — so whichever one sits under the notch is exactly on the vertical centre line
-    svg += `<g class="ring" data-i="${i}" style="transform-origin:${cx}px ${cy}px">` + [...SYMS].map((ch, k) =>
-      `<text x="${cx}" y="${(cy - r).toFixed(1)}" font-size="${fs}" transform="rotate(${(k * STEP).toFixed(3)} ${cx} ${cy})">${ch}</text>`
-    ).join('') + `</g>`;
+    const r = DIAL.outer - (i + 0.5) * bandW, deg = gap / r * 180 / Math.PI;
+    // how far round the window reaches on this ring (its side edges, or its bottom), plus one spare each side
+    const reach = Math.min(Math.asin(Math.min(1, (cx + 20) / r)), (cy - DIAL.crop) / r < 1 ? Math.acos((cy - DIAL.crop) / r) : Math.PI / 2) * 180 / Math.PI;
+    const K = Math.ceil(reach / deg) + 1;
+    geo.push({ r, deg, K });
+    // every character is drawn at the top of the wheel, dead centre, then rotated into place about the wheel's
+    // centre — so whichever one sits under the notch is exactly on the vertical centre line
+    svg += `<g class="ring" data-i="${i}" data-deg="${deg.toFixed(4)}">` +
+      Array.from({ length: 2 * K + 1 }, () => `<text x="${cx}" y="${(cy - r).toFixed(1)}" font-size="${fs}"></text>`).join('') + `</g>`;
   }
   // the outline round the lined-up column: this replaces the code field on the dial
   svg += `<rect class="slot" x="${cx - slotW / 2}" y="${cy - DIAL.outer + 3}" width="${slotW}" height="${DIAL.outer - DIAL.inner - 6}" rx="${Math.round(slotW * 0.28)}"/>`;
   svg += `</svg>`;
   keypadEl.innerHTML = svg;
-  rings = [...keypadEl.querySelectorAll('.ring')].map(g => ({ g, step: 0 }));
+  rings = [...keypadEl.querySelectorAll('.ring')].map((g, i) => ({ g, ...geo[i], texts: [...g.children], step: 0, p: 0, raf: 0 }));
   activeRing = 0; dialWon = false;
   rings.forEach((r, i) => setStep(i, -(SYMS.indexOf(V.answer[i]) + V.startAt[i]), true));
   entry = dialWord();
   dialDrag(keypadEl.querySelector('svg'));
 }
+// draw ring r at position r.p: the middle text is always the one under the notch
+function draw(r){
+  const { cx, cy } = DIAL, base = Math.round(-r.p);
+  r.texts.forEach((t, j) => {
+    const k = base + j - r.K, ch = SYMS[modM(k)];
+    t.setAttribute('transform', `rotate(${((k + r.p) * r.deg).toFixed(3)} ${cx} ${cy})`);
+    if (t.textContent !== ch) t.textContent = ch;
+    t.classList.toggle('top', j === r.K);
+  });
+}
+// ease ring r from where it's drawn to position `to`; returns how long that takes (ms)
+function ease(r, to){
+  cancelAnimationFrame(r.raf);
+  const from = r.p, d = to - from;
+  if (!d || RM) { r.p = to; draw(r); return 0; }
+  const dur = Math.min(240 + 22 * Math.abs(d), 600), t0 = performance.now();
+  const f = now => {
+    const t = Math.min(1, (now - t0) / dur);
+    r.p = from + d * (1 - Math.pow(1 - t, 3)); draw(r);
+    if (t < 1) r.raf = requestAnimationFrame(f);
+  };
+  r.raf = requestAnimationFrame(f);
+  return dur;
+}
 function setStep(i, s, quiet){
   const r = rings[i]; r.step = s;
-  r.g.style.transform = `rotate(${(s * STEP).toFixed(2)}deg)`;
-  [...r.g.children].forEach((t, k) => t.classList.toggle('top', k === topIndex(r)));
-  if (quiet) return;
+  if (quiet) { cancelAnimationFrame(r.raf); r.p = s; draw(r); return; }
+  const dur = ease(r, s);
   entry = dialWord(); renderBoxes(i);
   // the right code sends itself once the ring has settled into place
-  if (entry === V.answer && !dialWon) { dialWon = true; busy = true; clearTimeout(idleTimer); setTimeout(right, 380); }
+  if (entry === V.answer && !dialWon) { dialWon = true; busy = true; clearTimeout(idleTimer); setTimeout(right, dur + 140); }
 }
 // turn ring i the short way round so character k sits under the notch
 function spinTo(i, k){
@@ -414,7 +445,7 @@ function spinTo(i, k){
   setStep(i, cur + modM(-k - cur + h) - h);
 }
 function dialDrag(svg){
-  let d = null;   // the live drag: which ring, the grab angle, how far it has turned
+  let d = null;   // the live drag: which ring, the grab angle, where the ring was, how far it has turned
   const at = e => {
     const b = svg.getBoundingClientRect(), s = b.width / 360;   // the window shows the wheel's top; its centre sits below
     const x = (e.clientX - b.left) / s - DIAL.cx, y = (e.clientY - b.top) / s - DIAL.cy;
@@ -426,10 +457,10 @@ function dialDrag(svg){
     if (dist < DIAL.inner - 6 || dist > DIAL.outer + 12) return;
     e.preventDefault(); idle();
     const bandW = (DIAL.outer - DIAL.inner) / rings.length;
-    const i = clamp(Math.floor((DIAL.outer - dist) / bandW), 0, rings.length - 1);
-    d = { i, a0: a, last: a, acc: 0, det: rings[i].step };
+    const i = clamp(Math.floor((DIAL.outer - dist) / bandW), 0, rings.length - 1), r = rings[i];
+    cancelAnimationFrame(r.raf);
+    d = { i, a0: a, last: a, acc: 0, p0: r.p, det: Math.round(r.p) };
     activeRing = i;
-    rings[i].g.classList.add('drag');
     try { svg.setPointerCapture(e.pointerId); } catch (err) {}
   });
   svg.addEventListener('pointermove', e => {
@@ -437,21 +468,21 @@ function dialDrag(svg){
     const { a } = at(e);
     let da = a - d.last; if (da > 180) da -= 360; if (da < -180) da += 360;
     d.acc += da; d.last = a;
-    const r = rings[d.i], live = r.step * STEP + d.acc;   // r.step stays the grab point until release
-    r.g.style.transform = `rotate(${live.toFixed(2)}deg)`;
-    const det = Math.round(live / STEP);                  // the ratchet: tick each time a character passes the notch
-    if (det !== d.det) { d.det = det; sfx.tick(); buzz(5); [...r.g.children].forEach((t, k) => t.classList.toggle('top', k === modM(-det))); }
+    const r = rings[d.i];
+    r.p = d.p0 + d.acc / r.deg; draw(r);   // the letters follow the finger
+    const det = Math.round(r.p);           // the ratchet: tick each time a character passes the notch
+    if (det !== d.det) { d.det = det; sfx.tick(); buzz(5); }
   });
   const up = () => {
     if (!d) return;
     const { i, acc, a0 } = d; d = null;
-    const r = rings[i]; r.g.classList.remove('drag');
-    if (Math.abs(acc) < STEP * 0.36) {   // a tap: bring the tapped character round to the notch
-      const k = modM(Math.round(a0 / STEP) - r.step);
-      if (k !== topIndex(r)) { spinTo(i, k); sfx.tick(); buzz(8); }
+    const r = rings[i];
+    if (Math.abs(acc) < r.deg * 0.36) {   // a tap: bring the tapped character round to the notch
+      const j = Math.round(a0 / r.deg - r.p + r.step);   // how many characters right of the notch the tapped one sits
+      if (j) { setStep(i, r.step - j); sfx.tick(); buzz(8); }
       else setStep(i, r.step);
     }
-    else setStep(i, Math.round((r.step * STEP + acc) / STEP));
+    else setStep(i, Math.round(r.p));
   };
   ['pointerup', 'pointercancel'].forEach(t => svg.addEventListener(t, up));
 }

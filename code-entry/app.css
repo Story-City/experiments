@@ -223,8 +223,6 @@ h1, p, .bub, .me, .start-sub, .solve, .eyebrow { text-wrap: balance; }
 .dial .sep { fill: none; stroke: rgba(63,180,255,0.13); stroke-width: 1; }
 .dial .rim { stroke: rgba(63,180,255,0.32); stroke-width: 1.5; }
 .dial .notch { fill: var(--gold); filter: drop-shadow(0 0 4px rgba(245,201,90,0.9)); }
-.dial .ring { transform-box: view-box; transition: transform 0.26s cubic-bezier(.2,.8,.2,1); will-change: transform; }   /* the origin (the wheel's centre, below the window) is set inline */
-.dial .ring.drag { transition: none; }
 .dial .ring text { fill: var(--vault); opacity: 0.82; text-anchor: middle; dominant-baseline: central; pointer-events: none;
   font-family: system-ui, -apple-system, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif; font-weight: 300;
   filter: drop-shadow(0 0 4px rgba(63,180,255,0.55)); }
@@ -260,7 +258,7 @@ h1, p, .bub, .me, .start-sub, .solve, .eyebrow { text-wrap: balance; }
 @keyframes spark { 10% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.4); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .loupe, .loupe-hint, .dial .ring { transition: none; }
+  .loupe, .loupe-hint { transition: none; }
   .win.rumble { animation: fade 0.5s ease-out both; }
   .float, .pulse, .boxes.shake, .help.nudge, .keypad.glow .key.send.ready, .box.next::after { animation: none; }
 }
