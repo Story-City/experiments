@@ -61,7 +61,7 @@
   },
   {
     "slug": "audio-preview",
-    "path": "audio-preview/?v=22&c=tales&tip=place",
+    "path": "audio-preview/?v=23&c=tales&tip=place",
     "title": "Story overview: audio preview",
     "what": "Side-by-side swipe carousel for Meet the cast. Place tip + solid debug toggle.",
     "author": "victoria",

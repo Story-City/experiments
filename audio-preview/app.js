@@ -1,14 +1,14 @@
-import { CAST, LABEL } from './cast.js?v=22';
+import { CAST, LABEL } from './cast.js?v=23';
 
 const BAR_COUNT = 32;
 const BAR_GAP = 2;
 const BAR_MIN = 3;
 const TIP_STYLES = ['solid', 'place'];
 const TIP_STYLE_KEY = 'audio-preview-tip-style';
-const SWIPE_THRESHOLD_PX = 48;
-const SWIPE_AXIS_RATIO = 1.15;
+const SWIPE_THRESHOLD_PX = 56;
+const SWIPE_AXIS_RATIO = 1.25;
 const SWIPE_SNAP_MS = 280;
-const SWIPE_LOCK_PX = 12;
+const SWIPE_LOCK_PX = 24;
 
 const clip = document.getElementById('clip');
 const start = document.getElementById('start');
@@ -392,6 +392,7 @@ castStage.addEventListener('pointermove', (event) => {
 function endSwipe(event) {
   if (!swipeActive && !swipeLocked) return;
   const wasLocked = swipeLocked;
+  const dx = swipeDx;
   swipeActive = false;
   swipeLocked = false;
   castStage.classList.remove('swiping');
@@ -402,22 +403,29 @@ function endSwipe(event) {
     dragOffsetPx = 0;
     return;
   }
-  suppressPlayClick = true;
   const index = castIndex(active.id);
   let nextIndex = index;
-  if (swipeDx <= -SWIPE_THRESHOLD_PX && index < CAST.length - 1) {
+  if (dx <= -SWIPE_THRESHOLD_PX && index < CAST.length - 1) {
     nextIndex = index + 1;
-  } else if (swipeDx >= SWIPE_THRESHOLD_PX && index > 0) {
+  } else if (dx >= SWIPE_THRESHOLD_PX && index > 0) {
     nextIndex = index - 1;
   }
   dragOffsetPx = 0;
   if (nextIndex !== index) {
+    // Changing slides — kill the synthetic click that may follow a drag.
+    suppressPlayClick = true;
     selectCast(CAST[nextIndex].id, { animate: true, force: true });
-  } else {
-    syncTrack(true);
+    window.setTimeout(() => { suppressPlayClick = false; }, 80);
+    return;
   }
-  // Clear suppress on next tick so a real later tap can play.
-  window.setTimeout(() => { suppressPlayClick = false; }, 0);
+  syncTrack(true);
+  // Dragged a little but not enough to change slides: browsers often skip
+  // the click after pointer capture, so play explicitly.
+  if (Math.abs(dx) < SWIPE_THRESHOLD_PX) {
+    suppressPlayClick = true;
+    togglePlay();
+    window.setTimeout(() => { suppressPlayClick = false; }, 80);
+  }
 }
 
 castStage.addEventListener('pointerup', endSwipe);
