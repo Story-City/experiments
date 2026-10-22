@@ -61,7 +61,7 @@
   },
   {
     "slug": "audio-preview",
-    "path": "audio-preview/?v=6",
+    "path": "audio-preview/?v=7",
     "title": "Story overview: audio preview",
     "what": "Tales from the Incident overview with badges. Under Details, the full-size sample-story character panel: Tap to play audio snippet, speaker waves plus a live sound wave from the actual clip. No outline, no Audio tab.",
     "author": "victoria",
