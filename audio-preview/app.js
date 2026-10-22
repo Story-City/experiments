@@ -1,4 +1,4 @@
-import { CAST, LABEL } from './cast.js?v=15';
+import { CAST, LABEL } from './cast.js?v=16';
 
 const BAR_COUNT = 32;
 const BAR_GAP = 2;
@@ -208,7 +208,6 @@ function selectCast(id) {
   applyStory(entry);
   setSprite(entry);
   $('voiceBy').textContent = entry.voiceBy || entry.character;
-  $('castName').textContent = entry.character;
   clip.src = entry.audio;
   clip.load();
   label.textContent = LABEL;

@@ -61,9 +61,9 @@
   },
   {
     "slug": "audio-preview",
-    "path": "audio-preview/?v=15&c=brighid",
+    "path": "audio-preview/?v=16&c=brighid",
     "title": "Story overview: audio preview",
-    "what": "Tales overview. 3 dots: Hooded guide, Case caller, Brighid — each with its own Tales snippet. Opens on Brighid.",
+    "what": "Tales overview with Meet the cast. Two dots: Hooded guide + Brighid. Opens on Brighid.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-10",

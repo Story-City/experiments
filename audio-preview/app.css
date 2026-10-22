@@ -197,6 +197,14 @@ button { font: inherit; color: inherit; }
   font-size: 14px;
 }
 
+.section-title {
+  margin: 12px 0 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+}
+
 .voice {
   position: relative;
   margin-top: 4px;
@@ -223,15 +231,6 @@ button { font: inherit; color: inherit; }
 }
 .dot[aria-selected="true"] {
   background: var(--blue);
-}
-
-.cast-name {
-  margin: 6px 0 0;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--muted);
 }
 
 /* Sample-story tip panel: character stands out of the right edge. No outline. */

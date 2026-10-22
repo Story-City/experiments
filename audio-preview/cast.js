@@ -28,17 +28,6 @@ export const CAST = [
     story: TALES_STORY,
   },
   {
-    id: 'tales-ep2',
-    character: 'Case caller',
-    voiceBy: 'Story City Narration',
-    sprite: 'sprites/tales-ep2.png',
-    spriteFallback: 'https://creator.storycity.app/media/6ad14ddaebe6c_ftue-door-knight-character.png',
-    audio: 'snippet-tales-ep2.mp3',
-    start: 0.512,
-    end: 9.5,
-    story: TALES_STORY,
-  },
-  {
     id: 'brighid',
     character: 'Brighid',
     voiceBy: 'Brighid',
