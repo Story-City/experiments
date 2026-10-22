@@ -380,8 +380,9 @@ function alignGlyphs(){
 // the moment the right code lines up, it sends itself.
 // What's on each ring comes from story.js: `pick: 5` puts the right letter and 4 random others on each ring
 // (new ones every time), `rings: [[…], …]` lists each ring's words, and with neither it's the whole alphabet.
-// The rings are endless strips rather than fixed wheels: each draws only what's near the window, evenly spaced,
-// and the list runs straight back round to its start — so nothing is spread thin and there's never a gap. ----------
+// The rings are endless strips rather than fixed wheels: each draws only what's near the window, and the list
+// runs straight back round to its start, so there's never a gap. All rings share one angle per item, so at rest
+// the items line up like the spokes of a bike wheel. ----------
 const DIAL = { cx: 180, cy: 838, inner: 500, outer: 820, crop: 383, gap: 1.35 };   // a very big wheel seen through a narrow window, so the rings curve gently; crop: how much of its top is visible
 const DIAL_FONT = `system-ui, -apple-system, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif`;   // matches .dial .ring text
 const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -410,7 +411,7 @@ function nearest(i, ch){
 
 function buildDial(){
   const lists = ringLists(), ans = parts(V.answer);
-  const n = N(), bandW = (DIAL.outer - DIAL.inner) / n, { cx, cy } = DIAL;
+  const n = N(), bandW = (DIAL.outer - DIAL.inner) / n, { cx, cy } = DIAL, flat = !!V.flat;   // flat: straight rows that slide sideways, no curve
   const fs = Math.round(bandW * (V.words ? 0.42 : 0.62));   // one size on every ring
   const ctx = document.createElement('canvas').getContext('2d'); ctx.font = `300 ${fs}px ${DIAL_FONT}`;
   const w = t => ctx.measureText(t).width;
@@ -418,16 +419,25 @@ function buildDial(){
   // that the words either side of the notch stay clear of the outline (which is as wide as the longest answer word).
   const slotW = Math.round(V.words ? Math.max(...ans.map(w)) + fs * 0.8 : fs * 1.45);
   const gaps = lists.map(l => { if (!V.words) return fs * DIAL.gap; const m = Math.max(...l.map(w)); return Math.max(m + fs * 0.9, slotW / 2 + m / 2 + fs * 0.8); });
-  let svg = `<svg viewBox="0 0 360 ${DIAL.crop}" aria-hidden="true">`;
-  for (let i = 0; i <= n; i++) svg += `<circle class="${i ? 'sep' : 'sep rim'}" cx="${cx}" cy="${cy}" r="${DIAL.outer - i * bandW}"/>`;
+  let svg = `<svg viewBox="0 0 360 ${DIAL.crop}" aria-hidden="true"${flat ? ' data-flat' : ''}>`;
+  for (let i = 0; i <= n; i++) {
+    const R = DIAL.outer - i * bandW, cls = i ? 'sep' : 'sep rim';
+    svg += flat ? `<line class="${cls}" x1="0" x2="360" y1="${cy - R}" y2="${cy - R}"/>` : `<circle class="${cls}" cx="${cx}" cy="${cy}" r="${R}"/>`;
+  }
   svg += `<path class="notch" d="M${cx - 8} 2 h16 l-8 11 z"/>`;
+  // every ring turns by the same angle per item, so at rest the items line up along spokes from the centre.
+  // That angle is the widest any ring needs (usually the inner ring's), so nothing is ever closer than its gap.
+  // Flat rows (words) each keep their own spacing instead: words differ too much in width to share columns,
+  // and one shared spacing would push the neighbours of short words off-screen. `deg` is viewBox units when flat.
+  const radius = i => DIAL.outer - (i + 0.5) * bandW;
+  const spoke = Math.max(...gaps.map((g, i) => g / radius(i))) * 180 / Math.PI;
   const geo = [];
   for (let i = 0; i < n; i++) {
-    const r = DIAL.outer - (i + 0.5) * bandW, deg = gaps[i] / r * 180 / Math.PI;
+    const r = radius(i), deg = flat ? gaps[i] : spoke;
     // how far round the window reaches on this ring (its side edges, or its bottom), plus one spare each side
-    const reach = Math.min(Math.asin(Math.min(1, (cx + 20) / r)), (cy - DIAL.crop) / r < 1 ? Math.acos((cy - DIAL.crop) / r) : Math.PI / 2) * 180 / Math.PI;
+    const reach = flat ? cx + 20 : Math.min(Math.asin(Math.min(1, (cx + 20) / r)), (cy - DIAL.crop) / r < 1 ? Math.acos((cy - DIAL.crop) / r) : Math.PI / 2) * 180 / Math.PI;
     const K = Math.ceil(reach / deg) + 1;
-    geo.push({ r, deg, K });
+    geo.push({ r, deg, K, flat });
     // every item is drawn at the top of the wheel, dead centre, then rotated into place about the wheel's
     // centre — so whichever one sits under the notch is exactly on the vertical centre line
     svg += `<g class="ring" data-i="${i}" data-deg="${deg.toFixed(4)}">` +
@@ -449,7 +459,7 @@ function draw(r){
   const { cx, cy } = DIAL, base = Math.round(-r.p);
   r.texts.forEach((t, j) => {
     const k = base + j - r.K, ch = r.syms[mod(k, r.M)];
-    t.setAttribute('transform', `rotate(${((k + r.p) * r.deg).toFixed(3)} ${cx} ${cy})`);
+    t.setAttribute('transform', r.flat ? `translate(${((k + r.p) * r.deg).toFixed(2)} 0)` : `rotate(${((k + r.p) * r.deg).toFixed(3)} ${cx} ${cy})`);
     if (t.textContent !== ch) t.textContent = ch;
     t.classList.toggle('top', j === r.K);
   });
@@ -486,6 +496,7 @@ function dialDrag(svg){
   const at = e => {
     const b = svg.getBoundingClientRect(), s = b.width / 360;   // the window shows the wheel's top; its centre sits below
     const x = (e.clientX - b.left) / s - DIAL.cx, y = (e.clientY - b.top) / s - DIAL.cy;
+    if (svg.hasAttribute('data-flat')) return { a: x, dist: -y };   // flat rows: sideways distance, and height above the centre picks the row
     return { a: Math.atan2(x, -y) * 180 / Math.PI, dist: Math.hypot(x, y) };
   };
   svg.addEventListener('pointerdown', e => {
@@ -503,7 +514,7 @@ function dialDrag(svg){
   svg.addEventListener('pointermove', e => {
     if (!d) return;
     const { a } = at(e);
-    let da = a - d.last; if (da > 180) da -= 360; if (da < -180) da += 360;
+    let da = a - d.last; if (!rings[d.i].flat) { if (da > 180) da -= 360; if (da < -180) da += 360; }
     d.acc += da; d.last = a;
     const r = rings[d.i];
     r.p = d.p0 + d.acc / r.deg; draw(r);   // the letters follow the finger

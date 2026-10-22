@@ -139,6 +139,7 @@ export const VARIANTS = {
     blurb: 'Turn five rings of words to line up a name',
     answer: 'THE GREEN-EYE SHARP-TOOTH FIRE DRAKE',
     words: true,
+    flat: true,   // straight rows that slide sideways (no curve), words lined up in columns
     keypad: 'dial',
     // One ring per word, outer ring first. Each ring's words repeat as it turns; the right one must be in its list.
     rings: [
