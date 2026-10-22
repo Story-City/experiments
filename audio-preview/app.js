@@ -1,4 +1,4 @@
-import { CAST, LABEL } from './cast.js?v=21';
+import { CAST, LABEL } from './cast.js?v=22';
 
 const BAR_COUNT = 32;
 const BAR_GAP = 2;
@@ -8,6 +8,7 @@ const TIP_STYLE_KEY = 'audio-preview-tip-style';
 const SWIPE_THRESHOLD_PX = 48;
 const SWIPE_AXIS_RATIO = 1.15;
 const SWIPE_SNAP_MS = 280;
+const SWIPE_LOCK_PX = 12;
 
 const clip = document.getElementById('clip');
 const start = document.getElementById('start');
@@ -166,14 +167,31 @@ async function togglePlay() {
     stopClip();
     return;
   }
-  ensureGraph();
-  if (audioCtx && audioCtx.state === 'suspended') {
+  const hasGraph = ensureGraph();
+  if (hasGraph && audioCtx && audioCtx.state === 'suspended') {
     try { await audioCtx.resume(); } catch (err) { /* ignore */ }
   }
-  if (clip.currentTime >= active.end || clip.currentTime < active.start) {
-    clip.currentTime = active.start;
+  if (!clip.src) {
+    clip.src = active.audio;
+    clip.load();
   }
   try {
+    if (clip.readyState < 2) {
+      await new Promise((resolve, reject) => {
+        const onReady = () => { cleanup(); resolve(); };
+        const onError = () => { cleanup(); reject(new Error('audio error')); };
+        const cleanup = () => {
+          clip.removeEventListener('canplay', onReady);
+          clip.removeEventListener('error', onError);
+        };
+        clip.addEventListener('canplay', onReady, { once: true });
+        clip.addEventListener('error', onError, { once: true });
+        clip.load();
+      });
+    }
+    if (clip.currentTime >= active.end || clip.currentTime < active.start) {
+      clip.currentTime = active.start;
+    }
     await clip.play();
     setPlaying(true);
     cancelAnimationFrame(raf);
@@ -342,12 +360,12 @@ function selectCast(id, options = {}) {
 
 castStage.addEventListener('pointerdown', (event) => {
   if (event.button !== 0) return;
+  // Do not capture yet — the tip button needs the click to play.
   swipeStartX = event.clientX;
   swipeStartY = event.clientY;
   swipeDx = 0;
   swipeActive = true;
   swipeLocked = false;
-  castStage.setPointerCapture(event.pointerId);
 });
 
 castStage.addEventListener('pointermove', (event) => {
@@ -355,14 +373,16 @@ castStage.addEventListener('pointermove', (event) => {
   const dx = event.clientX - swipeStartX;
   const dy = event.clientY - swipeStartY;
   if (!swipeLocked) {
-    if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+    if (Math.abs(dx) < SWIPE_LOCK_PX && Math.abs(dy) < SWIPE_LOCK_PX) return;
     if (Math.abs(dx) < Math.abs(dy) * SWIPE_AXIS_RATIO) {
       swipeActive = false;
       return;
     }
     swipeLocked = true;
+    suppressPlayClick = true;
     stopClip();
     castStage.classList.add('swiping');
+    try { castStage.setPointerCapture(event.pointerId); } catch (err) { /* ignore */ }
   }
   swipeDx = dx;
   dragOffsetPx = dx;
@@ -370,13 +390,15 @@ castStage.addEventListener('pointermove', (event) => {
 });
 
 function endSwipe(event) {
-  if (!swipeActive) return;
+  if (!swipeActive && !swipeLocked) return;
+  const wasLocked = swipeLocked;
   swipeActive = false;
+  swipeLocked = false;
   castStage.classList.remove('swiping');
   if (event && castStage.hasPointerCapture?.(event.pointerId)) {
-    castStage.releasePointerCapture(event.pointerId);
+    try { castStage.releasePointerCapture(event.pointerId); } catch (err) { /* ignore */ }
   }
-  if (!swipeLocked) {
+  if (!wasLocked) {
     dragOffsetPx = 0;
     return;
   }
@@ -394,6 +416,8 @@ function endSwipe(event) {
   } else {
     syncTrack(true);
   }
+  // Clear suppress on next tick so a real later tap can play.
+  window.setTimeout(() => { suppressPlayClick = false; }, 0);
 }
 
 castStage.addEventListener('pointerup', endSwipe);
