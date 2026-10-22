@@ -1,10 +1,11 @@
-// Code entry (V0.5): the end of The Summons. The player enters the code from the letter's wax seal
-// on a glowing in-page keypad (?v=digits, ?v=letters, or the vault-style ?v=glow). Words live in story.js; this file is behaviour and drawing only.
+// Key Pad (V0.7): the end of The Summons. The player enters the code from the letter's wax seal
+// on a glowing in-page keypad (?v=glow, the default, or the QWERTY ?v=letters). Words live in story.js; this file is behaviour and drawing only.
 const { STORY, VARIANTS } = await import(`./story.js${window.CACHE_V || ''}`);
 
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const pick = () => { const q = new URLSearchParams(location.search).get('v') || location.hash.slice(1); return VARIANTS[q] ? q : 'digits'; };
+// Unknown or retired variants (an old ?v=digits link) fall back to Glow.
+const pick = () => { const q = new URLSearchParams(location.search).get('v') || location.hash.slice(1); return VARIANTS[q] ? q : 'glow'; };
 const JUMP = /code/.test(location.hash);   // testers' shortcut: #code jumps straight to the keypad
 let vKey = pick();
 let V = VARIANTS[vKey];
@@ -300,40 +301,45 @@ const boxesEl = $('boxes'), keypadEl = $('keypad'), sayLine = $('sayLine'), solv
 let entry = '', busy = false, tier = 0, hintsUsed = 0, wrongs = 0, idleTimer = 0;
 const N = () => V.answer.length;
 
-const BACK_SVG = `<svg viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12z"/><path d="M12.5 9.5l5 5M17.5 9.5l-5 5"/></svg>`;
 // Glow keypad * and #: thin strokes drawn as tall as the digits and centred on them (a typed * sits small and high)
 const GLYPH_SVG = {
   '*': `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5v21M2.91 6.75l18.18 10.5M2.91 17.25l18.18-10.5"/></svg>`,
   '#': `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.6 1.5L7.4 22.5M16.6 1.5L14.4 22.5M3.5 8H21M3 16h17.5"/></svg>`,
+  '⌫': `<svg viewBox="0 0 28 20" aria-hidden="true"><path d="M26.5 2H9L1.5 10 9 18h17.5z"/><path d="M13.5 6.5l7 7M20.5 6.5l-7 7"/></svg>`,
 };
-const SEND_SVG = `<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>`;
-function buildKeypad(){
-  const letters = V.keypad === 'letters', glow = V.style === 'glow';
-  const chars = letters ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') : '123456789'.split('');
-  const keys = letters ? [...chars, 'back', 'send'] : [...chars, 'back', '0', 'send'];
-  keypadEl.className = 'keypad' + (letters ? ' letters' : '') + (glow ? ' glow' : '');
-  $('code').classList.toggle('glow', glow); $('code').classList.toggle('letters', letters);
-  keypadEl.innerHTML = '';
-  keys.forEach((k, i) => {
-    const b = document.createElement('button');
-    b.className = 'key' + (k === 'send' ? ' send' : k === 'back' ? ' back' : '');
-    b.dataset.k = k; b.style.setProperty('--i', i);
-    // Glow keypads: a symbol with a tiny label underneath (* / # like a door keypad), or a short word (DEL / ENTER)
-    if (glow && (k === 'back' || k === 'send')) {
-      const face = k === 'back' ? V.backKey : V.sendKey, label = k === 'back' ? V.backLabel : V.sendLabel;
-      b.innerHTML = face.length > 1 ? `<span class="ch word">${face}</span>` : (GLYPH_SVG[face] ? `<span class="ch glyph">${GLYPH_SVG[face]}</span>` : `<span class="ch">${face}</span>`) + `<small>${label}</small>`;
-      b.setAttribute('aria-label', label);
-    }
-    else if (k === 'back') { b.innerHTML = BACK_SVG; b.setAttribute('aria-label', 'Delete'); }
-    else if (k === 'send') { b.innerHTML = SEND_SVG; b.setAttribute('aria-label', 'Send'); }
-    else b.textContent = k;
-    b.addEventListener('pointerdown', e => { e.preventDefault(); press(k, b); });
-    b.addEventListener('click', e => { if (e.detail === 0) press(k, b); });   // keyboard / screen reader activation
-    keypadEl.appendChild(b);
-  });
-  if (glow) alignGlyphs();
+// Word keypad: QWERTY rows, like a phone keyboard. Each row is centred; ⌫ and ENTER take the spare width either side of row 3.
+const QWERTY = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'].map(r => r.split(''));
+function keyButton(k){
+  const b = document.createElement('button');
+  b.className = 'key' + (k === 'send' ? ' send' : k === 'back' ? ' back' : '');
+  b.dataset.k = k;
+  // ⌫/* and ENTER/#: a symbol with a tiny label underneath (* / # like a door keypad), or a short word (ENTER)
+  if (k === 'back' || k === 'send') {
+    const face = k === 'back' ? V.backKey : V.sendKey, label = k === 'back' ? V.backLabel : V.sendLabel;
+    b.innerHTML = face.length > 1 ? `<span class="ch word">${face}</span>` : (GLYPH_SVG[face] ? `<span class="ch glyph">${GLYPH_SVG[face]}</span>` : `<span class="ch">${face}</span>`) + `<small>${label}</small>`;
+    b.setAttribute('aria-label', label);
+  }
+  else b.textContent = k;
+  b.addEventListener('pointerdown', e => { e.preventDefault(); press(k, b); });
+  b.addEventListener('click', e => { if (e.detail === 0) press(k, b); });   // keyboard / screen reader activation
+  return b;
 }
-// Size the drawn * and # to a digit's real height and move them onto the digits' centre line, using the font's own metrics.
+function buildKeypad(){
+  const letters = V.keypad === 'letters';
+  keypadEl.className = 'keypad glow' + (letters ? ' letters' : '');
+  $('code').classList.add('glow'); $('code').classList.toggle('letters', letters);
+  keypadEl.innerHTML = '';
+  if (letters) {
+    [QWERTY[0], QWERTY[1], ['back', ...QWERTY[2], 'send']].forEach(row => {
+      const r = document.createElement('div'); r.className = 'kb-row';
+      row.forEach(k => r.appendChild(keyButton(k)));
+      keypadEl.appendChild(r);
+    });
+  }
+  else [...'123456789'.split(''), 'back', '0', 'send'].forEach(k => keypadEl.appendChild(keyButton(k)));
+  alignGlyphs();
+}
+// Numbers keypad: size the drawn * and # to a digit's real height and move them onto the digits' centre line, using the font's own metrics.
 function alignGlyphs(){
   const zero = keypadEl.querySelector('[data-k="0"]'); if (!zero) return;
   const cs = getComputedStyle(zero), c = document.createElement('canvas').getContext('2d');
