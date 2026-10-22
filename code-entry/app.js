@@ -358,7 +358,7 @@ function alignGlyphs(){
 // the letters under the gold notch, read outside in, spell the word. Only the top of the wheel shows
 // (crop, the dial's centre sits below the window) — like the window of a combination lock. No send key:
 // the moment the right word lines up, it sends itself. ----------
-const DIAL = { cx: 180, cy: 328, inner: 125, outer: 310, crop: 250, slotW: 40 };   // crop: how much of the wheel's top is visible; slotW: the outline round the lined-up column
+const DIAL = { cx: 180, cy: 521, inner: 183, outer: 503, crop: 383, slotW: 64 };   // a big wheel seen through a narrow window: wide bands, big letters   // crop: how much of the wheel's top is visible; slotW: the outline round the lined-up column
 const STEP = 360 / 26;    // every ring carries the whole alphabet, in order
 let rings = [];           // { g, step } — step counts whole one-letter turns clockwise (any integer)
 let dialWon = false;
@@ -382,7 +382,7 @@ function buildDial(){
     ).join('') + `</g>`;
   }
   // the outline round the lined-up letters: this replaces the code field on the dial
-  svg += `<rect class="slot" x="${cx - DIAL.slotW / 2}" y="${cy - DIAL.outer + 3}" width="${DIAL.slotW}" height="${DIAL.outer - DIAL.inner - 6}" rx="12"/>`;
+  svg += `<rect class="slot" x="${cx - DIAL.slotW / 2}" y="${cy - DIAL.outer + 3}" width="${DIAL.slotW}" height="${DIAL.outer - DIAL.inner - 6}" rx="18"/>`;
   svg += `</svg>`;
   keypadEl.innerHTML = svg;
   rings = [...keypadEl.querySelectorAll('.ring')].map(g => ({ g, step: 0 }));
