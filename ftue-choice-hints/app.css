@@ -207,12 +207,12 @@ body {
   transform: scale(0.97);
 }
 
-/* Mirrored to the starting edge of the phrase so the hand doesn't sit on the copy. */
+/* Mirrored to the starting edge — nudged outside the bubble so it clears the copy. */
 .choice .tap-hint {
   position: absolute;
-  left: -10px;
+  left: -28px;
   right: auto;
-  bottom: -10px;
+  bottom: -14px;
   width: var(--hint-size);
   height: var(--hint-size);
   pointer-events: none;
