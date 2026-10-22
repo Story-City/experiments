@@ -356,10 +356,12 @@ function alignGlyphs(){
 }
 // ---------- the dial: one ring per letter, outer ring first. Drag a ring (or tap a letter) to turn it;
 // the letters under the gold notch, read outside in, spell the word. Only the top of the wheel shows
-// (crop, the dial's centre sits below the window) — like the window of a combination lock. SEND sits under it. ----------
+// (crop, the dial's centre sits below the window) — like the window of a combination lock. No send key:
+// the moment the right word lines up, it sends itself. ----------
 const DIAL = { cx: 180, cy: 328, inner: 125, outer: 310, crop: 250, slotW: 40 };   // crop: how much of the wheel's top is visible; slotW: the outline round the lined-up column
 const STEP = 360 / 26;    // every ring carries the whole alphabet, in order
 let rings = [];           // { g, step } — step counts whole one-letter turns clockwise (any integer)
+let dialWon = false;
 let activeRing = 0;       // keyboard: ↑/↓ pick a ring, ←/→ turn it, or type the letter you want on top
 const mod26 = x => ((x % 26) + 26) % 26;
 const topIndex = r => mod26(-r.step);
@@ -383,10 +385,8 @@ function buildDial(){
   svg += `<rect class="slot" x="${cx - DIAL.slotW / 2}" y="${cy - DIAL.outer + 3}" width="${DIAL.slotW}" height="${DIAL.outer - DIAL.inner - 6}" rx="12"/>`;
   svg += `</svg>`;
   keypadEl.innerHTML = svg;
-  const hub = keyButton('send'); hub.classList.add('hub');
-  keypadEl.appendChild(hub);
   rings = [...keypadEl.querySelectorAll('.ring')].map(g => ({ g, step: 0 }));
-  activeRing = 0;
+  activeRing = 0; dialWon = false;
   rings.forEach((r, i) => setStep(i, -(V.answer.charCodeAt(i) - 65 + V.startAt[i]), true));
   entry = dialWord();
   dialDrag(keypadEl.querySelector('svg'));
@@ -397,6 +397,8 @@ function setStep(i, s, quiet){
   [...r.g.children].forEach((t, k) => t.classList.toggle('top', k === topIndex(r)));
   if (quiet) return;
   entry = dialWord(); renderBoxes(i);
+  // the right word sends itself once the ring has settled into place
+  if (entry === V.answer && !dialWon) { dialWon = true; busy = true; clearTimeout(idleTimer); setTimeout(right, 380); }
 }
 // turn ring i the short way round so letter k sits under the notch
 function spinTo(i, k){
@@ -470,7 +472,7 @@ function renderBoxes(popAt = -1){
   });
   boxesEl.setAttribute('aria-label', 'Code: ' + (entry.length ? `${entry.split('').join(' ')}, ${entry.length} of ${n}` : `nothing entered yet, ${n} to go`));
   [...boxesEl.children].forEach(d => d.setAttribute('aria-hidden', 'true'));
-  keypadEl.querySelector('.send').classList.toggle('ready', entry.length === n);
+  keypadEl.querySelector('.send')?.classList.toggle('ready', entry.length === n);
 }
 // The line under the label: hints stay until the next message, wrong-answer replies fade after a few seconds.
 let sayTimer = 0;
@@ -521,9 +523,9 @@ function press(k, btn){
 function check(){
   if (entry === V.answer) return right();
   wrongs++; busy = true;
-  boxesEl.classList.add('shake'); keypadEl.classList.add('shake'); sfx.wrong(); buzz([60, 40, 60]);   // the dial has no field, so its outline shakes instead
+  boxesEl.classList.add('shake'); sfx.wrong(); buzz([60, 40, 60]);
   say(V.wrong, 'bad'); lookAtSeal(); nudgeHelp();
-  setTimeout(() => { boxesEl.classList.remove('shake'); keypadEl.classList.remove('shake'); entry = V.keypad === 'dial' ? dialWord() : ''; busy = false; renderBoxes(); }, 650);   // the dial keeps its setting
+  setTimeout(() => { boxesEl.classList.remove('shake'); entry = ''; busy = false; renderBoxes(); }, 650);
 }
 $('helpBtn').onclick = () => {
   audio(); idle();
@@ -536,7 +538,7 @@ function nudgeEl(el){ el.style.animation = 'none'; void el.offsetWidth; el.style
 solveBtn.onclick = async () => {
   if (busy) return;
   busy = true; solveBtn.hidden = true; hintsUsed++; markHints();
-  if (V.keypad === 'dial') { await dialSolve(); right(); return; }   // the rings turn themselves
+  if (V.keypad === 'dial') { await dialSolve(); return; }   // the rings turn themselves; the last one lining up sends it
   entry = ''; renderBoxes();
   for (const ch of V.answer) { await sleep(190); flashKey(ch); entry += ch; sfx.key(); renderBoxes(entry.length - 1); }
   await sleep(260);
@@ -557,7 +559,6 @@ markMute();
 addEventListener('keydown', e => {
   if ($('code').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
   const k = e.key.length === 1 ? e.key.toUpperCase() : e.key;
-  if (k === 'Enter') { e.preventDefault(); press('send', true); return; }
   if (V.keypad === 'dial') {   // ↑/↓ pick a ring, ←/→ turn it one letter, or type the letter you want on top
     if (busy) return;
     if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); idle(); setStep(activeRing, rings[activeRing].step + (k === 'ArrowRight' ? 1 : -1)); sfx.tick(); }
@@ -565,7 +566,8 @@ addEventListener('keydown', e => {
     else if (/^[A-Z]$/.test(k)) { idle(); spinTo(activeRing, k.charCodeAt(0) - 65); sfx.tick(); activeRing = Math.min(activeRing + 1, rings.length - 1); }
     return;
   }
-  if (k === 'Backspace') press('back', true);
+  if (k === 'Enter') { e.preventDefault(); press('send', true); }
+  else if (k === 'Backspace') press('back', true);
   else if (V.backKey === '*' && k === '*') press('back', true);
   else if (V.sendKey === '#' && k === '#') press('send', true);
   else if (V.keypad === 'letters' ? /^[A-Z]$/.test(k) : /^[0-9]$/.test(k)) press(k, true);
