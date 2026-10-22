@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Claim CTA: pulse + soft glow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=1">
+</head>
+<body>
+  <header>
+    <h1>Claim CTA pulse</h1>
+    <p class="lede">End-of-story claim button options: soft yellow glow idle pulse, plus a Lottie tap burst. Same event gradient as the app trial/event gift CTA.</p>
+  </header>
+
+  <div class="chips" role="radiogroup" aria-label="Pulse option">
+    <button type="button" class="chip" data-mode="app" aria-pressed="true">App current</button>
+    <button type="button" class="chip" data-mode="soft" aria-pressed="false">Soft glow</button>
+    <button type="button" class="chip" data-mode="wide" aria-pressed="false">Soft + wide</button>
+    <button type="button" class="chip" data-mode="breathe" aria-pressed="false">Scale breathe</button>
+    <button type="button" class="chip" data-mode="lottie" aria-pressed="false">Soft + Lottie tap</button>
+  </div>
+
+  <main class="phone" aria-label="End of story claim preview">
+    <h2 class="card-title">Your adventure gift</h2>
+    <p class="card-body">Claim a free trial stretch — this is the end-of-story upsell card CTA.</p>
+    <p class="stat"><b>7 days</b> free · cancel anytime</p>
+
+    <div class="cta-wrap">
+      <div class="cta-glow is-app" id="glow" aria-hidden="true"></div>
+      <button type="button" class="cta" id="cta" aria-label="Claim free trial">
+        <span id="ctaLabel">Claim free trial</span>
+        <div class="cta-lottie" id="lottie" aria-hidden="true"></div>
+      </button>
+    </div>
+    <p class="note" id="note">Idle: opacity pulse like useBannerPulse (0.3 ↔ 1, 2.6s).</p>
+  </main>
+
+  <p class="meta">Matches app event glow tokens (<code>#F5D007</code>, drop + omni halo). Soft modes keep the button solid and only breathe the halo — same pattern as <code>ctaGlowLayer</code>.</p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

@@ -1,5 +1,29 @@
 [
   {
+    "slug": "ftue-choice-hints",
+    "path": "ftue-choice-hints/?v=11",
+    "title": "FTUE sample story choices",
+    "what": "Real Summons beats: opening (1 reply), then mailbox (2 replies). White tap-hand overlaps the first option corner; fades in after 1s idle, fades out on pick.",
+    "author": "victoria",
+    "authorName": "Victoria",
+    "date": "2026-10",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "claim-pulse",
+    "path": "claim-pulse/?v=1",
+    "title": "Claim CTA: pulse + soft glow",
+    "what": "Wrong target — end-of-story claim button experiments. Kept for reference; dialogue choices live in FTUE dialogue choices.",
+    "author": "victoria",
+    "authorName": "Victoria",
+    "date": "2026-10",
+    "archived": true,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "code-entry",
     "path": "code-entry/?v=digits",
     "title": "Code entry: numbers",
