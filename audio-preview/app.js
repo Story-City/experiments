@@ -1,8 +1,10 @@
-import { CAST, LABEL } from './cast.js?v=18';
+import { CAST, LABEL } from './cast.js?v=19';
 
 const BAR_COUNT = 32;
 const BAR_GAP = 2;
 const BAR_MIN = 3;
+const TIP_STYLES = ['solid', 'place'];
+const TIP_STYLE_KEY = 'audio-preview-tip-style';
 
 const play = document.getElementById('play');
 const label = document.getElementById('voiceLabel');
@@ -11,11 +13,13 @@ const clip = document.getElementById('clip');
 const start = document.getElementById('start');
 const sprite = document.getElementById('sprite');
 const castEl = document.getElementById('cast');
+const tipPlaceImg = document.getElementById('tipPlaceImg');
 const ctx2d = bars.getContext('2d');
 
 const $ = (id) => document.getElementById(id);
 
 let active = CAST[0];
+let tipStyle = 'solid';
 let raf = 0;
 let audioCtx = null;
 let analyser = null;
@@ -195,7 +199,27 @@ function applyStory(entry) {
   $('chipDuration').textContent = story.duration;
   $('summary').textContent = story.summary;
   renderDescription(story.description);
+  tipPlaceImg.src = story.place || '';
   document.title = `Story overview: ${story.title}`;
+}
+
+function syncTipStyleUi() {
+  TIP_STYLES.forEach((name) => {
+    play.classList.toggle(`tip--${name}`, tipStyle === name);
+  });
+  document.querySelectorAll('.dbg-btn[data-tip-style]').forEach((btn) => {
+    btn.setAttribute('aria-pressed', String(btn.dataset.tipStyle === tipStyle));
+  });
+}
+
+function setTipStyle(next) {
+  const style = TIP_STYLES.includes(next) ? next : 'solid';
+  tipStyle = style;
+  syncTipStyleUi();
+  try { localStorage.setItem(TIP_STYLE_KEY, style); } catch (err) { /* ignore */ }
+  const url = new URL(location.href);
+  url.searchParams.set('tip', style);
+  history.replaceState(null, '', url);
 }
 
 function selectCast(id) {
@@ -215,6 +239,7 @@ function selectCast(id) {
   renderCast();
   const url = new URL(location.href);
   url.searchParams.set('c', entry.id);
+  url.searchParams.set('tip', tipStyle);
   history.replaceState(null, '', url);
 }
 
@@ -251,5 +276,19 @@ function press(button) {
 press(play);
 press(start);
 
-const startId = new URLSearchParams(location.search).get('c');
+document.querySelectorAll('.dbg-btn[data-tip-style]').forEach((btn) => {
+  btn.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setTipStyle(btn.dataset.tipStyle);
+  });
+});
+
+const params = new URLSearchParams(location.search);
+const startId = params.get('c');
+let savedTip = params.get('tip');
+if (!savedTip) {
+  try { savedTip = localStorage.getItem(TIP_STYLE_KEY); } catch (err) { savedTip = null; }
+}
+setTipStyle(savedTip || 'solid');
 selectCast(startId || CAST[0].id);

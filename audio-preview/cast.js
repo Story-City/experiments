@@ -4,6 +4,8 @@ const TALES_STORY = {
   title: 'Tales from the Incident',
   author: 'Story City',
   cover: 'https://creator.storycity.app/media/6ab6d67bab537_Ep5_Intro-1.jpg',
+  // Location plate for tip--place (blurred + darkened). Swap per story later.
+  place: 'place/tales.jpg',
   genre: 'Mystery',
   age: '13+',
   duration: '45 min',

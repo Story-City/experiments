@@ -8,10 +8,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=18">
+<link rel="stylesheet" href="app.css?v=19">
 </head>
 <body>
 <main class="screen">
+  <div class="dbg" role="group" aria-label="Tip style debug">
+    <span class="dbg-label">tip</span>
+    <button type="button" class="dbg-btn" data-tip-style="solid" aria-pressed="true">solid</button>
+    <button type="button" class="dbg-btn" data-tip-style="place" aria-pressed="false">place</button>
+  </div>
   <button type="button" class="back" aria-label="Back">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
   </button>
@@ -54,7 +59,11 @@
     <section id="panel-details" role="tabpanel" aria-labelledby="tab-details" data-panel="details">
       <div class="voice" id="voice">
         <h2 class="section-title">Meet the cast</h2>
-        <button type="button" class="tip" id="play" aria-pressed="false" aria-label="Tap to play audio snippet">
+        <button type="button" class="tip tip--solid" id="play" aria-pressed="false" aria-label="Tap to play audio snippet">
+          <span class="tip-place" aria-hidden="true">
+            <img class="tip-place-img" id="tipPlaceImg" src="" alt="">
+            <span class="tip-place-scrim"></span>
+          </span>
           <span class="tip-body">
             <svg class="audio-icon" width="42" height="34" viewBox="0 0 42 34" fill="none" aria-hidden="true">
               <path class="wave-far" d="M38.1575 17.3985C38.1575 12.3516 36.7001 8.23443 33.9178 4.51568C33.5203 3.98443 33.1228 3.45318 32.7254 2.92193C32.3279 2.39068 32.4604 2.12505 32.8579 1.5938C33.2553 1.19536 33.6528 0.664115 34.1828 0.265677C34.5803 -0.132761 34.9777 -0.265573 35.3752 0.265677C36.1702 1.06255 36.8326 1.85943 37.4951 2.78911C39.8799 6.10943 41.3374 9.82818 41.8673 13.9454C42.3973 18.1954 41.8673 22.3126 40.2774 26.1641C39.2175 28.6876 37.7601 31.0782 35.9052 33.0704C35.7727 33.336 35.5077 33.4688 35.2427 33.7344C34.8452 34 34.4478 34 34.1828 33.7344C33.6528 33.2032 33.1228 32.8047 32.7254 32.2735C32.3279 31.8751 32.3279 31.6094 32.5929 31.211C32.7254 30.9454 32.9904 30.6797 33.1228 30.5469C35.9052 27.3594 37.4951 23.7735 38.0251 19.6563C38.1576 18.7266 38.1575 17.7969 38.1575 17.3985Z" fill="#B9E5FF"/>
@@ -82,6 +91,6 @@
     </section>
   </div>
 </main>
-<script type="module" src="app.js?v=18"></script>
+<script type="module" src="app.js?v=19"></script>
 </body>
 </html>
