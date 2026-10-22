@@ -1,17 +1,21 @@
-const SNIPPET_START = 0.768;
-const SNIPPET_END = 9.024;
+import { CAST, LABEL } from './cast.js';
+
 const BAR_COUNT = 32;
 const BAR_GAP = 2;
 const BAR_MIN = 3;
-const LABEL = 'Tap to play audio snippet';
 
 const play = document.getElementById('play');
 const label = document.getElementById('voiceLabel');
 const bars = document.getElementById('bars');
 const clip = document.getElementById('clip');
 const start = document.getElementById('start');
+const sprite = document.getElementById('sprite');
+const castEl = document.getElementById('cast');
 const ctx2d = bars.getContext('2d');
 
+const $ = (id) => document.getElementById(id);
+
+let active = CAST[0];
 let raf = 0;
 let audioCtx = null;
 let analyser = null;
@@ -67,7 +71,6 @@ function drawBars(values) {
   }
 }
 
-// Real waveform from the playing audio: blend time-domain peaks with frequency energy.
 function sampleBars() {
   const values = new Array(BAR_COUNT).fill(0);
   if (!analyser || !freq || !time) return values;
@@ -109,9 +112,9 @@ function stopClip() {
 }
 
 function tick() {
-  if ((clip.currentTime || 0) >= SNIPPET_END) {
+  if ((clip.currentTime || 0) >= active.end) {
     clip.pause();
-    clip.currentTime = SNIPPET_START;
+    clip.currentTime = active.start;
     setPlaying(false);
     cancelAnimationFrame(raf);
     raf = 0;
@@ -130,8 +133,8 @@ async function togglePlay() {
   if (audioCtx && audioCtx.state === 'suspended') {
     try { await audioCtx.resume(); } catch (err) { /* ignore */ }
   }
-  if (clip.currentTime >= SNIPPET_END || clip.currentTime < SNIPPET_START) {
-    clip.currentTime = SNIPPET_START;
+  if (clip.currentTime >= active.end || clip.currentTime < active.start) {
+    clip.currentTime = active.start;
   }
   try {
     await clip.play();
@@ -143,6 +146,74 @@ async function togglePlay() {
   }
 }
 
+function setSprite(entry) {
+  sprite.onerror = () => {
+    if (sprite.src !== entry.spriteFallback) {
+      sprite.src = entry.spriteFallback;
+    }
+  };
+  sprite.alt = entry.character;
+  sprite.src = entry.sprite;
+}
+
+function renderDescription(lines) {
+  const root = $('description');
+  root.replaceChildren();
+  lines.forEach((text) => {
+    const p = document.createElement('p');
+    p.textContent = text;
+    root.append(p);
+  });
+}
+
+function renderCast() {
+  castEl.replaceChildren();
+  CAST.forEach((entry) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cast-chip';
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', String(entry.id === active.id));
+    btn.dataset.id = entry.id;
+    btn.textContent = entry.character;
+    btn.addEventListener('click', () => selectCast(entry.id));
+    castEl.append(btn);
+  });
+}
+
+function applyStory(entry) {
+  const story = entry.story;
+  $('cover').setAttribute('aria-label', story.title);
+  $('coverImg').src = story.cover;
+  $('author').textContent = story.author;
+  $('title').textContent = story.title;
+  $('chipGenre').textContent = story.genre;
+  $('chipAge').textContent = story.age;
+  $('chipDuration').textContent = story.duration;
+  $('summary').textContent = story.summary;
+  renderDescription(story.description);
+  document.title = `Story overview: ${story.title}`;
+}
+
+function selectCast(id) {
+  const entry = CAST.find((item) => item.id === id) || CAST[0];
+  if (entry.id === active.id && clip.src) {
+    return;
+  }
+  stopClip();
+  active = entry;
+  applyStory(entry);
+  setSprite(entry);
+  clip.src = entry.audio;
+  clip.load();
+  label.textContent = LABEL;
+  setPlaying(false);
+  renderCast();
+  const url = new URL(location.href);
+  url.searchParams.set('c', entry.id);
+  history.replaceState(null, '', url);
+}
+
 play.addEventListener('click', (event) => {
   event.preventDefault();
   togglePlay();
@@ -151,9 +222,10 @@ clip.addEventListener('ended', stopClip);
 clip.addEventListener('error', () => setPlaying(false));
 
 document.querySelectorAll('[role="tab"]').forEach((tab) => {
+  if (tab.closest('#cast')) return;
   tab.addEventListener('click', () => {
     const name = tab.dataset.tab;
-    document.querySelectorAll('[role="tab"]').forEach((item) => {
+    document.querySelectorAll('.tabs [role="tab"]').forEach((item) => {
       item.setAttribute('aria-selected', String(item === tab));
     });
     document.querySelectorAll('[data-panel]').forEach((panel) => {
@@ -174,5 +246,6 @@ function press(button) {
 
 press(play);
 press(start);
-label.textContent = LABEL;
-setPlaying(false);
+
+const startId = new URLSearchParams(location.search).get('c');
+selectCast(startId || CAST[0].id);
