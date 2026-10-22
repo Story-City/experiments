@@ -1,4 +1,4 @@
-// Character demos for Tales from the Incident — same story overview, different sprite + Tales snippet.
+// Character demos for Tales from the Incident — same story overview, side-by-side tip slides.
 // Drop replacement art in sprites/<id>.png (or .webp) to override the remote fallback.
 const TALES_STORY = {
   title: 'Tales from the Incident',

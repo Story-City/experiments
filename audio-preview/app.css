@@ -14,7 +14,7 @@
   --elf-h: 164px;
   --elf-overhang: 14px;
   --elf-clearance: 160px;
-  --tip-room: 44px;
+  --tip-room: 28px;
   --tip-radius: 28px;
   --tip-h: 118px;
   --tip-copy-h: 40px;
@@ -60,8 +60,8 @@ button { font: inherit; color: inherit; }
 
 .cover {
   position: relative;
-  flex: 0 0 38%;
-  min-height: 180px;
+  flex: 0 0 30%;
+  min-height: 160px;
   overflow: hidden;
   background: #0a0618;
 }
@@ -215,7 +215,7 @@ button { font: inherit; color: inherit; }
 
 .voice {
   position: relative;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   padding-top: var(--tip-room);
   overflow: visible;
 }
@@ -226,15 +226,24 @@ button { font: inherit; color: inherit; }
   padding-top: calc(var(--elf-h) - var(--tip-h) + 12px);
   margin-top: calc((var(--elf-h) - var(--tip-h) + 12px) * -1);
   overflow: hidden;
-  border-radius: var(--tip-radius);
   touch-action: pan-y;
+  cursor: grab;
 }
-.cast-stage .tip {
-  touch-action: pan-y;
+.cast-stage.swiping {
+  cursor: grabbing;
+}
+.cast-track {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
   will-change: transform;
 }
-.cast-stage .tip.swiping {
-  cursor: grabbing;
+.cast-slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 100%;
 }
 
 .dots {

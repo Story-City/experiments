@@ -1,24 +1,20 @@
-import { CAST, LABEL } from './cast.js?v=20';
+import { CAST, LABEL } from './cast.js?v=21';
 
 const BAR_COUNT = 32;
 const BAR_GAP = 2;
 const BAR_MIN = 3;
 const TIP_STYLES = ['solid', 'place'];
 const TIP_STYLE_KEY = 'audio-preview-tip-style';
-const SWIPE_THRESHOLD_PX = 56;
-const SWIPE_AXIS_RATIO = 1.2;
-const SWIPE_OUT_MS = 220;
+const SWIPE_THRESHOLD_PX = 48;
+const SWIPE_AXIS_RATIO = 1.15;
+const SWIPE_SNAP_MS = 280;
 
-const play = document.getElementById('play');
-const label = document.getElementById('voiceLabel');
-const bars = document.getElementById('bars');
 const clip = document.getElementById('clip');
 const start = document.getElementById('start');
-const sprite = document.getElementById('sprite');
 const castEl = document.getElementById('cast');
-const tipPlaceImg = document.getElementById('tipPlaceImg');
 const castStage = document.getElementById('castStage');
-const ctx2d = bars.getContext('2d');
+const castTrack = document.getElementById('castTrack');
+const tipTemplate = document.getElementById('tipSlideTemplate');
 
 const $ = (id) => document.getElementById(id);
 
@@ -31,13 +27,14 @@ let sourceNode = null;
 let freq = null;
 let time = null;
 let wired = false;
+let dragOffsetPx = 0;
 let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeDx = 0;
 let swipeActive = false;
 let swipeLocked = false;
 let suppressPlayClick = false;
-let swipeAnimating = false;
+let trackBuilt = false;
 
 function ensureGraph() {
   if (wired) return analyser != null;
@@ -63,9 +60,28 @@ function ensureGraph() {
   }
 }
 
+function activeSlide() {
+  return castTrack.querySelector(`.cast-slide[data-id="${active.id}"]`);
+}
+
+function activeTip() {
+  return activeSlide()?.querySelector('.tip') || null;
+}
+
+function activeBars() {
+  return activeSlide()?.querySelector('.voice-bars') || null;
+}
+
+function activeLabel() {
+  return activeSlide()?.querySelector('.voice-label') || null;
+}
+
 function drawBars(values) {
-  const w = bars.width;
-  const h = bars.height;
+  const canvas = activeBars();
+  if (!canvas) return;
+  const ctx2d = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
   const slot = w / BAR_COUNT;
   const barW = Math.max(2, slot - BAR_GAP);
   ctx2d.clearRect(0, 0, w, h);
@@ -110,12 +126,18 @@ function sampleBars() {
 }
 
 function setPlaying(on) {
-  play.classList.toggle('playing', on);
-  play.setAttribute('aria-pressed', String(on));
-  label.hidden = on;
-  bars.hidden = !on;
-  if (!on) {
-    ctx2d.clearRect(0, 0, bars.width, bars.height);
+  const tip = activeTip();
+  const label = activeLabel();
+  const bars = activeBars();
+  tip?.classList.toggle('playing', on);
+  tip?.setAttribute('aria-pressed', String(on));
+  if (label) label.hidden = on;
+  if (bars) {
+    bars.hidden = !on;
+    if (!on) {
+      const ctx2d = bars.getContext('2d');
+      ctx2d.clearRect(0, 0, bars.width, bars.height);
+    }
   }
 }
 
@@ -161,16 +183,6 @@ async function togglePlay() {
   }
 }
 
-function setSprite(entry) {
-  sprite.onerror = () => {
-    if (sprite.src !== entry.spriteFallback) {
-      sprite.src = entry.spriteFallback;
-    }
-  };
-  sprite.alt = entry.character;
-  sprite.src = entry.sprite;
-}
-
 function renderDescription(lines) {
   const root = $('description');
   root.replaceChildren();
@@ -181,7 +193,23 @@ function renderDescription(lines) {
   });
 }
 
-function renderCast() {
+function castIndex(id) {
+  const index = CAST.findIndex((item) => item.id === id);
+  return index < 0 ? 0 : index;
+}
+
+function setTrackOffset(index, dragPx, animate) {
+  const width = castStage.clientWidth || 1;
+  const x = -(index * width) + dragPx;
+  castTrack.style.transition = animate ? `transform ${SWIPE_SNAP_MS}ms ease` : 'none';
+  castTrack.style.transform = `translate3d(${x}px, 0, 0)`;
+}
+
+function syncTrack(animate) {
+  setTrackOffset(castIndex(active.id), dragOffsetPx, Boolean(animate));
+}
+
+function renderDots() {
   castEl.replaceChildren();
   CAST.forEach((entry) => {
     const btn = document.createElement('button');
@@ -193,10 +221,65 @@ function renderCast() {
     btn.dataset.id = entry.id;
     btn.addEventListener('click', (event) => {
       event.stopPropagation();
-      selectCast(entry.id);
+      selectCast(entry.id, { animate: true });
     });
     castEl.append(btn);
   });
+}
+
+function wireTip(tip, entry) {
+  tip.addEventListener('click', (event) => {
+    event.preventDefault();
+    if (suppressPlayClick) {
+      suppressPlayClick = false;
+      return;
+    }
+    if (entry.id !== active.id) {
+      selectCast(entry.id, { animate: true });
+      return;
+    }
+    togglePlay();
+  });
+
+  const down = () => tip.classList.add('pressed');
+  const up = () => tip.classList.remove('pressed');
+  tip.addEventListener('pointerdown', down);
+  tip.addEventListener('pointerup', up);
+  tip.addEventListener('pointercancel', up);
+  tip.addEventListener('pointerleave', up);
+}
+
+function buildTrack() {
+  castTrack.replaceChildren();
+  CAST.forEach((entry) => {
+    const node = tipTemplate.content.cloneNode(true);
+    const slide = node.querySelector('.cast-slide');
+    const tip = node.querySelector('.tip');
+    const placeImg = node.querySelector('.tip-place-img');
+    const sprite = node.querySelector('.sprite');
+    const voiceBy = node.querySelector('.voice-by-name');
+    const label = node.querySelector('.voice-label');
+
+    slide.dataset.id = entry.id;
+    placeImg.src = entry.place || entry.story.place || '';
+    voiceBy.textContent = entry.voiceBy || entry.character;
+    label.textContent = LABEL;
+    sprite.alt = entry.character;
+    sprite.onerror = () => {
+      if (sprite.src !== entry.spriteFallback) {
+        sprite.src = entry.spriteFallback;
+      }
+    };
+    sprite.src = entry.sprite;
+    TIP_STYLES.forEach((name) => {
+      tip.classList.toggle(`tip--${name}`, tipStyle === name);
+    });
+    wireTip(tip, entry);
+    castTrack.append(slide);
+  });
+  trackBuilt = true;
+  syncTipStyleUi();
+  syncTrack(false);
 }
 
 function applyStory(entry) {
@@ -210,43 +293,14 @@ function applyStory(entry) {
   $('chipDuration').textContent = story.duration;
   $('summary').textContent = story.summary;
   renderDescription(story.description);
-  tipPlaceImg.src = entry.place || story.place || '';
   document.title = `Story overview: ${story.title}`;
 }
 
-function castIndex(id) {
-  const index = CAST.findIndex((item) => item.id === id);
-  return index < 0 ? 0 : index;
-}
-
-function resetTipTransform() {
-  play.style.transition = '';
-  play.style.transform = '';
-  play.classList.remove('swiping');
-}
-
-function finishSwipeTo(nextId, direction) {
-  swipeAnimating = true;
-  play.style.transition = `transform ${SWIPE_OUT_MS}ms ease`;
-  play.style.transform = `translateX(${direction < 0 ? '-110%' : '110%'})`;
-  window.setTimeout(() => {
-    selectCast(nextId, { force: true });
-    play.style.transition = 'none';
-    play.style.transform = `translateX(${direction < 0 ? '110%' : '-110%'})`;
-    // Force layout so the incoming slide animates from off-screen.
-    void play.offsetWidth;
-    play.style.transition = `transform ${SWIPE_OUT_MS}ms ease`;
-    play.style.transform = 'translateX(0)';
-    window.setTimeout(() => {
-      resetTipTransform();
-      swipeAnimating = false;
-    }, SWIPE_OUT_MS);
-  }, SWIPE_OUT_MS);
-}
-
 function syncTipStyleUi() {
-  TIP_STYLES.forEach((name) => {
-    play.classList.toggle(`tip--${name}`, tipStyle === name);
+  castTrack.querySelectorAll('.tip').forEach((tip) => {
+    TIP_STYLES.forEach((name) => {
+      tip.classList.toggle(`tip--${name}`, tipStyle === name);
+    });
   });
   document.querySelectorAll('.dbg-btn[data-tip-style]').forEach((btn) => {
     btn.setAttribute('aria-pressed', String(btn.dataset.tipStyle === tipStyle));
@@ -265,97 +319,87 @@ function setTipStyle(next) {
 
 function selectCast(id, options = {}) {
   const entry = CAST.find((item) => item.id === id) || CAST[0];
-  if (!options.force && entry.id === active.id && clip.src) {
+  const same = entry.id === active.id && clip.src;
+  if (!options.force && same && !options.animate) {
+    syncTrack(false);
+    renderDots();
     return;
   }
   stopClip();
   active = entry;
   applyStory(entry);
-  setSprite(entry);
-  $('voiceBy').textContent = entry.voiceBy || entry.character;
   clip.src = entry.audio;
   clip.load();
-  label.textContent = LABEL;
   setPlaying(false);
-  renderCast();
+  dragOffsetPx = 0;
+  renderDots();
+  syncTrack(Boolean(options.animate));
   const url = new URL(location.href);
   url.searchParams.set('c', entry.id);
   url.searchParams.set('tip', tipStyle);
   history.replaceState(null, '', url);
 }
 
-play.addEventListener('click', (event) => {
-  event.preventDefault();
-  if (suppressPlayClick || swipeAnimating) {
-    suppressPlayClick = false;
-    return;
-  }
-  togglePlay();
-});
-
-play.addEventListener('pointerdown', (event) => {
-  if (swipeAnimating || event.button !== 0) return;
+castStage.addEventListener('pointerdown', (event) => {
+  if (event.button !== 0) return;
   swipeStartX = event.clientX;
   swipeStartY = event.clientY;
   swipeDx = 0;
   swipeActive = true;
   swipeLocked = false;
-  play.setPointerCapture(event.pointerId);
+  castStage.setPointerCapture(event.pointerId);
 });
 
-play.addEventListener('pointermove', (event) => {
-  if (!swipeActive || swipeAnimating) return;
+castStage.addEventListener('pointermove', (event) => {
+  if (!swipeActive) return;
   const dx = event.clientX - swipeStartX;
   const dy = event.clientY - swipeStartY;
   if (!swipeLocked) {
-    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
     if (Math.abs(dx) < Math.abs(dy) * SWIPE_AXIS_RATIO) {
       swipeActive = false;
-      resetTipTransform();
       return;
     }
     swipeLocked = true;
     stopClip();
-    play.classList.add('swiping');
-    play.style.transition = 'none';
+    castStage.classList.add('swiping');
   }
   swipeDx = dx;
-  play.style.transform = `translateX(${dx}px)`;
+  dragOffsetPx = dx;
+  syncTrack(false);
 });
 
 function endSwipe(event) {
   if (!swipeActive) return;
   swipeActive = false;
-  play.classList.remove('swiping');
-  if (event && play.hasPointerCapture?.(event.pointerId)) {
-    play.releasePointerCapture(event.pointerId);
+  castStage.classList.remove('swiping');
+  if (event && castStage.hasPointerCapture?.(event.pointerId)) {
+    castStage.releasePointerCapture(event.pointerId);
   }
   if (!swipeLocked) {
-    resetTipTransform();
+    dragOffsetPx = 0;
     return;
   }
   suppressPlayClick = true;
   const index = castIndex(active.id);
-  let nextId = null;
-  let direction = 0;
+  let nextIndex = index;
   if (swipeDx <= -SWIPE_THRESHOLD_PX && index < CAST.length - 1) {
-    nextId = CAST[index + 1].id;
-    direction = -1;
+    nextIndex = index + 1;
   } else if (swipeDx >= SWIPE_THRESHOLD_PX && index > 0) {
-    nextId = CAST[index - 1].id;
-    direction = 1;
+    nextIndex = index - 1;
   }
-  if (nextId) {
-    finishSwipeTo(nextId, direction);
-    return;
+  dragOffsetPx = 0;
+  if (nextIndex !== index) {
+    selectCast(CAST[nextIndex].id, { animate: true, force: true });
+  } else {
+    syncTrack(true);
   }
-  play.style.transition = `transform ${SWIPE_OUT_MS}ms ease`;
-  play.style.transform = 'translateX(0)';
-  window.setTimeout(resetTipTransform, SWIPE_OUT_MS);
 }
 
-play.addEventListener('pointerup', endSwipe);
-play.addEventListener('pointercancel', endSwipe);
+castStage.addEventListener('pointerup', endSwipe);
+castStage.addEventListener('pointercancel', endSwipe);
+window.addEventListener('resize', () => syncTrack(false));
+
 clip.addEventListener('ended', stopClip);
 clip.addEventListener('error', () => setPlaying(false));
 
@@ -382,7 +426,6 @@ function press(button) {
   button.addEventListener('pointerleave', up);
 }
 
-press(play);
 press(start);
 
 document.querySelectorAll('.dbg-btn[data-tip-style]').forEach((btn) => {
@@ -399,5 +442,6 @@ let savedTip = params.get('tip');
 if (!savedTip) {
   try { savedTip = localStorage.getItem(TIP_STYLE_KEY); } catch (err) { savedTip = null; }
 }
+buildTrack();
 setTipStyle(savedTip || 'solid');
-selectCast(startId || CAST[0].id);
+selectCast(startId || CAST[0].id, { force: true });
