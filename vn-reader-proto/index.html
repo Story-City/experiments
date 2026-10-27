@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Graphic novel reader · proto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css?v=45">
+<link rel="stylesheet" href="app.css?v=46">
+</head>
+<body data-skin="figma">
+<!-- Visual target: Figma 5852:410071; cast stage — first speaker left, next right; pose crossfade -->
+<div class="phone" id="phone">
+
+  <header class="nav nav-up" id="topBar" data-slot="topBar">
+    <label class="nav-drop" for="productSel">
+      <span class="nav-drop-label">Story</span>
+      <select id="productSel" aria-label="Story"></select>
+    </label>
+    <label class="nav-drop nav-drop-chapter" for="chapterSel">
+      <span class="nav-drop-label">Chapter</span>
+      <select id="chapterSel" aria-label="Chapter"></select>
+    </label>
+    <button type="button" class="nav-lab" id="debugChoices" title="Debug: jump to choices">Choices</button>
+    <button type="button" class="nav-lab" id="pickBtn" aria-haspopup="dialog" aria-controls="sheet" title="Lab timings">Lab</button>
+  </header>
+
+  <section class="stage" id="stage" data-slot="stage" aria-label="Scene">
+    <div class="place-bg" id="placeBg" data-slot="placeBg" data-state="ok">
+      <img class="place-far" src="assets/cafe-far.png" alt="" decoding="async">
+      <img class="place-near" src="assets/cafe-bg.png" alt="" decoding="async">
+      <img id="placeBgImg" class="place-chapter" alt="" decoding="async" referrerpolicy="no-referrer" hidden>
+      <p class="place-none" id="placeNone">No chapter image</p>
+    </div>
+    <div class="sprite-stage" id="spriteStage">
+      <div class="sprite" id="sprite" data-slot="sprite" data-visible="0" data-cast="" data-pose="" data-side="" aria-hidden="true">
+        <div class="sprite-cast" data-cast="chane" hidden>
+          <img class="sprite-layer" data-pose="intro" src="assets/chane-intro.png" alt="" decoding="async">
+          <img class="sprite-layer" data-pose="charming" src="assets/chane-charming.png" alt="" decoding="async">
+        </div>
+        <div class="sprite-cast" data-cast="brighid" hidden>
+          <img class="sprite-layer" data-pose="intro" src="assets/brighid-intro.png" alt="" decoding="async">
+          <img class="sprite-layer" data-pose="investigate" src="assets/brighid-investigate.png" alt="" decoding="async">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Victoria tickets from feature/font-visual-pass (dark SVG + lead glyph + stub cue). -->
+  <div class="choice-rail" id="choiceRail" hidden>
+    <div class="choice-thread" id="choiceThread" aria-live="polite"></div>
+    <div class="choices" id="choices" hidden></div>
+  </div>
+
+  <div class="dock" id="dock">
+    <main class="text-frame" id="textFrame" data-slot="textFrame" aria-live="polite">
+      <p class="speaker" id="speakerName">Chane</p>
+      <div class="line main idle" id="mainLine" role="button" tabindex="0" data-j="">
+        <span class="hint" id="hint" hidden>Press play</span>
+        <p class="txt" id="mainText"></p>
+      </div>
+    </main>
+
+    <footer class="player" id="player" data-slot="player" aria-label="Playback">
+      <div class="sc-audio">
+        <button type="button" class="sc-play" id="playBtn" aria-label="Play">
+          <img id="playIconImg" class="play-icon-img" src="assets/pause-40.svg" alt="" hidden>
+          <span id="playIcon" class="play-glyph is-play" aria-hidden="true"></span>
+        </button>
+        <div class="sc-scrub">
+          <div class="sc-scrub-meta">
+            <span class="sc-times" id="timeStamp">0:00/0:00</span>
+            <div class="frame-speed" id="frameSpeed">
+              <button type="button" class="speed-toggle" id="speedToggle" aria-expanded="false" aria-controls="speedSeg">
+                <span id="speedLabel">1x</span>
+              </button>
+              <div class="seg speed-seg" role="group" aria-label="Playback speed" id="speedSeg" hidden>
+                <button type="button" data-speed="0.75" aria-pressed="false">0.75x</button>
+                <button type="button" data-speed="1" aria-pressed="true">1x</button>
+                <button type="button" data-speed="1.25" aria-pressed="false">1.25x</button>
+                <button type="button" data-speed="1.5" aria-pressed="false">1.5x</button>
+              </div>
+            </div>
+          </div>
+          <input type="range" id="seek" min="0" max="1" step="0.01" value="0" aria-label="Position in chapter" style="--progress: 0%">
+        </div>
+      </div>
+      <span id="timeNow" hidden>0:00</span>
+      <span id="timeEnd" hidden>0:00</span>
+      <span id="playText" hidden>Play</span>
+    </footer>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-bg" id="sheetBg"></div>
+  <section class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <header class="sheet-head">
+      <h2 id="sheetTitle">Lab · timings</h2>
+      <button type="button" class="btn" id="sheetClose">Close</button>
+    </header>
+    <div class="sheet-body">
+      <p class="lab-note">Story / chapter pick is the dropdowns at the top. This sheet is timing model only.</p>
+      <div class="field">
+        <span>Timings</span>
+        <div class="seg" role="group" aria-label="Timing model">
+          <button type="button" id="modelSmall" data-model="small" aria-pressed="true">small</button>
+          <button type="button" id="modelLarge" data-model="large" aria-pressed="false">large-v3</button>
+        </div>
+      </div>
+      <!-- Kept for engine compatibility; filled but not shown as primary UI -->
+      <select id="storySel" hidden></select>
+      <ul class="chapters" id="chapterList" hidden></ul>
+      <p id="hiddenNote" class="hidden-note"></p>
+    </div>
+    <footer class="sheet-foot">
+      <a href="../audio-paragraph-viewer/index.html" id="desktopLink" class="btn">Brett desktop QA</a>
+    </footer>
+  </section>
+</div>
+
+<audio id="audio" preload="metadata"></audio>
+<script src="suit-glyphs.js?v=45"></script>
+<script src="ticket-choice.js?v=46"></script>
+<script src="engine.js?v=45"></script>
+</body>
+</html>

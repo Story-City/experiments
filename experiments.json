@@ -60,6 +60,18 @@
     "jira": null
   },
   {
+    "slug": "vn-reader-proto",
+    "path": "vn-reader-proto/?v=46",
+    "title": "Graphic novel reader · proto",
+    "what": "Victoria's restyle fork of Brett's phone visual-novel reader: place background, character sprite slot, text frame, top-bar speed, and player. Same timed paragraphs and stories; Brett's folder untouched.",
+    "author": "victoria",
+    "authorName": "Victoria",
+    "date": "2026-10",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "audio-preview",
     "path": "audio-preview/?v=23&c=tales&tip=place",
     "title": "Story overview: audio preview",

@@ -1,0 +1,32 @@
+/* Tokens from Figma MOB-D-C11 · 5852:410071 (--example-colour-colour). */
+:root {
+  --story-accent: #3d9529;
+  --story-accent-glow: rgba(61, 149, 41, 0.43);
+  --dock-bg: #1a192d;
+  --dock-track: #dedede;
+  --dock-radius: 24px;
+  --nav-scrim: rgba(0, 0, 0, 0.45);
+  --bg: #13123b;
+  --text: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.72);
+  --accent: var(--story-accent);
+  --on-accent: #ffffff;
+  --font-ui: "Darker Grotesque", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Lab sheet (light) */
+  --paper-50: #fbf8f3;
+  --paper-100: #f3eee5;
+  --paper-200: #e4ddd0;
+  --ink-900: #16131a;
+  --ink-500: #6b6474;
+}
+
+.sheet-panel {
+  --bg: var(--paper-50);
+  --surface: var(--paper-100);
+  --border: var(--paper-200);
+  --text: var(--ink-900);
+  --text-muted: var(--ink-500);
+  --accent: var(--story-accent);
+  --on-accent: #ffffff;
+}
