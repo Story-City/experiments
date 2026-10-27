@@ -755,7 +755,6 @@ function render() {
   main.classList.toggle('appline', !!(item && item.app));
   main.classList.toggle('idle', idle && S.flow.length > 0);
   main.classList.toggle('empty', !S.flow.length);
-  $('hint').hidden = !(idle && S.flow.length > 0);
   setVoiceChrome(item);
   if (!S.flow.length) {
     $('mainText').textContent = 'No narrated text in this chapter.';
@@ -800,7 +799,20 @@ function updateUi(t) {
   glyph.classList.toggle('is-pause', playing);
   glyph.classList.toggle('is-play', !playing);
   glyph.textContent = '';
-  $('playBtn').setAttribute('aria-label', playing ? 'Pause' : 'Play');
+  const playBtn = $('playBtn');
+  playBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+  /* Attract when paused with content — no “Press play” copy. */
+  playBtn.classList.toggle('is-attract', !playing && S.flow.length > 0 && !S.choicesOpen);
+}
+
+function syncDockEdge() {
+  const phone = $('phone');
+  const dock = $('dock');
+  if (!phone || !dock) return;
+  const phoneRect = phone.getBoundingClientRect();
+  const dockRect = dock.getBoundingClientRect();
+  const edge = Math.max(0, Math.round(phoneRect.bottom - dockRect.top));
+  phone.style.setProperty('--dock-edge', `${edge}px`);
 }
 
 function refresh() {
@@ -1328,6 +1340,12 @@ async function init() {
   // Brighid Loc 3-1c + stage sides; hash still wins. Speed/model stay in prefs.
   const start = h || defaultStart;
   await loadChapter(start.story, start.order);
+  syncDockEdge();
+  if (typeof ResizeObserver !== 'undefined') {
+    const dock = $('dock');
+    if (dock) new ResizeObserver(syncDockEdge).observe(dock);
+  }
+  window.addEventListener('resize', syncDockEdge);
 }
 
 init().catch(err => { $('mainText').textContent = `Could not start: ${err.message}`; });

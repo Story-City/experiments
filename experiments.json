@@ -61,7 +61,7 @@
   },
   {
     "slug": "vn-reader-proto",
-    "path": "vn-reader-proto/?v=47",
+    "path": "vn-reader-proto/?v=48",
     "title": "Graphic novel reader · proto",
     "what": "Victoria's restyle fork of Brett's phone visual-novel reader: place background, character sprite slot, text frame, top-bar speed, and player. Same timed paragraphs and stories; Brett's folder untouched.",
     "author": "victoria",

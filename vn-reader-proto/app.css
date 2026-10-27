@@ -169,14 +169,14 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
   position: absolute;
   left: 0;
   right: 0;
-  /* Sit into the dock band — was 18% and floated too high after the layout shift. */
-  bottom: 0;
+  /* Feet on the dock top edge — --dock-edge synced from #dock in engine. */
+  bottom: var(--dock-edge, 168px);
   margin-inline: auto;
-  width: min(118%, 460px);
-  height: min(84%, 720px);
+  width: min(110%, 437px);
+  height: min(72%, 618px);
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s ease, bottom 0.25s ease;
 }
 .sprite[data-visible="1"] {
   opacity: 1;
@@ -558,14 +558,6 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 .dock.narrator .speaker {
   display: none;
 }
-.hint {
-  display: inline-block;
-  margin-bottom: 4px;
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--story-accent);
-}
-
 .frame-speed {
   display: flex;
   justify-content: flex-end;
@@ -702,6 +694,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 
 .sc-play {
   flex: none;
+  position: relative;
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -710,6 +703,36 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
   align-items: center;
   justify-content: center;
   margin-bottom: 0;
+  z-index: 1;
+}
+/* Inactivity attract — pulse the play control instead of “Press play” copy. */
+.sc-play.is-attract {
+  animation: play-attract 1.7s ease-in-out infinite;
+}
+.sc-play.is-attract::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid var(--story-accent);
+  opacity: 0.55;
+  animation: play-attract-ring 1.7s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes play-attract {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
+@keyframes play-attract-ring {
+  0% { transform: scale(1); opacity: 0.55; }
+  70% { transform: scale(1.55); opacity: 0; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sc-play.is-attract,
+  .sc-play.is-attract::after {
+    animation: none;
+  }
 }
 .play-icon-img {
   width: 40px;
