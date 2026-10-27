@@ -805,17 +805,6 @@ function updateUi(t) {
   playBtn.classList.toggle('is-attract', !playing && S.flow.length > 0 && !S.choicesOpen);
 }
 
-function syncDockEdge() {
-  const phone = $('phone');
-  const dock = $('dock');
-  if (!phone || !dock) return;
-  const phoneRect = phone.getBoundingClientRect();
-  const dockRect = dock.getBoundingClientRect();
-  /* Sprite bottom is relative to .stage (inset 0 on .phone) — same bottom edge. */
-  const edge = Math.max(0, Math.round(phoneRect.bottom - dockRect.top));
-  phone.style.setProperty('--dock-edge', `${edge}px`);
-}
-
 function refresh() {
   if (!S.chapter) return;
   const t = audio.currentTime || 0;
@@ -1341,12 +1330,6 @@ async function init() {
   // Brighid Loc 3-1c + stage sides; hash still wins. Speed/model stay in prefs.
   const start = h || defaultStart;
   await loadChapter(start.story, start.order);
-  syncDockEdge();
-  if (typeof ResizeObserver !== 'undefined') {
-    const dock = $('dock');
-    if (dock) new ResizeObserver(syncDockEdge).observe(dock);
-  }
-  window.addEventListener('resize', syncDockEdge);
 }
 
 init().catch(err => { $('mainText').textContent = `Could not start: ${err.message}`; });

@@ -30,6 +30,8 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 }
 
 .phone {
+  /* Fixed audio-dock seat — sprite + choices share this; top does not jump with copy. */
+  --audio-dock-h: 152px;
   position: relative;
   height: 100vh;
   height: 100dvh;
@@ -169,19 +171,15 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
   position: absolute;
   left: 0;
   right: 0;
-  /*
-   * Feet flush on the dock top lip. --dock-edge is phone.bottom − dock.top.
-   * Bob only translates up (never down), so it cannot tuck under the dock.
-   * +1.5px clears the dock border stroke without floating the crop.
-   */
+  /* Same fixed seat as .dock height — no measured/dynamic top. */
   --sprite-bob-amp: 3px;
-  bottom: calc(var(--dock-edge, 168px) + 1.5px);
+  bottom: calc(var(--audio-dock-h) + env(safe-area-inset-bottom, 0px));
   margin-inline: auto;
   width: min(110%, 437px);
   height: min(72%, 618px);
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.4s ease, bottom 0.25s ease;
+  transition: opacity 0.4s ease;
 }
 .sprite[data-visible="1"] {
   opacity: 1;
@@ -269,7 +267,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
   position: absolute;
   left: 10%;
   right: 12px;
-  bottom: calc(168px + env(safe-area-inset-bottom));
+  bottom: calc(var(--audio-dock-h) + env(safe-area-inset-bottom, 0px));
   z-index: 4;
   display: flex;
   flex-direction: column;
@@ -462,7 +460,9 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
   right: 0;
   bottom: 0;
   z-index: 5;
-  padding: 0 0 calc(12px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  height: calc(var(--audio-dock-h) + env(safe-area-inset-bottom, 0px));
+  padding: 0 0 calc(12px + env(safe-area-inset-bottom, 0px));
   /* See sprites through the frame — soft scrim, not a solid slab. */
   background: linear-gradient(
     180deg,
@@ -474,6 +474,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
   border-bottom: 0;
   border-radius: var(--dock-radius) var(--dock-radius) 0 0;
   box-shadow: 0 -0.5px 5px 0 var(--frame-accent-glow);
+  /* visible so speed chips can pop above; height stays fixed so the top does not jump */
   overflow: visible;
   transition: border-color 0.35s ease, box-shadow 0.35s ease;
   -webkit-backdrop-filter: blur(10px);
