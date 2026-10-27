@@ -56,6 +56,8 @@ const S = {
     animToken: 0,
     req: 0,
   },
+  /** Lab/URL accent override — hue from input, luminosity locked to UI band. */
+  accentSpoof: null,
 };
 
 const prefs = (() => {
@@ -256,13 +258,23 @@ function isNarratorLine(item) {
   return !/^["“'«]/.test(t);
 }
 
-function preloadSprites() {
-  document.querySelectorAll('.sprite-layer').forEach(layer => {
-    const img = new Image();
-    img.decoding = 'async';
-    img.src = layer.getAttribute('src');
-    if (layer.decode) layer.decode().catch(() => {});
-  });
+async function preloadSprites() {
+  const layers = [...document.querySelectorAll('.sprite-layer, .place-far, .place-near')];
+  await Promise.all(layers.map(async (layer) => {
+    const src = layer.getAttribute('src');
+    if (!src) return;
+    const warm = new Image();
+    warm.decoding = 'async';
+    warm.src = src;
+    try {
+      if (typeof layer.decode === 'function') await layer.decode();
+      else if (warm.decode) await warm.decode();
+      else await new Promise((resolve, reject) => {
+        warm.onload = resolve;
+        warm.onerror = reject;
+      });
+    } catch (_) { /* decode optional */ }
+  }));
 }
 
 function resetStage() {
@@ -469,16 +481,71 @@ function sampleAccentFromImage(img) {
   return { hex, glow };
 }
 
+function parseHexColor(hex) {
+  const raw = String(hex || '').trim().replace(/^#/, '');
+  if (raw.length === 3) {
+    const r = parseInt(raw[0] + raw[0], 16);
+    const g = parseInt(raw[1] + raw[1], 16);
+    const b = parseInt(raw[2] + raw[2], 16);
+    return Number.isFinite(r) && Number.isFinite(g) && Number.isFinite(b) ? { r, g, b } : null;
+  }
+  if (raw.length !== 6) return null;
+  const r = parseInt(raw.slice(0, 2), 16);
+  const g = parseInt(raw.slice(2, 4), 16);
+  const b = parseInt(raw.slice(4, 6), 16);
+  return Number.isFinite(r) && Number.isFinite(g) && Number.isFinite(b) ? { r, g, b } : null;
+}
+
+function glowFromRgb(r, g, b, a = 0.38) {
+  return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`;
+}
+
+/** Any source hue → UI accent with locked luminance (same path as sprite sample). */
+function accentFromAnyColor(hexOrRgb) {
+  const rgb = typeof hexOrRgb === 'string' ? parseHexColor(hexOrRgb) : hexOrRgb;
+  if (!rgb) return null;
+  const tuned = normalizeAccentLuminance(rgb.r, rgb.g, rgb.b);
+  return {
+    hex: rgbToHex(tuned.r, tuned.g, tuned.b),
+    glow: glowFromRgb(tuned.r, tuned.g, tuned.b),
+  };
+}
+
+function syncAccentLabFields(hex) {
+  const color = $('accentSpoofColor');
+  const text = $('accentSpoofHex');
+  if (!hex) return;
+  if (color) color.value = hex.length === 7 ? hex : `#${hex.replace(/^#/, '')}`;
+  if (text) text.value = hex.startsWith('#') ? hex : `#${hex}`;
+}
+
+function writeAccentQuery(hexOrNull) {
+  try {
+    const url = new URL(location.href);
+    if (hexOrNull) url.searchParams.set('accent', String(hexOrNull).replace(/^#/, ''));
+    else url.searchParams.delete('accent');
+    history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+  } catch (_) { /* history unavailable */ }
+}
+
 function clearFrameAccent() {
+  if (S.accentSpoof) {
+    setFrameAccent(S.accentSpoof.hex, S.accentSpoof.glow);
+    return;
+  }
   const dock = $('dock');
   const phone = $('phone');
   if (dock) {
     dock.style.removeProperty('--frame-accent');
     dock.style.removeProperty('--frame-accent-glow');
+    dock.style.removeProperty('--story-accent');
+    dock.style.removeProperty('--story-accent-glow');
   }
   if (phone) {
     phone.style.removeProperty('--frame-accent');
     phone.style.removeProperty('--frame-accent-glow');
+    phone.style.removeProperty('--story-accent');
+    phone.style.removeProperty('--story-accent-glow');
   }
   if (window.TicketChoice && window.TicketChoice.retintStubs) {
     window.TicketChoice.retintStubs();
@@ -491,18 +558,55 @@ function setFrameAccent(hex, glow) {
   if (dock) {
     dock.style.setProperty('--frame-accent', hex);
     dock.style.setProperty('--frame-accent-glow', glow);
+    /* Scrub track + play follow the same accent as the frame. */
+    dock.style.setProperty('--story-accent', hex);
+    dock.style.setProperty('--story-accent-glow', glow);
   }
   /* Tickets share the same story/character rim as the audio dock. */
   if (phone) {
     phone.style.setProperty('--frame-accent', hex);
     phone.style.setProperty('--frame-accent-glow', glow);
+    phone.style.setProperty('--story-accent', hex);
+    phone.style.setProperty('--story-accent-glow', glow);
   }
   if (window.TicketChoice && window.TicketChoice.retintStubs) {
     window.TicketChoice.retintStubs();
   }
 }
 
+function spoofAccent(rawHex) {
+  const next = accentFromAnyColor(rawHex);
+  if (!next) return false;
+  S.accentSpoof = next;
+  setFrameAccent(next.hex, next.glow);
+  syncAccentLabFields(next.hex);
+  writeAccentQuery(next.hex);
+  return true;
+}
+
+function clearAccentSpoof() {
+  S.accentSpoof = null;
+  writeAccentQuery(null);
+  if (S.stage.currentId && S.stage.currentPose) {
+    applyAccentFromSprite(S.stage.currentId, S.stage.currentPose);
+  } else {
+    clearFrameAccent();
+  }
+}
+
+function readAccentSpoofFromQuery() {
+  try {
+    const raw = new URLSearchParams(location.search).get('accent');
+    if (!raw) return;
+    spoofAccent(raw);
+  } catch (_) { /* ignore */ }
+}
+
 function applyAccentFromSprite(castId, pose) {
+  if (S.accentSpoof) {
+    setFrameAccent(S.accentSpoof.hex, S.accentSpoof.glow);
+    return;
+  }
   const key = `${castId}:${pose}:L${ACCENT_LUM_TARGET}`;
   if (accentCache[key]) {
     setFrameAccent(accentCache[key].hex, accentCache[key].glow);
@@ -514,6 +618,7 @@ function applyAccentFromSprite(castId, pose) {
     const sampled = sampleAccentFromImage(img);
     if (!sampled) return;
     accentCache[key] = sampled;
+    if (S.accentSpoof) return;
     if (S.stage.currentId === castId && S.stage.currentPose === pose) {
       setFrameAccent(sampled.hex, sampled.glow);
     }
@@ -1156,6 +1261,32 @@ $('sheetBg').addEventListener('click', closeSheet);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sheet').hidden) closeSheet(); });
 $('modelSmall').addEventListener('click', () => setModel('small'));
 $('modelLarge').addEventListener('click', () => setModel('large'));
+
+function applyAccentFromLab() {
+  const raw = ($('accentSpoofHex') && $('accentSpoofHex').value) || ($('accentSpoofColor') && $('accentSpoofColor').value);
+  spoofAccent(raw);
+}
+if ($('accentSpoofApply')) {
+  $('accentSpoofApply').addEventListener('click', applyAccentFromLab);
+}
+if ($('accentSpoofClear')) {
+  $('accentSpoofClear').addEventListener('click', clearAccentSpoof);
+}
+if ($('accentSpoofColor')) {
+  $('accentSpoofColor').addEventListener('input', e => {
+    syncAccentLabFields(e.target.value);
+    spoofAccent(e.target.value);
+  });
+}
+if ($('accentSpoofHex')) {
+  $('accentSpoofHex').addEventListener('change', applyAccentFromLab);
+  $('accentSpoofHex').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      applyAccentFromLab();
+    }
+  });
+}
 $('productSel').addEventListener('change', e => {
   const st = story(e.target.value);
   if (!st) return;
@@ -1171,7 +1302,8 @@ $('desktopLink').addEventListener('click', e => {
 /* ---------- start ---------- */
 
 async function init() {
-  preloadSprites();
+  readAccentSpoofFromQuery();
+  await preloadSprites();
   const res = await fetch(dataUrl('data/index.json'));
   S.index = await res.json();
   const product = $('productSel');

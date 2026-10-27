@@ -169,10 +169,11 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 18%;
+  /* Sit into the dock band — was 18% and floated too high after the layout shift. */
+  bottom: 0;
   margin-inline: auto;
-  width: min(110%, 437px);
-  height: min(72%, 618px);
+  width: min(118%, 460px);
+  height: min(84%, 720px);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -794,6 +795,34 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+.accent-spoof-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.accent-spoof-row input[type="color"] {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+.accent-spoof-row input[type="text"] {
+  flex: 1;
+  min-width: 7rem;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 select, .btn {
   min-height: 44px;

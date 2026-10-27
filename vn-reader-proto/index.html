@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme.css?v=45">
-<link rel="stylesheet" href="app.css?v=46">
+<link rel="stylesheet" href="app.css?v=47">
 </head>
 <body data-skin="figma">
 <!-- Visual target: Figma 5852:410071; cast stage — first speaker left, next right; pose crossfade -->
@@ -111,6 +111,16 @@
           <button type="button" id="modelLarge" data-model="large" aria-pressed="false">large-v3</button>
         </div>
       </div>
+      <div class="field">
+        <span>Accent spoof</span>
+        <p class="lab-note">Paste any hex — hue/sat land in; luminosity stays in the UI band. Drives dock, track, tickets. Clear to sample the sprite again.</p>
+        <div class="accent-spoof-row">
+          <input type="color" id="accentSpoofColor" value="#3d9529" aria-label="Accent color">
+          <input type="text" id="accentSpoofHex" value="#3d9529" spellcheck="false" autocomplete="off" aria-label="Accent hex">
+          <button type="button" class="btn" id="accentSpoofApply">Apply</button>
+          <button type="button" class="btn" id="accentSpoofClear">Clear</button>
+        </div>
+      </div>
       <!-- Kept for engine compatibility; filled but not shown as primary UI -->
       <select id="storySel" hidden></select>
       <ul class="chapters" id="chapterList" hidden></ul>
@@ -125,6 +135,6 @@
 <audio id="audio" preload="metadata"></audio>
 <script src="suit-glyphs.js?v=45"></script>
 <script src="ticket-choice.js?v=46"></script>
-<script src="engine.js?v=45"></script>
+<script src="engine.js?v=47"></script>
 </body>
 </html>
