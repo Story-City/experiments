@@ -170,12 +170,12 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
   left: 0;
   right: 0;
   /*
-   * --dock-edge = measured dock top. Lift by bob amp + rim so the idle bob
-   * never tucks feet under the dock (z-index paints dock over the sprite).
+   * Feet flush on the dock top lip. --dock-edge is phone.bottom − dock.top.
+   * Bob only translates up (never down), so it cannot tuck under the dock.
+   * +1.5px clears the dock border stroke without floating the crop.
    */
   --sprite-bob-amp: 3px;
-  --sprite-dock-rim: 6px;
-  bottom: calc(var(--dock-edge, 168px) + var(--sprite-bob-amp) + var(--sprite-dock-rim));
+  bottom: calc(var(--dock-edge, 168px) + 1.5px);
   margin-inline: auto;
   width: min(110%, 437px);
   height: min(72%, 618px);

@@ -811,6 +811,7 @@ function syncDockEdge() {
   if (!phone || !dock) return;
   const phoneRect = phone.getBoundingClientRect();
   const dockRect = dock.getBoundingClientRect();
+  /* Sprite bottom is relative to .stage (inset 0 on .phone) — same bottom edge. */
   const edge = Math.max(0, Math.round(phoneRect.bottom - dockRect.top));
   phone.style.setProperty('--dock-edge', `${edge}px`);
 }
