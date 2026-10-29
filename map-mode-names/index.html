@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Story City · Map mode names</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗳️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700&family=Karla:wght@400;500;700&display=swap">
+<style>
+/* Layout: one column of three mode cards, each holding its description, tap-to-vote map buttons and live tallies. Single dark look to match the app's map. */
+:root{
+  --bg:#170c35; --raised:#241b46; --line:#3a2f63; --fg:#f4f1ff; --muted:#b9b0dc;
+  --walk:#f2c230; --pin:#2f8bff; --hunt:#b36bff; --ink:#170c35; --switch:rgba(7,8,15,.55);
+  --body:"Karla",system-ui,sans-serif; --btn:"Barlow","Arial Narrow",system-ui,sans-serif;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
+.page{max-width:720px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+h1{font-family:var(--btn);font-weight:700;font-size:30px;margin:0;text-wrap:balance}
+.intro{color:var(--muted);margin:0;max-width:60ch;padding-left:20px;display:flex;flex-direction:column;gap:2px}
+.status{font-size:13px;color:var(--muted);min-height:18px}
+.status.warn{color:var(--walk)}
+
+.preview{background:var(--raised);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.preview .lbl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.switch{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--switch);border-radius:16px;padding:4px}
+
+.mode{background:var(--raised);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.mode-head{display:flex;gap:12px;align-items:flex-start}
+.letter{flex:none;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-family:var(--btn);font-weight:700;color:var(--ink)}
+.mode-head p{margin:0;min-width:0}
+.map{border-radius:12px;overflow:hidden;line-height:0}
+.map svg{width:100%;height:auto;display:block}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;height:44px;border-radius:12px;font-family:var(--btn);font-weight:700;font-size:15px;border:0;cursor:pointer;color:var(--ink);transition:transform .12s,box-shadow .12s,opacity .12s}
+.btn svg{width:19px;height:19px;flex:none}
+.btn.blue,.btn.purple{color:#fff}
+.yellow{background:var(--walk)}.blue{background:var(--pin)}.purple{background:var(--hunt)}
+
+.opt{display:flex;flex-direction:column;gap:6px;min-width:0}
+.row{display:flex;gap:6px}
+.row .btn{flex:1;min-width:0}
+.down{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer}
+.down svg{width:20px;height:20px}
+.down:hover{border-color:var(--muted);color:var(--fg)}
+.down[aria-pressed="true"]{background:#e5484d;border-color:#e5484d;color:#fff}
+.down:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+.opt.disliked .btn{opacity:.3;text-decoration:line-through}
+.opt .btn{opacity:.55}
+.opt.mine .btn{opacity:1;box-shadow:0 0 0 3px var(--fg)}
+.opt .btn:hover{opacity:.85}
+.opt.mine .btn:hover{opacity:1}
+.opt .btn:focus-visible,.add button:focus-visible,.add input:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+.tally{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);min-height:22px;font-variant-numeric:tabular-nums}
+.faces{display:flex}
+.faces img{width:20px;height:20px;border-radius:50%;border:2px solid var(--raised);margin-left:-5px}
+.faces img:first-child{margin-left:0}
+
+.you{display:flex;flex-direction:column;gap:6px;max-width:360px}
+.you label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.you input{background:var(--raised);border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:10px 12px;font:inherit}
+.you input:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.you.need input{border-color:var(--walk)}
+.add{display:flex;gap:8px}
+.add input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:9px 12px;font:inherit}
+.add button{background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:0 14px;font:inherit;font-weight:700;cursor:pointer}
+.add button:hover{border-color:var(--muted)}
+.send{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+#send{height:48px;padding:0 28px;border:0;border-radius:12px;background:linear-gradient(90deg,#0259a1,#009eff);color:#fff;font-family:var(--btn);font-weight:700;font-size:16px;cursor:pointer}
+#send:disabled{opacity:.6;cursor:default}
+#send:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+.status.ok{color:#3ddc84}
+.sugs{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.sugs li{display:flex;align-items:center;gap:8px;font-size:14px}
+.sugs img{width:20px;height:20px;border-radius:50%}
+.sugs .who{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}}
+</style>
+<style>body{margin:0}</style>
+</head>
+<body>
+<div class="page">
+  <h1>Story City map mode names</h1>
+  <ul class="intro">
+    <li>Tap the name you like best for each mode</li>
+    <li>Tap the thumbs-down on any you don't like</li>
+    <li>Got a better word? Add it under the mode</li>
+    <li>Tap Send votes at the bottom when you're done — you can change your picks and send again any time</li>
+  </ul>
+  <div class="you">
+    <label for="who">Your name</label>
+    <input id="who" maxlength="40" autocomplete="name" placeholder="So we can follow up with you">
+  </div>
+  <div class="status" id="status"></div>
+
+  <div class="preview">
+    <div class="lbl">Your picks on the map</div>
+    <div class="switch" id="preview"></div>
+  </div>
+
+  <div id="modes"></div>
+
+  <div class="send">
+    <button type="button" id="send">Send votes</button>
+    <div class="status" id="sendStatus" role="status"></div>
+  </div>
+</div>
+
+<script>
+const ICONS={
+  walk:'<circle cx="13" cy="4" r="1"/><path d="M7 21l3-4"/><path d="M16 21l-2-4-3-3 1-6"/><path d="M6 12l2-3 4-1 3 3 3 1"/>',
+  path:'<path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="6" cy="19" r="2" fill="currentColor"/><circle cx="18" cy="5" r="2" fill="currentColor"/>',
+  hunt:'<path d="M4 8V5h3M20 8V5h-3M4 16v3h3M20 16v3h-3"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>',
+  pin:'<path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0-6 0"/><path d="M17.657 16.657L13.414 20.9a2 2 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0z"/>',
+  fitness:'<path d="M19.5 13.572l-7.5 7.428l-2.896-2.868m-6.117-8.104a5 5 0 0 1 9.013-3.022a5 5 0 1 1 7.5 6.572"/><path d="M3 13h2l2 3l2-6l1 3h3"/>',
+  steps:'<path d="M4 6h5.426a1 1 0 0 1 .863.496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1-1 1h-16a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1z"/><path d="M14 13l1-2"/><path d="M8 18v-1a4 4 0 0 0-4-4h-1"/><path d="M10 12l1.5-3"/>',
+  location:'<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v2M12 20v2M20 12h2M2 12h2"/>',
+  down:'<path d="M7 13v-8a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2-2l-1-5a2 3 0 0 0-2-2h-7a3 3 0 0 0-3 3"/>',
+  sparkle:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>'
+};
+const MODES=[
+  {key:'A',colour:'yellow',text:"Walk in any direction. The chapter unlocks once you've walked enough steps.",
+   options:[['Wander','walk'],['Walk','walk'],['Fitness','fitness'],['Steps','steps']]},
+  {key:'B',colour:'blue',text:'Follow the route to a pin on the map to unlock the next chapter.',
+   options:[['Path','path'],['Pin','pin'],['Location','location']]},
+  {key:'C',colour:'purple',text:'Search nearby for a place that matches a description and take a photo when you find it.',
+   options:[['Hunt','hunt']]}
+];
+const svg=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||ICONS.sparkle}</svg>`;
+const iconFor=(m,name)=>(m.options.find(o=>o[0].toLowerCase()===name.toLowerCase())||[,'sparkle'])[1];
+
+const BASE=`<rect width="320" height="200" fill="#1b1240"/>
+  <rect x="160" y="50" width="80" height="50" rx="6" fill="#1f3a3a"/>
+  <g fill="#2d6b4a"><circle cx="178" cy="66" r="6"/><circle cx="198" cy="82" r="7"/><circle cx="222" cy="64" r="5"/><circle cx="226" cy="88" r="6"/></g>
+  <g stroke="#3a2f66" stroke-width="9" stroke-linecap="round" fill="none">
+    <path d="M-10 40H330M-10 110H330M-10 160H330M60 -10V210M150 -10V210M250 -10V210"/>
+  </g>
+  <g fill="#241b46"><rect x="72" y="52" width="66" height="46" rx="4"/><rect x="72" y="122" width="66" height="28" rx="4"/><rect x="262" y="52" width="60" height="46" rx="4"/><rect x="164" y="122" width="74" height="28" rx="4"/><rect x="-4" y="52" width="52" height="46" rx="4"/><rect x="262" y="122" width="60" height="28" rx="4"/></g>`;
+// The app's player dot: blue with a thick white border.
+const DOT=`<circle r="7" fill="#007aff" stroke="#fff" stroke-width="3"/>`;
+const HUD=inner=>`<rect x="0" y="152" width="320" height="48" fill="rgba(36,27,70,.92)"/><line x1="0" y1="152.5" x2="320" y2="152.5" stroke="rgba(255,255,255,.12)"/>${inner}`;
+const anim=(attr,vals,kt,dur)=>`<animate attributeName="${attr}" values="${vals}" keyTimes="${kt}" dur="${dur}" repeatCount="indefinite"/>`;
+function stepsBar(colourVals,goal,countVals){
+  // Count over a thick rounded bar, like the app's StepsBar.
+  return `<text x="20" y="172" fill="#fff" font-family="Karla,sans-serif" font-weight="700" font-size="14">${countVals}<tspan fill="#b9b0dc" font-weight="400" font-size="12"> / ${goal} steps</tspan></text>
+    <rect x="20" y="180" width="280" height="8" rx="4" fill="rgba(255,255,255,.14)"/>
+    <rect x="20" y="180" height="8" rx="4" fill="${colourVals[0]}">${anim('width','8;280;280','0;.85;1','7s')}${colourVals.length>1?anim('fill',colourVals.join(';'),'0;.85;1','7s'):''}</rect>`;
+}
+function counter(goal,id){
+  return `<tspan id="${id}">0</tspan>`;
+}
+function mapSvg(k){
+  let o='';
+  if(k==='A'){
+    // Walk: a solid trail behind the dot, and a thin steps-left ring centred on the dot that shrinks and turns green.
+    const p='M150 110 L150 40 L250 40';
+    o=`<defs><mask id="mA"><path d="${p}" pathLength="100" stroke="#fff" stroke-width="8" fill="none" stroke-dasharray="100" stroke-dashoffset="100">
+        ${anim('stroke-dashoffset','100;0;0','0;.85;1','7s')}</path></mask></defs>
+      <path d="${p}" stroke="#f2c230" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" mask="url(#mA)">${anim('stroke','#f2c230;#3ddc84;#3ddc84','0;.85;1','7s')}</path>
+      <g><animateMotion path="${p}" dur="7s" keyPoints="0;1;1" keyTimes="0;.85;1" calcMode="linear" repeatCount="indefinite"/>
+        <circle r="140" fill="none" stroke="#f2c230" stroke-width="1.5">${anim('r','140;2;0','0;.85;1','7s')}${anim('stroke','#f2c230;#3ddc84;#3ddc84','0;.85;1','7s')}</circle>${DOT}</g>
+      ${HUD(stepsBar(['#f2c230','#3ddc84','#3ddc84'],80,counter(80,'cA')))}`;
+  }else if(k==='B'){
+    const p='M60 145 L60 110 L150 110 L150 40 L250 40';
+    o=`<path d="${p}" stroke="rgba(47,139,255,.55)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <g transform="translate(250 40)"><path d="M0 0c-9-11-13-16-13-22a13 13 0 0 1 26 0c0 6-4 11-13 22z" fill="#2f8bff" stroke="#fff" stroke-width="2"/><circle cy="-22" r="4.5" fill="#fff"/></g>
+      <g><animateMotion path="${p}" dur="7s" keyPoints="0;1;1" keyTimes="0;.85;1" calcMode="linear" repeatCount="indefinite"/>${DOT}</g>
+      ${HUD(stepsBar(['#2f8bff'],200,counter(200,'cB')))}`;
+  }else{
+    // Hunt: a purple searchlight turning around the player inside a dashed search ring, viewfinder corners, camera button.
+    const cx=160,cy=76,r=62,s=r*Math.SQRT1_2;
+    o=`<defs><radialGradient id="gC" cx="${cx}" cy="${cy}" r="${r}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#b36bff" stop-opacity=".45"/><stop offset="1" stop-color="#b36bff" stop-opacity="0"/></radialGradient></defs>
+      <circle cx="${cx}" cy="${cy}" r="${r-1}" fill="none" stroke="#b36bff" stroke-width="2" stroke-dasharray="4 8">${anim('opacity','1;.35;1','0;.5;1','1.6s')}</circle>
+      <path d="M${cx} ${cy} L${cx+r} ${cy} A${r} ${r} 0 0 0 ${cx+s} ${cy-s} Z" fill="url(#gC)">
+        <animateTransform attributeName="transform" type="rotate" from="0 ${cx} ${cy}" to="-360 ${cx} ${cy}" dur="4.5s" repeatCount="indefinite"/></path>
+      <g transform="translate(${cx} ${cy})">${DOT}</g>
+      <path d="M12 34V20a8 8 0 0 1 8-8h14M308 34V20a8 8 0 0 0-8-8h-14M12 110v14a8 8 0 0 0 8 8h14M308 110v14a8 8 0 0 1-8 8h-14" stroke="#b36bff" stroke-width="4" fill="none"/>
+      ${HUD(`<circle cx="160" cy="176" r="21" fill="#fff" stroke="#b36bff" stroke-width="4"/>
+        <g transform="translate(160 176)" stroke="rgba(36,27,70,.6)" stroke-width="2" fill="none" stroke-linejoin="round"><path d="M-9 -5h4l2-3h6l2 3h4v12h-18z"/><circle cy="1" r="3.4"/></g>`)}`;
+  }
+  return `<svg viewBox="0 0 320 200" role="img" aria-label="Map in mode ${k}">${BASE}${o}</svg>`;
+}
+// Ticks the step counters in time with the 7 s loop.
+function runCounters(){
+  const t0=performance.now();
+  const tick=now=>{
+    const f=Math.min(1,((now-t0)%7000)/7000/.85);
+    for(const [id,goal] of [['cA',80],['cB',200]]){const el=document.getElementById(id);if(el)el.textContent=Math.round(f*goal)}
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+const $=id=>document.getElementById(id);
+function setStatus(t,warn){const s=$('status');s.textContent=t;s.classList.toggle('warn',!!warn)}
+
+function buildModes(){
+  $('modes').style.cssText='display:flex;flex-direction:column;gap:16px';
+  $('modes').innerHTML=MODES.map(m=>`
+    <section class="mode" aria-labelledby="t${m.key}">
+      <div class="mode-head"><div class="letter ${m.colour}" id="t${m.key}">${m.key}</div><p>${m.text}</p></div>
+      <div class="map">${mapSvg(m.key)}</div>
+      <div class="opts" id="opts${m.key}"></div>
+      <form class="add" data-mode="${m.key}">
+        <input id="sug${m.key}" maxlength="24" placeholder="Suggest another name" aria-label="Suggest another name for mode ${m.key}">
+        <button type="submit">Add</button>
+      </form>
+    </section>`).join('');
+  document.querySelectorAll('form.add').forEach(f=>f.addEventListener('submit',e=>{
+    e.preventDefault();const k=f.dataset.mode,inp=$('sug'+k),v=inp.value.trim();
+    if(!v)return;save({['sug'+k]:v,[k]:v});inp.value='';
+  }));
+}
+
+function allOptions(m){
+  const names=m.options.map(o=>o[0]);
+  for(const n of [mine[m.key],mine['sug'+m.key]]) if(typeof n==='string'&&n&&!names.some(x=>x.toLowerCase()===n.toLowerCase())) names.push(n);
+  return names;
+}
+const same=(a,b)=>(a||'').toLowerCase()===(b||'').toLowerCase();
+
+function render(){
+  $('preview').innerHTML=MODES.map(m=>`<div class="btn ${m.colour}">${svg(iconFor(m,mine[m.key]||m.options[0][0]))}<span></span></div>`).join('');
+  [...$('preview').children].forEach((el,i)=>{el.querySelector('span').textContent=mine[MODES[i].key]||MODES[i].options[0][0]});
+  for(const m of MODES){
+    const box=$('opts'+m.key);box.innerHTML='';
+    const myDown=Array.isArray(mine['dn'+m.key])?mine['dn'+m.key]:[];
+    for(const name of allOptions(m)){
+      const isMine=same(mine[m.key],name),isDown=myDown.some(x=>same(x,name));
+      const wrap=document.createElement('div');wrap.className='opt'+(isMine?' mine':'')+(isDown?' disliked':'');
+      const b=document.createElement('button');b.className='btn '+m.colour;b.type='button';
+      b.setAttribute('aria-pressed',isMine);b.innerHTML=svg(iconFor(m,name))+'<span></span>';
+      b.querySelector('span').textContent=name;
+      b.addEventListener('click',()=>save({[m.key]:isMine?'':name,['dn'+m.key]:myDown.filter(x=>!same(x,name))}));
+      const d=document.createElement('button');d.type='button';d.className='down';d.setAttribute('aria-pressed',isDown);
+      d.setAttribute('aria-label',(isDown?'Remove thumbs-down from ':'Thumbs-down ')+name);d.innerHTML=svg('down');
+      d.addEventListener('click',()=>save(isDown?{['dn'+m.key]:myDown.filter(x=>!same(x,name))}:{['dn'+m.key]:[...myDown,name],[m.key]:isMine?'':mine[m.key]||''}));
+      const row=document.createElement('div');row.className='row';row.append(b,d);
+      wrap.append(row);box.appendChild(wrap);
+    }
+  }
+}
+
+// Votes go to Melissa's Google Form (results land in its Sheet). Each send is a new row; the latest row per name counts.
+const FORM='https://docs.google.com/forms/d/e/1FAIpQLScs4zhTKLfDUFeUP57iV6UmuMnSNnaaN_rkVqoAB63YJpW81w/formResponse';
+const ENTRY={name:175443150,A:891225545,B:1094709246,C:2058896900,down:1932900491,sug:141860694};
+const KEY='sc-map-mode-votes';
+let mine={};
+try{mine=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){mine={}}
+
+function save(patch){
+  mine={...mine,...patch};
+  try{localStorage.setItem(KEY,JSON.stringify(mine))}catch(e){}
+  $('sendStatus').textContent='';$('sendStatus').className='status';
+  render();
+}
+function joined(prefix){
+  return MODES.map(m=>{const v=mine[prefix+m.key];const list=Array.isArray(v)?v:(v?[v]:[]);return list.length?`${m.key}: ${list.join(', ')}`:''}).filter(Boolean).join('; ');
+}
+async function send(){
+  const who=$('who').value.trim(),st=$('sendStatus');
+  if(!who){$('who').parentElement.classList.add('need');$('who').scrollIntoView({block:'center'});$('who').focus();st.className='status warn';st.textContent='Add your name at the top first.';return}
+  $('who').parentElement.classList.remove('need');
+  if(!MODES.some(m=>mine[m.key])&&!joined('dn')&&!joined('sug')){st.className='status warn';st.textContent='Pick at least one name first.';return}
+  save({name:who});
+  const body=new URLSearchParams();
+  body.set('entry.'+ENTRY.name,who);
+  for(const m of MODES) body.set('entry.'+ENTRY[m.key],mine[m.key]||'');
+  body.set('entry.'+ENTRY.down,joined('dn'));
+  body.set('entry.'+ENTRY.sug,joined('sug'));
+  $('send').disabled=true;st.className='status';st.textContent='Sending…';
+  try{
+    await fetch(FORM,{method:'POST',mode:'no-cors',body});
+    st.className='status ok';st.textContent="Thanks, your votes are in. Change anything and send again if you change your mind.";
+  }catch(e){st.className='status warn';st.textContent="That didn't send. Check your connection and try again."}
+  $('send').disabled=false;
+}
+
+buildModes();
+if(mine.name)$('who').value=mine.name;
+render();runCounters();
+$('send').addEventListener('click',send);
+$('who').addEventListener('input',()=>$('who').parentElement.classList.remove('need'));
+</script>
+
+</body>
+</html>

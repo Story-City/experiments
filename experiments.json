@@ -1,5 +1,17 @@
 [
   {
+    "slug": "map-mode-names",
+    "path": "map-mode-names/?v=1",
+    "title": "Map mode names vote",
+    "what": "Vote on names for the three map modes (Walk / Path / Hunt), with a moving map of each. Votes go to Melissa's Google Form.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-10",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "ftue-choice-hints",
     "path": "ftue-choice-hints/?v=15",
     "title": "FTUE sample story choices",
