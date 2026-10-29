@@ -120,6 +120,7 @@ const ICONS={
   location:'<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v2M12 20v2M20 12h2M2 12h2"/>',
   down:'<path d="M7 13v-8a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2-2l-1-5a2 3 0 0 0-2-2h-7a3 3 0 0 0-3 3"/>',
   follow:'<path d="M12 3l7 18-7-4-7 4z"/>',
+  search:'<circle cx="10" cy="10" r="7"/><path d="M21 21l-6-6"/>',
   sparkle:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>'
 };
 const MODES=[
@@ -128,7 +129,7 @@ const MODES=[
   {key:'B',colour:'blue',text:'Follow the route to a pin on the map to unlock the next chapter.',
    options:[['Path','path'],['Pin','pin'],['Location','location'],['Follow','follow']]},
   {key:'C',colour:'purple',text:'Search nearby for a place that matches a description and take a photo when you find it.',
-   options:[['Hunt','hunt']]}
+   options:[['Hunt','hunt'],['Search','search']]}
 ];
 const svg=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||ICONS.sparkle}</svg>`;
 const iconFor=(m,name)=>(m.options.find(o=>o[0].toLowerCase()===name.toLowerCase())||[,'sparkle'])[1];
