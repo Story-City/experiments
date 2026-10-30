@@ -24,14 +24,14 @@ const PINS = [
   { at: [195, 90], name: 'Clock tower' },
   { at: [280, 200], name: 'The glint' },
 ];
-// Things hiding under the fog. Gems glint through it; stories don't.
+// Things on the map. Gems glow through the fog in their own colour; stories hide under it.
 const HIDDEN = [
-  { at: [120, 250], kind: 'gem' },
-  { at: [282, 200], kind: 'gem' },
+  { at: [120, 250], kind: 'gem', color: '#3ddc84' }, // emerald (nature)
+  { at: [282, 200], kind: 'gem', color: '#ffb347' }, // amber (landmark)
   { at: [48, 175], kind: 'story' },
   { at: [352, 330], kind: 'story' },
   { at: [110, 540], kind: 'story' },
-  { at: [255, 470], kind: 'gem' },
+  { at: [255, 470], kind: 'gem', color: '#33c7d1' }, // turquoise (art)
 ];
 const CLOCK = [195, 90];
 
@@ -87,7 +87,7 @@ const poly = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[
 const hiddenEls = HIDDEN.map((h) => {
   const g = el('g', { transform: `translate(${h.at[0]} ${h.at[1]})`, class: h.kind }, svg);
   if (h.kind === 'story') { el('circle', { r: 11 }, g); el('path', { d: 'M-5 -4 h4 a2 2 0 0 1 1 1 v8 a2 2 0 0 0 -1 -1 h-4z M5 -4 h-4 a2 2 0 0 0 -1 1 v8 a2 2 0 0 1 1 -1 h4z' }, g); }
-  else el('path', { d: 'M0 -9 l8 7 -8 11 -8 -11z' }, g);
+  else el('path', { d: 'M0 -9 l8 7 -8 11 -8 -11z', style: `fill:${h.color}` }, g);
   return { ...h, found: false, g };
 });
 
@@ -213,6 +213,8 @@ function rimTinted(c) {
 window.addEventListener('resize', sizeFog);
 
 // --- overlay (above the fog) -------------------------------------------------
+const defs = el('defs', {}, over);
+defs.innerHTML = '<filter id="gemGlow" x="-2" y="-2" width="5" height="5"><feGaussianBlur stdDeviation="9"/></filter><filter id="fogBlur" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="2.6"/></filter>';
 const glints = el('g', {}, over);
 const trails = el('g', {}, over);
 const live = el('g', {}, over);
@@ -223,8 +225,11 @@ el('circle', { r: 7, class: 'dot' }, me);
 function drawGlints() {
   glints.innerHTML = '';
   hiddenEls.filter((h) => h.kind === 'gem' && !h.found).forEach((h) => {
-    const g = el('g', { class: 'glint', transform: `translate(${h.at[0]} ${h.at[1]})` }, glints);
-    el('path', { d: 'M0 -7 L1.6 -1.6 7 0 1.6 1.6 0 7 -1.6 1.6 -7 0 -1.6 -1.6Z' }, g);
+    // a gem under the fog: its colour glows through, soft and blurred, so you
+    // know something's there before you can see what it is
+    const g = el('g', { class: 'fog-gem', transform: `translate(${h.at[0]} ${h.at[1]})`, style: `color:${h.color}` }, glints);
+    el('circle', { r: 15, class: 'fog-gem-glow' }, g);
+    el('path', { d: 'M0 -9 l8 7 -8 11 -8 -11z', class: 'fog-gem-ghost' }, g);
   });
 }
 

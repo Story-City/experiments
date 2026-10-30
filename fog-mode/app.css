@@ -206,3 +206,10 @@ select.look { font: inherit; font-size: 11px; color: var(--text); border: 1px da
 .sheet select.look { font-size: 15px; padding: 10px 14px; border-radius: 14px; border-style: solid; max-width: none; }
 /* dark looks: the bubble label needs to be light */
 body[data-look="night"] .bubble-from, body[data-look="stars"] .bubble-from { color: #c9bfff; }
+body[data-look="darkClouds"] .bubble-from { color: #c9bfff; }
+/* gems glow through the fog */
+.fog-gem-glow { fill: currentColor; filter: url(#gemGlow); animation: gemglow 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.fog-gem-ghost { fill: currentColor; opacity: 0.55; filter: url(#fogBlur); }
+.fog-gem:nth-child(2n) .fog-gem-glow { animation-delay: 1.4s; }
+@keyframes gemglow { 0%, 100% { opacity: 0.55; scale: 0.85; } 50% { opacity: 1; scale: 1.1; } }
+@media (prefers-reduced-motion: reduce) { .fog-gem-glow { animation: none; } }
