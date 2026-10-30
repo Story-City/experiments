@@ -1,4 +1,4 @@
-import { HOME, WALKS, CAMERA, POSTCARD, BINGO, PUMPKIN, CAT, SHARE } from './walks.js';
+import { HOME, WALKS, CAMERA, POSTCARD, BINGO, PUMPKIN, CAT, ROULETTE, SHARE } from './walks.js';
 
 const screen = document.getElementById('screen');
 const sheet = document.getElementById('sheet');
@@ -122,7 +122,7 @@ function goHome() {
 
 function start(id) {
   leave?.(); leave = null;
-  ({ postcard: postcardIntro, bingo: bingoStart, pumpkin: pumpkinWalk, cat: catIntro })[id]();
+  ({ postcard: postcardIntro, bingo: bingoStart, pumpkin: pumpkinWalk, cat: catIntro, roulette: rouletteIntro })[id]();
 }
 
 /* ---------- Postcard walk ---------- */
@@ -370,11 +370,7 @@ function catWalk() {
         ct.cats++;
         const rebel = ct.cats % 4 === 0;
         rebel ? ct.rights++ : ct.lefts++;
-        const last = ct.pts.at(-1);
-        stretch(last, 40); // quick taps still leave a readable zig-zag
-        ct.marks.push([...last]);
-        ct.pts.push([...last]);
-        ct.heading += (rebel ? 90 : -90) + (Math.random() - 0.5) * 24;
+        turn(rebel ? 90 : -90, '🐈');
         count.textContent = CAT.count(ct.cats);
         arrow.textContent = rebel ? `↱ ${CAT.rebel}` : `↰ ${pick(CAT.lefts)}`;
         arrow.classList.remove('flash'); void arrow.offsetWidth; arrow.classList.add('flash');
@@ -382,6 +378,11 @@ function catWalk() {
       } }, `🐈 ${CAT.saw}`),
       h('button', { class: 'btn ghost', id: 'catDone', onclick: catEnd }, CAT.done)),
   );
+  walkDoodle(svg);
+}
+
+// The cat walk's route doodle: it keeps growing while you walk.
+function walkDoodle(svg) {
   drawDoodle(svg, true);
   const tick = setInterval(() => {
     const last = ct.pts.at(-1);
@@ -390,6 +391,15 @@ function catWalk() {
     drawDoodle(svg, true);
   }, 120);
   leave = () => clearInterval(tick);
+}
+
+// Drop a marker where you are and change direction (deg: -90 left, 90 right, 0 straight).
+function turn(deg, emoji) {
+  const last = ct.pts.at(-1);
+  stretch(last, 40); // quick taps still leave a readable zig-zag
+  ct.marks.push([...last, emoji]);
+  ct.pts.push([...last]);
+  ct.heading += deg + (deg ? (Math.random() - 0.5) * 24 : 0);
 }
 
 // Make sure the segment ending at `last` is at least `min` long, along the current heading.
@@ -414,8 +424,9 @@ function drawDoodle(svg, live) {
   const end = ct.pts.at(-1);
   svg.innerHTML = `<path d="${d}" style="stroke-width:${3.5 * s};stroke-dasharray:${1 * s} ${9 * s}"/>`
     + `<text x="0" y="0" text-anchor="middle" dominant-baseline="central" style="font-size:${18 * s}px">🏠</text>`
-    + ct.marks.map((m) => `<text x="${m[0]}" y="${m[1]}" text-anchor="middle" dominant-baseline="central" style="font-size:${20 * s}px">🐈</text>`).join('')
-    + (live
+    + ct.marks.map((m) => `<text x="${m[0]}" y="${m[1]}" text-anchor="middle" dominant-baseline="central" style="font-size:${20 * s}px">${m[2]}</text>`).join('')
+    + (live === 'loop' ? ''
+      : live
       ? `<circle class="me" cx="${end[0]}" cy="${end[1]}" r="${7 * s}" style="stroke-width:${4 * s}"/>`
       : `<text x="${end[0]}" y="${end[1]}" text-anchor="middle" dominant-baseline="central" style="font-size:${20 * s}px">🏁</text>`);
 }
@@ -432,6 +443,174 @@ function catEnd() {
     h('div', { class: 'btns' }, h('button', { class: 'btn ghost', onclick: goHome }, CAT.again)),
   );
   drawDoodle(svg, false);
+}
+
+/* ---------- Route Roulette ---------- */
+const BLOCK_MIN = 1.2;      // minutes to walk one block (about 100 m)
+const STEPS_PER_UNIT = 10;  // at home, one "block" = 10 steps
+let rr;
+
+function rouletteIntro() {
+  let mins = 20;
+  const label = h('div', { class: 'theme-big' }, h('div', { class: 'name', id: 'mins' }, ROULETTE.mins(mins)));
+  show(
+    bar(),
+    h('p', { class: 'kicker' }, ROULETTE.title),
+    h('div', { class: 'rule' }, h('span', { class: 'em' }, '🎲'), h('p', {}, ROULETTE.rule[where])),
+    h('p', { class: 'sub centre', style: 'margin-top:22px' }, ROULETTE.howLong),
+    label,
+    h('input', { type: 'range', class: 'slider', id: 'length', min: 10, max: 60, step: 5, value: mins, 'aria-label': ROULETTE.howLong,
+      oninput: (e) => { mins = +e.target.value; label.firstChild.textContent = ROULETTE.mins(mins); } }),
+    h('div', { class: 'spacer' }),
+    h('div', { class: 'btns' }, h('button', { class: 'btn primary', id: 'go', onclick: () => rouletteWalk(mins) }, ROULETTE.start)),
+  );
+}
+
+// Plans a closed loop on a street grid: grow a blob of city blocks until its outline
+// is about the right length, then walk its outline. Returns legs of {turn, len}.
+function planLoop(target) {
+  for (let tries = 0; tries < 200; tries++) {
+    const cells = new Set(['0,0']);
+    while (perimeter(cells) < target) {
+      const k = grow(cells);
+      cells.add(k);
+      if (!outlineOk(cells)) cells.delete(k);
+    }
+    const loop = outline(cells);
+    if (loop && Math.abs(loop.length - target) <= 2) return toLegs(loop);
+  }
+  return toLegs(outline(new Set(['0,0'])));
+}
+// Next block to add. Mostly fills a nook (touches 2+ blocks) so loops stay chunky
+// with a few fun jogs, instead of zig-zagging every block.
+function grow(cells) {
+  const around = new Map();
+  for (const c of cells) {
+    const [x, y] = c.split(',').map(Number);
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const k = `${x + dx},${y + dy}`;
+      if (!cells.has(k)) around.set(k, (around.get(k) || 0) + 1);
+    }
+  }
+  const nooks = [...around].filter(([, n]) => n >= 2).map(([k]) => k);
+  return nooks.length && Math.random() < 0.8 ? pick(nooks) : pick([...around.keys()]);
+}
+function perimeter(cells) {
+  let p = 0;
+  for (const c of cells) { const [x, y] = c.split(',').map(Number); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!cells.has(`${x + dx},${y + dy}`)) p++; }
+  return p;
+}
+// Directed unit edges round each cell (counter-clockwise), keeping only the outer ones.
+function edges(cells) {
+  const out = [];
+  for (const c of cells) {
+    const [x, y] = c.split(',').map(Number);
+    if (!cells.has(`${x},${y - 1}`)) out.push([[x, y], [x + 1, y]]);
+    if (!cells.has(`${x + 1},${y}`)) out.push([[x + 1, y], [x + 1, y + 1]]);
+    if (!cells.has(`${x},${y + 1}`)) out.push([[x + 1, y + 1], [x, y + 1]]);
+    if (!cells.has(`${x - 1},${y}`)) out.push([[x, y + 1], [x, y]]);
+  }
+  return out;
+}
+// One clean outline: no corner touching itself and no courtyards (holes).
+function outlineOk(cells) {
+  const es = edges(cells);
+  const starts = new Set();
+  for (const [a] of es) { const k = `${a}`; if (starts.has(k)) return false; starts.add(k); }
+  return outline(cells)?.length === es.length;
+}
+function outline(cells) {
+  const es = edges(cells);
+  const from = new Map(es.map((e) => [`${e[0]}`, e]));
+  const loop = [];
+  let e = es[0];
+  do { loop.push(e[0]); e = from.get(`${e[1]}`); if (!e) return null; } while (e !== es[0] && loop.length <= es.length);
+  return loop;
+}
+// Turn a list of grid points into legs, starting mid-street where possible (your door).
+function toLegs(loop) {
+  const n = loop.length;
+  const dir = (i) => { const a = loop[i % n], b = loop[(i + 1) % n]; return [b[0] - a[0], b[1] - a[1]]; };
+  const straight = [...Array(n).keys()].filter((i) => `${dir(i)}` === `${dir((i + n - 1) % n)}`);
+  const start = straight.length ? pick(straight) : 0;
+  const legs = [];
+  for (let k = 0; k < n; k++) {
+    const i = (start + k) % n, d = dir(i);
+    const last = legs.at(-1);
+    if (last && `${last.d}` === `${d}`) { last.len++; continue; }
+    const prev = last ? last.d : null;
+    // cross product sign tells left vs right (y grows downward on screen)
+    const turn = prev ? (prev[0] * d[1] - prev[1] * d[0] > 0 ? 'right' : 'left') : pick(['left', 'right']);
+    legs.push({ d, len: 1, turn });
+  }
+  // if the walk ends heading the same way it started, the last leg is really the first one's start
+  if (legs.length > 1 && `${legs.at(-1).d}` === `${legs[0].d}`) { const tail = legs.pop(); legs.push({ ...tail, home: true }); }
+  legs.at(-1).home = true;
+  return { legs, pts: loop.map((p) => [...p]), start };
+}
+
+function rouletteWalk(mins) {
+  // Longer walks plan on a coarser grid so turns stay a few minutes apart.
+  const blocks = mins / BLOCK_MIN;
+  const scale = Math.max(1, Math.round(blocks / 16));
+  const plan = planLoop(Math.max(4, Math.round(blocks / scale / 2) * 2));
+  plan.legs.forEach((l) => { l.len *= scale; });
+  rr = { mins, legs: plan.legs, at: 0 };
+  // ct drives the shared doodle: walked legs only, scaled up to doodle units
+  ct = { heading: 0, pts: [[0, 0]], marks: [] };
+  const unit = ROULETTE.unit[where];
+  const k = where === 'home' ? STEPS_PER_UNIT : 1;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'doodle');
+  const wheel = h('div', { class: 'arrow', id: 'arrow' });
+  const then = h('p', { class: 'leg', id: 'leg' });
+  const twist = h('p', { class: 'sub centre twist', id: 'twist' });
+  const togo = h('span', { class: 'count', id: 'togo' });
+  const top = bar(); top.append(togo);
+  const nextBtn = h('button', { class: 'btn cat', id: 'corner' });
+
+  const blocksLeft = () => rr.legs.slice(rr.at).reduce((t, l) => t + l.len, 0);
+  const showLeg = () => {
+    const leg = rr.legs[rr.at];
+    wheel.textContent = rr.at === 0 ? `${ROULETTE.door[where]} ${leg.turn}` : ROULETTE.dirs[leg.turn];
+    then.textContent = leg.home && rr.at > 0 ? ROULETTE.homeAhead(leg.len * k, unit) : ROULETTE.walk(leg.len * k, unit);
+    twist.textContent = rr.at && Math.random() < 0.3 ? pick(ROULETTE.twists) : '';
+    togo.textContent = ROULETTE.toGo(Math.round(blocksLeft() * BLOCK_MIN));
+    nextBtn.textContent = leg.home ? `🏠 ${ROULETTE.arrived}` : `🎲 ${ROULETTE.next}`;
+    wheel.classList.remove('flash'); void wheel.offsetWidth; wheel.classList.add('flash');
+    drawDoodle(svg, true);
+  };
+  nextBtn.addEventListener('click', () => {
+    const leg = rr.legs[rr.at];
+    const last = ct.pts.at(-1);
+    ct.pts.push([last[0] + leg.d[0] * 40 * leg.len, last[1] + leg.d[1] * 40 * leg.len]);
+    rr.at++;
+    if (rr.at >= rr.legs.length) return rouletteEnd(true);
+    showLeg();
+  });
+  show(
+    top,
+    svg,
+    wheel,
+    then,
+    twist,
+    h('div', { class: 'btns' }, nextBtn, h('button', { class: 'btn ghost', id: 'rouletteDone', onclick: () => rouletteEnd(false) }, ROULETTE.done)),
+  );
+  showLeg();
+}
+
+function rouletteEnd(home) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'doodle');
+  const turns = rr.legs.length - 1;
+  show(
+    bar(),
+    h('h2', { class: 'display' }, home ? ROULETTE.endTitle : ROULETTE.title),
+    h('p', { class: 'sub' }, home ? ROULETTE.endLine(turns, rr.mins) : ROULETTE.stopped),
+    svg,
+    h('div', { class: 'btns' }, h('button', { class: 'btn ghost', onclick: goHome }, ROULETTE.again)),
+  );
+  drawDoodle(svg, home ? 'loop' : false);
 }
 
 /* ---------- boot: ?v=<walk> opens a walk straight away ---------- */

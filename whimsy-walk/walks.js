@@ -13,6 +13,7 @@ export const WALKS = [
   { id: 'postcard', emoji: '💌', name: 'Postcard Walk', line: 'One theme. Snap what matches. Your best 3 become a postcard.' },
   { id: 'bingo', emoji: '🔲', name: 'Neighbourhood Bingo', line: 'Nine things to spot. Get 3 in a row.' },
   { id: 'pumpkin', emoji: '🎃', name: 'Pumpkin Patrol', line: "Rate every jack-o'-lantern you pass. Crown the best." },
+  { id: 'roulette', emoji: '🎲', name: 'Route Roulette', line: 'At the end of every block, spin for which way to go.' },
   { id: 'cat', emoji: '🐈', name: 'Turn Left at Every Cat', line: 'One rule, one button. See where the cats take you.' },
 ];
 
@@ -108,6 +109,30 @@ export const CAT = {
   endTitle: 'Where the cats took you',
   endLine: (cats, lefts, rights) => `${cats} ${cats === 1 ? 'cat' : 'cats'} · ${lefts} ${lefts === 1 ? 'left' : 'lefts'}${rights ? ` · ${rights} ${rights === 1 ? 'right' : 'rights'}` : ''}`,
   noCats: 'No cats today. Just a lovely straight walk.',
+  again: 'Back to Walks',
+};
+
+/* ---------- Route Roulette ---------- */
+// The one walk that asks how long: it plans a loop of that length from your door.
+export const ROULETTE = {
+  title: 'Route Roulette',
+  rule: { out: "Tell me how long you've got. I'll plan a loop from your door and back, and only tell you one turn at a time.", home: "Tell me how long you've got. I'll plan a loop around the house, one turn at a time." },
+  howLong: 'How long do you want to walk?',
+  mins: (m) => `About ${m} min`,
+  start: "Let's Go",
+  door: { out: 'Step out your door and turn', home: 'Stand up and turn' },
+  walk: (n, unit) => `then walk ${n} ${unit[n === 1 ? 0 : 1]}`,
+  unit: { out: ['block', 'blocks'], home: ['steps', 'steps'] },
+  homeAhead: (n, unit) => `Home is ${n} ${unit[n === 1 ? 0 : 1]} ahead`,
+  dirs: { left: '↰ Turn left', right: '↱ Turn right' },
+  next: "I'm at the Corner",
+  arrived: "I'm Home!",
+  toGo: (m) => (m < 1 ? 'Almost home' : `About ${m} min to go`),
+  twists: ['…and look up.', '…and count the red doors.', '…and say hi to a tree.', '…and walk like you’re late for a ball.', '…and find something round.', '…and listen for a bird.'],
+  endTitle: 'You made a loop!',
+  endLine: (turns, mins) => `${turns} turns · about ${mins} min · back where you started`,
+  stopped: 'Loop cut short. Here’s where you got to.',
+  done: "I'm Done",
   again: 'Back to Walks',
 };
 

@@ -131,6 +131,9 @@ h2.display { font-size: 30px; }
 .arrow { text-align: center; font: 900 30px/1 "Darker Grotesque", system-ui, sans-serif; min-height: 1.1em; }
 .arrow.flash { animation: pop 0.4s cubic-bezier(0.2, 1.6, 0.4, 1) both; }
 @keyframes pop { from { scale: 0.6; opacity: 0; } }
+.leg { text-align: center; font: 700 22px/1.1 "Darker Grotesque", system-ui, sans-serif; margin: 6px 0 0; color: var(--muted); }
+.slider { width: 100%; accent-color: var(--accent); margin: 10px 0; }
+.twist { min-height: 1.4em; margin: 4px 0 0; font-weight: 600; color: var(--walk-start); }
 .btn.cat { padding: 20px; font-size: 26px; background: linear-gradient(90deg, var(--walk-start), var(--walk-end)); color: var(--bg); }
 
 /* sheet + toast */
