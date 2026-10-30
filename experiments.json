@@ -1,5 +1,17 @@
 [
   {
+    "slug": "whimsy-walk",
+    "path": "whimsy-walk/",
+    "title": "Whimsy Walks",
+    "what": "Four light walks, each shaped differently: Postcard walk (one theme, best 3 snaps become a postcard), Neighbourhood bingo, Pumpkin Patrol (rate jack-o'-lanterns, crown the best) and Turn left at every cat. Every walk has an at-home version; real camera or 'pretend' photos.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-10",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "fog-mode",
     "path": "fog-mode/",
     "title": "Fog mode: walking clears the map",
