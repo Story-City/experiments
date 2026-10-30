@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story cities — interactive walking stories near you | Story City</title>
+<meta name="description" content="See every city with Story City walking stories, from Atlanta and Edmonton to Brisbane. Pick a city to see where each story starts.">
+<link rel="canonical" href="cities.html">
+<meta property="og:title" content="Story cities — interactive walking stories near you | Story City">
+<meta property="og:description" content="See every city with Story City walking stories, from Atlanta and Edmonton to Brisbane. Pick a city to see where each story starts.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,300..800;1,300..800&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/city.css">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="draft-flag" aria-hidden="true">Draft concept · not the live site</div>
+<a class="pg-skip" href="#main">Skip to content</a>
+<header class="pg-nav">
+  <nav class="wrap" aria-label="Main">
+    <a class="pg-logo" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</a>
+    <button class="ibtn pg-menu" type="button" aria-controls="pg-links" aria-expanded="false" aria-label="Open menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <ul class="pg-links" id="pg-links">
+      <li><a href="index.html#library">Stories</a></li>
+      <li><a href="cities.html" aria-current="page">Cities</a></li>
+      <li><a href="creators.html">Creators</a></li>
+      <li><a href="gift.html">Gifts</a></li>
+      <li><a href="teams.html">Teams</a></li>
+      <li class="pg-cta-m"><a class="btn" href="index.html#get-app">Get the App</a></li>
+    </ul>
+    <a class="btn pg-cta" href="index.html#get-app">Get the App</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="pg-hero cx-hero" aria-labelledby="cx-h1">
+    <div class="wrap">
+      <p class="eyebrow">Story cities</p>
+      <h1 id="cx-h1">Where the stories walk</h1>
+      <p class="pg-lede" id="cx-lede">Every glowing dot is a city with stories written for its streets. Pick one and see where each story begins.</p>
+    </div>
+    <div class="wrap cx-mapwrap">
+      <div class="cx-zoom" role="group" aria-label="Zoom the map">
+        <button class="chip" type="button" data-zoom="world" aria-pressed="true">World</button>
+        <button class="chip" type="button" data-zoom="na" aria-pressed="false">North America</button>
+        <button class="chip" type="button" data-zoom="au" aria-pressed="false">Australia and NZ</button>
+        <button class="chip" type="button" data-zoom="sa" aria-pressed="false">South America</button>
+        <button class="chip" type="button" data-zoom="eu" aria-pressed="false">Europe</button>
+      </div>
+      <figure class="cx-map" id="cx-map">
+        <svg id="cx-svg" role="group" aria-label="World map of story cities" viewBox="0 0 1000 383" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="cx-tip" id="cx-tip" role="status" aria-live="polite"></div>
+        <figcaption class="sr-only">Each dot is a city; bigger dots have more stories. The same cities are listed below.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="pg-sec" aria-labelledby="cx-list-h">
+    <div class="wrap">
+      <div class="cx-listhead">
+        <div class="pg-head">
+          <p class="eyebrow">By country</p>
+          <h2 id="cx-list-h">Find your city</h2>
+        </div>
+        <div class="pg-field cx-find">
+          <label for="cx-q">Search cities</label>
+          <input class="pg-input" id="cx-q" type="search" placeholder="Try Edmonton or Brisbane" autocomplete="off">
+          <p class="pg-status" id="cx-status" aria-live="polite"></p>
+        </div>
+      </div>
+      <div id="cx-list" class="cx-list"><p class="pg-status">Loading cities…</p></div>
+      <a class="cx-anywhere card" id="cx-anywhere" href="index.html#library">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>
+        <span><b id="cx-any-n">Play Anywhere stories</b><span>No city on the list? These place themselves on your own streets.</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="pg-sec" aria-labelledby="cx-cta-h">
+    <div class="wrap">
+      <div class="pg-cta-band">
+        <p class="eyebrow">Your streets next</p>
+        <h2 id="cx-cta-h">Not on the map yet?</h2>
+        <p>Write the first story for your city, or play a Play Anywhere story on the streets outside your door.</p>
+        <div class="pg-actions"><a class="btn" href="index.html#get-app">Get the App</a><a class="btn sec" href="creators.html">Write a Story</a></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="pg-foot">
+  <div class="wrap">
+    <div class="pg-brand">
+      <a class="pg-logo" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</a>
+      <p>Don't just walk. Step into the story. On iOS and Android.</p>
+    </div>
+    <div><h2>Play</h2><ul><li><a href="index.html#library">Stories</a></li><li><a href="cities.html">Story cities</a></li><li><a href="gift.html">Gifts</a></li><li><a href="index.html#get-app">Get the App</a></li></ul></div>
+    <div><h2>Work with us</h2><ul><li><a href="creators.html">Creators</a></li><li><a href="teams.html">Teams and events</a></li></ul></div>
+    <div class="pg-fine"><span>© Story City</span><span>Walk further. Find out what happens next.</span></div>
+  </div>
+</footer>
+<script src="js/pages.js"></script>
+<script type="module" src="js/cities.js"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story City — walking stories in your city</title>
+<meta name="description" content="Interactive walking stories written for real city streets. Choose your path with Story City.">
+<link rel="canonical" href="city.html">
+<meta property="og:title" content="Story City — walking stories in your city">
+<meta property="og:description" content="Interactive walking stories written for real city streets. Choose your path with Story City.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,300..800;1,300..800&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/city.css">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="draft-flag" aria-hidden="true">Draft concept · not the live site</div>
+<a class="pg-skip" href="#main">Skip to content</a>
+<header class="pg-nav">
+  <nav class="wrap" aria-label="Main">
+    <a class="pg-logo" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</a>
+    <button class="ibtn pg-menu" type="button" aria-controls="pg-links" aria-expanded="false" aria-label="Open menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <ul class="pg-links" id="pg-links">
+      <li><a href="index.html#library">Stories</a></li>
+      <li><a href="cities.html">Cities</a></li>
+      <li><a href="creators.html">Creators</a></li>
+      <li><a href="gift.html">Gifts</a></li>
+      <li><a href="teams.html">Teams</a></li>
+      <li class="pg-cta-m"><a class="btn" href="index.html#get-app">Get the App</a></li>
+    </ul>
+    <a class="btn pg-cta" href="index.html#get-app">Get the App</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="pg-hero cy-hero" aria-labelledby="cy-h1">
+    <div class="wrap">
+      <nav class="cy-crumbs" aria-label="Breadcrumb"><ol><li><a href="cities.html">Story cities</a></li><li id="cy-crumb-country"></li><li aria-current="page" id="cy-crumb-city"></li></ol></nav>
+      <p class="eyebrow" id="cy-eyebrow">Story city</p>
+      <h1 id="cy-h1">Finding the stories…</h1>
+      <p class="pg-lede" id="cy-lede"></p>
+      <div class="pg-actions" id="cy-actions" hidden>
+        <a class="btn" href="index.html#get-app">Get the App</a>
+        <a class="btn sec" href="#cy-stories">See the Stories</a>
+      </div>
+    </div>
+    <div class="wrap cy-mapwrap" id="cy-mapwrap" hidden>
+      <figure class="cy-map" id="cy-map">
+        <svg id="cy-svg" aria-hidden="true"></svg>
+        <div class="cy-stars" id="cy-stars" role="group" aria-label="Where each story starts"></div>
+        <div class="cy-pop card" id="cy-pop" role="dialog" aria-modal="false" aria-labelledby="cy-pop-t" hidden></div>
+        <figcaption class="cy-cap" id="cy-cap"></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="pg-sec" id="cy-stories" aria-labelledby="cy-st-h" hidden>
+    <div class="wrap">
+      <div class="pg-head">
+        <p class="eyebrow">Written for these streets</p>
+        <h2 id="cy-st-h">Local stories</h2>
+      </div>
+      <div class="cy-chips" id="cy-chips" role="group" aria-label="Filter by genre"></div>
+      <p class="pg-status" id="cy-status" aria-live="polite"></p>
+      <div class="ct-grid" id="cy-grid"></div>
+    </div>
+  </section>
+
+  <section class="pg-sec alt" id="cy-any" aria-labelledby="cy-any-h" hidden>
+    <div class="wrap">
+      <div class="pg-head">
+        <p class="eyebrow">Play Anywhere</p>
+        <h2 id="cy-any-h">Plus more you can play here too</h2>
+        <p>These stories place their chapters on whatever streets you're on.</p>
+      </div>
+      <div class="ct-shelf" id="cy-shelf" tabindex="0" role="region" aria-label="Play Anywhere stories, scroll sideways"></div>
+    </div>
+  </section>
+
+  <section class="pg-sec" aria-labelledby="cy-cta-h">
+    <div class="wrap">
+      <div class="pg-cta-band">
+        <p class="eyebrow">Free for 7 days</p>
+        <h2 id="cy-cta-h">Walk further. Find out what happens next.</h2>
+        <p id="cy-cta-p">Every story is free for 7 days on iOS and Android.</p>
+        <div class="pg-actions"><a class="btn" href="index.html#get-app">Get the App</a><a class="btn sec" href="cities.html">More Story Cities</a></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="pg-foot">
+  <div class="wrap">
+    <div class="pg-brand">
+      <a class="pg-logo" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</a>
+      <p>Don't just walk. Step into the story. On iOS and Android.</p>
+    </div>
+    <div><h2>Play</h2><ul><li><a href="index.html#library">Stories</a></li><li><a href="cities.html">Story cities</a></li><li><a href="gift.html">Gifts</a></li><li><a href="index.html#get-app">Get the App</a></li></ul></div>
+    <div><h2>Work with us</h2><ul><li><a href="creators.html">Creators</a></li><li><a href="teams.html">Teams and events</a></li></ul></div>
+    <div class="pg-fine"><span>© Story City</span><span>Walk further. Find out what happens next.</span></div>
+  </div>
+</footer>
+<script src="js/pages.js"></script>
+<script type="module" src="js/city.js"></script>
+</body>
+</html>

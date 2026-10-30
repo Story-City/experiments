@@ -1,0 +1,87 @@
+/* Story City website — shared brand tokens + base components.
+   Source of truth: apps/brand-guidelines/index.src.html (jewel palette, Erode + Karla).
+   Every module on the site uses ONLY these variables. Never invent a hex. */
+
+@font-face { font-family: 'Erode'; src: url(../fonts/erode-var-normal.woff2) format('woff2'); font-weight: 300 700; font-style: normal; font-display: swap; size-adjust: 120%; }
+@font-face { font-family: 'Erode'; src: url(../fonts/erode-var-italic.woff2) format('woff2'); font-weight: 300 700; font-style: italic; font-display: swap; size-adjust: 120%; }
+
+:root {
+  color-scheme: dark;
+  /* Night — backgrounds, darkest to lightest */
+  --ink: #0B0620;        /* page base, behind everything */
+  --midnight: #1A0B3D;   /* the one background */
+  --velvet: #2A1658;     /* cards, sheets, pop-ups */
+  --line: #46337E;       /* borders and dividers, never text */
+  /* Text */
+  --starlight: #FBF7FF;  /* headings, main text */
+  --mist: #D9CEF5;       /* paragraphs */
+  --lilac: #A493D6;      /* labels, hints */
+  /* Action & accent */
+  --sapphire: #5B8CFF;        /* links, icons, focus — "you can tap this" */
+  --sapphire-deep: #1B3FA8;   /* button fade start */
+  --sapphire-royal: #2F5FE0;  /* button fade end */
+  --glow: #C49BFF;            /* Amethyst glow: subheads, labels, magic moments */
+  --ruby: #FF4F79;            /* errors only (+ Eat & Shop gem) */
+  /* Gems and signals */
+  --citrine: #F5B82E;    /* rewards, Walk start */
+  --emerald: #00CD9D;    /* arrived, unlocked, Walk end */
+  --turquoise: #35C6D7;  /* Art gems */
+  --amethyst: #B36BFF;   /* Hunt mode */
+  --amber: #ED8D00;      /* Landmarks gem */
+  /* Map modes */
+  --walk-start: var(--citrine);
+  --walk-end: var(--emerald);
+  --path: var(--sapphire);
+  --hunt: var(--amethyst);
+  /* Story accents (one per story, dark Midnight text on fill) */
+  --sunstone: #FF6050; --carnelian: #FA7423; --heliodor: #DEC523; --peridot: #BED13F;
+  --serpentine: #93DC5E; --aventurine: #5BD380; --amazonite: #00CBBF; --aquamarine: #4CBFE9;
+  --celestite: #58B0F6; --charoite: #9883F8; --kunzite: #DA82ED; --spinel: #E558C6; --rhodolite: #F551A1;
+  /* Neutrals */
+  --moonstone: #C9C6D3; --diamond: #CDD6EA; --labradorite: #9AAEC4; --pearl: #F4EBDD;
+
+  --f-head: 'Erode', Georgia, serif;
+  --f-body: 'Karla', system-ui, sans-serif;
+
+  --r-card: 12px; --r-img: 8px; --r-sheet: 28px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --maxw: 1200px;
+  --ease: cubic-bezier(.2,.7,.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--ink); scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--ink); color: var(--mist); font: 400 17px/1.6 var(--f-body); letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img { max-width: 100%; display: block; }
+a { color: var(--sapphire); }
+h1, h2, h3, h4 { font-family: var(--f-head); font-weight: 600; letter-spacing: .01em; color: var(--starlight); margin: 0; text-wrap: balance; }
+p { margin: 0; }
+:focus-visible { outline: 2px solid var(--starlight); outline-offset: 3px; }
+
+/* Subhead above every title: Karla Bold, caps, spaced, Amethyst glow */
+.eyebrow { font: 700 13px/1.2 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: var(--glow); margin: 0; }
+
+/* Buttons — pills, Title Case labels, one main button per screen */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 52px; padding: 0 26px; border-radius: 999px; border: 0; cursor: pointer; text-decoration: none; white-space: nowrap;
+  font: 600 16px/1 var(--f-body); color: #fff; background: linear-gradient(90deg, var(--sapphire-deep), var(--sapphire-royal)); transition: transform .2s var(--ease), filter .2s; }
+.btn:hover { filter: brightness(1.12); }
+.btn:active { transform: scale(.98); }
+.btn.sec { background: none; box-shadow: inset 0 0 0 1.5px rgba(251,247,255,.38); color: var(--starlight); }
+.btn.txt { background: none; height: 44px; padding: 0 12px; color: var(--starlight); }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px; border: 0; background: none; box-shadow: inset 0 0 0 1px var(--line); font: 600 13px/1 var(--f-body); color: var(--mist); white-space: nowrap; cursor: pointer; }
+.chip[aria-pressed="true"], .chip.on { background: var(--starlight); color: var(--midnight); box-shadow: none; }
+.ibtn { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--velvet); box-shadow: inset 0 0 0 1px var(--line); display: inline-grid; place-items: center; cursor: pointer; color: var(--starlight); }
+.ibtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.card { background: var(--velvet); border: 1px solid var(--line); border-radius: var(--r-card); }
+
+/* Four-point sparkle — the brand's bit of magic. Use: <svg class="spark"><use href="#spark"/></svg> or inline path below */
+.spark { width: 1em; height: 1em; fill: var(--citrine); }
+/* path: M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z */
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding-inline: var(--gutter); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Draft label: this is a concept for the team, not the live storycity.app */
+.draft-flag { position: fixed; z-index: 70; left: 12px; bottom: 12px; padding: 6px 12px; border-radius: 999px; background: var(--midnight); box-shadow: inset 0 0 0 1px var(--line); font: 700 11px/1.2 var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--glow); pointer-events: none; }
+@media (max-width: 640px) { .draft-flag { left: 50%; transform: translateX(-50%); bottom: auto; top: 72px; } }

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story City Gifts</title>
+<meta name="description" content="Give someone a walk they'll talk about. Make a Story City gift ticket to print or share.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,300..800;1,300..800&display=swap">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/gift.css">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="draft-flag" aria-hidden="true">Draft concept · not the live site</div>
+<a class="pg-skip" href="#main">Skip to content</a>
+<header class="pg-nav">
+  <nav class="wrap" aria-label="Main">
+    <a class="pg-logo" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</a>
+    <button class="ibtn pg-menu" type="button" aria-controls="pg-links" aria-expanded="false" aria-label="Open menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <ul class="pg-links" id="pg-links">
+      <li><a href="index.html#library">Stories</a></li>
+      <li><a href="cities.html">Cities</a></li>
+      <li><a href="creators.html">Creators</a></li>
+      <li><a href="gift.html" aria-current="page">Gifts</a></li>
+      <li><a href="teams.html">Teams</a></li>
+      <li class="pg-cta-m"><a class="btn" href="index.html#get-app">Get the App</a></li>
+    </ul>
+    <a class="btn pg-cta" href="index.html#get-app">Get the App</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="pg-hero" aria-labelledby="gt-h1">
+    <div class="pg-art gt-art" aria-hidden="true"><div class="gt-fan"><i></i><i></i><i></i></div></div>
+    <div class="wrap">
+      <p class="eyebrow">Gift a story</p>
+      <h1 id="gt-h1">Give someone a walk they'll talk about.</h1>
+      <p class="pg-lede">Pick a story, write a note and make them a ticket. A mystery to solve, a quest to finish, a city that suddenly looks different.</p>
+      <div class="pg-actions"><a class="btn" href="#make">Make a Ticket</a></div>
+    </div>
+  </section>
+
+  <section class="pg-sec alt" id="make" aria-labelledby="mk-h">
+    <div class="wrap">
+      <div class="gt-banner card" id="gtBanner" role="status">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>
+        <p>Someone made you a ticket. Your story is waiting.</p>
+      </div>
+      <div class="pg-head" data-reveal>
+        <p class="eyebrow">Make a ticket</p>
+        <h2 id="mk-h">Three small choices.</h2>
+        <p>Your ticket updates as you go. Download it to print or send, or copy a link.</p>
+      </div>
+      <div class="gt-make">
+        <form class="gt-form" id="gtForm" onsubmit="return false" aria-label="Gift ticket details">
+          <div class="gt-step card">
+            <h3><span class="gt-num" aria-hidden="true">1</span>The occasion</h3>
+            <div class="pg-field">
+              <label for="gtOcc">Occasion</label>
+              <select class="pg-input" id="gtOcc">
+                <option value="just">Just because</option>
+                <option value="bday">Birthday</option>
+                <option value="thanks">Thank you</option>
+                <option value="anniv">Anniversary</option>
+                <option value="halloween">Halloween</option>
+                <option value="holiday">Holidays</option>
+                <option value="newtown">New in town</option>
+                <option value="getwell">Get well</option>
+              </select>
+            </div>
+          </div>
+          <div class="gt-step card">
+            <h3><span class="gt-num" aria-hidden="true">2</span>A note</h3>
+            <div class="gt-two">
+              <div class="pg-field"><label for="gtTo">For</label><input class="pg-input" id="gtTo" maxlength="28" placeholder="Their name" autocomplete="off"></div>
+              <div class="pg-field"><label for="gtFrom">From</label><input class="pg-input" id="gtFrom" maxlength="28" placeholder="Your name" autocomplete="off"></div>
+            </div>
+            <div class="pg-field">
+              <label for="gtNote">Your note</label>
+              <textarea class="pg-input" id="gtNote" maxlength="140" rows="3">I think you'll like where this one takes you.</textarea>
+              <span class="pg-count" id="gtCount" aria-live="polite"></span>
+            </div>
+          </div>
+          <div class="gt-step card">
+            <h3><span class="gt-num" aria-hidden="true">3</span>The story</h3>
+            <div class="gt-stories" id="gtStories" role="radiogroup" aria-label="Pick a story"></div>
+            <div class="pg-field" id="gtMoreWrap" hidden>
+              <label for="gtMore">Or pick any story</label>
+              <select class="pg-input" id="gtMore"></select>
+            </div>
+          </div>
+        </form>
+
+        <div class="gt-preview" data-reveal id="gtPreview">
+          <div class="gt-printer" id="gtPrinter">
+            <div class="gt-slot" aria-hidden="true"></div>
+            <div class="gt-feed">
+              <div class="gt-ticket" id="gtTicket" role="img" aria-label="Your gift ticket">
+                <div class="gt-main">
+                  <img class="gt-cover" id="gtCover" alt="" src="img/alice.jpg">
+                  <div class="gt-txt">
+                    <span class="gt-brand"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</span>
+                    <span class="gt-occ" id="tkOcc">Just because</span>
+                    <strong class="gt-title" id="tkTitle">Alice Through The Tear</strong>
+                    <p class="gt-note" id="tkNote"></p>
+                    <span class="gt-from" id="tkFrom"></span>
+                  </div>
+                </div>
+                <div class="gt-stub">
+                  <span class="gt-admit">Admit 1<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg></span>
+                  <span class="gt-date" id="tkDate"></span>
+                </div>
+              </div>
+              <svg class="gt-spark" style="left:2%;top:18%" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>
+              <svg class="gt-spark" style="right:4%;top:8%" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>
+              <svg class="gt-spark" style="right:30%;bottom:6%" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>
+            </div>
+          </div>
+          <div class="gt-actions">
+            <button class="btn" type="button" id="gtDownload"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Ticket</button>
+            <button class="btn sec" type="button" id="gtCopy">Copy Link</button>
+            <button class="btn txt" type="button" id="gtReprint">Print Again</button>
+          </div>
+          <p class="pg-status" id="gtStatus" role="status" aria-live="polite"></p>
+          <div class="gt-coming card">
+            <p><span class="placeholder">[Gift purchase — coming soon]</span></p>
+            <p>For now, the ticket is a keepsake to print or send. Every story is free to try for 7 days on iOS and Android.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pg-sec" aria-labelledby="gq-h">
+    <div class="wrap">
+      <div class="pg-head" data-reveal>
+        <p class="eyebrow">Good to know</p>
+        <h2 id="gq-h">About gift tickets.</h2>
+      </div>
+      <div class="pg-faq">
+        <details><summary>Does the ticket pay for the story?</summary>
+          <div class="pg-faq-a"><p>Not yet. Buying a story as a gift is coming. Today the ticket is a lovely way to say "try this", and every story is free for 7 days.</p><p class="placeholder">[Confirm with team: gift pricing and how a gift is redeemed]</p></div></details>
+        <details><summary>What's in the link?</summary>
+          <div class="pg-faq-a"><p>The link carries your note, names and story choice inside the web address itself, after the # sign. Nothing is saved or sent anywhere by this page. Anyone with the link can see the note.</p></div></details>
+        <details><summary>Where can they play it?</summary>
+          <div class="pg-faq-a"><p>On iOS or Android. Play Anywhere stories place themselves on their own streets. Local stories are written for one city.</p></div></details>
+      </div>
+    </div>
+  </section>
+</main>
+</main>
+
+<footer class="pg-foot">
+  <div class="wrap">
+    <div class="pg-brand">
+      <a class="pg-logo" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</a>
+      <p>Don't just walk. Step into the story. On iOS and Android.</p>
+    </div>
+    <div><h2>Play</h2><ul><li><a href="index.html#library">Stories</a></li><li><a href="cities.html">Story cities</a></li><li><a href="gift.html">Gifts</a></li><li><a href="index.html#get-app">Get the App</a></li></ul></div>
+    <div><h2>Work with us</h2><ul><li><a href="creators.html">Creators</a></li><li><a href="teams.html">Teams and events</a></li></ul></div>
+    <div class="pg-fine"><span>© Story City</span><span>Walk further. Find out what happens next.</span></div>
+  </div>
+</footer>
+<script src="js/pages.js"></script>
+<script src="js/gift.js"></script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story City Creators</title>
+<meta name="description" content="Write a story the city can play. Chapters, choices and real places — try the Story City creator tools.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,300..800;1,300..800&display=swap">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/creators.css">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="draft-flag" aria-hidden="true">Draft concept · not the live site</div>
+<a class="pg-skip" href="#main">Skip to content</a>
+<header class="pg-nav">
+  <nav class="wrap" aria-label="Main">
+    <a class="pg-logo" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</a>
+    <button class="ibtn pg-menu" type="button" aria-controls="pg-links" aria-expanded="false" aria-label="Open menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <ul class="pg-links" id="pg-links">
+      <li><a href="index.html#library">Stories</a></li>
+      <li><a href="cities.html">Cities</a></li>
+      <li><a href="creators.html" aria-current="page">Creators</a></li>
+      <li><a href="gift.html">Gifts</a></li>
+      <li><a href="teams.html">Teams</a></li>
+      <li class="pg-cta-m"><a class="btn" href="index.html#get-app">Get the App</a></li>
+    </ul>
+    <a class="btn pg-cta" href="index.html#get-app">Get the App</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="pg-hero" aria-labelledby="cr-h1">
+    <div class="pg-art cr-art" aria-hidden="true">
+      <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+        <g class="streets">
+          <path class="st big" d="M-20 420 C 200 380 330 470 520 400 S 760 300 840 330"/>
+          <path class="st big" d="M300 -20 C 320 160 260 300 330 620"/>
+          <path class="st" d="M0 120 H800 M0 230 H800 M0 520 H800 M120 0 V600 M470 0 V600 M640 0 V600 M560 0 L800 260 M0 300 L260 600"/>
+        </g>
+        <path id="crQuill" class="qp" d="M110 560 C 160 470 250 470 300 420 S 340 300 470 290 S 600 220 640 120"/>
+        <circle class="qp-end" cx="640" cy="120" r="14"/>
+        <path class="pin" d="M470 282l3 6 6 3-6 3-3 6-3-6-6-3 6-3z"/>
+        <path class="tip" id="crTip" d="M0-14c.5 4 3 6.5 7 7-4 .5-6.5 3-7 7-.5-4-3-6.5-7-7 4-.5 6.5-3 7-7z" transform="translate(110 560)"/>
+      </svg>
+    </div>
+    <div class="wrap">
+      <p class="eyebrow">For writers</p>
+      <h1 id="cr-h1">Write a story the city can play.</h1>
+      <p class="pg-lede">Chapters, choices and real places. You write what happens; the streets become the stage. Players walk to find out what comes next.</p>
+      <div class="pg-actions">
+        <a class="btn" href="#creator-signup">Start Writing</a>
+        <a class="btn sec" href="#builder">Try the Card Builder</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="pg-sec alt" id="builder" aria-labelledby="cb-h">
+    <div class="wrap">
+      <div class="pg-head" data-reveal>
+        <p class="eyebrow">Try the creator tools</p>
+        <h2 id="cb-h">Your story, your colour.</h2>
+        <p>Every story picks one accent. It colours that story's buttons, choices and progress, while the rest of the app stays Story City. Type below and watch it change.</p>
+      </div>
+      <div class="cb">
+        <form class="cb-form card" id="cbForm" aria-label="Story card builder" onsubmit="return false">
+          <div class="pg-field">
+            <label for="cbTitle">Story title</label>
+            <input class="pg-input" id="cbTitle" maxlength="40" value="The Clockmaker's Debt" autocomplete="off">
+          </div>
+          <div class="pg-field">
+            <label for="cbHook">One-line hook</label>
+            <input class="pg-input" id="cbHook" maxlength="90" value="Every clock in the old town stopped at 3:17." autocomplete="off">
+            <span class="pg-count" id="cbHookCount" aria-live="polite"></span>
+          </div>
+          <div class="cb-row">
+            <div class="pg-field">
+              <label for="cbGenre">Genre</label>
+              <select class="pg-input" id="cbGenre">
+                <option>Mystery</option><option>Adventure</option><option>Fantasy</option><option>Spooky</option>
+                <option>Comedy</option><option>Romance</option><option>History</option><option>Sci-fi</option>
+              </select>
+            </div>
+            <div class="pg-field">
+              <label for="cbType">Story type</label>
+              <select class="pg-input" id="cbType">
+                <option value="Play Anywhere">Play Anywhere</option>
+                <option value="Local">Local</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <fieldset class="cb-acc" role="radiogroup" aria-labelledby="cbAccLbl" id="cbAcc">
+              <legend class="pg-label" id="cbAccLbl">Accent colour</legend>
+            </fieldset>
+            <p class="cb-accname" aria-live="polite"><span>Accent: <b id="cbAccName">Amazonite</b></span><span id="cbAccKind">Story accent</span></p>
+          </div>
+          <p class="cb-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>Emerald, Sapphire and Amethyst aren't offered. They belong to the Walk, Path and Hunt map modes, so players always know what the map is asking.</p>
+        </form>
+
+        <div class="cb-stage" id="cbStage" aria-label="Live preview of your story">
+          <span class="cb-wash" id="cbWash" aria-hidden="true"></span>
+          <article class="cb-phone" aria-label="Story card preview">
+            <span class="cb-notch" aria-hidden="true"></span>
+            <div class="cb-cover" aria-hidden="true">
+              <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMax slice">
+                <circle class="moon" cx="225" cy="38" r="16"/>
+                <path class="sky" d="M0 150V92h22V70h18v22h14V54l12-14 12 14v38h16V78h24v-20h10v20h12v72zM150 150V84h18V60h6V44h6v16h6v24h22V98h20V66h28v26h16V76h28v74z"/>
+                <rect class="win" x="62" y="62" width="6" height="8" rx="1"/><rect class="win" x="112" y="84" width="5" height="7" rx="1"/>
+                <rect class="win" x="176" y="70" width="5" height="7" rx="1"/><rect class="win" x="238" y="78" width="6" height="8" rx="1"/>
+                <circle class="win" cx="72" cy="50" r="3"/>
+              </svg>
+            </div>
+            <div class="cb-body">
+              <span class="cb-lbl" id="pvLbl">Mystery · Play Anywhere</span>
+              <h3 class="cb-title" id="pvTitle">The Clockmaker's Debt</h3>
+              <div class="cb-chips"><span class="on">Walk</span><span>45 min</span><span>6 chapters</span></div>
+              <p class="cb-hook"><span id="pvHook">Every clock in the old town stopped at 3:17.</span> <a class="cb-link" href="#builder" tabindex="-1">Read chapter 1</a></p>
+              <div class="cb-prog"><span>Chapter 1 of 6</span><i><b id="pvProg"></b></i></div>
+              <button class="cb-pbtn" type="button" id="pvStart">Start Story</button>
+            </div>
+          </article>
+          <article class="cb-phone" aria-label="Chapter screen preview">
+            <span class="cb-notch" aria-hidden="true"></span>
+            <div class="cb-top"><span class="bk" aria-hidden="true">‹</span><div><span class="cb-lbl">Chapter 1</span><strong>The clocks stop</strong></div></div>
+            <div class="cb-chat">
+              <span class="cb-who">A stranger</span>
+              <p class="cb-bub" id="pvBub1">Every clock in the old town stopped at 3:17.</p>
+              <p class="cb-bub">I need someone who walks. Meet me where the street ends.</p>
+              <p class="cb-bub me" id="pvMe">On my way.</p>
+            </div>
+            <div class="cb-walk" aria-label="Walk mode: 120 steps to the next chapter"><span>Walk</span><span class="dots"></span><span>120 steps</span></div>
+            <p class="cb-ask">What do you do?</p>
+            <div class="cb-choices" role="group" aria-label="Story choices (try them)">
+              <button class="cb-choice" type="button" aria-pressed="false">Follow the ticking</button>
+              <button class="cb-choice" type="button" aria-pressed="true">Knock on the shop door</button>
+            </div>
+            <div class="cb-foot">
+              <div class="cb-prog"><span>Chapter 1 of 6</span><i><b></b></i></div>
+              <button class="cb-pbtn" type="button">Continue</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pg-sec" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="pg-head" data-reveal>
+        <p class="eyebrow">How a story is built</p>
+        <h2 id="how-h">Chapters, choices and places.</h2>
+        <p>A Story City story is a branching path. Each chapter happens somewhere, and each choice decides where the player walks next.</p>
+      </div>
+      <div class="cr-concepts">
+        <div class="card" data-reveal style="--d:0s">
+          <span class="cr-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h10l4 4v12H5z"/><path d="M9 11h6M9 15h6"/></svg></span>
+          <h3>Chapters</h3><p>Short scenes told in chat bubbles. Characters message the player, and the story waits until they arrive.</p>
+        </div>
+        <div class="card" data-reveal style="--d:.08s">
+          <span class="cr-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20v-7M12 13L6 6M12 13l6-7M6 6V3M18 6V3"/></svg></span>
+          <h3>Choices</h3><p>Players pick what happens. Choices branch the story and can lead to different endings. They never cost steps.</p>
+        </div>
+        <div class="card" data-reveal style="--d:.16s">
+          <span class="cr-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></span>
+          <h3>Places</h3><p>Give each location a name and place tags, like park or café. Play Anywhere stories auto-place on any player's own streets.</p>
+        </div>
+        <div class="card" data-reveal style="--d:.24s">
+          <span class="cr-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></span>
+          <h3>Map modes</h3><p>Each chapter can suit Walk, Path or Hunt. Players can switch modes any time.</p>
+        </div>
+      </div>
+
+      <div class="bt">
+        <div class="bt-box card" data-reveal>
+          <div class="bt-bar">
+            <p class="pg-label" id="btLbl">Click a choice to follow a branch</p>
+            <ul class="bt-legend" aria-label="Map modes">
+              <li><span class="bt-dot walk" aria-hidden="true"></span>Walk: steps unlock the next chapter</li>
+              <li><span class="bt-dot path" aria-hidden="true"></span>Path: walk to a real place</li>
+              <li><span class="bt-dot hunt" aria-hidden="true"></span>Hunt: find it, photograph it</li>
+            </ul>
+          </div>
+          <div class="bt-tree" id="btTree" role="group" aria-labelledby="btLbl">
+            <svg class="bt-svg" id="btSvg" aria-hidden="true"></svg>
+          </div>
+          <div class="bt-bar"><button class="btn txt" type="button" id="btReset">Start Over</button></div>
+        </div>
+        <aside class="bt-detail card" aria-live="polite" id="btDetail"></aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="pg-sec alt" aria-labelledby="cta-h">
+    <div class="wrap">
+      <div class="pg-cta-band" data-reveal id="creator-signup">
+        <svg class="cr-cta-art" viewBox="0 0 400 300" aria-hidden="true">
+          <path class="ln" d="M20 260 C 120 240 140 140 220 150 S 330 80 360 40"/>
+          <path class="sp" d="M360 14c1.6 12 9 19.5 22 22-13 2.2-20.4 9.8-22 22-1.6-12.2-9-19.8-22-22 13-2.5 20.4-10 22-22z"/>
+          <path class="sp" d="M220 134c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12 7.1-1.2 11.1-5.4 12-12z"/>
+          <path class="sp" d="M60 220c.7 5 3.7 8 9 9-5.3.9-8.3 4-9 9-.7-5-3.7-8.1-9-9 5.3-1 8.3-4 9-9z"/>
+        </svg>
+        <p class="eyebrow">Creator tools</p>
+        <h2 id="cta-h">Your first chapter is waiting.</h2>
+        <p>Write chapters, add choices and tag your places. The streets do the rest.</p>
+        <div class="pg-actions"><a class="btn" href="#creator-signup">Start Writing</a></div>
+        <p style="margin-top:14px"><span class="placeholder">[Confirm with team: creator sign-up link]</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pg-sec" aria-labelledby="faq-h">
+    <div class="wrap">
+      <div class="pg-head" data-reveal>
+        <p class="eyebrow">Questions</p>
+        <h2 id="faq-h">Before you start writing.</h2>
+      </div>
+      <div class="pg-faq">
+        <details><summary>Who owns the story I write?</summary>
+          <div class="pg-faq-a"><p class="placeholder">[Confirm with team: who owns story rights, and what licence Story City gets — from the current Creator Agreement]</p></div></details>
+        <details><summary>How does my story get published?</summary>
+          <div class="pg-faq-a"><p>You write it in the creator tools, then submit it.</p><p class="placeholder">[Confirm with team: review steps, how long it takes, and where it appears in the library]</p></div></details>
+        <details><summary>How do creators get paid?</summary>
+          <div class="pg-faq-a"><p class="placeholder">[Confirm with team: payout model, revenue split, minimum payout and how payments are sent]</p></div></details>
+        <details><summary>Do I need to know how to code?</summary>
+          <div class="pg-faq-a"><p>You write chapters and choices, and tag your places. The app handles the map.</p><p class="placeholder">[Confirm with team: can creators build a whole story with no code?]</p></div></details>
+        <details><summary>Can I write for my own city?</summary>
+          <div class="pg-faq-a"><p>Yes. A Local story is written for specific places in one city. A Play Anywhere story uses place tags, so it can be played on anyone's streets.</p></div></details>
+        <details><summary>How do I pick my story's colour?</summary>
+          <div class="pg-faq-a"><p>Each story picks one accent from the jewel set. It colours the buttons, choices and progress inside your story. Map mode colours are kept for the map.</p></div></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="pg-foot">
+  <div class="wrap">
+    <div class="pg-brand">
+      <a class="pg-logo" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</a>
+      <p>Don't just walk. Step into the story. On iOS and Android.</p>
+    </div>
+    <div><h2>Play</h2><ul><li><a href="index.html#library">Stories</a></li><li><a href="cities.html">Story cities</a></li><li><a href="gift.html">Gifts</a></li><li><a href="index.html#get-app">Get the App</a></li></ul></div>
+    <div><h2>Work with us</h2><ul><li><a href="creators.html">Creators</a></li><li><a href="teams.html">Teams and events</a></li></ul></div>
+    <div class="pg-fine"><span>© Story City</span><span>Walk further. Find out what happens next.</span></div>
+  </div>
+</footer>
+<script src="js/pages.js"></script>
+<script src="js/creators.js"></script>
+</body>
+</html>

@@ -1,5 +1,17 @@
 [
   {
+    "slug": "website-concept",
+    "path": "website-concept/",
+    "title": "New website concept",
+    "what": "storycity.app reimagined in the jewel palette: the page is a walk, a playable first chapter, your street as a story map, 219 real stories, city pages, creators, gifts and teams.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-10",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "map-mode-names",
     "path": "map-mode-names/?v=3",
     "title": "Map mode names vote",

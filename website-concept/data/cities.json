@@ -1,0 +1,376 @@
+{
+ "generated": "2026-10-30T04:21:15+00:00",
+ "anywhereCount": 18,
+ "cities": [
+  {
+   "city": "Atlanta",
+   "region": "Georgia",
+   "country": "United States",
+   "count": 60,
+   "local": 60,
+   "passport": 0,
+   "lat": 33.7382,
+   "lng": -84.4103
+  },
+  {
+   "city": "Edmonton",
+   "region": "Alberta",
+   "country": "Canada",
+   "count": 46,
+   "local": 46,
+   "passport": 0,
+   "lat": 53.5369,
+   "lng": -113.5014
+  },
+  {
+   "city": "Brisbane",
+   "region": "Queensland",
+   "country": "Australia",
+   "count": 23,
+   "local": 23,
+   "passport": 0,
+   "lat": -27.4621,
+   "lng": 153.029
+  },
+  {
+   "city": "Calgary",
+   "region": "Alberta",
+   "country": "Canada",
+   "count": 14,
+   "local": 14,
+   "passport": 0,
+   "lat": 51.022,
+   "lng": -114.0656
+  },
+  {
+   "city": "Toronto",
+   "region": "Ontario",
+   "country": "Canada",
+   "count": 10,
+   "local": 10,
+   "passport": 0,
+   "lat": 43.6563,
+   "lng": -79.3972
+  },
+  {
+   "city": "Adelaide",
+   "region": "South Australia",
+   "country": "Australia",
+   "count": 7,
+   "local": 7,
+   "passport": 0,
+   "lat": -34.9344,
+   "lng": 138.5536
+  },
+  {
+   "city": "Austin",
+   "region": "Texas",
+   "country": "United States",
+   "count": 5,
+   "local": 5,
+   "passport": 0,
+   "lat": 30.2663,
+   "lng": -97.7448
+  },
+  {
+   "city": "Gold Coast",
+   "region": "Queensland",
+   "country": "Australia",
+   "count": 3,
+   "local": 3,
+   "passport": 0,
+   "lat": -27.9954,
+   "lng": 153.4389
+  },
+  {
+   "city": "Melbourne",
+   "region": "Victoria",
+   "country": "Australia",
+   "count": 3,
+   "local": 3,
+   "passport": 0,
+   "lat": -37.818,
+   "lng": 144.9687
+  },
+  {
+   "city": "Clovis",
+   "region": "California",
+   "country": "United States",
+   "count": 2,
+   "local": 2,
+   "passport": 0,
+   "lat": 36.8474,
+   "lng": -119.7014
+  },
+  {
+   "city": "Sydney",
+   "region": "New South Wales",
+   "country": "Australia",
+   "count": 2,
+   "local": 2,
+   "passport": 0,
+   "lat": -33.817,
+   "lng": 151.0029
+  },
+  {
+   "city": "Buenos Aires",
+   "region": "Autonomous City of Buenos Aires",
+   "country": "Argentina",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": -34.6079,
+   "lng": -58.3734
+  },
+  {
+   "city": "Charlotte",
+   "region": "North Carolina",
+   "country": "United States",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 35.2266,
+   "lng": -80.8467
+  },
+  {
+   "city": "Charlottetown",
+   "region": "Prince Edward Island",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 46.229,
+   "lng": -63.144
+  },
+  {
+   "city": "Fredericton",
+   "region": "New Brunswick",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 45.9628,
+   "lng": -66.656
+  },
+  {
+   "city": "Halifax",
+   "region": "Nova Scotia",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 44.6493,
+   "lng": -63.5872
+  },
+  {
+   "city": "Montreal",
+   "region": "Quebec",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 45.5028,
+   "lng": -73.5918
+  },
+  {
+   "city": "Orlando",
+   "region": "Florida",
+   "country": "United States",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 28.57,
+   "lng": -81.3673
+  },
+  {
+   "city": "Ottawa",
+   "region": "Ontario",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 45.4265,
+   "lng": -75.6954
+  },
+  {
+   "city": "Ouro Preto",
+   "region": "Minas Gerais",
+   "country": "Brazil",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": -20.3855,
+   "lng": -43.5036
+  },
+  {
+   "city": "Quebec",
+   "region": "Quebec",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 46.7996,
+   "lng": -71.2258
+  },
+  {
+   "city": "Red Deer",
+   "region": "Alberta",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 52.2675,
+   "lng": -113.8349
+  },
+  {
+   "city": "Regina",
+   "region": "Saskatchewan",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 50.4487,
+   "lng": -104.6123
+  },
+  {
+   "city": "Saint Paul",
+   "region": "Minnesota",
+   "country": "United States",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 44.962,
+   "lng": -93.1369
+  },
+  {
+   "city": "Santa Ana",
+   "region": "California",
+   "country": "United States",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 33.7263,
+   "lng": -117.839
+  },
+  {
+   "city": "Saskatoon",
+   "region": "Saskatchewan",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 52.1343,
+   "lng": -106.6509
+  },
+  {
+   "city": "Seba Beach",
+   "region": "Alberta",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 53.5554,
+   "lng": -114.7349
+  },
+  {
+   "city": "South Australia (AU)",
+   "region": "South Australia",
+   "country": "Australia",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": -34.2527,
+   "lng": 140.4646
+  },
+  {
+   "city": "St. John's",
+   "region": "Newfoundland and Labrador",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 47.5716,
+   "lng": -52.7072
+  },
+  {
+   "city": "Turku",
+   "region": "Southwest Finland",
+   "country": "Finland",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 60.4534,
+   "lng": 22.2752
+  },
+  {
+   "city": "Vancouver",
+   "region": "British Columbia",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 49.3017,
+   "lng": -123.1327
+  },
+  {
+   "city": "Victoria",
+   "region": "British Columbia",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 48.4124,
+   "lng": -123.364
+  },
+  {
+   "city": "Victoria (AU)",
+   "region": "Victoria",
+   "country": "Australia",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": -37.063,
+   "lng": 144.2252
+  },
+  {
+   "city": "Wellington",
+   "region": "Wellington",
+   "country": "New Zealand",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": -41.282,
+   "lng": 174.7751
+  },
+  {
+   "city": "Whitehorse",
+   "region": "Yukon",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 60.7137,
+   "lng": -135.0487
+  },
+  {
+   "city": "Winnipeg",
+   "region": "Manitoba",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 49.8884,
+   "lng": -97.1283
+  },
+  {
+   "city": "Yellowknife",
+   "region": "Northwest Territories",
+   "country": "Canada",
+   "count": 1,
+   "local": 1,
+   "passport": 0,
+   "lat": 62.4537,
+   "lng": -114.3792
+  }
+ ]
+}

@@ -1,0 +1,138 @@
+/* Story City — city landing pages (cities.html + city.html). Builds on tokens.css + pages.css.
+   Prefixes: cx- (world map + list), cy- (one city), ct- (story cards). Colours only from tokens. */
+
+/* ---------- World map ---------- */
+.cx-hero { padding-bottom: clamp(32px, 5vw, 64px); }
+.cx-hero h1 { max-width: 12ch; }
+.cx-mapwrap { margin-top: clamp(28px, 5vw, 48px); }
+.cx-zoom { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.cx-zoom .chip, .cy-chips .chip { height: 44px; padding: 0 18px; font-size: 14px; }
+.cx-map { position: relative; margin: 0; border-radius: var(--r-sheet); overflow: hidden; border: 1px solid var(--line);
+  background: radial-gradient(80% 90% at 50% 40%, color-mix(in srgb, var(--velvet) 70%, transparent), transparent 75%), var(--ink); }
+.cx-map svg { display: block; width: 100%; height: auto; aspect-ratio: 1000 / 383; }
+.cx-grat path { stroke: var(--line); stroke-width: .5; opacity: .45; fill: none; vector-effect: non-scaling-stroke; stroke-dasharray: 2 4; }
+.cx-land { fill: none; stroke: var(--line); stroke-width: var(--land, 2.6); stroke-linecap: round; }
+.cx-city { cursor: pointer; outline: none; }
+.cx-city .hit { fill: transparent; }
+.cx-city .core { fill: var(--starlight); stroke: var(--ink); stroke-width: .6; vector-effect: non-scaling-stroke; transition: fill .2s; }
+.cx-city.tC .core { fill: var(--citrine); }
+.cx-city.tG .core { fill: var(--glow); }
+.cx-city.tT .core { fill: var(--turquoise); }
+.cx-city .halo { transform-box: fill-box; transform-origin: center; animation: cx-breathe 4.2s ease-in-out infinite; animation-delay: var(--d, 0s); }
+.cx-city text { fill: var(--mist); font: 600 12px var(--f-body); paint-order: stroke; stroke: var(--ink); stroke-width: 3px; stroke-linejoin: round; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.cx-city.lab text, .cx-city:hover text, .cx-city:focus-visible text { opacity: 1; }
+.cx-city:hover .core, .cx-city:focus-visible .core { fill: var(--starlight); }
+.cx-city:focus-visible .core { stroke: var(--sapphire); stroke-width: 3; }
+@keyframes cx-breathe { 0%, 100% { opacity: .55; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.12); } }
+.cx-tip { position: absolute; left: 0; top: 0; pointer-events: none; display: grid; gap: 2px; padding: 10px 14px; border-radius: var(--r-card); background: var(--velvet); border: 1px solid var(--line);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--ink) 70%, transparent); opacity: 0; transition: opacity .15s; font-size: 14px; max-width: 240px; }
+.cx-tip.on { opacity: 1; }
+.cx-tip b { font: 600 18px/1.2 var(--f-head); color: var(--starlight); }
+.cx-tip span { color: var(--lilac); }
+.cx-tip .n { color: var(--glow); font-weight: 700; }
+
+/* ---------- City list ---------- */
+.cx-listhead { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 32px; margin-bottom: 12px; }
+.cx-listhead .pg-head { margin-bottom: 16px; }
+.cx-find { width: min(100%, 360px); }
+.cx-list { display: grid; gap: clamp(32px, 4vw, 48px); }
+.cx-country h3 { font-size: clamp(24px, 3vw, 30px); display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+.cx-country h3 span { font: 600 14px/1.2 var(--f-body); color: var(--lilac); letter-spacing: 0; }
+.cx-country ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
+.cx-row { display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 10px 14px 10px 10px; border-radius: var(--r-card); background: var(--midnight); border: 1px solid var(--line); text-decoration: none; color: var(--mist); transition: border-color .2s, transform .2s var(--ease), background .2s; }
+.cx-row:hover { border-color: var(--sapphire); background: var(--velvet); transform: translateY(-2px); }
+.cx-row-n { flex: none; display: grid; place-items: center; min-width: 44px; height: 44px; padding: 0 6px; border-radius: 999px; background: var(--ink); box-shadow: inset 0 0 0 1px var(--line); font: 600 18px/1 var(--f-head); color: var(--citrine); }
+.cx-row-t { display: grid; min-width: 0; flex: 1; }
+.cx-row-t b { color: var(--starlight); font-weight: 700; font-size: 17px; }
+.cx-row-t span { color: var(--lilac); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cx-row svg, .cx-anywhere svg { flex: none; width: 20px; height: 20px; stroke: var(--sapphire); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cx-anywhere { display: flex; align-items: center; gap: 16px; margin-top: clamp(32px, 4vw, 48px); padding: 20px 22px; text-decoration: none; color: var(--mist); transition: border-color .2s; }
+.cx-anywhere:hover { border-color: var(--sapphire); }
+.cx-anywhere svg { width: 32px; height: 32px; }
+.cx-anywhere > span { display: grid; gap: 2px; }
+.cx-anywhere b { font: 600 22px/1.2 var(--f-head); color: var(--starlight); }
+
+/* ---------- One city ---------- */
+.cy-crumbs ol { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; font-size: 14px; color: var(--lilac); }
+.cy-crumbs li:not(:last-child)::after { content: "/"; margin-left: 6px; color: var(--line); }
+.cy-crumbs li:empty { display: none; }
+.cy-crumbs a { color: var(--sapphire); display: inline-flex; align-items: center; min-height: 32px; }
+.cy-hero h1 { max-width: 16ch; }
+.cy-n { color: var(--citrine); font-variant-numeric: lining-nums; }
+.cy-hero .pg-lede a { color: var(--sapphire); display: inline-block; padding: 10px 0; margin: -10px 0; }
+.cy-mapwrap { margin-top: clamp(28px, 5vw, 56px); }
+.cy-map { position: relative; margin: 0; aspect-ratio: 16 / 9; border-radius: var(--r-sheet); overflow: hidden; border: 1px solid var(--line);
+  background: radial-gradient(60% 70% at 50% 50%, color-mix(in srgb, var(--velvet) 80%, transparent), transparent 75%), var(--ink); }
+@media (max-width: 700px) { .cy-map { aspect-ratio: 4 / 5; } }
+.cy-map > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cy-dust circle { fill: var(--starlight); }
+.cy-rings circle { fill: none; stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 6; }
+.cy-centre path { stroke: var(--lilac); stroke-width: 1.5; stroke-linecap: round; opacity: .6; }
+.cy-lines line { stroke: var(--glow); stroke-width: 1.2; stroke-linecap: round; opacity: .5; stroke-dasharray: var(--len); stroke-dashoffset: var(--len);
+  transition: stroke-dashoffset 1.6s var(--ease) calc(var(--i) * 25ms), opacity .3s, stroke .3s, stroke-width .3s; }
+.cy-map.lit .cy-lines line { stroke-dashoffset: 0; }
+.cy-lines line.on { stroke: var(--citrine); opacity: 1; stroke-width: 2; }
+.cy-lines line.off { opacity: .1; }
+.cy-stars { position: absolute; inset: 0; }
+.cy-star { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 50%; display: grid; place-items: center;
+  opacity: 0; transform: scale(.4); transition: opacity .5s var(--ease) calc(var(--i) * 30ms), transform .5s var(--ease) calc(var(--i) * 30ms); }
+.cy-map.lit .cy-star { opacity: 1; transform: none; }
+.cy-star i { width: 10px; height: 10px; border-radius: 50%; background: var(--citrine); box-shadow: 0 0 0 3px color-mix(in srgb, var(--citrine) 22%, transparent), 0 0 18px 4px color-mix(in srgb, var(--citrine) 45%, transparent);
+  transition: transform .2s var(--ease), background .2s; animation: cy-twinkle 3.6s ease-in-out infinite; animation-delay: calc(var(--i) * -0.41s); }
+.cy-star:hover i, .cy-star.on i { transform: scale(1.6); background: var(--starlight); }
+.cy-star:focus-visible { outline: 2px solid var(--sapphire); outline-offset: -6px; }
+.cy-map.lit .cy-star.off { opacity: .22; transform: scale(.7); }
+.cy-star.off i { animation: none; box-shadow: none; background: var(--lilac); }
+@keyframes cy-twinkle { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35); } }
+.cy-cap { position: absolute; left: 14px; bottom: 12px; right: 14px; font-size: 13px; color: var(--lilac); pointer-events: none; text-shadow: 0 1px 6px var(--ink); }
+.cy-pop { position: absolute; z-index: 3; width: min(320px, calc(100% - 16px)); display: flex; gap: 12px; align-items: flex-start; padding: 12px; box-shadow: 0 18px 40px color-mix(in srgb, var(--ink) 75%, transparent); }
+.cy-pop img { flex: none; width: 64px; height: 80px; object-fit: cover; border-radius: var(--r-img); }
+.cy-pop > div { min-width: 0; flex: 1; display: grid; gap: 4px; }
+.cy-pop .eyebrow { font-size: 11px; }
+.cy-pop h3 { font-size: 18px; line-height: 1.2; }
+.cy-pop .btn.txt { justify-self: start; height: 40px; padding: 0 8px 0 0; color: var(--sapphire); gap: 4px; font-size: 15px; }
+.cy-pop .btn.txt svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cy-pop.pinned h3 { padding-right: 36px; }
+.cy-pop-x { position: absolute; top: 4px; right: 4px; background: none; box-shadow: none; }
+.cy-pop:not(.pinned) { pointer-events: none; }
+
+.cy-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.cy-chips .chip span { opacity: .7; font-weight: 700; }
+
+/* ---------- Story cards ---------- */
+.ct-grid { display: grid; gap: clamp(14px, 2vw, 22px); grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); margin-top: 16px; }
+.ct-card { position: relative; display: flex; flex-direction: column; overflow: hidden; outline: none; transition: border-color .25s, transform .25s var(--ease); }
+.ct-card:hover { transform: translateY(-3px); }
+.ct-card:focus-visible, .ct-card.flash { border-color: var(--citrine); }
+.ct-card.flash { animation: ct-flash 1.6s var(--ease); }
+@keyframes ct-flash { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--citrine) 60%, transparent); } 100% { box-shadow: 0 0 0 18px transparent; } }
+.ct-cover { position: relative; flex: none; aspect-ratio: 4 / 5; overflow: hidden; background: var(--midnight); }
+.ct-cover img, .ct-nocover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ct-nocover { width: 100%; height: 100%; display: grid; place-items: center; background: radial-gradient(circle at 50% 45%, var(--velvet), var(--midnight)); }
+.ct-nocover svg { width: 40px; height: 40px; fill: var(--citrine); }
+.ct-lang { position: absolute; left: 10px; top: 10px; display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px; background: var(--midnight); color: var(--starlight); font: 700 12px/1 var(--f-body); letter-spacing: .04em; box-shadow: inset 0 0 0 1px var(--glow); }
+.cy-pop .ct-lang { position: static; }
+.ct-body { display: grid; gap: 6px; padding: 14px 16px 16px; align-content: start; flex: 1; }
+.ct-body .eyebrow { font-size: 12px; }
+.ct-title { font-size: 21px; line-height: 1.2; overflow-wrap: anywhere; }
+.ct-sum { font-size: 15px; line-height: 1.5; color: var(--mist); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.ct-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 14px; color: var(--lilac); margin-top: auto; padding-top: 4px; }
+.ct-rate { display: inline-flex; align-items: center; gap: 4px; color: var(--starlight); font-weight: 700; }
+.ct-rate svg { width: 15px; height: 15px; fill: var(--citrine); }
+.ct-rev { color: var(--lilac); font-weight: 400; }
+.ct-age { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--line); font-size: 12px; font-weight: 700; }
+
+.ct-shelf { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 260px); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 4px 18px; margin: 0 -4px;
+  scrollbar-color: var(--line) transparent; overscroll-behavior-x: contain; }
+.ct-shelf:focus-visible { outline: 2px solid var(--starlight); outline-offset: 2px; border-radius: var(--r-card); }
+.ct-shelf .ct-card { scroll-snap-align: start; }
+@media (max-width: 480px) { .ct-shelf { grid-auto-columns: 78%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cx-city .halo, .cy-star i { animation: none; }
+  .cy-lines line { stroke-dasharray: none; stroke-dashoffset: 0; }
+  .cy-star { opacity: 1; transform: none; }
+  .ct-card:hover, .cx-row:hover { transform: none; }
+}
+.cy-rings text { fill: var(--lilac); font: 600 11px var(--f-body); opacity: .8; paint-order: stroke; stroke: var(--ink); stroke-width: 3px; }
+.cy-pop[hidden] { display: none; }

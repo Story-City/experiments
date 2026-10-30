@@ -1,0 +1,100 @@
+/* gift.html — gift-a-story flow + printable ticket. Prefix: gt- */
+
+/* Hero art: fanned tickets */
+.gt-art { display: grid; place-items: center end; padding-right: max(var(--gutter), calc((100vw - var(--maxw)) / 2 + 40px)); }
+.gt-fan { position: relative; width: min(420px, 40vw); aspect-ratio: 1.5; }
+.gt-fan i { position: absolute; inset: 22% 0; border-radius: 14px; background: var(--citrine); box-shadow: 0 30px 60px color-mix(in srgb, var(--ink) 70%, transparent);
+  -webkit-mask: radial-gradient(circle 14px at 0 50%, transparent 98%, var(--ink)) left / 51% 100% no-repeat, radial-gradient(circle 14px at 100% 50%, transparent 98%, var(--ink)) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 14px at 0 50%, transparent 98%, var(--ink)) left / 51% 100% no-repeat, radial-gradient(circle 14px at 100% 50%, transparent 98%, var(--ink)) right / 51% 100% no-repeat; }
+.gt-fan i::after { content: ""; position: absolute; top: 12%; bottom: 12%; right: 26%; border-left: 3px dashed color-mix(in srgb, var(--midnight) 35%, transparent); }
+.gt-fan i:nth-child(1) { background: var(--velvet); transform: rotate(-14deg) translate(-12%, 4%); }
+.gt-fan i:nth-child(2) { background: var(--charoite); opacity: .9; transform: rotate(-6deg) translate(-4%, 0); }
+.gt-fan i:nth-child(3) { transform: rotate(4deg); animation: gt-float 6s ease-in-out infinite; }
+.gt-fan i:nth-child(3)::before { content: "Admit 1"; position: absolute; right: 4%; width: 20%; top: 50%; transform: translateY(-50%) rotate(-90deg); text-align: center; font: 700 14px/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: var(--midnight); white-space: nowrap; }
+@keyframes gt-float { 0%, 100% { transform: rotate(4deg) translateY(0); } 50% { transform: rotate(1deg) translateY(-14px); } }
+@media (max-width: 860px) { .gt-art { display: none; } }
+
+/* Layout */
+.gt-make { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+.gt-form { display: grid; gap: 28px; }
+.gt-step { display: grid; gap: 16px; padding: 24px; }
+.gt-step h3 { font-size: 24px; display: flex; align-items: center; gap: 12px; }
+.gt-num { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: 700 14px/1 var(--f-body); color: var(--midnight); background: var(--glow); }
+.gt-two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 520px) { .gt-two { grid-template-columns: 1fr; } .gt-step { padding: 18px; } }
+
+/* Story picker */
+.gt-stories { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; border: 0; }
+.gt-st { position: relative; display: grid; gap: 6px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; color: var(--mist); font: 600 12px/1.25 var(--f-body); border-radius: var(--r-img); }
+.gt-st img, .gt-st .gt-noimg { width: 100%; aspect-ratio: 5 / 8; object-fit: cover; border-radius: var(--r-img); box-shadow: inset 0 0 0 1px var(--line); background: var(--ink); transition: transform .25s var(--ease), box-shadow .25s; }
+.gt-st:hover img { transform: translateY(-3px); }
+.gt-st[aria-checked="true"] img, .gt-st[aria-checked="true"] .gt-noimg { box-shadow: 0 0 0 3px var(--velvet), 0 0 0 5px var(--citrine); }
+.gt-st[aria-checked="true"] { color: var(--starlight); }
+.gt-st[aria-checked="true"]::after { content: ""; position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%; background: var(--citrine); }
+.gt-st[aria-checked="true"]::before { content: ""; position: absolute; z-index: 1; top: 13px; right: 17px; width: 6px; height: 11px; border: solid var(--midnight); border-width: 0 3px 3px 0; transform: rotate(45deg); }
+.gt-st:focus-visible { outline: 2px solid var(--starlight); outline-offset: 4px; }
+@media (max-width: 520px) { .gt-stories { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Preview column */
+.gt-preview { position: sticky; top: 88px; display: grid; gap: 18px; }
+.gt-printer { position: relative; padding-top: 10px; }
+.gt-slot { position: relative; z-index: 3; height: 22px; border-radius: 12px; background: var(--ink); box-shadow: inset 0 -2px 0 var(--line), 0 0 0 1px var(--line); margin: 0 -8px; }
+.gt-slot::after { content: ""; position: absolute; left: 4%; right: 4%; top: 9px; height: 4px; border-radius: 4px; background: var(--midnight); box-shadow: 0 0 12px color-mix(in srgb, var(--citrine) 50%, transparent); opacity: 0; transition: opacity .3s; }
+.gt-printer.printing .gt-slot::after { opacity: 1; }
+.gt-feed { position: relative; z-index: 2; margin-top: -8px; overflow: hidden; padding: 8px 6px 34px; }
+.gt-printer.done .gt-feed { overflow: visible; }
+
+/* The ticket */
+.gt-ticket { container-type: inline-size; position: relative; display: grid; grid-template-columns: 1fr 24%; min-height: 260px; border-radius: 16px; background: var(--citrine); color: var(--midnight);
+  --hole: 16px;
+  -webkit-mask: radial-gradient(circle var(--hole) at 0 50%, transparent 98%, var(--ink)) left / 51% 100% no-repeat, radial-gradient(circle var(--hole) at 100% 50%, transparent 98%, var(--ink)) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle var(--hole) at 0 50%, transparent 98%, var(--ink)) left / 51% 100% no-repeat, radial-gradient(circle var(--hole) at 100% 50%, transparent 98%, var(--ink)) right / 51% 100% no-repeat;
+  filter: drop-shadow(0 24px 40px color-mix(in srgb, var(--ink) 80%, transparent)); transform-origin: 50% 0; }
+.gt-main { display: grid; grid-template-columns: auto 1fr; gap: 18px; padding: 22px 18px 22px 30px; align-items: center; min-width: 0; }
+.gt-cover { width: clamp(70px, 22cqi, 140px); aspect-ratio: 5 / 8; object-fit: cover; border-radius: 8px; box-shadow: 0 0 0 2px color-mix(in srgb, var(--midnight) 25%, transparent); background: var(--midnight); }
+.gt-txt { display: grid; gap: 6px; min-width: 0; }
+.gt-brand { display: flex; align-items: center; gap: 6px; font: 600 14px/1 var(--f-head); }
+.gt-brand svg { width: 12px; height: 12px; fill: var(--midnight); }
+.gt-occ { font: 700 11px/1.2 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--midnight) 82%, var(--citrine)); margin-top: 6px; }
+.gt-title { font: 600 clamp(20px, 6.2cqi, 34px)/1.05 var(--f-head); color: var(--midnight); overflow-wrap: anywhere; }
+.gt-note { font: italic 500 clamp(14px, 3.6cqi, 19px)/1.35 var(--f-head); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.gt-from { font: 700 13px/1.2 var(--f-body); }
+.gt-stub { position: relative; border-left: 3px dashed color-mix(in srgb, var(--midnight) 38%, transparent); display: grid; place-items: center; padding: 16px 20px 16px 8px; transform-origin: 0 100%; }
+.gt-admit { writing-mode: vertical-rl; transform: rotate(180deg); font: 700 clamp(14px, 4cqi, 22px)/1 var(--f-body); letter-spacing: .18em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; }
+.gt-admit svg { width: 1em; height: 1em; fill: var(--midnight); transform: rotate(180deg); }
+.gt-date { position: absolute; bottom: 14px; left: 0; right: 12px; text-align: center; font: 700 10px/1.2 var(--f-body); letter-spacing: .1em; text-transform: uppercase; }
+@container (max-width: 380px) {
+  .gt-main { grid-template-columns: 1fr; padding: 20px 10px 20px 24px; }
+  .gt-cover { display: none; }
+  .gt-date { display: none; }
+}
+
+/* Print + tear motion */
+.gt-printer.printing .gt-ticket { animation: gt-printslide 1.6s cubic-bezier(.3,.1,.3,1) both; }
+@keyframes gt-printslide {
+  0% { transform: translateY(-104%); } 12% { transform: translateY(-86%); } 20% { transform: translateY(-84%); } 34% { transform: translateY(-60%); }
+  42% { transform: translateY(-58%); } 58% { transform: translateY(-32%); } 66% { transform: translateY(-30%); } 84% { transform: translateY(-4%); } 100% { transform: translateY(0); } }
+.gt-printer.tearing .gt-ticket { animation: gt-tear .9s var(--ease) both; }
+@keyframes gt-tear { 0% { transform: none; } 18% { transform: translateY(-6px) rotate(.6deg); } 36% { transform: translateY(16px) rotate(-3deg); } 60% { transform: translateY(26px) rotate(-1.4deg); } 80% { transform: translateY(22px) rotate(-2.2deg); } 100% { transform: translateY(24px) rotate(-2deg); } }
+.gt-printer.done .gt-ticket { transform: translateY(24px) rotate(-2deg); }
+.gt-printer.tearing .gt-stub, .gt-printer.done .gt-stub { animation: gt-stub .9s var(--ease) both; }
+@keyframes gt-stub { 0% { transform: none; } 30% { transform: rotate(3deg); } 100% { transform: none; } }
+.gt-spark { position: absolute; width: 18px; height: 18px; fill: var(--citrine); pointer-events: none; opacity: 0; z-index: 4; }
+.gt-printer.done .gt-spark { animation: gt-pop 1.1s var(--ease) both; }
+.gt-printer.done .gt-spark:nth-of-type(2) { animation-delay: .1s; }
+.gt-printer.done .gt-spark:nth-of-type(3) { animation-delay: .22s; }
+@keyframes gt-pop { 0% { opacity: 0; transform: scale(.2) rotate(0); } 40% { opacity: 1; transform: scale(1.1) rotate(30deg); } 100% { opacity: 0; transform: scale(.6) rotate(70deg) translateY(-14px); } }
+
+.gt-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.gt-coming { display: grid; gap: 8px; padding: 20px; }
+.gt-coming p:last-child { font-size: 15px; }
+.gt-banner { display: none; margin-bottom: 28px; padding: 18px 22px; align-items: center; gap: 14px; }
+.gt-banner.on { display: flex; }
+.gt-banner svg { flex: none; width: 28px; height: 28px; fill: var(--citrine); }
+.gt-banner p { color: var(--starlight); }
+
+@media (max-width: 980px) { .gt-make { grid-template-columns: 1fr; } .gt-preview { position: static; order: -1; } }
+@media (prefers-reduced-motion: reduce) {
+  .gt-printer .gt-ticket, .gt-printer.done .gt-ticket { animation: none !important; transform: none; }
+  .gt-fan i:nth-child(3) { animation: none; }
+}

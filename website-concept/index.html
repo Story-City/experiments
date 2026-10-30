@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Story City</title>
+<meta name="description" content="Interactive stories you play by walking. Characters message you, your steps unlock the next chapter, and your choices change the ending. Every story free for 7 days.">
+<meta name="theme-color" content="#0B0620">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,300..800;1,300..800&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/demo.css">
+<link rel="stylesheet" href="css/radar.css">
+<link rel="stylesheet" href="css/matchmaker.css">
+<link rel="stylesheet" href="css/library.css">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="draft-flag" aria-hidden="true">Draft concept · not the live site</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="spark" viewBox="0 0 24 24"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></symbol>
+    <symbol id="gem-nature" viewBox="0 0 40 40"><path d="M20 3c8.6 6.6 11 16.4 8.2 24.6C26.4 32.8 23.6 35.8 20 37c-3.6-1.2-6.4-4.2-8.2-9.4C9 19.4 11.4 9.6 20 3z" fill="#00CD9D"/><path d="M20 3c8.6 6.6 11 16.4 8.2 24.6C26.4 32.8 23.6 35.8 20 37z" fill="#13945F" opacity=".45"/><path d="M15.6 13.5c-1.7 3.8-2.1 7.8-1.2 11.6" stroke="#FBF7FF" stroke-opacity=".6" stroke-width="1.6" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="gem-art" viewBox="0 0 40 40"><path d="M4.5 23C4 17 7.5 10.5 13 9.2c4.5-1 9 1.3 14 2.8 5 1.5 8.5 5.5 8.5 10.5S31 30.5 25 31c-6 .5-13 .8-17-1.4-2.4-1.3-3.3-3.8-3.5-6.6z" fill="#35C6D7"/><path d="M9.5 15.5c1.6-2.4 4.2-3.6 7-3.4" stroke="#FBF7FF" stroke-opacity=".6" stroke-width="1.6" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="gem-landmark" viewBox="0 0 40 40"><path d="M14 3.5c1-.9 2.5-.7 3.6-.1l9.8 5.4c1 .6 1.6 1.6 1.6 2.7V35c0 1.1-.9 2-2 2H13c-1.1 0-2-.8-2.1-1.9-.6-9.1-.5-19.6 1.5-27.5.4-1.6.9-3 1.6-4.1z" fill="#F5B82E"/><path d="M24 6.3l3.4 2.5c1 .6 1.6 1.6 1.6 2.7V35c0 1.1-.9 2-2 2h-3z" fill="#D98A0B" opacity=".45"/><path d="M14.8 9c-1 5-1.2 10-.9 15" stroke="#FBF7FF" stroke-opacity=".6" stroke-width="1.6" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="gem-eat" viewBox="0 0 40 40"><path d="M9 10h22c.6 0 1.2.3 1.6.8l4 5c.3.4.4.8.4 1.2v6c0 .4-.1.8-.4 1.2l-4 5c-.4.5-1 .8-1.6.8H9c-.6 0-1.2-.3-1.6-.8l-4-5c-.3-.4-.4-.8-.4-1.2v-6c0-.4.1-.8.4-1.2l4-5c.4-.5 1-.8 1.6-.8z" fill="#FF4F79"/><path d="M27 10h4c.6 0 1.2.3 1.6.8l4 5c.3.4.4.8.4 1.2v6c0 .4-.1.8-.4 1.2l-4 5c-.4.5-1 .8-1.6.8h-4z" fill="#C2234F" opacity=".45"/><path d="M9.5 14.2h11" stroke="#FBF7FF" stroke-opacity=".6" stroke-width="1.6" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="gem-curio" viewBox="0 0 40 40"><path d="M17 23 8 14l-4-1 1 4 9 11zM16 27 5 25l-3 2.5L5 30l11 .5zM24 23l9-7h4l-2 4-10 7.5zM24 28l11-1 3 1.8-3 2.2-11 .5zM16 28V9l4.5-6.5L25 9v19z" fill="#C49BFF"/><path d="M20.5 2.5 25 9v19h-4.5zM24 28l11-1 3 1.8-3 2.2-11 .5zM16 27 5 25l-3 2.5L5 30l11 .5z" fill="#7E4FD0" opacity=".45"/><path d="M14 31c2-1.8 4.2-2.6 6.5-2.6s4.5.8 6.5 2.6c-2 1.2-4.2 1.8-6.5 1.8S16 32.2 14 31z" fill="#7E4FD0" opacity=".7"/><path d="M18.4 11v12" stroke="#FBF7FF" stroke-opacity=".6" stroke-width="1.6" fill="none" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Story City home"><svg><use href="#spark"/></svg>Story City</a>
+    <ul id="menu">
+      <li><a href="#how">How It Plays</a></li>
+      <li><a href="#demo">Try a Chapter</a></li>
+      <li><a href="#library">Stories</a></li>
+      <li><a href="cities.html">Cities</a></li>
+      <li><a href="creators.html">Creators</a></li>
+      <li><a href="gift.html">Gifts</a></li>
+      <li><a href="teams.html">Teams</a></li>
+    </ul>
+    <button class="ibtn menu" id="menuBtn" aria-label="Menu" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <a class="btn" href="#get-app">Get the App</a>
+  </div>
+</header>
+
+<!-- The walk trail: scrolling the page is walking -->
+<div class="trail" id="trail" aria-hidden="true">
+  <svg class="line" preserveAspectRatio="none">
+    <defs><linearGradient id="trailGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F5B82E"/><stop offset="1" stop-color="#00CD9D"/></linearGradient></defs>
+    <line id="trailBase" x1="14" x2="14" y1="0" y2="100%" stroke="#46337E" stroke-width="3" stroke-dasharray="1 9" stroke-linecap="round"/>
+    <line id="trailFill" x1="14" x2="14" y1="0" y2="0" stroke="url(#trailGrad)" stroke-width="4" stroke-dasharray="1 9" stroke-linecap="round"/>
+  </svg>
+  <div class="walker" id="walker"></div>
+</div>
+<div class="stepcount hide" id="stepcount" role="status" aria-live="off"><span class="ico"><svg><use href="#spark"/></svg></span><span><b id="steps">0</b> steps walked</span></div>
+<div class="unlock" id="unlock" role="status" aria-live="polite"><svg><use href="#spark"/></svg><div><small id="unlockSmall">Chapter unlocked</small><b id="unlockTitle"></b></div></div>
+
+<main id="top">
+
+<!-- ============ CHAPTER 0 · HERO ============ -->
+<section class="hero" data-chapter="The portal opens">
+  <canvas class="sky" id="sky" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Interactive stories you play by walking</p>
+      <h1>Don't just walk. <span class="l2">Step into the story.</span></h1>
+      <p class="lede">Characters message you. Your steps unlock the next chapter. Your choices change the ending. Turn any walk into a <span class="cycle" id="cycle" aria-live="off"><span>mystery.</span></span></p>
+      <div class="ctas">
+        <a class="btn" href="#demo">Try a Chapter Now</a>
+        <a class="btn sec" href="#radar">Find Stories Near Me</a>
+      </div>
+      <p class="small"><svg><use href="#spark"/></svg>Every story free for 7 days · iPhone and Android</p>
+    </div>
+    <div class="portal" id="portal">
+      <div class="ring"></div>
+      <p class="hint">Pick a door</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 1 · HOW IT PLAYS ============ -->
+<section id="how" data-chapter="How it plays">
+  <div class="wrap">
+    <div class="sechead rv">
+      <span class="chapnum">Chapter 1</span>
+      <h2>A story that only moves when you do</h2>
+      <p class="lede">Got 5 minutes? Start a story. Story City turns the streets you already walk into the setting for a mystery, a quest or a haunting.</p>
+    </div>
+    <div class="steps4">
+      <article class="step rv">
+        <div class="art"><div class="fan"><img src="img/coronet.jpg" alt=""><img src="img/alice.jpg" alt=""><img src="img/woglins.jpg" alt=""></div></div>
+        <span class="n">Step 1</span><h3>Pick a story</h3>
+        <p>Mysteries, fantasy, local history, adventures. Short ones for a coffee run, long ones for a Sunday.</p>
+      </article>
+      <article class="step rv">
+        <div class="art"><div class="mini-chat"><i class="them">Can you hear me?</i><i class="them">I need you to go outside.</i><i class="me">Who is this?</i></div></div>
+        <span class="n">Step 2</span><h3>Characters message you</h3>
+        <p>The story arrives like texts from someone who needs your help, right now, on your street.</p>
+      </article>
+      <article class="step rv">
+        <div class="art" id="miniWalk"></div>
+        <span class="n">Step 3</span><h3>Walk to unlock</h3>
+        <p>Your steps open the next chapter. Choices and puzzles never need steps, so you can stop any time.</p>
+      </article>
+      <article class="step rv">
+        <div class="art branch"><svg viewBox="0 0 200 130" aria-hidden="true"><path d="M20 65 H70"/><path d="M70 65 C100 65 100 25 130 25 H180"/><path d="M70 65 C100 65 100 105 130 105 H180"/><path class="lit" d="M20 65 H70 C100 65 100 25 130 25 H180"/><circle class="lit" cx="20" cy="65" r="7"/><circle class="lit" cx="70" cy="65" r="7"/><circle class="lit" cx="180" cy="25" r="7"/><circle cx="180" cy="105" r="7"/></svg></div>
+        <span class="n">Step 4</span><h3>Choose the ending</h3>
+        <p>Trust the stranger or don't. Open the door or walk on. Every choice is yours, and it matters.</p>
+      </article>
+    </div>
+
+    <div class="modes rv" id="modes">
+      <div class="modecopy">
+        <p class="eyebrow">Three ways to play, one map</p>
+        <div class="modeswitch" role="tablist" aria-label="Map modes">
+          <button role="tab" aria-selected="true" data-mode="walk" style="--c:var(--citrine)"><i></i>Walk</button>
+          <button role="tab" aria-selected="false" data-mode="path" style="--c:var(--sapphire)"><i></i>Path</button>
+          <button role="tab" aria-selected="false" data-mode="hunt" style="--c:var(--amethyst)"><i></i>Hunt</button>
+        </div>
+        <div class="what" id="modeWhat" aria-live="polite"></div>
+        <p class="muted" style="color:var(--lilac);font-size:14px">Switch modes whenever you like, right in the middle of a story.</p>
+      </div>
+      <div class="modestage" id="modeStage">
+        <svg id="modeSvg" viewBox="0 0 400 300" aria-hidden="true"></svg>
+        <div class="hud"><div><b id="hudTitle">Walk 30 steps</b><small id="hudSub">to unlock chapter 2</small></div><div class="bar"><i id="hudBar"></i></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 2 · PLAY IN THE BROWSER ============ -->
+<section id="demo" data-chapter="Try a chapter">
+  <div class="wrap">
+    <div class="sechead center rv">
+      <span class="chapnum">Chapter 2</span>
+      <h2>Play the first chapter right here</h2>
+      <p class="lede">No download, no sign-up. A two-minute taste of <em>The Summons</em>: someone has found your number. Read, reply, walk a little, crack a letter.</p>
+    </div>
+  </div>
+  <div class="mount" data-module="demo"></div>
+</section>
+
+<!-- ============ CHAPTER 3 · YOUR STREET ============ -->
+<section id="radar" data-chapter="Your street">
+  <div class="wrap">
+    <div class="sechead rv">
+      <span class="chapnum">Chapter 3</span>
+      <h2>Your street is already a story</h2>
+      <p class="lede">Play Anywhere stories place themselves on the real streets around you: the park becomes a meeting point, the corner café a hiding place. Have a look at yours.</p>
+    </div>
+  </div>
+  <div class="mount" data-module="radar"></div>
+</section>
+
+<!-- ============ CHAPTER 4 · GEMS ============ -->
+<section class="gemsec" id="gems" data-chapter="Location gems">
+  <div class="wrap">
+    <div class="gembuild rv">
+      <div class="sechead" style="margin:0">
+        <span class="chapnum">Chapter 4</span>
+        <h2>Keep the places that surprised you</h2>
+        <p class="lede">Found a mural you'd never noticed? A bench with the best view? Save it as a location gem. Each type has its own stone, so your map becomes a little treasure chest.</p>
+      </div>
+      <label class="f">What is it?
+        <span class="gemrow" id="gemTypes" role="group" aria-label="Gem type"></span>
+      </label>
+      <label class="f" for="gemName">Name it
+        <input type="text" id="gemName" maxlength="40" placeholder="The bench with the best sunset">
+      </label>
+      <div class="f" style="display:grid;gap:8px;font:700 12px/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--lilac)">Pick up to 3 vibes
+        <div class="vibes" id="vibes" role="group" aria-label="Vibes"></div>
+      </div>
+      <div><button class="btn" id="saveGem">Save This Gem</button></div>
+    </div>
+    <div class="vault rv" id="vault">
+      <div class="saved" id="savedGems" aria-label="Gems saved on this device"></div>
+      <svg class="big" id="bigGem"><use href="#gem-nature"/></svg>
+      <div class="label"><b id="gemLabel">Nature</b><span id="gemVibes">Emerald · leaf</span></div>
+      <canvas class="burst" id="burst"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 5 · MATCHMAKER ============ -->
+<section id="matchmaker" data-chapter="Your story">
+  <div class="mount" data-module="matchmaker"></div>
+</section>
+
+<!-- ============ CHAPTER 6 · LIBRARY ============ -->
+<section id="library" data-chapter="The library">
+  <div class="mount" data-module="library"></div>
+</section>
+
+<!-- ============ CHAPTER 7 · INDOOR ============ -->
+<section class="indoor" data-chapter="Rainy days">
+  <div class="wrap">
+    <div class="card rv">
+      <div style="display:grid;gap:16px">
+        <span class="soon">Coming soon</span>
+        <h2>Raining? Walk on the spot.</h2>
+        <p class="lede" style="color:var(--mist)">Indoor mode is on its way: pick your pace on the treadmill or around the house, and the story keeps moving with you.</p>
+        <div><a class="btn sec" href="#get-app">Get the App to Hear First</a></div>
+      </div>
+      <div class="tread"><svg id="treadSvg" viewBox="0 0 300 220" aria-hidden="true"></svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 8 · BEYOND THE APP ============ -->
+<section data-chapter="More doors">
+  <div class="wrap">
+    <div class="sechead rv">
+      <span class="chapnum">Chapter 8</span>
+      <h2>More doors to open</h2>
+    </div>
+    <div class="doors">
+      <a class="doorcard rv" href="creators.html">
+        <svg class="glyph" viewBox="0 0 90 90" aria-hidden="true"><path d="M18 72 L56 20 L70 30 L32 82 L16 86 Z" fill="none" stroke="#C49BFF" stroke-width="3" stroke-linejoin="round"/><path d="M50 28 L64 38" stroke="#C49BFF" stroke-width="3"/><use href="#spark" x="58" y="56" width="22" height="22" fill="#F5B82E"/></svg>
+        <p class="eyebrow">For writers</p><h3>Write a story the city can play</h3><p>Chapters, choices and real places, in creator tools made for walking stories.</p><span class="go">Start Writing →</span>
+      </a>
+      <a class="doorcard rv" href="gift.html">
+        <svg class="glyph" viewBox="0 0 90 90" aria-hidden="true"><rect x="10" y="28" width="70" height="36" rx="6" fill="#F5B82E" transform="rotate(-10 45 46)"/><path d="M58 22 L64 58" stroke="#1A0B3D" stroke-width="2.5" stroke-dasharray="4 4" transform="rotate(-10 45 46)"/></svg>
+        <p class="eyebrow">For someone else</p><h3>Give a walk they'll talk about</h3><p>A story ticket with your own note, ready to print or send.</p><span class="go">Gift a Story →</span>
+      </a>
+      <a class="doorcard rv" href="teams.html">
+        <svg class="glyph" viewBox="0 0 90 90" aria-hidden="true"><circle cx="30" cy="40" r="10" fill="none" stroke="#5B8CFF" stroke-width="3"/><circle cx="58" cy="40" r="10" fill="none" stroke="#00CD9D" stroke-width="3"/><circle cx="44" cy="62" r="10" fill="none" stroke="#B36BFF" stroke-width="3"/></svg>
+        <p class="eyebrow">For groups</p><h3>Teams, schools and events</h3><p>A shared story across a city, for a team day, a class trip or a festival.</p><span class="go">Plan a Group Walk →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 9 · PROOF (placeholders until real) ============ -->
+<section data-chapter="Players say">
+  <div class="wrap">
+    <div class="sechead center rv">
+      <span class="chapnum">Chapter 9</span>
+      <h2>What players say</h2>
+    </div>
+    <div class="quotes">
+      <div class="placeholder rv"><b>[Real player quote here]</b><span>[Name, city · App Store review]</span></div>
+      <div class="placeholder rv"><b>[Real player quote here]</b><span>[Name, city · Google Play review]</span></div>
+      <div class="placeholder rv"><b>[Real player quote here]</b><span>[Partner or press quote]</span></div>
+    </div>
+    <p class="placeholder rv" style="margin-top:16px;text-align:center;justify-items:center">[Real rating + number of ratings from the App Store and Google Play] · [Partner logos: tourism boards, festivals, funders]</p>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 10 · TRIAL ============ -->
+<section data-chapter="Free for 7 days">
+  <div class="wrap price">
+    <div class="rv">
+      <span class="chapnum">Chapter 10</span>
+      <h2 style="font-size:clamp(34px,5vw,56px);line-height:1.05;margin-top:14px">What happens next? Try every story free for 7 days.</h2>
+      <ul class="checks">
+        <li>Every story in the library, unlocked</li>
+        <li>New stories added as writers publish them</li>
+        <li>Then <span class="placeholder" style="display:inline;padding:2px 8px">[price per month / year]</span>, cancel any time in your phone's settings</li>
+      </ul>
+    </div>
+    <div class="ticketbig rv" aria-hidden="true"><div class="main"><small>Admit 1 · any story</small><b>7 days free</b></div><div class="stub">Story City</div></div>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 11 · FAQ AS A CONVERSATION ============ -->
+<section id="faq" data-chapter="Questions">
+  <div class="wrap faq">
+    <div class="rv" style="display:grid;gap:18px">
+      <div class="sechead" style="margin:0">
+        <span class="chapnum">Chapter 11</span>
+        <h2>Ask the guide</h2>
+        <p class="lede">Tap a question. Wren will answer.</p>
+      </div>
+      <div class="qs" id="faqQs"></div>
+    </div>
+    <div class="convo rv" id="convo" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ============ FINAL CHAPTER · GET THE APP ============ -->
+<section class="getapp" id="get-app" data-chapter="The final chapter">
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <div class="wrap rv">
+    <span class="chapnum">The final chapter</span>
+    <h2>The next chapter is outside.</h2>
+    <p class="walked" id="walked">You've walked <b id="walkedN">0</b> steps just reading this page. Imagine where a story could take them.</p>
+    <div class="stores">
+      <a class="store" href="[App Store link]" aria-label="Download on the App Store"><svg viewBox="0 0 24 24"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.5-1-2.5-3.9zM14 5.5c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.4z"/></svg><span>Download on the<b>App Store</b></span></a>
+      <a class="store" href="[Google Play link]" aria-label="Get it on Google Play"><svg viewBox="0 0 24 24"><path d="M3.6 1.8c-.3.3-.4.7-.4 1.2v18c0 .5.1.9.4 1.2l10-10.2-10-10.2zm11 11.2 2.9 2.9-11.7 6.7 8.8-9.6zm0-2-8.8-9.6 11.7 6.7-2.9 2.9zm3.9.4 2.9 1.7c.8.5.8 1.3 0 1.8l-2.9 1.7-3.1-3.1 3.1-2.1z"/></svg><span>Get it on<b>Google Play</b></span></a>
+    </div>
+    <p style="font-size:14px;color:var(--lilac)">Every story free for 7 days.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="#top"><svg><use href="#spark"/></svg>Story City</a>
+      <p style="margin-top:14px;max-width:34ch">Interactive stories you play by walking. Story-led, game-powered.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="#demo">Try a Chapter</a></li><li><a href="#library">Stories</a></li><li><a href="#radar">Near You</a></li><li><a href="cities.html">Story Cities</a></li><li><a href="#faq">Questions</a></li></ul></div>
+    <div><h4>Make</h4><ul><li><a href="creators.html">Creators</a></li><li><a href="teams.html">Teams &amp; Events</a></li><li><a href="gift.html">Gifts</a></li></ul></div>
+    <div><h4>Story City</h4><ul><li><a href="[News link]">News</a></li><li><a href="[Contact link]">Contact</a></li><li><a href="[Privacy link]">Privacy</a></li><li><a href="[Terms link]">Terms</a></li></ul></div>
+  </div>
+</footer>
+
+<script src="js/site.js"></script>
+<script type="module" src="js/demo.js"></script>
+<script src="js/radar.js" defer></script>
+<script src="js/matchmaker.js" defer></script>
+<script src="js/library.js" defer></script>
+</body>
+</html>
