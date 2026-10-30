@@ -1,14 +1,11 @@
 // Fog mode: the map starts under a foggy, topographic-paper layer and clears
-// wherever the player has walked. Cleared ground stays clear the next day.
-//   ?v=trail  (A) a band of fog lifts behind you as you walk
-//   ?v=reveal (B) the fog stays put until you unlock the chapter, then the
-//                 whole Walk circle clears at once
+// wherever the player has walked: a band of fog lifts behind you as you walk.
+// Cleared ground stays clear the next day.
 // Walk / Pin / Hunt reuse the map-modes mockup; every mode clears fog.
 
-const { VARIANTS, MODES, COPY } = await import(`./copy.js${window.CACHE_V || ''}`);
+const { MODES, COPY } = await import(`./copy.js${window.CACHE_V || ''}`);
 
 const params = new URLSearchParams(location.search + location.hash.replace('#', '&'));
-let variant = VARIANTS[params.get('v')] ? params.get('v') : 'trail';
 
 const GOAL = 240; // steps to unlock a chapter in Walk mode
 const RING_R = 110; // Walk ring radius at the start of a chapter (map px)
@@ -95,61 +92,44 @@ const hiddenEls = HIDDEN.map((h) => {
 });
 
 // --- the fog -----------------------------------------------------------------
-// fogTex: the paper itself. mask: everywhere that's been cleared (white).
-// Both are drawn in map coordinates at RES pixels per map unit.
+// layer: the fog itself, painted by the chosen look (fog-looks.js).
+// mask: everywhere that's been cleared (white), at RES pixels per map unit.
+const { LOOKS } = await import(`./fog-looks.js${window.CACHE_V || ''}`);
+let look = LOOKS[params.get('fog')] ? params.get('fog') : 'swirl';
 const RES = 2;
 const canvas = $('fog');
 const ctx = canvas.getContext('2d');
-const fogTex = document.createElement('canvas');
+const layer = document.createElement('canvas');
+const lctx = layer.getContext('2d');
 const mask = document.createElement('canvas');
-fogTex.width = mask.width = W * RES;
-fogTex.height = mask.height = H * RES;
+mask.width = W * RES;
+mask.height = H * RES;
 const mctx = mask.getContext('2d');
+let rimVersion = 0; // bumps whenever the mask changes, so the edge glow is re-tinted
+let layerRes = 1;
+const t0 = performance.now();
 
-(function paintPaper() {
-  const p = fogTex.getContext('2d');
-  p.scale(RES, RES);
-  p.fillStyle = css('--fog');
-  p.fillRect(0, 0, W, H);
-  // soft cloudy blotches
-  let seed = 7;
-  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  for (let i = 0; i < 70; i++) {
-    const x = rnd() * W;
-    const y = rnd() * H;
-    const r = 30 + rnd() * 90;
-    const g = p.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, rnd() > 0.5 ? 'rgba(255,255,255,0.35)' : 'rgba(120,105,170,0.16)');
-    g.addColorStop(1, 'rgba(255,255,255,0)');
-    p.fillStyle = g;
-    p.fillRect(x - r, y - r, r * 2, r * 2);
-  }
-  // topographic contour lines: wobbly rings round a few "hills"
-  p.strokeStyle = css('--fog-line');
-  p.lineWidth = 0.8;
-  [[80, 120, 9], [300, 260, 11], [150, 520, 8], [360, 560, 6], [20, 380, 5]].forEach(([cx, cy, n]) => {
-    const ph = [rnd() * 6, rnd() * 6, rnd() * 6];
-    for (let k = 1; k <= n; k++) {
-      const R = k * 15;
-      p.beginPath();
-      for (let a = 0; a <= 64; a++) {
-        const t = (a / 64) * Math.PI * 2;
-        const r = R + Math.sin(t * 3 + ph[0]) * R * 0.12 + Math.sin(t * 5 + ph[1]) * R * 0.06 + Math.sin(t * 2 + ph[2] + k * 0.3) * 4;
-        const x = cx + Math.cos(t) * r;
-        const y = cy + Math.sin(t) * r * 0.82;
-        a ? p.lineTo(x, y) : p.moveTo(x, y);
-      }
-      p.globalAlpha = k % 4 === 0 ? 0.9 : 0.5;
-      p.stroke();
-    }
-  });
-  p.globalAlpha = 1;
-  // fine grain
-  for (let i = 0; i < 2600; i++) {
-    p.fillStyle = rnd() > 0.5 ? 'rgba(255,255,255,0.25)' : 'rgba(60,40,110,0.08)';
-    p.fillRect(rnd() * W, rnd() * H, 0.8, 0.8);
-  }
-})();
+// Animated looks repaint every frame at 1 px per map unit (soft anyway);
+// still looks paint once, sharper.
+function paintLayer() {
+  const L = LOOKS[look];
+  layerRes = L.animated ? 1 : RES;
+  if (layer.width !== W * layerRes) { layer.width = W * layerRes; layer.height = H * layerRes; }
+  lctx.setTransform(layerRes, 0, 0, layerRes, 0, 0);
+  lctx.clearRect(0, 0, W, H);
+  L.paint(lctx, (performance.now() - t0) / 1000);
+}
+function setLook(k) {
+  look = k;
+  document.querySelectorAll('select.look').forEach((s) => { s.value = k; });
+  const u = new URL(location.href);
+  u.searchParams.set('fog', k);
+  history.replaceState(null, '', u);
+  document.body.dataset.look = k;
+  paintLayer();
+  fogDirty = true;
+}
+const lookPicker = () => `<select class="look" aria-label="${COPY.intro.look}">${Object.entries(LOOKS).map(([k, l]) => `<option value="${k}"${k === look ? ' selected' : ''}>${COPY.intro.look}: ${l.name}</option>`).join('')}</select>`;
 
 // Coverage grid for the "% uncovered" number and for finding hidden things.
 const CELL = 5;
@@ -170,6 +150,7 @@ function clearAt(x, y, r) {
   mctx.arc(x, y, r, 0, Math.PI * 2);
   mctx.fill();
   mctx.restore();
+  rimVersion++;
   const inner = r * 0.75;
   for (let gy = Math.max(0, Math.floor((y - inner) / CELL)); gy <= Math.min(GY - 1, Math.floor((y + inner) / CELL)); gy++) {
     for (let gx = Math.max(0, Math.floor((x - inner) / CELL)); gx <= Math.min(GX - 1, Math.floor((x + inner) / CELL)); gx++) {
@@ -192,16 +173,42 @@ function sizeFog() {
   fogDirty = true;
 }
 function drawFog() {
-  if (!fogDirty) return;
+  const animated = LOOKS[look].animated;
+  if (!fogDirty && !animated) return;
   fogDirty = false;
+  if (animated) paintLayer();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.setTransform(view.s / RES, 0, 0, view.s / RES, view.ox, 0);
   ctx.globalCompositeOperation = 'source-over';
-  ctx.drawImage(fogTex, 0, 0);
+  ctx.setTransform(view.s / layerRes, 0, 0, view.s / layerRes, view.ox, 0);
+  ctx.drawImage(layer, 0, 0);
   ctx.globalCompositeOperation = 'destination-out';
+  ctx.setTransform(view.s / RES, 0, 0, view.s / RES, view.ox, 0);
   ctx.drawImage(mask, 0, 0);
+  const tint = LOOKS[look].rim;
+  if (tint) {
+    // light the soft edge left between fog and cleared ground
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.globalAlpha = 0.9;
+    ctx.drawImage(rimTinted(tint), 0, 0);
+    ctx.globalAlpha = 1;
+  }
   ctx.globalCompositeOperation = 'source-over';
+}
+let rimKey = '';
+const rimOut = document.createElement('canvas');
+function rimTinted(c) {
+  const key = c.join() + '/' + rimVersion;
+  if (key === rimKey) return rimOut;
+  rimKey = key;
+  rimOut.width = mask.width;
+  rimOut.height = mask.height;
+  const r = rimOut.getContext('2d');
+  r.drawImage(mask, 0, 0);
+  r.globalCompositeOperation = 'source-in';
+  r.fillStyle = `rgb(${c.join()})`;
+  r.fillRect(0, 0, rimOut.width, rimOut.height);
+  return rimOut;
 }
 window.addEventListener('resize', sizeFog);
 
@@ -262,13 +269,11 @@ function drawMode() {
   ring = routeEl = null;
   const { mode } = state;
   document.body.dataset.mode = mode;
-  document.body.dataset.variant = variant;
   $('viewfinder').hidden = mode !== 'hunt' || state.unlocked;
   $('chip').textContent = MODES[mode].chip;
   if (!state.unlocked) {
     if (mode === 'walk') {
       ring = el('circle', { class: 'ring', r: 0 }, live);
-      if (variant === 'reveal') el('circle', { class: 'ring-zone', r: RING_R, 'data-follow': '1' }, live);
     } else if (mode === 'pin') {
       routeEl = el('path', { d: poly(pinRoute(state.pos)), class: 'route' }, live);
       const pin = el('g', { class: 'pin', transform: `translate(${PIN().at[0]} ${PIN().at[1]})` }, live);
@@ -340,7 +345,7 @@ function renderCard() {
   const { mode, walked } = state;
   $('storyName').textContent = `${COPY.storyName} · ${day().chapter}`;
   $('next').innerHTML = `Next: <b>${day().next}</b>`;
-  $('hint').textContent = state.indoor ? COPY.hint.indoor : COPY.hint[variant];
+  $('hint').textContent = state.indoor ? COPY.hint.indoor : COPY.hint.walk;
   const st = $('status');
   const act = $('actions');
   const key = [mode, state.walking, state.unlocked, state.indoor, walked > 0, state.day].join();
@@ -439,7 +444,7 @@ function checkFinds() {
     if (h.found || !isClear(h.at)) return;
     h.found = true;
     h.g.classList.add('found');
-    if (!revealing) toast(h.kind === 'gem' ? COPY.gemFound : COPY.storyFound);
+    toast(h.kind === 'gem' ? COPY.gemFound : COPY.storyFound);
     sparkle(h.at, h.kind === 'gem' ? css('--gem') : css('--story'));
   });
   drawGlints();
@@ -468,7 +473,7 @@ function tick(now) {
   state.along = Math.min(len, state.along + stepPx);
   state.pos = pointAt(state.path, state.along);
   if (state.walked - state.lastDot >= 6) { dropDot(); state.lastDot = state.walked; }
-  if (variant === 'trail' && dist(state.pos, state.lastClear) > 4) {
+  if (dist(state.pos, state.lastClear) > 4) {
     clearAt(state.pos[0], state.pos[1], TRAIL_R);
     state.lastClear = state.pos.slice();
     checkFinds();
@@ -490,39 +495,11 @@ function sparkle(at, color) {
   setTimeout(() => g.remove(), 900);
 }
 
-// B: the whole circle rolls back in one go, from the middle out
-let revealing = false;
-function bigReveal(center, done) {
-  revealing = true;
-  toast(COPY.revealToast);
-  const t0 = performance.now();
-  const dur = 1300;
-  (function wipe(now) {
-    const k = Math.min(1, (now - t0) / dur);
-    const r = RING_R * (1 - Math.pow(1 - k, 3));
-    for (let a = 0; a < 24; a++) {
-      const th = (a / 24) * Math.PI * 2;
-      clearAt(center[0] + Math.cos(th) * r * 0.7, center[1] + Math.sin(th) * r * 0.7, Math.max(24, r * 0.45));
-    }
-    clearAt(center[0], center[1], Math.max(24, r * 0.6));
-    checkFinds();
-    update();
-    if (k < 1) requestAnimationFrame(wipe);
-    else { revealing = false; const n = hiddenEls.filter((h) => h.found && h.kind === 'gem').length; if (n) toast(COPY.gemFound); done(); }
-  })(t0);
-}
-
 function unlock() {
   stopWalking();
   state.unlocked = true;
   $('viewfinder').hidden = true;
   sparkle(state.pos, css('--walk-end'));
-  if (variant === 'reveal') {
-    const center = state.indoor ? CLOCK : state.pos;
-    live.innerHTML = '';
-    bigReveal(center, drawMode);
-    return;
-  }
   drawMode();
 }
 
@@ -561,19 +538,11 @@ function closeSheet() {
 
 function showIntro() {
   document.body.classList.add('asking'); // no dot or ring until location is on
-  const opts = Object.entries(VARIANTS).map(([k, v]) => `<button class="vopt" data-v="${k}" aria-pressed="${k === variant}"><b>${v.tag}</b><span>${v.name}</span><small>${v.what}</small></button>`).join('');
   sheet(`<div class="kicker">${COPY.intro.kicker}</div><h1>${COPY.intro.title}</h1><p>${COPY.intro.body}</p>
-    <div class="vpick" role="group" aria-label="${COPY.intro.pick}"><div class="vlabel">${COPY.intro.pick}</div>${opts}</div>
+    ${lookPicker()}
     <button class="btn primary" id="go">${COPY.intro.start}</button>`, (s) => {
-    s.querySelectorAll('.vopt').forEach((b) => b.addEventListener('click', () => {
-      variant = b.dataset.v;
-      s.querySelectorAll('.vopt').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
-      const u = new URL(location.href);
-      u.searchParams.set('v', variant);
-      history.replaceState(null, '', u);
-      $('variantTag').textContent = VARIANTS[variant].tag;
-    }));
-    s.querySelector('#go').addEventListener('click', () => { closeSheet(); $('variantTag').textContent = VARIANTS[variant].tag; askLocation(); });
+    s.querySelector('select.look').addEventListener('change', (e) => setLook(e.target.value));
+    s.querySelector('#go').addEventListener('click', () => { closeSheet(); askLocation(); });
   });
 }
 
@@ -650,8 +619,8 @@ function reset(intro) {
 
 $('resetBtn').addEventListener('click', () => reset(true));
 // Esc or a tap outside the card closes a sheet
-// (not the intro, which needs a pick, and not the location ask, which needs an answer)
-const closable = () => !$('sheet').hidden && !$('sheet').querySelector('.vpick, .os');
+// (not the location ask, which needs an answer)
+const closable = () => !$('sheet').hidden && !$('sheet').querySelector('.os');
 $('sheet').addEventListener('click', (e) => { if (e.target.id === 'sheet' && closable()) $('sheet').querySelector('.btn.primary')?.click(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && closable()) $('sheet').querySelector('.btn.primary')?.click(); });
 
@@ -662,5 +631,9 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && closable
   requestAnimationFrame(frame);
 })();
 
+$('lookSlot').innerHTML = lookPicker();
+$('lookSlot').querySelector('select').addEventListener('change', (e) => setLook(e.target.value));
+document.body.dataset.look = look;
+paintLayer();
 sizeFog();
 reset(!params.has('skip'));

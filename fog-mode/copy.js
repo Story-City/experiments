@@ -1,18 +1,5 @@
 // Every line of text in the fog mode mockup. Edit here; one line = one change.
 
-export const VARIANTS = {
-  trail: {
-    tag: 'A · Trail',
-    name: 'Fog clears as you walk',
-    what: 'Wherever you walk, a band of fog lifts behind you.',
-  },
-  reveal: {
-    tag: 'B · Big reveal',
-    name: 'Finish the chapter, clear the circle',
-    what: 'The fog stays put while you walk. Unlock the chapter and the whole Walk circle clears at once.',
-  },
-};
-
 export const MODES = {
   walk: { label: 'Walk', chip: 'Walk to unlock' },
   pin: { label: 'Pin', chip: 'Pin nearby' },
@@ -24,7 +11,7 @@ export const COPY = {
     kicker: 'Experiment · Fog mode',
     title: 'Your neighbourhood is under the fog',
     body: 'Every walk clears a little more of your map. The parts you have walked stay clear, so your map slowly becomes yours.',
-    pick: 'Which version?',
+    look: 'Fog',
     start: 'Open the map',
   },
   // Opening: fog as the location ask (FTUE Cowork, Oct 23)
@@ -54,8 +41,7 @@ export const COPY = {
   ],
   uncovered: (pct) => `${pct}% uncovered`,
   hint: {
-    trail: 'The fog lifts wherever you walk. Your steps always count.',
-    reveal: 'Unlock the chapter to clear everything inside the circle.',
+    walk: 'The fog lifts wherever you walk. Your steps always count.',
     indoor: 'Steps from home count. Fog only lifts round the story, not round you.',
   },
   walkBtn: { start: '▶ Pretend to walk', keep: '▶ Keep walking', pause: 'Pause' },
@@ -68,7 +54,6 @@ export const COPY = {
   glint: 'Something is glinting in the fog…',
   unlocked: 'Chapter unlocked',
   unlockedToday: (pct) => `You cleared <b>${pct}%</b> of your map today.`,
-  revealToast: 'The fog rolls back…',
   read: 'Read the chapter',
   tomorrow: 'Next day ›',
   dayTwo: {
