@@ -1,5 +1,29 @@
 [
   {
+    "slug": "fog-mode",
+    "path": "fog-mode/?v=trail",
+    "title": "Fog mode: walking clears the map",
+    "what": "A · Trail. The map starts under foggy topo paper and a band clears wherever you walk; opens with fog as the location ask, then day 2 brings you back to a glint at the fog's edge.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-10",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "fog-mode-reveal",
+    "path": "fog-mode/?v=reveal",
+    "title": "Fog mode: big reveal",
+    "what": "B · Big reveal. The fog stays put while you walk; unlock the chapter and the whole Walk circle rolls back at once.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-10",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "website-concept",
     "path": "website-concept/",
     "title": "New website concept",
