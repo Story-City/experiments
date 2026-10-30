@@ -1,4 +1,4 @@
-import { HOME, WALKS, CAMERA, POSTCARD, BINGO, PUMPKIN, CAT, ROULETTE, SHARE } from './walks.js';
+import { HOME, WALKS, HERO, CAMERA, POSTCARD, BINGO, PUMPKIN, CAT, ROULETTE, SHARE } from './walks.js';
 
 const screen = document.getElementById('screen');
 const sheet = document.getElementById('sheet');
@@ -8,6 +8,8 @@ const camInput = document.getElementById('camInput');
 
 let where = 'out';          // 'out' | 'home'
 let leave = null;           // cleanup for the current walk (timers)
+let current = null;         // the walk being played
+const phone = document.getElementById('phone');
 
 /* ---------- tiny helpers ---------- */
 function h(tag, attrs = {}, ...kids) {
@@ -40,14 +42,16 @@ function toast(msg) {
 
 function bar(right) {
   return h('div', { class: 'bar' },
-    h('button', { class: 'back', onclick: goHome, 'aria-label': 'Back to walks' }, '‹ Walks'),
+    h('button', { class: 'back', onclick: goHome, 'aria-label': 'Back to walks' }, '‹'),
+    current ? h('span', { class: 'walk-name' }, current.name) : null,
     right != null ? h('span', { class: 'count' }, right) : null);
 }
 
 /* ---------- sheet (closes on outside click + Esc) ---------- */
 let onSheetClose = null;
-function openSheet(kids, onClose) {
+function openSheet(kids, onClose, jewel) {
   sheet.replaceChildren(...kids.filter((k) => k != null && k !== false));
+  if (jewel) sheet.style.setProperty('--jewel', jewel); else sheet.style.removeProperty('--jewel');
   sheet.hidden = false; scrim.hidden = false;
   onSheetClose = onClose || null;
 }
@@ -98,31 +102,60 @@ function cameraControls(label, onPhoto, pretend) {
   return h('div', { class: 'cam' },
     h('button', { class: 'shutter', 'aria-label': label, onclick: async () => { const u = await realPhoto(); if (u) onPhoto(u); } }),
     h('span', { class: 'lbl' }, label),
-    h('button', { class: 'link', 'data-pretend': '', onclick: () => onPhoto(pretend()) }, CAMERA.pretend));
+    h('button', { class: 'link pretend', 'data-pretend': '', onclick: () => onPhoto(pretend()) }, CAMERA.pretend));
 }
 
-/* ---------- home ---------- */
+/* ---------- home: square text-only cards, tonight's walk as the hero ---------- */
+const todayTheme = pick(POSTCARD.themes);
+
+function walkCard(w, hero) {
+  return h('button', { class: `walk${hero ? ' hero' : ''}`, 'data-walk': w.id, style: `--jewel:${w.jewel}`, onclick: () => cardBack(w) },
+    h('span', { class: 'ghost', 'aria-hidden': 'true' }, w.no),
+    h('span', { class: 'mech' }, hero ? `${HOME.hero} · ${w.mech}` : w.mech),
+    h('span', { class: 'star', 'aria-hidden': 'true' }, '✦'),
+    h('span', { class: 'title' }, w.name),
+    hero ? h('span', { class: 'hook' }, w.hook(todayTheme)) : null,
+    h('span', { class: 'meta' }, w.tags.join(' · ')));
+}
+
+// The card turns over into a sheet: the full pitch and the one button.
+function cardBack(w) {
+  openSheet([
+    h('span', { class: 'ghost-no', 'aria-hidden': 'true' }, w.no),
+    h('p', { class: 'kicker' }, `Walk no. ${w.no} · ${w.mech}`),
+    h('h3', {}, w.name),
+    h('p', { class: 'hook' }, w.hook(todayTheme)),
+    h('p', { class: 'more' }, w.more),
+    h('p', { class: 'how' }, w.how.flatMap((step, i) => (i ? [h('i', {}, '✦'), step] : [step]))),
+    h('div', { class: 'tags' }, w.tags.map((t) => h('span', { class: 'tag' }, t))),
+    h('div', { class: 'btns' },
+      h('button', { class: 'btn primary', id: 'startWalk', onclick: () => start(w.id) }, w.go),
+      h('button', { class: 'link', onclick: closeSheet }, HOME.notNow)),
+  ], null, w.jewel);
+}
+
 function goHome() {
-  leave?.(); leave = null;
+  leave?.(); leave = null; current = null;
+  phone.style.removeProperty('--jewel');
   if (location.search) history.replaceState(null, '', location.pathname);
-  const whereBtn = (key) => h('button', { 'aria-pressed': String(where === key), onclick: () => { where = key; goHome(); } }, HOME.where[key]);
+  const whereBtn = (key) => h('button', { class: 'chip', 'aria-pressed': String(where === key), onclick: () => { where = key; goHome(); } }, HOME.where[key]);
+  const hero = WALKS.find((w) => w.id === HERO);
   show(
-    h('p', { class: 'kicker' }, HOME.kicker),
-    h('h1', { class: 'display' }, HOME.title),
-    h('p', { class: 'sub' }, HOME.sub[where]),
-    h('div', { class: 'where', role: 'group', 'aria-label': 'Where are you?' }, whereBtn('out'), whereBtn('home')),
-    h('div', { class: 'walks' }, WALKS.map((w) =>
-      h('button', { class: 'walk-card', 'data-walk': w.id, onclick: () => start(w.id) },
-        h('span', { class: 'em' }, w.emoji),
-        h('span', {}, h('b', {}, w.name), h('span', { class: 'line' }, w.line))))),
-    h('div', { class: 'spacer' }),
-    h('div', { class: 'btns' }, h('button', { class: 'btn ghost', id: 'surprise', onclick: () => start(pick(WALKS).id) }, `🎲 ${HOME.surprise}`)),
+    h('div', { class: 'home-head' },
+      h('p', { class: 'kicker' }, HOME.kicker),
+      h('h1', { class: 'display' }, HOME.title),
+      h('p', { class: 'sub' }, HOME.sub[where]),
+      h('div', { class: 'where', role: 'group', 'aria-label': 'Where are you?' }, whereBtn('out'), whereBtn('home'))),
+    h('div', { class: 'cards' }, walkCard(hero, true), WALKS.filter((w) => w !== hero).map((w) => walkCard(w))),
+    h('div', { class: 'btns' }, h('button', { class: 'link', id: 'surprise', onclick: () => cardBack(pick(WALKS)) }, `✦ ${HOME.surprise}`)),
   );
 }
 
 function start(id) {
   leave?.(); leave = null;
-  ({ postcard: postcardIntro, bingo: bingoStart, pumpkin: pumpkinWalk, cat: catIntro, roulette: rouletteIntro })[id]();
+  current = WALKS.find((w) => w.id === id);
+  phone.style.setProperty('--jewel', current.jewel);
+  ({ postcard: () => postcardIntro(todayTheme), bingo: bingoStart, pumpkin: pumpkinWalk, cat: catWalk, roulette: rouletteIntro })[id]();
 }
 
 /* ---------- Postcard walk ---------- */
@@ -131,19 +164,30 @@ function postcardIntro(theme = pick(POSTCARD.themes)) {
   pc = { theme, photos: [], picked: [] };
   show(
     bar(),
-    h('p', { class: 'kicker' }, WALKS[0].name),
-    h('div', { class: 'theme-big' },
-      h('p', { class: 'sub' }, POSTCARD.todays),
-      h('span', { class: 'em' }, theme.emoji),
-      h('div', { class: 'name' }, theme.label),
-      h('button', { class: 'link', id: 'shuffle', onclick: () => {
-        const others = POSTCARD.themes.filter((t) => t !== theme);
-        postcardIntro(pick(others));
-      } }, `🔀 ${POSTCARD.shuffle}`)),
-    h('p', { class: 'sub centre' }, POSTCARD.hint[where]),
+    h('p', { class: 'kicker' }, POSTCARD.todays),
+    h('div', { class: 'theme-big', style: `--swatch:${theme.colour}` },
+      h('div', { class: 'name', id: 'themeName' }, theme.label, h('span', { class: 'dot', 'aria-hidden': 'true' }))),
+    h('p', { class: 'sub' }, POSTCARD.hint[where]),
+    h('div', {}, h('button', { class: 'link pretend', id: 'shuffle', style: 'padding-left:0', onclick: () => {
+      const others = POSTCARD.themes.filter((t) => t !== theme);
+      postcardIntro(pick(others));
+    } }, POSTCARD.shuffle)),
     h('div', { class: 'spacer' }),
-    h('div', { class: 'btns' }, h('button', { class: 'btn primary', id: 'go', onclick: postcardWalk }, POSTCARD.start)),
+    h('div', { class: 'btns' }, h('button', { class: 'btn jewel', id: 'go', onclick: postcardWalk }, POSTCARD.start)),
   );
+  fitWord(document.getElementById('themeName'));
+}
+
+// Shrink the theme word until it fits on one line (after the font loads too).
+function fitWord(el) {
+  if (!el) return;
+  const fit = () => {
+    let size = 96;
+    el.style.fontSize = `${size}px`;
+    while (el.scrollWidth > el.parentElement.clientWidth && size > 36) el.style.fontSize = `${(size -= 4)}px`;
+  };
+  fit();
+  document.fonts?.ready.then(fit);
 }
 
 function postcardWalk() {
@@ -152,13 +196,13 @@ function postcardWalk() {
   const slots = Math.max(3, n);
   show(
     bar(POSTCARD.snapped(n)),
-    h('div', {}, h('span', { class: 'theme-chip' }, t.emoji, ' ', t.label)),
+    h('div', {}, h('span', { class: 'theme-chip', style: `--swatch:${t.colour}` }, h('i'), `${POSTCARD.hunt} ${t.noun}`)),
     h('div', { class: 'strip' }, Array.from({ length: slots }, (_, i) =>
       pc.photos[i] ? h('img', { src: pc.photos[i], alt: '' }) : h('div', { class: 'slot' }))),
     n < 3 ? h('p', { class: 'progress' }, POSTCARD.needMore(n)) : null,
     h('div', { class: 'spacer' }),
     cameraControls(CAMERA.take, (u) => { pc.photos.push(u); postcardWalk(); }, () => pretendPhoto(pick(t.things), t.colour)),
-    h('div', { class: 'btns' }, h('button', { class: 'btn primary', id: 'finish', disabled: n < 3, onclick: () => {
+    h('div', { class: 'btns' }, h('button', { class: 'btn jewel', id: 'finish', disabled: n < 3, onclick: () => {
       if (n === 3) { pc.picked = [0, 1, 2]; postcardShow(); } else postcardPick();
     } }, POSTCARD.finish)),
   );
@@ -177,7 +221,7 @@ function postcardPick() {
       } }, h('img', { src, alt: '' })))),
     h('p', { class: 'progress' }, POSTCARD.picked(k)),
     h('div', { class: 'spacer' }),
-    h('div', { class: 'btns' }, h('button', { class: 'btn primary', id: 'make', disabled: k < 3, onclick: postcardShow }, POSTCARD.make)),
+    h('div', { class: 'btns' }, h('button', { class: 'btn jewel', id: 'make', disabled: k < 3, onclick: postcardShow }, POSTCARD.make)),
   );
 }
 
@@ -192,11 +236,11 @@ function postcardShow() {
         h('div', {},
           h('div', { class: 'title' }, t.title),
           h('div', { class: 'msg' }, `${date} · ${POSTCARD.greeting[where]}`),
-          h('div', { class: 'tag' }, SHARE.tag)),
-        h('div', { class: 'stamp' }, h('i', {}, t.emoji), POSTCARD.stamp))),
+          h('div', { class: 'tag-line' }, SHARE.tag)),
+        h('div', { class: 'stamp' }, h('i', {}, '✦'), POSTCARD.stamp))),
     h('div', { class: 'spacer' }),
     h('div', { class: 'btns' },
-      h('button', { class: 'btn primary', onclick: () => share(t.title, `${POSTCARD.greeting[where]} ${SHARE.tag}`) }, POSTCARD.share),
+      h('button', { class: 'btn jewel', onclick: () => share(t.title, `${POSTCARD.greeting[where]} ${SHARE.tag}`) }, POSTCARD.share),
       h('button', { class: 'btn ghost', onclick: goHome }, POSTCARD.again)),
   );
 }
@@ -221,9 +265,9 @@ const bingoLines = () => LINES.filter((l) => l.every(bingoHas));
 function bingoGrid(tap) {
   const onLine = new Set(bingoLines().flat());
   return h('div', { class: 'grid' }, bg.cells.map((c, i) => {
-    if (c.free) return h('div', { class: `sq free${onLine.has(i) ? ' line' : ''}` }, '✦', BINGO.free);
+    if (c.free) return h('div', { class: `sq free${onLine.has(i) ? ' line' : ''}` }, `✦ ${BINGO.free}`);
     const cls = `sq${c.photo ? ' got' : ''}${onLine.has(i) ? ' line' : ''}`;
-    const kids = c.photo ? [h('img', { src: c.photo, alt: c.label })] : [h('span', { class: 'em' }, c.em), c.label];
+    const kids = c.photo ? [h('img', { src: c.photo, alt: c.label })] : [c.label];
     return tap ? h('button', { class: cls, 'data-sq': i, onclick: () => !c.photo && bingoSnap(i) }, kids) : h('div', { class: cls }, kids);
   }));
 }
@@ -253,11 +297,11 @@ function bingoSnap(i) {
     }
   };
   openSheet([
-    h('span', { class: 'em' }, c.em),
+    h('p', { class: 'kicker' }, BINGO.spot),
     h('h3', {}, c.label),
     h('div', { class: 'btns' },
       h('button', { class: 'btn primary', onclick: async () => { closeSheet(); const u = await realPhoto(); if (u) got(u); } }, CAMERA.take),
-      h('button', { class: 'link', 'data-pretend': '', onclick: () => { closeSheet(); got(pretendPhoto(c.em, pick(['#3a7d6b', '#4b3d8f', '#8a6a4f', '#2f6fc8']))); } }, CAMERA.pretend)),
+      h('button', { class: 'link pretend', 'data-pretend': '', onclick: () => { closeSheet(); got(pretendPhoto(c.em, pick(['#3a7d6b', '#4b3d8f', '#8a6a4f', '#2f6fc8']))); } }, CAMERA.pretend)),
   ]);
 }
 
@@ -266,7 +310,7 @@ function celebrate(big, line, keepLabel, onFinish) {
     h('div', { class: 'celebrate' }, h('div', { class: 'big' }, big), h('p', { class: 'sub' }, line)),
     h('div', { class: 'btns' },
       keepLabel ? h('button', { class: 'btn ghost', id: 'keep', onclick: closeSheet }, keepLabel) : null,
-      h('button', { class: 'btn primary', id: 'celebrateDone', onclick: onFinish }, BINGO.finish)),
+      h('button', { class: 'btn jewel', id: 'celebrateDone', onclick: onFinish }, BINGO.finish)),
   ]);
 }
 
@@ -277,8 +321,8 @@ function bingoEnd() {
     bar(),
     h('h2', { class: 'display' }, BINGO.doneTitle(lines)),
     lines ? h('div', { class: 'stickers' },
-      h('div', { class: 'sticker' }, h('div', { class: 's' }, '🔲'), BINGO.stickerLine),
-      full ? h('div', { class: 'sticker bonus' }, h('div', { class: 's' }, '🌟'), BINGO.bonusLine) : null) : null,
+      h('div', { class: 'sticker' }, h('div', { class: 's' }, '✦'), BINGO.stickerLine),
+      full ? h('div', { class: 'sticker bonus' }, h('div', { class: 's' }, '✦'), BINGO.bonusLine) : null) : null,
     bingoGrid(false),
     h('div', { class: 'spacer' }),
     h('div', { class: 'btns' }, h('button', { class: 'btn ghost', onclick: goHome }, BINGO.again)),
@@ -294,18 +338,18 @@ function pumpkinWalk(fresh = true) {
     bar(PUMPKIN.rated(n)),
     h('h2', { class: 'display' }, PUMPKIN.title),
     h('p', { class: 'sub' }, PUMPKIN.hint[where]),
-    n ? h('div', { class: 'pumpkins' }, [...pk.list].reverse().map(pumpkinRow)) : h('div', { class: 'empty' }, '🎃', h('br'), PUMPKIN.empty),
+    n ? h('div', { class: 'pumpkins' }, [...pk.list].reverse().map(pumpkinRow)) : h('div', { class: 'empty' }, PUMPKIN.empty),
     h('div', { class: 'spacer' }),
     h('div', { class: 'btns' },
-      h('button', { class: 'btn pumpkin', id: 'spotted', onclick: async () => { const u = await realPhoto(); if (u) pumpkinRate(u); } }, `🎃 ${PUMPKIN.spotted}`),
-      h('button', { class: 'link', 'data-pretend': '', onclick: () => pumpkinRate(pretendPhoto('🎃', pick(['#2a1a40', '#1d1430', '#33204a', '#24182f']))) }, CAMERA.pretend),
-      h('button', { class: 'btn ghost', id: 'crown', disabled: n < 2, onclick: pumpkinEnd }, n < 2 ? PUMPKIN.needMore : `👑 ${PUMPKIN.crown}`)),
+      h('button', { class: 'btn jewel', id: 'spotted', onclick: async () => { const u = await realPhoto(); if (u) pumpkinRate(u); } }, PUMPKIN.spotted),
+      h('button', { class: 'link pretend', 'data-pretend': '', onclick: () => pumpkinRate(pretendPhoto('🎃', pick(['#2a1a40', '#1d1430', '#33204a', '#24182f']))) }, CAMERA.pretend),
+      h('button', { class: 'btn ghost', id: 'crown', disabled: n < 2, onclick: pumpkinEnd }, n < 2 ? PUMPKIN.needMore : PUMPKIN.crown)),
   );
 }
 
 const pumpkinRow = (p) => h('div', { class: 'pk' },
   h('img', { src: p.photo, alt: '' }),
-  h('div', {}, h('b', {}, PUMPKIN.scores[p.score - 1]), h('span', { class: 'stars' }, '🎃'.repeat(p.score))));
+  h('div', {}, h('b', {}, PUMPKIN.scores[p.score - 1]), h('span', { class: 'stars', 'aria-label': PUMPKIN.outOf(p.score) }, '✦'.repeat(p.score), h('s', {}, '✦'.repeat(5 - p.score)))));
 
 function pumpkinRate(photo) {
   const label = h('div', { class: 'rate-label' });
@@ -318,7 +362,7 @@ function pumpkinRate(photo) {
       chosen = true; light(s);
       setTimeout(() => { pk.list.push({ photo, score: s }); closeSheet(); pumpkinWalk(false); }, 550);
     },
-  }, '🎃'));
+  }, String(s)));
   const light = (s) => { btns.forEach((b, i) => b.classList.toggle('on', i < s)); label.textContent = PUMPKIN.scores[s - 1]; };
   openSheet([
     h('img', { class: 'preview', src: photo, alt: '' }),
@@ -334,7 +378,7 @@ function pumpkinEnd() {
   show(
     bar(),
     h('p', { class: 'kicker centre' }, PUMPKIN.winnerKicker),
-    h('div', { class: 'winner' }, h('img', { src: best.photo, alt: '' }), h('span', { class: 'crown' }, '👑')),
+    h('div', { class: 'winner' }, h('img', { src: best.photo, alt: '' }), h('span', { class: 'crown' }, '✦')),
     h('h2', { class: 'display centre' }, PUMPKIN.scores[best.score - 1]),
     h('p', { class: 'sub centre' }, PUMPKIN.rated(pk.list.length)),
     h('div', { class: 'spacer' }),
@@ -344,16 +388,6 @@ function pumpkinEnd() {
 
 /* ---------- Turn left at every cat ---------- */
 let ct;
-function catIntro() {
-  show(
-    bar(),
-    h('p', { class: 'kicker' }, CAT.title),
-    h('div', { class: 'rule' }, h('span', { class: 'em' }, '🐈'), h('p', {}, CAT.rule[where])),
-    h('div', { class: 'spacer' }),
-    h('div', { class: 'btns' }, h('button', { class: 'btn primary', id: 'go', onclick: catWalk }, CAT.start)),
-  );
-}
-
 function catWalk() {
   ct = { cats: 0, lefts: 0, rights: 0, heading: -90, pts: [[0, 0], [0, -30]], marks: [] };
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -361,21 +395,24 @@ function catWalk() {
   const arrow = h('div', { class: 'arrow', id: 'arrow' }, CAT.walking);
   const count = h('span', { class: 'count' }, CAT.count(0));
   const top = bar(); top.append(count);
+  const rule = h('div', { class: 'frame', id: 'rule' }, h('p', { class: 'kicker' }, CAT.ruleLabel), h('p', { class: 'big' }, CAT.rule[where]));
   show(
     top,
+    rule,
     svg,
     arrow,
     h('div', { class: 'btns' },
-      h('button', { class: 'btn cat', id: 'sawCat', onclick: () => {
+      h('button', { class: 'btn jewel', id: 'sawCat', onclick: () => {
+        rule.hidden = true;
         ct.cats++;
         const rebel = ct.cats % 4 === 0;
         rebel ? ct.rights++ : ct.lefts++;
-        turn(rebel ? 90 : -90, '🐈');
+        turn(rebel ? 90 : -90, '✦');
         count.textContent = CAT.count(ct.cats);
         arrow.textContent = rebel ? `↱ ${CAT.rebel}` : `↰ ${pick(CAT.lefts)}`;
         arrow.classList.remove('flash'); void arrow.offsetWidth; arrow.classList.add('flash');
         drawDoodle(svg, true);
-      } }, `🐈 ${CAT.saw}`),
+      } }, CAT.saw),
       h('button', { class: 'btn ghost', id: 'catDone', onclick: catEnd }, CAT.done)),
   );
   walkDoodle(svg);
@@ -423,12 +460,12 @@ function drawDoodle(svg, live) {
   const d = ct.pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ');
   const end = ct.pts.at(-1);
   svg.innerHTML = `<path d="${d}" style="stroke-width:${3.5 * s};stroke-dasharray:${1 * s} ${9 * s}"/>`
-    + `<text x="0" y="0" text-anchor="middle" dominant-baseline="central" style="font-size:${18 * s}px">🏠</text>`
-    + ct.marks.map((m) => `<text x="${m[0]}" y="${m[1]}" text-anchor="middle" dominant-baseline="central" style="font-size:${20 * s}px">${m[2]}</text>`).join('')
+    + `<circle class="home" cx="0" cy="0" r="${8 * s}" style="stroke-width:${3 * s}"/>`
+    + ct.marks.map((m) => `<text class="mark" x="${m[0]}" y="${m[1]}" text-anchor="middle" dominant-baseline="central" style="font-size:${18 * s}px">${m[2]}</text>`).join('')
     + (live === 'loop' ? ''
       : live
       ? `<circle class="me" cx="${end[0]}" cy="${end[1]}" r="${7 * s}" style="stroke-width:${4 * s}"/>`
-      : `<text x="${end[0]}" y="${end[1]}" text-anchor="middle" dominant-baseline="central" style="font-size:${20 * s}px">🏁</text>`);
+      : `<text class="mark" x="${end[0]}" y="${end[1]}" text-anchor="middle" dominant-baseline="central" style="font-size:${30 * s}px">✦</text>`);
 }
 
 function catEnd() {
@@ -455,14 +492,13 @@ function rouletteIntro() {
   const label = h('div', { class: 'theme-big' }, h('div', { class: 'name', id: 'mins' }, ROULETTE.mins(mins)));
   show(
     bar(),
-    h('p', { class: 'kicker' }, ROULETTE.title),
-    h('div', { class: 'rule' }, h('span', { class: 'em' }, '🎲'), h('p', {}, ROULETTE.rule[where])),
-    h('p', { class: 'sub centre', style: 'margin-top:22px' }, ROULETTE.howLong),
+    h('p', { class: 'kicker' }, ROULETTE.howLong),
     label,
     h('input', { type: 'range', class: 'slider', id: 'length', min: 10, max: 60, step: 5, value: mins, 'aria-label': ROULETTE.howLong,
       oninput: (e) => { mins = +e.target.value; label.firstChild.textContent = ROULETTE.mins(mins); } }),
+    h('p', { class: 'sub' }, ROULETTE.rule[where]),
     h('div', { class: 'spacer' }),
-    h('div', { class: 'btns' }, h('button', { class: 'btn primary', id: 'go', onclick: () => rouletteWalk(mins) }, ROULETTE.start)),
+    h('div', { class: 'btns' }, h('button', { class: 'btn jewel', id: 'go', onclick: () => rouletteWalk(mins) }, ROULETTE.start)),
   );
 }
 
@@ -567,7 +603,7 @@ function rouletteWalk(mins) {
   const twist = h('p', { class: 'sub centre twist', id: 'twist' });
   const togo = h('span', { class: 'count', id: 'togo' });
   const top = bar(); top.append(togo);
-  const nextBtn = h('button', { class: 'btn cat', id: 'corner' });
+  const nextBtn = h('button', { class: 'btn jewel', id: 'corner' });
 
   const blocksLeft = () => rr.legs.slice(rr.at).reduce((t, l) => t + l.len, 0);
   const showLeg = () => {
@@ -576,7 +612,7 @@ function rouletteWalk(mins) {
     then.textContent = leg.home && rr.at > 0 ? ROULETTE.homeAhead(leg.len * k, unit) : ROULETTE.walk(leg.len * k, unit);
     twist.textContent = rr.at && Math.random() < 0.3 ? pick(ROULETTE.twists) : '';
     togo.textContent = ROULETTE.toGo(Math.round(blocksLeft() * BLOCK_MIN));
-    nextBtn.textContent = leg.home ? `🏠 ${ROULETTE.arrived}` : `🎲 ${ROULETTE.next}`;
+    nextBtn.textContent = leg.home ? ROULETTE.arrived : ROULETTE.next;
     wheel.classList.remove('flash'); void wheel.offsetWidth; wheel.classList.add('flash');
     drawDoodle(svg, true);
   };
