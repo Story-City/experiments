@@ -141,7 +141,7 @@
 
   $('gtDownload').addEventListener('click', async () => {
     say('Making your ticket…');
-    await Promise.all([document.fonts.load('600 60px Erode'), document.fonts.load('italic 500 30px Erode'), document.fonts.load('700 20px Karla')]).catch(() => {});
+    await Promise.all([document.fonts.load('600 60px Erode'), document.fonts.load('400 30px Agbalumo'), document.fonts.load('700 20px Karla')]).catch(() => {});
     const C = { ink: css('--ink'), mid: css('--midnight'), velvet: css('--velvet'), cit: css('--citrine'), glow: css('--glow'), star: css('--starlight') };
     const W = 1600, H = 820, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
     const ctx = cv.getContext('2d');
@@ -180,7 +180,7 @@
     y += 76; c.font = '600 64px Erode, Georgia, serif';
     wrapText(c, story.name, maxW, 2).forEach(l => { c.fillText(l, x0, y); y += 70; });
     const n = $('tkNote').textContent;
-    if (n) { y += 8; c.font = 'italic 500 32px Erode, Georgia, serif'; wrapText(c, n, maxW, 3).forEach(l => { c.fillText(l, x0, y); y += 44; }); }
+    if (n) { y += 8; c.font = '400 30px Agbalumo, Erode, Georgia, serif'; wrapText(c, n, maxW, 3).forEach(l => { c.fillText(l, x0, y); y += 44; }); }
     const f = $('tkFrom').textContent;
     if (f) { y += 14; c.font = '700 26px Karla, sans-serif'; c.fillText(f, x0, Math.min(y, ty + th - 50)); }
     // stub

@@ -57,7 +57,7 @@
 .gt-brand svg { width: 12px; height: 12px; fill: var(--midnight); }
 .gt-occ { font: 700 11px/1.2 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--midnight) 82%, var(--citrine)); margin-top: 6px; }
 .gt-title { font: 600 clamp(20px, 6.2cqi, 34px)/1.05 var(--f-head); color: var(--midnight); overflow-wrap: anywhere; }
-.gt-note { font: italic 500 clamp(14px, 3.6cqi, 19px)/1.35 var(--f-head); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.gt-note { font: 400 clamp(14px, 3.6cqi, 19px)/1.35 var(--f-accent); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .gt-from { font: 700 13px/1.2 var(--f-body); }
 .gt-stub { position: relative; border-left: 3px dashed color-mix(in srgb, var(--midnight) 38%, transparent); display: grid; place-items: center; padding: 16px 20px 16px 8px; transform-origin: 0 100%; }
 .gt-admit { writing-mode: vertical-rl; transform: rotate(180deg); font: 700 clamp(14px, 4cqi, 22px)/1 var(--f-body); letter-spacing: .18em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; }

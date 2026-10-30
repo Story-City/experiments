@@ -7,7 +7,7 @@
 .demo-head { text-align: center; max-width: 640px; margin: 0 auto clamp(32px, 5vw, 56px); display: grid; gap: 14px; }
 .demo-title { font-size: clamp(30px, 4.4vw, 48px); line-height: 1.1; }
 .demo-lede { color: var(--mist); font-size: 18px; }
-.demo-lede em { font-style: italic; color: var(--starlight); }
+.demo-lede em { color: var(--starlight); }
 
 .demo-stage { display: grid; grid-template-columns: auto minmax(260px, 330px); gap: clamp(32px, 5vw, 72px); justify-content: center; align-items: center; }
 .demo-phonecol { display: grid; gap: 14px; justify-items: center; }
@@ -174,7 +174,7 @@
 .demo-l-paper { fill: var(--pearl); }
 .demo-l-edge { fill: none; stroke: var(--moonstone); stroke-width: 1; }
 .demo-l-star { fill: var(--citrine); }
-.demo-l-h { font: italic 600 17px var(--f-head); fill: var(--midnight); }
+.demo-l-h { font: 400 17px var(--f-accent); fill: var(--midnight); }
 .demo-l-t { font: 600 16px var(--f-head); fill: var(--midnight); }
 .demo-l-ink { fill: none; stroke: var(--turquoise); stroke-width: 3.5; stroke-linecap: round; }
 .demo-l-seal { fill: var(--ruby); }
