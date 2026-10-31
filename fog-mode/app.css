@@ -213,3 +213,23 @@ body[data-look="darkClouds"] .bubble-from { color: #c9bfff; }
 .fog-gem:nth-child(2n) .fog-gem-glow { animation-delay: 1.4s; }
 @keyframes gemglow { 0%, 100% { opacity: 0.55; scale: 0.85; } 50% { opacity: 1; scale: 1.1; } }
 @media (prefers-reduced-motion: reduce) { .fog-gem-glow { animation: none; } }
+
+/* ---------- home map (home.html) ---------- */
+.week { margin-top: 4px; font-size: 12px; color: var(--muted); }
+.history-line { fill: none; stroke: #F5B82E; stroke-width: 2.4; stroke-dasharray: 1 6; stroke-linecap: round; opacity: 0.55; }
+.story-pin { cursor: pointer; }
+.story-pin .hit { fill: transparent; }
+.story-pin .pin-ring { fill: var(--raised); stroke: var(--story); stroke-width: 2.4; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5)); }
+.story-pin .pin-book { fill: none; stroke: var(--story); stroke-width: 1.6; }
+.story-pin.on .pin-ring { stroke: #fff; stroke-width: 3; }
+.overlay .story-pin { pointer-events: all; }
+.home-card { gap: 10px; }
+.home-hint { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.home-hint::before { content: ""; flex: 0 0 auto; width: 10px; height: 10px; border-radius: 50%; background: #ED8D00; box-shadow: 0 0 10px #ED8D00; }
+.near-label { font: 700 11px/1 -apple-system, system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.near { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -14px; padding: 0 14px 2px; }
+.near::-webkit-scrollbar { display: none; }
+.near-story { flex: 0 0 160px; display: grid; gap: 3px; border-left: 3px solid var(--story); text-align: left; padding: 10px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(7, 8, 15, 0.45); }
+.near-story.on { border-color: var(--story); }
+.ns-name { font: 700 16px/1.05 "Darker Grotesque", system-ui, sans-serif; }
+.ns-meta { font-size: 11px; color: var(--muted); }
