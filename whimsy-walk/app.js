@@ -1,3 +1,5 @@
+import { register } from './more.js';
+import { SECTIONS, MORE_WALKS, QUESTS, QUEST_WORDS } from './more-words.js';
 import { HOME, WALKS, HERO, CAMERA, POSTCARD, BINGO, PUMPKIN, CAT, ROULETTE, SHARE } from './walks.js';
 
 const screen = document.getElementById('screen');
@@ -28,7 +30,7 @@ const shuffle = (arr) => arr.map((v) => [Math.random(), v]).sort((a, b) => a[0] 
 
 function show(...kids) {
   closeSheet();
-  screen.replaceChildren(...kids.filter((k) => k != null && k !== false));
+  screen.replaceChildren(...kids.flat(Infinity).filter((k) => k != null && k !== false));
   screen.style.animation = 'none'; void screen.offsetWidth; screen.style.animation = '';
   screen.scrollTop = 0;
 }
@@ -50,7 +52,7 @@ function bar(right) {
 /* ---------- sheet (closes on outside click + Esc) ---------- */
 let onSheetClose = null;
 function openSheet(kids, onClose, jewel) {
-  sheet.replaceChildren(...kids.filter((k) => k != null && k !== false));
+  sheet.replaceChildren(...kids.flat(Infinity).filter((k) => k != null && k !== false));
   if (jewel) sheet.style.setProperty('--jewel', jewel); else sheet.style.removeProperty('--jewel');
   sheet.hidden = false; scrim.hidden = false;
   onSheetClose = onClose || null;
@@ -107,6 +109,11 @@ function cameraControls(label, onPhoto, pretend) {
 
 /* ---------- home: square text-only cards, tonight's walk as the hero ---------- */
 const todayTheme = pick(POSTCARD.themes);
+// every walk in display order (hero first, then by section); the number on each card follows that order
+const ALL = [...WALKS, ...MORE_WALKS];
+const ORDER = [ALL.find((w) => w.id === HERO), ...SECTIONS.flatMap((sec) => ALL.filter((w) => w.section === sec.id && w.id !== HERO))];
+ORDER.forEach((w, i) => { w.no = i + 1; });
+let more; // the board's walks and quests, wired up once the helpers below exist
 
 function walkCard(w, hero) {
   return h('button', { class: `walk${hero ? ' hero' : ''}`, 'data-walk': w.id, style: `--jewel:${w.jewel}`, onclick: () => cardBack(w) },
@@ -116,6 +123,23 @@ function walkCard(w, hero) {
     h('span', { class: 'title' }, w.name),
     hero ? h('span', { class: 'hook' }, w.hook(todayTheme)) : null,
     h('span', { class: 'meta' }, w.tags.join(' · ')));
+}
+
+function questCard(q) {
+  return h('button', { class: 'walk quest', 'data-walk': q.id, style: `--jewel:${q.jewel}`, onclick: () => questBack(q) },
+    h('span', { class: 'mech' }, `${q.spooky ? QUEST_WORDS.spookyShort : QUEST_WORDS.kicker} · ${q.mins} min`),
+    h('span', { class: 'star', 'aria-hidden': 'true' }, '✦'),
+    h('span', { class: 'title' }, q.title));
+}
+function questBack(q) {
+  openSheet([
+    h('p', { class: 'kicker' }, `${q.spooky ? QUEST_WORDS.spooky : QUEST_WORDS.kicker} · ${q.mins} min`),
+    h('h3', {}, q.title),
+    h('p', { class: 'hook' }, q.line),
+    h('div', { class: 'btns' },
+      h('button', { class: 'btn primary', id: 'startWalk', onclick: () => start(q.id) }, QUEST_WORDS.go),
+      h('button', { class: 'link', onclick: closeSheet }, HOME.notNow)),
+  ], null, q.jewel);
 }
 
 // The card turns over into a sheet: the full pitch and the one button.
@@ -142,20 +166,28 @@ function goHome() {
   const hero = WALKS.find((w) => w.id === HERO);
   show(
     h('div', { class: 'home-head' },
-      h('p', { class: 'kicker' }, HOME.kicker),
+      h('p', { class: 'kicker' }, `Whimsy Walks · ${ALL.length} walks, ${QUESTS.length} quests`),
       h('h1', { class: 'display' }, HOME.title),
       h('p', { class: 'sub' }, HOME.sub[where]),
       h('div', { class: 'where', role: 'group', 'aria-label': 'Where are you?' }, whereBtn('out'), whereBtn('home'))),
-    h('div', { class: 'cards' }, walkCard(hero, true), WALKS.filter((w) => w !== hero).map((w) => walkCard(w))),
-    h('div', { class: 'btns' }, h('button', { class: 'link', id: 'surprise', onclick: () => cardBack(pick(WALKS)) }, `✦ ${HOME.surprise}`)),
+    h('div', { class: 'cards' }, walkCard(hero, true)),
+    SECTIONS.map((sec) => [
+      h('p', { class: 'kicker section' }, sec.label),
+      h('div', { class: 'cards' }, ORDER.filter((w) => w.section === sec.id && w !== hero).map((w) => walkCard(w))),
+    ]),
+    h('p', { class: 'kicker section' }, QUEST_WORDS.section),
+    h('div', { class: 'cards' }, QUESTS.map(questCard)),
+    h('div', { class: 'btns' }, h('button', { class: 'link', id: 'surprise', onclick: () => cardBack(pick(ALL)) }, `✦ ${HOME.surprise}`)),
   );
 }
 
 function start(id) {
   leave?.(); leave = null;
-  current = WALKS.find((w) => w.id === id);
+  const q = QUESTS.find((x) => x.id === id);
+  current = q ? { name: q.spooky ? QUEST_WORDS.spooky : QUEST_WORDS.kicker, jewel: q.jewel } : ALL.find((w) => w.id === id);
   phone.style.setProperty('--jewel', current.jewel);
-  ({ postcard: () => postcardIntro(todayTheme), bingo: bingoStart, pumpkin: pumpkinWalk, cat: catWalk, roulette: rouletteIntro })[id]();
+  if (q) return more.quest(q);
+  ({ postcard: () => postcardIntro(todayTheme), bingo: bingoStart, pumpkin: pumpkinWalk, cat: catWalk, roulette: rouletteIntro, ...more.starts })[id]();
 }
 
 /* ---------- Postcard walk ---------- */
@@ -649,7 +681,9 @@ function rouletteEnd(home) {
   drawDoodle(svg, home ? 'loop' : false);
 }
 
-/* ---------- boot: ?v=<walk> opens a walk straight away ---------- */
+/* ---------- boot: ?v=<walk or quest> opens it straight away ---------- */
+more = register({ h, show, bar, openSheet, closeSheet, cameraControls, realPhoto, pretendPhoto, pick, shuffle, goHome, where: () => where, setLeave: (f) => { leave = f; } });
+window.__ww = more; // lets the headless test reach the fog walk's shortcut
 const v = new URLSearchParams(location.search).get('v') || location.hash.slice(1);
 if (v === 'home') where = 'home';
-if (WALKS.some((w) => w.id === v)) start(v); else goHome();
+if (ALL.some((w) => w.id === v) || QUESTS.some((q) => q.id === v)) start(v); else goHome();

@@ -192,3 +192,155 @@ h1.display { font-size: 40px; }
 /* celebration sheet */
 .celebrate { text-align: center; }
 .celebrate .big { font: 600 56px/1 var(--f-head); color: var(--jewel); }
+
+/* ---------- home sections + quest cards ---------- */
+.kicker.section { margin: 28px 0 12px; }
+.cards > .walk:not(.hero):last-child:nth-child(odd) { grid-column: 1 / -1; aspect-ratio: 2 / 0.86; }
+.walk.quest { aspect-ratio: 1 / 0.92; background: radial-gradient(120% 120% at 100% 100%, color-mix(in srgb, var(--jewel) 16%, transparent), transparent 70%), var(--velvet); }
+.walk.quest::before { border-style: dashed; }
+.walk.quest .title { font-size: 16.5px; line-height: 1.14; bottom: 15px; right: 14px; }
+.walk.quest .mech { right: 30px; white-space: nowrap; }
+
+/* ---------- shared bits for the board's walks ---------- */
+.field { width: 100%; margin-top: 10px; background: var(--midnight); border: 1.5px solid var(--line); border-radius: 12px; padding: 13px 14px; font: 500 16px var(--f-body); color: var(--starlight); resize: none; }
+.field::placeholder { color: var(--lilac); opacity: 0.8; }
+.field:focus { outline: none; border-color: var(--jewel); }
+.fields { display: grid; gap: 2px; margin-top: 8px; }
+.tag.pickable { background: none; cursor: pointer; }
+.tag.pickable:active { background: var(--jewel); color: var(--midnight); border-color: var(--jewel); }
+.display.huge { font-size: 72px; line-height: 0.95; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.choices { display: grid; gap: 8px; margin-top: 14px; }
+.choice { text-align: left; border: 1.5px solid var(--line); background: var(--midnight); border-radius: 12px; padding: 12px 14px; }
+.choice b { display: block; font: 600 20px var(--f-head); color: var(--starlight); }
+.choice span { font-size: 14px; color: var(--lilac); }
+.choice:active { border-color: var(--jewel); }
+
+/* rainbow */
+.bands { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 20px; height: 150px; }
+.band { border-radius: 8px; background: color-mix(in srgb, var(--c) 25%, var(--velvet)); border: 1.5px solid transparent; overflow: hidden; }
+.band.now { border-color: var(--c); box-shadow: 0 0 18px color-mix(in srgb, var(--c) 50%, transparent); }
+.band img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rainbow-poster { display: grid; gap: 4px; margin-top: 16px; flex: 1; min-height: 300px; }
+.rainbow-poster div { position: relative; border-radius: 6px; overflow: hidden; border-left: 8px solid var(--c); }
+.rainbow-poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* ransom note */
+.letters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.letter { width: 64px; height: 64px; border-radius: 8px; border: 1.5px dashed var(--line); background: none; font: 600 32px var(--f-head); color: var(--lilac); display: grid; place-items: center; overflow: hidden; padding: 0; }
+.letter.got { border: 0; }
+.letter img { width: 100%; height: 100%; object-fit: cover; }
+.note { background: var(--pearl); color: var(--midnight); border-radius: 4px; padding: 22px 16px; margin-top: 8px; rotate: -1deg; box-shadow: 0 20px 40px rgba(0,0,0,.45); }
+.note.cursed { background: #120a12; color: #f4ebdd; box-shadow: 0 0 40px color-mix(in srgb, var(--jewel) 30%, transparent); }
+.note-word { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.note-word img { width: 52px; height: 52px; object-fit: cover; border-radius: 3px; }
+.note p { font: italic 500 19px/1.3 var(--f-head); text-align: center; margin: 16px 0 0; }
+
+/* shape hunt */
+.shape-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.shape { border: 1px solid var(--line); background: var(--velvet); border-radius: 12px; padding: 14px; display: grid; justify-items: center; gap: 10px; }
+.shape i { width: 96px; height: 96px; background: color-mix(in srgb, var(--jewel) 22%, transparent) center / cover; outline: 1.5px dashed color-mix(in srgb, var(--jewel) 60%, transparent); outline-offset: -1px; }
+.shape.got i { outline: 0; }
+.shape span { font: 600 17px var(--f-head); color: var(--starlight); }
+.shape.circle i { border-radius: 50%; }
+.shape.triangle i { clip-path: polygon(50% 4%, 96% 92%, 4% 92%); }
+.shape.line i { width: 22px; border-radius: 11px; }
+.creature { position: relative; width: 220px; height: 300px; margin: 18px auto 6px; }
+.creature i { position: absolute; background: center / cover; display: block; }
+.c-hat { width: 90px; height: 70px; left: 65px; top: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.c-head { width: 110px; height: 110px; left: 55px; top: 62px; border-radius: 50%; box-shadow: 0 0 0 3px var(--midnight); }
+.c-head b { position: absolute; top: 40px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: inset 6px 4px 0 3px #111; }
+.c-head b:first-child { left: 28px; } .c-head b:last-child { right: 28px; }
+.c-body { width: 130px; height: 100px; left: 45px; top: 168px; border-radius: 10px; }
+.c-leg { width: 18px; height: 50px; left: 72px; top: 262px; border-radius: 9px; }
+.c-leg.r { left: 130px; }
+[contenteditable] { outline: none; border-bottom: 1.5px dashed transparent; }
+[contenteditable]:focus { border-bottom-color: var(--jewel); }
+
+/* museum + lineup */
+.museum { display: grid; gap: 18px; margin-top: 18px; }
+.museum figure { margin: 0; display: grid; grid-template-columns: 112px 1fr; gap: 14px; align-items: center; }
+.museum img { width: 112px; height: 112px; object-fit: cover; border: 6px solid #c9a76a; outline: 1px solid #7a5a2a; box-shadow: 0 10px 24px rgba(0,0,0,.5); }
+.museum figcaption { background: var(--pearl); color: var(--midnight); border-radius: 3px; padding: 10px 12px; font-size: 13px; line-height: 1.35; }
+.museum figcaption b { display: block; font: 600 17px/1.1 var(--f-head); margin-bottom: 3px; }
+.museum figcaption small { display: block; margin-top: 6px; font: 700 9.5px var(--f-body); letter-spacing: .12em; text-transform: uppercase; opacity: .6; }
+.lineup { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 22px; }
+.lineup figure { margin: 0; background: var(--pearl); padding: 6px 6px 10px; box-shadow: 0 12px 26px rgba(0,0,0,.5); }
+.lineup img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; background: repeating-linear-gradient(0deg, #ddd 0 1px, transparent 1px 14px); }
+.lineup figcaption { text-align: center; font: 600 15px/1.1 var(--f-head); color: var(--midnight); margin-top: 6px; }
+.lineup small { display: block; font: 700 9px var(--f-body); letter-spacing: .12em; opacity: .55; margin-top: 2px; }
+
+/* safari map */
+.gem-map { position: relative; height: 240px; margin-top: 16px; border-radius: 12px; background: var(--ink); overflow: hidden; border: 1px solid var(--line); }
+.mini-map { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mini-map line { stroke: var(--velvet); stroke-width: 12; }
+.gem-pin { position: absolute; translate: -50% -50%; display: grid; justify-items: center; gap: 4px; }
+.gem-pin i { width: 22px; height: 18px; background: var(--jewel); border-radius: 50% 50% 46% 54% / 60% 60% 40% 40%; box-shadow: 0 0 16px var(--jewel); }
+.gem-pin span { font: 700 10.5px var(--f-body); color: var(--starlight); background: rgba(11,6,32,.8); padding: 2px 7px; border-radius: 99px; white-space: nowrap; }
+
+/* backwards + remix */
+.big-arrow { font: 600 160px/1 var(--f-head); color: var(--jewel); text-align: center; opacity: .8; }
+.missed { display: grid; gap: 8px; margin-top: 16px; }
+.missed img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; }
+.triptych { display: grid; gap: 10px; margin-top: 16px; }
+.triptych figure { margin: 0; position: relative; }
+.triptych img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 8px; display: block; }
+.triptych figcaption { position: absolute; left: 10px; bottom: 10px; font: 700 11px var(--f-body); letter-spacing: .14em; text-transform: uppercase; background: rgba(11,6,32,.75); color: var(--starlight); padding: 4px 9px; border-radius: 99px; }
+
+/* séance */
+.candles { display: flex; justify-content: center; gap: 26px; margin-top: 44px; }
+.candle { width: 64px; display: grid; justify-items: center; gap: 8px; text-align: center; font: italic 500 15px var(--f-head); color: var(--mist); }
+.candle i { position: relative; width: 26px; height: 90px; border-radius: 6px 6px 3px 3px; background: linear-gradient(90deg, #d8cdb8, #f4ebdd 50%, #c9bca4); }
+.candle i::before { content: ""; position: absolute; left: 50%; top: -26px; translate: -50% 0; width: 14px; height: 24px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: radial-gradient(circle at 50% 70%, #fff6c8, #ffb347 60%, transparent 70%); opacity: 0; }
+.candle.lit i::before { opacity: 1; animation: flicker 1.4s ease-in-out infinite; box-shadow: 0 0 30px 10px rgba(255, 180, 70, .35); }
+@keyframes flicker { 50% { scale: 0.88 1.08; translate: -45% 1px; } }
+.rec { width: 90px; height: 90px; margin: 4px auto 14px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--jewel) 20%, transparent); }
+.rec i { width: 34px; height: 34px; border-radius: 50%; background: var(--jewel); animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { scale: .75; } }
+.rec-count { text-align: center; font: 600 40px var(--f-head); color: var(--starlight); }
+
+/* sound walk + haiku */
+.listen { --p: 0%; width: 150px; height: 150px; margin: 24px auto 8px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--jewel) var(--p), var(--velvet) 0); transition: --p 1s; }
+.listen span { width: 128px; height: 128px; border-radius: 50%; background: var(--midnight); display: grid; place-items: center; font: 600 44px var(--f-head); color: var(--starlight); }
+.poem { margin-top: 18px; }
+.poem p { font: italic 500 30px/1.25 var(--f-head); color: var(--starlight); margin: 0 0 6px; text-wrap: balance; }
+.syl { position: relative; display: block; }
+.count-syl { position: absolute; right: 12px; top: 24px; font: 700 11px var(--f-body); letter-spacing: .08em; color: var(--lilac); }
+.count-syl.ok { color: var(--jewel); }
+
+/* mood */
+.feelings { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+.feeling { aspect-ratio: 1.5; border: 1px solid var(--line); background: var(--velvet); border-radius: 12px; font: 600 24px var(--f-head); color: var(--starlight); }
+.feeling:active { border-color: var(--jewel); background: color-mix(in srgb, var(--jewel) 20%, var(--velvet)); }
+
+/* coin flip */
+.coin { width: 170px; height: 170px; margin: 0 auto 18px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #fff6, transparent 50%), var(--jewel); box-shadow: 0 0 0 6px color-mix(in srgb, var(--jewel) 50%, var(--midnight)), 0 0 50px color-mix(in srgb, var(--jewel) 40%, transparent); font: 600 76px var(--f-head); color: var(--midnight); }
+.coin.spin { animation: flip .7s cubic-bezier(.3, .7, .4, 1); }
+@keyframes flip { to { transform: rotateY(1440deg); } }
+.coin-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; min-height: 30px; }
+.coin-row i { width: 28px; height: 28px; border-radius: 50%; background: color-mix(in srgb, var(--jewel) 30%, var(--velvet)); display: grid; place-items: center; font: 700 12px var(--f-body); font-style: normal; color: var(--starlight); }
+.coin-row.big { margin-top: 24px; }
+
+/* fog walk */
+.fogbank { position: relative; height: 260px; margin: 12px 0 10px; border-radius: 12px; overflow: hidden; display: grid; place-items: center;
+  background: radial-gradient(60% 40% at 30% 40%, rgba(217,206,245,.16), transparent 70%), radial-gradient(50% 40% at 70% 60%, rgba(217,206,245,.12), transparent 70%), var(--ink); animation: drift 9s ease-in-out infinite alternate; }
+@keyframes drift { to { background-position: 40px -10px, -30px 20px, 0 0; } }
+.orb { --heat: 0; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--jewel) calc(30% + var(--heat) * 70%), #fff) 0, var(--jewel) 40%, transparent 70%);
+  opacity: calc(.25 + var(--heat) * .75); scale: calc(.6 + var(--heat) * .6); filter: blur(calc(14px - var(--heat) * 10px)); transition: all .6s; box-shadow: 0 0 calc(var(--heat) * 90px) var(--jewel); }
+.orb.found { margin: 30px auto 24px; }
+
+/* spend your steps */
+.steps-big { font: 600 80px/1 var(--f-head); color: var(--starlight); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.chests { display: grid; gap: 10px; margin-top: 16px; }
+.chest { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--line); background: var(--velvet); border-radius: 12px; padding: 16px; min-height: 64px; }
+.chest b { font: 600 20px var(--f-head); color: var(--starlight); }
+.chest span { font: 700 11px var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--lilac); }
+.chest.ready { border-color: var(--jewel); box-shadow: 0 0 22px color-mix(in srgb, var(--jewel) 30%, transparent); }
+.chest.ready span { color: var(--jewel); }
+.chest[disabled] { opacity: .7; }
+
+/* quests */
+.quest-photo { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; margin-top: 16px; display: block; }
+.quest-photo.tap { cursor: crosshair; }
+.quest-line { font: italic 500 20px/1.3 var(--f-head); color: var(--starlight); margin: 14px 0 0; }
+.quest-line.gem::before { content: "✦ "; color: var(--jewel); font-style: normal; }

@@ -14,19 +14,19 @@ export const HOME = {
 // One card per walk. jewel = its story accent from the brand palette.
 // hook can be a function of today's postcard theme.
 export const WALKS = [
-  { id: 'postcard', no: 1, jewel: '#ED54B3', mech: 'A collecting walk', name: 'Postcard Walk',
+  { id: 'postcard', section: 'snap', no: 1, jewel: '#ED54B3', mech: 'A collecting walk', name: 'Postcard Walk',
     hook: (t) => `Today, only ${t.noun} count.`, more: 'Your best 3 shots become a postcard.',
     how: ['Notice', 'Snap', 'Send'], tags: ['Any length', 'Camera'], go: 'Get My Theme' },
-  { id: 'bingo', no: 2, jewel: '#F5B82E', mech: 'A spotting walk', name: 'Block Bingo',
+  { id: 'bingo', section: 'snap', no: 2, jewel: '#F5B82E', mech: 'A spotting walk', name: 'Block Bingo',
     hook: () => "Nine things to spot. The middle one's free.", more: 'Three in a row wins. Fill the card for a sticker.',
     how: ['Spot', 'Snap', 'Bingo'], tags: ['20–30 min', 'Camera'], go: 'Deal My Card' },
-  { id: 'pumpkin', no: 3, jewel: '#FA7423', mech: 'A judging walk', name: 'Pumpkin Patrol',
+  { id: 'pumpkin', section: 'spooky', no: 3, jewel: '#FA7423', mech: 'A judging walk', name: 'Pumpkin Patrol',
     hook: () => 'Somewhere on your block lives Pumpkin Royalty.', more: "Rate every jack-o'-lantern you pass. Crown one.",
     how: ['Snap', 'Rate', 'Crown'], tags: ['After dark', 'Camera'], go: 'Start Patrol' },
-  { id: 'roulette', no: 4, jewel: '#35C6D7', mech: 'A following walk', name: 'Route Roulette',
+  { id: 'roulette', section: 'wander', no: 4, jewel: '#35C6D7', mech: 'A following walk', name: 'Route Roulette',
     hook: () => "Tell it how long. It won't tell you where.", more: 'You only see the next turn. It always brings you home.',
     how: ['Choose', 'Follow', 'Home'], tags: ['You pick the time', 'Ends at your door'], go: 'Pick My Time' },
-  { id: 'cat', no: 5, jewel: '#BED13F', mech: 'A wandering walk', name: 'Turn Left at Every Cat',
+  { id: 'cat', section: 'wander', no: 5, jewel: '#BED13F', mech: 'A wandering walk', name: 'Turn Left at Every Cat',
     hook: () => 'One rule: see a cat, turn left.', more: 'Every 4th cat is a rebel. Your route becomes a doodle.',
     how: ['Look', 'Turn', 'Doodle'], tags: ['Ends when you say', 'No camera'], go: 'Follow the Cats' },
 ];
