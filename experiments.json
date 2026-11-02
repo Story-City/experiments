@@ -1,5 +1,29 @@
 [
   {
+    "slug": "play-together-summons",
+    "path": "play-together-summons/?v=one-phone",
+    "title": "Play together: pass the phone",
+    "what": "The Summons with friends on one phone: everyone gets a role (Navigator, Decoder, Lookout, Voice), the phone is handed to whoever the story needs next, choices are a group vote with a coin flip for ties, and it ends with a team postcard.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "play-together-summons-many",
+    "path": "play-together-summons/?v=many-phones",
+    "title": "Play together: everyone's phone",
+    "what": "The Summons with friends on their own phones: join with a 4-letter code, each phone sees a different clue, an arrivals strip shows who's reached the corner, then a team finale and a group offer.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "armchair-preview",
     "path": "armchair-preview/?v=paywall-first",
     "title": "Armchair preview: try it from your couch",
