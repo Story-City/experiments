@@ -1,5 +1,29 @@
 [
   {
+    "slug": "walk-postcard",
+    "path": "walk-postcard/?v=postcard",
+    "title": "Walk postcard + tomorrow's walk",
+    "what": "Right after a chapter: a postcard builds itself (route map, photo, one line, the gem you found), then “Pick tomorrow's walk” with one reminder. Three postcard styles; the route's start is blurred so nobody can tell where you live. Jump to Sunday for a gentle weekly recap.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "walk-postcard-plan",
+    "path": "walk-postcard/?v=plan-first",
+    "title": "Walk postcard: plan first",
+    "what": "Same after-walk moment in the other order: pick tomorrow's walk first, then the postcard. Includes the Sunday weekly recap.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "play-together-summons",
     "path": "play-together-summons/?v=one-phone",
     "title": "Play together: pass the phone",
