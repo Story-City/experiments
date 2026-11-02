@@ -1,5 +1,29 @@
 [
   {
+    "slug": "armchair-preview",
+    "path": "armchair-preview/?v=paywall-first",
+    "title": "Armchair preview: try it from your couch",
+    "what": "For new players at home: 2 minutes of The Summons indoors (pretend steps to the window, the hooded figure, the wax-seal letter), then a clear free-trial explainer, then “walk it for real tomorrow”. Paywall straight after the cliffhanger.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "armchair-preview-taste",
+    "path": "armchair-preview/?v=taste-more",
+    "title": "Armchair preview: one more taste",
+    "what": "Same couch chapter with one extra indoor beat before the paywall: snap a photo and crack the 6-digit seal code in a casebook keypad.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "story-chooser",
     "path": "story-chooser/",
     "title": "Help me choose a story",
