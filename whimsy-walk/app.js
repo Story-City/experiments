@@ -1,6 +1,7 @@
 import { register } from './more.js';
+import { STORIES, STORY_FOR, STORY_WORDS } from './stories-data.js';
 import { SECTIONS, MORE_WALKS, QUESTS, QUEST_WORDS } from './more-words.js';
-import { HOME, WALKS, HERO, CAMERA, POSTCARD, BINGO, PUMPKIN, CAT, ROULETTE, SHARE } from './walks.js';
+import { HOME, WALKS, HERO, tonightId, REMIND, CAMERA, POSTCARD, BINGO, PUMPKIN, CAT, ROULETTE, SHARE } from './walks.js';
 
 const screen = document.getElementById('screen');
 const sheet = document.getElementById('sheet');
@@ -33,6 +34,105 @@ function show(...kids) {
   screen.replaceChildren(...kids.flat(Infinity).filter((k) => k != null && k !== false));
   screen.style.animation = 'none'; void screen.offsetWidth; screen.style.animation = '';
   screen.scrollTop = 0;
+  if (current?.id && screen.querySelector('[data-end]')) { markDone(); offerStory(); offerShare(); offerNudge(); }
+}
+
+/* ---------- what you've walked: a count and a keepsake per walk, kept on this phone ---------- */
+const MEM_KEY = 'whimsy-walked-v1';
+let walked = {};
+try { walked = JSON.parse(localStorage.getItem(MEM_KEY)) || {}; } catch { walked = {}; }
+const saveWalked = () => { try { localStorage.setItem(MEM_KEY, JSON.stringify(walked)); } catch { /* storage full or blocked: still works this visit */ } };
+
+// Called when a walk's end screen appears. Keeps its title, a small photo and/or a line of text.
+function markDone() {
+  const id = current.id;
+  if (walked[id]?.lastRun === runId) return; // re-renders of the same end screen count once
+  const rec = walked[id] = { count: (walked[id]?.count || 0) + 1, at: Date.now(), lastRun: runId, keep: {} };
+  const title = screen.querySelector('h2.display') || screen.querySelector('.kicker');
+  rec.keep.title = title?.textContent || '';
+  const words = screen.querySelector('.poem, .frame .big, .note p, .quest-line, .postcard .title');
+  if (words) rec.keep.text = words.innerText.replace(/\s+\n/g, '\n').slice(0, 220);
+  const img = screen.querySelector('#screen img');
+  saveWalked();
+  if (img) thumb(img.src).then((t) => { if (t) { rec.keep.img = t; saveWalked(); } });
+}
+let runId = 0;
+
+/* ---------- every walk ends by handing off to a real story ---------- */
+const PROG_KEY = 'whimsy-story-v1';
+let storyProg = {};
+try { storyProg = JSON.parse(localStorage.getItem(PROG_KEY)) || {}; } catch { storyProg = {}; }
+function storyFor(id) {
+  const q = QUESTS.find((x) => x.id === id);
+  return STORY_FOR[q ? (q.spooky ? 'spookyQuest' : 'quest') : id];
+}
+// Each finished walk walks a little of chapter 2. It starts part-way, so it already feels underway.
+const storyPct = (key) => Math.min(95, 20 + 15 * (storyProg[key] || 0));
+function offerStory() {
+  const link = storyFor(current.id);
+  if (!link || screen.querySelector('.story-next')) return;
+  const [key, bridge] = link;
+  const st = STORIES[key];
+  if (storyProg.lastRun !== runId) {
+    storyProg[key] = (storyProg[key] || 0) + 1; storyProg.lastRun = runId;
+    try { localStorage.setItem(PROG_KEY, JSON.stringify(storyProg)); } catch { /* fine */ }
+  }
+  const pct = storyPct(key);
+  const block = h('section', { class: 'story-next' },
+    h('p', { class: 'kicker' }, STORY_WORDS.kicker),
+    h('div', { class: 'story-row' },
+      st.cover ? h('img', { class: 'story-cover', src: st.cover, alt: '', loading: 'lazy' }) : h('div', { class: 'story-cover blank' }, '✦'),
+      h('div', {}, h('b', {}, st.title), h('span', {}, bridge))),
+    h('p', { class: 'story-tease' }, `“${st.teaser}”`),
+    h('div', { class: 'story-bar', role: 'img', 'aria-label': STORY_WORDS.bar(st.title, pct) }, h('i', { style: `width:${pct}%` })),
+    h('p', { class: 'hint' }, STORY_WORDS.bar(st.title, pct)),
+    h('button', { class: 'btn primary', id: 'readStory', onclick: () => chapterSheet(st) }, STORY_WORDS.read));
+  const btns = screen.querySelector('.btns:last-of-type');
+  btns ? btns.before(block) : screen.append(block);
+}
+function chapterSheet(st) {
+  openSheet([
+    h('p', { class: 'kicker' }, `${st.genre} · ${st.chapter}`),
+    h('h3', {}, st.title),
+    st.cover ? h('img', { class: 'chapter-cover', src: st.cover, alt: '' }) : null,
+    h('p', { class: 'chapter-text' }, st.opening),
+    h('p', { class: 'hint' }, STORY_WORDS.note),
+    h('div', { class: 'btns' }, h('button', { class: 'btn primary', onclick: () => { closeSheet(); toast(STORY_WORDS.opens); } }, STORY_WORDS.keep)),
+  ], null, '#5B8CFF');
+}
+
+// After the very first walk, offer a gentle reminder for tomorrow (mockup: nothing is really scheduled).
+function offerNudge() {
+  let asked = false;
+  try { asked = !!localStorage.getItem('whimsy-nudge'); } catch { /* fine */ }
+  if (asked || doneCount() !== 1) return;
+  const note = (v) => { try { localStorage.setItem('whimsy-nudge', v); } catch { /* fine */ } };
+  const when = h('select', { class: 'field', 'aria-label': REMIND.kicker }, REMIND.times.map((t) => h('option', { selected: t === REMIND.times[2] }, t)));
+  const card = h('div', { class: 'nudge', id: 'nudge' },
+    h('p', { class: 'kicker' }, REMIND.kicker), h('p', { class: 'nudge-title' }, REMIND.title), when,
+    h('div', { class: 'row2' },
+      h('button', { class: 'btn ghost small', onclick: () => { note('yes'); card.replaceChildren(h('p', { class: 'nudge-title' }, REMIND.set(when.value))); } }, REMIND.yes),
+      h('button', { class: 'link', onclick: () => { note('no'); card.remove(); } }, REMIND.no)));
+  const btns = screen.querySelector('.btns:last-of-type');
+  btns ? btns.before(card) : screen.append(card);
+}
+function thumb(src) {
+  return new Promise((ok) => {
+    const i = new Image();
+    i.onload = () => { const c = document.createElement('canvas'); c.width = c.height = 200; const s = Math.min(i.width, i.height);
+      c.getContext('2d').drawImage(i, (i.width - s) / 2, (i.height - s) / 2, s, s, 0, 0, 200, 200); ok(c.toDataURL('image/jpeg', 0.7)); };
+    i.onerror = () => ok(null); i.src = src;
+  });
+}
+const doneCount = () => Object.keys(walked).length;
+const stamp = (id) => walked[id] ? h('span', { class: 'stamp' }, walked[id].count > 1 ? `Walked ${walked[id].count}×` : 'Walked') : h('span', { class: 'star', 'aria-hidden': 'true' }, '✦');
+function keepsake(id) {
+  const k = walked[id]?.keep;
+  if (!k) return null;
+  return h('div', { class: 'keepsake' },
+    h('p', { class: 'kicker' }, HOME.lastTime),
+    h('div', { class: 'keep-row' }, k.img ? h('img', { src: k.img, alt: '' }) : null,
+      h('div', {}, h('b', {}, k.title), k.text ? h('span', {}, k.text) : null)));
 }
 
 function toast(msg) {
@@ -111,24 +211,27 @@ function cameraControls(label, onPhoto, pretend) {
 const todayTheme = pick(POSTCARD.themes);
 // every walk in display order (hero first, then by section); the number on each card follows that order
 const ALL = [...WALKS, ...MORE_WALKS];
-const ORDER = [ALL.find((w) => w.id === HERO), ...SECTIONS.flatMap((sec) => ALL.filter((w) => w.section === sec.id && w.id !== HERO))];
+const ORDER = SECTIONS.flatMap((sec) => ALL.filter((w) => w.section === sec.id));
+const dayParam = new URLSearchParams(location.search).get('day');
+const TODAY = dayParam ? new Date(`${dayParam}T12:00`) : new Date();
+const TONIGHT = tonightId(ORDER.map((w) => w.id), TODAY);
 ORDER.forEach((w, i) => { w.no = i + 1; });
 let more; // the board's walks and quests, wired up once the helpers below exist
 
 function walkCard(w, hero) {
   return h('button', { class: `walk${hero ? ' hero' : ''}`, 'data-walk': w.id, style: `--jewel:${w.jewel}`, onclick: () => cardBack(w) },
     h('span', { class: 'ghost', 'aria-hidden': 'true' }, w.no),
-    h('span', { class: 'mech' }, hero ? `${HOME.hero} · ${w.mech}` : w.mech),
-    h('span', { class: 'star', 'aria-hidden': 'true' }, '✦'),
+    h('span', { class: 'mech' }, hero ? `${w.id !== TONIGHT ? HOME.next : w.id === HERO ? HOME.hero : HOME.tonight} · ${w.mech}` : w.mech.replace(/^an? /i, '').replace(/ walk$/, '')),
+    stamp(w.id),
     h('span', { class: 'title' }, w.name),
     hero ? h('span', { class: 'hook' }, w.hook(todayTheme)) : null,
-    h('span', { class: 'meta' }, w.tags.join(' · ')));
+    h('span', { class: 'meta' }, hero ? w.tags.join(' · ') : w.tags[0]));
 }
 
-function questCard(q) {
-  return h('button', { class: 'walk quest', 'data-walk': q.id, style: `--jewel:${q.jewel}`, onclick: () => questBack(q) },
+function questCard(q, wide) {
+  return h('button', { class: `walk quest${wide ? ' wide' : ''}`, 'data-walk': q.id, style: `--jewel:${q.jewel}`, onclick: () => questBack(q) },
     h('span', { class: 'mech' }, `${q.spooky ? QUEST_WORDS.spookyShort : QUEST_WORDS.kicker} · ${q.mins} min`),
-    h('span', { class: 'star', 'aria-hidden': 'true' }, '✦'),
+    stamp(q.id),
     h('span', { class: 'title' }, q.title));
 }
 function questBack(q) {
@@ -136,8 +239,9 @@ function questBack(q) {
     h('p', { class: 'kicker' }, `${q.spooky ? QUEST_WORDS.spooky : QUEST_WORDS.kicker} · ${q.mins} min`),
     h('h3', {}, q.title),
     h('p', { class: 'hook' }, q.line),
+    keepsake(q.id),
     h('div', { class: 'btns' },
-      h('button', { class: 'btn primary', id: 'startWalk', onclick: () => start(q.id) }, QUEST_WORDS.go),
+      h('button', { class: 'btn primary', id: 'startWalk', onclick: () => start(q.id) }, walked[q.id] ? QUEST_WORDS.again : QUEST_WORDS.go),
       h('button', { class: 'link', onclick: closeSheet }, HOME.notNow)),
   ], null, q.jewel);
 }
@@ -152,39 +256,84 @@ function cardBack(w) {
     h('p', { class: 'more' }, w.more),
     h('p', { class: 'how' }, w.how.flatMap((step, i) => (i ? [h('i', {}, '✦'), step] : [step]))),
     h('div', { class: 'tags' }, w.tags.map((t) => h('span', { class: 'tag' }, t))),
+    keepsake(w.id),
     h('div', { class: 'btns' },
-      h('button', { class: 'btn primary', id: 'startWalk', onclick: () => start(w.id) }, w.go),
+      h('button', { class: 'btn primary', id: 'startWalk', onclick: () => start(w.id) }, walked[w.id] ? HOME.again : w.go),
       h('button', { class: 'link', onclick: closeSheet }, HOME.notNow)),
   ], null, w.jewel);
+}
+
+// Walks that need real streets; At Home hides them.
+const OUTDOOR_ONLY = ['fog', 'safari'];
+const fits = (w) => where === 'out' || !OUTDOOR_ONLY.includes(w.id);
+const needsCamera = (w) => w.tags.includes('Camera');
+
+// Three picks for right now: suited to the time of day, not yet walked, at most two that need a camera.
+function forYou(exclude) {
+  const hr = TODAY.getHours();
+  const prefer = hr < 11 ? ['listen', 'wander'] : hr < 17 ? ['snap', 'wander'] : ['spooky', 'wander', 'listen'];
+  const pool = ORDER.filter((w) => w !== exclude && fits(w) && !walked[w.id]);
+  const ranked = [...pool].sort((a, b) => (prefer.indexOf(a.section) + 1 || 9) - (prefer.indexOf(b.section) + 1 || 9));
+  const out = [];
+  let cams = 0;
+  for (const w of ranked) { if (out.length === 3) break; if (needsCamera(w) && cams === 2) continue; if (needsCamera(w)) cams++; out.push(w); }
+  return out;
+}
+
+/* ---------- seal book: one wax seal per walk you finish; seven open a sealed letter ---------- */
+function sealBook() {
+  const n = Math.min(7, doneCount());
+  return h('button', { class: 'seals', id: 'seals', 'aria-label': HOME.sealsLabel(n), onclick: () => (n >= 7 ? openLetter() : toast(HOME.sealsHint(7 - n))) },
+    h('span', { class: 'seal-row' }, Array.from({ length: 7 }, (_, i) => h('i', { class: i < n ? 'on' : '' }, i < n ? '✦' : ''))),
+    h('span', { class: 'seal-text' }, n >= 7 ? HOME.sealsOpen : HOME.sealsLabel(n)));
+}
+function openLetter() {
+  const st = STORIES.summons;
+  openSheet([
+    h('p', { class: 'kicker' }, HOME.letterKicker),
+    h('div', { class: 'letter-paper' }, h('p', {}, HOME.letter), h('p', { class: 'sig' }, HOME.letterSig)),
+    h('div', { class: 'btns' }, h('button', { class: 'btn primary', onclick: () => chapterSheet(st) }, STORY_WORDS.read)),
+  ], null, '#C49BFF');
 }
 
 function goHome() {
   leave?.(); leave = null; current = null;
   phone.style.removeProperty('--jewel');
-  if (location.search) history.replaceState(null, '', location.pathname);
+  if (location.search && !dayParam) history.replaceState(null, '', location.pathname);
   const whereBtn = (key) => h('button', { class: 'chip', 'aria-pressed': String(where === key), onclick: () => { where = key; goHome(); } }, HOME.where[key]);
-  const hero = WALKS.find((w) => w.id === HERO);
+  // tonight's walk leads; once you've walked it, the top spot goes to one you haven't tried
+  const tonight = ORDER.find((w) => w.id === TONIGHT);
+  const hero = !walked[TONIGHT] && fits(tonight) ? tonight : ORDER.find((w) => !walked[w.id] && fits(w)) || tonight;
+  const quick = QUESTS.find((q) => !walked[q.id]) || QUESTS[0];
+  const picks = forYou(hero);
+  const row = (cards) => h('div', { class: 'row-scroll' }, cards);
   show(
     h('div', { class: 'home-head' },
-      h('p', { class: 'kicker' }, `Whimsy Walks · ${ALL.length} walks, ${QUESTS.length} quests`),
+      h('p', { class: 'kicker' }, HOME.kicker),
       h('h1', { class: 'display' }, HOME.title),
       h('p', { class: 'sub' }, HOME.sub[where]),
       h('div', { class: 'where', role: 'group', 'aria-label': 'Where are you?' }, whereBtn('out'), whereBtn('home'))),
+    sealBook(),
     h('div', { class: 'cards' }, walkCard(hero, true)),
+    h('p', { class: 'kicker section' }, HOME.quick),
+    h('div', { class: 'cards' }, questCard(quick, true)),
+    picks.length ? [h('p', { class: 'kicker section' }, HOME.forYou), h('div', { class: 'cards three' }, picks.map((w) => walkCard(w)))] : null,
+    h('div', { class: 'btns' }, h('button', { class: 'btn ghost', id: 'surprise', onclick: () => cardBack(pick(ORDER.filter((w) => fits(w) && !walked[w.id])) || pick(ORDER)) }, HOME.surprise)),
+    h('h2', { class: 'display all-head' }, HOME.all),
     SECTIONS.map((sec) => [
       h('p', { class: 'kicker section' }, sec.label),
-      h('div', { class: 'cards' }, ORDER.filter((w) => w.section === sec.id && w !== hero).map((w) => walkCard(w))),
+      row(ORDER.filter((w) => w.section === sec.id && fits(w)).map((w) => walkCard(w))),
     ]),
     h('p', { class: 'kicker section' }, QUEST_WORDS.section),
-    h('div', { class: 'cards' }, QUESTS.map(questCard)),
-    h('div', { class: 'btns' }, h('button', { class: 'link', id: 'surprise', onclick: () => cardBack(pick(ALL)) }, `✦ ${HOME.surprise}`)),
+    row(QUESTS.map((q) => questCard(q))),
   );
 }
 
 function start(id) {
   leave?.(); leave = null;
   const q = QUESTS.find((x) => x.id === id);
-  current = q ? { name: q.spooky ? QUEST_WORDS.spooky : QUEST_WORDS.kicker, jewel: q.jewel } : ALL.find((w) => w.id === id);
+  current = q ? { id: q.id, name: q.spooky ? QUEST_WORDS.spooky : QUEST_WORDS.kicker, jewel: q.jewel } : ALL.find((w) => w.id === id);
+  runId = Date.now(); // a fresh id per play, so stamps and story progress count each walk once
   phone.style.setProperty('--jewel', current.jewel);
   if (q) return more.quest(q);
   ({ postcard: () => postcardIntro(todayTheme), bingo: bingoStart, pumpkin: pumpkinWalk, cat: catWalk, roulette: rouletteIntro, ...more.starts })[id]();
@@ -272,9 +421,65 @@ function postcardShow() {
         h('div', { class: 'stamp' }, h('i', {}, '✦'), POSTCARD.stamp))),
     h('div', { class: 'spacer' }),
     h('div', { class: 'btns' },
-      h('button', { class: 'btn jewel', onclick: () => share(t.title, `${POSTCARD.greeting[where]} ${SHARE.tag}`) }, POSTCARD.share),
-      h('button', { class: 'btn ghost', onclick: goHome }, POSTCARD.again)),
+      h('button', { class: 'btn jewel', onclick: shareKeepsake }, POSTCARD.share),
+      h('button', { class: 'btn ghost', 'data-end': '', onclick: goHome }, POSTCARD.again)),
   );
+}
+
+/* ---------- keepsake image: the end screen as a 4:5 card people can post ---------- */
+function offerShare() {
+  if (screen.querySelector('#shareKeep') || current.id === 'postcard') return;
+  const btns = screen.querySelector('.btns:last-of-type');
+  if (btns) btns.prepend(h('button', { class: 'btn ghost', id: 'shareKeep', onclick: shareKeepsake }, SHARE.keep));
+}
+const loadImage = (src) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
+function wrap(x, text, maxW) {
+  const lines = []; let line = '';
+  for (const w of text.split(/\s+/)) { const t = line ? `${line} ${w}` : w; if (x.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line); return lines;
+}
+async function keepsakeCanvas() {
+  await document.fonts?.ready;
+  const W = 1080, H = 1350, P = 84;
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  const jewel = getComputedStyle(phone).getPropertyValue('--jewel').trim() || '#5b8cff';
+  x.fillStyle = '#1a0b3d'; x.fillRect(0, 0, W, H);
+  const g = x.createRadialGradient(W, H, 0, W, H, W * 1.1); g.addColorStop(0, jewel + '55'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.strokeStyle = jewel + '66'; x.lineWidth = 3; x.beginPath(); x.roundRect(28, 28, W - 56, H - 56, 26); x.stroke();
+  x.fillStyle = '#c49bff'; x.font = '700 30px Karla, sans-serif'; x.letterSpacing = '6px';
+  x.fillText((current?.name || 'Whimsy Walks').toUpperCase(), P, 150); x.letterSpacing = '0px';
+  const title = screen.querySelector('h2.display')?.textContent || screen.querySelector('.kicker')?.textContent || '';
+  x.fillStyle = '#fbf7ff'; x.font = '600 84px Erode, Georgia, serif';
+  const tl = wrap(x, title, W - P * 2).slice(0, 3); tl.forEach((l, i) => x.fillText(l, P, 260 + i * 90));
+  let y = 260 + tl.length * 90 + 30;
+  const imgs = [...screen.querySelectorAll('img')].filter((i) => !i.closest('.story-next, .keepsake')).slice(0, 4);
+  const loaded = (await Promise.all(imgs.map((i) => loadImage(i.src)))).filter(Boolean);
+  const box = H - y - 190;
+  if (loaded.length) {
+    const n = loaded.length, cols = n === 1 ? 1 : 2, rows = Math.ceil(n / cols), gap = 18;
+    const cw = (W - P * 2 - gap * (cols - 1)) / cols, ch = Math.min(cw, (box - gap * (rows - 1)) / rows);
+    loaded.forEach((im, i) => {
+      const cx = P + (i % cols) * (cw + gap), cy = y + Math.floor(i / cols) * (ch + gap), s = Math.min(im.width / cw, im.height / ch);
+      x.save(); x.beginPath(); x.roundRect(cx, cy, cw, ch, 16); x.clip();
+      x.drawImage(im, (im.width - cw * s) / 2, (im.height - ch * s) / 2, cw * s, ch * s, cx, cy, cw, ch); x.restore();
+    });
+  } else {
+    const words = screen.querySelector('.poem, .frame .big, .note p, .quest-line, .sub')?.innerText || '';
+    x.fillStyle = '#d9cef5'; x.font = 'italic 500 60px Erode, Georgia, serif';
+    wrap(x, words.replace(/\n+/g, ' / '), W - P * 2).slice(0, 8).forEach((l, i) => x.fillText(l, P, y + 70 + i * 76));
+  }
+  x.fillStyle = jewel; x.font = '600 44px Erode, Georgia, serif'; x.fillText('✦', P, H - 92);
+  x.fillStyle = '#fbf7ff'; x.font = '700 32px Karla, sans-serif'; x.fillText(SHARE.tag, P + 60, H - 98);
+  x.fillStyle = '#a493d6'; x.font = '600 28px Karla, sans-serif'; x.textAlign = 'right'; x.fillText('Story City · Whimsy Walks', W - P, H - 98);
+  return c;
+}
+async function shareKeepsake() {
+  const c = await keepsakeCanvas();
+  const blob = await new Promise((ok) => c.toBlob(ok, 'image/jpeg', 0.9));
+  const file = new File([blob], 'whimsy-walk.jpg', { type: 'image/jpeg' });
+  if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file], text: SHARE.tag }); } catch { /* closed */ } return; }
+  const a = h('a', { href: URL.createObjectURL(blob), download: 'whimsy-walk.jpg' }); document.body.append(a); a.click(); a.remove();
+  toast(SHARE.saved);
 }
 
 async function share(title, text) {
@@ -341,8 +546,8 @@ function celebrate(big, line, keepLabel, onFinish) {
   openSheet([
     h('div', { class: 'celebrate' }, h('div', { class: 'big' }, big), h('p', { class: 'sub' }, line)),
     h('div', { class: 'btns' },
-      keepLabel ? h('button', { class: 'btn ghost', id: 'keep', onclick: closeSheet }, keepLabel) : null,
-      h('button', { class: 'btn jewel', id: 'celebrateDone', onclick: onFinish }, BINGO.finish)),
+      keepLabel ? h('button', { class: 'btn jewel', id: 'keep', onclick: closeSheet }, keepLabel) : null,
+      h('button', { class: `btn ${keepLabel ? 'ghost' : 'jewel'}`, id: 'celebrateDone', onclick: onFinish }, BINGO.finish)),
   ]);
 }
 
@@ -357,7 +562,7 @@ function bingoEnd() {
       full ? h('div', { class: 'sticker bonus' }, h('div', { class: 's' }, '✦'), BINGO.bonusLine) : null) : null,
     bingoGrid(false),
     h('div', { class: 'spacer' }),
-    h('div', { class: 'btns' }, h('button', { class: 'btn ghost', onclick: goHome }, BINGO.again)),
+    h('div', { class: 'btns' }, h('button', { class: 'btn ghost', 'data-end': '', onclick: goHome }, BINGO.again)),
   );
 }
 
@@ -414,7 +619,7 @@ function pumpkinEnd() {
     h('h2', { class: 'display centre' }, PUMPKIN.scores[best.score - 1]),
     h('p', { class: 'sub centre' }, PUMPKIN.rated(pk.list.length)),
     h('div', { class: 'spacer' }),
-    h('div', { class: 'btns' }, h('button', { class: 'btn ghost', onclick: goHome }, PUMPKIN.again)),
+    h('div', { class: 'btns' }, h('button', { class: 'btn ghost', 'data-end': '', onclick: goHome }, PUMPKIN.again)),
   );
 }
 
@@ -509,7 +714,7 @@ function catEnd() {
     h('h2', { class: 'display' }, CAT.endTitle),
     h('p', { class: 'sub' }, ct.cats ? CAT.endLine(ct.cats, ct.lefts, ct.rights) : CAT.noCats),
     svg,
-    h('div', { class: 'btns' }, h('button', { class: 'btn ghost', onclick: goHome }, CAT.again)),
+    h('div', { class: 'btns' }, h('button', { class: 'btn ghost', 'data-end': '', onclick: goHome }, CAT.again)),
   );
   drawDoodle(svg, false);
 }
@@ -676,14 +881,14 @@ function rouletteEnd(home) {
     h('h2', { class: 'display' }, home ? ROULETTE.endTitle : ROULETTE.title),
     h('p', { class: 'sub' }, home ? ROULETTE.endLine(turns, rr.mins) : ROULETTE.stopped),
     svg,
-    h('div', { class: 'btns' }, h('button', { class: 'btn ghost', onclick: goHome }, ROULETTE.again)),
+    h('div', { class: 'btns' }, h('button', { class: 'btn ghost', 'data-end': '', onclick: goHome }, ROULETTE.again)),
   );
   drawDoodle(svg, home ? 'loop' : false);
 }
 
 /* ---------- boot: ?v=<walk or quest> opens it straight away ---------- */
-more = register({ h, show, bar, openSheet, closeSheet, cameraControls, realPhoto, pretendPhoto, pick, shuffle, goHome, where: () => where, setLeave: (f) => { leave = f; } });
-window.__ww = more; // lets the headless test reach the fog walk's shortcut
+more = register({ relabel: (q) => { current = { id: current.id, name: q.spooky ? QUEST_WORDS.spooky : QUEST_WORDS.kicker, jewel: q.jewel }; phone.style.setProperty('--jewel', q.jewel); }, markDone: () => { if (current?.id) { markDone(); offerStory(); } }, h, show, bar, openSheet, closeSheet, cameraControls, realPhoto, pretendPhoto, pick, shuffle, goHome, where: () => where, setLeave: (f) => { leave = f; } });
+window.__ww = more; window.__keep = keepsakeCanvas; // hooks for the headless tests
 const v = new URLSearchParams(location.search).get('v') || location.hash.slice(1);
-if (v === 'home') where = 'home';
+if (v === 'home' || new URLSearchParams(location.search).get('home')) where = 'home';
 if (ALL.some((w) => w.id === v) || QUESTS.some((q) => q.id === v)) start(v); else goHome();

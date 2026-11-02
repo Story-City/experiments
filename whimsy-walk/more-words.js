@@ -122,7 +122,8 @@ export const MUSEUM = {
   linePh: 'Found on a fence, waiting for its other half. Circa yesterday.',
   open: 'Open the Museum',
   endTitle: 'The Museum of Small Things',
-  endLine: 'Admission free. Please do not touch the mitten.',
+  endLine: 'Admission free. The gift shop is closed.',
+  untitled: 'Untitled',
 };
 
 export const GRUMPY = {
@@ -140,6 +141,7 @@ export const SAFARI = {
   name: 'Name this gem',
   namePh: 'The Fox on 4th',
   endTitle: '3 art gems saved',
+  untitled: 'Untitled mural',
   endLine: 'They’re on your map now, for you or anyone you share them with.',
 };
 
@@ -149,7 +151,7 @@ export const BACKWARDS = {
   turn: 'Turn Around',
   back: 'Now walk back the same way.',
   backLine: 'Spot 3 things you walked right past.',
-  endTitle: 'You walked right past these',
+  endTitle: 'You walked right past these.',
   time: (m) => (m < 1 ? 'Under a minute out' : `${m} min out`),
 };
 
@@ -167,8 +169,9 @@ export const REMIX = {
   snap: 'Snap a spot',
   pick: 'Pick a remix',
   pickHaunted: 'How haunted?',
-  endTitle: 'Three remixes',
-  endTitleHaunted: 'Three haunted spots',
+  endTitle: 'Same street. Three moods.',
+  endTitleHaunted: 'Your street, after dark.',
+  left: (names) => names.join(' · '),
 };
 
 export const SEANCE = {
@@ -177,10 +180,10 @@ export const SEANCE = {
   recording: 'Listening…',
   stop: 'Stop',
   what: 'What was it?',
-  sounds: ['wind', 'footsteps', 'a dog', 'traffic', 'a bird', 'leaves', 'a door', 'voices', 'a bell'],
+  sounds: ['wind', 'footsteps', 'barking', 'traffic', 'birdsong', 'leaves', 'creaking', 'voices', 'bells'],
   reveal: 'Reveal the Message',
   endTitle: 'The ghost says…',
-  message: (a, b, c) => `“Follow the ${a}. Wait for ${b}. When you hear ${c}, I’ll be right behind you.”`,
+  message: (a, b, c) => `“Follow the ${a}. Wait for the ${b}. When you hear the ${c}, I’ll be right behind you.”`,
   play: 'Play the Séance',
   micNo: 'No microphone here, so this one’s pretend: a gate creaking in the wind.',
 };
@@ -225,8 +228,8 @@ export const COIN = {
   tails: 'Tails. Go right.',
   ready: 'Walk to the first corner.',
   count: (n) => (n === 1 ? '1 flip' : `${n} flips`),
-  endTitle: 'The coin decided',
-  endLine: (h, t) => `${h} heads, ${t} tails.`,
+  endTitle: (h, t) => (h > t ? 'The coin leans left.' : t > h ? 'The coin leans right.' : 'Perfectly undecided.'),
+  endLine: (h, t) => `${h} heads, ${t} tails. Somewhere new, either way.`,
 };
 
 export const FOG = {
@@ -261,6 +264,7 @@ export const QUEST_WORDS = {
   spooky: 'Spooky quest',
   spookyShort: 'Spooky',
   go: 'Do It Now',
+  again: 'Do It Again',
   doneKicker: 'Quest done',
   steps: (n) => `${n} / 10 steps`,
   step: 'Take a Step',

@@ -2,13 +2,27 @@
 // so each has its own block. `out` = walking outside, `home` = at-home version.
 
 export const HOME = {
-  kicker: 'Whimsy Walks · 5 today',
+  kicker: 'Whimsy Walks',
+  quick: 'Got 2 minutes?',
+  forYou: 'For right now',
+  all: 'All walks',
+  sealsLabel: (n) => (n ? `Seal book · ${n} of 7` : 'Seal book · finish a walk to press your first seal'),
+  sealsHint: (n) => `${n} more ${n === 1 ? 'seal' : 'seals'} and the letter opens.`,
+  sealsOpen: 'Seal book · the letter is ready',
+  letterKicker: 'A sealed letter',
+  letter: 'You’ve been noticed. Seven walks, seven seals, and not once did you take the usual way. We have a door for people like you. It opens when you look out your window.',
+  letterSig: '— a friend of the Society',
   title: 'Where to, today?',
   sub: { out: 'Pick a walk. Your street does the rest.', home: 'Staying in? Every walk works around the house too.' },
-  surprise: 'Surprise Me',
+  surprise: 'Deal Me Another',
   where: { out: 'Outside', home: 'At Home' },
   hero: 'Tonight only',
+  tonight: "Tonight's walk",
   notNow: 'Not Now',
+  next: 'Try next',
+  again: 'Walk It Again',
+  lastTime: 'Last time',
+  soFar: (n) => `${n} walked so far`,
 };
 
 // One card per walk. jewel = its story accent from the brand palette.
@@ -31,6 +45,22 @@ export const WALKS = [
     how: ['Look', 'Turn', 'Doodle'], tags: ['Ends when you say', 'No camera'], go: 'Follow the Cats' },
 ];
 export const HERO = 'pumpkin';
+// Tonight's walk: the same for everyone on a given day. Pumpkin Patrol owns Halloween week;
+// any other day picks from the list by date. `?day=2026-11-04` previews another day.
+export function tonightId(ids, date) {
+  if (date.getMonth() === 9 && date.getDate() >= 24) return HERO;
+  const n = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 864e5);
+  const pool = ids.filter((id) => id !== HERO && id !== 'cursed' && id !== 'haunted');
+  return pool[(n * 7) % pool.length];
+}
+export const REMIND = {
+  kicker: 'Tomorrow?',
+  title: 'Want a nudge for your next walk?',
+  times: ['Tomorrow morning', 'Tomorrow at lunch', 'Tomorrow evening'],
+  yes: 'Leave a Note',
+  no: 'No thanks',
+  set: (t) => `Done. ${t}, something will be waiting on your street.`,
+};
 
 export const CAMERA = { take: 'Take Photo', pretend: 'or pretend', cancel: 'Cancel' };
 
@@ -77,7 +107,7 @@ export const BINGO = {
   finish: "I'm Done",
   blackout: 'Full card.',
   blackoutLine: 'Every square spotted. Bonus sticker unlocked.',
-  doneTitle: (lines) => (lines ? `${lines} ${lines === 1 ? 'line' : 'lines'} spotted` : 'Nice wander'),
+  doneTitle: (lines) => (lines === 8 ? 'Full card. The whole block, spotted.' : lines ? `${lines} ${lines === 1 ? 'line' : 'lines'} spotted` : 'A good wander, all the same.'),
   stickerLine: 'Bingo sticker',
   bonusLine: 'Full Card sticker',
   again: 'Back to Walks',
@@ -155,4 +185,4 @@ export const ROULETTE = {
   again: 'Back to Walks',
 };
 
-export const SHARE = { tag: '#outonawhim', unsupported: 'Sharing opens on your phone' };
+export const SHARE = { tag: '#outonawhim', unsupported: 'Sharing opens on your phone', keep: 'Share Keepsake', saved: 'Keepsake saved' };

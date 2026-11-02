@@ -9,7 +9,8 @@ export function register(kit) {
   const jewelBtn = (label, onclick, extra = {}) => h('button', { class: 'btn jewel', 'data-t': 'go', onclick, ...extra }, label);
   const input = (ph, attrs = {}) => h('input', { class: 'field', type: 'text', placeholder: ph, maxlength: 80, ...attrs });
   const area = (ph) => h('textarea', { class: 'field', rows: 2, placeholder: ph, maxlength: 140 });
-  const val = (el) => el.value.trim() || el.placeholder;
+  // what the walker typed; the placeholder is only an example and is never used as their words
+  const val = (el) => el.value.trim();
   const chips = (list, onpick) => h('div', { class: 'tags' }, list.map((t) => h('button', { class: 'tag pickable', onclick: () => onpick(t) }, t)));
   const snapSheet = (kicker, title, line, onPhoto, pretend) => openSheet([
     h('p', { class: 'kicker' }, kicker),
@@ -20,10 +21,11 @@ export function register(kit) {
       h('button', { class: 'link pretend', 'data-pretend': '', onclick: () => { closeSheet(); onPhoto(pretend()); } }, 'or pretend')),
   ]);
   // A prompt sheet with a text field; onSave gets the text (placeholder if left empty).
+  // Closing the sheet any way (Save, outside tap, Esc) keeps the photo and whatever was typed.
   const writeSheet = (kicker, title, field, onSave, extra) => openSheet([
     h('p', { class: 'kicker' }, kicker), h('h3', {}, title), extra || null, field,
-    h('div', { class: 'btns' }, h('button', { class: 'btn jewel', 'data-t': 'go', onclick: () => { const v = val(field); closeSheet(); onSave(v); } }, COMMON.save)),
-  ]);
+    h('div', { class: 'btns' }, h('button', { class: 'btn jewel', 'data-t': 'go', onclick: () => closeSheet() }, COMMON.save)),
+  ], () => onSave(val(field)));
 
   const loadImg = (src) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
   async function toCanvas(src, size = 480) {
@@ -121,7 +123,7 @@ export function register(kit) {
       show(
         bar(COMMON.of(got.filter(Boolean).length, word.length)),
         h('p', { class: 'kicker' }, cursed ? RANSOM.tapCursed : RANSOM.tap),
-        h('div', { class: 'letters' }, [...word].map((l, j) => got[j]
+        h('div', { class: 'letters', style: `--n:${word.length}` }, [...word].map((l, j) => got[j]
           ? h('div', { class: 'letter got' }, h('img', { src: got[j], alt: l }))
           : h('button', { class: 'letter', 'data-t': 'go', onclick: () => snapSheet(RANSOM.findKicker, `“${l}”`, RANSOM.where[where()], (u) => { got[j] = u; draw(); }, () => letterScrap(l, cursed)) }, cursed ? '?' : '·'))),
         h('p', { class: 'sub' }, RANSOM.where[where()]),
@@ -181,9 +183,10 @@ export function register(kit) {
   }
   const museum = () => threeWithWords({
     kicker: MUSEUM.exhibit, find: MUSEUM.find, pretend: pretendFor(['🧤', '🪨', '🔑', '🍂', '🪶', '🧸']),
-    words: (u, next) => { const t = input(MUSEUM.titlePh); const l = area(MUSEUM.linePh);
+    words: (u, next) => { const t = input(MUSEUM.titlePh); const l = area(MUSEUM.linePh); let saved = false;
+      const save = () => { if (saved) return; saved = true; next({ title: val(t) || MUSEUM.untitled, line: val(l) }); };
       openSheet([h('img', { class: 'preview', src: u, alt: '' }), h('p', { class: 'kicker' }, MUSEUM.label), t, l,
-        h('div', { class: 'btns' }, h('button', { class: 'btn jewel', 'data-t': 'go', onclick: () => { closeSheet(); next({ title: val(t), line: val(l) }); } }, COMMON.save))]); },
+        h('div', { class: 'btns' }, h('button', { class: 'btn jewel', 'data-t': 'go', onclick: () => { saved = true; closeSheet(); next({ title: val(t) || MUSEUM.untitled, line: val(l) }); } }, COMMON.save))], save); },
     end: (items) => show(bar(), h('p', { class: 'kicker' }, MUSEUM.endLine), h('h2', { class: 'display' }, MUSEUM.endTitle),
       h('div', { class: 'museum' }, items.map((it, j) => h('figure', {}, h('img', { src: it.photo, alt: '' }),
         h('figcaption', {}, h('b', {}, it.title), h('span', {}, it.line), h('small', {}, `No. ${j + 1}`))))),
@@ -191,16 +194,17 @@ export function register(kit) {
   });
   const grumpy = () => threeWithWords({
     kicker: (i) => `Suspect ${i}`, find: GRUMPY.find, pretend: pretendFor(['📮', '🚒', '🪣', '🗑️', '🦉', '🧱']),
-    words: (u, next) => { const f = input(GRUMPY.namePh);
+    words: (u, next) => { const f = input(GRUMPY.namePh); let saved = false;
+      const save = () => { if (!saved) { saved = true; next({ name: f.value.trim() || pick(GRUMPY.names) }); } };
       openSheet([h('img', { class: 'preview', src: u, alt: '' }), h('h3', { class: 'centre' }, GRUMPY.name), chips(GRUMPY.names, (n) => { f.value = n; }), f,
-        h('div', { class: 'btns' }, h('button', { class: 'btn jewel', 'data-t': 'go', onclick: () => { closeSheet(); next({ name: f.value.trim() || pick(GRUMPY.names) }); } }, COMMON.save))]); },
+        h('div', { class: 'btns' }, h('button', { class: 'btn jewel', 'data-t': 'go', onclick: () => { closeSheet(); } }, COMMON.save))], save); },
     end: (items) => show(bar(), h('h2', { class: 'display' }, GRUMPY.endTitle), h('p', { class: 'sub' }, GRUMPY.endLine),
       h('div', { class: 'lineup' }, items.map((it, j) => h('figure', { style: `rotate:${[-3, 2, -1][j]}deg` }, h('img', { src: it.photo, alt: '' }), h('figcaption', {}, it.name, h('small', {}, `No. 00${j + 1}`))))),
       h('div', { class: 'spacer' }), h('div', { class: 'btns' }, again())),
   });
   const safari = () => threeWithWords({
     kicker: (i) => `Mural ${i}`, find: SAFARI.find[where()], pretend: pretendFor(['🎨', '🦊', '🐋', '🌈', '👁️', '🌻']),
-    words: (u, next) => writeSheet(SAFARI.save, SAFARI.name, input(SAFARI.namePh), (name) => next({ name }), h('img', { class: 'preview', src: u, alt: '' })),
+    words: (u, next) => writeSheet(SAFARI.save, SAFARI.name, input(SAFARI.namePh), (name) => next({ name: name || SAFARI.untitled }), h('img', { class: 'preview', src: u, alt: '' })),
     end: (items) => {
       const spots = [[70, 60], [230, 110], [140, 190]];
       show(bar(), h('h2', { class: 'display' }, SAFARI.endTitle), h('p', { class: 'sub' }, SAFARI.endLine),
@@ -244,7 +248,7 @@ export function register(kit) {
         h('div', { class: 'spacer' }), h('div', { class: 'btns' }, again()));
     }
     const left = styles.filter((s) => !done.some((d) => d.id === s.id));
-    show(bar(COMMON.of(done.length, 3)), h('p', { class: 'kicker' }, REMIX.snap), h('h2', { class: 'display' }, left.map((s) => s.name).join(' · ')),
+    show(bar(COMMON.of(done.length, 3)), h('p', { class: 'kicker' }, REMIX.left(left.map((s) => s.name))), h('h2', { class: 'display' }, REMIX.snap),
       h('div', { class: 'strip' }, [0, 1, 2].map((j) => done[j] ? h('img', { src: done[j].src, alt: '' }) : h('div', { class: 'slot' }))),
       h('div', { class: 'spacer' }),
       cameraControls('Take Photo', (u) => openSheet([
@@ -260,8 +264,11 @@ export function register(kit) {
     if (sounds.length === 3) return seanceEnd(sounds);
     const name = (url) => {
       const f = input('…or type it');
-      openSheet([h('p', { class: 'kicker' }, `Sound ${sounds.length + 1}`), h('h3', {}, SEANCE.what), chips(SEANCE.sounds, (s) => { closeSheet(); seance([...sounds, { url, label: s }]); }), f,
-        h('div', { class: 'btns' }, h('button', { class: 'btn jewel', 'data-t': 'go', onclick: () => { closeSheet(); seance([...sounds, { url, label: f.value.trim() || pick(SEANCE.sounds) }]); } }, COMMON.save))]);
+      let label = null;
+      const bare = (t) => t.trim().toLowerCase().replace(/^(a|an|the|some)\s+/, '');
+      openSheet([h('p', { class: 'kicker' }, `Sound ${sounds.length + 1}`), h('h3', {}, SEANCE.what), chips(SEANCE.sounds, (s) => { label = s; closeSheet(); }), f,
+        h('div', { class: 'btns' }, h('button', { class: 'btn jewel', 'data-t': 'go', onclick: () => closeSheet() }, COMMON.save))],
+      () => seance([...sounds, { url, label: label || bare(f.value) || pick(SEANCE.sounds) }]));
     };
     show(bar(COMMON.of(sounds.length, 3)), h('p', { class: 'kicker' }, SEANCE.candles),
       h('div', { class: 'candles' }, [0, 1, 2].map((j) => h('div', { class: `candle${sounds[j] ? ' lit' : ''}` }, h('i'), h('span', {}, sounds[j]?.label || '')))),
@@ -289,7 +296,7 @@ export function register(kit) {
     kit.setLeave(() => clearInterval(t));
     show(bar(COMMON.of(words.length, 3)), h('p', { class: 'kicker' }, SOUND.stop(words.length + 1)), h('h2', { class: 'display' }, SOUND.listen), ring,
       h('p', { class: 'sub' }, SOUND.word), f, h('div', { class: 'spacer' }),
-      h('div', { class: 'btns' }, jewelBtn(COMMON.next, () => { clearInterval(t); soundWalk([...words, val(f)]); })));
+      h('div', { class: 'btns' }, jewelBtn(COMMON.next, () => { clearInterval(t); soundWalk([...words, val(f) || '…']); })));
   }
 
   /* ---------- Haiku walk: notice three things, then 5-7-5 ---------- */
@@ -297,7 +304,7 @@ export function register(kit) {
   function haiku() {
     const fs = HAIKU.ph.map((p) => input(p));
     show(bar(), h('p', { class: 'kicker' }, 'Step 1'), h('h2', { class: 'display' }, HAIKU.notice), h('div', { class: 'fields' }, fs), h('div', { class: 'spacer' }),
-      h('div', { class: 'btns' }, jewelBtn(COMMON.next, () => haikuWrite(fs.map(val)))));
+      h('div', { class: 'btns' }, jewelBtn(COMMON.next, () => haikuWrite(fs.map(val).filter(Boolean)))));
   }
   function haikuWrite(seen) {
     const lines = HAIKU.linePh.map((p, i) => {
@@ -344,7 +351,7 @@ export function register(kit) {
     show(top, h('div', { class: 'spacer' }), face, say, h('div', { class: 'spacer' }), hist,
       h('div', { class: 'btns' }, btn, h('button', { class: 'btn ghost', onclick: () => {
         const hc = flips.filter(Boolean).length;
-        show(bar(), h('h2', { class: 'display' }, COIN.endTitle), h('p', { class: 'sub' }, flips.length ? COIN.endLine(hc, flips.length - hc) : COIN.ready),
+        show(bar(), h('h2', { class: 'display' }, COIN.endTitle(hc, flips.length - hc)), h('p', { class: 'sub' }, flips.length ? COIN.endLine(hc, flips.length - hc) : COIN.ready),
           h('div', { class: 'coin-row big' }, flips.map((x) => h('i', {}, x ? 'H' : 'T'))), h('div', { class: 'spacer' }), h('div', { class: 'btns' }, again()));
       } }, COMMON.done)));
   }
@@ -389,7 +396,7 @@ export function register(kit) {
     const draw = () => {
       big.textContent = Math.floor(n).toLocaleString();
       chests.replaceChildren(...STEPS.chests.map((c) => h('button', { class: `chest${n >= c.cost ? ' ready' : ''}`, 'data-t': n >= c.cost ? 'go' : null, disabled: n < c.cost, onclick: () => {
-        n -= c.cost; draw();
+        n -= c.cost; draw(); kit.markDone();
         openSheet([h('p', { class: 'kicker' }, STEPS.got), h('h3', {}, c.name), h('p', { class: 'hook' }, pick(c.prizes)),
           h('div', { class: 'btns' }, h('button', { class: 'btn jewel', 'data-t': 'go', onclick: closeSheet }, 'Keep Walking'), again())]);
       } }, h('b', {}, c.name), h('span', {}, n >= c.cost ? `${STEPS.open} · ${c.cost.toLocaleString()}` : STEPS.need(Math.ceil(c.cost - n))))));
@@ -398,7 +405,7 @@ export function register(kit) {
     kit.setLeave(() => clearInterval(t));
     show(bar(), h('p', { class: 'kicker' }, STEPS.saved), big, h('p', { class: 'hint' }, STEPS.walking),
       h('button', { class: 'link pretend', 'data-pretend': '', style: 'align-self:flex-start;padding-left:0', onclick: () => { n += 500; draw(); } }, STEPS.ff),
-      chests, h('div', { class: 'spacer' }), h('div', { class: 'btns' }, again()));
+      chests, h('div', { class: 'spacer' }), h('div', { class: 'btns' }, h('button', { class: 'btn ghost', onclick: goHome }, COMMON.again)));
     draw();
   }
 
@@ -408,7 +415,7 @@ export function register(kit) {
     const head = [bar(), h('p', { class: 'kicker' }, q.spooky ? QUEST_WORDS.spooky : QUEST_WORDS.kicker), h('h2', { class: 'display' }, q.title), h('p', { class: 'sub' }, q.line)];
     const pretend = pretendFor([q.thing || '✨'], q.colour);
     const photoDone = (u, extra) => done([h('img', { class: 'quest-photo', src: u, alt: '' }), extra || null]);
-    const withWords = (u, gem) => writeSheet(QUEST_WORDS.write, q.ask, area(q.ph), (txt) => photoDone(u, h('p', { class: `quest-line${gem ? ' gem' : ''}` }, txt)), h('img', { class: 'preview', src: u, alt: '' }));
+    const withWords = (u, gem) => writeSheet(QUEST_WORDS.write, q.ask, area(q.ph), (txt) => photoDone(u, txt ? h('p', { class: `quest-line${gem ? ' gem' : ''}` }, txt) : null), h('img', { class: 'preview', src: u, alt: '' }));
     const cam = (on) => cameraControls('Take Photo', on, pretend);
     switch (q.type) {
       case 'snap': return show(...head, h('div', { class: 'spacer' }), cam((u) => photoDone(u)));
@@ -448,7 +455,7 @@ export function register(kit) {
         });
         show(...head, img, msg);
       }));
-      case 'mood': return show(...head.slice(0, 2), h('h2', { class: 'display' }, QUEST_WORDS.mood), feelingGrid((f) => quest(QUESTS.find((x) => x.id === q.match[f.id]))));
+      case 'mood': return show(...head.slice(0, 2), h('h2', { class: 'display' }, QUEST_WORDS.mood), feelingGrid((f) => { const next = QUESTS.find((x) => x.id === q.match[f.id]); kit.relabel(next); quest(next); }));
     }
   }
 
