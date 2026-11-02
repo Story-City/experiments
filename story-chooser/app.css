@@ -147,3 +147,20 @@ h1, h2, h3, .q, .cap b, .result h2, .picker h2 { text-wrap: balance; }
 .result .again a { display: inline-block; padding: 8px 4px; }
 .result p, .result .why, .picker .lead, .vcard span { text-wrap: pretty; }
 .picker .foot a, .credits a { display: inline-block; padding: 6px 2px; }
+
+/* ---- result: archetype card, cover fade, seal ---- */
+.result .rcard { position: relative; overflow: hidden; border-radius: 20px; padding: 18px 18px 16px; margin: 6px 0 20px; background: radial-gradient(120% 90% at 100% 0%, rgba(179, 107, 255, 0.35), transparent 60%), radial-gradient(90% 80% at 0% 100%, rgba(0, 158, 255, 0.3), transparent 60%), var(--raised); border: 1px solid rgba(255, 255, 255, 0.12); animation: rcard-in 0.5s cubic-bezier(0.2, 1.2, 0.4, 1) both; }
+.result .rcard::after { content: '✦'; position: absolute; right: 16px; top: 12px; font-size: 22px; color: rgba(255, 255, 255, 0.35); }
+.result .rcard .who { font-size: 34px; line-height: 0.98; font-weight: 900; margin: 6px 0 8px; text-wrap: balance; }
+.result .rcard .line { font-size: 17px; color: #dcd8ee; margin: 0 0 14px; }
+.result .rcard .walk { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; background: rgba(0, 0, 0, 0.25); }
+.result .rcard .walk span { font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.result .rcard .walk b { font-size: 19px; font-weight: 800; color: var(--walk); text-wrap: balance; }
+.result .story-eyebrow { color: var(--muted); }
+.result .cover { position: relative; }
+.result .cover .cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.4s; }
+.result .cover .cover-img.in { opacity: 1; }
+.result .btn.start.sealed { background: linear-gradient(90deg, #3ddc84, #009eff); animation: seal 0.6s ease both; }
+@keyframes rcard-in { from { opacity: 0; transform: translateY(12px) scale(0.97); } }
+@keyframes seal { 30% { transform: scale(0.96); } 60% { transform: scale(1.03); } }
+@media (prefers-reduced-motion: reduce) { .result .rcard, .result .btn.start.sealed { animation: none; } }

@@ -1,32 +1,34 @@
-// Variant 16 · Sound pick (Instagram). Four ten-second places, synthesised with the Web Audio API.
-// No audio files, no network. The AudioContext is created on the first tap; one sound plays at a time,
-// fades in/out over 300 ms and stops itself after ten seconds. Picking works even with no audio at all.
+// Variant 16 · Sound pick (Instagram). Swipe through four photo places; the sound follows the slide.
+// Synthesised with the Web Audio API: no audio files, no network. The AudioContext starts on the first tap
+// (browsers need a gesture); one sound plays at a time, crossfading over 300 ms, and loops while you stay.
+// Picking works even with no audio at all.
 
-const DUR = 10;      // seconds per place
+const DUR = 10;      // seconds (offline test render default)
+const LOOP = 90;     // seconds scheduled per pass while you stay on a slide; then it restarts
 const FADE = 0.3;    // seconds, in and out
 
 /* ---------- the four places ---------- */
 const PLACES = [
   {
-    id: 'rain', name: 'Rain on cobblestones', desc: 'Steady on the stones, a drip somewhere close.',
+    id: 'rain', name: 'Rain on cobblestones', desc: 'Steady on the stones, a drip somewhere close.', key: 'deck.rain',
     colour: 'var(--accent)', make: rain,
     weights: { eerie: 2, downtown: 2, night: 1, calm: 1, mystery: 1 },
     why: 'You stayed in the rain on the cobblestones, so your story starts on a wet street at night.',
   },
   {
-    id: 'tavern', name: 'A tavern after midnight', desc: 'Low voices, a glass set down, the fire nearly out.',
+    id: 'tavern', name: 'A tavern after midnight', desc: 'Low voices, a glass set down, the fire nearly out.', key: 'rooms.kitchen',
     colour: 'var(--story)', make: tavern,
     weights: { cozy: 2, funny: 2, friends: 1, history: 1, fantasy: 1 },
     why: 'You stayed in the tavern after midnight, so your story starts with friends, a fire and a bad idea.',
   },
   {
-    id: 'clocks', name: 'A room full of clocks', desc: 'A hundred ticks that never quite agree.',
+    id: 'clocks', name: 'A room full of clocks', desc: 'A hundred ticks that never quite agree.', key: 'deck.clockwork',
     colour: 'var(--hunt)', make: clocks,
     weights: { mysterious: 2, thoughtful: 2, scifi: 1, solo: 1, quick: 1 },
     why: 'You stayed in the room full of clocks, so your story starts with a puzzle and no time to waste.',
   },
   {
-    id: 'forest', name: 'A forest at night', desc: 'Wind in the tops, crickets below, something calling.',
+    id: 'forest', name: 'A forest at night', desc: 'Wind in the tops, crickets below, something calling.', key: 'deck.forest',
     colour: 'var(--gem)', make: forest,
     weights: { fantasy: 2, park: 2, calm: 1, tender: 1, night: 1 },
     why: 'You stayed in the forest at night, so your story starts off the path, under the trees.',
@@ -203,55 +205,47 @@ function forest() {
 
 /* ---------- styles ---------- */
 const CSS = `
-.v-sound .sub { margin: -4px 0 16px; font-size: 17px; line-height: 1.25; }
-.v-sound .snd { --c: var(--accent); position: relative; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 14px 12px; margin-bottom: 12px; transition: border-color .3s, box-shadow .3s; }
-.v-sound .snd.playing { border-color: color-mix(in srgb, var(--c) 70%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 18%, transparent), 0 10px 30px -14px var(--c); }
-.v-sound .head { display: flex; align-items: center; gap: 12px; }
-.v-sound .play { position: relative; flex: none; width: 60px; height: 60px; border-radius: 50%; border: 0; padding: 0; background: color-mix(in srgb, var(--c) 18%, var(--raised-2)); color: var(--c); display: grid; place-items: center; }
-.v-sound .play:active { transform: scale(.96); }
-.v-sound .play svg.ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); pointer-events: none; }
-.v-sound .play svg.ring circle { fill: none; stroke-width: 3; }
-.v-sound .play svg.ring .track { stroke: rgba(255,255,255,.08); }
-.v-sound .play svg.ring .left { stroke: var(--c); stroke-linecap: round; stroke-dasharray: 169.6; stroke-dashoffset: 169.6; opacity: 0; }
-.v-sound .snd.playing .play svg.ring .left { opacity: 1; }
-.v-sound .play svg.ico { width: 22px; height: 22px; fill: currentColor; position: relative; }
-.v-sound .play svg.ico .pause { display: none; }
-.v-sound .snd.playing .play svg.ico .go { display: none; }
-.v-sound .snd.playing .play svg.ico .pause { display: block; }
-.v-sound .t { min-width: 0; flex: 1; }
-.v-sound .t b { display: block; font-size: 22px; font-weight: 800; line-height: 1.05; text-wrap: balance; }
-.v-sound .t span { display: block; color: var(--muted); font-size: 15px; line-height: 1.2; margin-top: 3px; text-wrap: pretty; }
-.v-sound .t .heard { display: none; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--c); margin-top: 5px; }
-.v-sound .snd.heard .t .heard { display: block; }
-.v-sound .foot { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
-.v-sound .bars { flex: 1; height: 48px; display: flex; align-items: center; gap: 4px; min-width: 0; }
-.v-sound .bars i { flex: 1; height: 4px; min-height: 4px; border-radius: 3px; background: color-mix(in srgb, var(--c) 55%, var(--raised-2)); transition: height .08s linear; }
-.v-sound .snd.playing .bars i { background: var(--c); }
-.v-sound .snd.playing .bars.sim i { animation: v-sound-bob 1s ease-in-out infinite alternate; animation-delay: var(--d); }
-@keyframes v-sound-bob { from { height: 6px; } to { height: var(--h); } }
-.v-sound .stay { flex: none; min-height: 44px; padding: 0 16px; font-size: 17px; }
-.v-sound .snd.heard .stay { background: var(--c); color: #120a2a; }
-.v-sound .reel { margin: 18px 0 0; font-size: 15px; line-height: 1.3; }
-.v-sound .noaudio { font-size: 14px; margin: -2px 0 14px; color: var(--story); }
-@media (prefers-reduced-motion: reduce) { .v-sound .snd.playing .bars.sim i { animation: none; height: 18px; } }
+.v-sound .q { text-wrap: balance; }
+.v-sound .sub { margin: -4px 0 6px; font-size: 17px; line-height: 1.25; text-wrap: balance; }
+.v-sound .hook { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px 48px; text-align: center; color: #fff;
+  background: radial-gradient(120% 80% at 20% 10%, #3a1d7a, transparent 60%), radial-gradient(100% 70% at 90% 100%, #0e5a6b, transparent 60%), linear-gradient(160deg, #1a0f3a, #07121f); font-family: "Darker Grotesque", sans-serif; }
+.v-sound .hook .ico { font-size: 54px; line-height: 1; }
+.v-sound .hook b { font-size: 36px; line-height: 1; font-weight: 900; text-wrap: balance; }
+.v-sound .hook span { font-size: 22px; color: #dcd6f5; text-wrap: balance; }
+.v-sound .hook .go { margin-top: 6px; font-size: 16px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; opacity: .8; }
+.v-sound .ig-slide .cap { padding-right: 132px; }
+.v-sound .ig-slide .cap b { text-wrap: balance; font-size: 28px; }
+.v-sound .ig-slide .cap span { text-wrap: balance; font-size: 17px; }
+.v-sound .viz { --c: var(--accent); position: absolute; top: 46px; right: 12px; height: 34px; padding: 6px 8px; border-radius: 10px; background: rgba(0,0,0,.5); backdrop-filter: blur(4px); display: flex; align-items: flex-end; gap: 3px; pointer-events: none; z-index: 2; }
+.v-sound .viz i { width: 4px; height: 3px; min-height: 3px; border-radius: 2px; background: color-mix(in srgb, var(--c) 45%, #555); transition: height .08s linear; }
+.v-sound .viz.on i { background: var(--c); }
+.v-sound .viz.on.sim i { animation: v-sound-bob .9s ease-in-out infinite alternate; animation-delay: var(--d); }
+@keyframes v-sound-bob { from { height: 3px; } to { height: var(--h); } }
+.v-sound .stayhere { position: absolute; right: 12px; bottom: 18px; z-index: 3; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: #fff; color: #120a2a; font-size: 16px; font-weight: 800; box-shadow: 0 6px 18px rgba(0,0,0,.4); }
+.v-sound .stayhere:active { transform: scale(.96); }
+.v-sound .pill { position: absolute; left: 50%; top: 12px; translate: -50% 0; z-index: 4; min-height: 32px; padding: 0 14px; border: 0; border-radius: 999px; background: rgba(0,0,0,.7); color: #fff; font-size: 14px; font-weight: 700; backdrop-filter: blur(4px); }
+.v-sound .pill[hidden] { display: none; }
+.v-sound .reel { margin: 4px 0 0; font-size: 15px; line-height: 1.3; text-wrap: balance; }
+.v-sound .noaudio { font-size: 14px; margin: 0 0 8px; color: var(--story); }
+@media (prefers-reduced-motion: reduce) { .v-sound .viz.on.sim i { animation: none; height: 14px; } }
 `;
 
 /* ---------- the screen ---------- */
 export default {
-  slug: 'sound', title: 'Close your eyes. Pick a sound.', short: 'Sound pick', channel: 'instagram',
-  blurb: 'Four ten-second sounds. Pick the one you want to stay in.',
+  slug: 'sound', title: 'Swipe. Listen. Stay.', short: 'Sound pick', channel: 'instagram',
+  blurb: 'Four photo places. The sound changes as you swipe. Stay in the one you don’t want to leave.',
   mount(ctx) {
     const { el, root } = ctx;
     ctx.style(CSS);
     root.classList.add('v-sound');
 
     const AC = window.AudioContext || window.webkitAudioContext;
-    let ac = null, analyser = null, master = null, audioBroken = !AC;
-    let current = null;     // { place, synth, tile, startedAt, timer, raf }
-    const heard = new Set();
-    const bins = [1, 2, 3, 4, 6, 8, 11, 15, 20, 27];
+    let ac = null, analyser = null, master = null, audioBroken = !AC, unlocked = false, done = false;
+    let current = null;     // { place, synth, viz, timer, raf }
+    let slideIdx = 0;
+    const bins = [2, 3, 5, 7, 10, 14, 19];
     const data = new Uint8Array(64);
-    const RING = 169.6;
+    const vizzes = [];
 
     const ensureAudio = () => {
       if (audioBroken) return null;
@@ -271,41 +265,45 @@ export default {
       const c = current; current = null;
       try { c.synth && c.synth.stop(); } catch (e) { /* ignore */ }
       clearTimeout(c.timer); cancelAnimationFrame(c.raf);
-      c.tile.classList.remove('playing'); c.tile.bars.classList.remove('sim');
-      c.tile.play.setAttribute('aria-label', `Play ${c.place.name}`); c.tile.play.setAttribute('aria-pressed', 'false');
-      c.tile.left.style.strokeDashoffset = RING;
-      for (const b of c.tile.barEls) b.style.height = '';
+      c.viz.classList.remove('on', 'sim');
+      for (const b of c.viz.children) b.style.height = '';
     };
 
-    const markHeard = (place, tile) => { if (heard.has(place.id)) return; heard.add(place.id); tile.classList.add('heard'); };
-
-    const play = (place, tile) => {
-      if (current && current.place === place) { markHeard(place, tile); stopCurrent(); return; }
-      stopCurrent();
+    const startSynth = (place) => {
       const a = ensureAudio();
-      let synth = null;
-      if (a) {
-        try { synth = place.make(); synth.start(a, master, DUR); }
-        catch (e) { console.warn('Sound pick: synth failed', e); synth = null; }
-      }
-      if (!synth) { tile.bars.classList.add('sim'); if (!a) noteNoAudio(); }
-      const c = { place, synth, tile, startedAt: performance.now(), timer: 0, raf: 0 };
+      if (!a) return null;
+      try { const s = place.make(); s.start(a, master, LOOP); return s; }
+      catch (e) { console.warn('Sound pick: synth failed', e); return null; }
+    };
+
+    const play = (i) => {          // i = index into PLACES
+      const place = PLACES[i];
+      if (current && current.place === place) return;
+      stopCurrent();
+      if (done) return;
+      const viz = vizzes[i];
+      const c = { place, synth: startSynth(place), viz, timer: 0, raf: 0 };
       current = c;
-      tile.classList.add('playing'); tile.play.setAttribute('aria-label', `Stop ${place.name}`); tile.play.setAttribute('aria-pressed', 'true');
-      c.timer = setTimeout(() => { if (current === c) { markHeard(place, tile); stopCurrent(); } }, DUR * 1000);
+      viz.classList.add('on');
+      if (!c.synth) { viz.classList.add('sim'); if (audioBroken) noteNoAudio(); }
+      // loop: start a fresh pass just before this one runs out
+      const again = () => {
+        if (current !== c) return;
+        try { c.synth && c.synth.stop(); } catch (e) { /* ignore */ }
+        c.synth = startSynth(place);
+        c.timer = setTimeout(again, (LOOP - FADE) * 1000);
+      };
+      c.timer = setTimeout(again, (LOOP - FADE) * 1000);
       let quietFrames = 0;
       const frame = () => {
         if (current !== c) return;
-        const t = (performance.now() - c.startedAt) / 1000;
-        tile.left.style.strokeDashoffset = RING * (1 - Math.min(1, t / DUR));
-        if (t > 2.5) markHeard(place, tile);
-        if (synth && analyser) {
+        if (c.synth && analyser) {
           analyser.getByteFrequencyData(data);
-          let sum = 0; for (const i of bins) sum += data[i];
-          if (sum === 0) { if (++quietFrames > 30 && !tile.bars.classList.contains('sim')) tile.bars.classList.add('sim'); }
+          let sum = 0; for (const k of bins) sum += data[k];
+          if (sum === 0) { if (++quietFrames > 30) viz.classList.add('sim'); }
           else {
-            quietFrames = 0; tile.bars.classList.remove('sim');
-            tile.barEls.forEach((b, k) => { b.style.height = (4 + (data[bins[k]] / 255) * 44) + 'px'; });
+            quietFrames = 0; viz.classList.remove('sim');
+            [...viz.children].forEach((b, k) => { b.style.height = (3 + (data[bins[k]] / 255) * 20) + 'px'; });
           }
         }
         c.raf = requestAnimationFrame(frame);
@@ -313,62 +311,85 @@ export default {
       c.raf = requestAnimationFrame(frame);
     };
 
+    // The sound follows the slide: slide 0 is the hook (silence), slides 1-4 are the places.
+    const follow = () => {
+      if (done || !unlocked) return;
+      if (slideIdx >= 1 && slideIdx <= PLACES.length) play(slideIdx - 1);
+      else stopCurrent();
+    };
+    const onSlide = (i) => { if (i === slideIdx) return; slideIdx = i; follow(); };
+
+    const unlock = () => {
+      if (unlocked || done) return;
+      unlocked = true; pill.hidden = true;
+      ensureAudio();
+      follow();
+    };
+
     let noAudioNote = null;
     const noteNoAudio = () => {
       if (noAudioNote) return;
       noAudioNote = el('p', { class: 'noaudio', text: 'No sound on this device, so imagine each place. Picking still works.' });
-      list.before(noAudioNote);
+      post.before(noAudioNote);
     };
 
-    const stay = (place, tile) => {
-      markHeard(place, tile); stopCurrent();
+    const stopAll = () => { stopCurrent(); };
+    const stay = (place) => {
+      done = true; stopAll();
       ctx.finish({ weights: { ...place.weights }, why: place.why });
     };
 
-    const icon = () => {
-      const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true'); s.classList.add('ico');
-      s.innerHTML = '<path class="go" d="M8 5.5v13c0 .8.9 1.3 1.6.9l10-6.5c.6-.4.6-1.4 0-1.8l-10-6.5C8.9 4.2 8 4.7 8 5.5z"/><rect class="pause" x="6" y="6" width="12" height="12" rx="2"/>';
-      return s;
-    };
-    const ring = () => {
-      const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      s.setAttribute('viewBox', '0 0 60 60'); s.setAttribute('aria-hidden', 'true'); s.classList.add('ring');
-      s.innerHTML = '<circle class="track" cx="30" cy="30" r="27"/><circle class="left" cx="30" cy="30" r="27"/>';
-      return s;
+    const vizFor = (place) => {
+      const bars = Array.from({ length: 7 }, (_, k) => el('i', { style: `--d:${(k * 0.11 % 0.6).toFixed(2)}s;--h:${8 + ((k * 5) % 4) * 5}px` }));
+      const v = el('div', { class: 'viz', style: `--c:${place.colour}`, 'aria-hidden': 'true' }, bars);
+      vizzes.push(v);
+      return v;
     };
 
-    const tileFor = (place) => {
-      const barEls = Array.from({ length: 10 }, (_, i) => el('i', { style: `--d:${(i * 0.09 % 0.6).toFixed(2)}s;--h:${14 + ((i * 7) % 5) * 7}px` }));
-      const bars = el('div', { class: 'bars', 'aria-hidden': 'true' }, barEls);
-      const playBtn = el('button', { class: 'play', type: 'button', 'aria-label': `Play ${place.name}`, 'aria-pressed': 'false' }, ring(), icon());
-      const tile = el('article', { class: 'snd', style: `--c:${place.colour}` },
-        el('div', { class: 'head' }, playBtn,
-          el('div', { class: 't' }, el('b', { text: place.name }), el('span', { text: place.desc }), el('span', { class: 'heard', text: 'You’ve been here' }))),
-        el('div', { class: 'foot' }, bars,
-          el('button', { class: 'btn ghost stay', type: 'button', text: 'Stay here', 'aria-label': `Stay here: ${place.name}`, onClick: () => stay(place, tile) })));
-      tile.bars = bars; tile.barEls = barEls; tile.play = playBtn; tile.left = tile.querySelector('.left');
-      playBtn.addEventListener('click', () => play(place, tile));
-      return tile;
-    };
+    const hook = el('div', { class: 'hook' },
+      el('div', { class: 'ico', 'aria-hidden': 'true', text: '🔊' }),
+      el('b', { text: 'Turn your sound on' }),
+      el('span', { text: 'Swipe through four places' }),
+      el('div', { class: 'go', text: 'Swipe ›' }));
 
-    const list = el('div', { class: 'list' }, PLACES.map(tileFor));
+    const slides = [
+      { node: hook, cls: 'hook-slide', onPick: () => { unlock(); post.go(1); } },
+      ...PLACES.map((p, i) => ({ key: p.key, title: p.name, sub: p.desc, n: i + 1, cls: 'place-' + p.id })),
+    ];
+    const post = ctx.carousel(slides, { label: 'Four places with sound', onSlide, likes: '2,184 likes',
+      caption: 'Sound on 🔊 Swipe, listen, and stay in the one you don’t want to leave.' });
+
+    // overlays on each place slide: live visualiser (top-right) and Stay here (bottom-right)
+    const slideEls = post.track.querySelectorAll('.ig-slide');
+    PLACES.forEach((p, i) => {
+      const s = slideEls[i + 1];
+      s.append(vizFor(p), el('button', { class: 'stayhere', type: 'button', text: 'Stay here', 'aria-label': `Stay here: ${p.name}`,
+        onClick: (e) => { e.stopPropagation(); unlock(); stay(p); } }));
+    });
+    const pill = el('button', { class: 'pill', type: 'button', text: 'Tap for sound 🔊', onClick: (e) => { e.stopPropagation(); unlock(); } });
+    post.querySelector('.ig-carousel').append(pill);
+    // any tap on the carousel unlocks audio (browsers need a gesture)
+    post.querySelector('.ig-carousel').addEventListener('pointerdown', unlock);
+    post.querySelector('.ig-carousel').addEventListener('click', unlock);
+
     root.append(
-      el('h2', { class: 'q', text: 'Close your eyes. Pick a sound.' }),
-      el('p', { class: 'muted sub', text: 'Four places, ten seconds each. Stay in the one you don’t want to leave.' }),
-      list,
-      el('p', { class: 'muted reel', text: 'Reel version: four ten-second clips with sound on; comment the one you’d stay in.' }),
+      el('h2', { class: 'q', text: 'Swipe. Listen. Stay.' }),
+      el('p', { class: 'muted sub', text: 'Four places. The sound changes as you swipe. Stay in the one you don’t want to leave.' }),
+      post,
+      el('p', { class: 'muted reel', text: 'Reel version: four clips, sound on, comment the one you’d stay in.' }),
     );
     if (audioBroken) noteNoAudio();
 
     // Leaving the screen (result, restart, back) must not leave a sound running.
-    const mo = new MutationObserver(() => { if (!list.isConnected) { stopCurrent(); mo.disconnect(); } });
+    const mo = new MutationObserver(() => { if (!post.isConnected) { done = true; stopAll(); mo.disconnect(); } });
     mo.observe(root, { childList: true });
-    window.addEventListener('pagehide', stopCurrent, { once: true });
+    window.addEventListener('pagehide', () => { done = true; stopAll(); }, { once: true });
 
-    // Test hook: render a place offline and report its peak amplitude (no speakers needed).
+    // Test hooks.
     window.__soundPick = {
       places: PLACES.map(p => p.name),
+      current: () => (current ? current.place.id : null),
+      unlocked: () => unlocked,
       async render(i, seconds = 2) {
         const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
         const sr = 44100, oc = new OAC(1, Math.floor(sr * seconds), sr);

@@ -12,13 +12,17 @@ export const VARIANTS = [
   { n: 7,  slug: 'windows',     short: 'Lit windows',             channel: 'instagram', blurb: 'Four windows glowing at night. What is happening inside?' },
   { n: 13, slug: 'first-lines', short: 'First lines',             channel: 'instagram', blurb: 'Five opening sentences. Keep reading the one that grabs you.' },
   { n: 17, slug: 'poll-chain',  short: 'Poll-sticker chain',      channel: 'instagram', blurb: 'Five story slides with native polls and a “mostly A” reveal.' },
-  { n: 16, slug: 'sound',       short: 'Sound pick',              channel: 'instagram', blurb: 'Four ten-second sounds. Pick the one you want to stay in.' },
+  { n: 16, slug: 'sound',       short: 'Sound pick',              channel: 'instagram', blurb: 'Swipe through four places with the sound on. Stay in the one you like.' },
   { n: 11, slug: 'cards',       short: 'Draw a card',             channel: 'instagram', blurb: 'A face-down deck. Draw one, or draw three.' },
   { n: 1,  slug: 'fork',        short: 'Fork in the Road',        channel: 'app',       blurb: 'Seven this-or-that taps, each a tiny story moment.' },
   { n: 8,  slug: 'swipe',       short: 'Swipe deck',              channel: 'app',       blurb: 'Like or pass on ten images. Your likes add up to a story.' },
   { n: 12, slug: 'chart',       short: 'Story chart / Venn',      channel: 'app',       blurb: 'Stories plotted cozy-to-creepy and silly-to-serious. Look, then pick.' },
   { n: 14, slug: 'how-long',    short: 'How long have you got?',  channel: 'app',       blurb: 'Time, place and company. The practical matcher.' },
   { n: 15, slug: 'friend',      short: 'Let a friend choose',     channel: 'app',       blurb: 'Send a link. A friend answers about you. You get the story.' },
+  { n: 20, slug: 'stranger',    short: 'A stranger interviews you', channel: 'app',     round: 2, blurb: 'A one-minute chat. Your replies pick the story.' },
+  { n: 18, slug: 'envelope',    short: 'Walk to open the envelope', channel: 'app',     round: 2, blurb: 'No choosing. Walk thirty steps and the seal breaks.' },
+  { n: 22, slug: 'door-of-day', short: 'Door of the Day',         channel: 'instagram', round: 2, blurb: 'One door, one story, everyone gets the same one today.' },
+  { n: 23, slug: 'blind-date',  short: 'Blind date with a story', channel: 'instagram', round: 2, blurb: 'Brown paper, three hints, one first line. Tear to reveal.' },
 ];
 
 /* ---------- tiny DOM helper ---------- */
@@ -116,32 +120,88 @@ export function carousel(slides, opts = {}) {
 }
 
 /* ---------- result screen ---------- */
-function share(story, why) {
-  const text = `My next Story City story is “${story.name}”. ${why || ''} Which one is yours? storycity.app`.replace(/\s+/g, ' ').trim();
+// Identity first, story second: every result gets a named archetype and a daylist-style walk name.
+const ARCHETYPES = {
+  'creepy-serious-night': ['The Midnight Investigator', 'You notice the thing everyone else walks past, and you can’t leave a question unanswered.'],
+  'creepy-serious-day':   ['The Daylight Detective', 'You like your mysteries with the lights on, and you always read the last page first. Almost always.'],
+  'creepy-silly-night':   ['The Ghost Whisperer', 'You laugh in the dark so nothing else can. Secretly, you hope something laughs back.'],
+  'creepy-silly-day':     ['The Haunt Hunter', 'You go looking for strange on purpose, and you bring snacks.'],
+  'cozy-serious-night':   ['The Lamplight Wanderer', 'You take the long way home on purpose. You’re quieter than people think, and braver.'],
+  'cozy-serious-day':     ['The Quiet Cartographer', 'You map the small things: the blue door, the good bench, the shortcut nobody uses.'],
+  'cozy-silly-night':     ['The Moonlit Mischief-Maker', 'You’re the reason the plan changed, and the reason it was fun.'],
+  'cozy-silly-day':       ['The Side-Quest Hero', 'You can’t walk past a puddle, a puzzle or a stranger’s dog. Good.'],
+};
+const MOODWORD = { cozy: 'cosy', eerie: 'shivery', playful: 'mischief', epic: 'heroic', tender: 'soft-hearted', mysterious: 'secret', funny: 'giggly', thoughtful: 'wandering', spooky: 'haunted', romance: 'starry-eyed' };
+const PLACEWORD = { downtown: 'downtown', park: 'river valley', cafe: 'café', anywhere: 'around-the-block', neighbourhood: 'neighbourhood' };
+function archetype(story, weights) {
+  const w = (k) => weights[k] || 0;
+  const creepy = story.vibe.creepy + (w('eerie') + w('spooky') - w('cozy') - w('calm')) * 0.5 >= 5 ? 'creepy' : 'cozy';
+  const serious = story.vibe.serious + (w('thoughtful') + w('mystery') - w('funny') - w('playful')) * 0.5 >= 5 ? 'serious' : 'silly';
+  const hour = new Date().getHours();
+  const night = w('night') !== w('day') ? (w('night') > w('day')) : (hour >= 18 || hour < 6);
+  const [name, line] = ARCHETYPES[`${creepy}-${serious}-${night ? 'night' : 'day'}`];
+  return { name, line };
+}
+function walkName(story, weights) {
+  const d = new Date(); const h = d.getHours();
+  const day = d.toLocaleDateString('en-CA', { weekday: 'long' }).toLowerCase();
+  const part = h < 5 ? 'midnight' : h < 12 ? 'morning' : h < 17 ? 'afternoon' : h < 21 ? 'twilight' : 'midnight';
+  const moods = Object.keys(MOODWORD).sort((a, b) => (weights[b] || 0) - (weights[a] || 0));
+  const mood = (weights[moods[0]] ? moods[0] : story.tags.find(t => MOODWORD[t])) || 'mysterious';
+  const place = PLACEWORD[story.tags.find(t => PLACEWORD[t])] || 'around-the-block';
+  return `${day} ${part} ${MOODWORD[mood]} ${place} walk`;
+}
+function share(story, why, who, walk) {
+  const text = `I’m ${who.name.replace(/^The /, 'a ')}. Tonight’s walk: “${walk}”, and my story is “${story.name}”. Which one are you? storycity.app`;
   const done = () => toast('Copied. Paste it anywhere.');
+  if (navigator.share) { navigator.share({ text }).catch(() => {}); return; }
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => toast(text, 3500));
   else toast(text, 3500);
+}
+function coverEl(s) {
+  const box = el('div', { class: 'cover' }, placeholder(s.name));
+  if (s.cover) {
+    const img = el('img', { src: s.cover, alt: '', class: 'cover-img', decoding: 'async' });
+    img.addEventListener('load', () => img.classList.add('in'), { once: true });
+    img.addEventListener('error', () => img.remove(), { once: true });
+    box.append(img);
+  }
+  return box;
 }
 // opts: { weights, why, frame: 'ig' | 'app', headline, story (force a specific story), top }
 export function renderResult(ctx, opts = {}) {
   let { weights = {}, why = '', frame = 'app', headline, top = 3 } = opts;
+  const userWeights = weights;
   if (opts.story && !Object.keys(weights).length) weights = Object.fromEntries(opts.story.tags.map(t => [t, 1]));
   const ranked = score(weights);
   const best = opts.story ? (ranked.find(r => r.story === opts.story) || { story: opts.story, matched: [] }) : ranked[0];
   const alts = ranked.filter(r => r.story !== best.story).slice(0, top - 1);
   const s = best.story;
+  const who = archetype(s, userWeights);
+  const walk = walkName(s, userWeights);
+  const start = el('button', { class: 'btn primary block start', text: 'Start this story' });
+  start.addEventListener('click', () => {
+    if (start.classList.contains('sealed')) return;
+    start.classList.add('sealed'); start.textContent = 'Sealed ✦ opening chapter 1…';
+    setTimeout(() => toast(`In the app this opens “${s.name}”, chapter 1`), 650);
+  });
   const root = ctx.root; root.innerHTML = '';
   root.append(el('section', { class: 'result' },
-    el('div', { class: 'eyebrow', text: headline || (frame === 'ig' ? 'Your story is…' : 'Your story') }),
+    el('div', { class: 'rcard' },
+      el('div', { class: 'eyebrow', text: headline || (frame === 'ig' ? 'You are…' : 'You are') }),
+      el('div', { class: 'who', text: who.name }),
+      el('p', { class: 'line', text: who.line }),
+      el('div', { class: 'walk' }, el('span', { text: 'Tonight’s walk' }), el('b', { text: `“${walk}”` }))),
+    el('div', { class: 'eyebrow story-eyebrow', text: 'Your story' }),
     el('h2', { text: s.name }),
-    el('div', { class: 'cover' }, s.cover ? el('img', { src: s.cover, alt: '' }) : placeholder(s.name)),
+    coverEl(s),
     el('p', { text: s.blurb }),
     why ? el('p', { class: 'why', text: why }) : null,
     el('div', { class: 'tags' }, (best.matched && best.matched.length ? best.matched : s.tags.slice(0, 4)).map(t => el('i', { text: t }))),
-    el('div', { class: 'meta muted', text: `${s.minutes} min · ${s.where} · ${s.mode}` }),
-    el('div', { class: 'row' }, el('button', { class: 'btn primary block', text: 'Start this story', onClick: () => toast(`In the app this opens “${s.name}”`) })),
+    el('div', { class: 'meta muted', text: `${s.minutes} min · ${s.where} · ${s.mode === 'walk' ? 'Walk mode' : s.mode === 'pin' ? 'Pin mode' : 'Hunt mode'}` }),
+    el('div', { class: 'row' }, start),
     el('div', { class: 'row' },
-      el('button', { class: 'btn ghost', text: 'Share result', onClick: () => share(s, why) }),
+      el('button', { class: 'btn ghost', text: 'Share my card', onClick: () => share(s, why, who, walk) }),
       el('button', { class: 'btn ghost', text: 'Try again', onClick: () => ctx.restart() })),
     alts.length ? el('div', { class: 'alts' },
       el('div', { class: 'group-title', text: 'Close seconds' }),
@@ -159,16 +219,17 @@ function renderPicker(app) {
   app.innerHTML = '';
   const group = (title, channel) => [
     el('div', { class: 'group-title', text: title }),
-    VARIANTS.filter(v => v.channel === channel).map(v => el('a', { class: 'vcard ' + v.channel, href: `?v=${v.slug}` },
+    VARIANTS.filter(v => (channel === 'round2' ? v.round === 2 : (v.channel === channel && !v.round))).map(v => el('a', { class: 'vcard ' + v.channel, href: `?v=${v.slug}` },
       el('span', { class: 'num', text: v.n }),
       el('span', { class: 't' }, el('b', { text: v.short }), el('span', { text: v.blurb })),
       el('span', { class: 'go', 'aria-hidden': 'true', text: '›' }))),
   ];
   app.append(el('main', { class: 'stage picker' },
     el('h2', { text: 'Help me choose a story' }),
-    el('p', { class: 'lead', text: 'Twelve ways to match a new player to their first story. Tap one to try it on a phone.' }),
+    el('p', { class: 'lead', text: 'Sixteen ways to match a new player to their first story. Tap one to try it on a phone.' }),
     group('Instagram first · nothing to build in the app', 'instagram'),
     group('App or web widget', 'app'),
+    group('New ideas · round two', 'round2'),
     el('p', { class: 'foot' }, 'Every way scores the same story tags, so the Instagram versions feed the app versions. ', el('a', { href: '?v=credits', text: 'Photo credits' })),
   ));
 }
