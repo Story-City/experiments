@@ -1,5 +1,17 @@
 [
   {
+    "slug": "story-tools",
+    "path": "story-tools/",
+    "title": "Story Tools",
+    "what": "22 little gadgets a story or whimsy walk can hand you, each introduced by Wren: 17 from the Whimsy Walks & Quests board (Tiny World, Portal, Face-Finder, Spot the Difference, Zoom Mystery, Then and Now, Remix Relay, Riddle Lock, Cipher Wheel, Echo Answer, Sound Catcher, Whisper Drop, Compass Only, Path Drawer, Field Guide, Sticker Book, Story Stamp) plus 5 new ones from research (Case Card, Silhouette Match, Field Notes, Evidence Board, Travelling Clue). Open one directly with ?v=<tool>.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "walk-postcard",
     "path": "walk-postcard/?v=postcard",
     "title": "Walk postcard + tomorrow's walk",
