@@ -1,6 +1,6 @@
 // Travelling Clue: a brass key carried gem to gem by many agents, on its way to the river. Carry it one hop.
 const TEXT = {
-  kicker: 'A travelling clue',
+  kicker: 'Clue courier',
   title: 'The brass key',
   sub: 'Passed hand to hand for weeks. It wants to reach the river.',
   journey: 'Its journey so far',
@@ -197,12 +197,11 @@ export default function run(k) {
     });
     const gems = GEMS.map((g) => h('g', { transform: `translate(${g.x} ${g.y})` },
       h('polygon', { points: '0,-7 6,0 0,7 -6,0', class: 'tc-gem' })));
+    // A clue courier shows on the map as a little paper airplane (Melissa's idea, 3 Nov).
     const keyMark = keyAt != null ? h('g', { class: 'tc-keymark', transform: `translate(${GEMS[keyAt].x} ${GEMS[keyAt].y})` },
-      h('circle', { r: '13', class: 'tc-halo' }),
-      h('circle', { cx: '-3', cy: '0', r: '4', fill: 'none', stroke: '#DEC523', 'stroke-width': '2.4' }),
-      h('rect', { x: '1', y: '-1.2', width: '9', height: '2.4', fill: '#DEC523' })) : null;
+      h('circle', { r: '13', class: 'tc-halo' }), plane()) : null;
     const youDot = you != null ? h('g', { class: 'tc-you' },
-      h('circle', { r: '14', class: 'tc-halo' }), h('circle', { r: '6', fill: '#fbf7ff' })) : null;
+      h('circle', { r: '14', class: 'tc-halo' }), plane()) : null;
     const trail = you != null ? h('line', { class: 'tc-trail', x1: GEMS[you].x, y1: GEMS[you].y, x2: GEMS[you].x, y2: GEMS[you].y }) : null;
 
     const el = h('div', { class: 'tc-map', role: 'img', 'aria-label': `Map of the key’s journey toward ${RIVER.name}` },
@@ -225,6 +224,13 @@ export default function run(k) {
       trail?.setAttribute('x2', x); trail?.setAttribute('y2', y);
     };
     return { el, moveYou };
+  }
+
+  function plane() {
+    return h('g', { class: 'tc-plane' },
+      h('path', { d: 'M-10 1 L10 -8 L1 10 Z', fill: '#fbf7ff', stroke: '#1a0b3d', 'stroke-width': '1.5', 'stroke-linejoin': 'round' }),
+      h('path', { d: 'M10 -8 L-2 4 L1 10 Z', fill: '#d9cef5', stroke: '#1a0b3d', 'stroke-width': '1.5', 'stroke-linejoin': 'round' }),
+      h('path', { d: 'M10 -8 L-2 4', stroke: '#DEC523', 'stroke-width': '1.2' }));
   }
 
   function brassKey() {
@@ -276,6 +282,8 @@ const CSS = `
 .tc-halo { fill: color-mix(in srgb, #DEC523 25%, transparent); animation: tc-pulse 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 .tc-you .tc-halo { fill: color-mix(in srgb, #fbf7ff 22%, transparent); }
 @keyframes tc-pulse { 50% { transform: scale(1.35); opacity: 0.4; } }
+.tc-plane { animation: tc-glide 2.4s ease-in-out infinite; }
+@keyframes tc-glide { 50% { transform: translate(1.5px, -2px) rotate(-4deg); } }
 .tc-trail { stroke: #fbf7ff; stroke-width: 3; stroke-linecap: round; }
 .tc-stat { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; font-size: 14px; color: var(--lilac); }
 .tc-stat b { font: 600 20px var(--f-head); color: var(--starlight); white-space: nowrap; }

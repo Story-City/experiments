@@ -27,7 +27,7 @@ const TEXT = {
   surprise: 'Surprise Me',
   other: 'Different Sentence',
   safe: 'Lines are built from the word bank, so they stay kind for walkers of every age.',
-  stamp: 'Stamp It',
+  stamp: 'Pass the Pen',
   payKicker: 'Stamped',
   payTitle: 'The story, with your line in it.',
   share: 'Share the Story',

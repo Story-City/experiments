@@ -110,7 +110,7 @@ function toolCard(t) {
     h('span', { class: 'mech' }, t.mech),
     h('span', { class: 'star', 'aria-hidden': 'true' }, '✦'),
     h('span', { class: 'title' }, t.name),
-    h('span', { class: 'meta' }, t.tags.join(' · ')));
+    h('span', { class: 'meta' }, t.verdict && t.verdict !== 'cut' ? t.verdict : t.tags.join(' · ')));
 }
 
 // The card turns over into a sheet: the full pitch and the one button.
@@ -142,13 +142,24 @@ function goHome() {
       h('p', { class: 'kicker' }, HOME.kicker),
       h('h1', { class: 'display' }, HOME.title),
       h('p', { class: 'sub' }, HOME.sub)),
-    FAMILIES.map((f) => [
-      h('h2', { class: 'family' }, f.label),
-      h('div', { class: 'cards' }, TOOLS.filter((t) => t.family === f.id).map(toolCard)),
-    ]),
-    h('div', { class: 'btns' }, h('button', { class: 'link', id: 'surprise', onclick: () => cardBack(pick(TOOLS)) }, `✦ ${HOME.surprise}`)),
+    FAMILIES.map((f) => {
+      const live = TOOLS.filter((t) => t.family === f.id && t.verdict !== 'cut');
+      return live.length ? [h('h2', { class: 'family' }, f.label), h('div', { class: 'cards' }, live.map(toolCard))] : null;
+    }),
+    h('div', { class: 'btns' }, h('button', { class: 'link', id: 'surprise', onclick: () => cardBack(pick(TOOLS.filter((t) => t.verdict !== 'cut'))) }, `✦ ${HOME.surprise}`)),
+    cutSection(),
     h('p', { class: 'already' }, 'Already on the experiments site: ', ALREADY.map((a) => a.board).join(' · ')),
   );
+}
+
+// Tools Melissa cut, folded away at the bottom so the team can still open them.
+function cutSection() {
+  const cut = TOOLS.filter((t) => t.verdict === 'cut');
+  if (!cut.length) return null;
+  return h('details', { class: 'cut' },
+    h('summary', {}, HOME.cut(cut.length)),
+    h('p', { class: 'hint' }, HOME.cutWhy),
+    h('div', { class: 'cards' }, cut.map(toolCard)));
 }
 
 async function start(id) {
