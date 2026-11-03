@@ -164,3 +164,18 @@ h1, h2, h3, .q, .cap b, .result h2, .picker h2 { text-wrap: balance; }
 @keyframes rcard-in { from { opacity: 0; transform: translateY(12px) scale(0.97); } }
 @keyframes seal { 30% { transform: scale(0.96); } 60% { transform: scale(1.03); } }
 @media (prefers-reduced-motion: reduce) { .result .rcard, .result .btn.start.sealed { animation: none; } }
+
+/* ---- result: compact card so Start sits above the fold (2 Nov review) ---- */
+.result .rcard { padding: 14px 16px 12px; margin: 2px 0 14px; }
+.result .rcard .who { font-size: 27px; margin: 4px 0 10px; }
+.result .rcard .walk { padding: 8px 10px; }
+.result .rcard .walk b { font-size: 17px; }
+.result h2 { font-size: 32px; margin: 4px 0 6px; }
+.result .meta { margin-bottom: 8px; }
+.result .blurb { font-size: 18px; margin-bottom: 12px; }
+.result .row:has(.start) { margin-bottom: 14px; }
+.result .wholine { font-size: 16px; font-style: italic; }
+.result .cover-ph { display: flex; flex-direction: column; justify-content: center; gap: 6px; background: radial-gradient(80% 70% at 80% 10%, rgba(179, 107, 255, 0.45), transparent 60%), radial-gradient(70% 70% at 10% 90%, rgba(0, 158, 255, 0.4), transparent 60%), #1d1240; }
+.result .cover-ph span { font-size: 26px; color: rgba(255, 255, 255, 0.6); }
+.result .cover-ph b { font-size: 30px; font-weight: 900; line-height: 1; text-wrap: balance; color: #fff; }
+.result .cover-ph i { font-style: normal; font-size: 15px; color: rgba(255, 255, 255, 0.65); }

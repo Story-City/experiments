@@ -654,13 +654,24 @@ export const STORIES = [
   }
 ];
 
-// weights: { token: points }. Returns [{ story, points, matched }] best first. Ties go to the more popular story.
+// weights: { token: points }. Returns [{ story, points, matched }] best first.
+// Rules from the 2 Nov review: never hand a new player an M 15+ / R 18+ story; "with kids" strongly prefers
+// kids-tagged stories; a chosen length penalises stories that are further away; Calgary stories rank a touch
+// lower for the Edmonton-first audience; near-ties break at random (with a whisper of popularity) so the
+// FTUE story stops winning every tie.
+const LEN = ['quick', 'medium', 'long'];
 export function score(weights = {}, stories = STORIES) {
+  const w = (k) => weights[k] || 0;
   return stories.map(story => {
     let points = 0; const matched = [];
-    for (const t of story.tags) if (weights[t]) { points += weights[t]; matched.push(t); }
-    return { story, points, matched };
-  }).sort((a, b) => (b.points - a.points) || (b.story.pop - a.story.pop));
+    for (const t of story.tags) if (w(t)) { points += w(t); matched.push(t); }
+    if (/^(M|R)/.test(story.age)) points -= 50;
+    if (w('kids') > 0) { if (!story.tags.includes('kids')) points -= 3 * w('kids'); if (story.age === '13+') points -= 2 * w('kids'); }
+    const own = LEN.findIndex(l => story.tags.includes(l));
+    for (const l of LEN) if (w(l) > 0 && own >= 0) points -= w(l) * Math.abs(own - LEN.indexOf(l));
+    if (/calgary/i.test(story.where)) points -= 1;
+    return { story, points, matched, key: points + Math.random() * 0.9 + story.pop * 0.002 };
+  }).sort((x, y) => y.key - x.key);
 }
 
 export const byId = (id) => STORIES.find(s => s.id === id);

@@ -9,7 +9,7 @@ const BEATS = [
     replies: [
       { t: 'That’s not mine',        w: { mystery: 2, thoughtful: 1 },   echo: 'said the key wasn’t yours' },
       { t: 'Where did you find it?', w: { adventure: 2, lively: 1 },     echo: 'asked where the key came from' },
-      { t: '…keep talking',          w: { eerie: 2, mysterious: 1 },     echo: 'told the stranger to keep talking' },
+      { t: '…keep talking',          w: { eerie: 2, scifi: 1 },          echo: 'told the stranger to keep talking' },
     ],
   },
   {
@@ -34,6 +34,7 @@ const BEATS = [
       { t: 'Something wonderful', w: { fantasy: 2, tender: 1, cozy: 1 }, echo: 'hope for something wonderful' },
       { t: 'Something terrible',  w: { spooky: 2, eerie: 1 },            echo: 'hope for something terrible' },
       { t: 'Something funny',     w: { comedy: 2, funny: 1 },            echo: 'hope for something funny' },
+      { t: 'Something strange',   w: { scifi: 2, mysterious: 1 },        echo: 'hope for something strange' },
     ],
   },
 ];
@@ -196,10 +197,11 @@ export default {
       return (parts.length === 1 ? parts[0] : parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1]) + '.';
     }
 
-    function done(skipped) {
+    // `story` is the one already shown on the card, so a random tie-break can't swap it on the result screen.
+    function done(skipped, story) {
       if (!alive && skipped) return;
       alive = false;
-      ctx.finish({ weights: { ...weights }, why: why(), headline: skipped ? 'The stranger guessed' : 'The stranger chose' });
+      ctx.finish({ weights: { ...weights }, story, why: why(), headline: skipped ? 'The stranger guessed' : 'The stranger chose' });
     }
 
     async function run() {
@@ -222,7 +224,7 @@ export default {
       if (!alive) return;
       system('The stranger sent you a story', 'sent');
       const best = ctx.score(weights)[0].story;
-      const card = el('button', { class: 'story', 'aria-label': `Open the story: ${best.name}`, onClick: () => done(false) },
+      const card = el('button', { class: 'story', 'aria-label': `Open the story: ${best.name}`, onClick: () => done(false, best) },
         el('div', { class: 'cv' }, best.cover ? el('img', { src: best.cover, alt: '', draggable: 'false' }) : null),
         el('div', { class: 'tx' }, el('small', { text: 'A story for you' }), el('b', { text: nowidow(best.name) }), el('span', { text: 'Tap to open' })));
       const row = them(card, false);

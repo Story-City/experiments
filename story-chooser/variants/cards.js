@@ -34,7 +34,7 @@ const TROUBLES = [
   { name: 'A Locked Door',           glyph: '🚪', frag: 'and a door that wants a plan',            w: { heist: 2, mystery: 1, playful: 1 } },
   { name: 'A Missing Toy',           glyph: '🧸', frag: 'and something small to bring home',       w: { cozy: 2, kids: 1, playful: 1, neighbourhood: 1 } },
   { name: 'A Voice From the Art',    glyph: '🗿', frag: 'and a voice coming out of the sculpture', w: { art: 2, thoughtful: 1, fantasy: 1, mysterious: 1 } },
-  { name: 'A Body at the Protest',   glyph: '🕯️', frag: 'and a crime nobody else has noticed yet', w: { eerie: 2, mystery: 2, night: 1 } },
+  { name: 'A Note Nobody Signed',    glyph: '✉️', frag: 'and a note nobody will own up to',        w: { eerie: 2, mystery: 2, night: 1 } },
   { name: 'A Ghost on Its First Day', glyph: '👻', frag: 'and a ghost who is new at this',         w: { spooky: 2, eerie: 1, funny: 1, night: 1 } },
 ];
 const PILES = [
@@ -99,7 +99,7 @@ const CSS = `
 .v-cards .pile.drawn .card:last-child { transform: translateY(-20px) scale(1.06); }
 .v-cards .pile.ready:not(.drawn) .card:last-child { animation: v-cards-breathe 2.2s ease-in-out infinite; }
 @keyframes v-cards-breathe { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-6px) rotate(0deg); } }
-.v-cards .cue { text-align: center; font-size: 17px; font-weight: 800; margin: 4px 0 14px; min-height: 22px; }
+.v-cards .cue { text-align: center; font-size: 17px; font-weight: 800; margin: 4px 0 14px; min-height: 22px; text-wrap: balance; }
 
 /* draw three: three small piles side by side */
 .v-cards .three { --cw: 104px; --ch: 154px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 6px 0 14px; }
@@ -136,6 +136,7 @@ const CSS = `
 const sum = (...ws) => { const o = {}; for (const w of ws) for (const [k, v] of Object.entries(w)) o[k] = (o[k] || 0) + v; return o; };
 const listSaid = (a) => a.length <= 1 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
 const lower = (s) => s.replace(/^(The|A)\b/, (m) => m.toLowerCase());
+const nowidow = (t) => t.replace(/ (\S+)$/, '\u00a0$1');   // glue the last two words so no word sits alone
 
 export default {
   slug: 'cards',
@@ -194,7 +195,7 @@ export default {
         ctx.finish({
           weights: chosen.w,
           headline: 'The deck says…',
-          why: `${chosen.name}: ${chosen.meaning.charAt(0).toLowerCase() + chosen.meaning.slice(1).replace(/\.$/, '')}, so your story is ${chosen.fortune}.`,
+          why: `You drew ${lower(chosen.name)}. ${chosen.meaning}`,
         });
       });
       return el('div', {},
@@ -223,7 +224,7 @@ export default {
             piles[next].classList.add('next');
             cue.textContent = next === 1 ? 'Now a companion.' : 'And finally, the trouble.';
           } else {
-            cue.textContent = listSaid(picks.map(c => c.name)) + '.';
+            cue.textContent = nowidow(listSaid(picks.map(c => c.name)) + '.');
             setTimeout(() => { go.hidden = false; }, 650);
           }
         });
@@ -234,7 +235,7 @@ export default {
         ctx.finish({
           weights: sum(pl.w, co.w, tr.w),
           headline: 'The deck says…',
-          why: `You drew ${lower(pl.name)}, ${lower(co.name)} and ${lower(tr.name)}, so your story is ${pl.frag}, ${co.frag}, ${tr.frag}.`,
+          why: `You drew ${lower(pl.name)}, ${lower(co.name)} and ${lower(tr.name)}. This is the story they add up to.`,
         });
       });
       return el('div', {},

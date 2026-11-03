@@ -32,8 +32,10 @@ const CSS = `
 .v-first-lines .end { background: linear-gradient(180deg, #07060f, #1b0f45); }
 .v-first-lines .end h3 { font-size: 36px; line-height: 0.98; font-weight: 900; margin: 0 0 14px; text-wrap: balance; max-width: 13ch; }
 .v-first-lines .end .nums { display: flex; gap: 8px; justify-content: center; margin-top: 6px; }
-.v-first-lines .end .nums i { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 900; font-size: 18px;
-  background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.18); }
+.v-first-lines .end .nums button { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: grid; place-items: center; font-family: inherit; font-weight: 900; font-size: 18px; color: #fff;
+  background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.18); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.v-first-lines .end .nums button:active { background: var(--accent); border-color: var(--accent); }
+.v-first-lines .end .tiny { margin-top: 12px; font-size: 15px; font-weight: 700; color: #a8a8a8; }
 .v-first-lines .hint { color: var(--muted); font-size: 15px; text-align: center; margin: 0 0 8px; }
 @media (max-width: 360px) { .v-first-lines .line { font-size: 30px; } .v-first-lines .hook h3 { font-size: 34px; } }
 `;
@@ -50,6 +52,11 @@ export default {
     const story = (id) => ctx.stories.find(s => s.id === id);
     const card = (cls, ...kids) => el('div', { class: 'card ' + cls }, ...kids);
 
+    const pick = (L, i) => ctx.finish({
+      story: story(L.id),
+      why: `You couldn’t put down line ${i + 1}. This is the story we’d start you on.`,
+    });
+
     const slides = [
       { node: card('hook',
           el('div', { class: 'eyebrow', text: 'Five first lines' }),
@@ -58,14 +65,13 @@ export default {
       ...LINES.map((L, i) => ({
         n: i + 1,
         node: card('', el('p', { class: 'line', text: L.line })),
-        onPick: () => ctx.finish({
-          story: story(L.id),
-          why: `You couldn’t put down line ${i + 1}, and that line is how this story begins.`,
-        }),
+        onPick: () => pick(L, i),
       })),
       { node: card('end',
           el('h3', { text: 'Comment the number. We’ll send you the rest.' }),
-          el('div', { class: 'nums', 'aria-hidden': 'true' }, LINES.map((_, i) => el('i', { text: i + 1 })))) },
+          el('div', { class: 'nums', role: 'group', 'aria-label': 'Pick a line by number' },
+            LINES.map((L, i) => el('button', { type: 'button', text: i + 1, 'aria-label': `Line ${i + 1}`, onClick: (e) => { e.stopPropagation(); pick(L, i); } }))),
+          el('div', { class: 'tiny', text: 'or tap a line' })) },
     ];
     slides[1 + LINES.length - 1].node.style.background = SKINS[4];
     LINES.forEach((_, i) => { slides[i + 1].node.style.background = SKINS[i]; });

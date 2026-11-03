@@ -159,7 +159,7 @@ function share(story, why, who, walk) {
   else toast(text, 3500);
 }
 function coverEl(s) {
-  const box = el('div', { class: 'cover' }, placeholder(s.name));
+  const box = el('div', { class: 'cover' }, el('div', { class: 'ph cover-ph' }, el('span', { text: '✦' }), el('b', { text: s.name }), el('i', { text: s.where })));
   if (s.cover) {
     const img = el('img', { src: s.cover, alt: '', class: 'cover-img', decoding: 'async' });
     img.addEventListener('load', () => img.classList.add('in'), { once: true });
@@ -190,16 +190,15 @@ export function renderResult(ctx, opts = {}) {
     el('div', { class: 'rcard' },
       el('div', { class: 'eyebrow', text: headline || (frame === 'ig' ? 'You are…' : 'You are') }),
       el('div', { class: 'who', text: who.name }),
-      el('p', { class: 'line', text: who.line }),
-      el('div', { class: 'walk' }, el('span', { text: 'Tonight’s walk' }), el('b', { text: `“${walk}”` }))),
+      el('div', { class: 'walk' }, el('span', { text: (new Date().getHours() >= 17 || new Date().getHours() < 5) ? 'Tonight’s walk' : 'Today’s walk' }), el('b', { text: `“${walk}”` }))),
     el('div', { class: 'eyebrow story-eyebrow', text: 'Your story' }),
     el('h2', { text: s.name }),
-    coverEl(s),
-    el('p', { text: s.blurb }),
-    why ? el('p', { class: 'why', text: why }) : null,
-    el('div', { class: 'tags' }, (best.matched && best.matched.length ? best.matched : s.tags.slice(0, 4)).map(t => el('i', { text: t }))),
     el('div', { class: 'meta muted', text: `${s.minutes} min · ${s.where} · ${s.mode === 'walk' ? 'Walk mode' : s.mode === 'pin' ? 'Pin mode' : 'Hunt mode'}` }),
+    el('p', { class: 'blurb', text: s.blurb }),
     el('div', { class: 'row' }, start),
+    coverEl(s),
+    why ? el('p', { class: 'why', text: why }) : null,
+    el('p', { class: 'wholine muted', text: who.line }),
     el('div', { class: 'row' },
       el('button', { class: 'btn ghost', text: 'Share my card', onClick: () => share(s, why, who, walk) }),
       el('button', { class: 'btn ghost', text: 'Try again', onClick: () => ctx.restart() })),

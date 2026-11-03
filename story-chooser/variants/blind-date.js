@@ -12,14 +12,14 @@ const DATES = {
   creepy: [
     { id: 'frightnight', hints: ['ghosts', 'torch', 'first shift'], line: 'Your new boss hands you a torch, a bell and a waiver. Sign quickly.' },
     { id: 'omicron', hints: ['signal', 'danger', 'future'], line: 'Your phone lights up with a message from a number that doesn’t exist yet.' },
-    { id: 'parable', hints: ['phone', 'demands', 'Calgary'], line: 'Unknown number. You answer. A calm voice reads out your address, then the first demand.' },
-    { id: 'chase', hints: ['tunnels', 'claws', 'Calgary'], line: 'Something with too many legs just ran past the bus stop. Nobody else noticed.' },
+    { id: 'parable', hints: ['phone', 'demands', 'deadline'], line: 'Unknown number. You answer. A calm voice reads out your address, then the first demand.' },
+    { id: 'chase', hints: ['tunnels', 'claws', 'bus stop'], line: 'Something with too many legs just ran past the bus stop. Nobody else noticed.' },
+    { id: 'powerplay', hints: ['hockey', 'timeline', 'whodunit'], line: 'A detective in a very old coat says last night’s game ended wrong. Fix it.' },
   ],
   funny: [
     { id: 'woglins', hints: ['gremlins', 'lawn', 'oops'], line: 'You only opened the box for a second. Now the Legislature lawn is giggling.' },
     { id: 'coronet', hints: ['crew', 'crown', 'alibi'], line: 'Three strangers slide into your booth. ‘We hear you’re good with locks. Prove it.’' },
     { id: 'loveyeg', hints: ['city', 'crush', 'self-help'], line: 'Edmonton, you and I need to talk. Put your shoes on. This could take an hour.' },
-    { id: 'powerplay', hints: ['hockey', 'timeline', 'whodunit'], line: 'A detective in a very old coat says last night’s game ended wrong. Fix it.' },
   ],
 };
 const FOR = { cosy: 'for a cosy walk', creepy: 'for a creepy night', funny: 'for a good laugh' };
@@ -202,7 +202,7 @@ export default {
         stage.classList.add('ripped'); stage.setAttribute('aria-label', `Unwrapped: ${s.name}`); stage.removeAttribute('tabindex'); stage.removeAttribute('role');
         how.hidden = true; dots.hidden = true; back.hidden = true;
         met.hidden = false; if (!reduced) met.classList.add('in');
-        if (navigator.vibrate) { try { navigator.vibrate(30); } catch (e) { /* ignore */ } }
+        if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) { try { navigator.vibrate(30); } catch (e) { /* ignore */ } }
       };
       const tap = () => {
         if (done) return;

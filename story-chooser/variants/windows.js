@@ -1,20 +1,20 @@
-// Variant 7 · Lit windows. "It's late. One window is still lit. What is happening inside?"
+// Variant 7 · Lit windows. "It's late. Four windows are still lit. What is happening inside?"
 // An Instagram carousel: one hook slide, four lit windows (each slide is a guess), one call-to-action slide.
 // Tapping a window stands in for commenting its number. Imports nothing; talks to the shell only through ctx.
 
 const WINDOWS = [
   { key: 'windows.candle',  n: 1, title: 'Someone is reading a letter they shouldn’t', sub: 'One candle. One page. One very steady hand.',
     weights: ['eerie', 'mystery', 'mysterious', 'solo', 'night', 'calm'],
-    why: 'You guessed the letter nobody was meant to read, so your story is hushed, strange and full of secrets.' },
-  { key: 'windows.neon',    n: 2, title: 'A first date that is going badly',           sub: 'Pink neon, two menus, and a silence you can hear from here.',
+    why: 'You guessed the letter nobody was meant to read. This is the story that starts behind that window.' },
+  { key: 'windows.neon',    n: 2, title: 'A first date at the laundromat',             sub: 'Blue neon, one missing sock, and a silence you can hear from here.',
     weights: ['funny', 'romance', 'comedy', 'downtown', 'night', 'date'],
-    why: 'You guessed the first date going badly, so your story is funny, flirty and a bit of a mess in the best way.' },
+    why: 'You guessed the first date at the laundromat. This is the story that starts behind that window.' },
   { key: 'windows.curtain', n: 3, title: 'Someone is waiting for a signal',            sub: 'The curtain twitches every time a car goes by.',
     weights: ['mysterious', 'spooky', 'mystery', 'friends', 'night', 'lively'],
-    why: 'You guessed the signal nobody else can see, so your story is tense, shadowy and better with someone watching your back.' },
+    why: 'You guessed someone waiting for a signal. This is the story that starts behind that window.' },
   { key: 'windows.attic',   n: 4, title: 'A kid who should be asleep is drawing a map', sub: 'Crayons on the floor. An X where the treasure goes.',
     weights: ['thoughtful', 'fantasy', 'playful', 'kids', 'calm', 'quick'],
-    why: 'You guessed the kid drawing a map past bedtime, so your story is playful, dreamy and quick enough to finish before lights out.' },
+    why: 'You guessed the kid drawing a map past bedtime. This is the story that starts behind that window.' },
 ];
 
 const CSS = `
@@ -43,7 +43,7 @@ const CSS = `
 
 export default {
   slug: 'windows',
-  title: 'It’s late. One window is still lit. What is happening inside?',
+  title: 'It’s late. Four windows are still lit. What is happening inside?',
   short: 'Lit windows',
   channel: 'instagram',
   blurb: 'Four windows glowing at night. What is happening inside?',
@@ -61,14 +61,14 @@ export default {
 
     const hook = el('div', { class: 'hook' },
       el('div', { class: 'brand', text: 'Story City' }),
-      el('p', { class: 'late', text: 'It’s late. One window is still lit.' }),
+      el('p', { class: 'late', text: 'It’s late. Four windows are still lit.' }),
       el('h2', { text: 'What is happening inside?' }),
       el('p', { text: 'Swipe. Pick your guess. Comment the number.' }),
       el('div', { class: 'swipe', 'aria-hidden': 'true', text: 'Swipe ›' }));
 
     const cta = el('div', { class: 'cta' },
       el('h2', { text: 'Comment your number and we’ll tell you your story' }),
-      el('div', { class: 'nums', role: 'group', 'aria-label': 'Pick a guess by number' },
+      el('div', { class: 'nums', role: 'group', 'aria-label': 'Pick a window by number' },
         WINDOWS.map(w => el('button', { type: 'button', text: w.n, 'aria-label': w.title, onClick: (e) => { e.stopPropagation(); pick(w); } }))),
       el('span', { class: 'tiny', text: 'or tap a window' }));
 
@@ -81,8 +81,8 @@ export default {
     const post = ctx.carousel(slides, {
       handle: 'storycityapp',
       likes: '519 likes',
-      label: 'It’s late. One window is still lit. What is happening inside?',
-      caption: 'It’s past midnight and one window on the street is still glowing. 🕯️ Four guesses. Swipe, pick the one you believe, and comment the number.<br>We’ll reply with the story that starts behind that window. Bring a jacket.<br><span class="more">#storycity #latenightwalks #walkthestory</span>',
+      label: 'It’s late. Four windows are still lit. What is happening inside?',
+      caption: 'It’s past midnight and four windows are still glowing. 🕯️ Swipe, pick the one you most want to look inside, and comment the number.<br>We’ll reply with the story that starts behind that window. Bring a jacket.<br><span class="more">#storycity #latenightwalks #walkthestory</span>',
     });
 
     // The eyebrow "Your guess" goes above the title on each window slide.

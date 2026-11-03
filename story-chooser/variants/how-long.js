@@ -4,7 +4,7 @@
 const STEPS = [
   { q: 'How long have you got?', pts: 3, opts: [
     { label: 'About 15 minutes', token: 'quick',  say: 'Fifteen minutes' },
-    { label: 'Half an hour',     token: 'medium', say: 'Thirty minutes' },
+    { label: 'About 45 minutes', token: 'medium', say: 'Forty-five minutes' },
     { label: 'An hour or more',  token: 'long',   say: 'An hour or more' } ] },
   { q: 'Where are you right now?', pts: 3, opts: [
     { label: 'Downtown',                  token: 'downtown', say: 'downtown' },
@@ -68,17 +68,17 @@ export default {
         progress(i),
         el('h2', { class: 'q', text: s.q }),
         s.opts.map(o => el('button', { class: 'choice', text: o.label, onClick: () => { add(o.token, s.pts); said.push(o.say); step(i + 1); } })),
-        i === 0 ? el('p', { class: 'foot', text: 'Three taps, then we pick.' }) : null,
+        i === 0 ? el('p', { class: 'foot', text: 'Four taps, then we pick.' }) : null,
       ));
     };
 
     const mood = () => show(el('div', { class: 'screen' },
       progress(STEPS.length),
       el('h2', { class: 'q', text: 'And tonight you want it…' }),
-      el('p', { class: 'sub', text: 'Optional. One tap, or let us surprise you.' }),
+      el('p', { class: 'sub', text: 'Optional. Pick one, or tap Any mood.' }),
       el('div', { class: 'chips' }, MOODS.map(m => el('button', { class: 'chip ' + m.say, onClick: () => { m.tokens.forEach(t => add(t, 2)); done(m.say); } },
         el('span', { class: 'glyph', 'aria-hidden': 'true', text: m.glyph }), el('span', { text: m.label })))),
-      el('button', { class: 'btn ghost block surprise', text: 'Surprise me', onClick: () => done(null) }),
+      el('button', { class: 'btn ghost block surprise', text: 'Any mood', onClick: () => done(null) }),
     ));
 
     const done = (moodSay) => {

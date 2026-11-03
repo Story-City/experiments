@@ -9,7 +9,7 @@ const POLLS = [
     pct: 61, bg: 'linear-gradient(165deg, #0b2a7a 0%, #170c35 58%, #2b1050 100%)' },
   { q: 'The note says “don’t open the door.”',
     a: { t: 'Open it',     w: ['eerie', 'spooky', 'mystery'],  did: 'opened the door' },
-    b: { t: 'Knock first', w: ['playful', 'funny', 'kids'],    did: 'knocked first' },
+    b: { t: 'Knock first', w: ['playful', 'funny', 'comedy'],    did: 'knocked first' },
     pct: 72, bg: 'linear-gradient(170deg, #050314 0%, #170c35 45%, #4a1d7a 100%)' },
   { q: 'Pick a light',
     a: { t: 'Candle', w: ['cozy', 'mysterious', 'night'],     did: 'picked the candle' },
@@ -168,7 +168,9 @@ export default {
       clearTimeout(state.timer);
       const did = state.ans.map((s, i) => s ? POLLS[i][s].did : null).filter(Boolean);
       const why = did.length ? `You ${joinHuman(did)}.` : 'You skipped every poll, so this is the house pick.';
-      ctx.finish({ weights: weightsFor(state.ans), why, headline: 'Mostly you' });
+      // All left or all right: keep the story the reveal slide already promised (ties now break at random).
+      const story = state.ans.every(x => x === 'a') ? storyA : state.ans.every(x => x === 'b') ? storyB : undefined;
+      ctx.finish({ weights: weightsFor(state.ans), story, why, headline: 'Mostly you' });
     }
 
     function draw() {

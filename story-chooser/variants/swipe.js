@@ -3,7 +3,7 @@
 
 const CARDS = [
   { key: 'deck.fog',       label: 'Fog',       said: 'fog',            tokens: ['eerie', 'mysterious', 'night'] },
-  { key: 'deck.lantern',   label: 'Lantern',   said: 'lanterns',       tokens: ['cozy', 'mysterious', 'walk'] },
+  { key: 'deck.lantern',   label: 'Lantern',   said: 'lanterns',       tokens: ['cozy', 'night', 'tender'] },
   { key: 'deck.clockwork', label: 'Clockwork', said: 'clockwork',      tokens: ['scifi', 'thoughtful', 'mystery'] },
   { key: 'deck.teacup',    label: 'Teacup',    said: 'a warm teacup',  tokens: ['cozy', 'calm', 'cafe'] },
   { key: 'deck.forest',    label: 'Forest',    said: 'the forest',     tokens: ['park', 'calm', 'fantasy'] },
@@ -11,24 +11,7 @@ const CARDS = [
   { key: 'deck.map',       label: 'Map',       said: 'old maps',       tokens: ['adventure', 'epic', 'history'] },
   { key: 'deck.neon',      label: 'Neon',      said: 'neon',           tokens: ['downtown', 'night', 'funny'] },
   { key: 'deck.books',     label: 'Books',     said: 'old books',      tokens: ['mystery', 'thoughtful', 'history'] },
-  { key: 'deck.rain',      label: 'Rain',      said: 'rain',           tokens: ['eerie', 'downtown', 'night'] },
-];
-
-// The tail of the why-line, picked from the strongest token. Order matters: first match wins.
-const TAILS = [
-  ['eerie',      'a night walk with secrets in it'],
-  ['night',      'a night walk with secrets in it'],
-  ['cozy',       'a slow, warm wander with a twist near the end'],
-  ['calm',       'a slow, warm wander with a twist near the end'],
-  ['adventure',  'a proper adventure with a map in it'],
-  ['epic',       'a proper adventure with a map in it'],
-  ['mystery',    'an old mystery that never quite went to sleep'],
-  ['thoughtful', 'an old mystery that never quite went to sleep'],
-  ['downtown',   'a bright night out with the city showing off'],
-  ['funny',      'a bright night out with the city showing off'],
-  ['fantasy',    'a walk where the trees know something you don’t'],
-  ['park',       'a walk where the trees know something you don’t'],
-  ['mysterious', 'a walk with more questions than streetlights'],
+  { key: 'deck.rain',      label: 'Rain',      said: 'rain',           tokens: ['eerie', 'downtown', 'scifi'] },
 ];
 
 const THRESHOLD = 80;
@@ -122,14 +105,12 @@ export default {
       done = true;
       const said = liked.map(c => c.said);
       let why;
-      const strongest = [...Object.entries(weights)].sort((a, b) => b[1] - a[1]).map(e => e[0]);
-      const tail = (TAILS.find(([t]) => strongest.includes(t) && weights[t] > 0) || [null, 'a walk you’ll want to finish'])[1];
       if (liked.length === 0) {
-        why = 'You passed on all ten. Fair enough: you are hard to impress, so here is the story that impresses most people first.';
+        why = 'You passed on all ten. Fair enough. Here is one to change your mind.';
       } else if (liked.length < 3) {
-        why = `You only liked ${listSaid(said)}, and that is plenty to go on, so your story is ${tail}.`;
+        why = `You only liked ${listSaid(said)}, and that is plenty to go on.`;
       } else {
-        why = `You liked ${listSaid(said.slice(0, 3))}, so your story is ${tail}.`;
+        why = `You liked ${said.length > 3 ? said.slice(0, 3).join(', ') + ' and more' : listSaid(said)}. This is where your likes add up.`;
       }
       ctx.finish({ weights, why });
     };
@@ -137,7 +118,7 @@ export default {
     const commit = (card, dir) => {
       // dir: 1 like, -1 pass
       if (dir > 0) { liked.push(card); card.tokens.forEach(t => { weights[t] = (weights[t] || 0) + 2; }); }
-      else { const t = card.tokens[0]; weights[t] = (weights[t] || 0) - 1; }
+      else { const t = card.tokens[0]; weights[t] = (weights[t] || 0) - 0.5; }
     };
 
     const flyOff = (dir, fromX = 0, fromY = 0) => {

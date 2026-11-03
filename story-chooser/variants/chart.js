@@ -102,18 +102,18 @@ const isShort = (s) => s.minutes <= 45;
 const isKids = (s) => s.tags.includes('kids');
 const regionKey = (s) => `${isSpooky(s) ? 1 : 0}${isShort(s) ? 1 : 0}${isKids(s) ? 1 : 0}`;
 function regionWhy(s) {
-  const parts = [isSpooky(s) ? 'spooky' : 'not spooky', isShort(s) ? 'under 45 minutes' : 'over 45 minutes', isKids(s) ? 'good with kids' : 'not for kids'];
+  const parts = [isSpooky(s) ? 'spooky' : 'not spooky', isShort(s) ? '45 minutes or less' : 'over 45 minutes', isKids(s) ? 'good with kids' : 'not for kids'];
   const line = parts.join(', ');
-  return line.charAt(0).toUpperCase() + line.slice(1) + '. Correct.';
+  return line.charAt(0).toUpperCase() + line.slice(1) + '.';
 }
 function regionName(s) {
-  const on = [isSpooky(s) && 'Spooky', isShort(s) && 'Under 45 min', isKids(s) && 'Good with kids'].filter(Boolean);
+  const on = [isSpooky(s) && 'Spooky', isShort(s) && '45 min or less', isKids(s) && 'Good with kids'].filter(Boolean);
   return on.length ? on.join(' + ') : 'None of the above';
 }
 
 export default {
   slug: 'chart',
-  title: 'Where are you tonight?',
+  title: 'What are you in the mood for?',
   short: 'Story chart / Venn',
   channel: 'app',
   blurb: 'Stories plotted cozy-to-creepy and silly-to-serious. Look, then pick.',
@@ -129,8 +129,8 @@ export default {
     const seg = el('div', { class: 'seg', role: 'tablist', 'aria-label': 'Chart or Venn' },
       ['chart', 'venn'].map((v) => el('button', { type: 'button', role: 'tab', 'aria-pressed': String(v === view), dataset: { v }, text: v === 'chart' ? 'Chart' : 'Venn', onClick: () => show(v) })));
     root.append(el('div', { class: 'v-chart' },
-      el('h2', { class: 'q', text: 'Where are you tonight?' }),
-      el('p', { class: 'muted sub', text: 'Every story, plotted. Tap one, or tap where you are.' }),
+      el('h2', { class: 'q', text: 'What are you in the mood for?' }),
+      el('p', { class: 'muted sub', text: 'Every story, plotted. Tap one, or tap a spot on the map.' }),
       seg, body, panel));
 
     function show(v) {
@@ -249,7 +249,8 @@ export default {
           if (spot) { placeText(d.lbl, spot); placed.push({ ...spot, id: d.s.id }); if (spot.lead) drawLead(d, spot); } else pending.push({ d, w });
         }
         for (const { d, w } of pending) {
-          const spot = ringSpot(d, w, [...taken, ...placed]);
+          // the biggest dots (most played) always get a label, even if it needs a longer lead
+          const spot = ringSpot(d, w, [...taken, ...placed]) || (d.s.pop >= 90 ? ringSpot(d, w, [...taken, ...placed], 110) : null);
           if (spot) { placeText(d.lbl, spot); placed.push({ ...spot, id: d.s.id }); drawLead(d, spot); }
         }
       }
@@ -343,11 +344,11 @@ export default {
       const W = 360, H = 436;
       const C = { S: { cx: 120, cy: 172, r: 108 }, U: { cx: 240, cy: 172, r: 108 }, K: { cx: 152, cy: 302, r: 108 } };
       const keys = ['S', 'U', 'K'];
-      const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Three overlapping circles: Spooky, Under 45 minutes, Good with kids' });
+      const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Three overlapping circles: Spooky, 45 minutes or less, Good with kids' });
       for (const k of keys) svg.append(sv('circle', { cx: C[k].cx, cy: C[k].cy, r: C[k].r, fill: SET_COLOUR[k], 'fill-opacity': 0.13, stroke: SET_COLOUR[k], 'stroke-opacity': 0.75, 'stroke-width': 1.5 }));
       const titles = [
         sv('text', { class: 'set-title', x: 8, y: C.S.cy - C.S.r - 6, fill: SET_COLOUR.S, text: 'Spooky' }),
-        sv('text', { class: 'set-title', x: W - 8, y: C.U.cy - C.U.r - 6, 'text-anchor': 'end', fill: SET_COLOUR.U, text: 'Under 45 min' }),
+        sv('text', { class: 'set-title', x: W - 8, y: C.U.cy - C.U.r - 6, 'text-anchor': 'end', fill: SET_COLOUR.U, text: '45 min or less' }),
         sv('text', { class: 'set-title', x: C.K.cx, y: C.K.cy + C.K.r + 17, 'text-anchor': 'middle', fill: SET_COLOUR.K, text: 'Good with kids' }),
       ];
       svg.append(...titles);

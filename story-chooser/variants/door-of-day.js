@@ -60,6 +60,9 @@ const CSS = `
   background: radial-gradient(80% 60% at 50% 35%, rgba(255, 179, 71, 0.55), rgba(255, 179, 71, 0) 70%), #120a2c; }
 .v-door-of-day .behind img, .v-door-of-day .behind .ph { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .v-door-of-day .behind .ph { background: radial-gradient(80% 60% at 50% 30%, rgba(255, 179, 71, 0.5), transparent 70%), linear-gradient(180deg, #352a66, #120a2c); font-size: 0; }
+.v-door-of-day .reveal-name { text-align: center; margin: -2px 0 14px; }
+.v-door-of-day .reveal-name b { display: block; font-size: 28px; line-height: 1; font-weight: 900; text-wrap: balance; }
+.v-door-of-day .reveal-name span { display: block; margin-top: 6px; font-size: 17px; line-height: 1.2; color: var(--muted); text-wrap: balance; }
 .v-door-of-day .behind .txt { position: relative; padding: 70px 18px 18px; background: linear-gradient(transparent, rgba(10, 5, 30, 0.92) 45%); }
 .v-door-of-day .behind b { display: block; font-size: 30px; line-height: 1; font-weight: 900; text-wrap: balance; }
 .v-door-of-day .behind span { display: block; margin-top: 6px; font-size: 17px; line-height: 1.15; color: #ddd6f3; text-wrap: balance; }
@@ -129,7 +132,8 @@ export default {
     const now = new Date();
     const today = forced ? new Date(forced + 'T12:00:00') : now;
     const day = isoDay(today);
-    const doorNo = Math.round((Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) - Date.UTC(2026, 0, 1)) / 864e5) + 1;
+    // Door No. 1 is launch day, 1 Nov 2026 (so 2 Nov is No. 2). Preview dates before launch show No. 1.
+    const doorNo = Math.max(1, Math.round((Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) - Date.UTC(2026, 10, 1)) / 864e5) + 1);
     const pool = ctx.stories.filter(s => !/^M\b|15\+|18\+/.test(s.age || ''));
     const story = pool[hash('story:' + day) % pool.length];
     const doorKey = DOOR_KEYS[hash('door:' + day) % DOOR_KEYS.length];
@@ -154,9 +158,12 @@ export default {
     };
 
     // ---- door ----
+    // A cover already shows the title, so with a cover the name and blurb sit under the frame instead of on top of it.
+    // Without a cover (the two FTUE stories for now) the name is printed on the glow behind the door.
     const behind = el('div', { class: 'behind' },
-      story.cover ? el('img', { src: story.cover, alt: '', draggable: 'false' }) : el('div', { class: 'ph', 'aria-hidden': 'true' }),
-      el('div', { class: 'txt' }, el('b', { text: story.name }), el('span', { text: story.blurb })));
+      story.cover ? el('img', { src: story.cover, alt: `Cover of ${story.name}`, draggable: 'false' }) : el('div', { class: 'ph', 'aria-hidden': 'true' }),
+      story.cover ? null : el('div', { class: 'txt' }, el('b', { text: story.name }), el('span', { text: story.blurb })));
+    const revealName = story.cover ? el('div', { class: 'reveal-name', hidden: !knockedAt }, el('b', { text: story.name }), el('span', { text: story.blurb })) : null;
     const door = el('div', { class: 'door' }, ctx.photoEl(doorKey, 'Today’s door'));
     const portal = el('div', { class: 'portal' + (knockedAt ? ' open' : ''), 'aria-live': 'polite' },
       behind, door, el('div', { class: 'plaque', text: `Door No. ${doorNo}` }));
@@ -204,6 +211,7 @@ export default {
       const open = () => {
         portal.classList.remove('knocking'); portal.classList.add('open');
         behind.setAttribute('aria-hidden', 'false');
+        if (revealName) revealName.hidden = false;
         drawClues(); drawActs(); refreshStory();
       };
       if (reduced) open();
@@ -247,6 +255,7 @@ export default {
       el('h2', { text: 'One door. Everyone gets the same story today.' }),
       el('p', { class: 'lead', text: 'Use a clue or two if you like. Then knock.' }),
       el('div', { class: 'frame' }, portal),
+      revealName,
       knockedLine,
       clueBox,
       count,

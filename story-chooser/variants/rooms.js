@@ -5,22 +5,22 @@
 const ROOMS = [
   { key: 'rooms.library',    n: 1, title: 'The candlelit library',       sub: 'Ladders, dust and one book that is warm to the touch.',
     weights: ['cozy', 'mystery', 'mysterious', 'night', 'solo', 'calm'],
-    why: 'You chose the candlelit library, so your story is quiet, close and a little bit secret.' },
-  { key: 'rooms.attic',      n: 2, title: 'The attic with the telescope', sub: 'A skylight, a star chart, and something moving up there.',
+    why: 'You chose the candlelit library. This is the story it points to.' },
+  { key: 'rooms.attic',      n: 2, title: 'The attic with the spinning wheel', sub: 'One lit window, a desk, and something moving up there.',
     weights: ['mysterious', 'scifi', 'thoughtful', 'night', 'solo', 'calm'],
-    why: 'You chose the attic with the telescope, so your story looks up, thinks hard and keeps you guessing.' },
+    why: 'You chose the attic with the spinning wheel. This is the story it points to.' },
   { key: 'rooms.greenhouse', n: 3, title: 'The overgrown greenhouse',     sub: 'Glass gone green. Everything in here is still growing.',
     weights: ['tender', 'fantasy', 'calm', 'day', 'park', 'romance'],
-    why: 'You chose the overgrown greenhouse, so your story is soft, green and quietly magical.' },
+    why: 'You chose the overgrown greenhouse. This is the story it points to.' },
   { key: 'rooms.cabin',      n: 4, title: 'The ship’s cabin',             sub: 'Brass, rope and a map with a hole burned through it.',
-    weights: ['epic', 'adventure', 'heist', 'lively', 'friends', 'day'],
-    why: 'You chose the ship’s cabin, so your story is big, bold and better with a crew.' },
+    weights: { epic: 2, adventure: 2, heist: 1, lively: 1, friends: 2 },
+    why: 'You chose the ship’s cabin. This is the story it points to.' },
   { key: 'rooms.diner',      n: 5, title: 'The diner booth at 2 am',      sub: 'Neon in the window, pie in the case, nobody asking questions.',
     weights: ['funny', 'romance', 'night', 'downtown', 'date', 'lively'],
-    why: 'You chose the diner booth at 2 am, so your story is late, funny and a little bit flirty.' },
+    why: 'You chose the diner booth at 2 am. This is the story it points to.' },
   { key: 'rooms.kitchen',    n: 6, title: 'The castle kitchen',           sub: 'A fire going, bread rising, and a very old recipe book.',
     weights: ['cozy', 'history', 'kids', 'playful', 'day', 'comedy'],
-    why: 'You chose the castle kitchen, so your story is warm, old-fashioned and fun for the whole table.' },
+    why: 'You chose the castle kitchen. This is the story it points to.' },
 ];
 
 const CSS = `
@@ -57,8 +57,9 @@ export default {
     ctx.root.innerHTML = '';
 
     const pick = (room) => {
-      const weights = {};
-      room.weights.forEach((t, i) => { weights[t] = i < 2 ? 2 : 1; });
+      // A list means: first two tokens +2, the rest +1. An object gives the points directly.
+      const weights = Array.isArray(room.weights) ? {} : { ...room.weights };
+      if (Array.isArray(room.weights)) room.weights.forEach((t, i) => { weights[t] = i < 2 ? 2 : 1; });
       ctx.finish({ weights, why: room.why });
     };
 

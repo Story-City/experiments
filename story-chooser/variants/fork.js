@@ -8,13 +8,13 @@ const FORKS = [
    { label: 'Follow the music', glyph: '🎶', pick: 'the music', tokens: ['playful', 'funny', 'friends'] }],
   [{ label: 'Lantern', glyph: '🏮', pick: 'the lantern', tokens: ['cozy', 'fantasy', 'night'] },
    { label: 'Flashlight', glyph: '🔦', pick: 'the flashlight', tokens: ['adventure', 'scifi', 'lively'] }],
-  [{ label: 'The door is locked', glyph: '🔒', pick: 'the locked door', tokens: ['mystery', 'heist', 'thoughtful'] },
+  [{ label: 'The door is locked', glyph: '🔒', pick: 'the locked door', tokens: ['heist', 'thoughtful', 'mystery'] },
    { label: 'The door is already open', glyph: '🚪', pick: 'the open door', tokens: ['spooky', 'eerie', 'night'] }],
   [{ label: 'Tea from a stranger', glyph: '🍵', pick: 'the stranger’s tea', tokens: ['cozy', 'cafe', 'tender'] },
-   { label: 'A sword from a stranger', glyph: '⚔️', pick: 'the stranger’s sword', tokens: ['epic', 'adventure', 'kids'] }],
+   { label: 'A sword from a stranger', glyph: '⚔️', pick: 'the stranger’s sword', tokens: ['epic', 'adventure', 'playful'] }],
   [{ label: 'Fog', glyph: '🌫️', pick: 'the fog', tokens: ['eerie', 'mysterious', 'night'] },
    { label: 'Moonlight', glyph: '🌙', pick: 'the moonlight', tokens: ['romance', 'tender', 'calm'] }],
-  [{ label: 'A lost key', glyph: '🗝️', pick: 'the lost key', tokens: ['mystery', 'downtown', 'solo'] },
+  [{ label: 'A lost key', glyph: '🗝️', pick: 'the lost key', tokens: ['history', 'downtown', 'solo'] },
    { label: 'A found map', glyph: '🗺️', pick: 'the found map', tokens: ['adventure', 'park', 'friends'] }],
 ];
 
@@ -62,7 +62,7 @@ export default {
     const intro = () => show(el('div', { class: 'intro screen' },
       el('div', { class: 'mark', 'aria-hidden': 'true', text: '⑂' }),
       el('h2', { text: 'Seven quick forks' }),
-      el('p', { class: 'muted', text: 'No thinking allowed. Tap what pulls you.' }),
+      el('p', { class: 'muted', text: 'Then we pick your first story. No thinking allowed: tap what pulls you.' }),
       el('button', { class: 'btn primary', text: 'Start', onClick: () => fork(0) }),
     ));
 
@@ -87,12 +87,13 @@ export default {
 
     const done = () => {
       // Name the picks that pulled the winner closest, so the why-line feels earned.
+      // The winner is passed on to finish() so a random tie-break can't swap it for a different story.
       const best = ctx.score(weights)[0];
       const tags = new Set(best ? best.story.tags : []);
       const ranked = picks.map((p, i) => ({ p, i, hit: p.tokens.filter(t => tags.has(t)).length }))
         .sort((x, y) => (y.hit - x.hit) || (x.i - y.i)).slice(0, 3).sort((x, y) => x.i - y.i).map(x => x.p.pick);
       const names = ranked.length > 1 ? ranked.slice(0, -1).join(', ') + ' and ' + ranked[ranked.length - 1] : ranked[0];
-      ctx.finish({ weights, why: `You took ${names}, and this is where they lead.` });
+      ctx.finish({ weights, story: best && best.story, why: `You took ${names}, and this is where they lead.` });
     };
 
     intro();

@@ -13,25 +13,25 @@ const PLACES = [
     id: 'rain', name: 'Rain on cobblestones', desc: 'Steady on the stones, a drip somewhere close.', key: 'deck.rain',
     colour: 'var(--accent)', make: rain,
     weights: { eerie: 2, downtown: 2, night: 1, calm: 1, mystery: 1 },
-    why: 'You stayed in the rain on the cobblestones, so your story starts on a wet street at night.',
+    why: 'You stayed in the rain on the cobblestones. This is the story it led to.',
   },
   {
     id: 'tavern', name: 'A tavern after midnight', desc: 'Low voices, a glass set down, the fire nearly out.', key: 'rooms.kitchen',
     colour: 'var(--story)', make: tavern,
-    weights: { cozy: 2, funny: 2, friends: 1, history: 1, fantasy: 1 },
-    why: 'You stayed in the tavern after midnight, so your story starts with friends, a fire and a bad idea.',
+    weights: { cozy: 2, friends: 1, history: 1, fantasy: 1, night: 1 },
+    why: 'You stayed in the tavern after midnight. This is the story it led to.',
   },
   {
     id: 'clocks', name: 'A room full of clocks', desc: 'A hundred ticks that never quite agree.', key: 'deck.clockwork',
     colour: 'var(--hunt)', make: clocks,
-    weights: { mysterious: 2, thoughtful: 2, scifi: 1, solo: 1, quick: 1 },
-    why: 'You stayed in the room full of clocks, so your story starts with a puzzle and no time to waste.',
+    weights: { mysterious: 2, thoughtful: 2, scifi: 2, solo: 1 },
+    why: 'You stayed in the room full of clocks. This is the story it led to.',
   },
   {
     id: 'forest', name: 'A forest at night', desc: 'Wind in the tops, crickets below, something calling.', key: 'deck.forest',
     colour: 'var(--gem)', make: forest,
     weights: { fantasy: 2, park: 2, calm: 1, tender: 1, night: 1 },
-    why: 'You stayed in the forest at night, so your story starts off the path, under the trees.',
+    why: 'You stayed in the forest at night. This is the story it led to.',
   },
 ];
 

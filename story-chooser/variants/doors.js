@@ -5,22 +5,22 @@
 const DOORS = [
   { key: 'doors.red',    n: 1, title: 'The red door with the brass knocker',         sub: 'Somebody in there is expecting you. Probably.',
     weights: ['adventure', 'lively', 'playful', 'friends', 'day', 'downtown'],
-    why: 'You knocked on the red door, so your story is bright, busy and best with company.' },
-  { key: 'doors.blue',   n: 2, title: 'The blue door nobody has painted in years',   sub: 'The paint is peeling. The light inside is on.',
+    why: 'You knocked on the red door. This is the story waiting behind it.' },
+  { key: 'doors.blue',   n: 2, title: 'The blue door nobody has painted in years',   sub: 'The paint is peeling. Somebody still answers.',
     weights: ['eerie', 'mystery', 'spooky', 'night', 'solo', 'neighbourhood'],
-    why: 'You knocked on the blue door, so your story is a little eerie, a little lonely and very hard to put down.' },
+    why: 'You knocked on the blue door. This is the story waiting behind it.' },
   { key: 'doors.arched', n: 3, title: 'The arched door in the old stone wall',       sub: 'Older than the street. Older than the city, maybe.',
-    weights: ['epic', 'fantasy', 'history', 'long', 'solo', 'day'],
-    why: 'You knocked on the arched door, so your story is old, grand and worth the long walk.' },
-  { key: 'doors.black',  n: 4, title: 'The black door with a lantern beside it',     sub: 'No number. No name. Just the lantern, lit for you.',
-    weights: ['mysterious', 'night', 'solo', 'calm', 'mystery', 'downtown'],
-    why: 'You knocked on the black door, so your story is quiet, nocturnal and full of secrets.' },
-  { key: 'doors.shop',   n: 5, title: 'The shop door with a bell',                   sub: 'Ding. Someone looks up from the counter and smiles.',
+    weights: ['epic', 'fantasy', 'history', 'adventure', 'solo', 'day'],
+    why: 'You knocked on the arched door. This is the story waiting behind it.' },
+  { key: 'doors.black',  n: 4, title: 'The black door with a lantern beside it',     sub: 'No number. No name. Just a lion knocker, waiting.',
+    weights: ['history', 'mysterious', 'night', 'downtown'],
+    why: 'You knocked on the black door. This is the story waiting behind it.' },
+  { key: 'doors.shop',   n: 5, title: 'The sweet-shop door with a bell',             sub: 'Ding. Someone looks up from the counter and smiles.',
     weights: ['cozy', 'comedy', 'cafe', 'funny', 'day', 'date'],
-    why: 'You knocked on the shop door, so your story is warm, funny and happiest over a coffee.' },
-  { key: 'doors.garden', n: 6, title: 'The gate in the ivy wall',                    sub: 'You can hear water on the other side. And laughing.',
+    why: 'You knocked on the sweet-shop door. This is the story waiting behind it.' },
+  { key: 'doors.garden', n: 6, title: 'The green door in the ivy',                   sub: 'You can hear water on the other side. And laughing.',
     weights: ['tender', 'park', 'calm', 'kids', 'romance', 'day'],
-    why: 'You opened the gate in the ivy wall, so your story is gentle, green and good for small legs too.' },
+    why: 'You opened the green door in the ivy. This is the story waiting behind it.' },
 ];
 
 const CSS = `
@@ -84,7 +84,7 @@ export default {
       handle: 'storycityapp',
       likes: '428 likes',
       label: 'Six doors. Which one do you knock on?',
-      caption: 'These doors are all real. We walked past every one of them this week. 🚪<br>Swipe, pick the one you’d actually knock on, and comment the number. We’ll reply with the story waiting behind it.<br><span class="more">#storycity #yeg #yyc #walkthestory</span>',
+      caption: 'Six doors. One of them has your story behind it. 🚪<br>Swipe, pick the one you’d actually knock on, and comment the number. We’ll reply with the story waiting behind it.<br><span class="more">#storycity #yeg #yyc #walkthestory</span>',
     });
 
     ctx.root.append(el('div', { class: 'v-doors' },
