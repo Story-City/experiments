@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Story City Experiments</title>
+<title>Story City Experiments and Polls</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>">
 <link rel="stylesheet" href="theme.css">
@@ -134,11 +134,14 @@
 </head>
 <body>
 <p class="kicker">Story City</p>
-<h1>Experiments</h1>
-<p class="sub">Throwaway prototypes for playtests. Open them on a phone.</p>
+<h1>Experiments and polls</h1>
+<p class="sub">Throwaway prototypes for playtests, and team polls. Open them on a phone.</p>
 <div class="filters" role="group" aria-label="Filter by author"></div>
 
 <ul id="live"></ul>
+
+<h2 id="polls-heading">Polls</h2>
+<ul id="polls"></ul>
 
 <h2 id="archived-heading">Archived</h2>
 <ul id="archived"></ul>
@@ -217,8 +220,9 @@
   }
 
   const live = document.getElementById('live');
+  const polls = document.getElementById('polls');
   const archived = document.getElementById('archived');
-  for (const e of entries) (e.archived ? archived : live).append(card(e));
+  for (const e of entries) (e.archived ? archived : e.category === 'poll' ? polls : live).append(card(e));
 
   const items = [...document.querySelectorAll('li[data-author]')];
   const authors = new Map();
@@ -240,8 +244,9 @@
     if (key && !authors.has(key)) key = '';
     for (const b of chips) b.setAttribute('aria-pressed', String((b.dataset.author || '') === key));
     for (const li of items) li.hidden = !!key && li.dataset.author !== key;
-    document.getElementById('archived-heading').hidden =
-      ![...document.querySelectorAll('#archived li')].some(li => !li.hidden);
+    for (const id of ['polls', 'archived'])
+      document.getElementById(`${id}-heading`).hidden =
+        ![...document.querySelectorAll(`#${id} li`)].some(li => !li.hidden);
     const url = new URL(location.href);
     key ? url.searchParams.set('by', key) : url.searchParams.delete('by');
     history.replaceState(null, '', url);

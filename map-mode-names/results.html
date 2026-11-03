@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Story City · Map mode name results</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700&family=Karla:wght@400;500;700&display=swap">
+<style>
+/* Layout: one column. Per mode, a diverging row per name: thumbs-down left of the axis, votes right, then net on its own zero line. */
+:root{
+  --bg:#fbfaff; --card:#ffffff; --fg:#1d1736; --muted:#5e5878; --faint:#8a85a3; --line:#e6e3f0; --axis:#c3c0d3;
+  --up:#2a78d6; --dn:#e34948;
+  --display:"Barlow","Arial Narrow",system-ui,sans-serif; --body:"Karla",system-ui,sans-serif;
+  --u:clamp(5px,1.4vw,15px); /* width of one vote, same in every column */
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#170c35; --card:#211846; --fg:#f4f1ff; --muted:#b9b0dc; --faint:#8f88b3; --line:#342a5e; --axis:#4a4075;
+  --up:#3987e5; --dn:#e66767; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#170c35; --card:#211846; --fg:#f4f1ff; --muted:#b9b0dc; --faint:#8f88b3; --line:#342a5e; --axis:#4a4075;
+  --up:#3987e5; --dn:#e66767; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+.page{max-width:760px;margin:0 auto;padding-block:32px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.15;margin:0;text-wrap:balance}
+.sub{margin:4px 0 0;color:var(--muted);text-wrap:balance}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px;display:flex;flex-direction:column;gap:22px}
+.g{display:grid;grid-template-columns:clamp(58px,16vw,104px) minmax(0,.7fr) minmax(0,1fr) 8px minmax(0,.8fr) minmax(0,1.5fr);align-items:center}
+.key{font-size:12px;color:var(--muted)}
+.key span{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.key i{width:10px;height:10px;border-radius:2px;flex:none}
+.key .net{grid-column:span 2;justify-content:center;color:var(--fg);font-weight:700}
+.mode h2{font-family:var(--display);font-weight:600;font-size:17px;margin:0 0 6px}
+.mode h2 span{font-family:var(--body);font-weight:400;font-size:14px;color:var(--muted)}
+.row{min-height:34px;font-size:14px;font-variant-numeric:tabular-nums}
+.n{line-height:1.2}
+.n small{display:block;font-size:11px;color:var(--faint);letter-spacing:.02em}
+.L,.R{display:flex;align-items:center;gap:5px;height:100%;min-width:0}
+.L{justify-content:flex-end;padding-right:2px}
+.R{padding-left:2px;border-left:1px solid var(--axis)}
+.b{height:18px;flex:none}
+.L .b{border-radius:4px 0 0 4px}.R .b{border-radius:0 4px 4px 0}
+.dn{background:var(--dn)}.up{background:var(--up)}
+.c{color:var(--muted)}.nc{font-weight:700;flex:none}.zero{color:var(--faint)}
+.nn{color:var(--muted);min-width:0;line-height:1.15;overflow-wrap:break-word}
+.nn.win{color:var(--fg);font-weight:700}
+.notes{margin:0;padding-left:18px;color:var(--muted);font-size:13px;display:flex;flex-direction:column;gap:2px}
+details{font-size:14px}
+summary{cursor:pointer;color:var(--muted)}
+summary:focus-visible{outline:2px solid var(--up);outline-offset:3px;border-radius:4px}
+.tw{overflow-x:auto;margin-top:10px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}
+th{font-weight:700;color:var(--muted);font-size:12px;letter-spacing:.04em}
+td.num,th.num{text-align:right}
+/* Vote / Results switch shared by the two poll pages */
+.tabs{display:flex;gap:6px}.tabs a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);color:var(--muted);text-decoration:none;font-weight:700;font-size:14px}.tabs a[href]:hover{color:var(--fg);border-color:var(--muted)}.tabs a[aria-current]{background:var(--fg);border-color:var(--fg);color:var(--bg)}.tabs a:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+
+@media (max-width:440px){.row{font-size:13px}.nn{font-size:12px}.key .net{font-size:11px}}
+</style>
+
+<style>body{margin:0}</style>
+</head>
+<body>
+<div class="page">
+  <nav class="tabs" aria-label="Poll"><a href="https://story-city.github.io/experiments/map-mode-names/">Vote</a><a aria-current="page">Results</a></nav>
+  <header>
+    <h1>Story City map mode names</h1>
+    <p class="sub">Team poll, 11 responses. Votes for a favourite name, thumbs-down for names people don't like, and the net of the two.</p>
+  </header>
+
+  <section class="card" aria-label="Results by mode">
+    <div class="g key" aria-hidden="true">
+      <span></span>
+      <span style="justify-content:flex-end;padding-right:6px"><i class="dn"></i>Thumbs-down</span>
+      <span style="padding-left:6px"><i class="up"></i>Votes</span>
+      <span></span>
+      <span class="net">Net</span>
+    </div>
+    <div id="chart"></div>
+  </section>
+
+  <ul class="notes">
+    <li>Net is votes minus thumbs-down. The bold name is the top net score in each mode.</li>
+    <li>"Current" is the name in today's plan. "Write-in" is a name someone suggested.</li>
+    <li>Source: Google Form "Story City map mode names", 11 responses from the team.</li>
+  </ul>
+
+  <details>
+    <summary>Show as a table</summary>
+    <div class="tw"><table id="table"><thead><tr><th>Mode</th><th>Name</th><th class="num">Votes</th><th class="num">Thumbs-down</th><th class="num">Net</th></tr></thead><tbody></tbody></table></div>
+  </details>
+</div>
+
+<script>
+const DATA=[
+  {mode:'Mode A',what:'walk anywhere for steps',rows:[['Steps',5,2],['Wander',2,2],['Walk',1,5,'current'],['Fitness',1,4],['Explore',0,0,'write-in']]},
+  {mode:'Mode B',what:'follow the route to a pin',rows:[['Path',3,0],['Location',3,1],['Pin',2,4,'current'],['Route',1,0,'write-in'],['Follow',0,1]]},
+  {mode:'Mode C',what:'search and take a photo',rows:[['Hunt',7,1,'current'],['Search',1,1]]}
+];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const bar=(n,cls)=>`<span class="b ${cls}" style="width:calc(var(--u) * ${Math.abs(n)})"></span>`;
+const left=(n,cls,lab)=>`<span class="L">${n?`<span class="${lab}">${lab==='nc'?'−'+Math.abs(n):n}</span>${bar(n,cls)}`:''}</span>`;
+const right=(n,cls,lab,name,win)=>`<span class="R">${n?`${bar(n,cls)}<span class="${lab}">${lab==='nc'?'+'+n:n}</span>${name?`<span class="nn${win?' win':''}">${esc(name)}</span>`:''}`:''}</span>`;
+const signed=n=>n>0?'+'+n:n<0?'−'+Math.abs(n):'0';
+
+document.getElementById('chart').innerHTML=DATA.map(m=>`
+  <div class="mode">
+    <h2>${m.mode} <span>· ${m.what}</span></h2>
+    ${m.rows.map(([name,v,d,tag])=>{
+      const net=v-d, win=net>0&&net===Math.max(...m.rows.map(r=>r[1]-r[2]));
+      const tip=`${name}: ${v} vote${v===1?'':'s'}, ${d} thumbs-down, net ${signed(net)}`;
+      return `<div class="g row" title="${esc(tip)}" role="img" aria-label="${esc(tip)}">
+        <span class="n">${esc(name)}${tag?`<small>${tag}</small>`:''}</span>
+        ${left(d,'dn','c')}${right(v,'up','c')}<span></span>
+        ${net<0?left(net,'dn','nc'):'<span class="L"></span>'}
+        ${net>0?right(net,'up','nc',name,win):net===0?'<span class="R"><span class="nc zero">0</span></span>':'<span class="R"></span>'}
+      </div>`;
+    }).join('')}
+  </div>`).join('');
+
+document.querySelector('#table tbody').innerHTML=DATA.flatMap(m=>m.rows.map(([name,v,d,tag])=>
+  `<tr><td>${m.mode}</td><td>${esc(name)}${tag?` (${tag})`:''}</td><td class="num">${v}</td><td class="num">${d}</td><td class="num">${signed(v-d)}</td></tr>`)).join('');
+</script>
+
+</body>
+</html>

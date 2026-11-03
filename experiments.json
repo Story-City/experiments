@@ -109,12 +109,13 @@
   },
   {
     "slug": "map-mode-names",
-    "path": "map-mode-names/?v=3",
-    "title": "Map mode names vote",
-    "what": "Vote on names for the three map modes (Walk / Path / Hunt), with a moving map of each. Votes go to Melissa's Google Form.",
+    "path": "map-mode-names/",
+    "title": "Map mode names poll",
+    "what": "Vote on names for the three map modes, then see the results (switch inside). 11 responses: Steps, Path and Hunt lead.",
     "author": "melissa",
     "authorName": "Melissa",
     "date": "2026-10",
+    "category": "poll",
     "archived": false,
     "notionPageId": null,
     "jira": null

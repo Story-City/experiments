@@ -1,12 +1,12 @@
-# Story City experiments
+# Story City experiments and polls
 
-Throwaway web prototypes, served at https://story-city.github.io/experiments/.
+Throwaway web prototypes and team polls, served at https://story-city.github.io/experiments/.
 
 Each experiment is a folder of static files with relative paths, served at `/experiments/<folder>/`. Add an entry for it to `experiments.json`; `index.html` renders the cards from that file.
 
 Cards are text only (title, one-line description, author and date); there are no preview images.
 
-Entry fields: `slug` (unique, used in `view.html?e=<slug>`), `path` (folder URL including any `?v=`), `title`, `what`, `author` (`brett`, `melissa`), `authorName`, `date` (`YYYY-MM`), `archived`, `notionPageId`, `jira`. Leave `notionPageId` null for a new experiment; the sync creates its Notion task.
+Entry fields: `slug` (unique, used in `view.html?e=<slug>`), `path` (folder URL including any `?v=`), `title`, `what`, `author` (`brett`, `melissa`), `authorName`, `date` (`YYYY-MM`), `category` (optional: `"poll"` lists the card under Polls), `archived`, `notionPageId`, `jira`. Leave `notionPageId` null for a new experiment; the sync creates its Notion task.
 
 The author colour comes from `--author-<key>` in `theme.css`; add a token and a matching CSS rule in `index.html` for a new author. Filter chips build themselves from the entries. Set `archived: true` once something newer replaces it.
 

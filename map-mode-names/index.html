@@ -19,6 +19,9 @@
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
 .page{max-width:720px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
 h1{font-family:var(--btn);font-weight:700;font-size:30px;margin:0;text-wrap:balance}
+/* Vote / Results switch shared by the two poll pages */
+.tabs{display:flex;gap:6px}.tabs a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);color:var(--muted);text-decoration:none;font-weight:700;font-size:14px}.tabs a[href]:hover{color:var(--fg);border-color:var(--muted)}.tabs a[aria-current]{background:var(--fg);border-color:var(--fg);color:var(--bg)}.tabs a:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+
 .intro{color:var(--muted);margin:0;max-width:60ch;padding-left:20px;display:flex;flex-direction:column;gap:2px}
 .status{font-size:13px;color:var(--muted);min-height:18px}
 .status.warn{color:var(--walk)}
@@ -79,10 +82,12 @@ h1{font-family:var(--btn);font-weight:700;font-size:30px;margin:0;text-wrap:bala
 .sugs .who{color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.btn{transition:none}}
 </style>
+
 <style>body{margin:0}</style>
 </head>
 <body>
 <div class="page">
+  <nav class="tabs" aria-label="Poll"><a aria-current="page">Vote</a><a href="results.html">Results</a></nav>
   <h1>Story City map mode names</h1>
   <ul class="intro">
     <li>Tap the name you like best for each mode</li>
