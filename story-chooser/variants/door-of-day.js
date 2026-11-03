@@ -99,7 +99,7 @@ const CSS = `
 .v-door-of-day .group-title { margin-top: 26px; }
 .v-door-of-day .ig-story { width: 230px; margin: 6px auto 10px; }
 .v-door-of-day .ig-story > img, .v-door-of-day .ig-story > .ph { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.55); font-size: 0; }
-.v-door-of-day .st { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 50px 14px 20px; text-align: center; font-family: "Darker Grotesque", sans-serif; }
+.v-door-of-day .st { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 50px 14px 20px; text-align: center; font-family: var(--f-head); }
 .v-door-of-day .st .k { font-size: 11px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #ffd89a; }
 .v-door-of-day .st .big { font-size: 34px; line-height: 0.92; font-weight: 900; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6); }
 .v-door-of-day .st .sq3 { font-size: 22px; letter-spacing: 4px; line-height: 1; }

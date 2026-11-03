@@ -74,12 +74,12 @@ const CSS = `
 .v-envelope .env .card { position: absolute; left: 6%; right: 6%; top: 5%; height: 90%; z-index: 2; background: #fbf6ea; border-radius: 2.4cqw; overflow: hidden;
   display: flex; flex-direction: column; box-shadow: 0 1cqw 3cqw rgba(0, 0, 0, 0.3); transition: transform 0.85s cubic-bezier(0.2, 0.9, 0.25, 1.08); }
 .v-envelope .env .card .cv { position: relative; flex: 1; min-height: 0; background: linear-gradient(135deg, #352a66, #170c35 70%); display: grid; place-items: center; color: rgba(255, 255, 255, 0.7);
-  font: 900 7cqw/1 "Darker Grotesque", sans-serif; letter-spacing: 0.1em; text-transform: uppercase; }
+  font: 900 7cqw/1 var(--f-head); letter-spacing: 0.1em; text-transform: uppercase; }
 .v-envelope .env .card .cv img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.v-envelope .env .card .nm { flex: none; padding: 3cqw 4cqw 2.6cqw; font: 900 8.4cqw/0.95 "Darker Grotesque", sans-serif; color: #1c1240; text-wrap: balance; }
+.v-envelope .env .card .nm { flex: none; padding: 3cqw 4cqw 2.6cqw; font: 900 8.4cqw/0.95 var(--f-head); color: #1c1240; text-wrap: balance; }
 .v-envelope .env .front { inset: 0; z-index: 3; background: linear-gradient(170deg, var(--paper), var(--paper-2));
   clip-path: polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%); }
-.v-envelope .env .hint { position: absolute; left: 3%; right: 3%; top: 69%; text-align: center; font: 800 9cqw/1 "Darker Grotesque", sans-serif; color: var(--ink); }
+.v-envelope .env .hint { position: absolute; left: 3%; right: 3%; top: 69%; text-align: center; font: 800 9cqw/1 var(--f-head); color: var(--ink); }
 .v-envelope .env .hint span { display: block; white-space: nowrap; }
 .v-envelope .env .flap { left: 0; right: 0; top: 0; height: 58%; z-index: 4; transform-origin: 50% 0; border-radius: 3cqw 3cqw 0 0;
   background: linear-gradient(180deg, #e8d8b4, #d6c193); clip-path: polygon(0 0, 100% 0, 50% 100%); transition: transform 0.55s ease-in, background 0.55s; }

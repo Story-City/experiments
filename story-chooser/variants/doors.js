@@ -28,7 +28,7 @@ const CSS = `
 .v-doors .ph { font-size: 15px; font-weight: 700; color: rgba(255, 255, 255, 0.45); letter-spacing: 0.06em; text-transform: uppercase; }
 .v-doors .note { font-size: 14px; margin: 12px 0 0; }
 .v-doors .hook, .v-doors .cta { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: center;
-  padding: 34px 46px 30px; font-family: "Darker Grotesque", sans-serif; color: #fff; text-align: left;
+  padding: 34px 46px 30px; font-family: var(--f-head); color: #fff; text-align: left;
   background: radial-gradient(110% 60% at 10% 100%, rgba(255, 179, 71, 0.22), transparent 60%),
               linear-gradient(165deg, #341a74 0%, #1d0f46 48%, #0e0727 100%); }
 .v-doors .hook .brand { position: absolute; top: 16px; left: 26px; font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #a79bd6; }
@@ -38,7 +38,7 @@ const CSS = `
 .v-doors .hook .swipe { position: absolute; right: 22px; bottom: 22px; font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #a79bd6; }
 .v-doors .cta h2 { font-size: 36px; line-height: 0.98; font-weight: 900; margin: 0 0 12px; text-wrap: balance; max-width: 9em; }
 .v-doors .cta .nums { display: flex; gap: 6px; margin: 22px 0 14px; flex-wrap: wrap; }
-.v-doors .cta .nums button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.08); color: #fff; font-weight: 900; font-size: 18px; font-family: "Darker Grotesque", sans-serif; padding: 0; }
+.v-doors .cta .nums button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.08); color: #fff; font-weight: 900; font-size: 18px; font-family: var(--f-head); padding: 0; }
 .v-doors .cta .nums button:active { background: var(--accent); border-color: var(--accent); }
 .v-doors .cta .tiny { font-size: 15px; color: #a79bd6; font-weight: 700; }
 .v-doors .ig-slide .cap b { font-size: 27px; max-width: 11em; }

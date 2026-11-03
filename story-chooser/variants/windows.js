@@ -22,7 +22,7 @@ const CSS = `
 .v-windows .ph { font-size: 15px; font-weight: 700; color: rgba(255, 255, 255, 0.45); letter-spacing: 0.06em; text-transform: uppercase; }
 .v-windows .note { font-size: 14px; margin: 12px 0 0; }
 .v-windows .hook, .v-windows .cta { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: center;
-  padding: 34px 46px 30px; font-family: "Darker Grotesque", sans-serif; color: #fff; text-align: left;
+  padding: 34px 46px 30px; font-family: var(--f-head); color: #fff; text-align: left;
   background: radial-gradient(60% 40% at 78% 38%, rgba(255, 196, 96, 0.34), transparent 70%),
               linear-gradient(170deg, #1f1150 0%, #130a33 50%, #07041a 100%); }
 .v-windows .hook .brand { position: absolute; top: 16px; left: 26px; font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #a79bd6; }
@@ -33,7 +33,7 @@ const CSS = `
 .v-windows .hook .swipe { position: absolute; right: 22px; bottom: 22px; font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #a79bd6; }
 .v-windows .cta h2 { font-size: 36px; line-height: 0.98; font-weight: 900; margin: 0 0 12px; text-wrap: balance; max-width: 9em; }
 .v-windows .cta .nums { display: flex; gap: 6px; margin: 22px 0 14px; flex-wrap: wrap; }
-.v-windows .cta .nums button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.08); color: #fff; font-weight: 900; font-size: 18px; font-family: "Darker Grotesque", sans-serif; padding: 0; }
+.v-windows .cta .nums button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.08); color: #fff; font-weight: 900; font-size: 18px; font-family: var(--f-head); padding: 0; }
 .v-windows .cta .nums button:active { background: var(--accent); border-color: var(--accent); }
 .v-windows .cta .tiny { font-size: 15px; color: #a79bd6; font-weight: 700; }
 .v-windows .ig-slide .cap { padding-top: 90px; }

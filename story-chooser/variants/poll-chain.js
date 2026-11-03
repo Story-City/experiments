@@ -37,7 +37,7 @@ const CSS = `
 .v-poll-chain .zone { position: absolute; top: 0; bottom: 0; width: 50%; border: 0; background: transparent; padding: 0; z-index: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .v-poll-chain .zone.l { left: 0; } .v-poll-chain .zone.r { right: 0; }
 .v-poll-chain .zone:focus-visible { outline: none; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.6); }
-.v-poll-chain .ask { position: absolute; left: 22px; right: 22px; top: 21%; margin: 0; font-family: "Darker Grotesque", sans-serif; font-size: 44px; line-height: 0.96; font-weight: 900; text-wrap: balance; text-shadow: 0 2px 14px rgba(0,0,0,0.45); pointer-events: none; z-index: 2; }
+.v-poll-chain .ask { position: absolute; left: 22px; right: 22px; top: 21%; margin: 0; font-family: var(--f-head); font-size: 44px; line-height: 0.96; font-weight: 900; text-wrap: balance; text-shadow: 0 2px 14px rgba(0,0,0,0.45); pointer-events: none; z-index: 2; }
 .v-poll-chain .ask small { display: block; font-size: 15px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.72); margin-bottom: 10px; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
 .v-poll-chain .poll { position: absolute; left: 11%; right: 11%; top: 53%; z-index: 3; background: #fff; color: #111; border-radius: 18px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; box-shadow: 0 14px 40px rgba(0,0,0,0.35); font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
 .v-poll-chain .poll.voted { transform: scale(1.02); transition: transform 0.25s ease; }
@@ -53,7 +53,7 @@ const CSS = `
 .v-poll-chain .poll.voted .opt:not(.mine) .lbl { color: #8a8a8a; font-weight: 700; }
 .v-poll-chain .poll.voted .opt { cursor: default; }
 .v-poll-chain .hint { position: absolute; left: 0; right: 0; bottom: 16px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.6); pointer-events: none; z-index: 2; }
-.v-poll-chain .reveal { position: absolute; inset: 0; padding: 60px 20px 20px; display: flex; flex-direction: column; justify-content: center; gap: 10px; z-index: 2; font-family: "Darker Grotesque", sans-serif; }
+.v-poll-chain .reveal { position: absolute; inset: 0; padding: 60px 20px 20px; display: flex; flex-direction: column; justify-content: center; gap: 10px; z-index: 2; font-family: var(--f-head); }
 .v-poll-chain .reveal .eyebrow { font-size: 13px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--story); }
 .v-poll-chain .reveal h3 { margin: 0 0 6px; font-size: 36px; line-height: 0.98; font-weight: 900; text-wrap: balance; }
 .v-poll-chain .mini { background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.16); border-radius: 14px; padding: 12px 14px; backdrop-filter: blur(6px); }
@@ -62,7 +62,7 @@ const CSS = `
 .v-poll-chain .mini b { display: block; font-size: 24px; line-height: 1; font-weight: 900; margin: 4px 0 4px; text-wrap: balance; }
 .v-poll-chain .mini span { display: block; font-size: 16px; line-height: 1.2; color: #e2ddf2; text-wrap: pretty; }
 .v-poll-chain .mini i { display: block; font-style: normal; font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 6px; }
-.v-poll-chain .see { margin: 12px auto 0; display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 22px; border-radius: 999px; border: 0; background: #fff; color: #111; font: 800 19px/1 "Darker Grotesque", sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; z-index: 3; }
+.v-poll-chain .see { margin: 12px auto 0; display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 22px; border-radius: 999px; border: 0; background: #fff; color: #111; font: 800 19px/1 var(--f-head); box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; z-index: 3; }
 .v-poll-chain .see:active { transform: scale(0.97); }
 .v-poll-chain .note { font-size: 15px; line-height: 1.3; margin: 0 0 8px; }
 .v-poll-chain .again { font-size: 15px; margin: 0; }

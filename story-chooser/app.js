@@ -13,7 +13,7 @@ export const VARIANTS = [
   { n: 13, slug: 'first-lines', short: 'First lines',             channel: 'instagram', blurb: 'Five opening sentences. Keep reading the one that grabs you.' },
   { n: 17, slug: 'poll-chain',  short: 'Poll-sticker chain',      channel: 'instagram', blurb: 'Five story slides with native polls and a “mostly A” reveal.' },
   { n: 16, slug: 'sound',       short: 'Sound pick',              channel: 'instagram', blurb: 'Swipe through four places with the sound on. Stay in the one you like.' },
-  { n: 11, slug: 'cards',       short: 'Draw a card',             channel: 'instagram', blurb: 'A face-down deck. Draw one, or draw three.' },
+  { n: 11, slug: 'cards',       short: 'Draw a card',             channel: 'app',       blurb: 'A face-down deck. Draw one, or draw three.' },
   { n: 1,  slug: 'fork',        short: 'Fork in the Road',        channel: 'app',       blurb: 'Seven this-or-that taps, each a tiny story moment.' },
   { n: 8,  slug: 'swipe',       short: 'Swipe deck',              channel: 'app',       blurb: 'Like or pass on ten images. Your likes add up to a story.' },
   { n: 12, slug: 'chart',       short: 'Story chart / Venn',      channel: 'app',       blurb: 'Stories plotted cozy-to-creepy and silly-to-serious. Look, then pick.' },

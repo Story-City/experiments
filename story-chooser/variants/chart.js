@@ -2,7 +2,7 @@
 // Contract: ../../../docs/story-chooser.md. Imports nothing; everything comes through ctx.
 const NS = 'http://www.w3.org/2000/svg';
 const MODE_COLOUR = { walk: '#f2c230', pin: '#2f8bff', hunt: '#b36bff' };
-const SET_COLOUR = { S: '#b36bff', U: '#009eff', K: '#3ddc84' };
+const SET_COLOUR = { S: '#b36bff', U: '#5b8cff', K: '#3ddc84' };
 // Short labels for the chart. Anything not listed falls back to the first 2–3 words of the name.
 const SHORT = {
   alice: 'Alice', barista: 'Barista Tips', murder: 'River Valley Murder', jubilee: 'Garden Jubilee',
@@ -19,7 +19,7 @@ const CSS = `
 .v-chart .seg { display: flex; background: var(--raised); border: 1px solid var(--line); border-radius: 14px; padding: 3px; margin: 0 0 12px; }
 .v-chart .seg button { flex: 1; min-height: 42px; border: 0; background: transparent; border-radius: 11px; font-weight: 800; font-size: 17px; color: var(--muted); }
 .v-chart .seg button[aria-pressed="true"] { background: var(--raised-2); color: #fff; }
-.v-chart svg { display: block; width: 100%; height: auto; font-family: "Darker Grotesque", -apple-system, system-ui, sans-serif; font-weight: 700; touch-action: manipulation; user-select: none; -webkit-user-select: none; border-radius: 14px; }
+.v-chart svg { display: block; width: 100%; height: auto; font-family: var(--f-head); font-weight: 700; touch-action: manipulation; user-select: none; -webkit-user-select: none; border-radius: 14px; }
 .v-chart .plot { fill: rgba(255, 255, 255, 0.025); }
 .v-chart .grid { stroke: rgba(255, 255, 255, 0.07); stroke-width: 1; }
 .v-chart .grid.mid { stroke: rgba(255, 255, 255, 0.18); stroke-dasharray: 3 3; }

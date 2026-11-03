@@ -19,7 +19,7 @@ const SKINS = [
 
 const CSS = `
 .v-first-lines .card { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-  padding: 56px 26px 36px; font-family: "Darker Grotesque", -apple-system, system-ui, sans-serif; color: #fff; position: relative; }
+  padding: 56px 26px 36px; font-family: var(--f-head); color: #fff; position: relative; }
 .v-first-lines .card::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 70% at 50% 110%, rgba(0, 0, 0, 0.45), transparent 60%); }
 .v-first-lines .card > * { position: relative; z-index: 1; }
 .v-first-lines .hook { background: linear-gradient(180deg, #1b0f45, #07060f); }

@@ -208,7 +208,7 @@ const CSS = `
 .v-sound .q { text-wrap: balance; }
 .v-sound .sub { margin: -4px 0 6px; font-size: 17px; line-height: 1.25; text-wrap: balance; }
 .v-sound .hook { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px 48px; text-align: center; color: #fff;
-  background: radial-gradient(120% 80% at 20% 10%, #3a1d7a, transparent 60%), radial-gradient(100% 70% at 90% 100%, #0e5a6b, transparent 60%), linear-gradient(160deg, #1a0f3a, #07121f); font-family: "Darker Grotesque", sans-serif; }
+  background: radial-gradient(120% 80% at 20% 10%, #3a1d7a, transparent 60%), radial-gradient(100% 70% at 90% 100%, #0e5a6b, transparent 60%), linear-gradient(160deg, #1a0f3a, #07121f); font-family: var(--f-head); }
 .v-sound .hook .ico { font-size: 54px; line-height: 1; }
 .v-sound .hook b { font-size: 36px; line-height: 1; font-weight: 900; text-wrap: balance; }
 .v-sound .hook span { font-size: 22px; color: #dcd6f5; text-wrap: balance; }

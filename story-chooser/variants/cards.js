@@ -142,7 +142,7 @@ export default {
   slug: 'cards',
   title: 'Draw a card',
   short: 'Draw a card',
-  channel: 'instagram',
+  channel: 'app',
   blurb: 'A face-down deck. Draw one, or draw three.',
 
   mount(ctx) {
