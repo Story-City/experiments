@@ -105,8 +105,10 @@
   }
   div.card { height: 100%; padding: 0; overflow: hidden; border-left-width: 1px; border-top: 4px solid var(--who); display: flex; flex-direction: column; transition: border-color .15s, transform .15s; }
   div.card:hover, div.card:focus-within { border-color: var(--who); transform: translateY(-2px); box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--who) 55%, transparent); }
-  div.card .cardlink { flex: 1; }
-  .body { padding: 18px 18px 16px; }
+  div.card .cardlink { flex: 1; display: flex; flex-direction: column; }
+  /* the description and date sit at the bottom; the title is centred in the space above them */
+  .body { flex: 1; display: flex; flex-direction: column; padding: 18px 18px 16px; }
+  .body .name { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 3.3em; padding: 4px 0 12px; }
   div.card .links { padding: 0 16px 14px; margin: 0; }
   .body .what { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 15px; }
   .name { font: 600 28px/1.1 var(--f-head); text-wrap: balance; }
