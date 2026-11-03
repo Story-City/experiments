@@ -4,7 +4,7 @@ Throwaway web prototypes, served at https://story-city.github.io/experiments/.
 
 Each experiment is a folder of static files with relative paths, served at `/experiments/<folder>/`. Add an entry for it to `experiments.json`; `index.html` renders the cards from that file.
 
-Each live card shows a preview image: `previews/<slug>.jpg`, a 390×520 phone screenshot of the experiment's first screen (JPEG, about 50 KB). Add one for a new experiment; without it the card shows a plain tile. An entry can point somewhere else with an optional `preview` path.
+Cards are text only (title, one-line description, author and date); there are no preview images.
 
 Entry fields: `slug` (unique, used in `view.html?e=<slug>`), `path` (folder URL including any `?v=`), `title`, `what`, `author` (`brett`, `melissa`), `authorName`, `date` (`YYYY-MM`), `archived`, `notionPageId`, `jira`. Leave `notionPageId` null for a new experiment; the sync creates its Notion task.
 
