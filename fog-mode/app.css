@@ -80,7 +80,8 @@ body[data-mode="pin"] .chip { background: var(--pin); color: var(--text); }
 body[data-mode="hunt"] .chip { background: var(--hunt); color: var(--text); }
 .hud-title { margin-top: 5px; font: 700 22px/1.1 "Darker Grotesque", system-ui, sans-serif; }
 .demo { display: flex; gap: 6px; justify-content: flex-end; }
-.demo button { border: 1px dashed rgba(255, 255, 255, 0.3); background: rgba(7, 8, 15, 0.6); border-radius: 999px; padding: 4px 10px; font-size: 11px; color: var(--muted); }
+.demo button, .demo a.ver { border: 1px dashed rgba(255, 255, 255, 0.3); background: rgba(7, 8, 15, 0.6); border-radius: 999px; padding: 4px 10px; font-size: 11px; color: var(--muted); }
+.demo a.ver { text-decoration: none; display: inline-flex; align-items: center; }   /* both versions live in this one experiment: this swaps between them */
 .demo button[aria-pressed="true"] { border-style: solid; border-color: var(--pin); color: var(--text); }
 
 .toast {

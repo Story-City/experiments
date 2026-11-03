@@ -412,6 +412,14 @@ function reset() {
 }
 
 $('resetBtn').addEventListener('click', reset);
+// Both versions live in this one experiment: this button swaps between them.
+$('verBtn').textContent = ALWAYS ? '⇄ Walk, Pin, Hunt' : '⇄ Always a pin';
+$('verBtn').setAttribute('aria-label', ALWAYS ? 'Switch to the Walk, Pin, Hunt version' : 'Switch to the Always a pin version');
+$('verBtn').addEventListener('click', () => {
+  const u = new URL(location.href);
+  if (ALWAYS) u.searchParams.delete('v'); else u.searchParams.set('v', 'always');
+  location.replace(u);
+});
 if (ALWAYS) {
   let need = 0;
   const label = () => { $('noneBtn').textContent = `Chapter needs: ${PIN.name} ▸`; };
