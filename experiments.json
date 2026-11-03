@@ -1,5 +1,17 @@
 [
   {
+    "slug": "social-posts",
+    "path": "social-posts/",
+    "title": "Social media posts",
+    "what": "27 Instagram and TikTok post ideas to get new people walking their first story, each as a clickable mock-up: carousels, stories with poll, quiz and slider stickers, and reels. Includes the Instagram ideas from Help me choose a story, which link across.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "lock-screen",
     "path": "lock-screen/",
     "title": "Lock screen and widgets: the story keeps walking with you",

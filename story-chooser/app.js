@@ -216,8 +216,11 @@ export function renderResult(ctx, opts = {}) {
 function renderPicker(app) {
   document.title = 'Story City · Help me choose a story';
   app.innerHTML = '';
+  // the Instagram ideas also live in the Social media posts experiment; say so and link across
+  const alsoSocial = () => el('p', { class: 'also-note' }, 'These Instagram ideas are also in Social media posts, with the rest of our post ideas. ', el('a', { href: '../social-posts/', text: 'Open Social Media Posts ›' }));
   const group = (title, channel) => [
     el('div', { class: 'group-title', text: title }),
+    channel === 'instagram' ? alsoSocial() : null,
     VARIANTS.filter(v => (channel === 'round2' ? v.round === 2 : (v.channel === channel && !v.round))).map(v => el('a', { class: 'vcard ' + v.channel, href: `?v=${v.slug}` },
       el('span', { class: 'num', text: v.n }),
       el('span', { class: 't' }, el('b', { text: v.short }), el('span', { text: v.blurb })),
@@ -257,7 +260,9 @@ async function mountVariant(app, slug) {
   document.title = `Story City · ${meta.short}`;
   app.innerHTML = '';
   const stage = el('main', { class: 'stage', id: 'stage' });
-  app.append(topbar(meta), stage);
+  app.append(topbar(meta));
+  if (meta.channel === 'instagram') app.append(el('p', { class: 'also-note in-variant' }, 'Also in Social media posts. ', el('a', { href: '../social-posts/', text: 'See All Post Ideas ›' })));
+  app.append(stage);
   let mod;
   try { mod = (await import(`./variants/${slug}.js` + V)).default; }
   catch (e) { console.error(e); stage.append(el('p', { class: 'muted', text: 'This way isn’t built yet.' })); return; }
