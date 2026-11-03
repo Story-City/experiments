@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Story City · Lock screen</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap">
+<script>window.CACHE_V='?v='+Date.now();document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);</script>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="intro">
+      <p class="eyebrow" id="pageKicker"></p>
+      <h1 id="pageTitle"></h1>
+      <p class="lede" id="pageBody"></p>
+    </div>
+    <div class="caption" id="caption" aria-live="polite">
+      <p class="eyebrow" id="capKicker"></p>
+      <h2 id="capTitle"></h2>
+      <p id="capBody"></p>
+    </div>
+    <div class="controls" id="controls">
+      <div class="row">
+        <label class="sel">
+          <span class="sr-only" id="surfaceLabel"></span>
+          <select id="surface" aria-labelledby="surfaceLabel"></select>
+        </label>
+        <div class="seg" id="platform" role="group"></div>
+      </div>
+      <div class="row">
+        <button class="btn" id="walkBtn" type="button"></button>
+        <button class="btn sec" id="tourBtn" type="button"></button>
+      </div>
+      <div class="tourbar" id="tourBar" hidden><i id="tourFill"></i></div>
+    </div>
+  </aside>
+
+  <main class="stage" id="stage">
+    <div class="device-box" id="deviceBox">
+      <div class="phone ios" id="phone"></div>
+      <div class="watch" id="watch" hidden></div>
+    </div>
+  </main>
+</div>
+<p class="draft-flag" id="draft"></p>
+<script type="module">import(`./app.js${window.CACHE_V}`);</script>
+</body>
+</html>

@@ -1,5 +1,29 @@
 [
   {
+    "slug": "lock-screen",
+    "path": "lock-screen/",
+    "title": "Lock screen: the story keeps walking with you",
+    "what": "A chapter of The Summons living outside the app: lock-screen Live Activity with distance, a progress bar and a story line that changes as you walk, plus the Dynamic Island and a watch face. iPhone and Android, with a Tour.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
+    "slug": "lock-screen-widgets",
+    "path": "lock-screen/?s=widgets",
+    "title": "Home-screen widgets: your next walk",
+    "what": "Small, medium and large widgets: your next planned walk, gems nearby glowing in their colours, a tiny map, badges. A gentle “Pick a Walk” when nothing's planned, never guilt.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "story-tools",
     "path": "story-tools/",
     "title": "Story Tools",
