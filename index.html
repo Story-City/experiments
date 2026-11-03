@@ -47,7 +47,8 @@
   html { background: radial-gradient(120% 60% at 50% 0%, #2A1658 0%, var(--midnight) 55%, var(--ink) 100%) fixed var(--ink); }
   body { background: transparent; }
   .kicker { margin: 0 0 6px; font: 700 13px/1 var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--glow); }
-  h1 { margin: 0 0 6px; font: 600 40px/1.05 var(--f-head); letter-spacing: -.01em; }
+  h1 { margin: 0 0 6px; font: 600 40px/1.05 var(--f-head); letter-spacing: -.01em; text-wrap: balance; }
+  .empty { margin: 0; color: var(--text-muted); }
   h2 { margin: 40px 0 14px; font: 700 13px/1 var(--f-body); text-transform: uppercase; letter-spacing: .1em; color: var(--glow); }
   .sub { margin: 0 0 20px; color: var(--text-muted); }
   /* gallery: 1 across on phones, 2 on tablets, 3 on computers */
@@ -61,6 +62,13 @@
   li[data-author="victoria"], .chip[data-author="victoria"] { --who: var(--author-victoria); }
   li[hidden] { display: none; }
 
+  /* Experiments | Polls tabs across the top */
+  .tabs { display: flex; gap: 4px; margin: 0 0 20px; border-bottom: 1px solid var(--border); }
+  .tab { appearance: none; background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 10px 14px; font: 700 18px/1.2 var(--f-body); color: var(--text-muted); cursor: pointer; display: flex; align-items: baseline; gap: 8px; }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--glow); }
+  .tab:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; border-radius: 6px 6px 0 0; }
+  .tab .n { font-size: 13px; font-weight: 500; color: var(--lilac); }
   .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; }
   .chip {
     --who: var(--accent);
@@ -136,15 +144,23 @@
 <p class="kicker">Story City</p>
 <h1>Experiments and polls</h1>
 <p class="sub">Throwaway prototypes for playtests, and team polls. Open them on a phone.</p>
+<div class="tabs" role="tablist" aria-label="Section">
+  <button class="tab" type="button" role="tab" id="tab-experiments" data-tab="experiments" aria-controls="panel-experiments" aria-selected="true">Experiments <span class="n" id="n-experiments"></span></button>
+  <button class="tab" type="button" role="tab" id="tab-polls" data-tab="polls" aria-controls="panel-polls" aria-selected="false" tabindex="-1">Polls <span class="n" id="n-polls"></span></button>
+</div>
 <div class="filters" role="group" aria-label="Filter by author"></div>
 
+<section id="panel-experiments" role="tabpanel" aria-labelledby="tab-experiments">
 <ul id="live"></ul>
-
-<h2 id="polls-heading">Polls</h2>
-<ul id="polls"></ul>
 
 <h2 id="archived-heading">Archived</h2>
 <ul id="archived"></ul>
+</section>
+
+<section id="panel-polls" role="tabpanel" aria-labelledby="tab-polls" hidden>
+<ul id="polls"></ul>
+<p class="empty" id="polls-empty" hidden>No polls from this person yet.</p>
+</section>
 
 <script type="module">
   import * as store from './hub/store.js';
@@ -244,15 +260,43 @@
     if (key && !authors.has(key)) key = '';
     for (const b of chips) b.setAttribute('aria-pressed', String((b.dataset.author || '') === key));
     for (const li of items) li.hidden = !!key && li.dataset.author !== key;
-    for (const id of ['polls', 'archived'])
-      document.getElementById(`${id}-heading`).hidden =
-        ![...document.querySelectorAll(`#${id} li`)].some(li => !li.hidden);
+    document.getElementById('archived-heading').hidden =
+      ![...document.querySelectorAll('#archived li')].some(li => !li.hidden);
+    document.getElementById('n-experiments').textContent = [...document.querySelectorAll('#live li')].filter(li => !li.hidden).length;
+    const pollCount = [...document.querySelectorAll('#polls li')].filter(li => !li.hidden).length;
+    document.getElementById('n-polls').textContent = pollCount;
+    document.getElementById('polls-empty').hidden = pollCount > 0;
     const url = new URL(location.href);
     key ? url.searchParams.set('by', key) : url.searchParams.delete('by');
     history.replaceState(null, '', url);
   }
 
   apply(new URLSearchParams(location.search).get('by') || '');
+
+  // Experiments | Polls tabs; ?tab=polls opens Polls
+  const tabs = [...document.querySelectorAll('.tab')];
+  function show(name, focus) {
+    if (!tabs.some(b => b.dataset.tab === name)) name = 'experiments';
+    for (const b of tabs) {
+      const on = b.dataset.tab === name;
+      b.setAttribute('aria-selected', String(on));
+      b.tabIndex = on ? 0 : -1;
+      document.getElementById(b.getAttribute('aria-controls')).hidden = !on;
+      if (on && focus) b.focus();
+    }
+    const url = new URL(location.href);
+    name === 'polls' ? url.searchParams.set('tab', name) : url.searchParams.delete('tab');
+    history.replaceState(null, '', url);
+  }
+  for (const b of tabs) {
+    b.addEventListener('click', () => show(b.dataset.tab));
+    b.addEventListener('keydown', ev => {
+      if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+      const i = (tabs.indexOf(b) + (ev.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+      show(tabs[i].dataset.tab, true);
+    });
+  }
+  show(new URLSearchParams(location.search).get('tab') || 'experiments');
 
   try {
     const ctx = await store.init();
