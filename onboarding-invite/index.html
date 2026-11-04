@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="place.css?v=6">
+<link rel="stylesheet" href="place.css?v=7">
 </head>
 <body data-place="feed">
 <!--
@@ -49,6 +49,9 @@
 
       <!-- Onboarding invite: portal guide, after Featured / before Continue -->
       <aside class="guide-invite" id="guideInviteFeed" aria-label="Onboarding">
+        <button type="button" class="guide-x" data-dismiss aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
         <div class="guide-stage" aria-hidden="true">
           <div class="guide-portal" id="portalFeed"></div>
           <img class="guide-char"
@@ -59,7 +62,6 @@
           <p class="guide-line">Wanna try the onboarding now?</p>
           <div class="guide-actions">
             <a class="guide-cta" href="../first-steps/?v=summons">Try it</a>
-            <button type="button" class="guide-been" data-dismiss>Been there.</button>
           </div>
         </div>
       </aside>
@@ -88,6 +90,9 @@
   <div class="surface surface-overview" id="surfaceOverview" hidden>
     <iframe class="overview-frame" title="Story overview" src="../audio-preview/?v=23&amp;c=tales&amp;tip=place"></iframe>
     <aside class="guide-invite guide-invite--drop" id="guideInviteOverview" hidden aria-label="Onboarding">
+      <button type="button" class="guide-x" data-dismiss aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
       <div class="guide-stage" aria-hidden="true">
         <div class="guide-portal" id="portalOverview"></div>
         <img class="guide-char"
@@ -98,7 +103,6 @@
         <p class="guide-line">Wanna try the onboarding now?</p>
         <div class="guide-actions">
           <a class="guide-cta" href="../first-steps/?v=summons">Try it</a>
-          <button type="button" class="guide-been" data-dismiss>Been there.</button>
         </div>
       </div>
     </aside>
@@ -106,6 +110,6 @@
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>

@@ -197,19 +197,28 @@ button, a { font: inherit; color: inherit; }
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
 }
 
-/* Horizontal onboarding strip — portal guide only */
+/* Horizontal onboarding strip — portal guide only (no card chrome) */
 .guide-invite {
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 4px;
   margin: 16px var(--pad) 0;
   min-height: 132px;
-  padding: 4px 12px 4px 0;
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--raised) 92%, transparent);
+  padding: 4px 28px 4px 0;
+  background: transparent;
   border: 0;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  box-shadow: none;
+  outline: none;
+}
+.guide-invite.is-out {
+  animation: invite-slide-away 0.38s ease-in forwards;
+  pointer-events: none;
+}
+@keyframes invite-slide-away {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-36px); }
 }
 .guide-stage {
   position: relative;
@@ -268,17 +277,31 @@ button, a { font: inherit; color: inherit; }
   font-weight: 800;
   text-decoration: none;
 }
-.guide-been {
+/* App Ionicons "close" — little corner dismiss */
+.guide-x {
   appearance: none;
+  position: absolute;
+  top: 2px;
+  right: 0;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
   border: 0;
   background: transparent;
-  padding: 6px 4px;
   color: rgba(255, 255, 255, 0.72);
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 3px;
   cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.guide-x svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.4;
+  stroke-linecap: round;
 }
 
 .surface-overview { background: var(--bg); }
@@ -303,6 +326,9 @@ button, a { font: inherit; color: inherit; }
 .guide-invite--drop.is-in {
   animation: invite-drop-top 0.55s cubic-bezier(0.2, 1.1, 0.4, 1) forwards;
   pointer-events: auto;
+}
+.guide-invite--drop.is-out {
+  animation: invite-slide-away 0.38s ease-in forwards;
 }
 @keyframes invite-drop-top {
   from { opacity: 0; transform: translateY(-28px); }

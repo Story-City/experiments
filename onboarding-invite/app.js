@@ -35,13 +35,13 @@
     } catch (_) { /* ignore */ }
   }
 
-  function tintPortalPurple(anim) {
+  function tintPortalBrand(anim) {
     try {
       const root = anim.renderer && anim.renderer.svgElement;
       if (!root) return;
       root.querySelectorAll('[fill]').forEach((node) => {
         const f = node.getAttribute('fill');
-        if (f && f !== 'none' && f !== 'transparent') node.setAttribute('fill', '#7c4ded');
+        if (f && f !== 'none' && f !== 'transparent') node.setAttribute('fill', '#009eff');
       });
     } catch (_) { /* best-effort */ }
   }
@@ -57,7 +57,7 @@
       path: PORTAL_LOTTIE,
     });
     anim.setSpeed(0.85);
-    anim.addEventListener('DOMLoaded', () => tintPortalPurple(anim));
+    anim.addEventListener('DOMLoaded', () => tintPortalBrand(anim));
     anims[key] = anim;
   }
 
@@ -75,10 +75,23 @@
     }
   }
 
-  function dismissInvite(el) {
+  const SLIDE_AWAY_MS = 380;
+
+  function hideInviteNow(el) {
     if (!el) return;
     el.hidden = true;
+    el.classList.remove('is-in', 'is-out');
+  }
+
+  function slideAwayInvite(el) {
+    if (!el || el.hidden || el.classList.contains('is-out')) return;
     el.classList.remove('is-in');
+    el.classList.add('is-out');
+    window.setTimeout(() => {
+      hideInviteNow(el);
+      if (el === inviteFeed) stopPortal('feed');
+      if (el === inviteOverview) stopPortal('overview');
+    }, SLIDE_AWAY_MS);
   }
 
   function applyPlace(place) {
@@ -91,9 +104,12 @@
     if (next === 'feed') {
       overview.hidden = true;
       feed.hidden = false;
-      dismissInvite(inviteOverview);
+      hideInviteNow(inviteOverview);
       stopPortal('overview');
-      if (inviteFeed) inviteFeed.hidden = false;
+      if (inviteFeed) {
+        inviteFeed.hidden = false;
+        inviteFeed.classList.remove('is-out');
+      }
       mountPortal('feed');
       return;
     }
@@ -101,11 +117,12 @@
     feed.hidden = true;
     overview.hidden = false;
     stopPortal('feed');
-    dismissInvite(inviteOverview);
+    hideInviteNow(inviteOverview);
     lingerTimer = window.setTimeout(() => {
       mountPortal('overview');
       if (inviteOverview) {
         inviteOverview.hidden = false;
+        inviteOverview.classList.remove('is-out');
         requestAnimationFrame(() => inviteOverview.classList.add('is-in'));
       }
     }, OVERVIEW_LINGER_MS);
@@ -113,12 +130,7 @@
 
   btns.forEach((b) => b.addEventListener('click', () => applyPlace(b.dataset.place)));
   document.querySelectorAll('[data-dismiss]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const card = btn.closest('.guide-invite');
-      dismissInvite(card);
-      if (card === inviteFeed) stopPortal('feed');
-      if (card === inviteOverview) stopPortal('overview');
-    });
+    btn.addEventListener('click', () => slideAwayInvite(btn.closest('.guide-invite')));
   });
 
   applyPlace(placeFromQuery());
