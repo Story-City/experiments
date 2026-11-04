@@ -218,9 +218,9 @@
   },
   {
     "slug": "onboarding-invite",
-    "path": "onboarding-invite/?v=feed&bust=13",
+    "path": "onboarding-invite/?v=feed&bust=14",
     "title": "Onboarding · guide on Explore",
-    "what": "App Explore Netflix layout. Summons portal+sprite on purple card. Copy: missed the sample / tiny story / learn the tools.",
+    "what": "App Explore Netflix layout. Summons portal+sprite on purple card. Explore dismiss slides right; overview slides up. Copy: missed the sample / learn the tools.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

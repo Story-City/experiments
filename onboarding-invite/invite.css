@@ -218,13 +218,14 @@ button, a { font: inherit; color: inherit; }
   background: var(--raised);
   overflow: visible;
 }
+/* Explore feed: dismiss slides out to the right */
 .guide-invite.is-out {
-  animation: invite-slide-away 0.38s ease-in forwards;
+  animation: invite-slide-right 0.38s ease-in forwards;
   pointer-events: none;
 }
-@keyframes invite-slide-away {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-36px); }
+@keyframes invite-slide-right {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(48%); }
 }
 .guide-stage {
   position: relative;
@@ -344,10 +345,15 @@ button, a { font: inherit; color: inherit; }
   animation: invite-drop-top 0.55s cubic-bezier(0.2, 1.1, 0.4, 1) forwards;
   pointer-events: auto;
 }
+/* Story overview: dismiss slides up (same direction it dropped in) */
 .guide-invite--drop.is-out {
-  animation: invite-slide-away 0.38s ease-in forwards;
+  animation: invite-slide-up 0.38s ease-in forwards;
 }
 @keyframes invite-drop-top {
   from { opacity: 0; transform: translateY(-28px); }
   to { opacity: 1; transform: translateY(0); }
+}
+@keyframes invite-slide-up {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-36px); }
 }
