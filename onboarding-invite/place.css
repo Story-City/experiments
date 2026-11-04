@@ -208,10 +208,8 @@ button, a { font: inherit; color: inherit; }
   padding: 4px 12px 4px 0;
   border-radius: 18px;
   background: color-mix(in srgb, var(--raised) 92%, transparent);
-  border: 1px solid color-mix(in srgb, var(--blue) 55%, transparent);
-  box-shadow:
-    0 8px 28px rgba(0, 0, 0, 0.35),
-    0 0 24px color-mix(in srgb, var(--blue) 28%, transparent);
+  border: 0;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
 }
 .guide-stage {
   position: relative;
