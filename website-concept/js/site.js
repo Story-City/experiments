@@ -227,7 +227,7 @@
 
   /* ---------- Modes explorer: Walk / Path / Hunt on one drawn street map ---------- */
   const MODES = {
-    walk: { title: 'Walk', line: 'Steps unlock the next chapter.', body: 'Head any way you like. A dotted path fills from gold to green as you go, and the ring around you shrinks until the chapter opens.', hud: ['Walk 30 steps', 'to unlock chapter 2'] },
+    walk: { title: 'Steps', line: 'Steps unlock the next chapter.', body: 'Head any way you like. A dotted path fills from gold to green as you go, and the ring around you shrinks until the chapter opens.', hud: ['Walk 30 steps', 'to unlock chapter 2'] },
     path: { title: 'Path', line: 'The story sends you somewhere real.', body: 'A blue route leads to a real place nearby, like the park on the corner or the library steps. Arrive, and the scene plays out there.', hud: ['Head to the park', 'chapter 3 waits there'] },
     hunt: { title: 'Hunt', line: 'Find it. Photograph it.', body: 'A purple sweep searches the streets around you. Spot something that fits the clue, snap a photo, and the story believes you.', hud: ['Find something red', 'and take its photo'] }
   };

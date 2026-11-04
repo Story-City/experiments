@@ -193,7 +193,7 @@ export function renderResult(ctx, opts = {}) {
       el('div', { class: 'walk' }, el('span', { text: (new Date().getHours() >= 17 || new Date().getHours() < 5) ? 'Tonight’s walk' : 'Today’s walk' }), el('b', { text: `“${walk}”` }))),
     el('div', { class: 'eyebrow story-eyebrow', text: 'Your story' }),
     el('h2', { text: s.name }),
-    el('div', { class: 'meta muted', text: `${s.minutes} min · ${s.where} · ${s.mode === 'walk' ? 'Walk mode' : s.mode === 'pin' ? 'Pin mode' : 'Hunt mode'}` }),
+    el('div', { class: 'meta muted', text: `${s.minutes} min · ${s.where} · ${s.mode === 'walk' ? 'Steps mode' : s.mode === 'pin' ? 'Pin mode' : 'Hunt mode'}` }),
     el('p', { class: 'blurb', text: s.blurb }),
     el('div', { class: 'row' }, start),
     coverEl(s),

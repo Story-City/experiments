@@ -65,7 +65,7 @@
   };
 
   const MODES = {
-    walk: { label: 'Walk', icon: '<path d="M8 20c-1.7 0-2.6-1.5-2.4-3.4.2-2.2 1.3-3.6 2.7-3.5 1.4.1 2 1.7 1.8 3.7-.2 1.9-.9 3.2-2.1 3.2zM16 11c-1.2 0-1.9-1.3-2.1-3.2-.2-2 .4-3.6 1.8-3.7 1.4-.1 2.5 1.3 2.7 3.5.2 1.9-.7 3.4-2.4 3.4z"/>' },
+    walk: { label: 'Steps', icon: '<path d="M8 20c-1.7 0-2.6-1.5-2.4-3.4.2-2.2 1.3-3.6 2.7-3.5 1.4.1 2 1.7 1.8 3.7-.2 1.9-.9 3.2-2.1 3.2zM16 11c-1.2 0-1.9-1.3-2.1-3.2-.2-2 .4-3.6 1.8-3.7 1.4-.1 2.5 1.3 2.7 3.5.2 1.9-.7 3.4-2.4 3.4z"/>' },
     path: { label: 'Path', icon: '<path d="M12 21s-6-5.6-6-10.5a6 6 0 0 1 12 0C18 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.2"/>' },
     hunt: { label: 'Hunt', icon: '<path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H8l1.5-2h5L16 6h1.5A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.5"/>' }
   };
@@ -528,7 +528,7 @@ out center tags qt 160;`;
     let m = MODES[mode].label, t;
     if (mode === 'walk') {
       if (!scene.walk) t = 'Walk somewhere new and the next chapter unlocks';
-      else { const total = Math.round(scene.walk.len / .75 / 10) * 10, left = Math.round(total * (1 - p) / 10) * 10; t = p >= 1 ? 'Chapter 2 unlocked' : `${fmt(left)} steps to Chapter 2`; if (announce) live.textContent = `Walk mode. About ${fmt(total)} steps along these streets unlocks Chapter 2.`; }
+      else { const total = Math.round(scene.walk.len / .75 / 10) * 10, left = Math.round(total * (1 - p) / 10) * 10; t = p >= 1 ? 'Chapter 2 unlocked' : `${fmt(left)} steps to Chapter 2`; if (announce) live.textContent = `Steps mode. About ${fmt(total)} steps along these streets unlocks Chapter 2.`; }
     } else if (mode === 'path') {
       const r = scene.route; const n = r && (r.poi.name || (r.poi.type === 'nature' ? 'the park around the corner' : 'a spot around the corner'));
       t = r ? `Chapter 2 waits at ${n} · ${fmt(r.len)} m` : 'Chapter 2 waits at a real place nearby';

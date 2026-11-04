@@ -140,7 +140,7 @@ export function createMap({ phone, getSpeed, camera }) {
           <div class="hud-bar" hidden><i></i></div>
         </div>
         <div class="map-key glass">
-          <span data-k="walk"><b class="k-walk"></b>Walk to unlock</span>
+          <span data-k="walk"><b class="k-walk"></b>Steps to unlock</span>
           <span data-k="auto"><b class="k-auto"></b>Nearby spot</span>
           <span data-k="hunt"><b class="k-hunt"></b>Scavenger hunt</span>
         </div>
@@ -196,7 +196,7 @@ export function createMap({ phone, getSpeed, camera }) {
 
   function setMode(kind, title) {
     sheet.dataset.mode = kind;
-    const chip = { walk: 'Walk to unlock', auto: 'Nearby spot', hunt: 'Scavenger hunt', gem: 'Location gem' }[kind];
+    const chip = { walk: 'Steps to unlock', auto: 'Nearby spot', hunt: 'Scavenger hunt', gem: 'Location gem' }[kind];
     $('.mode-chip').textContent = chip;
     $('.hud-title').textContent = title;
     $('.hud-bar').hidden = kind !== 'walk';

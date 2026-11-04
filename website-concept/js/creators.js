@@ -45,8 +45,8 @@
       b.type = 'button'; b.className = 'cb-sw' + (neutral ? ' neutral' : '');
       b.style.setProperty('--c', `var(--${v})`);
       b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', 'false');
-      b.setAttribute('aria-label', name + (v === 'citrine' ? ' (also the Walk start colour)' : '') + (neutral ? ' (neutral)' : ''));
-      b.dataset.v = v; b.dataset.n = name; b.dataset.k = neutral ? 'Neutral' : (v === 'citrine' ? 'Story accent · also Walk start' : 'Story accent');
+      b.setAttribute('aria-label', name + (v === 'citrine' ? ' (also the Steps start colour)' : '') + (neutral ? ' (neutral)' : ''));
+      b.dataset.v = v; b.dataset.n = name; b.dataset.k = neutral ? 'Neutral' : (v === 'citrine' ? 'Story accent · also Steps start' : 'Story accent');
       b.title = name;
       acc.append(b); all.push(b);
     };
@@ -106,7 +106,7 @@
   const tree = $('btTree'), svg = $('btSvg'), detail = $('btDetail');
   if (!tree) return;
   const MODES = {
-    walk: ['Walk', 'Steps unlock this chapter. A dotted path fades from gold to green as the player walks.'],
+    walk: ['Steps', 'Steps unlock this chapter. A dotted path fades from gold to green as the player walks.'],
     path: ['Path', 'Walk to a real place nearby. A blue route leads to a blue pin, about 150 m away.'],
     hunt: ['Hunt', 'Find something and photograph it. A purple sweep shows where to look.']
   };

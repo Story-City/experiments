@@ -330,7 +330,7 @@ export default {
       const hint = el('p', { class: 'hint muted', text: HINT });
       body.append(svg,
         el('div', { class: 'legend' },
-          el('span', {}, el('i', { style: { background: MODE_COLOUR.walk } }), 'Walk'),
+          el('span', {}, el('i', { style: { background: MODE_COLOUR.walk } }), 'Steps'),
           el('span', {}, el('i', { style: { background: MODE_COLOUR.pin } }), 'Pin'),
           el('span', {}, el('i', { style: { background: MODE_COLOUR.hunt } }), 'Hunt')),
         hint);

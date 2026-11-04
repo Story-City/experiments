@@ -1,7 +1,7 @@
 // Every line of text in the fog mode mockup. Edit here; one line = one change.
 
 export const MODES = {
-  walk: { label: 'Walk', chip: 'Walk to unlock' },
+  walk: { label: 'Steps', chip: 'Steps to unlock' },
   pin: { label: 'Pin', chip: 'Pin nearby' },
   hunt: { label: 'Hunt', chip: 'Scavenger hunt' },
 };

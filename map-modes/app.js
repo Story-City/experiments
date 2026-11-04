@@ -6,7 +6,7 @@
 
 // Mode names live here so they're a one-line change.
 const MODES = {
-  walk: { label: 'Walk', chip: 'Walk to unlock' },
+  walk: { label: 'Steps', chip: 'Steps to unlock' },
   pin: { label: 'Pin', chip: 'Pin nearby' },
   hunt: { label: 'Hunt', chip: 'Scavenger hunt' },
 };
@@ -413,8 +413,8 @@ function reset() {
 
 $('resetBtn').addEventListener('click', reset);
 // Both versions live in this one experiment: this button swaps between them.
-$('verBtn').textContent = ALWAYS ? '⇄ Walk, Pin, Hunt' : '⇄ Always a pin';
-$('verBtn').setAttribute('aria-label', ALWAYS ? 'Switch to the Walk, Pin, Hunt version' : 'Switch to the Always a pin version');
+$('verBtn').textContent = ALWAYS ? '⇄ Steps, Pin, Hunt' : '⇄ Always a pin';
+$('verBtn').setAttribute('aria-label', ALWAYS ? 'Switch to the Steps, Pin, Hunt version' : 'Switch to the Always a pin version');
 $('verBtn').addEventListener('click', () => {
   const u = new URL(location.href);
   if (ALWAYS) u.searchParams.delete('v'); else u.searchParams.set('v', 'always');

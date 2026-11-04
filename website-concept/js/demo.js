@@ -72,7 +72,7 @@ const COLS = 6, ROWS = 8;
 const RAIL = [
   { id: 'chat', t: 'Stories told in chat', d: 'Characters message you, like a friend texting. This one is Wren.' },
   { id: 'choice', t: 'Your replies are choices', d: 'Tap a reply. What you choose changes what happens next.' },
-  { id: 'walk', t: 'Walk mode', d: 'This is Walk mode — steps unlock the next chapter. The ring shrinks as you go. Path and Hunt sit right beside it.' },
+  { id: 'walk', t: 'Steps mode', d: 'This is Steps mode — steps unlock the next chapter. The ring shrinks as you go. Path and Hunt sit right beside it.' },
   { id: 'decrypt', t: 'Puzzles in the story', d: 'Some puzzles hide a message under colours. Tap the matching colour to clear the letter. Puzzles never need steps.' },
   { id: 'gem', t: 'Location gems', d: 'Save the spots you love. Five types, each with its own shape and colour.' },
   { id: 'end', t: 'What happens next', d: 'The full story keeps going, out on your own streets.' },
@@ -215,7 +215,7 @@ function shell() {
               ${mapSVG()}
               <div class="demo-maptop">
                 <div class="demo-modes" role="group" aria-label="Map mode">
-                  <button class="demo-mode" data-mode="walk" aria-pressed="true">${icon('walk')}Walk</button>
+                  <button class="demo-mode" data-mode="walk" aria-pressed="true">${icon('walk')}Steps</button>
                   <button class="demo-mode" data-mode="path" aria-pressed="false">${icon('path')}Path</button>
                   <button class="demo-mode" data-mode="hunt" aria-pressed="false">${icon('hunt')}Hunt</button>
                 </div>
@@ -528,11 +528,11 @@ function mount(root) {
 
   root.querySelectorAll('.demo-mode').forEach((b) => b.addEventListener('click', () => {
     const m = b.dataset.mode;
-    if (m === 'walk') { toast('Walk: steps unlock the next chapter.'); return; }
+    if (m === 'walk') { toast('Steps: your steps unlock the next chapter.'); return; }
     if (!RM.matches && b.animate) b.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-3px)' }, { transform: 'translateX(3px)' }, { transform: 'none' }], { duration: 220 });
     toast(m === 'path'
-      ? 'Path: walk to a real place nearby, following a blue route to a blue pin. This chapter wants steps, so Walk it is.'
-      : 'Hunt: find something and take its picture. Not this chapter. For now, Walk.', 4800);
+      ? 'Path: walk to a real place nearby, following a blue route to a blue pin. This chapter wants steps, so Steps it is.'
+      : 'Hunt: find something and take its picture. Not this chapter. For now, Steps.', 4800);
   }));
 
   const walkDone = () => guard(new Promise((res) => { if (S.steps >= GOAL) res(); else walkResolve = res; }));
