@@ -218,9 +218,9 @@
   },
   {
     "slug": "onboarding-invite",
-    "path": "onboarding-invite/?v=1",
-    "title": "Onboarding invite · portal tip",
-    "what": "Horizontal invite card after Continue / featured: reuses the audio-preview tip + FTUE door character, portal jewel rim from Story Tools Portal, CTA into first-steps Summons. Modes: feed insert, overview linger drop from top, linger rise from bottom.",
+    "path": "onboarding-invite/?v=2",
+    "title": "Onboarding · guide portal",
+    "what": "Summons FTUE door guide steps through the exact welcome_hook_reveal_first portal Lottie. Horizontal invite on the stories feed (between story rows) and the same card on story overview after a linger. Phrases + CTA into first-steps Summons. No new portal art.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
