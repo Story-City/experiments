@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="place.css?v=7">
+<link rel="stylesheet" href="place.css?v=8">
 </head>
 <body data-place="feed">
 <!--
@@ -47,19 +47,21 @@
         </div>
       </section>
 
-      <!-- Onboarding invite: portal guide, after Featured / before Continue -->
+      <!-- Onboarding invite: portal guide + Summons tip dialogue (script/summons.ts) -->
       <aside class="guide-invite" id="guideInviteFeed" aria-label="Onboarding">
-        <button type="button" class="guide-x" data-dismiss aria-label="Close">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-        </button>
         <div class="guide-stage" aria-hidden="true">
           <div class="guide-portal" id="portalFeed"></div>
           <img class="guide-char"
             src="https://creator.storycity.app/media/6ad14ddd3f3ee_ftue-door-summons-character.png"
             alt="" width="720" height="1000" decoding="async">
         </div>
-        <div class="guide-copy">
-          <p class="guide-line">Wanna try the onboarding now?</p>
+        <div class="guide-tip">
+          <button type="button" class="guide-x" data-dismiss aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+          <p class="guide-who">Unknown number</p>
+          <p class="guide-line">Hello.</p>
+          <p class="guide-line">This… ‘sample’ mission will take less than 5 minutes. Probably.</p>
           <div class="guide-actions">
             <a class="guide-cta" href="../first-steps/?v=summons">Try it</a>
           </div>
@@ -90,17 +92,19 @@
   <div class="surface surface-overview" id="surfaceOverview" hidden>
     <iframe class="overview-frame" title="Story overview" src="../audio-preview/?v=23&amp;c=tales&amp;tip=place"></iframe>
     <aside class="guide-invite guide-invite--drop" id="guideInviteOverview" hidden aria-label="Onboarding">
-      <button type="button" class="guide-x" data-dismiss aria-label="Close">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
       <div class="guide-stage" aria-hidden="true">
         <div class="guide-portal" id="portalOverview"></div>
         <img class="guide-char"
           src="https://creator.storycity.app/media/6ad14ddd3f3ee_ftue-door-summons-character.png"
           alt="" width="720" height="1000" decoding="async">
       </div>
-      <div class="guide-copy">
-        <p class="guide-line">Wanna try the onboarding now?</p>
+      <div class="guide-tip">
+        <button type="button" class="guide-x" data-dismiss aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+        <p class="guide-who">Unknown number</p>
+        <p class="guide-line">Hello.</p>
+        <p class="guide-line">This… ‘sample’ mission will take less than 5 minutes. Probably.</p>
         <div class="guide-actions">
           <a class="guide-cta" href="../first-steps/?v=summons">Try it</a>
         </div>
@@ -110,6 +114,6 @@
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="app.js?v=7"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

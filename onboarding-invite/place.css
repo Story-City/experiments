@@ -197,16 +197,15 @@ button, a { font: inherit; color: inherit; }
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
 }
 
-/* Horizontal onboarding strip — portal guide only (no card chrome) */
+/* Portal guide + FTUE tip bubble (FtueMapElfTip: blue edge, night fill) */
 .guide-invite {
   position: relative;
   display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 4px;
+  align-items: flex-end;
+  gap: 0;
   margin: 16px var(--pad) 0;
-  min-height: 132px;
-  padding: 4px 28px 4px 0;
+  padding: 8px 0 0;
   background: transparent;
   border: 0;
   box-shadow: none;
@@ -222,9 +221,11 @@ button, a { font: inherit; color: inherit; }
 }
 .guide-stage {
   position: relative;
+  z-index: 2;
   flex: none;
-  width: 128px;
+  width: 112px;
   height: 128px;
+  margin-right: -18px;
 }
 .guide-portal {
   position: absolute;
@@ -249,24 +250,38 @@ button, a { font: inherit; color: inherit; }
   from { opacity: 0; transform: translateX(-46%) translateY(12px) scale(0.92); }
   to { opacity: 1; transform: translateX(-46%) translateY(0) scale(1); }
 }
-.guide-copy {
+.guide-tip {
+  position: relative;
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  padding: 14px 40px 14px 22px;
+  border-radius: 16px;
+  border: 1.5px solid var(--blue);
+  background: var(--bg);
+}
+.guide-who {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blue);
 }
 .guide-line {
   margin: 0;
   font-size: 15px;
-  font-weight: 800;
-  line-height: 1.15;
+  font-weight: 700;
+  line-height: 1.2;
 }
 .guide-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  padding-top: 4px;
 }
 .guide-cta {
   padding: 6px 14px;
@@ -277,30 +292,31 @@ button, a { font: inherit; color: inherit; }
   font-weight: 800;
   text-decoration: none;
 }
-/* App Ionicons "close" — little corner dismiss */
+/* App Ionicons-style close — solid chip so it reads on the tip */
 .guide-x {
   appearance: none;
   position: absolute;
-  top: 2px;
-  right: 0;
-  z-index: 2;
-  width: 28px;
-  height: 28px;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
   margin: 0;
   padding: 0;
   border: 0;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
   cursor: pointer;
   display: grid;
   place-items: center;
 }
 .guide-x svg {
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
+  width: 16px;
+  height: 16px;
+  stroke: #fff;
   fill: none;
-  stroke-width: 2.4;
+  stroke-width: 2.6;
   stroke-linecap: round;
 }
 
