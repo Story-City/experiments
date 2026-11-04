@@ -260,7 +260,8 @@ button, a { font: inherit; color: inherit; }
   padding: 14px 40px 14px 22px;
   border-radius: 16px;
   border: 1.5px solid var(--blue);
-  background: var(--bg);
+  background: var(--raised);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
 }
 .guide-who {
   margin: 0;
