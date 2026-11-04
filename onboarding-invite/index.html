@@ -8,92 +8,58 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800&display=swap" rel="stylesheet">
-<!-- Story overview shell tokens (cover / Continue) — not a new card system -->
-<link rel="stylesheet" href="../audio-preview/app.css?v=23">
-<link rel="stylesheet" href="place.css?v=2">
+<link rel="stylesheet" href="place.css?v=3">
 </head>
 <body data-place="feed">
-<main class="screen" id="screen">
+<main class="phone" id="phone">
   <div class="dbg" role="group" aria-label="Surface">
     <span class="dbg-label">on</span>
-    <button type="button" class="dbg-btn" data-place="feed" aria-pressed="true">stories feed</button>
+    <button type="button" class="dbg-btn" data-place="feed" aria-pressed="true">Netflix feed</button>
     <button type="button" class="dbg-btn" data-place="overview" aria-pressed="false">story overview</button>
   </div>
 
-  <!-- Stories feed: invite sits adjacent to story rows -->
-  <div class="surface surface-feed" id="surfaceFeed">
-    <header class="feed-head">
-      <h1 class="section-title">Stories</h1>
-    </header>
-    <div class="feed-scroll">
-      <article class="feed-story">
-        <img src="https://creator.storycity.app/media/6ab6d67bab537_Ep5_Intro-1.jpg" alt="" width="600" height="400">
-        <div class="feed-story-copy">
-          <strong>Tales from the Incident</strong>
-          <span>Featured</span>
+  <!-- Exact App Store shot of the Netflix-style story-card home -->
+  <div class="surface" id="surfaceFeed">
+    <img class="shot" src="stolen/appstore/ipad1.png" alt="Stories feed with Netflix-style rows" width="1170" height="1560" decoding="async">
+    <aside class="guide-invite" id="guideInviteFeed" aria-label="Onboarding">
+      <div class="guide-stage" aria-hidden="true">
+        <div class="guide-portal" id="portalFeed"></div>
+        <img class="guide-char"
+          src="https://creator.storycity.app/media/6ad14ddd3f3ee_ftue-door-summons-character.png"
+          alt="" width="720" height="1000" decoding="async">
+      </div>
+      <div class="guide-copy">
+        <p class="guide-line">Wanna try the onboarding now?</p>
+        <div class="guide-actions">
+          <a class="guide-cta" href="../first-steps/?v=summons">Try it</a>
+          <button type="button" class="guide-been" data-dismiss>Been there.</button>
         </div>
-      </article>
-
-      <!-- THE invite: FTUE Summons portal Lottie + door guide, stolen exact -->
-      <aside class="guide-invite" id="guideInviteFeed" aria-label="Onboarding">
-        <div class="guide-stage" aria-hidden="true">
-          <div class="guide-portal" id="portalFeed"></div>
-          <img class="guide-char"
-            src="https://creator.storycity.app/media/6ad14ddd3f3ee_ftue-door-summons-character.png"
-            alt=""
-            width="720" height="1000"
-            decoding="async">
-        </div>
-        <div class="guide-copy">
-          <p class="guide-line">Wanna try the onboarding now?</p>
-          <p class="guide-sub">This keeps your first steps.</p>
-          <a class="guide-cta" href="../first-steps/?v=summons">Try onboarding</a>
-        </div>
-      </aside>
-
-      <article class="feed-story">
-        <img src="../audio-preview/place/tales.jpg" alt="" width="600" height="400">
-        <div class="feed-story-copy">
-          <strong>Continue</strong>
-          <span>In progress</span>
-        </div>
-      </article>
-    </div>
+      </div>
+    </aside>
   </div>
 
-  <!-- Story overview: same guide card, drops in after a linger -->
-  <div class="surface surface-overview" id="surfaceOverview" hidden>
-    <section class="cover" aria-label="Story overview">
-      <img src="https://creator.storycity.app/media/6ab6d67bab537_Ep5_Intro-1.jpg" alt="" width="1200" height="1600">
-      <div class="scrim"></div>
-      <div class="on-cover">
-        <p class="author">Story City</p>
-        <h1>Tales from the Incident</h1>
-      </div>
-    </section>
-    <div class="rest">
-      <button type="button" class="start">Start Adventure</button>
-      <p class="summary">Linger here — the guide steps through the portal.</p>
-    </div>
-    <aside class="guide-invite guide-invite--overlay" id="guideInviteOverview" hidden aria-label="Onboarding">
+  <!-- Exact App Store shot of story overview -->
+  <div class="surface" id="surfaceOverview" hidden>
+    <img class="shot" src="stolen/appstore/ipad2.png" alt="Story overview" width="1170" height="1560" decoding="async">
+    <aside class="guide-invite guide-invite--drop" id="guideInviteOverview" hidden aria-label="Onboarding">
       <div class="guide-stage" aria-hidden="true">
         <div class="guide-portal" id="portalOverview"></div>
         <img class="guide-char"
           src="https://creator.storycity.app/media/6ad14ddd3f3ee_ftue-door-summons-character.png"
-          alt=""
-          width="720" height="1000"
-          decoding="async">
+          alt="" width="720" height="1000" decoding="async">
       </div>
       <div class="guide-copy">
         <p class="guide-line">Wanna try the onboarding now?</p>
-        <p class="guide-sub">This keeps your first steps.</p>
-        <a class="guide-cta" href="../first-steps/?v=summons">Try onboarding</a>
+        <div class="guide-actions">
+          <a class="guide-cta" href="../first-steps/?v=summons">Try it</a>
+          <button type="button" class="guide-been" data-dismiss>Been there.</button>
+        </div>
       </div>
     </aside>
   </div>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

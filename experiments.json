@@ -218,9 +218,9 @@
   },
   {
     "slug": "onboarding-invite",
-    "path": "onboarding-invite/?v=2",
+    "path": "onboarding-invite/?v=3",
     "title": "Onboarding · guide portal",
-    "what": "Summons FTUE door guide steps through the exact welcome_hook_reveal_first portal Lottie. Horizontal invite on the stories feed (between story rows) and the same card on story overview after a linger. Phrases + CTA into first-steps Summons. No new portal art.",
+    "what": "Exact App Store Netflix-rows stories screenshot + Summons portal Lottie/guide on top. Same card on story-overview screenshot after a linger. Copy: Wanna try the onboarding now? / Been there.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

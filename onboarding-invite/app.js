@@ -1,21 +1,21 @@
 (() => {
   'use strict';
 
-  /** Stolen from mobile-rn WelcomeHookDoorFrameLottie — Summons energy circle. */
+  /** Stolen welcome_hook_reveal_first — Summons energy-circle portal. */
   const PORTAL_LOTTIE = 'stolen/welcome_hook_reveal_first.json';
-  const OVERVIEW_LINGER_MS = 3200;
+  const OVERVIEW_LINGER_MS = 2800;
   const PLACES = ['feed', 'overview'];
 
   const body = document.body;
   const feed = document.getElementById('surfaceFeed');
   const overview = document.getElementById('surfaceOverview');
+  const inviteFeed = document.getElementById('guideInviteFeed');
   const inviteOverview = document.getElementById('guideInviteOverview');
   const btns = [...document.querySelectorAll('.dbg-btn[data-place]')];
   const portals = {
     feed: document.getElementById('portalFeed'),
     overview: document.getElementById('portalOverview'),
   };
-
   const anims = { feed: null, overview: null };
   let lingerTimer = 0;
 
@@ -36,28 +36,19 @@
   }
 
   function tintPortalPurple(anim) {
-    if (!anim || !anim.renderer) return;
     try {
-      const els = anim.renderer.elements || [];
-      els.forEach((el) => {
-        if (!el || !el.baseElement) return;
-        const fills = el.baseElement.querySelectorAll
-          ? el.baseElement.querySelectorAll('[fill]')
-          : [];
-        fills.forEach((node) => {
-          const f = node.getAttribute('fill');
-          if (f && f !== 'none' && f !== 'transparent') {
-            node.setAttribute('fill', '#7c4ded');
-          }
-        });
+      const root = anim.renderer && anim.renderer.svgElement;
+      if (!root) return;
+      root.querySelectorAll('[fill]').forEach((node) => {
+        const f = node.getAttribute('fill');
+        if (f && f !== 'none' && f !== 'transparent') node.setAttribute('fill', '#7c4ded');
       });
-    } catch (_) { /* best-effort tint */ }
+    } catch (_) { /* best-effort */ }
   }
 
   function mountPortal(key) {
     const host = portals[key];
-    if (!host || !window.lottie) return;
-    if (anims[key]) return;
+    if (!host || !window.lottie || anims[key]) return;
     const anim = window.lottie.loadAnimation({
       container: host,
       renderer: 'svg',
@@ -74,8 +65,7 @@
     if (!anims[key]) return;
     anims[key].destroy();
     anims[key] = null;
-    const host = portals[key];
-    if (host) host.innerHTML = '';
+    if (portals[key]) portals[key].innerHTML = '';
   }
 
   function clearLinger() {
@@ -83,6 +73,12 @@
       window.clearTimeout(lingerTimer);
       lingerTimer = 0;
     }
+  }
+
+  function dismissInvite(el) {
+    if (!el) return;
+    el.hidden = true;
+    el.classList.remove('is-in');
   }
 
   function applyPlace(place) {
@@ -95,11 +91,9 @@
     if (next === 'feed') {
       overview.hidden = true;
       feed.hidden = false;
-      if (inviteOverview) {
-        inviteOverview.hidden = true;
-        inviteOverview.classList.remove('is-in');
-      }
+      dismissInvite(inviteOverview);
       stopPortal('overview');
+      if (inviteFeed) inviteFeed.hidden = false;
       mountPortal('feed');
       return;
     }
@@ -107,10 +101,7 @@
     feed.hidden = true;
     overview.hidden = false;
     stopPortal('feed');
-    if (inviteOverview) {
-      inviteOverview.hidden = true;
-      inviteOverview.classList.remove('is-in');
-    }
+    dismissInvite(inviteOverview);
     lingerTimer = window.setTimeout(() => {
       mountPortal('overview');
       if (inviteOverview) {
@@ -121,5 +112,14 @@
   }
 
   btns.forEach((b) => b.addEventListener('click', () => applyPlace(b.dataset.place)));
+  document.querySelectorAll('[data-dismiss]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.guide-invite');
+      dismissInvite(card);
+      if (card === inviteFeed) stopPortal('feed');
+      if (card === inviteOverview) stopPortal('overview');
+    });
+  });
+
   applyPlace(placeFromQuery());
 })();
