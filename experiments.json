@@ -218,9 +218,9 @@
   },
   {
     "slug": "onboarding-invite",
-    "path": "onboarding-invite/?v=4",
+    "path": "onboarding-invite/?v=feed&bust=11",
     "title": "Onboarding · guide on Explore",
-    "what": "App Explore Netflix layout (Featured + 2:3 ExploreCard rows from Explore.tsx / ExploreCardStyles). Summons portal Lottie + FTUE door guide after Featured. Story overview via audio-preview + linger drop. Copy: Wanna try the onboarding now? / Been there.",
+    "what": "App Explore Netflix layout (Featured + 2:3 ExploreCard rows). Summons portal + door guide on a raised purple card (no outline). Story overview linger drop. Copy: Wanna try the onboarding now?",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

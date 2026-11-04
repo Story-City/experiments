@@ -35,13 +35,13 @@
     } catch (_) { /* ignore */ }
   }
 
-  function tintPortalBrand(anim) {
+  function tintPortalSoftPurple(anim) {
     try {
       const root = anim.renderer && anim.renderer.svgElement;
       if (!root) return;
       root.querySelectorAll('[fill]').forEach((node) => {
         const f = node.getAttribute('fill');
-        if (f && f !== 'none' && f !== 'transparent') node.setAttribute('fill', '#009eff');
+        if (f && f !== 'none' && f !== 'transparent') node.setAttribute('fill', '#5a3d9a');
       });
     } catch (_) { /* best-effort */ }
   }
@@ -57,7 +57,7 @@
       path: PORTAL_LOTTIE,
     });
     anim.setSpeed(0.85);
-    anim.addEventListener('DOMLoaded', () => tintPortalBrand(anim));
+    anim.addEventListener('DOMLoaded', () => tintPortalSoftPurple(anim));
     anims[key] = anim;
   }
 

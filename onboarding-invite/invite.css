@@ -1,0 +1,349 @@
+/*
+ * Explore (Netflix) surface — card size from ExploreCardStyles:
+ * width = 33% screen, aspect 2:3. Section order from Explore.tsx.
+ */
+
+:root {
+  --bg: #170c35;
+  --raised: #241b46;
+  --surface: #2a2f5c;
+  --text: #ffffff;
+  --muted: rgba(255, 255, 255, 0.72);
+  --pad: 16px;
+  --card-w: calc((100% - var(--pad) * 2 - 16px) / 3);
+  --card-radius: 6px;
+  /* Story City brand (defaultTheme): accent → primaryGradient */
+  --blue: #009eff;
+  --blue-deep: #0259a1;
+  --f: "Darker Grotesque", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; background: #0b0620; }
+button, a { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+
+.phone {
+  position: relative;
+  height: 100dvh;
+  max-width: 430px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f);
+}
+
+.dbg {
+  position: absolute;
+  z-index: 8;
+  top: calc(8px + env(safe-area-inset-top));
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+}
+.dbg-label {
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+.dbg-btn {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dbg-btn[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.surface { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.wash {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 42%;
+  background:
+    linear-gradient(180deg, rgba(23, 12, 53, 0.2), var(--bg)),
+    url("https://creator.storycity.app/media/6ab6d67bab537_Ep5_Intro-1.jpg") center top / cover no-repeat;
+  opacity: 0.55;
+  pointer-events: none;
+  filter: blur(0);
+}
+
+.explore-header {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: calc(48px + env(safe-area-inset-top)) var(--pad) 12px;
+}
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface);
+  flex: none;
+}
+.search {
+  flex: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.explore-scroll {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
+}
+
+.featured {
+  position: relative;
+  margin: 0 var(--pad);
+  height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0a0618;
+}
+.featured img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+}
+.featured-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px;
+  background: linear-gradient(transparent, rgba(10, 6, 24, 0.92));
+}
+.featured-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.row { margin-top: 20px; }
+.row-heading {
+  margin: 0 0 8px;
+  padding: 0 var(--pad);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.row-track {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 0 var(--pad);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.row-track::-webkit-scrollbar { display: none; }
+
+/* ExploreCard: ~33% width, 2:3 poster */
+.explore-card {
+  flex: 0 0 var(--card-w);
+  width: var(--card-w);
+  aspect-ratio: 2 / 3;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  position: relative;
+  background: var(--surface);
+  text-decoration: none;
+}
+.explore-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.explore-card span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px 6px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+}
+
+/*
+ * One raised purple card. No border, no glow, no outline.
+ * Portal stays soft purple so it does not read as a blue ring around the card.
+ */
+.guide-invite {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  margin: 16px var(--pad) 0;
+  min-height: 132px;
+  padding: 6px 40px 6px 4px;
+  border-radius: 18px;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+  background: var(--raised);
+}
+.guide-invite.is-out {
+  animation: invite-slide-away 0.38s ease-in forwards;
+  pointer-events: none;
+}
+@keyframes invite-slide-away {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-36px); }
+}
+.guide-stage {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 120px;
+  height: 120px;
+  overflow: hidden;
+}
+.guide-portal {
+  position: absolute;
+  inset: -8%;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.guide-portal svg { display: block; width: 100%; height: 100%; }
+.guide-char {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 92%;
+  height: 108%;
+  transform: translateX(-46%);
+  object-fit: contain;
+  object-position: bottom center;
+  pointer-events: none;
+  opacity: 0;
+  animation: guide-step-in 0.7s cubic-bezier(0.2, 1.1, 0.4, 1) 0.35s forwards;
+}
+@keyframes guide-step-in {
+  from { opacity: 0; transform: translateX(-46%) translateY(12px) scale(0.92); }
+  to { opacity: 1; transform: translateX(-46%) translateY(0) scale(1); }
+}
+.guide-tip {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+}
+.guide-line {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+.guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.guide-cta {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--blue-deep), var(--blue));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.guide-x {
+  appearance: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.guide-x svg {
+  width: 16px;
+  height: 16px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.surface-overview { background: var(--bg); }
+.overview-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.guide-invite--drop {
+  position: absolute;
+  z-index: 5;
+  left: 12px;
+  right: 12px;
+  top: calc(56px + env(safe-area-inset-top));
+  margin: 0;
+  opacity: 0;
+  transform: translateY(-24px);
+  pointer-events: none;
+}
+.guide-invite--drop.is-in {
+  animation: invite-drop-top 0.55s cubic-bezier(0.2, 1.1, 0.4, 1) forwards;
+  pointer-events: auto;
+}
+.guide-invite--drop.is-out {
+  animation: invite-slide-away 0.38s ease-in forwards;
+}
+@keyframes invite-drop-top {
+  from { opacity: 0; transform: translateY(-28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
