@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  /** Stolen welcome_hook_reveal_first — Summons energy-circle portal. */
+  /** Stolen from app WelcomeHook — Summons energy-circle portal. */
   const PORTAL_LOTTIE = 'stolen/welcome_hook_reveal_first.json';
   const OVERVIEW_LINGER_MS = 2800;
   const PLACES = ['feed', 'overview'];

@@ -1,11 +1,23 @@
 /*
- * Exact App Store Netflix-rows / overview screenshots as the surface.
- * Guide = FTUE Summons portal Lottie + door character. Copy only.
+ * Explore (Netflix) surface — card size from ExploreCardStyles:
+ * width = 33% screen, aspect 2:3. Section order from Explore.tsx.
  */
+
+:root {
+  --bg: #170c35;
+  --surface: #2a2f5c;
+  --text: #ffffff;
+  --muted: rgba(255, 255, 255, 0.72);
+  --pad: 16px;
+  --card-w: calc((100% - var(--pad) * 2 - 16px) / 3);
+  --card-radius: 6px;
+  --blue: #009eff;
+  --f: "Darker Grotesque", system-ui, sans-serif;
+}
 
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; background: #0b0620; }
-button { font: inherit; color: inherit; cursor: pointer; }
+button, a { font: inherit; color: inherit; }
 [hidden] { display: none !important; }
 
 .phone {
@@ -14,12 +26,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
   max-width: 430px;
   margin: 0 auto;
   overflow: hidden;
-  background: #fff;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f);
 }
 
 .dbg {
   position: absolute;
-  z-index: 6;
+  z-index: 8;
   top: calc(8px + env(safe-area-inset-top));
   right: 10px;
   display: flex;
@@ -28,14 +42,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
   padding: 3px 5px;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
 }
 .dbg-label {
   padding: 0 4px;
-  font: 700 10px/1.2 "Darker Grotesque", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.65);
 }
 .dbg-btn {
   appearance: none;
@@ -44,48 +58,156 @@ button { font: inherit; color: inherit; cursor: pointer; }
   padding: 4px 8px;
   background: transparent;
   color: rgba(255, 255, 255, 0.75);
-  font: 700 11px/1.2 "Darker Grotesque", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
 }
 .dbg-btn[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.18);
   color: #fff;
 }
 
-.surface {
+.surface { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.wash {
   position: absolute;
-  inset: 0;
+  inset: 0 0 auto;
+  height: 42%;
+  background:
+    linear-gradient(180deg, rgba(23, 12, 53, 0.2), var(--bg)),
+    url("https://creator.storycity.app/media/6ab6d67bab537_Ep5_Intro-1.jpg") center top / cover no-repeat;
+  opacity: 0.55;
+  pointer-events: none;
+  filter: blur(0);
 }
-.shot {
-  display: block;
+
+.explore-header {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: calc(48px + env(safe-area-inset-top)) var(--pad) 12px;
+}
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface);
+  flex: none;
+}
+.search {
+  flex: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.explore-scroll {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
+}
+
+.featured {
+  position: relative;
+  margin: 0 var(--pad);
+  height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0a0618;
+}
+.featured img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top center;
-  pointer-events: none;
+  object-position: center 28%;
+}
+.featured-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px;
+  background: linear-gradient(transparent, rgba(10, 6, 24, 0.92));
+}
+.featured-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.05;
 }
 
-/* Horizontal guide strip over the screenshot — sits in the story-card band */
-.guide-invite {
+.row { margin-top: 20px; }
+.row-heading {
+  margin: 0 0 8px;
+  padding: 0 var(--pad);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.row-track {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 0 var(--pad);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.row-track::-webkit-scrollbar { display: none; }
+
+/* ExploreCard: ~33% width, 2:3 poster */
+.explore-card {
+  flex: 0 0 var(--card-w);
+  width: var(--card-w);
+  aspect-ratio: 2 / 3;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  position: relative;
+  background: var(--surface);
+  text-decoration: none;
+}
+.explore-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.explore-card span {
   position: absolute;
-  z-index: 4;
-  left: 12px;
-  right: 12px;
-  /* After featured / In Progress row on the Netflix shot */
-  top: 42%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px 6px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+}
+
+/* Horizontal onboarding strip — portal guide only */
+.guide-invite {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 8px;
+  margin: 16px var(--pad) 0;
   min-height: 100px;
   padding: 6px 10px 6px 2px;
   border-radius: 18px;
-  background: rgba(18, 10, 40, 0.92);
+  background: rgba(18, 10, 40, 0.94);
   border: 1px solid rgba(152, 131, 248, 0.5);
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), 0 0 22px color-mix(in srgb, #9883f8 30%, transparent);
-  font-family: "Darker Grotesque", system-ui, sans-serif;
-  color: #fff;
 }
-
 .guide-stage {
   position: relative;
   flex: none;
@@ -97,11 +219,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   inset: -20%;
   pointer-events: none;
 }
-.guide-portal svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
+.guide-portal svg { display: block; width: 100%; height: 100%; }
 .guide-char {
   position: absolute;
   left: 50%;
@@ -119,7 +237,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   from { opacity: 0; transform: translateX(-46%) translateY(12px) scale(0.92); }
   to { opacity: 1; transform: translateX(-46%) translateY(0) scale(1); }
 }
-
 .guide-copy {
   flex: 1;
   min-width: 0;
@@ -158,11 +275,24 @@ button { font: inherit; color: inherit; cursor: pointer; }
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
+  cursor: pointer;
 }
 
-/* Overview: same card drops from top after linger */
+.surface-overview { background: var(--bg); }
+.overview-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
 .guide-invite--drop {
+  position: absolute;
+  z-index: 5;
+  left: 12px;
+  right: 12px;
   top: calc(56px + env(safe-area-inset-top));
+  margin: 0;
   opacity: 0;
   transform: translateY(-24px);
   pointer-events: none;
