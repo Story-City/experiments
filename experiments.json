@@ -217,6 +217,18 @@
     "jira": null
   },
   {
+    "slug": "onboarding-invite",
+    "path": "onboarding-invite/?v=1",
+    "title": "Onboarding invite · portal tip",
+    "what": "Horizontal invite card after Continue / featured: reuses the audio-preview tip + FTUE door character, portal jewel rim from Story Tools Portal, CTA into first-steps Summons. Modes: feed insert, overview linger drop from top, linger rise from bottom.",
+    "author": "victoria",
+    "authorName": "Victoria",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "oxygen-decrypt",
     "path": "oxygen-decrypt/?v=3",
     "title": "Decrypt the Artwork",

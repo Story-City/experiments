@@ -1,0 +1,115 @@
+/*
+ * Placement only. Tip look comes from ../audio-preview/app.css.
+ * Portal rim matches story-tools/tools/portal.js (.pt-result / RIM #9883F8).
+ */
+
+body {
+  margin: 0;
+}
+
+/* Horizontal feed insert — tip already horizontal; scale down after Continue */
+.invite-slot {
+  margin-top: 4px;
+  transform: scale(0.86);
+  transform-origin: top left;
+  width: calc(100% / 0.86);
+  max-width: none;
+}
+.invite-slot .section-title {
+  margin-bottom: 2px;
+  font-size: 16px;
+  padding-right: 0;
+}
+
+/* Portal crop on the existing tip sprite (portal jewel rim) */
+.tip.invite {
+  --elf-w: 108px;
+  --elf-h: 108px;
+  --elf-overhang: 6px;
+  --elf-clearance: 120px;
+  --tip-h: 96px;
+  --tip-copy-h: 36px;
+  text-decoration: none;
+  color: inherit;
+}
+.tip.invite .invite-portal {
+  position: absolute;
+  z-index: 2;
+  right: calc(var(--elf-overhang) * -1);
+  bottom: 8px;
+  width: var(--elf-w);
+  height: var(--elf-h);
+  border-radius: 50%;
+  overflow: hidden;
+  /* portal.js RIM + .pt-result glow */
+  box-shadow:
+    0 0 0 1px #9883f8,
+    0 0 28px color-mix(in srgb, #9883f8 35%, transparent);
+  pointer-events: none;
+}
+.tip.invite .invite-portal .sprite {
+  position: absolute;
+  inset: 0;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.tip.invite .voice-label {
+  white-space: normal;
+  line-height: 1.15;
+  font-size: 14px;
+}
+
+/* ---------- linger: drop from top on overview ---------- */
+body[data-place="overview-top"] .invite-slot {
+  position: absolute;
+  z-index: 4;
+  left: 12px;
+  right: 12px;
+  top: calc(10px + env(safe-area-inset-top));
+  margin: 0;
+  transform: scale(0.9);
+  transform-origin: top center;
+  width: auto;
+  pointer-events: none;
+}
+body[data-place="overview-top"] .invite-slot.is-in {
+  pointer-events: auto;
+  animation: invite-drop-top 0.55s cubic-bezier(0.2, 1.1, 0.4, 1) both;
+}
+body[data-place="overview-top"] .invite-slot .section-title {
+  display: none;
+}
+@keyframes invite-drop-top {
+  from { opacity: 0; transform: scale(0.9) translateY(-28px); }
+  to { opacity: 1; transform: scale(0.9) translateY(0); }
+}
+
+/* ---------- linger: rise from bottom (feed linger) ---------- */
+body[data-place="linger-bottom"] .invite-slot {
+  position: absolute;
+  z-index: 4;
+  left: 12px;
+  right: 12px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  margin: 0;
+  transform: scale(0.9);
+  transform-origin: bottom center;
+  width: auto;
+  pointer-events: none;
+}
+body[data-place="linger-bottom"] .invite-slot.is-in {
+  pointer-events: auto;
+  animation: invite-rise-bottom 0.55s cubic-bezier(0.2, 1.1, 0.4, 1) both;
+}
+body[data-place="linger-bottom"] .invite-slot .section-title {
+  display: none;
+}
+@keyframes invite-rise-bottom {
+  from { opacity: 0; transform: scale(0.9) translateY(32px); }
+  to { opacity: 1; transform: scale(0.9) translateY(0); }
+}

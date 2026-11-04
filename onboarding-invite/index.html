@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Onboarding invite · portal tip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800&display=swap" rel="stylesheet">
+<!-- Existing tip chrome from Story overview: audio preview -->
+<link rel="stylesheet" href="../audio-preview/app.css?v=23">
+<!-- Placement only: feed slot / linger drops. No new card chrome. -->
+<link rel="stylesheet" href="place.css?v=1">
+</head>
+<body data-place="feed">
+<main class="screen" id="screen">
+  <div class="dbg" role="group" aria-label="Placement">
+    <span class="dbg-label">place</span>
+    <button type="button" class="dbg-btn" data-place="feed" aria-pressed="true">feed</button>
+    <button type="button" class="dbg-btn" data-place="overview-top" aria-pressed="false">overview↑</button>
+    <button type="button" class="dbg-btn" data-place="linger-bottom" aria-pressed="false">linger↓</button>
+  </div>
+
+  <!-- Featured / continue stand-in: same cover + Start from audio-preview -->
+  <section class="cover" id="cover" aria-label="Featured story">
+    <img id="coverImg" src="https://creator.storycity.app/media/6ab6d67bab537_Ep5_Intro-1.jpg" alt="" width="1200" height="1600">
+    <div class="scrim"></div>
+    <div class="on-cover">
+      <p class="author">Story City</p>
+      <h1>Tales from the Incident</h1>
+      <div class="badges" aria-label="Story details">
+        <span class="chip">Mystery</span>
+        <span class="chip">13+</span>
+        <span class="chip">45 min</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="rest" id="rest">
+    <button type="button" class="start" id="continue">Continue</button>
+    <p class="summary">Every street has a story. Most people just walk past them.</p>
+
+    <!-- Feed insert: after Continue / featured — horizontal tip, smaller scale -->
+    <div class="invite-slot" id="inviteSlot" hidden>
+      <p class="section-title">From the portal</p>
+      <!-- Markup from audio-preview tipSlideTemplate; copy + portal crop only -->
+      <div class="cast-slide invite-slide">
+        <a class="tip tip--place invite" id="inviteTip" href="../first-steps/?v=summons" aria-label="Wanna try the onboarding now?">
+          <span class="tip-place" aria-hidden="true">
+            <img class="tip-place-img" src="../audio-preview/place/summons.png" alt="">
+            <span class="tip-place-scrim"></span>
+          </span>
+          <span class="tip-body">
+            <span class="tip-copy">
+              <span class="voice-label">Wanna try the onboarding now?</span>
+            </span>
+          </span>
+          <p class="voice-by"><span class="voice-by-label">Keeps your</span> <span class="voice-by-name">first steps</span></p>
+          <!-- FTUE sample-story character (audio-preview cast / door art) in portal rim -->
+          <span class="invite-portal" aria-hidden="true">
+            <img class="sprite" alt="" width="1414" height="2000"
+              src="../audio-preview/sprites/tales.png"
+              data-fallback="https://creator.storycity.app/media/6ad14ddd3f3ee_ftue-door-summons-character.png">
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="app.js?v=1"></script>
+</body>
+</html>
