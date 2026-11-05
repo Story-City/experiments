@@ -1,7 +1,7 @@
 // Story City — city.html?c=<slug>: one template for every story city.
 // Hero with the real local count, a constellation of story start points, genre chips, cards,
 // the Play Anywhere shelf, dynamic <title>/meta and JSON-LD.
-import { loadCatalogue, esc, plural, titleCase, fmtMinutes, storyCard } from './city-data.js';
+import { loadCatalogue, esc, plural, titleCase, fmtMinutes } from './city-data.js';
 
 const $ = id => document.getElementById(id);
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -161,7 +161,8 @@ function openPop(i, pin){
     pop.querySelector('.cy-pop-go').addEventListener('click', () => {
       const card = document.getElementById('s-' + s.id);
       closePop();
-      if (card) { if (card.hidden) { applyFilter('all'); } card.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' }); card.focus({ preventScroll: true }); card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash'); }
+      if (!card || card.offsetParent === null && card.closest('#cy-stories').hidden) { pick(s.id, true); return; }
+      if (card) { if (card.closest('.cy-genre').hidden) { applyFilter('all'); } openGenre(card.closest('.cy-genre'), true); card.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center', inline: 'center' }); card.focus({ preventScroll: true }); card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash'); }
     });
     pop.querySelector('.cy-pop-go').focus({ preventScroll: true });
   }
@@ -193,7 +194,12 @@ function applyFilter(g, quiet){
   currentGenre = g;
   document.querySelectorAll('#cy-chips [data-g]').forEach(b => b.setAttribute('aria-pressed', b.dataset.g === g));
   let shown = 0;
-  document.querySelectorAll('#cy-grid .ct-card').forEach(c => { const ok = g === 'all' || c.dataset.genre === g; c.hidden = !ok; if (ok) shown++; });
+  document.querySelectorAll('#cy-shelves .cy-genre').forEach(sec => {
+    let n = 0;
+    sec.querySelectorAll('.cy-tile').forEach(t => { const m = g === 'all' || t.dataset.genre === g; t.hidden = !m; if (m) n++; });
+    const ok = n > 0; sec.hidden = !ok; shown += n;
+    if (g !== 'all') openGenre(sec, ok); else if (!quiet) openGenre(sec, false);
+  });
   const off = new Set();
   document.querySelectorAll('.cy-star').forEach(b => {
     const ok = g === 'all' || b.dataset.genre === g;
@@ -205,13 +211,88 @@ function applyFilter(g, quiet){
   if (!quiet) $('cy-status').textContent = g === 'all' ? `Showing all ${plural(shown, 'story', 'stories')}` : `Showing ${plural(shown, g + ' story', g + ' stories')}`;
 }
 
+
+/* ---------- Compact tiles, genre shelves, featured story ---------- */
+function tile(st, prefix){
+  const title = titleCase(st.name, st.language);
+  const cover = st.cover
+    ? `<img src="${esc(st.cover)}" alt="" loading="lazy" decoding="async" width="130" height="163">`
+    : `<div class="ct-nocover" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg></div>`;
+  const sub = [st.minutes ? fmtMinutes(st.minutes) : '', st.language === 'fr' ? 'En français' : ''].filter(Boolean).join(' · ');
+  return `<button type="button" class="cy-tile" id="${prefix}-${esc(st.id)}" data-genre="${esc(st.genre || '')}" data-id="${esc(st.id)}" ${st.language === 'fr' ? 'lang="fr"' : ''} aria-label="${esc(title)}${sub ? ', ' + esc(sub) : ''}. Show details">
+    <span class="cy-tcover">${cover}</span>
+    <span class="cy-ttitle">${esc(title)}</span>
+    ${sub ? `<span class="cy-tsub" lang="en">${esc(sub)}</span>` : ''}
+  </button>`;
+}
+
+function openGenre(sec, open){
+  if (!sec) return;
+  sec.classList.toggle('open', open);
+  const b = sec.querySelector('.cy-all');
+  if (b) { b.setAttribute('aria-expanded', open); b.firstChild.textContent = open ? 'Show Less' : 'See All ' + sec.querySelectorAll('.cy-tile').length; }
+}
+
+function shelves(list){
+  const groups = new Map();
+  list.forEach(s => { const g = s.genre || 'Story'; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(s); });
+  // genres with a single story share one "More genres" shelf so a city with 18 genres isn't 18 shelves
+  const multi = [...groups].filter(([, a]) => a.length > 1), singles = [...groups].filter(([, a]) => a.length === 1);
+  if (singles.length > 1) { groups.clear(); multi.forEach(([g, a]) => groups.set(g, a)); groups.set('More genres', singles.flatMap(([, a]) => a)); }
+  const order = [...groups].sort((a, b) => (a[0] === 'More genres') - (b[0] === 'More genres') || b[1].length - a[1].length || a[0].localeCompare(b[0]));
+  const host = $('cy-shelves');
+  host.innerHTML = order.map(([g, arr], i) => `<section class="cy-genre" data-genre="${esc(g)}" aria-labelledby="cy-g${i}">
+    <div class="cy-ghead"><h3 id="cy-g${i}">${esc(g)} <span>${arr.length}</span></h3>
+      ${arr.length > 2 ? `<button type="button" class="btn txt cy-all" aria-expanded="false" aria-controls="cy-r${i}">See All ${arr.length}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>` : ''}</div>
+    <div class="cy-row" id="cy-r${i}" ${arr.length > 2 ? 'tabindex="0" role="region" aria-label="' + esc(g) + ' stories, scroll sideways"' : ''}>${arr.map(s => tile(s, 's')).join('')}</div>
+  </section>`).join('');
+  host.addEventListener('click', e => {
+    const all = e.target.closest('.cy-all');
+    if (all) { const sec = all.closest('.cy-genre'); openGenre(sec, !sec.classList.contains('open')); return; }
+    const t = e.target.closest('.cy-tile');
+    if (t) pick(t.dataset.id, true);
+  });
+}
+
+let byId = new Map(), featCity = null, featId = null;
+function pickFeatured(list){
+  // most reviews in this city (real field), then higher rating, then A to Z so it never changes between loads
+  return [...list].filter(s => s.summary).sort((a, b) => (b.reviews || 0) - (a.reviews || 0) || (b.rating || 0) - (a.rating || 0) || a.name.localeCompare(b.name))[0] || list[0];
+}
+function featHtml(st, isDefault){
+  const title = titleCase(st.name, st.language);
+  const rated = st.rating != null && st.reviews > 0;
+  const rating = rated ? `<span class="ct-rate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>${st.rating.toFixed(1)}<span class="sr-only"> out of 5 from</span> <span class="ct-rev">(${esc(plural(st.reviews, 'review'))})</span></span>` : '';
+  const meta = [st.minutes ? `<span>${esc(fmtMinutes(st.minutes))}</span>` : '', rating, st.ageRating ? `<span class="ct-age">${esc(st.ageRating)}</span>` : '', st.language === 'fr' ? '<span class="ct-lang-i" lang="fr">En français</span>' : ''].join('');
+  const label = isDefault ? (rated ? `Featured story · most reviewed in ${featCity.name}` : 'Featured story') : 'Story details';
+  const cover = st.cover ? `<img src="${esc(st.cover)}" alt="" width="320" height="400" decoding="async">` : `<div class="ct-nocover" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg></div>`;
+  return `<div class="cy-fcover">${cover}</div>
+    <div class="cy-fbody" ${st.language === 'fr' ? 'lang="fr"' : ''}>
+      <p class="eyebrow" lang="en">${esc(label)}</p>
+      <h2 class="cy-ftitle" id="cy-feat-h">${esc(title)}</h2>
+      <p class="ct-meta" lang="en">${st.genre ? `<span>${esc(st.genre)}</span>` : ''}${meta}</p>
+      ${st.summary ? `<p class="cy-fsum">${esc(st.summary)}</p>` : ''}
+      <div class="pg-actions"><a class="btn" href="index.html#get-app">Start This Story in the App</a></div>
+    </div>`;
+}
+function pick(id, scroll){
+  const st = byId.get(id); if (!st) return;
+  featId = id;
+  const card = $('cy-featcard');
+  card.innerHTML = featHtml(st, !!featCity && st === pickFeatured(featCity.stories));
+  document.querySelectorAll('.cy-tile.sel').forEach(t => t.classList.remove('sel'));
+  const t = document.getElementById('s-' + id); if (t) t.classList.add('sel');
+  if (scroll) $('cy-feat').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+}
+
 function shelf(anywhere, city){
   if (!anywhere.length) return;
   $('cy-any').hidden = false;
   $('cy-any-h').textContent = city
     ? `Plus ${anywhere.length} Play Anywhere stories you can play here too`
     : `${anywhere.length} Play Anywhere stories you can play on any street`;
-  $('cy-shelf').innerHTML = anywhere.map(s => storyCard(s, { idPrefix: 'a' })).join('');
+  $('cy-shelf').innerHTML = anywhere.map(s => tile(s, 'a')).join('');
+  $('cy-shelf').addEventListener('click', e => { const t = e.target.closest('.cy-tile'); if (t && featCity) { byId.set(t.dataset.id, anywhere.find(x => x.id === t.dataset.id)); pick(t.dataset.id, true); } });
 }
 
 function jsonLd(city, list){
@@ -257,6 +338,7 @@ function render(city, anywhere){
   const range = mins.length ? (mins[0] === mins[mins.length - 1] ? `It takes about ${fmtMinutes(mins[0])}.` : `Each one takes ${fmtMinutes(mins[0])} to ${fmtMinutes(mins[mins.length - 1])}.`) : '';
   $('cy-lede').textContent = `${N === 1 ? 'A choose-your-path story' : 'Choose-your-path stories'} written for real places in ${city.name}. ${range} Walk, choose, and find out what happens next.`;
   $('cy-actions').hidden = false;
+  $('cy-band-p').textContent = `All ${N === 1 ? 'one' : N} in ${city.name} and every Play Anywhere story, on iOS and Android.`;
   $('cy-cta-p').textContent = `Every story is free for 7 days on iOS and Android, including ${N === 1 ? 'the one' : 'all ' + N} in ${city.name}.`;
 
   const placed = list.filter(s => s.lat != null && s.lng != null);
@@ -275,7 +357,13 @@ function render(city, anywhere){
 
   $('cy-stories').hidden = false;
   $('cy-st-h').textContent = `Local stories in ${city.name}`;
-  $('cy-grid').innerHTML = list.map(s => storyCard(s)).join('');
+  featCity = city; list.forEach(x => byId.set(x.id, x));
+  const feat = pickFeatured(list);
+  $('cy-feat').hidden = false; featId = feat.id;
+  $('cy-featcard').innerHTML = featHtml(feat, true);
+  shelves(list);
+  document.getElementById('s-' + feat.id)?.classList.add('sel');
+  if (N < 2) $('cy-stories').hidden = true;
   chips(list);
   shelf(anywhere, city);
   jsonLd(city, list);

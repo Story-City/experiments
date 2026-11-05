@@ -2,6 +2,9 @@
 // A playable taste of The Summons inside a phone frame: chat with Wren, a Walk-mode map moment,
 // a colour-match decrypt, a location gem and the app call to action.
 // Mounts into every [data-module="demo"]. No libraries. Progress is kept in localStorage (try/catch).
+// The end card's QR code comes from ./demo-qr.js (a tiny MIT-licensed encoder, no network).
+
+import { qrSVG } from './demo-qr.js';
 
 const KEY = 'sc-demo-summons-v1';
 const SOUND_KEY = 'sc-demo-sound';
@@ -25,7 +28,7 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } },
 };
 
-const fresh = () => ({ stage: 'intro', mark: 0, log: [], named: false, steps: 0, solved: [], gem: null });
+const fresh = () => ({ stage: 'intro', mark: 0, log: [], named: false, steps: 0, solved: [], gem: null, picks: {}, helped: false, ended: false });
 
 /* ---------- small art ---------- */
 const ICON = {
@@ -37,6 +40,8 @@ const ICON = {
   restart: '<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v3.8h3.8"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   get: '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5.5 20h13"/>',
+  share: '<path d="M12 15V4M8 7.5L12 3.5l4 4"/><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v6A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-6a1.5 1.5 0 0 0-1.5-1.5H16"/>',
+  phone: '<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 17.5h2"/>',
 };
 const icon = (n, cls = '') => `<svg class="demo-ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`;
 const sparkSVG = (cls = '') => `<svg class="demo-spark ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${SPARK}"/></svg>`;
@@ -72,11 +77,16 @@ const COLS = 6, ROWS = 8;
 const RAIL = [
   { id: 'chat', t: 'Stories told in chat', d: 'Characters message you, like a friend texting. This one is Wren.' },
   { id: 'choice', t: 'Your replies are choices', d: 'Tap a reply. What you choose changes what happens next.' },
-  { id: 'walk', t: 'Steps mode', d: 'This is Steps mode — steps unlock the next chapter. The ring shrinks as you go. Path and Hunt sit right beside it.' },
+  { id: 'walk', t: 'Steps mode', d: 'This is Steps mode — steps unlock the next chapter. In the app your real steps fill the trail; here one tap walks you there. Path and Hunt sit right beside it.' },
   { id: 'decrypt', t: 'Puzzles in the story', d: 'Some puzzles hide a message under colours. Tap the matching colour to clear the letter. Puzzles never need steps.' },
   { id: 'gem', t: 'Location gems', d: 'Save the spots you love. Five types, each with its own shape and colour.' },
-  { id: 'end', t: 'What happens next', d: 'The full story keeps going, out on your own streets.' },
+  { id: 'end', t: 'What happens next', d: 'Chapter 2 picks up in the app, out on your own streets.' },
 ];
+
+// Spoiler-free share line: one emoji per choice actually made; the locked chapter is a dark square.
+const PICK_EMOJI = { hello: ['❓', '📡'], name: ['🏙️', '🏠'], after: ['🚪', '👁️'] };
+const GEM_EMOJI = { nature: '🍃', art: '🎨', land: '🏛️', eat: '🛍️', cur: '🔮' };
+const pageURL = (hash) => location.href.split('#')[0] + hash;
 
 /* ---------- colour helpers (values come from tokens.css) ---------- */
 const tok = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#A493D6';
@@ -194,12 +204,9 @@ function shell() {
               <div class="demo-notif">
                 <span class="demo-av">${AVATAR}</span>
                 <div><p class="demo-notif-top"><b>Unknown number</b><span>now</span></p>
-                <p class="demo-notif-msg">Hello? Is this thing on?</p></div>
+                <p class="demo-notif-msg" data-ref="notifmsg">Hello? Is this thing on?</p></div>
               </div>
-              <div class="demo-intro-foot">
-                <button class="btn demo-start" data-act="start">Start Story</button>
-                <p class="demo-intro-note">About 2 minutes. No sign-up.</p>
-              </div>
+              <div class="demo-intro-foot" data-ref="introfoot"></div>
             </div>
 
             <div class="demo-view demo-chat" data-view="chat" hidden>
@@ -221,12 +228,13 @@ function shell() {
                 </div>
                 <p class="demo-goal"><i class="demo-goal-dot"></i>Walk ${GOAL} steps</p>
               </div>
+              <div class="demo-peek" data-ref="peek" aria-hidden="true" hidden><span class="demo-av">${AVATAR}</span><p></p></div>
               <div class="demo-mappanel">
                 <p class="demo-count"><b data-ref="count">0</b> <span>/ ${GOAL} steps</span></p>
                 <div class="demo-bar" aria-hidden="true"><i data-ref="bar"></i></div>
-                <button class="btn demo-hold" data-ref="hold" aria-describedby="demo-hint">${icon('walk')}Hold to Walk</button>
+                <button class="btn demo-hold" data-ref="hold" aria-describedby="demo-hint">${icon('walk')}Walk There</button>
                 <button class="btn txt demo-motion" data-ref="motion" hidden>Use My Phone's Steps</button>
-                <p class="demo-hint" id="demo-hint" data-ref="hint">Or press and hold an arrow key.</p>
+                <p class="demo-hint" id="demo-hint" data-ref="hint">In the app, your real steps move you. Here, one tap walks you there.</p>
               </div>
             </div>
 
@@ -243,9 +251,9 @@ function shell() {
 
             <div class="demo-unlock" data-ref="unlock" hidden>
               <div class="demo-burst" aria-hidden="true">${sparkSVG('big')}${Array.from({ length: 8 }, (_, i) => `<span style="--a:${i * 45}deg">${sparkSVG('mini')}</span>`).join('')}</div>
-              <p class="eyebrow">Chapter 2 unlocked</p>
-              <h3 class="demo-unlock-title">The letter</h3>
-              <p class="demo-unlock-text">${GOAL} steps. The signal is clear now.</p>
+              <p class="eyebrow">Walk complete</p>
+              <h3 class="demo-unlock-title">The signal is clear</h3>
+              <p class="demo-unlock-text">${GOAL} steps. Wren's message is getting through.</p>
               <button class="btn" data-act="continue">Continue</button>
             </div>
 
@@ -291,12 +299,12 @@ function mount(root) {
   const R = { screen: ref('screen'), phone: ref('phone'), log: ref('log'), dock: ref('dock'), who: ref('who'), sub: ref('sub'),
     count: ref('count'), bar: ref('bar'), hold: ref('hold'), motion: ref('motion'), hint: ref('hint'), trail: ref('trail'),
     ring: ref('ring'), me: ref('me'), unlock: ref('unlock'), sheet: ref('sheet'), toast: ref('toast'),
-    pmsg: ref('pmsg'), pletter: ref('pletter'), palette: ref('palette'), pfoot: ref('pfoot'), idle: ref('idle') };
+    pmsg: ref('pmsg'), pletter: ref('pletter'), palette: ref('palette'), pfoot: ref('pfoot'), idle: ref('idle'),
+    peek: ref('peek'), introfoot: ref('introfoot'), notifmsg: ref('notifmsg') };
 
   let S = Object.assign(fresh(), store.get(KEY) || {});
   let epoch = 0;
   let view = 'intro';
-  let inView = false;
   const save = () => store.set(KEY, S);
   let kbd = false; // last interaction inside the demo was the keyboard
   root.addEventListener('keydown', () => { kbd = true; });
@@ -363,7 +371,17 @@ function mount(root) {
   const hideToast = () => { R.toast.hidden = true; clearTimeout(toastT); };
 
   /* --- chat --- */
-  const scrollLog = () => { R.log.scrollTo({ top: R.log.scrollHeight, behavior: RM.matches ? 'auto' : 'smooth' }); };
+  // The thread follows the newest message. When the reply dock opens (and the log shrinks), it re-pins,
+  // so the message you're answering always sits just above the choices. Scrolling up yourself pauses that.
+  let follow = true, userScrollAt = 0;
+  const pin = () => { R.log.scrollTop = R.log.scrollHeight; };
+  const scrollLog = () => { follow = true; if (RM.matches) pin(); else R.log.scrollTo({ top: R.log.scrollHeight, behavior: 'smooth' }); };
+  ['wheel', 'touchstart', 'keydown'].forEach((ev) => R.log.addEventListener(ev, () => { userScrollAt = performance.now(); }, { passive: true }));
+  R.log.addEventListener('scroll', () => {
+    if (performance.now() - userScrollAt < 1200) follow = R.log.scrollHeight - R.log.scrollTop - R.log.clientHeight < 40;
+  }, { passive: true });
+  if ('ResizeObserver' in window) new ResizeObserver(() => { if (follow) pin(); }).observe(R.log);
+  R.dock.addEventListener('transitionend', () => { if (follow) pin(); });
   function setName(named) {
     S.named = named;
     R.who.textContent = named ? 'Wren' : 'Unknown number';
@@ -384,21 +402,76 @@ function mount(root) {
       row.innerHTML = `<div class="demo-msg demo-gemcard">${gemSVG(g)}<div><b>My first location gem</b><span>${g.name} · ${g.shape}</span></div></div>`;
     } else if (item.k === 'cta') {
       row.className = 'demo-row demo-full';
-      row.innerHTML = `<div class="demo-cta">
+      let qr = '';
+      try { qr = `<div class="demo-qr">${qrSVG(pageURL('#get-app'), 'QR code that opens this page on your phone')}<p><b>Keep going on your phone</b><span>Point your camera here.</span></p></div>`; } catch (e) { qr = ''; }
+      row.innerHTML = `<div class="demo-end">
         ${sparkSVG('cta')}
         <p class="eyebrow">To be continued</p>
-        <h3 class="demo-cta-title">Keep going in the app — every story free for 7 days</h3>
-        <div class="demo-stores">
-          <a class="btn sec demo-store" href="#get-app">${icon('get')}App Store</a>
-          <a class="btn sec demo-store" href="#get-app">${icon('get')}Google Play</a>
+        <h3 class="demo-end-title">Chapter 2 is <em>waiting</em> in the app</h3>
+        <a class="btn demo-end-go" href="#get-app">Keep Playing in the App</a>
+        <p class="demo-end-note">Every story free for 7 days.</p>
+        ${qr}
+        <div class="demo-share">
+          <p class="demo-share-line" aria-label="Your path so far"><span></span> <span></span></p>
+          <button class="btn sec demo-share-btn" data-act="share">${icon('share')}<span>Share My Path</span></button>
+          <p class="demo-share-status" role="status"></p>
+          <textarea class="demo-share-text" readonly rows="3" aria-label="Your path, ready to copy" hidden></textarea>
         </div>
         <button class="btn txt demo-again" data-act="restart">Play Again</button>
       </div>`;
+      const parts = row.querySelectorAll('.demo-share-line span');
+      parts[0].textContent = `The Summons · Chapter 1 ${pathEmoji()}`;
+      parts[1].textContent = '· Chapter 2 ⬛';
     }
     if (animate && !RM.matches) row.classList.add('pop');
     R.log.append(row);
     return row;
   }
+  function pathEmoji() {
+    const p = S.picks || {}, out = [];
+    ['hello', 'name'].forEach((k) => { if (p[k] != null) out.push(PICK_EMOJI[k][p[k]]); });
+    if (S.solved && S.solved.length) out.push(S.helped ? '🗝️' : '🔓');
+    if (p.after != null) out.push(PICK_EMOJI.after[p.after]);
+    if (S.gem && GEM_EMOJI[S.gem]) out.push(GEM_EMOJI[S.gem]);
+    return out.join('');
+  }
+  const shareText = () => `The Summons · Chapter 1 ${pathEmoji()} · Chapter 2 ⬛\n${pageURL('#demo')}`;
+
+  // End card: keep the unanswered last message in view just above the card.
+  function showEnd(row) {
+    follow = false;
+    const prev = row.previousElementSibling;
+    const max = R.log.scrollHeight - R.log.clientHeight;
+    const top = prev ? Math.min(max, prev.offsetTop - R.log.offsetTop - 12) : max;
+    R.log.scrollTo({ top: Math.max(0, top), behavior: RM.matches ? 'auto' : 'smooth' });
+  }
+
+  async function shareMyPath(btn) {
+    const card = btn.closest('.demo-end');
+    const status = card.querySelector('.demo-share-status'), ta = card.querySelector('.demo-share-text');
+    const text = shareText();
+    const label = btn.querySelector('span');
+    const showText = (msg) => {
+      ta.value = text; ta.hidden = false; status.textContent = msg;
+      try { ta.focus({ preventScroll: true }); ta.select(); } catch (e) { /* ignore */ }
+      const over = ta.getBoundingClientRect().bottom - R.log.getBoundingClientRect().bottom + 12;
+      if (over > 0) R.log.scrollBy({ top: over, behavior: RM.matches ? 'auto' : 'smooth' });
+    };
+    if (navigator.share) {
+      try { await navigator.share({ title: 'The Summons', text }); status.textContent = 'Shared.'; return; }
+      catch (e) { if (e && e.name === 'AbortError') return; /* otherwise fall through to copy */ }
+    }
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error('no clipboard');
+      await navigator.clipboard.writeText(text);
+      btn.classList.add('copied'); label.textContent = 'Copied';
+      status.textContent = 'Copied. Paste it anywhere.';
+      setTimeout(() => { btn.classList.remove('copied'); label.textContent = 'Share My Path'; }, 2600);
+    } catch (e) {
+      showText('Select this and copy it to share.');
+    }
+  }
+
   function add(item, animate = true) { S.log.push(item); save(); const r = render(item, animate); scrollLog(); return r; }
   const typingTime = (t) => (RM.matches ? 250 : Math.min(1700, 420 + t.length * 17));
   async function say(text) {
@@ -434,7 +507,8 @@ function mount(root) {
   }
 
   /* --- map: Walk mode --- */
-  let walkResolve = null, holdTimer = 0, lastKey = 0;
+  let walkResolve = null, walking = 0;
+  const HINT = 'In the app, your real steps move you. Here, one tap walks you there.';
   const routeLen = ROUTE.reduce((s, p, i) => (i ? s + Math.hypot(p[0] - ROUTE[i - 1][0], p[1] - ROUTE[i - 1][1]) : 0), 0);
   function pointAt(d) {
     for (let i = 1; i < ROUTE.length; i++) {
@@ -468,30 +542,63 @@ function mount(root) {
     R.bar.style.background = `linear-gradient(90deg, ${c0}, ${mix(c0, c1, t)})`;
   }
   function resetMap() { R.trail.innerHTML = ''; drawWalk(); }
+  function finishWalk() {
+    stopMotion(); R.hold.disabled = true;
+    if (walkResolve) { const r = walkResolve; walkResolve = null; r(); }
+  }
+  // One real step (from the phone's motion sensor).
   function step() {
-    if (view !== 'map' || !walkResolve || S.steps >= GOAL) return;
+    if (view !== 'map' || !walkResolve || walking || S.steps >= GOAL) return;
     S.steps++; save(); drawWalk();
     sound.step(S.steps); buzz(5);
-    if (!RM.matches && R.count.animate) R.count.animate([{ transform: 'scale(1.18)' }, { transform: 'none' }], { duration: 180, easing: 'ease-out' });
-    nudge(R.phone, 1);
     if (S.steps % 10 === 0 && S.steps < GOAL) R.hint.textContent = `${S.steps} of ${GOAL} steps. ${GOAL - S.steps} to go.`;
-    if (S.steps >= GOAL) { stopHold(); stopMotion(); const r = walkResolve; walkResolve = null; r(); }
+    if (S.steps >= GOAL) finishWalk();
   }
-  function startHold(e) {
-    if (e) { e.preventDefault(); try { R.hold.setPointerCapture(e.pointerId); } catch (x) { /* ignore */ } }
-    if (holdTimer) return;
-    R.hold.classList.add('pressing');
-    step();
-    holdTimer = setInterval(step, 240);
+
+  // Wren keeps talking on the map: a little bubble that also lands in the chat history.
+  let peekT = 0;
+  async function peekSay(text) {
+    add({ k: 'in', text }, false);
+    const p = R.peek.querySelector('p');
+    p.textContent = text;
+    R.peek.hidden = false;
+    if (!RM.matches && R.peek.animate) R.peek.animate([{ opacity: 0, transform: 'translateY(-8px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: 'ease-out' });
+    sound.msg(); buzz(6);
+    clearTimeout(peekT);
+    await sleep(RM.matches ? 60 : 250);
   }
-  function stopHold() { clearInterval(holdTimer); holdTimer = 0; R.hold.classList.remove('pressing'); }
-  R.hold.addEventListener('pointerdown', startHold);
-  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ev) => R.hold.addEventListener(ev, stopHold));
-  R.hold.addEventListener('contextmenu', (e) => e.preventDefault());
-  R.hold.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); keyStep(); } });
-  R.hold.addEventListener('keyup', (e) => { if (e.key === ' ' || e.key === 'Enter') e.preventDefault(); });
-  R.hold.addEventListener('click', (e) => { if (e.detail === 0) step(); }); // screen readers' activate
-  function keyStep() { const now = performance.now(); if (now - lastKey < 150) return; lastKey = now; step(); }
+
+  // "Walk There": the 30 steps play out on the map over about 3 seconds while Wren keeps messaging.
+  function walkThere() {
+    if (view !== 'map' || !walkResolve || walking) return;
+    stopMotion();
+    R.hold.disabled = true;
+    R.hint.textContent = 'Walking…';
+    const from = S.steps;
+    const lines = async () => {
+      try {
+        await sleep(RM.matches ? 0 : 350); await peekSay("That's it. Keep going.");
+        await sleep(RM.matches ? 0 : 1250); await peekSay('I can hear you better already.');
+      } catch (e) { /* cancelled */ }
+    };
+    if (RM.matches) {
+      lines().then(() => { S.steps = GOAL; save(); drawWalk(); R.hint.textContent = HINT; finishWalk(); });
+      return;
+    }
+    lines();
+    const dur = Math.max(800, 3000 * (GOAL - from) / GOAL), t0 = performance.now(), e = epoch;
+    const tick = (now) => {
+      if (e !== epoch) { walking = 0; return; }
+      const t = Math.min(1, (now - t0) / dur);
+      const n = from + Math.round((GOAL - from) * t);
+      if (n !== S.steps) { S.steps = n; drawWalk(); sound.step(n); if (n % 3 === 0) buzz(4); }
+      if (t < 1) { walking = requestAnimationFrame(tick); return; }
+      walking = 0; save(); R.hint.textContent = HINT;
+      setTimeout(() => { if (e === epoch) finishWalk(); }, 450);
+    };
+    walking = requestAnimationFrame(tick);
+  }
+  R.hold.addEventListener('click', walkThere);
 
   // Real steps on phones: offered, never required.
   let motionOn = false, motionSeen = false, smooth = 9.8, high = false, lastStep = 0, motionCheck = 0;
@@ -510,18 +617,18 @@ function mount(root) {
     R.motion.textContent = "Use My Phone's Steps"; R.motion.setAttribute('aria-pressed', 'false');
   }
   async function startMotion() {
-    if (motionOn) { stopMotion(); R.hint.textContent = 'Phone steps off. Hold the button instead.'; return; }
+    if (motionOn) { stopMotion(); R.hint.textContent = 'Phone steps off. Tap Walk There instead.'; return; }
     try {
       if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
         const res = await DeviceMotionEvent.requestPermission();
-        if (res !== 'granted') { R.hint.textContent = 'No problem. Hold the button to walk instead.'; return; }
+        if (res !== 'granted') { R.hint.textContent = 'No problem. Tap Walk There instead.'; return; }
       }
       window.addEventListener('devicemotion', onMotion);
       motionOn = true; motionSeen = false;
       R.motion.textContent = 'Stop Phone Steps'; R.motion.setAttribute('aria-pressed', 'true');
       R.hint.textContent = 'Walking with your phone. Each real step counts.';
-      motionCheck = setTimeout(() => { if (motionOn && !motionSeen) { stopMotion(); R.hint.textContent = "Your browser didn't share motion. Hold the button instead."; } }, 4000);
-    } catch (err) { R.hint.textContent = 'Phone steps are not available here. Hold the button instead.'; }
+      motionCheck = setTimeout(() => { if (motionOn && !motionSeen) { stopMotion(); R.hint.textContent = "Your browser didn't share motion. Tap Walk There instead."; } }, 4000);
+    } catch (err) { R.hint.textContent = 'Phone steps are not available here. Tap Walk There instead.'; }
   }
   R.motion.addEventListener('click', startMotion);
   if (typeof DeviceMotionEvent !== 'undefined' && COARSE.matches) { R.motion.hidden = false; R.motion.setAttribute('aria-pressed', 'false'); }
@@ -538,6 +645,7 @@ function mount(root) {
   const walkDone = () => guard(new Promise((res) => { if (S.steps >= GOAL) res(); else walkResolve = res; }));
 
   async function unlock() {
+    R.peek.hidden = true;
     R.unlock.hidden = false;
     R.unlock.classList.toggle('anim', !RM.matches);
     sound.win(); buzz(30);
@@ -585,6 +693,7 @@ function mount(root) {
   }
   async function solveAll() {
     R.pfoot.innerHTML = '';
+    S.helped = true; save();
     for (let i = current(); i > -1; i = current()) { clearBand(i); sound.good(); await new Promise((r) => setTimeout(r, RM.matches ? 50 : 380)); }
     nextTarget();
   }
@@ -643,6 +752,7 @@ function mount(root) {
       await say("Sorry about your screen. The Society doesn't do phone calls.");
       setRail('choice');
       const i = await choose(['Who is this?', 'I can read you']);
+      S.picks.hello = i; save();
       await say(i ? 'Oh good. It works. It never works.' : 'Fair question. Hold on, let me get this right.');
       go('name');
     },
@@ -652,22 +762,25 @@ function mount(root) {
       await say("My name's Wren. I've been sent to find one person in this city, and my compass is pointing at you.");
       await say("The signal keeps cutting out. It's stronger if you move. Pick one:");
       const i = await choose(['Walk to the nearest corner', 'Walk to the far end of my home']);
+      S.picks.name = i; save();
       await say(i ? 'Your home counts. Thirty steps should do it.' : 'The corner, then. Thirty steps should do it.');
       await say('Let me see your map so I can guide you.');
       go('map');
     },
     async map() {
       resetMap();
-      R.hint.textContent = COARSE.matches ? 'Hold the button, or walk with your phone.' : 'Or press and hold an arrow key.';
+      R.hold.disabled = false;
+      R.hint.textContent = R.motion.hidden ? HINT : 'In the app, your real steps move you. Tap to walk there, or try your phone.';
       await show('map', true);
       setRail('walk');
-      if (S.steps === 0) toast('Walk mode. The ring shrinks as you get closer.', 3200);
+      if (S.steps < GOAL) await peekSay('See the ring? It closes as you walk.');
       await walkDone();
       await sleep(RM.matches ? 100 : 450);
       await unlock();
       go('letter');
     },
     async letter() {
+      R.peek.hidden = true;
       await show('chat', true);
       setRail('decrypt');
       await say("There. A message came through, but it's scrambled.");
@@ -696,6 +809,7 @@ function mount(root) {
       await say("It's from the Society. They only write when it's serious.");
       await say('And that number on the seal? Remember it.');
       const i = await choose(['What does the door open to?', 'Why me?']);
+      S.picks.after = i; save();
       await say(i ? "Because you walked when I asked. Most people don't." : "Nobody I've asked has come back to say.");
       await say('Hang on. Something just came through on my end.');
       await say('Someone on the other side of that door just knocked back.');
@@ -712,14 +826,30 @@ function mount(root) {
       sound.good();
       await sleep(RM.matches ? 100 : 500);
       await say('Saved. Now it is yours.');
-      await say('I can keep this line open, but only for members.');
+      await say('Wait. The knocking stopped.');
+      await say("Something's on the stairs. Whatever you hear tonight, don't open the");
       go('cta');
     },
     async cta() {
       setRail('end');
       R.dock.innerHTML = ''; R.dock.classList.remove('open');
+      if (!S.ended) {
+        // Wren starts typing… and stops. No reply comes.
+        await sleep(RM.matches ? 200 : 700);
+        R.sub.textContent = 'typing…';
+        const dots = document.createElement('div');
+        dots.className = 'demo-row demo-in demo-typing';
+        dots.setAttribute('aria-hidden', 'true');
+        dots.innerHTML = '<p class="demo-msg"><i></i><i></i><i></i></p>';
+        R.log.append(dots); scrollLog();
+        try { await sleep(RM.matches ? 400 : 2200); } finally { dots.remove(); }
+        R.sub.textContent = 'Signal lost';
+        await sleep(RM.matches ? 200 : 1100);
+        S.ended = true; save();
+      }
+      R.sub.textContent = 'Signal lost';
       const row = render({ k: 'cta' }, true);
-      scrollLog();
+      showEnd(row);
       softFocus(row.querySelector('a'));
       return 'stay';
     },
@@ -745,13 +875,27 @@ function mount(root) {
   }
 
   function clearUI() {
-    stopHold(); stopMotion(); hideToast();
+    stopMotion(); hideToast();
+    if (walking) cancelAnimationFrame(walking);
+    walking = 0;
     walkResolve = puzzleResolve = gemResolve = unlockResolve = null;
     gemPick = null;
     R.log.innerHTML = ''; R.dock.innerHTML = ''; R.dock.classList.remove('open');
-    R.unlock.hidden = true; R.sheet.hidden = true;
+    R.unlock.hidden = true; R.sheet.hidden = true; R.peek.hidden = true;
+    R.hold.disabled = false; R.hint.textContent = HINT;
+    R.sub.textContent = 'The Summons';
     root.querySelectorAll('.demo-gempick').forEach((x) => x.setAttribute('aria-checked', 'false'));
     root.querySelector('[data-act="savegem"]').disabled = true;
+  }
+  // Lock screen: a fresh start, or (when progress is saved) pick up / start over.
+  function introFoot(saved) {
+    R.notifmsg.textContent = saved ? 'Still there? I kept your place.' : 'Hello? Is this thing on?';
+    R.introfoot.innerHTML = saved
+      ? `<button class="btn demo-start" data-act="resume">Pick Up Where You Left Off</button>
+         <button class="btn txt demo-over" data-act="start">Start Over</button>
+         <p class="demo-intro-note">Your place is saved on this device.</p>`
+      : `<button class="btn demo-start" data-act="start">Start Story</button>
+         <p class="demo-intro-note">About 2 minutes. No sign-up.</p>`;
   }
   function restart() {
     epoch++;
@@ -759,20 +903,18 @@ function mount(root) {
     S = fresh(); save();
     setName(false);
     setRail(null);
+    introFoot(false);
     show('intro');
     softFocus(root.querySelector('[data-act="start"]'));
   }
   function resume() {
-    // Rebuild the chat up to the start of the current stage, then play that stage again.
+    // Rebuild the chat up to the start of the saved stage, then play that stage again.
+    epoch++; clearUI();
     S.log = S.log.slice(0, S.mark);
     setName(!!S.named);
     S.log.forEach((it) => render(it, false));
-    R.log.scrollTop = R.log.scrollHeight;
-    const v = { map: 'map', puzzle: 'chat' }[S.stage] || 'chat';
-    if (v === 'map') { resetMap(); root.querySelectorAll('[data-view]').forEach((x) => { x.hidden = x.dataset.view !== 'chat'; }); view = 'chat'; }
-    else { root.querySelectorAll('[data-view]').forEach((x) => { x.hidden = x.dataset.view !== v; }); view = v; }
-    toast('Welcome back. Picking up where you left off.', 3000);
-    run();
+    const target = S.stage === 'map' ? 'map' : 'chat';
+    show(target, true).then(() => { follow = true; pin(); if (target === 'chat') softFocus(R.log); run(); });
   }
 
   /* --- events --- */
@@ -782,11 +924,14 @@ function mount(root) {
     const act = a.dataset.act;
     if (act === 'sound') { setSound(!sound.on); if (sound.on) sound.send(); }
     else if (act === 'restart') restart();
+    else if (act === 'resume') resume();
+    else if (act === 'share') shareMyPath(a);
     else if (act === 'start') {
       sound.ensure && sound.on && sound.ensure();
       epoch++; clearUI();
       S = fresh(); S.stage = 'hello'; save();
       show('chat', true).then(() => { softFocus(R.log); run(); });
+      introFoot(false);
     } else if (act === 'continue' && unlockResolve) { const r = unlockResolve; unlockResolve = null; r(); }
   });
   // Outside taps close the sheet and the toast.
@@ -801,27 +946,13 @@ function mount(root) {
       else if (!R.unlock.hidden && unlockResolve) { const r = unlockResolve; unlockResolve = null; r(); }
       return;
     }
-    if (view !== 'map' || !walkResolve) return;
-    if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
-    const ae = document.activeElement;
-    if (ae && ae !== document.body && !root.contains(ae)) return;
-    if (!inView && !root.contains(ae)) return;
-    if (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
-    e.preventDefault();
-    R.hold.classList.add('pressing');
-    keyStep();
   });
-  document.addEventListener('keyup', (e) => { if (e.key.startsWith('Arrow') && !holdTimer) R.hold.classList.remove('pressing'); });
-
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver((en) => { inView = en[0].isIntersecting; }, { threshold: 0.35 }).observe(R.phone);
-  } else inView = true;
 
   // Boot: returning visitors pick up where they left off.
   setSound(false);
   if (store.get(SOUND_KEY) === true) { soundBtn.setAttribute('aria-pressed', 'true'); soundBtn.innerHTML = `${icon('soundOn')}<span>Sound On</span>`; }
-  if (S.stage && S.stage !== 'intro' && STAGES[S.stage]) resume();
-  else { S = fresh(); setRail(null); }
+  if (S.stage && S.stage !== 'intro' && STAGES[S.stage]) { introFoot(true); setRail(null); }
+  else { S = fresh(); introFoot(false); setRail(null); }
 
   window.SC_DEMO = { restart, state: () => JSON.parse(JSON.stringify(S)) };
 }

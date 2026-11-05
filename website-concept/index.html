@@ -36,8 +36,8 @@
   <div class="wrap">
     <a class="logo" href="#top" aria-label="Story City home"><svg><use href="#spark"/></svg>Story City</a>
     <ul id="menu">
-      <li><a href="#how">How It Plays</a></li>
       <li><a href="#demo">Try a Chapter</a></li>
+      <li><a href="#how">How It Plays</a></li>
       <li><a href="#library">Stories</a></li>
       <li><a href="cities.html">Cities</a></li>
       <li><a href="creators.html">Creators</a></li>
@@ -58,8 +58,8 @@
   </svg>
   <div class="walker" id="walker"></div>
 </div>
-<div class="stepcount hide" id="stepcount" role="status" aria-live="off"><span class="ico"><svg><use href="#spark"/></svg></span><span><b id="steps">0</b> steps walked</span></div>
-<div class="unlock" id="unlock" role="status" aria-live="polite"><svg><use href="#spark"/></svg><div><small id="unlockSmall">Chapter unlocked</small><b id="unlockTitle"></b></div></div>
+<!-- Chapter unlock toast. It sits over the nav bar for a moment, so it never covers headings or the demo. The step count rides along inside it. -->
+<div class="unlock" id="unlock" role="status" aria-live="polite"><svg><use href="#spark"/></svg><div><small id="unlockSmall">Chapter unlocked</small><b id="unlockTitle"></b></div><span class="stepcount" id="stepcount"><b id="steps">0</b> steps</span></div>
 
 <main id="top">
 
@@ -76,6 +76,11 @@
         <a class="btn sec" href="#radar">Find Stories Near Me</a>
       </div>
       <p class="small"><svg><use href="#spark"/></svg>Every story free for 7 days · iPhone and Android</p>
+      <div class="citypick" id="citypick">
+        <label class="eyebrow" for="cityPick">Stories in your city</label>
+        <span class="cp-select"><select id="cityPick"><option value="">Choose your city</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></span>
+        <p class="cp-out" id="cityOut" aria-live="polite"></p>
+      </div>
     </div>
     <div class="portal" id="portal">
       <div class="ring"></div>
@@ -84,36 +89,32 @@
   </div>
 </section>
 
-<!-- ============ CHAPTER 1 · HOW IT PLAYS ============ -->
+<!-- ============ CHAPTER 1 · PLAY IN THE BROWSER ============ -->
+<section id="demo" data-chapter="Try a chapter">
+  <div class="wrap">
+    <div class="sechead center rv">
+      <span class="chapnum">Chapter 1</span>
+      <h2>Play the first chapter right here</h2>
+      <p class="lede">No download, no sign-up. A two-minute taste of <em>The Summons</em>: someone has found your number.</p>
+    </div>
+  </div>
+  <div class="mount" data-module="demo"></div>
+</section>
+
+<!-- ============ CHAPTER 2 · HOW IT PLAYS (short: the demo already shows it) ============ -->
 <section id="how" data-chapter="How it plays">
   <div class="wrap">
     <div class="sechead rv">
-      <span class="chapnum">Chapter 1</span>
+      <span class="chapnum">Chapter 2</span>
       <h2>A story that only moves when you do</h2>
-      <p class="lede">Got 5 minutes? Start a story. Story City turns the streets you already walk into the setting for a mystery, a quest or a haunting.</p>
+      <p class="lede">The streets you already walk become the setting for a mystery, a quest or a haunting.</p>
     </div>
-    <div class="steps4">
-      <article class="step rv">
-        <div class="art"><div class="fan"><img src="img/coronet.jpg" alt=""><img src="img/alice.jpg" alt=""><img src="img/woglins.jpg" alt=""></div></div>
-        <span class="n">Step 1</span><h3>Pick a story</h3>
-        <p>Mysteries, fantasy, local history, adventures. Short ones for a coffee run, long ones for a Sunday.</p>
-      </article>
-      <article class="step rv">
-        <div class="art"><div class="mini-chat"><i class="them">Can you hear me?</i><i class="them">I need you to go outside.</i><i class="me">Who is this?</i></div></div>
-        <span class="n">Step 2</span><h3>Characters message you</h3>
-        <p>The story arrives like texts from someone who needs your help, right now, on your street.</p>
-      </article>
-      <article class="step rv">
-        <div class="art" id="miniWalk"></div>
-        <span class="n">Step 3</span><h3>Walk to unlock</h3>
-        <p>Your steps open the next chapter. Choices and puzzles never need steps, so you can stop any time.</p>
-      </article>
-      <article class="step rv">
-        <div class="art branch"><svg viewBox="0 0 200 130" aria-hidden="true"><path d="M20 65 H70"/><path d="M70 65 C100 65 100 25 130 25 H180"/><path d="M70 65 C100 65 100 105 130 105 H180"/><path class="lit" d="M20 65 H70 C100 65 100 25 130 25 H180"/><circle class="lit" cx="20" cy="65" r="7"/><circle class="lit" cx="70" cy="65" r="7"/><circle class="lit" cx="180" cy="25" r="7"/><circle cx="180" cy="105" r="7"/></svg></div>
-        <span class="n">Step 4</span><h3>Choose the ending</h3>
-        <p>Trust the stranger or don't. Open the door or walk on. Every choice is yours, and it matters.</p>
-      </article>
-    </div>
+    <ol class="steps4 rv">
+      <li><b>Pick a story</b><span>Short ones for a coffee run, long ones for a Sunday.</span></li>
+      <li><b>Characters message you</b><span>Like texts from someone who needs your help.</span></li>
+      <li><b>Walk to unlock</b><span>Steps open the next chapter. Choices never need steps.</span></li>
+      <li><b>Choose the ending</b><span>Trust the stranger or don't. It matters.</span></li>
+    </ol>
 
     <div class="modes rv" id="modes">
       <div class="modecopy">
@@ -124,7 +125,7 @@
           <button role="tab" aria-selected="false" data-mode="hunt" style="--c:var(--amethyst)"><i></i>Hunt</button>
         </div>
         <div class="what" id="modeWhat" aria-live="polite"></div>
-        <p class="muted" style="color:var(--lilac);font-size:14px">Switch modes whenever you like, right in the middle of a story.</p>
+        <p class="modenote">Switch modes whenever you like, right in the middle of a story.</p>
       </div>
       <div class="modestage" id="modeStage">
         <svg id="modeSvg" viewBox="0 0 400 300" aria-hidden="true"></svg>
@@ -134,25 +135,13 @@
   </div>
 </section>
 
-<!-- ============ CHAPTER 2 · PLAY IN THE BROWSER ============ -->
-<section id="demo" data-chapter="Try a chapter">
-  <div class="wrap">
-    <div class="sechead center rv">
-      <span class="chapnum">Chapter 2</span>
-      <h2>Play the first chapter right here</h2>
-      <p class="lede">No download, no sign-up. A two-minute taste of <em>The Summons</em>: someone has found your number. Read, reply, walk a little, crack a letter.</p>
-    </div>
-  </div>
-  <div class="mount" data-module="demo"></div>
-</section>
-
 <!-- ============ CHAPTER 3 · YOUR STREET ============ -->
 <section id="radar" data-chapter="Your street">
   <div class="wrap">
     <div class="sechead rv">
       <span class="chapnum">Chapter 3</span>
       <h2>Your street is already a story</h2>
-      <p class="lede">Play Anywhere stories place themselves on the real streets around you: the park becomes a meeting point, the corner café a hiding place. Have a look at yours.</p>
+      <p class="lede">Play Anywhere stories place themselves on the real streets around you: the park becomes a meeting point, the corner café a hiding place.</p>
     </div>
   </div>
   <div class="mount" data-module="radar"></div>
@@ -165,7 +154,7 @@
       <div class="sechead" style="margin:0">
         <span class="chapnum">Chapter 4</span>
         <h2>Keep the places that surprised you</h2>
-        <p class="lede">Found a mural you'd never noticed? A bench with the best view? Save it as a location gem. Each type has its own stone, so your map becomes a little treasure chest.</p>
+        <p class="lede">Found a mural you'd never noticed? A bench with the best view? Save it as a location gem, and your map becomes a little treasure chest.</p>
       </div>
       <label class="f">What is it?
         <span class="gemrow" id="gemTypes" role="group" aria-label="Gem type"></span>
@@ -197,26 +186,14 @@
   <div class="mount" data-module="library"></div>
 </section>
 
-<!-- ============ CHAPTER 7 · INDOOR ============ -->
-<section class="indoor" data-chapter="Rainy days">
-  <div class="wrap">
-    <div class="card rv">
-      <div style="display:grid;gap:16px">
-        <span class="soon">Coming soon</span>
-        <h2>Raining? Walk on the spot.</h2>
-        <p class="lede" style="color:var(--mist)">Indoor mode is on its way: pick your pace on the treadmill or around the house, and the story keeps moving with you.</p>
-        <div><a class="btn sec" href="#get-app">Get the App to Hear First</a></div>
-      </div>
-      <div class="tread"><svg id="treadSvg" viewBox="0 0 300 220" aria-hidden="true"></svg></div>
-    </div>
-  </div>
-</section>
+<!-- REMOVED from the home page (Nov 2026, to shorten the phone scroll): "Rainy days" indoor-mode teaser.
+     Restore from git/backup: section.indoor with #treadSvg (CSS .indoor/.tread still in site.css; the treadmill drawing was removed from site.js). -->
 
-<!-- ============ CHAPTER 8 · BEYOND THE APP ============ -->
+<!-- ============ CHAPTER 7 · BEYOND THE APP ============ -->
 <section data-chapter="More doors">
   <div class="wrap">
     <div class="sechead rv">
-      <span class="chapnum">Chapter 8</span>
+      <span class="chapnum">Chapter 7</span>
       <h2>More doors to open</h2>
     </div>
     <div class="doors">
@@ -236,28 +213,15 @@
   </div>
 </section>
 
-<!-- ============ CHAPTER 9 · PROOF (placeholders until real) ============ -->
-<section data-chapter="Players say">
-  <div class="wrap">
-    <div class="sechead center rv">
-      <span class="chapnum">Chapter 9</span>
-      <h2>What players say</h2>
-    </div>
-    <div class="quotes">
-      <div class="placeholder rv"><b>[Real player quote here]</b><span>[Name, city · App Store review]</span></div>
-      <div class="placeholder rv"><b>[Real player quote here]</b><span>[Name, city · Google Play review]</span></div>
-      <div class="placeholder rv"><b>[Real player quote here]</b><span>[Partner or press quote]</span></div>
-    </div>
-    <p class="placeholder rv" style="margin-top:16px;text-align:center;justify-items:center">[Real rating + number of ratings from the App Store and Google Play] · [Partner logos: tourism boards, festivals, funders]</p>
-  </div>
-</section>
+<!-- REMOVED from the home page (Nov 2026): "Players say" placeholder section (3 [Real player quote here] cards + ratings/logos line).
+     Bring it back once there are real quotes; CSS .quotes/.placeholder is still in site.css. -->
 
-<!-- ============ CHAPTER 10 · TRIAL ============ -->
+<!-- ============ CHAPTER 8 · TRIAL ============ -->
 <section data-chapter="Free for 7 days">
   <div class="wrap price">
     <div class="rv">
-      <span class="chapnum">Chapter 10</span>
-      <h2 style="font-size:clamp(34px,5vw,56px);line-height:1.05;margin-top:14px">What happens next? Try every story free for 7 days.</h2>
+      <span class="chapnum">Chapter 8</span>
+      <h2 class="trialh">What happens next? Try every story free for 7 days.</h2>
       <ul class="checks">
         <li>Every story in the library, unlocked</li>
         <li>New stories added as writers publish them</li>
@@ -268,12 +232,12 @@
   </div>
 </section>
 
-<!-- ============ CHAPTER 11 · FAQ AS A CONVERSATION ============ -->
+<!-- ============ CHAPTER 9 · FAQ AS A CONVERSATION ============ -->
 <section id="faq" data-chapter="Questions">
   <div class="wrap faq">
     <div class="rv" style="display:grid;gap:18px">
       <div class="sechead" style="margin:0">
-        <span class="chapnum">Chapter 11</span>
+        <span class="chapnum">Chapter 9</span>
         <h2>Ask the guide</h2>
         <p class="lede">Tap a question. Wren will answer.</p>
       </div>
@@ -289,12 +253,12 @@
   <div class="wrap rv">
     <span class="chapnum">The final chapter</span>
     <h2>The next chapter is outside.</h2>
-    <p class="walked" id="walked">You've walked <b id="walkedN">0</b> steps just reading this page. Imagine where a story could take them.</p>
+    <p class="walked" id="walked">You just scrolled about <b id="walkedN">0</b> steps. The real walk has a story waiting.</p>
     <div class="stores">
       <a class="store" href="[App Store link]" aria-label="Download on the App Store"><svg viewBox="0 0 24 24"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.5-1-2.5-3.9zM14 5.5c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.4z"/></svg><span>Download on the<b>App Store</b></span></a>
       <a class="store" href="[Google Play link]" aria-label="Get it on Google Play"><svg viewBox="0 0 24 24"><path d="M3.6 1.8c-.3.3-.4.7-.4 1.2v18c0 .5.1.9.4 1.2l10-10.2-10-10.2zm11 11.2 2.9 2.9-11.7 6.7 8.8-9.6zm0-2-8.8-9.6 11.7 6.7-2.9 2.9zm3.9.4 2.9 1.7c.8.5.8 1.3 0 1.8l-2.9 1.7-3.1-3.1 3.1-2.1z"/></svg><span>Get it on<b>Google Play</b></span></a>
     </div>
-    <p style="font-size:14px;color:var(--lilac)">Every story free for 7 days.</p>
+    <p class="getapp-note">Every story free for 7 days.</p>
   </div>
 </section>
 

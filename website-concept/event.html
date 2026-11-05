@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Longest Night</title>
+<meta name="description" content="One story, every city, after dark. Walk The Longest Night on the winter solstice, Sunday 21 December 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Agbalumo&family=Karla:ital,wght@0,300..800;1,300..800&display=swap">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/event.css">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="draft-flag" aria-hidden="true">Draft concept · not the live site</div>
+<a class="pg-skip" href="#main">Skip to content</a>
+<header class="pg-nav">
+  <nav class="wrap" aria-label="Main">
+    <a class="pg-logo" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</a>
+    <button class="ibtn pg-menu" type="button" aria-controls="pg-links" aria-expanded="false" aria-label="Open menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <ul class="pg-links" id="pg-links">
+      <li><a href="index.html#library">Stories</a></li>
+      <li><a href="cities.html">Cities</a></li>
+      <li><a href="creators.html">Creators</a></li>
+      <li><a href="gift.html">Gifts</a></li>
+      <li><a href="teams.html">Teams</a></li>
+      <li class="pg-cta-m"><a class="btn" href="index.html#get-app">Get the App</a></li>
+    </ul>
+    <a class="btn pg-cta" href="index.html#get-app">Get the App</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="pg-hero ev-hero" aria-labelledby="ev-h1">
+    <div class="pg-art ev-art" aria-hidden="true"><i class="ev-moon"></i></div>
+    <div class="wrap">
+      <p class="eyebrow">Winter solstice walk</p>
+      <h1 id="ev-h1">The Longest <em>Night</em></h1>
+      <p class="pg-lede">One story. Every city. Sunday 21 December 2026, the longest night of the year in the northern hemisphere. Walk it after dark.</p>
+      <p class="placeholder ev-flag">[Confirm with team: date, one featured story for every city, and any perks]</p>
+      <div class="ev-count card" id="evCount" role="timer" aria-label="Time until The Longest Night">
+        <p class="ev-count-label" id="evCountLabel">After dark on 21 December, about 5 pm where you are</p>
+        <div class="ev-units" aria-hidden="true">
+          <div><b id="evD">--</b><span>days</span></div>
+          <div><b id="evH">--</b><span>hours</span></div>
+          <div><b id="evM">--</b><span>minutes</span></div>
+          <div><b id="evS">--</b><span>seconds</span></div>
+        </div>
+        <p class="sr-only" id="evCountSr" aria-live="off"></p>
+      </div>
+      <div class="pg-actions">
+        <a class="btn" href="#city">Pick Your City</a>
+        <button class="btn sec" type="button" id="evCalTop">Add to Calendar</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="pg-sec alt" aria-labelledby="ft-h">
+    <div class="wrap">
+      <div class="pg-head" data-reveal>
+        <p class="eyebrow">The featured story</p>
+        <h2 id="ft-h">One story, <em>everywhere</em>.</h2>
+        <p>It is a Play Anywhere story, so it places itself on your own streets, in any city on the list.</p>
+      </div>
+      <article class="ev-feat card" data-reveal id="evFeat" aria-label="Featured story">
+        <img class="ev-cover" id="evCover" src="img/covers/1f076fc7-b371-696a-a758-67f8f40a226a.jpg" alt="Cover art for Frightnight Ghost Tours" width="320" height="512">
+        <div class="ev-feat-txt">
+          <p class="eyebrow" id="evGenre">Paranormal Mystery</p>
+          <h3 id="evTitle">Frightnight Ghost Tours</h3>
+          <p id="evSummary">Will you survive your first tour as a rookie exorcist?</p>
+          <ul class="ev-meta" id="evMeta">
+            <li>Play Anywhere</li><li>About 60 minutes</li><li>Rated PG</li><li>2 endings</li>
+          </ul>
+          <p class="placeholder">[Confirm with team: featured story]</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="pg-sec" id="how" aria-labelledby="hw-h">
+    <div class="wrap">
+      <div class="pg-head" data-reveal>
+        <p class="eyebrow">How it works</p>
+        <h2 id="hw-h">Three steps, one long night.</h2>
+      </div>
+      <ol class="ev-steps">
+        <li class="card" data-reveal><span class="ev-num" aria-hidden="true">1</span><h3>Download the app</h3><p>Story City is on iOS and Android. Every story is free to try for 7 days.</p></li>
+        <li class="card" data-reveal style="--d:.08s"><span class="ev-num" aria-hidden="true">2</span><h3>Pick your city</h3><p>Choose your city below and see what is waiting there.</p></li>
+        <li class="card" data-reveal style="--d:.16s"><span class="ev-num" aria-hidden="true">3</span><h3>Walk it after dark</h3><p>Start at dusk. Characters message you, steps unlock chapters, and your choices change the ending.</p></li>
+      </ol>
+      <div class="ev-safe card" data-reveal role="note">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>
+        <p><strong>Walk safe.</strong> Pick a well-lit route, go with someone, and look up from your phone. Prefer to stay in? Play it at home, too: switch on the at-home way to play and follow the story from your sofa.</p>
+      </div>
+      <p class="placeholder ev-flag2">[Confirm with team: how the at-home way to play works for this event]</p>
+    </div>
+  </section>
+
+  <section class="pg-sec alt" id="cal" aria-labelledby="cl-h">
+    <div class="wrap">
+      <div class="pg-head" data-reveal>
+        <p class="eyebrow">Save the night</p>
+        <h2 id="cl-h">Put it in your <em>calendar</em>.</h2>
+        <p>The reminder is set for the evening of 21 December in your own time zone.</p>
+      </div>
+      <div class="pg-actions ev-cal" data-reveal>
+        <button class="btn" type="button" id="evCal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>Add to Calendar</button>
+        <a class="btn sec" id="evGcal" href="#" target="_blank" rel="noopener">Google Calendar</a>
+      </div>
+      <p class="pg-status" id="evCalStatus" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section class="pg-sec" id="city" aria-labelledby="ct-h">
+    <div class="wrap">
+      <div class="pg-head" data-reveal>
+        <p class="eyebrow">Your city</p>
+        <h2 id="ct-h">Where will you <em>walk</em>?</h2>
+        <p>Pick a city to see its stories and start from your own streets.</p>
+      </div>
+      <div class="ev-pick card" data-reveal>
+        <div class="pg-field">
+          <label for="evCity">City</label>
+          <select class="pg-input" id="evCity" aria-describedby="evCityNote"><option value="">Loading cities</option></select>
+        </div>
+        <p class="ev-city-note" id="evCityNote" aria-live="polite"></p>
+        <a class="btn" id="evWalk" href="cities.html">Walk It in Your City</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="pg-sec alt" id="poster" aria-labelledby="ps-h">
+    <div class="wrap">
+      <div class="pg-head" data-reveal>
+        <p class="eyebrow">Spread the word</p>
+        <h2 id="ps-h">A poster for the <em>window</em>.</h2>
+        <p>Print it, pin it up, tell a friend. It prints on one A-size page.</p>
+      </div>
+      <div class="ev-poster-wrap" data-reveal>
+        <div class="ev-poster" id="evPoster" role="img" aria-label="Poster: The Longest Night, a Story City walk on Sunday 21 December 2026, after dark">
+          <i class="ev-p-moon"></i>
+          <div class="ev-p-in">
+          <div class="ev-p-top">
+            <span class="ev-p-brand"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</span>
+            <span class="ev-p-kick">One story. Every city.</span>
+          </div>
+          <div class="ev-p-mid">
+            <h3>The Longest <em>Night</em></h3>
+            <p class="ev-p-date">Sunday 21 December 2026</p>
+            <p class="ev-p-sub">Walk it after dark.</p>
+          </div>
+          <div class="ev-p-bot">
+            <img src="img/covers/1f076fc7-b371-696a-a758-67f8f40a226a.jpg" alt="" width="160" height="256">
+            <div>
+              <strong>Frightnight Ghost Tours</strong>
+              <span>[Confirm with team: featured story]</span>
+              <p>Download Story City on iOS or Android. Pick your city. Step into the story.</p>
+              <em class="ev-p-url" id="evPosterUrl">storycity.app</em>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="ev-poster-side">
+          <button class="btn" type="button" id="evPrint">Print Poster</button>
+          <p>Use your browser's print window. Choose A4 or A3 paper, or Letter if you are in North America, and turn on background graphics for the full night-sky look.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pg-sec" aria-labelledby="ga-h">
+    <div class="wrap">
+      <div class="pg-cta-band" data-reveal>
+        <p class="eyebrow">Get the app</p>
+        <h2 id="ga-h">Be ready by <em>dusk</em>.</h2>
+        <p>Story City is on iOS and Android. Every story is free to try for 7 days.</p>
+        <div class="pg-actions"><a class="btn" href="index.html#get-app">Get the App</a></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="pg-foot">
+  <div class="wrap">
+    <div class="pg-brand">
+      <a class="pg-logo" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>Story City</a>
+      <p>Don't just walk. Step into the story. On iOS and Android.</p>
+    </div>
+    <div><h2>Play</h2><ul><li><a href="index.html#library">Stories</a></li><li><a href="cities.html">Story cities</a></li><li><a href="gift.html">Gifts</a></li><li><a href="event.html">The Longest Night</a></li><li><a href="index.html#get-app">Get the App</a></li></ul></div>
+    <div><h2>Work with us</h2><ul><li><a href="creators.html">Creators</a></li><li><a href="teams.html">Teams and events</a></li></ul></div>
+    <div class="pg-fine"><span>© Story City</span><span>Walk further. Find out what happens next.</span></div>
+  </div>
+</footer>
+<script src="js/pages.js"></script>
+<script src="js/event.js"></script>
+</body>
+</html>

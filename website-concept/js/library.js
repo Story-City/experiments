@@ -1,12 +1,11 @@
-/* Story City website — Walk-to-chapters line + Story Library shelf
+/* Story City website — Story Library shelf
+   (The old "your usual walk is N minutes" line was removed: the matchmaker's time slider does that job.)
    Mounts into <section id="library" data-module="library">.
    Data: data/stories.json (falls back to a tiny built-in list of real covers). */
 (() => {
   const root = document.querySelector('[data-module="library"]');
   if (!root) return;
 
-  const STEPS_PER_MIN = 120;
-  const MIN_PER_CHAPTER = 8;   // conservative: a chapter usually takes a bit less than this
   const TYPE_LABEL = { anywhere: 'Play Anywhere', local: 'Local', passport: 'Passport' };
   const FALLBACK = [
     { id: 'alice', name: 'Alice Through The Tear', summary: 'Wonderland is bleeding into your streets.', genre: 'Fantasy', minutes: null, type: 'anywhere', cover: 'img/alice.jpg' },
@@ -37,20 +36,25 @@
     : `<span class="${cls} lib-noimg">${SPARK}<span>${esc(titleCase(s.name))}</span></span>`;
 
   let stories = [], usingFallback = false;
-  const state = { walk: 20, genre: 'All', q: '' };
+  const state = { genre: 'All', q: '' };
+
+  /* Season: 1 Nov – 6 Jan in the northern hemisphere, gently move mysteries and ghost stories up the shelf
+     (long dark evenings). Uses only the real genre field; there are no winter or cozy tags in the catalogue. */
+  const seasonal = (() => {
+    const d = new Date(), m = d.getMonth(), day = d.getDate();
+    if (!(m === 10 || m === 11 || (m === 0 && day <= 6))) return false;
+    let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch {}
+    return !/^(Australia|Antarctica)\/|^Pacific\/(Auckland|Chatham|Fiji)|^America\/(Argentina|Sao_Paulo|Santiago|Montevideo|Asuncion)|^Africa\/(Johannesburg|Maputo|Windhoek)/.test(tz);
+  })();
+  const SEASON_GENRE = /myster|paranorm/i;
+  const chapnum = root.closest('[data-chapnum]')?.dataset.chapnum;
 
   root.classList.add('lib');
   root.setAttribute('aria-labelledby', 'lib-title');
   root.innerHTML = `
   <div class="wrap">
-    <p class="lib-calc">
-      Your usual walk is
-      <span class="lib-edit"><button type="button" class="lib-num lib-walk" aria-label="Usual walk: 20 minutes. Click to change">20</button><input class="lib-num lib-walk-in" type="number" inputmode="numeric" min="5" max="300" step="5" aria-label="Usual walk in minutes" hidden></span>
-      minutes — that's about <output class="lib-num lib-out" id="lib-steps">2,400</output> steps, or about <output class="lib-num lib-out" id="lib-chapters">2</output> <span id="lib-chword">chapters</span>.
-    </p>
-
     <header class="lib-head">
-      <p class="eyebrow">Story library</p>
+      ${chapnum ? `<span class="chapnum">Chapter ${chapnum}</span>` : '<p class="eyebrow">Story library</p>'}
       <h2 id="lib-title">Find a story for your next walk</h2>
     </header>
 
@@ -93,51 +97,6 @@
   const $ = s => root.querySelector(s);
   const shelf = $('#lib-shelf'), chipsEl = $('.lib-chips'), sheet = $('.lib-sheet');
 
-  /* ---------- walk → steps → chapters ---------- */
-  const walkBtn = $('.lib-walk'), walkIn = $('.lib-walk-in');
-  function paintCalc() {
-    const m = state.walk;
-    const ch = Math.max(1, Math.floor(m / MIN_PER_CHAPTER));
-    walkBtn.textContent = m;
-    walkBtn.setAttribute('aria-label', `Usual walk: ${m} minutes. Click to change`);
-    $('#lib-steps').textContent = fmt(m * STEPS_PER_MIN);
-    $('#lib-chapters').textContent = ch;
-    $('#lib-chword').textContent = ch === 1 ? 'chapter' : 'chapters';
-    shelf.querySelectorAll('.lib-book').forEach(b => {
-      const mins = +b.dataset.min;
-      b.querySelector('.lib-fit').hidden = !(mins && mins <= m);
-    });
-  }
-  function setWalk(v) {
-    v = Math.round(+v);
-    if (!Number.isFinite(v) || v <= 0) return;
-    state.walk = Math.min(300, Math.max(5, v));
-    paintCalc();
-  }
-  function openEdit() {
-    walkIn.value = state.walk;
-    walkIn.style.width = `${Math.max(2, String(state.walk).length) + 1.6}ch`;
-    walkBtn.hidden = true; walkIn.hidden = false;
-    walkIn.focus(); walkIn.select();
-  }
-  function closeEdit(commit) {
-    if (walkIn.hidden) return;
-    if (commit) setWalk(walkIn.value);
-    walkIn.hidden = true; walkBtn.hidden = false;
-    walkBtn.focus();
-  }
-  walkBtn.addEventListener('click', openEdit);
-  walkBtn.addEventListener('keydown', e => {
-    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { e.preventDefault(); setWalk(state.walk + 5); }
-    if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { e.preventDefault(); setWalk(state.walk - 5); }
-  });
-  walkIn.addEventListener('input', () => { walkIn.style.width = `${Math.max(2, walkIn.value.length) + 1.6}ch`; });
-  walkIn.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); closeEdit(true); }
-    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeEdit(false); }
-  });
-  walkIn.addEventListener('blur', () => closeEdit(true));
-
   /* ---------- shelf ---------- */
   function renderChips() {
     const count = {};
@@ -154,7 +113,7 @@
     shelf.innerHTML = stories.map((s, i) => {
       const mins = minutesOf(s), t = titleCase(s.name);
       return `<li data-i="${i}"><button type="button" class="lib-book" data-min="${mins || ''}" aria-label="${esc(t)}, ${esc(s.genre || 'story')}${mins ? `, ${mins} minutes` : ''}. Open details">
-        <span class="lib-cover">${coverHTML(s, 'lib-img')}<span class="lib-sheen" aria-hidden="true"></span><span class="lib-fit" hidden>Fits your walk</span></span>
+        <span class="lib-cover">${coverHTML(s, 'lib-img')}<span class="lib-sheen" aria-hidden="true"></span></span>
         <span class="lib-genre">${esc(s.genre || '')}</span>
         <span class="lib-name">${esc(t)}</span>
         <span class="lib-len">${mins ? `${mins} min · ` : ''}${esc(typeLine(s))}</span>
@@ -259,11 +218,19 @@
       if (!arr.length) throw 0;
       stories = arr;
     } catch { stories = FALLBACK; usingFallback = true; }
+    if (seasonal) stories = stories.map((s, i) => ({ s, k: i - (SEASON_GENRE.test(s.genre || '') ? 8 : 0) })).sort((a, b) => a.k - b.k).map(x => x.s);
     $('.lib-sample').hidden = !usingFallback;
-    renderChips(); renderShelf(); paintCalc(); filter();
+    renderChips(); renderShelf(); filter();
   }
-  paintCalc();
   load();
 
-  window.SC_LIBRARY = { state, setWalk };
+  /* Open a story's details by id (used by the hero covers). Returns false if it isn't loaded. */
+  function open(id) {
+    const i = stories.findIndex(s => s.id === id);
+    if (i < 0) return false;
+    const li = shelf.querySelector(`li[data-i="${i}"] .lib-book`);
+    openSheet(i, li || document.activeElement);
+    return true;
+  }
+  window.SC_LIBRARY = { state, open, seasonal };
 })();

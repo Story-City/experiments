@@ -72,6 +72,17 @@
     return ['Whimsical'];
   };
 
+  /* Season: 1 Nov – 6 Jan in the northern hemisphere, a small nudge toward mysteries and ghost stories
+     (long dark evenings). Real genre field only; the catalogue has no winter or cozy tags. */
+  const seasonal = (() => {
+    const d = new Date(), m = d.getMonth(), day = d.getDate();
+    if (!(m === 10 || m === 11 || (m === 0 && day <= 6))) return false;
+    let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch {}
+    return !/^(Australia|Antarctica)\/|^Pacific\/(Auckland|Chatham|Fiji)|^America\/(Argentina|Sao_Paulo|Santiago|Montevideo|Asuncion)|^Africa\/(Johannesburg|Maputo|Windhoek)/.test(tz);
+  })();
+  const SEASON_GENRE = /myster|paranorm/i;
+  const chapnum = root.closest('[data-chapnum]')?.dataset.chapnum;
+
   /* ---------- state ---------- */
   const state = { minutes: 25, company: null, vibes: [], q: 0 };
   let stories = [];
@@ -84,7 +95,7 @@
   root.innerHTML = `
   <div class="wrap">
     <header class="mm-head">
-      <p class="eyebrow">Story matchmaker</p>
+      ${chapnum ? `<span class="chapnum">Chapter ${chapnum}</span>` : '<p class="eyebrow">Story matchmaker</p>'}
       <h2 id="mm-title">Got 5 minutes? Start a story.</h2>
       <p class="mm-lede">Three quick questions. We'll deal you a hand of stories that fit your walk.</p>
     </header>
@@ -149,6 +160,7 @@
         <button type="button" class="btn sec mm-share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3.2-3.2a4.5 4.5 0 0 0-6.4-6.4L12 5.6"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3.2 3.2a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg>Copy Link</button>
         <span class="mm-copied" role="status" aria-live="polite"></span>
       </div>
+      <a class="btn mm-start" href="#get-app">Start This Story in the App</a>
       <p class="mm-sample placeholder" hidden>Sample covers shown — the full catalogue loads from <code>data/stories.json</code>.</p>
     </div>
   </div>`;
@@ -262,6 +274,7 @@
       if (state.company === 'group') score += vibes.filter(v => GROUP_FRIENDLY.includes(v)).length * 0.7;
       if (s.type === 'anywhere') score += 1.5; // playable on your own street
       if (Number.isFinite(+s.rating)) score += (+s.rating - 4) * 0.4;
+      if (seasonal && SEASON_GENRE.test(s.genre || '') && state.company !== 'kids') score += 1;
       return { s, mins, vibes, hits, score };
     }).sort((a, b) => b.score - a.score)
       .filter((r, i, all) => { // one card per story family: "Covert Cadets (Austin)" = "Covert Cadets (Brisbane)"

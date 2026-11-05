@@ -95,8 +95,8 @@
     doorEls = list.slice(0, 5).map((d, i) => {
       const b = document.createElement('a'); b.className = 'door'; b.href = d.href || '#library';
       b.setAttribute('aria-label', `${d.title}, ${d.genre}`);
-      b.innerHTML = `<img src="${d.img}" alt="" loading="eager"><span class="cap"><small>${d.genre}</small>${d.title}</span>`;
-      b.addEventListener('click', ev => { if (d.id && window.SC_LIBRARY && window.SC_LIBRARY.open) { ev.preventDefault(); window.SC_LIBRARY.open(d.id); } });
+      b.innerHTML = `<img src="${d.img}" alt="" loading="eager">`;   // the cover art carries its own title; no caption on top
+      b.addEventListener('click', ev => { if (d.id && window.SC_LIBRARY && window.SC_LIBRARY.open && window.SC_LIBRARY.open(d.id)) ev.preventDefault(); });
       b.addEventListener('mouseenter', () => { front = i; placeDoors(); });
       b.addEventListener('focus', () => { front = i; placeDoors(); });
       portal.insertBefore(b, portal.querySelector('.hint')); return b;
@@ -110,6 +110,9 @@
       const ang = k * 0.62, x = Math.sin(ang) * 118, z = Math.cos(ang) * 120 - 120, rot = -k * 16;
       el.style.transform = `translateX(${x}%) translateZ(${z}px) rotateY(${rot}deg) scale(${1 - Math.abs(k) * .12})`;
       el.style.zIndex = 10 - Math.abs(k); el.style.filter = k ? `brightness(${.75 - Math.abs(k) * .12}) saturate(.85)` : 'none';
+      // side covers are softened (blurred) so their lettering never reads as cut-off titles; on phones only the front one shows
+      el.classList.toggle('side', Math.abs(k) === 1); el.classList.toggle('far', Math.abs(k) >= 2);
+      el.tabIndex = k ? -1 : 0;
     });
   }
   function tiltDoors() { if (reduce) return; portal.style.transform = `rotateX(${(mouse.y - .5) * -6}deg) rotateY(${(mouse.x - .5) * 8}deg)`; }
@@ -133,8 +136,17 @@
   /* ---------- The walk: scroll → steps, sections → chapter stops ---------- */
   const PX_PER_STEP = 6;                         // ~6 px of reading = one step
   const trail = $('#trail'), fill = $('#trailFill'), walker = $('#walker');
-  const stepsEl = $('#steps'), counter = $('#stepcount'), unlock = $('#unlock');
+  const stepsEl = $('#steps'), unlock = $('#unlock');
   const chapters = $$('main > section[data-chapter]');
+  // Number every chapter 1..N from its position, so moving a section never leaves a stale "Chapter 7".
+  // Modules (matchmaker, library) read data-chapnum when they render their own heading.
+  chapters.forEach((sec, i) => {
+    if (i === 0) return;
+    const last = i === chapters.length - 1;
+    sec.dataset.chapnum = last ? '' : i;
+    const el = sec.querySelector('.chapnum');
+    if (el && !last) el.textContent = `Chapter ${i}`;
+  });
   let maxSteps = 0, shown = 0, unlocked = new Set([0]), stops = [];
   chapters.forEach((sec, i) => {
     const s = document.createElement('button'); s.className = 'stop'; s.tabIndex = -1;
@@ -150,14 +162,12 @@
   function toast(i) {
     $('#unlockSmall').textContent = i === chapters.length - 1 ? 'Final chapter unlocked' : `Chapter ${i} unlocked`;
     $('#unlockTitle').textContent = chapters[i].dataset.chapter;
-    unlock.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => unlock.classList.remove('show'), 2200);
-    counter.classList.remove('pop'); void counter.offsetWidth; counter.classList.add('pop');
+    unlock.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => unlock.classList.remove('show'), 2400);
   }
   function onScroll() {
     const y = scrollY, doc = document.documentElement.scrollHeight - innerHeight, p = Math.min(1, y / Math.max(1, doc));
     nav.classList.toggle('solid', y > 30);
     maxSteps = Math.max(maxSteps, Math.round(y / PX_PER_STEP));
-    counter.classList.toggle('hide', y < innerHeight * .5);
     const h = trail.clientHeight;
     fill.setAttribute('y2', p * h); walker.style.top = p * 100 + '%';
     let here = 0;
@@ -205,25 +215,6 @@
     const len = mp.getTotalLength();
     return { len, at: k => { mp.style.strokeDasharray = `${len * k} ${len + 1}`; return p.getPointAtLength(len * k); } };
   }
-
-  /* ---------- Mini walk art (step 3 card) ---------- */
-  (function miniWalk() {
-    const s = svgEl('svg', { viewBox: '0 0 200 130', width: '90%', height: '90%' }, $('#miniWalk'));
-    const defs = svgEl('defs', {}, s); const lg = svgEl('linearGradient', { id: 'mwg', gradientUnits: 'userSpaceOnUse', x1: 18, y1: 110, x2: 182, y2: 26 }, defs);
-    svgEl('stop', { offset: 0, 'stop-color': C.citrine }, lg); svgEl('stop', { offset: 1, 'stop-color': C.emerald }, lg);
-    const d = 'M18 110 C 60 110 50 40 100 50 S 150 100 182 26';
-    svgEl('path', { d, fill: 'none', stroke: C.line, 'stroke-width': 3, 'stroke-dasharray': '1 9', 'stroke-linecap': 'round' }, s);
-    const lit = dottedReveal(s, d, 'url(#mwg)', 4, defs, 'mwm');
-    const ring = svgEl('circle', { cx: 182, cy: 26, r: 18, fill: 'none', stroke: C.emerald, 'stroke-width': 1.5 }, s);
-    const dot = svgEl('circle', { r: 6, fill: C.starlight }, s);
-    let t0 = null;
-    (function f(t) {
-      if (t0 == null) t0 = t || 0; const p = reduce ? 1 : Math.min(1, ((t - t0) % 4400) / 3600);
-      const pt = lit.at(p); dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
-      ring.setAttribute('r', 18 - p * 10); ring.setAttribute('opacity', p < 1 ? .8 : 0);
-      if (!reduce) requestAnimationFrame(f);
-    })(performance.now());
-  })();
 
   /* ---------- Modes explorer: Walk / Path / Hunt on one drawn street map ---------- */
   const MODES = {
@@ -369,31 +360,6 @@
   }
   renderGem(); renderSaved();
 
-  /* ---------- Treadmill teaser: a little walker on the spot, the world scrolling past ---------- */
-  (function tread() {
-    const s = $('#treadSvg');
-    svgEl('rect', { x: 40, y: 168, width: 220, height: 14, rx: 7, fill: C.velvet, stroke: C.line }, s);
-    const belt = svgEl('line', { x1: 50, x2: 250, y1: 175, y2: 175, stroke: C.lilac, 'stroke-width': 2, 'stroke-dasharray': '6 10' }, s);
-    svgEl('path', { d: 'M230 168 L250 70 L268 70', stroke: C.line, 'stroke-width': 6, fill: 'none', 'stroke-linecap': 'round' }, s);
-    const sky = svgEl('g', {}, s);
-    for (let i = 0; i < 6; i++) svgEl('use', { href: '#spark', x: 30 + i * 52, y: 20 + (i % 2) * 26, width: 10 + (i % 3) * 4, height: 10 + (i % 3) * 4, fill: i % 2 ? C.glow : C.citrine, opacity: .8 }, sky);
-    const walker = svgEl('g', { transform: 'translate(150 168)' }, s);
-    svgEl('circle', { cx: 0, cy: -78, r: 11, fill: C.starlight }, walker);
-    svgEl('path', { d: 'M0 -66 L0 -32', stroke: C.starlight, 'stroke-width': 6, 'stroke-linecap': 'round' }, walker);
-    const legA = svgEl('path', { stroke: C.citrine, 'stroke-width': 6, 'stroke-linecap': 'round', fill: 'none' }, walker);
-    const legB = svgEl('path', { stroke: C.emerald, 'stroke-width': 6, 'stroke-linecap': 'round', fill: 'none' }, walker);
-    const arm = svgEl('path', { stroke: C.starlight, 'stroke-width': 5, 'stroke-linecap': 'round', fill: 'none' }, walker);
-    const phone = svgEl('rect', { width: 9, height: 15, rx: 2, fill: C.sapphire }, walker);
-    function f(t) {
-      const k = Math.sin(t / 240), off = (t / 16) % 16;
-      legA.setAttribute('d', `M0 -32 L${k * 14} 0`); legB.setAttribute('d', `M0 -32 L${-k * 14} 0`);
-      arm.setAttribute('d', `M0 -60 L14 -50`); phone.setAttribute('x', 12); phone.setAttribute('y', -60);
-      belt.setAttribute('stroke-dashoffset', off); sky.setAttribute('transform', `translate(${-((t / 40) % 52)} 0)`);
-      if (!reduce) requestAnimationFrame(f);
-    }
-    requestAnimationFrame(f);
-  })();
-
   /* ---------- FAQ as a conversation with the guide ---------- */
   const FAQ = [
     ['How far do I have to walk?', ['You choose. Every story shows how long it takes before you start, from a quick coffee-run story to a long Sunday wander.', 'And you can stop whenever you like.', { ph: '[Confirm with team: is your place saved if you stop mid-story?]' }]],
@@ -423,4 +389,67 @@
   FAQ.forEach(([q], i) => { const c = document.createElement('button'); c.className = 'chip'; c.textContent = q; c.addEventListener('click', () => ask(i, c)); qsEl.appendChild(c); });
   const who = document.createElement('div'); who.className = 'who'; who.textContent = 'Wren'; convo.appendChild(who);
   bubble('them', 'Hello. I\'m Wren, your guide. Ask me anything, I don\'t bite.');
+
+  /* ---------- Stories in your city (hero picker) ---------- */
+  // Real counts from data/cities.json. Preselects a city only when the browser's time zone names it
+  // (e.g. America/Edmonton → Edmonton). Never asks for location.
+  (function cityPicker() {
+    const sel = $('#cityPick'), out = $('#cityOut');
+    if (!sel || !out) return;
+    const slugify = t => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const display = t => String(t || '').replace(/\s*\([A-Z]{2}\)\s*$/, '');
+    const plural = n => n === 1 ? '1 story' : `${n.toLocaleString()} stories`;
+    const escH = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    let cities = [], anywhere = 0;
+    function paint() {
+      const c = cities.find(x => x.slug === sel.value);
+      const any = anywhere ? ` Plus ${plural(anywhere)} that play on any street.` : '';
+      if (!c) {
+        out.innerHTML = cities.length
+          ? `${cities.length} cities have stories written for their streets.${escH(any)} <a href="cities.html">See All Story Cities</a>`
+          : '<a href="cities.html">See All Story Cities</a>';
+        return;
+      }
+      out.innerHTML = `<b>${plural(c.count)}</b> in ${escH(c.name)}.${escH(any)} <a href="city.html?c=${encodeURIComponent(c.slug)}">See ${escH(c.name)} Stories</a>`;
+    }
+    sel.addEventListener('change', paint);
+    fetch('data/cities.json').then(r => r.ok ? r.json() : null).then(d => {
+      if (!d || !Array.isArray(d.cities)) { paint(); return; }
+      anywhere = +d.anywhereCount || 0;
+      cities = d.cities.filter(c => c.city && c.count > 0).map(c => {
+        const name = display(c.city);
+        const where = c.region && c.region !== name ? c.region : c.country;
+        return { slug: slugify(c.city), name, label: `${name}, ${where}`, count: c.count, country: c.country || 'Elsewhere' };
+      });
+      const byCountry = new Map();
+      cities.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(c => { if (!byCountry.has(c.country)) byCountry.set(c.country, []); byCountry.get(c.country).push(c); });
+      const countries = [...byCountry.keys()].sort((a, b) => byCountry.get(b).reduce((n, c) => n + c.count, 0) - byCountry.get(a).reduce((n, c) => n + c.count, 0));
+      countries.forEach(k => {
+        const g = document.createElement('optgroup'); g.label = k;
+        byCountry.get(k).forEach(c => { const o = document.createElement('option'); o.value = c.slug; o.textContent = `${c.label} (${c.count})`; g.appendChild(o); });
+        sel.appendChild(g);
+      });
+      let tz = '';
+      try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch {}
+      const guess = slugify(tz.split('/').pop().replace(/_/g, ' '));
+      if (guess && cities.some(c => c.slug === guess)) sel.value = guess;
+      paint();
+    }).catch(() => paint());
+  })();
+
+  /* ---------- One gentle tab tug: only after the demo was started, only once ---------- */
+  (function tabTug() {
+    const demoEl = $('#demo');
+    if (!demoEl) return;
+    let started = false, used = false, tugging = false;
+    const baseTitle = document.title;
+    const mark = e => { if (e.target.closest && e.target.closest('#demo .mount')) started = true; };
+    demoEl.addEventListener('pointerdown', mark, true);
+    demoEl.addEventListener('keydown', mark, true);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && started && !used) { used = true; tugging = true; document.title = '(1) Wren: still there?'; }
+      else if (!document.hidden && tugging) { tugging = false; document.title = baseTitle; }
+    });
+  })();
 })();
