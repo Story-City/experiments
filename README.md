@@ -6,7 +6,7 @@ Each experiment is a folder of static files with relative paths, served at `/exp
 
 Cards are text only (title, one-line description, author and date); there are no preview images.
 
-Entry fields: `slug` (unique, used in `view.html?e=<slug>`), `path` (folder URL including any `?v=`), `title`, `what`, `author` (`brett`, `melissa`), `authorName`, `date` (`YYYY-MM`), `category` (optional: `"poll"` puts the card on the Polls tab; `index.html?tab=polls` opens that tab), `archived`, `notionPageId`, `jira`. Leave `notionPageId` null for a new experiment; the sync creates its Notion task.
+Entry fields: `slug` (unique, used in `view.html?e=<slug>`), `path` (folder URL including any `?v=`), `title`, `what`, `author` (`brett`, `melissa`), `authorName`, `date` (`YYYY-MM`), `category` (optional: `"poll"` puts the card on the Polls tab; `index.html?tab=polls` opens that tab), `archived`, `notionPageId`, `jira`, and for a new experiment `draft: true` plus `reviewer` (the person who asked for it). Drafts show on the Drafts tab (`index.html?tab=drafts`), tagged "Draft · waiting for <reviewer>"; approving means deleting both fields, which moves the card to Experiments. Leave `notionPageId` null for a new experiment; the sync creates its Notion task.
 
 The author colour comes from `--author-<key>` in `theme.css`; add a token and a matching CSS rule in `index.html` for a new author. Filter chips build themselves from the entries. Set `archived: true` once something newer replaces it.
 

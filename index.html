@@ -129,6 +129,7 @@
   details.card summary { cursor: pointer; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   details.card summary .name { font-size: 21px; }
   details.card a { color: var(--who); }
+  .status.draft { display: inline-block; white-space: nowrap; border-color: var(--glow); color: var(--glow); }
   .tag {
     font-size: 11px;
     text-transform: uppercase;
@@ -147,6 +148,7 @@
 <div class="tabs" role="tablist" aria-label="Section">
   <button class="tab" type="button" role="tab" id="tab-experiments" data-tab="experiments" aria-controls="panel-experiments" aria-selected="true">Experiments <span class="n" id="n-experiments"></span></button>
   <button class="tab" type="button" role="tab" id="tab-polls" data-tab="polls" aria-controls="panel-polls" aria-selected="false" tabindex="-1">Polls <span class="n" id="n-polls"></span></button>
+  <button class="tab" type="button" role="tab" id="tab-drafts" data-tab="drafts" aria-controls="panel-drafts" aria-selected="false" tabindex="-1">Drafts <span class="n" id="n-drafts"></span></button>
 </div>
 <div class="filters" role="group" aria-label="Filter by author"></div>
 
@@ -160,6 +162,12 @@
 <section id="panel-polls" role="tabpanel" aria-labelledby="tab-polls" hidden>
 <ul id="polls"></ul>
 <p class="empty" id="polls-empty" hidden>No polls from this person yet.</p>
+</section>
+
+<section id="panel-drafts" role="tabpanel" aria-labelledby="tab-drafts" hidden>
+<p class="sub">New experiments wait here until the person who asked for them approves.</p>
+<ul id="drafts"></ul>
+<p class="empty" id="drafts-empty" hidden>No drafts from this person.</p>
 </section>
 
 <script type="module">
@@ -195,6 +203,7 @@
       const s = el('span', 'status', t.status);
       p.append(' · ', s);
     }
+    if (e.draft) p.append(' · ', el('span', 'status draft', `Draft · waiting for ${e.reviewer || 'review'}`));
     const count = el('span', 'count');
     count.dataset.slug = e.slug;
     p.append(count);
@@ -238,7 +247,9 @@
   const live = document.getElementById('live');
   const polls = document.getElementById('polls');
   const archived = document.getElementById('archived');
-  for (const e of entries) (e.archived ? archived : e.category === 'poll' ? polls : live).append(card(e));
+  const drafts = document.getElementById('drafts');
+  // "draft": true keeps a new experiment in the Drafts tab until its reviewer approves (then delete draft + reviewer)
+  for (const e of entries) (e.archived ? archived : e.draft ? drafts : e.category === 'poll' ? polls : live).append(card(e));
 
   const items = [...document.querySelectorAll('li[data-author]')];
   const authors = new Map();
@@ -266,6 +277,9 @@
     const pollCount = [...document.querySelectorAll('#polls li')].filter(li => !li.hidden).length;
     document.getElementById('n-polls').textContent = pollCount;
     document.getElementById('polls-empty').hidden = pollCount > 0;
+    const draftCount = [...document.querySelectorAll('#drafts li')].filter(li => !li.hidden).length;
+    document.getElementById('n-drafts').textContent = draftCount;
+    document.getElementById('drafts-empty').hidden = draftCount > 0;
     const url = new URL(location.href);
     key ? url.searchParams.set('by', key) : url.searchParams.delete('by');
     history.replaceState(null, '', url);
@@ -285,7 +299,7 @@
       if (on && focus) b.focus();
     }
     const url = new URL(location.href);
-    name === 'polls' ? url.searchParams.set('tab', name) : url.searchParams.delete('tab');
+    name !== 'experiments' ? url.searchParams.set('tab', name) : url.searchParams.delete('tab');
     history.replaceState(null, '', url);
   }
   for (const b of tabs) {
