@@ -1,5 +1,17 @@
 [
   {
+    "slug": "day-reached-overlay",
+    "path": "day-reached-overlay/?v=1",
+    "title": "Day reached — top overlay",
+    "what": "Daniel’s Training Hub day-completion Lottie from suite-city feature/SC-3526-training-hub, replayed as a top-of-screen overlay with soft haze over an end-of-story mock — same asset, new placement only.",
+    "author": "victoria",
+    "authorName": "Victoria",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": "SC-3526"
+  },
+  {
     "slug": "golden-path-nov13",
     "path": "golden-path-nov13/",
     "title": "Golden Path Nov\u00a013: pick by letter",
