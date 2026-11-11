@@ -1,14 +1,19 @@
 :root {
   --night: #0b051c;
-  --raised: #120a28;
   --paper: #f5f2ff;
   --muted: #a8a0b8;
   --brand: #7c5cff;
-  --haze-deep: rgba(11, 5, 28, 0.92);
-  --haze-mid: rgba(22, 13, 52, 0.72);
-  --haze-soft: rgba(78, 108, 175, 0.28);
+  --accent: #5b8cff;
+  --bead-outline: #4e6caf;
+  --bead-incomplete: #160d34;
+  --haze-deep: rgba(11, 5, 28, 0.78);
+  --haze-mid: rgba(22, 13, 52, 0.52);
+  --haze-soft: rgba(78, 108, 175, 0.18);
   --haze-clear: rgba(11, 5, 28, 0);
-  --radius: 16px;
+  --figma-w: 375;
+  --figma-h: 197;
+  --in-ms: 450ms;
+  --out-ms: 700ms;
 }
 
 * { box-sizing: border-box; }
@@ -37,7 +42,7 @@ h1 {
 
 .lede {
   margin: 0;
-  max-width: 440px;
+  max-width: 460px;
   color: var(--muted);
   font-size: 16px;
   font-weight: 500;
@@ -70,8 +75,9 @@ h1 {
   cursor: pointer;
 }
 
-.play:active {
-  transform: scale(0.98);
+.play:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
 .hint {
@@ -131,7 +137,6 @@ h1 {
   display: flex;
   gap: 16px;
   margin-bottom: 8px;
-  color: var(--paper);
   font-size: 15px;
 }
 
@@ -164,41 +169,116 @@ h1 {
   z-index: 5;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 220ms ease;
 }
 
-.overlay.is-on {
-  opacity: 1;
+.overlay.is-in {
+  animation: hazeIn var(--in-ms) ease forwards;
+}
+
+.overlay.is-out {
+  animation: hazeOut var(--out-ms) ease forwards;
+}
+
+@keyframes hazeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes hazeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 .haze {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 58%;
+  inset: 0;
   background: linear-gradient(
     180deg,
     var(--haze-deep) 0%,
-    var(--haze-mid) 28%,
-    var(--haze-soft) 58%,
-    var(--haze-clear) 100%
+    var(--haze-mid) 22%,
+    var(--haze-soft) 42%,
+    var(--haze-clear) 62%
   );
+}
+
+.streak {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10%;
+  display: flex;
+  justify-content: center;
+  /* Match Training Hub section width — phone content inset ≈ CONTENT feel */
+  padding: 0 8px;
+}
+
+.graphic {
+  position: relative;
+  width: 100%;
+  max-width: 375px;
+  aspect-ratio: 375 / 197;
+  overflow: visible;
+}
+
+.arc {
+  position: absolute;
+  left: calc(16 / 375 * 100%);
+  top: calc(22.275390625 / 197 * 100%);
+  width: calc(342 / 375 * 100%);
+  height: calc(174.44921875 / 197 * 100%);
+  overflow: visible;
+}
+
+.beads {
+  position: absolute;
+  inset: 0;
+}
+
+.bead {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--bead-outline);
+  background: var(--bead-incomplete);
+  color: var(--paper);
+  font-family: "Darker Grotesque", system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 1;
+  overflow: hidden;
+}
+
+.bead.is-complete {
+  border-width: 0;
+  background:
+    linear-gradient(160deg, rgba(239, 110, 110, 0.25), rgba(22, 13, 52, 0) 45%, rgba(0, 158, 255, 0.49)),
+    #2a1a5c;
+}
+
+.bead.is-today {
+  box-shadow: 0 0 18px rgba(91, 140, 255, 0.55);
+}
+
+.bead.is-hidden-face {
+  opacity: 0;
+}
+
+.bead span {
+  position: relative;
+  z-index: 1;
+  transform: translateY(-0.12em);
 }
 
 .lottie {
   position: absolute;
-  left: 50%;
-  top: 6%;
-  width: 132%;
-  max-width: none;
-  aspect-ratio: 1920 / 1080;
-  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 6;
+  overflow: visible;
 }
 
 .meta {
   margin: 0;
-  max-width: 440px;
+  max-width: 460px;
   color: var(--muted);
   font-size: 13px;
 }

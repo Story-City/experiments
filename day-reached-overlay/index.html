@@ -4,29 +4,30 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Day reached — top overlay</title>
+<title>Day reached — streak overlay</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=1">
+<link rel="stylesheet" href="app.css?v=3">
 </head>
 <body>
   <header>
     <h1>Day reached overlay</h1>
     <p class="lede">
-      Same Training Hub day-completion Lottie from
-      <code>suite-city</code> <code>feature/SC-3526-training-hub</code>,
-      played at the top over arbitrary UI — soft haze behind it, Genshin-style level bump.
+      Training Hub streak beads + day-reached Lottie only — same layout math as
+      <code>suite-city</code> <code>feature/SC-3526-training-hub</code>
+      (<code>FIGMA_FRAME_WIDTH</code> 375). Transparent layer, soft haze, Genshin-soft dissolve.
+      No hub chrome, no headline.
     </p>
   </header>
 
   <div class="toolbar">
     <button type="button" class="play" id="play">Play day reached</button>
-    <span class="hint" id="hint">Idle — tap to play over the end-of-story screen.</span>
+    <span class="hint" id="hint">Idle — plays beads + Lottie at Training Hub width.</span>
   </div>
 
-  <main class="phone" aria-label="End of story with day-reached overlay">
-    <div class="story-ui" aria-hidden="false">
+  <main class="phone" id="phone" aria-label="End of story with day-reached overlay">
+    <div class="story-ui">
       <p class="eyebrow">Chapter complete</p>
       <h2 class="story-title">The Summons</h2>
       <p class="story-body">You cracked the seal. The Society will want a word tomorrow — but tonight the walk is yours.</p>
@@ -40,16 +41,22 @@
 
     <div class="overlay" id="overlay" aria-hidden="true">
       <div class="haze" aria-hidden="true"></div>
-      <div class="lottie" id="lottie" aria-hidden="true"></div>
+      <div class="streak" id="streak" aria-hidden="true">
+        <div class="graphic" id="graphic">
+          <svg class="arc" id="arc" viewBox="-34 -34 410 242.44921875" aria-hidden="true"></svg>
+          <div class="beads" id="beads"></div>
+          <div class="lottie" id="lottie" aria-hidden="true"></div>
+        </div>
+      </div>
     </div>
   </main>
 
   <p class="meta">
-    Asset: <code>training_hub_day_reached.json</code> (1920×1080, 43f @ 30fps).
-    See <code>SOURCE.md</code>. No new animation — only placement + haze.
+    Source: <code>TrainingHubStreakBanner</code> + <code>training_hub_day_reached.json</code>.
+    Timing: haze in 450ms → Lottie 43f@30fps → soft dissolve 700ms (Genshin-style dismiss).
   </p>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

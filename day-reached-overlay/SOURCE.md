@@ -4,8 +4,12 @@ Pulled from StoryCity mono-repo `suite-city` on Daniel’s training hub branch:
 
 - Branch: `feature/SC-3526-training-hub`
 - Lottie: `mobile-rn/src/v2/assets/training_hub_day_reached.json`
-- Play wiring in app: `mobile-rn/src/v2/components/RetentionLoop/TrainingHubStreakBanner/TrainingHubStreakBanner.tsx`
-- Timing / layout constants: `TrainingHubStreakBannerStyles.ts` (`DAY_REACHED_LOTTIE_*`)
-- Sound/haptics cue (app only): `DayReachedCelebrationCue.tsx`
+- Banner: `TrainingHubStreakBanner.tsx` (arc + beads + Lottie only)
+- Bead / arc: `TrainingHubStreakBead.tsx`, `TrainingHubStreakArc.tsx`
+- Geometry: `TrainingHubStreakBannerStyles.ts` (`FIGMA_FRAME_*`, `FIGMA_BEADS`, `dayReachedLottieLayout`, `DAY_REACHED_LOTTIE_*`)
+- Glow layers: `mobile-rn/src/v2/config/accentGlow.ts`
+- Sound/haptics (app only, not in this web mock): `DayReachedCelebrationCue.tsx`
 
-This experiment only rehosts that Lottie as a top-of-screen overlay with a soft haze, so it can sit over any UI (e.g. end of story) without the Training Hub chrome.
+Removed for this overlay: Training Hub headline/subtitle and all hub chrome beyond the streak graphic.
+
+Timing: soft haze in → same Lottie frame timing as the app → bead reveal → soft dissolve out (Genshin-style dismiss, not a hard cut).

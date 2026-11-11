@@ -1,9 +1,9 @@
 [
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=1",
-    "title": "Day reached — top overlay",
-    "what": "Daniel’s Training Hub day-completion Lottie from suite-city feature/SC-3526-training-hub, replayed as a top-of-screen overlay with soft haze over an end-of-story mock — same asset, new placement only.",
+    "path": "day-reached-overlay/?v=3",
+    "title": "Day reached — streak overlay",
+    "what": "Training Hub streak beads + day-reached Lottie only (suite-city feature/SC-3526-training-hub geometry), on a transparent soft-haze layer over end-of-story UI — same width as the hub, no hub chrome.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
