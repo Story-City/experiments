@@ -1,9 +1,9 @@
 [
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=7",
+    "path": "day-reached-overlay/?v=8",
     "title": "Day reached — streak overlay",
-    "what": "Training Hub day-reached Lottie over staging screenshots: locked phone size, uniform zoom (no squish), overlay overflow so Lottie is not mask-cut, snappy opacity-only fade.",
+    "what": "Day-reached over staging shots: denser soft haze for Lottie readability, strong side transparency mask, streak copy inside the arc, layout-locked fade (less jump).",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

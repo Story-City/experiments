@@ -49,7 +49,9 @@ const HOLD_READABLE_MS = SHINE_MS + HOLD_AFTER_SHINE_MS;
 const HAZE_OUT_MS = 380;
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=7';
+const UNDERLAY_CACHE = 'v=8';
+const SIDE_FAR_INDEXES = new Set([0, 4]);
+const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
   adventure: {
     src: `underlays/adventure.jpg?${UNDERLAY_CACHE}`,
@@ -136,7 +138,10 @@ function destroyAnim() {
     anim.destroy();
     anim = null;
   }
+  // Keep the host box; clearing mid-fade was a visible jump.
   lottieHost.replaceChildren();
+  lottieHost.style.width = '0px';
+  lottieHost.style.height = '0px';
 }
 
 function buildArc() {
@@ -174,6 +179,8 @@ function layoutBeads() {
     el.className = 'bead';
     if (index < TODAY_BEAD_INDEX) el.classList.add('is-complete');
     if (index === TODAY_BEAD_INDEX) el.classList.add('is-today', 'is-complete');
+    if (SIDE_FAR_INDEXES.has(index)) el.classList.add('is-side-far');
+    if (SIDE_NEAR_INDEXES.has(index)) el.classList.add('is-side-near');
     el.style.left = `${spec.left * scale}px`;
     el.style.top = `${spec.top * scale}px`;
     el.style.width = `${spec.size * scale}px`;
@@ -215,10 +222,8 @@ function setCopyVisible(on) {
 }
 
 function finishPlay() {
-  if (!playing && !holdForReview) return;
   playing = false;
   clearTimers();
-  destroyAnim();
   setCopyVisible(false);
   setTodayFace(false, false);
   shineEl.classList.remove('is-on');
@@ -230,10 +235,13 @@ function finishPlay() {
 
 function beginDissolve() {
   setCopyVisible(false);
-  destroyAnim();
   overlay.classList.remove('is-in');
   overlay.classList.add('is-out');
-  later(finishPlay, HAZE_OUT_MS);
+  // Tear down Lottie after opacity is gone — mid-fade destroy jumped the frame.
+  later(() => {
+    destroyAnim();
+    finishPlay();
+  }, HAZE_OUT_MS);
 }
 
 function onLottieDone() {
@@ -245,7 +253,6 @@ function onLottieDone() {
   void shineEl.offsetWidth;
   shineEl.classList.add('is-on');
   later(() => {
-    destroyAnim();
     hint.textContent = holdForReview
       ? 'Held for review (?hold=1). Soft dissolve paused.'
       : 'Shine held — soft dissolve next…';
@@ -263,7 +270,7 @@ function playDayReached() {
   playing = true;
   lottieFinished = false;
   playBtn.disabled = true;
-  hint.textContent = 'Snappy overlay — zoomed hub Lottie, no mask cutoffs…';
+  hint.textContent = 'Readable haze + side-faded arc — day-reached play…';
   clearTimers();
   destroyAnim();
   setCopyVisible(false);
@@ -274,6 +281,7 @@ function playDayReached() {
   setTodayFace(true, false);
   placeLottie(scale);
 
+  // Layout is already final before fade — opacity-only in, no transform.
   overlay.classList.remove('is-out');
   overlay.classList.add('is-in');
   overlay.setAttribute('aria-hidden', 'false');

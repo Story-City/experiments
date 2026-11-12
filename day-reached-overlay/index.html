@@ -8,16 +8,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=7">
+<link rel="stylesheet" href="app.css?v=8">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Day reached overlay</h1>
     <p class="lede">
-      Training Hub streak Lottie over staging screenshots. Phone size locked;
-      underlay clipped separately; overlay zoomed uniformly with no mask cutoffs
-      so the day-reached play is not squished or chopped.
+      Staging underlays + Training Hub Lottie. Soft dense haze for readability,
+      side-faded arc, streak copy tucked up inside the arc, layout locked so play doesn’t jump.
     </p>
   </header>
 
@@ -37,7 +36,7 @@
       <img
         class="underlay"
         id="underlay"
-        src="underlays/adventure.jpg?v=7"
+        src="underlays/adventure.jpg?v=8"
         alt="Story City staging — adventure mode picker"
         width="1080"
         height="2400"
@@ -53,11 +52,11 @@
             <svg class="arc" id="arc" viewBox="-34 -34 410 242.44921875" aria-hidden="true"></svg>
             <div class="beads" id="beads"></div>
             <div class="lottie" id="lottie" aria-hidden="true"></div>
+            <div class="copy" id="copy" aria-hidden="true">
+              <p class="headline" id="headline"><span class="headline-rich">3-day streak!</span></p>
+              <p class="subtitle" id="subtitle">Keep it up!</p>
+            </div>
           </div>
-        </div>
-        <div class="copy" id="copy" aria-hidden="true">
-          <p class="headline" id="headline"><span class="headline-rich">3-day streak!</span></p>
-          <p class="subtitle" id="subtitle">Keep it up!</p>
         </div>
       </div>
       <div class="shine" id="shine" aria-hidden="true"></div>
@@ -65,11 +64,10 @@
   </main>
 
   <p class="meta">
-    Underlays: staging shots. Geometry: <code>feature/SC-3526-training-hub</code>
-    FIGMA beads + Lottie settle. Zoom is uniform <code>scale()</code> only.
+    Underlays: staging shots. Geometry: <code>feature/SC-3526-training-hub</code>.
   </p>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

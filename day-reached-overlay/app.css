@@ -5,14 +5,15 @@
   --accent: #009eff;
   --bead-outline: #4e6caf;
   --bead-incomplete: #160d34;
-  --haze-deep: rgba(11, 5, 28, 0.72);
-  --haze-mid: rgba(22, 13, 52, 0.42);
-  --haze-soft: rgba(0, 158, 255, 0.1);
+  /* Soft but dense wash so the Lottie reads over busy reader art. */
+  --haze-deep: rgba(8, 3, 22, 0.92);
+  --haze-mid: rgba(12, 6, 32, 0.82);
+  --haze-soft: rgba(18, 10, 42, 0.55);
+  --haze-mist: rgba(0, 158, 255, 0.12);
   --haze-clear: rgba(11, 5, 28, 0);
-  --in-ms: 160ms;
-  --out-ms: 380ms;
+  --in-ms: 200ms;
+  --out-ms: 420ms;
   --shine-ms: 1400ms;
-  /* Uniform zoom into hub geometry — never scaleX ≠ scaleY. */
   --streak-zoom: 1.48;
 }
 
@@ -103,10 +104,6 @@ h1 {
   font-size: 14px;
 }
 
-/*
-  Phone size is locked. Underlay is clipped inside; overlay paints above and is
-  allowed to overflow so the Lottie is not cut off by the frame.
-*/
 .phone {
   position: relative;
   width: min(390px, 100%);
@@ -125,7 +122,6 @@ h1 {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: #170c35;
-  /* Lock paint size so image decode never nudges siblings. */
   contain: strict;
 }
 
@@ -148,16 +144,14 @@ h1 {
   pointer-events: none;
   opacity: 0;
   overflow: visible;
-  /* Opacity only — no transform on the overlay (that was jittering the stack). */
-  will-change: opacity;
 }
 
 .overlay.is-in {
-  animation: hazeIn var(--in-ms) ease-out forwards;
+  animation: hazeIn var(--in-ms) linear forwards;
 }
 
 .overlay.is-out {
-  animation: hazeOut var(--out-ms) ease-in forwards;
+  animation: hazeOut var(--out-ms) linear forwards;
 }
 
 @keyframes hazeIn {
@@ -174,30 +168,62 @@ h1 {
   position: absolute;
   inset: 0;
   border-radius: 28px;
-  background: linear-gradient(
-    180deg,
-    var(--haze-deep) 0%,
-    var(--haze-mid) 22%,
-    var(--haze-soft) 40%,
-    var(--haze-clear) 60%
-  );
+  /* Tall soft veil + center pool so the day-reached play stays readable. */
+  background:
+    radial-gradient(90% 42% at 50% 12%, rgba(0, 158, 255, 0.18), transparent 70%),
+    radial-gradient(120% 55% at 50% 8%, rgba(8, 3, 22, 0.9), transparent 72%),
+    linear-gradient(
+      180deg,
+      var(--haze-deep) 0%,
+      var(--haze-mid) 18%,
+      var(--haze-soft) 36%,
+      var(--haze-mist) 48%,
+      var(--haze-clear) 68%
+    );
 }
 
 .streak {
   position: absolute;
   left: 0;
   right: 0;
-  top: 2%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
+  top: 1%;
   overflow: visible;
 }
 
+/* Strong side fade — outer beads drop away; center Lottie stays clear. */
 .band {
   width: 100%;
   overflow: visible;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 6%,
+    rgba(0, 0, 0, 0.12) 16%,
+    rgba(0, 0, 0, 0.4) 26%,
+    rgba(0, 0, 0, 0.85) 36%,
+    #000 44%,
+    #000 56%,
+    rgba(0, 0, 0, 0.85) 64%,
+    rgba(0, 0, 0, 0.4) 74%,
+    rgba(0, 0, 0, 0.12) 84%,
+    transparent 94%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 6%,
+    rgba(0, 0, 0, 0.12) 16%,
+    rgba(0, 0, 0, 0.4) 26%,
+    rgba(0, 0, 0, 0.85) 36%,
+    #000 44%,
+    #000 56%,
+    rgba(0, 0, 0, 0.85) 64%,
+    rgba(0, 0, 0, 0.4) 74%,
+    rgba(0, 0, 0, 0.12) 84%,
+    transparent 94%,
+    transparent 100%
+  );
 }
 
 .graphic {
@@ -258,6 +284,14 @@ h1 {
   opacity: 0;
 }
 
+.bead.is-side-far {
+  opacity: 0.28;
+}
+
+.bead.is-side-near {
+  opacity: 0.55;
+}
+
 .bead span {
   position: relative;
   z-index: 1;
@@ -296,12 +330,17 @@ h1 {
   overflow: visible !important;
 }
 
+/* Goal-reach copy sits inside the arc bowl — absolute, so show/hide never reflows. */
 .copy {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 34%;
+  z-index: 7;
   text-align: center;
   opacity: 0;
-  transition: opacity 180ms ease;
-  padding: 0 20px;
-  margin-top: 4px;
+  transition: opacity 160ms linear;
+  pointer-events: none;
 }
 
 .copy.is-on {
@@ -310,10 +349,11 @@ h1 {
 
 .headline {
   margin: 0;
-  font-size: 28px;
-  line-height: 1.1;
+  font-size: 24px;
+  line-height: 1.05;
   font-weight: 900;
   letter-spacing: -0.02em;
+  text-shadow: 0 2px 18px rgba(8, 3, 22, 0.85);
 }
 
 .headline-rich {
@@ -331,11 +371,12 @@ h1 {
 }
 
 .subtitle {
-  margin: 4px 0 0;
-  font-size: 14px;
-  line-height: 1.3;
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.25;
   font-weight: 600;
-  color: rgba(185, 229, 255, 0.92);
+  color: rgba(185, 229, 255, 0.95);
+  text-shadow: 0 1px 12px rgba(8, 3, 22, 0.9);
 }
 
 .shine {
@@ -344,7 +385,7 @@ h1 {
   pointer-events: none;
   opacity: 0;
   overflow: visible;
-  background: radial-gradient(80% 40% at 50% 14%, rgba(255, 255, 255, 0.38), transparent 70%);
+  background: radial-gradient(70% 36% at 50% 12%, rgba(255, 255, 255, 0.32), transparent 68%);
 }
 
 .shine.is-on {
