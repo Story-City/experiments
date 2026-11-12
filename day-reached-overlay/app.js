@@ -45,18 +45,26 @@ const DAY_REACHED_BEAD_REVEAL_MS = 280;
 const HAZE_IN_MS = 160;
 const HOLD_READABLE_MS = 1400;
 const HAZE_OUT_MS = 300;
+const SIDE_BEADS_FADE_IN_MS = 520;
 const SIDE_BEADS_FADE_OUT_MS = 380;
-// Outward along the arc from today: left-near → right-near → left-far → right-far.
-const SIDE_DOMINO_IN_ORDER = [1, 3, 0, 4];
-const SIDE_DOMINO_OUT_ORDER = [0, 4, 1, 3];
-const SIDE_DOMINO_STEP_MS = 340;
+// Left → right along the arc (skip today — that’s the Lottie).
+const SIDE_DOMINO_IN_ORDER = [0, 1, 3, 4];
+const SIDE_DOMINO_OUT_ORDER = [4, 3, 1, 0];
+// Last bead’s fade completes when the day-reached Lottie ends.
+const SIDE_DOMINO_STEP_MS = Math.max(
+  0,
+  Math.round(
+    (DAY_REACHED_LOTTIE_DURATION_MS - SIDE_BEADS_FADE_IN_MS) /
+      (SIDE_DOMINO_IN_ORDER.length - 1),
+  ),
+);
 const DISSOLVE_WAIT_MS = Math.max(
   HAZE_OUT_MS,
   SIDE_BEADS_FADE_OUT_MS + SIDE_DOMINO_STEP_MS * (SIDE_DOMINO_OUT_ORDER.length - 1),
 );
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=26';
+const UNDERLAY_CACHE = 'v=27';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {

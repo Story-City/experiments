@@ -1,9 +1,9 @@
 [
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=26",
+    "path": "day-reached-overlay/?v=27",
     "title": "Day reached — streak overlay",
-    "what": "Clear one-by-one arc domino (near→far) during Lottie; reverse on dissolve.",
+    "what": "Left→right bead domino timed to end with day-reached Lottie; reverse on dissolve.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
