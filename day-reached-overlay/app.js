@@ -45,13 +45,18 @@ const DAY_REACHED_BEAD_REVEAL_MS = 280;
 const HAZE_IN_MS = 160;
 const HOLD_READABLE_MS = 1400;
 const HAZE_OUT_MS = 300;
-const SIDE_BEADS_FADE_OUT_MS = 420;
-const SIDE_BEADS_EXIT_STAGGER_MS = 250;
-const DISSOLVE_WAIT_MS =
-  Math.max(HAZE_OUT_MS, SIDE_BEADS_FADE_OUT_MS + SIDE_BEADS_EXIT_STAGGER_MS);
+const SIDE_BEADS_FADE_OUT_MS = 380;
+// Outward along the arc from today: left-near → right-near → left-far → right-far.
+const SIDE_DOMINO_IN_ORDER = [1, 3, 0, 4];
+const SIDE_DOMINO_OUT_ORDER = [0, 4, 1, 3];
+const SIDE_DOMINO_STEP_MS = 340;
+const DISSOLVE_WAIT_MS = Math.max(
+  HAZE_OUT_MS,
+  SIDE_BEADS_FADE_OUT_MS + SIDE_DOMINO_STEP_MS * (SIDE_DOMINO_OUT_ORDER.length - 1),
+);
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=25';
+const UNDERLAY_CACHE = 'v=26';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -215,9 +220,33 @@ function setCopyVisible(on) {
   copyEl.setAttribute('aria-hidden', on ? 'false' : 'true');
 }
 
-function setSideBeadsVisible(on) {
-  beadsHost.classList.toggle('sides-visible', on);
-  beadsHost.classList.toggle('sides-exit', !on);
+function clearSideDomino() {
+  Array.from(beadsHost.children).forEach((el) => {
+    el.classList.remove('is-side-shown', 'is-side-hiding');
+  });
+}
+
+function runSideDominoIn() {
+  SIDE_DOMINO_IN_ORDER.forEach((index, step) => {
+    later(() => {
+      if (!playing) return;
+      const el = beadsHost.children[index];
+      if (!el) return;
+      el.classList.remove('is-side-hiding');
+      el.classList.add('is-side-shown');
+    }, step * SIDE_DOMINO_STEP_MS);
+  });
+}
+
+function runSideDominoOut() {
+  SIDE_DOMINO_OUT_ORDER.forEach((index, step) => {
+    later(() => {
+      const el = beadsHost.children[index];
+      if (!el) return;
+      el.classList.remove('is-side-shown');
+      el.classList.add('is-side-hiding');
+    }, step * SIDE_DOMINO_STEP_MS);
+  });
 }
 
 function stopAnimAtStart() {
@@ -263,7 +292,7 @@ function finishPlay() {
   clearTimers();
   setCopyVisible(false);
   setTodayFace(false);
-  beadsHost.classList.remove('sides-visible', 'sides-exit');
+  clearSideDomino();
   stopAnimAtStart();
   playLayer.classList.remove('is-in', 'is-out');
   overlay.setAttribute('aria-hidden', 'true');
@@ -273,7 +302,7 @@ function finishPlay() {
 
 function beginDissolve() {
   setCopyVisible(false);
-  setSideBeadsVisible(false);
+  runSideDominoOut();
   playLayer.classList.remove('is-in');
   playLayer.classList.add('is-out');
   later(() => {
@@ -314,7 +343,7 @@ async function playDayReached() {
 
   buildArc();
   const scale = layoutBeads();
-  beadsHost.classList.remove('sides-visible', 'sides-exit');
+  clearSideDomino();
   setTodayFace(false);
   placeLottie(scale);
 
@@ -333,12 +362,11 @@ async function playDayReached() {
 
   later(() => {
     if (!playing || !anim) return;
-    // Rest of the week eases in while today’s celebration plays.
-    void beadsHost.offsetWidth;
-    setSideBeadsVisible(true);
     anim.removeEventListener('complete', onLottieDone);
     anim.addEventListener('complete', onLottieDone);
     anim.goToAndPlay(0, true);
+    // Domino the rest of the week along the arc while today plays.
+    runSideDominoIn();
     later(onLottieDone, DAY_REACHED_LOTTIE_FALLBACK_MS);
   }, HAZE_IN_MS);
 }
