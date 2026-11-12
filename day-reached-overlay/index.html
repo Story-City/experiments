@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=11">
+<link rel="stylesheet" href="app.css?v=12">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -36,7 +36,7 @@
       <img
         class="underlay"
         id="underlay"
-        src="underlays/adventure.jpg?v=11"
+        src="underlays/adventure.jpg?v=12"
         alt="Story City staging — adventure mode picker"
         width="1080"
         height="2400"
@@ -50,7 +50,10 @@
         <div class="streak" id="streak">
           <div class="band" id="band">
             <div class="graphic" id="graphic">
-              <svg class="arc" id="arc" viewBox="-34 -34 410 242.44921875" aria-hidden="true"></svg>
+              <!-- Mask only the arc — never wrap Lottie (mask clips to the box and cut the top). -->
+              <div class="arc-fade" aria-hidden="true">
+                <svg class="arc" id="arc" viewBox="-34 -34 410 242.44921875"></svg>
+              </div>
               <div class="beads" id="beads"></div>
               <div class="lottie" id="lottie" aria-hidden="true"></div>
               <div class="copy" id="copy" aria-hidden="true">
@@ -70,6 +73,6 @@
   </p>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>
