@@ -8,16 +8,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=6">
+<link rel="stylesheet" href="app.css?v=7">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Day reached overlay</h1>
     <p class="lede">
-      Training Hub streak (weekday beads + day-reached Lottie) over real staging
-      reader screenshots — absolute overlay only, underlay layout unchanged.
-      Arc edge-faded, accent <code>#009EFF</code>, prolonged shine.
+      Training Hub streak Lottie over staging screenshots. Phone size locked;
+      underlay clipped separately; overlay zoomed uniformly with no mask cutoffs
+      so the day-reached play is not squished or chopped.
     </p>
   </header>
 
@@ -29,18 +29,21 @@
 
   <div class="toolbar">
     <button type="button" class="play" id="play">Play day reached</button>
-    <span class="hint" id="hint">Idle — overlay sits on top of the staging shot.</span>
+    <span class="hint" id="hint">Idle — overlay on locked underlay.</span>
   </div>
 
   <main class="phone" id="phone" data-surface="adventure" aria-label="Day-reached overlay preview">
-    <img
-      class="underlay"
-      id="underlay"
-      src="underlays/adventure.jpg?v=6"
-      alt="Story City staging — adventure mode picker"
-      width="1080"
-      height="2400"
-    >
+    <div class="underlay-clip">
+      <img
+        class="underlay"
+        id="underlay"
+        src="underlays/adventure.jpg?v=7"
+        alt="Story City staging — adventure mode picker"
+        width="1080"
+        height="2400"
+        decoding="async"
+      >
+    </div>
 
     <div class="overlay" id="overlay" aria-hidden="true">
       <div class="haze" aria-hidden="true"></div>
@@ -62,11 +65,11 @@
   </main>
 
   <p class="meta">
-    Underlays: staging device screenshots (2026-11-12). Geometry from
-    <code>feature/SC-3526-training-hub</code>. Spread via wider scale + edge mask — same bead coords.
+    Underlays: staging shots. Geometry: <code>feature/SC-3526-training-hub</code>
+    FIGMA beads + Lottie settle. Zoom is uniform <code>scale()</code> only.
   </p>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

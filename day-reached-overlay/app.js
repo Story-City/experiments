@@ -41,16 +41,15 @@ const DAY_REACHED_SETTLE_CENTER_X = 1010.3;
 const DAY_REACHED_SETTLE_CENTER_Y = 527.1;
 const DAY_REACHED_SETTLE_DIAMETER = 882.3;
 const DAY_REACHED_LOTTIE_CENTER_DIVISOR = 2;
-const DAY_REACHED_BEAD_REVEAL_MS = 320;
-const HAZE_IN_MS = 280;
-// Prolonged shine — hold through the full shine pass before dissolve.
-const SHINE_MS = 1600;
-const HOLD_AFTER_SHINE_MS = 700;
+const DAY_REACHED_BEAD_REVEAL_MS = 280;
+const HAZE_IN_MS = 160;
+const SHINE_MS = 1400;
+const HOLD_AFTER_SHINE_MS = 500;
 const HOLD_READABLE_MS = SHINE_MS + HOLD_AFTER_SHINE_MS;
-const HAZE_OUT_MS = 650;
+const HAZE_OUT_MS = 380;
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=6';
+const UNDERLAY_CACHE = 'v=7';
 const UNDERLAYS = {
   adventure: {
     src: `underlays/adventure.jpg?${UNDERLAY_CACHE}`,
@@ -119,6 +118,7 @@ let anim = null;
 let timers = [];
 let playing = false;
 let lottieFinished = false;
+let laidOutScale = 0;
 
 function later(fn, ms) {
   const id = setTimeout(fn, ms);
@@ -140,9 +140,9 @@ function destroyAnim() {
 }
 
 function buildArc() {
+  if (arcSvg.childElementCount > 0) return;
   const accent = '#009EFF';
   const ns = 'http://www.w3.org/2000/svg';
-  arcSvg.replaceChildren();
   ACCENT_GLOW_LAYERS.forEach((layer) => {
     const path = document.createElementNS(ns, 'path');
     path.setAttribute('d', FIGMA_ARC_PATH);
@@ -159,9 +159,13 @@ function buildArc() {
   arcSvg.appendChild(fill);
 }
 
-function buildBeads(hideTodayFace, shinyToday) {
-  beadsHost.replaceChildren();
+function layoutBeads() {
   const scale = graphic.clientWidth / FIGMA_FRAME_WIDTH || 1;
+  if (Math.abs(scale - laidOutScale) < 0.001 && beadsHost.childElementCount === FIGMA_BEADS.length) {
+    return scale;
+  }
+  laidOutScale = scale;
+  beadsHost.replaceChildren();
   const today = formatLocalDate(new Date());
   DAY_OFFSETS.forEach((offset, index) => {
     const spec = FIGMA_BEADS[index];
@@ -169,14 +173,7 @@ function buildBeads(hideTodayFace, shinyToday) {
     const el = document.createElement('div');
     el.className = 'bead';
     if (index < TODAY_BEAD_INDEX) el.classList.add('is-complete');
-    if (index === TODAY_BEAD_INDEX) {
-      el.classList.add('is-today');
-      if (hideTodayFace) el.classList.add('is-hidden-face');
-      else {
-        el.classList.add('is-complete');
-        if (shinyToday) el.classList.add('is-shiny');
-      }
-    }
+    if (index === TODAY_BEAD_INDEX) el.classList.add('is-today', 'is-complete');
     el.style.left = `${spec.left * scale}px`;
     el.style.top = `${spec.top * scale}px`;
     el.style.width = `${spec.size * scale}px`;
@@ -193,12 +190,21 @@ function buildBeads(hideTodayFace, shinyToday) {
   return scale;
 }
 
+function setTodayFace(hide, shiny) {
+  const todayEl = beadsHost.children[TODAY_BEAD_INDEX];
+  if (!todayEl) return;
+  todayEl.classList.toggle('is-hidden-face', hide);
+  todayEl.classList.toggle('is-complete', !hide);
+  todayEl.classList.toggle('is-shiny', !hide && shiny);
+}
+
 function placeLottie(scale) {
   const layout = dayReachedLottieLayout(scale);
   lottieHost.style.left = `${layout.left}px`;
   lottieHost.style.top = `${layout.top}px`;
   lottieHost.style.width = `${layout.width}px`;
   lottieHost.style.height = `${layout.height}px`;
+  lottieHost.style.overflow = 'visible';
 }
 
 function setCopyVisible(on) {
@@ -214,6 +220,7 @@ function finishPlay() {
   clearTimers();
   destroyAnim();
   setCopyVisible(false);
+  setTodayFace(false, false);
   shineEl.classList.remove('is-on');
   overlay.classList.remove('is-in', 'is-out');
   overlay.setAttribute('aria-hidden', 'true');
@@ -232,7 +239,7 @@ function beginDissolve() {
 function onLottieDone() {
   if (lottieFinished || !playing) return;
   lottieFinished = true;
-  buildBeads(false, true);
+  setTodayFace(false, true);
   setCopyVisible(true);
   shineEl.classList.remove('is-on');
   void shineEl.offsetWidth;
@@ -241,7 +248,7 @@ function onLottieDone() {
     destroyAnim();
     hint.textContent = holdForReview
       ? 'Held for review (?hold=1). Soft dissolve paused.'
-      : 'Prolonged shine — soft dissolve next…';
+      : 'Shine held — soft dissolve next…';
     if (holdForReview) {
       playBtn.disabled = false;
       playing = false;
@@ -256,14 +263,15 @@ function playDayReached() {
   playing = true;
   lottieFinished = false;
   playBtn.disabled = true;
-  hint.textContent = 'Overlay in — weekday beads + day-reached Lottie…';
+  hint.textContent = 'Snappy overlay — zoomed hub Lottie, no mask cutoffs…';
   clearTimers();
   destroyAnim();
   setCopyVisible(false);
   shineEl.classList.remove('is-on');
 
   buildArc();
-  const scale = buildBeads(true, false);
+  const scale = layoutBeads();
+  setTodayFace(true, false);
   placeLottie(scale);
 
   overlay.classList.remove('is-out');
@@ -277,8 +285,17 @@ function playDayReached() {
       loop: false,
       autoplay: false,
       path: 'training_hub_day_reached.json',
+      rendererSettings: {
+        preserveAspectRatio: 'xMidYMid meet',
+        clearCanvas: true,
+        progressiveLoad: false,
+        hideOnTransparent: true,
+      },
     });
     anim.addEventListener('DOMLoaded', () => {
+      lottieHost.style.overflow = 'visible';
+      const svg = lottieHost.querySelector('svg');
+      if (svg) svg.style.overflow = 'visible';
       anim.goToAndPlay(0, true);
       later(onLottieDone, DAY_REACHED_LOTTIE_FALLBACK_MS);
     });
@@ -293,6 +310,7 @@ function playDayReached() {
 function setSurface(name) {
   const shot = UNDERLAYS[name] ?? UNDERLAYS.adventure;
   phone.dataset.surface = name;
+  // Swap src only — underlay-clip contain:strict keeps phone size fixed.
   underlay.src = shot.src;
   underlay.alt = shot.alt;
   document.querySelectorAll('.chip').forEach((chip) => {
@@ -306,11 +324,11 @@ document.querySelectorAll('.chip').forEach((chip) => {
 
 playBtn.addEventListener('click', playDayReached);
 window.addEventListener('resize', () => {
-  if (!overlay.classList.contains('is-in') && !copyEl.classList.contains('is-on')) return;
-  const hide = !!document.querySelector('.bead.is-hidden-face');
-  const scale = buildBeads(hide, !hide);
-  placeLottie(scale);
+  const scale = layoutBeads();
+  if (overlay.classList.contains('is-in') || copyEl.classList.contains('is-on')) {
+    placeLottie(scale);
+  }
 });
 
 buildArc();
-buildBeads(false, false);
+layoutBeads();

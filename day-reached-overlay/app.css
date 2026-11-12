@@ -9,9 +9,11 @@
   --haze-mid: rgba(22, 13, 52, 0.42);
   --haze-soft: rgba(0, 158, 255, 0.1);
   --haze-clear: rgba(11, 5, 28, 0);
-  --in-ms: 280ms;
-  --out-ms: 650ms;
-  --shine-ms: 1600ms;
+  --in-ms: 160ms;
+  --out-ms: 380ms;
+  --shine-ms: 1400ms;
+  /* Uniform zoom into hub geometry — never scaleX ≠ scaleY. */
+  --streak-zoom: 1.48;
 }
 
 * { box-sizing: border-box; }
@@ -27,7 +29,7 @@ html, body {
 body {
   display: grid;
   place-items: start center;
-  padding: 24px 16px 48px;
+  padding: 24px 16px 64px;
   gap: 14px;
 }
 
@@ -101,16 +103,30 @@ h1 {
   font-size: 14px;
 }
 
-/* Phone is only the screenshot frame — overlay never changes its size. */
+/*
+  Phone size is locked. Underlay is clipped inside; overlay paints above and is
+  allowed to overflow so the Lottie is not cut off by the frame.
+*/
 .phone {
   position: relative;
   width: min(390px, 100%);
   aspect-ratio: 9 / 19.5;
+  flex: none;
+  contain: size layout;
+  background: transparent;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.underlay-clip {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   border-radius: 28px;
   overflow: hidden;
-  background: #170c35;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #170c35;
+  /* Lock paint size so image decode never nudges siblings. */
+  contain: strict;
 }
 
 .underlay {
@@ -121,26 +137,27 @@ h1 {
   object-fit: cover;
   object-position: center top;
   display: block;
-  z-index: 0;
   pointer-events: none;
   user-select: none;
 }
 
-/* Pure overlay — does not participate in layout. */
 .overlay {
   position: absolute;
   inset: 0;
   z-index: 5;
   pointer-events: none;
   opacity: 0;
+  overflow: visible;
+  /* Opacity only — no transform on the overlay (that was jittering the stack). */
+  will-change: opacity;
 }
 
 .overlay.is-in {
-  animation: hazeIn var(--in-ms) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: hazeIn var(--in-ms) ease-out forwards;
 }
 
 .overlay.is-out {
-  animation: hazeOut var(--out-ms) ease forwards;
+  animation: hazeOut var(--out-ms) ease-in forwards;
 }
 
 @keyframes hazeIn {
@@ -156,12 +173,13 @@ h1 {
 .haze {
   position: absolute;
   inset: 0;
+  border-radius: 28px;
   background: linear-gradient(
     180deg,
     var(--haze-deep) 0%,
-    var(--haze-mid) 20%,
-    var(--haze-soft) 38%,
-    var(--haze-clear) 58%
+    var(--haze-mid) 22%,
+    var(--haze-soft) 40%,
+    var(--haze-clear) 60%
   );
 }
 
@@ -169,36 +187,17 @@ h1 {
   position: absolute;
   left: 0;
   right: 0;
-  top: 4%;
+  top: 2%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 0;
+  overflow: visible;
 }
 
-/* Wider than the phone so hub bead coords spread toward the edges;
-   mask fades the overshoot so nothing hard-cuts at the rim. */
 .band {
-  width: 118%;
-  margin-left: -9%;
-  -webkit-mask-image: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(0, 0, 0, 0.25) 8%,
-    #000 18%,
-    #000 82%,
-    rgba(0, 0, 0, 0.25) 92%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(0, 0, 0, 0.25) 8%,
-    #000 18%,
-    #000 82%,
-    rgba(0, 0, 0, 0.25) 92%,
-    transparent 100%
-  );
+  width: 100%;
+  overflow: visible;
 }
 
 .graphic {
@@ -206,9 +205,8 @@ h1 {
   width: 100%;
   aspect-ratio: 375 / 197;
   overflow: visible;
-  /* Slightly flatter so the arc sits closer / less top-heavy. */
-  transform: scaleY(0.88);
-  transform-origin: top center;
+  transform: scale(var(--streak-zoom));
+  transform-origin: 50% 18%;
 }
 
 .arc {
@@ -224,6 +222,7 @@ h1 {
 .beads {
   position: absolute;
   inset: 0;
+  overflow: visible;
 }
 
 .bead {
@@ -290,25 +289,28 @@ h1 {
   position: absolute;
   pointer-events: none;
   z-index: 6;
-  overflow: visible;
+  overflow: visible !important;
+}
+
+.lottie svg {
+  overflow: visible !important;
 }
 
 .copy {
   text-align: center;
   opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 280ms ease, transform 280ms ease;
-  padding: 0 24px;
+  transition: opacity 180ms ease;
+  padding: 0 20px;
+  margin-top: 4px;
 }
 
 .copy.is-on {
   opacity: 1;
-  transform: translateY(0);
 }
 
 .headline {
   margin: 0;
-  font-size: 26px;
+  font-size: 28px;
   line-height: 1.1;
   font-weight: 900;
   letter-spacing: -0.02em;
@@ -320,7 +322,7 @@ h1 {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: richSweep 1200ms ease-out both;
+  animation: richSweep 900ms ease-out both;
 }
 
 @keyframes richSweep {
@@ -341,7 +343,8 @@ h1 {
   inset: 0;
   pointer-events: none;
   opacity: 0;
-  background: radial-gradient(70% 32% at 50% 16%, rgba(255, 255, 255, 0.34), transparent 72%);
+  overflow: visible;
+  background: radial-gradient(80% 40% at 50% 14%, rgba(255, 255, 255, 0.38), transparent 70%);
 }
 
 .shine.is-on {
@@ -350,7 +353,7 @@ h1 {
 
 @keyframes topShine {
   0% { opacity: 0; }
-  12% { opacity: 1; }
+  10% { opacity: 1; }
   55% { opacity: 0.55; }
   100% { opacity: 0; }
 }

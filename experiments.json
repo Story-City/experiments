@@ -1,9 +1,9 @@
 [
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=6",
+    "path": "day-reached-overlay/?v=7",
     "title": "Day reached — streak overlay",
-    "what": "Training Hub weekday beads + day-reached Lottie over real staging reader screenshots (absolute overlay, no layout shift). Edge-faded spread arc, brand.accent #009EFF, prolonged shine.",
+    "what": "Training Hub day-reached Lottie over staging screenshots: locked phone size, uniform zoom (no squish), overlay overflow so Lottie is not mask-cut, snappy opacity-only fade.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
