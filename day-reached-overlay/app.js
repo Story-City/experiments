@@ -49,7 +49,7 @@ const HOLD_READABLE_MS = SHINE_MS + HOLD_AFTER_SHINE_MS;
 const HAZE_OUT_MS = 380;
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=10';
+const UNDERLAY_CACHE = 'v=11';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -102,6 +102,7 @@ function dayReachedLottieLayout(scale) {
 }
 
 const overlay = document.getElementById('overlay');
+const playLayer = document.getElementById('playLayer');
 const graphic = document.getElementById('graphic');
 const beadsHost = document.getElementById('beads');
 const arcSvg = document.getElementById('arc');
@@ -117,10 +118,15 @@ const underlay = document.getElementById('underlay');
 const holdForReview = new URLSearchParams(location.search).has('hold');
 
 let anim = null;
+let animReady = false;
+let animLoading = null;
 let timers = [];
 let playing = false;
 let lottieFinished = false;
 let laidOutScale = 0;
+
+headlineEl.innerHTML = `<span class="headline-rich">${STREAK_COUNT}-day streak!</span>`;
+subtitleEl.textContent = 'Keep it up!';
 
 function later(fn, ms) {
   const id = setTimeout(fn, ms);
@@ -131,17 +137,6 @@ function later(fn, ms) {
 function clearTimers() {
   timers.forEach(clearTimeout);
   timers = [];
-}
-
-function destroyAnim() {
-  if (anim) {
-    anim.destroy();
-    anim = null;
-  }
-  // Keep the host box; clearing mid-fade was a visible jump.
-  lottieHost.replaceChildren();
-  lottieHost.style.width = '0px';
-  lottieHost.style.height = '0px';
 }
 
 function buildArc() {
@@ -200,9 +195,8 @@ function layoutBeads() {
 function setTodayFace(awaitingLottie, shiny) {
   const todayEl = beadsHost.children[TODAY_BEAD_INDEX];
   if (!todayEl) return;
-  // Keep the weekday label visible through the play — only the fill yields to Lottie.
+  todayEl.classList.add('is-complete', 'is-today');
   todayEl.classList.toggle('is-awaiting-lottie', awaitingLottie);
-  todayEl.classList.toggle('is-complete', !awaitingLottie);
   todayEl.classList.toggle('is-shiny', !awaitingLottie && shiny);
 }
 
@@ -216,10 +210,46 @@ function placeLottie(scale) {
 }
 
 function setCopyVisible(on) {
-  headlineEl.innerHTML = `<span class="headline-rich">${STREAK_COUNT}-day streak!</span>`;
-  subtitleEl.textContent = 'Keep it up!';
   copyEl.classList.toggle('is-on', on);
   copyEl.setAttribute('aria-hidden', on ? 'false' : 'true');
+}
+
+function stopAnimAtStart() {
+  if (!anim) return;
+  anim.pause();
+  anim.goToAndStop(0, true);
+}
+
+function ensureAnim() {
+  if (animReady && anim) return Promise.resolve(anim);
+  if (animLoading) return animLoading;
+  animLoading = new Promise((resolve, reject) => {
+    anim = window.lottie.loadAnimation({
+      container: lottieHost,
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      path: 'training_hub_day_reached.json',
+      rendererSettings: {
+        preserveAspectRatio: 'xMidYMid meet',
+        progressiveLoad: false,
+        hideOnTransparent: true,
+      },
+    });
+    anim.addEventListener('DOMLoaded', () => {
+      lottieHost.style.overflow = 'visible';
+      const svg = lottieHost.querySelector('svg');
+      if (svg) svg.style.overflow = 'visible';
+      anim.goToAndStop(0, true);
+      animReady = true;
+      resolve(anim);
+    });
+    anim.addEventListener('data_failed', () => {
+      animLoading = null;
+      reject(new Error('Lottie failed to load'));
+    });
+  });
+  return animLoading;
 }
 
 function finishPlay() {
@@ -228,7 +258,8 @@ function finishPlay() {
   setCopyVisible(false);
   setTodayFace(false, false);
   shineEl.classList.remove('is-on');
-  overlay.classList.remove('is-in', 'is-out');
+  stopAnimAtStart();
+  playLayer.classList.remove('is-in', 'is-out');
   overlay.setAttribute('aria-hidden', 'true');
   hint.textContent = 'Done — switch underlay or replay.';
   playBtn.disabled = false;
@@ -236,11 +267,10 @@ function finishPlay() {
 
 function beginDissolve() {
   setCopyVisible(false);
-  overlay.classList.remove('is-in');
-  overlay.classList.add('is-out');
-  // Tear down Lottie after opacity is gone — mid-fade destroy jumped the frame.
+  playLayer.classList.remove('is-in');
+  playLayer.classList.add('is-out');
   later(() => {
-    destroyAnim();
+    stopAnimAtStart();
     finishPlay();
   }, HAZE_OUT_MS);
 }
@@ -266,14 +296,13 @@ function onLottieDone() {
   }, DAY_REACHED_BEAD_REVEAL_MS);
 }
 
-function playDayReached() {
+async function playDayReached() {
   if (!window.lottie || playing) return;
   playing = true;
   lottieFinished = false;
   playBtn.disabled = true;
-  hint.textContent = 'Readable haze + side-faded arc — day-reached play…';
+  hint.textContent = 'Day reached…';
   clearTimers();
-  destroyAnim();
   setCopyVisible(false);
   shineEl.classList.remove('is-on');
 
@@ -282,44 +311,31 @@ function playDayReached() {
   setTodayFace(true, false);
   placeLottie(scale);
 
-  // Layout is already final before fade — opacity-only in, no transform.
-  overlay.classList.remove('is-out');
-  overlay.classList.add('is-in');
+  try {
+    await ensureAnim();
+  } catch (err) {
+    hint.textContent = 'Lottie failed to load.';
+    finishPlay();
+    return;
+  }
+
+  // Host already sized; SVG already in DOM — opacity fade only, then play.
+  playLayer.classList.remove('is-out');
+  playLayer.classList.add('is-in');
   overlay.setAttribute('aria-hidden', 'false');
 
   later(() => {
-    anim = window.lottie.loadAnimation({
-      container: lottieHost,
-      renderer: 'svg',
-      loop: false,
-      autoplay: false,
-      path: 'training_hub_day_reached.json',
-      rendererSettings: {
-        preserveAspectRatio: 'xMidYMid meet',
-        clearCanvas: true,
-        progressiveLoad: false,
-        hideOnTransparent: true,
-      },
-    });
-    anim.addEventListener('DOMLoaded', () => {
-      lottieHost.style.overflow = 'visible';
-      const svg = lottieHost.querySelector('svg');
-      if (svg) svg.style.overflow = 'visible';
-      anim.goToAndPlay(0, true);
-      later(onLottieDone, DAY_REACHED_LOTTIE_FALLBACK_MS);
-    });
+    if (!playing || !anim) return;
+    anim.removeEventListener('complete', onLottieDone);
     anim.addEventListener('complete', onLottieDone);
-    anim.addEventListener('data_failed', () => {
-      hint.textContent = 'Lottie failed to load.';
-      finishPlay();
-    });
+    anim.goToAndPlay(0, true);
+    later(onLottieDone, DAY_REACHED_LOTTIE_FALLBACK_MS);
   }, HAZE_IN_MS);
 }
 
 function setSurface(name) {
   const shot = UNDERLAYS[name] ?? UNDERLAYS.adventure;
   phone.dataset.surface = name;
-  // Swap src only — underlay-clip contain:strict keeps phone size fixed.
   underlay.src = shot.src;
   underlay.alt = shot.alt;
   document.querySelectorAll('.chip').forEach((chip) => {
@@ -331,13 +347,20 @@ document.querySelectorAll('.chip').forEach((chip) => {
   chip.addEventListener('click', () => setSurface(chip.dataset.surface));
 });
 
-playBtn.addEventListener('click', playDayReached);
+playBtn.addEventListener('click', () => {
+  playDayReached();
+});
+
 window.addEventListener('resize', () => {
   const scale = layoutBeads();
-  if (overlay.classList.contains('is-in') || copyEl.classList.contains('is-on')) {
-    placeLottie(scale);
-  }
+  placeLottie(scale);
 });
 
 buildArc();
-layoutBeads();
+const initialScale = layoutBeads();
+placeLottie(initialScale);
+if (window.lottie) {
+  ensureAnim().catch(() => {
+    hint.textContent = 'Lottie preload failed — tap play to retry.';
+  });
+}
