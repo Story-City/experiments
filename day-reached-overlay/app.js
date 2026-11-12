@@ -53,28 +53,26 @@ const HOLD_READABLE_MS = SHINE_MS + HOLD_AFTER_SHINE_MS;
 const HAZE_OUT_MS = 300;
 const SIDE_BEADS_FADE_IN_MS = 520;
 const SIDE_BEADS_FADE_OUT_MS = 380;
-// Past days while Lottie plays; the two days after today only after settle.
+// Past days: same bubble rhythm as the ending pair — delayed to land with settle.
 const SIDE_DOMINO_DURING_ORDER = [0, 1];
 const SIDE_DOMINO_AFTER_ORDER = [3, 4];
 const SIDE_DOMINO_OUT_ORDER = [4, 3, 1, 0];
-const SIDE_DOMINO_DURING_STEP_MS =
-  SIDE_DOMINO_DURING_ORDER.length > 1
-    ? Math.max(
-        0,
-        Math.round(
-          (DAY_REACHED_LOTTIE_DURATION_MS - SIDE_BEADS_FADE_IN_MS) /
-            (SIDE_DOMINO_DURING_ORDER.length - 1),
-        ),
-      )
-    : 0;
 const SIDE_DOMINO_AFTER_STEP_MS = 300;
+const SIDE_DOMINO_DURING_STEP_MS = SIDE_DOMINO_AFTER_STEP_MS;
+const SIDE_DOMINO_DURING_SPAN_MS =
+  SIDE_BEADS_FADE_IN_MS +
+  SIDE_DOMINO_DURING_STEP_MS * Math.max(0, SIDE_DOMINO_DURING_ORDER.length - 1);
+const SIDE_DOMINO_DURING_START_MS = Math.max(
+  0,
+  DAY_REACHED_LOTTIE_DURATION_MS - SIDE_DOMINO_DURING_SPAN_MS,
+);
 const DISSOLVE_WAIT_MS = Math.max(
   HAZE_OUT_MS,
   SIDE_BEADS_FADE_OUT_MS + SIDE_DOMINO_AFTER_STEP_MS * (SIDE_DOMINO_OUT_ORDER.length - 1),
 );
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=30';
+const UNDERLAY_CACHE = 'v=31';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -272,7 +270,7 @@ function runSideDominoDuring() {
     later(() => {
       if (!playing) return;
       revealSideBead(index);
-    }, step * SIDE_DOMINO_DURING_STEP_MS);
+    }, SIDE_DOMINO_DURING_START_MS + step * SIDE_DOMINO_DURING_STEP_MS);
   });
 }
 
