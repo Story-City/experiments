@@ -207,13 +207,13 @@ h1 {
 @keyframes findDrop {
   0% {
     opacity: 0;
-    filter: blur(8px) brightness(1.25);
-    transform: rotate(-18deg) scale(1.45) translateY(-28%);
+    filter: blur(6px) brightness(1.15);
+    transform: rotate(-16deg) scale(1.28) translateY(-18%);
   }
-  55% {
+  62% {
     opacity: 1;
-    filter: blur(1px) brightness(1.05);
-    transform: rotate(-10deg) scale(0.97) translateY(2%);
+    filter: blur(0.5px) brightness(1.04);
+    transform: rotate(-11deg) scale(0.985) translateY(1%);
   }
   100% {
     opacity: 1;

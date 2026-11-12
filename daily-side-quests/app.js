@@ -11,20 +11,21 @@ const FRAME = {
   revealed: 'assets/parts/revealed.png?v=7',
 };
 
-const CAPTURE_FULL = 'assets/parts/capture.jpg?v=7';
+const CAPTURE_FULL = 'assets/parts/capture.jpg?v=7b';
 const CAPTURE_SLOTS = [
-  'assets/parts/capture-0.jpg?v=7',
-  'assets/parts/capture-1.jpg?v=7',
-  'assets/parts/capture-2.jpg?v=7',
+  'assets/parts/capture-0.jpg?v=7b',
+  'assets/parts/capture-1.jpg?v=7b',
+  'assets/parts/capture-2.jpg?v=7b',
 ];
 
-const SLIDE_MS = 420;
-const SETTLE_MS = 920;
-const FLIGHT_MS = 880;
-const PHOTO_HOLD_MS = 320;
-const PHOTO_SHRINK_MS = 680;
+const SLIDE_MS = 440;
+const SETTLE_MS = 980;
+const FLIGHT_MS = 980;
+const PHOTO_HOLD_MS = 520;
+const PHOTO_SHRINK_MS = 760;
+const BEAT_MS = 180;
 const FLASH_MS = 180;
-const CAMERA_ANIMATE_MS = 480;
+const CAMERA_ANIMATE_MS = 520;
 const FINDS_NEEDED = 3;
 const EASE_OUT = 'cubic-bezier(0.22, 0.8, 0.24, 1)';
 const EASE_SPRING = 'cubic-bezier(0.34, 1.45, 0.64, 1)';
@@ -458,7 +459,7 @@ async function flyIntoSlot(uri, index) {
   cell.classList.remove('is-land');
 }
 
-async function settleFind(fullUri, slotUri) {
+async function settleFind(fullUri, slotUri, heroAlreadyUp) {
   captures.push(slotUri);
   finds = captures.length;
   const index = finds - 1;
@@ -468,7 +469,22 @@ async function settleFind(fullUri, slotUri) {
   mapStage.classList.add('is-settle-nudge');
 
   // 1) Hero photo holds — continuity from the camera take
-  await heroPhotoIn(fullUri);
+  if (heroAlreadyUp) {
+    const size = phoneSize();
+    const heroW = size.width * 0.78;
+    const heroH = size.height * 0.58;
+    await animateFlyTo({
+      left: (size.width - heroW) / 2,
+      top: size.height * 0.14,
+      width: heroW,
+      height: heroH,
+      radius: '18px',
+      rotate: 0,
+    }, PHOTO_HOLD_MS, EASE_OUT);
+    await wait(BEAT_MS);
+  } else {
+    await heroPhotoIn(fullUri);
+  }
 
   // 2) Find stamp drops while photo shrinks toward it
   if (finds === 1) {
@@ -487,14 +503,16 @@ async function settleFind(fullUri, slotUri) {
 
   await shrinkPhotoTowardFind();
   hit(false);
+  await wait(BEAT_MS);
 
   if (finds === 1) {
     findPlane.classList.add('is-on');
+    await wait(BEAT_MS + 80);
+  } else {
+    await wait(BEAT_MS);
   }
 
-  await wait(160);
-
-  // 3) Photo flies into the next progress slot
+  // 3) Photo peels off and arcs into the next progress slot
   await flyIntoSlot(slotUri, index);
   markNextSlot();
 
@@ -522,10 +540,27 @@ async function handleSendIt() {
     ? fullUri
     : placeholderForFind(finds);
   pendingCapture = null;
-  await closeCameraSheet(true);
+
+  // Continuity: hero photo takes over the frame while the sheet slides away.
+  const size = phoneSize();
+  flyThumb.src = fullUri;
+  flyThumb.hidden = false;
+  flyThumb.classList.add('is-on', 'is-hero');
+  flyThumb.style.transition = 'none';
+  flyThumb.style.transform = 'scale(1)';
+  setFlyBox(0, 0, size.width, size.height, '0px');
+  confirm.hidden = true;
+
   phase = 'map';
   syncHots();
-  await settleFind(fullUri, slotUri);
+  camera.classList.remove('is-on');
+  stopStream();
+  await wait(SLIDE_MS);
+  camera.setAttribute('aria-hidden', 'true');
+  mapStage.classList.remove('is-zoomed');
+  await wait(160);
+
+  await settleFind(fullUri, slotUri, true);
   busy = false;
   syncHots();
 }
