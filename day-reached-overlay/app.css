@@ -16,6 +16,9 @@
   --sides-out-ms: 380ms;
   --copy-in-ms: 780ms;
   --copy-out-ms: 280ms;
+  --shine-ms: 1400ms;
+  /* Matches DAY_REACHED_LOTTIE_DURATION_MS — front lands static when Lottie ends. */
+  --arc-settle-ms: 1433ms;
   --streak-zoom: 1.05;
   --phone-radius: 28px;
   /* Small bleed above the phone so Lottie can paint without a hard bezel cut. */
@@ -233,6 +236,8 @@ h1 {
   position: absolute;
   inset: 0;
   overflow: visible;
+  opacity: 0;
+  transition: opacity var(--arc-settle-ms) ease-out;
   -webkit-mask-image: linear-gradient(
     90deg,
     rgba(0, 0, 0, 0.12) 0%,
@@ -255,6 +260,10 @@ h1 {
     rgba(0, 0, 0, 0.35) 88%,
     rgba(0, 0, 0, 0.12) 100%
   );
+}
+
+.arc-fade.is-settled {
+  opacity: 1;
 }
 
 .arc {
@@ -418,6 +427,30 @@ h1 {
 @keyframes subtitleIn {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Glory glimpse when the streak line lands — soft top wash, not a downward sheen. */
+.shine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--overlay-headroom);
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0;
+  overflow: visible;
+  background: radial-gradient(70% 36% at 50% 12%, rgba(255, 255, 255, 0.32), transparent 68%);
+}
+
+.shine.is-on {
+  animation: topShine var(--shine-ms) ease-out forwards;
+}
+
+@keyframes topShine {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  55% { opacity: 0.55; }
+  100% { opacity: 0; }
 }
 
 .meta {

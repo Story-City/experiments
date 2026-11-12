@@ -46,7 +46,10 @@ const COPY_CELEBRATE_DELAY_MS = 220;
 const COPY_CELEBRATE_MS = 780;
 const FUTURE_DAYS_AFTER_COPY_MS = 360;
 const HAZE_IN_MS = 160;
-const HOLD_READABLE_MS = 1600;
+const SHINE_MS = 1400;
+const HOLD_AFTER_SHINE_MS = 500;
+// Hold the settled static frame — don’t rush dissolve.
+const HOLD_READABLE_MS = SHINE_MS + HOLD_AFTER_SHINE_MS;
 const HAZE_OUT_MS = 300;
 const SIDE_BEADS_FADE_IN_MS = 520;
 const SIDE_BEADS_FADE_OUT_MS = 380;
@@ -71,7 +74,7 @@ const DISSOLVE_WAIT_MS = Math.max(
 );
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=29';
+const UNDERLAY_CACHE = 'v=30';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -133,6 +136,8 @@ const lottieHost = document.getElementById('lottie');
 const copyEl = document.getElementById('copy');
 const headlineEl = document.getElementById('headline');
 const subtitleEl = document.getElementById('subtitle');
+const shineEl = document.getElementById('shine');
+const arcFade = document.getElementById('arcFade');
 const playBtn = document.getElementById('play');
 const hint = document.getElementById('hint');
 const phone = document.getElementById('phone');
@@ -235,6 +240,20 @@ function setCopyVisible(on) {
   copyEl.setAttribute('aria-hidden', on ? 'false' : 'true');
 }
 
+function triggerGloryShine() {
+  shineEl.classList.remove('is-on');
+  void shineEl.offsetWidth;
+  shineEl.classList.add('is-on');
+}
+
+function clearGloryShine() {
+  shineEl.classList.remove('is-on');
+}
+
+function setArcSettled(on) {
+  arcFade.classList.toggle('is-settled', on);
+}
+
 function clearSideDomino() {
   Array.from(beadsHost.children).forEach((el) => {
     el.classList.remove('is-side-shown', 'is-side-hiding');
@@ -319,6 +338,8 @@ function finishPlay() {
   playing = false;
   clearTimers();
   setCopyVisible(false);
+  clearGloryShine();
+  setArcSettled(false);
   setTodayFace(false);
   clearSideDomino();
   stopAnimAtStart();
@@ -330,6 +351,7 @@ function finishPlay() {
 
 function beginDissolve() {
   setCopyVisible(false);
+  clearGloryShine();
   runSideDominoOut();
   playLayer.classList.remove('is-in');
   playLayer.classList.add('is-out');
@@ -342,14 +364,16 @@ function beginDissolve() {
 function onLottieDone() {
   if (lottieFinished || !playing) return;
   lottieFinished = true;
+  setArcSettled(true);
   setTodayFace(true);
   // Drop the Lottie frame immediately — bead is the settle target.
   stopAnimAtStart();
   lottieHost.style.opacity = '0';
-  // Copy gets its own celebration beat after today settles — not a sharp pop.
+  // Copy + glory shine: same celebration beat after today settles.
   later(() => {
     if (!lottieFinished) return;
     setCopyVisible(true);
+    triggerGloryShine();
   }, DAY_REACHED_BEAD_REVEAL_MS + COPY_CELEBRATE_DELAY_MS);
   // Days after today wait until the streak line has its moment.
   later(() => {
@@ -359,7 +383,7 @@ function onLottieDone() {
   later(() => {
     hint.textContent = holdForReview
       ? 'Held for review (?hold=1). Soft dissolve paused.'
-      : 'Held — soft dissolve next…';
+      : 'Settled static — dissolve when ready…';
     if (holdForReview) {
       playBtn.disabled = false;
       playing = false;
@@ -380,6 +404,8 @@ async function playDayReached() {
   hint.textContent = 'Day reached…';
   clearTimers();
   setCopyVisible(false);
+  clearGloryShine();
+  setArcSettled(false);
 
   buildArc();
   const scale = layoutBeads();
@@ -405,7 +431,9 @@ async function playDayReached() {
     anim.removeEventListener('complete', onLottieDone);
     anim.addEventListener('complete', onLottieDone);
     anim.goToAndPlay(0, true);
-    // Past days left→right while today plays; future days wait for settle.
+    // Count backwards from Lottie finish: arc + past days land static with it.
+    void arcFade.offsetWidth;
+    setArcSettled(true);
     runSideDominoDuring();
     later(onLottieDone, DAY_REACHED_LOTTIE_FALLBACK_MS);
   }, HAZE_IN_MS);
