@@ -14,6 +14,8 @@
   --out-ms: 300ms;
   --sides-in-ms: 520ms;
   --sides-out-ms: 380ms;
+  --copy-in-ms: 780ms;
+  --copy-out-ms: 280ms;
   --streak-zoom: 1.05;
   --phone-radius: 28px;
   /* Small bleed above the phone so Lottie can paint without a hard bezel cut. */
@@ -352,12 +354,23 @@ h1 {
   z-index: 7;
   text-align: center;
   opacity: 0;
-  transition: opacity 160ms linear;
+  transform: translateY(10px);
+  filter: blur(2px);
+  transition:
+    opacity var(--copy-out-ms) ease,
+    transform var(--copy-out-ms) ease,
+    filter var(--copy-out-ms) ease;
   pointer-events: none;
 }
 
 .copy.is-on {
   opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  transition:
+    opacity var(--copy-in-ms) ease-out,
+    transform var(--copy-in-ms) ease-out,
+    filter var(--copy-in-ms) ease-out;
 }
 
 .headline {
@@ -379,12 +392,7 @@ h1 {
 }
 
 .copy.is-on .headline-rich {
-  animation: richSweep 900ms ease-out both;
-}
-
-@keyframes richSweep {
-  from { background-position: 100% 0; filter: brightness(1.15); }
-  to { background-position: 0 0; filter: brightness(1); }
+  animation: richSweep 1100ms ease-out both;
 }
 
 .subtitle {
@@ -394,6 +402,22 @@ h1 {
   font-weight: 600;
   color: rgba(185, 229, 255, 0.95);
   text-shadow: 0 1px 12px rgba(8, 3, 22, 0.9);
+  opacity: 0;
+}
+
+.copy.is-on .subtitle {
+  animation: subtitleIn 900ms ease-out both;
+  animation-delay: 180ms;
+}
+
+@keyframes richSweep {
+  from { background-position: 100% 0; filter: brightness(1.2); }
+  to { background-position: 0 0; filter: brightness(1); }
+}
+
+@keyframes subtitleIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .meta {
