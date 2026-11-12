@@ -1,9 +1,9 @@
 [
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=27",
+    "path": "day-reached-overlay/?v=28",
     "title": "Day reached — streak overlay",
-    "what": "Left→right bead domino timed to end with day-reached Lottie; reverse on dissolve.",
+    "what": "Past days during Lottie; two days after today only after settle; reverse dissolve.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

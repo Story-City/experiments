@@ -47,24 +47,28 @@ const HOLD_READABLE_MS = 1400;
 const HAZE_OUT_MS = 300;
 const SIDE_BEADS_FADE_IN_MS = 520;
 const SIDE_BEADS_FADE_OUT_MS = 380;
-// Left → right along the arc (skip today — that’s the Lottie).
-const SIDE_DOMINO_IN_ORDER = [0, 1, 3, 4];
+// Past days while Lottie plays; the two days after today only after settle.
+const SIDE_DOMINO_DURING_ORDER = [0, 1];
+const SIDE_DOMINO_AFTER_ORDER = [3, 4];
 const SIDE_DOMINO_OUT_ORDER = [4, 3, 1, 0];
-// Last bead’s fade completes when the day-reached Lottie ends.
-const SIDE_DOMINO_STEP_MS = Math.max(
-  0,
-  Math.round(
-    (DAY_REACHED_LOTTIE_DURATION_MS - SIDE_BEADS_FADE_IN_MS) /
-      (SIDE_DOMINO_IN_ORDER.length - 1),
-  ),
-);
+const SIDE_DOMINO_DURING_STEP_MS =
+  SIDE_DOMINO_DURING_ORDER.length > 1
+    ? Math.max(
+        0,
+        Math.round(
+          (DAY_REACHED_LOTTIE_DURATION_MS - SIDE_BEADS_FADE_IN_MS) /
+            (SIDE_DOMINO_DURING_ORDER.length - 1),
+        ),
+      )
+    : 0;
+const SIDE_DOMINO_AFTER_STEP_MS = 300;
 const DISSOLVE_WAIT_MS = Math.max(
   HAZE_OUT_MS,
-  SIDE_BEADS_FADE_OUT_MS + SIDE_DOMINO_STEP_MS * (SIDE_DOMINO_OUT_ORDER.length - 1),
+  SIDE_BEADS_FADE_OUT_MS + SIDE_DOMINO_AFTER_STEP_MS * (SIDE_DOMINO_OUT_ORDER.length - 1),
 );
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=27';
+const UNDERLAY_CACHE = 'v=28';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -234,15 +238,28 @@ function clearSideDomino() {
   });
 }
 
-function runSideDominoIn() {
-  SIDE_DOMINO_IN_ORDER.forEach((index, step) => {
+function revealSideBead(index) {
+  const el = beadsHost.children[index];
+  if (!el) return;
+  el.classList.remove('is-side-hiding');
+  el.classList.add('is-side-shown');
+}
+
+function runSideDominoDuring() {
+  SIDE_DOMINO_DURING_ORDER.forEach((index, step) => {
     later(() => {
       if (!playing) return;
-      const el = beadsHost.children[index];
-      if (!el) return;
-      el.classList.remove('is-side-hiding');
-      el.classList.add('is-side-shown');
-    }, step * SIDE_DOMINO_STEP_MS);
+      revealSideBead(index);
+    }, step * SIDE_DOMINO_DURING_STEP_MS);
+  });
+}
+
+function runSideDominoAfterSettle() {
+  SIDE_DOMINO_AFTER_ORDER.forEach((index, step) => {
+    later(() => {
+      if (!lottieFinished) return;
+      revealSideBead(index);
+    }, step * SIDE_DOMINO_AFTER_STEP_MS);
   });
 }
 
@@ -253,7 +270,7 @@ function runSideDominoOut() {
       if (!el) return;
       el.classList.remove('is-side-shown');
       el.classList.add('is-side-hiding');
-    }, step * SIDE_DOMINO_STEP_MS);
+    }, step * SIDE_DOMINO_AFTER_STEP_MS);
   });
 }
 
@@ -327,6 +344,8 @@ function onLottieDone() {
   stopAnimAtStart();
   lottieHost.style.opacity = '0';
   setCopyVisible(true);
+  // Days after today only once the goal-reached settle lands.
+  runSideDominoAfterSettle();
   later(() => {
     hint.textContent = holdForReview
       ? 'Held for review (?hold=1). Soft dissolve paused.'
@@ -373,8 +392,8 @@ async function playDayReached() {
     anim.removeEventListener('complete', onLottieDone);
     anim.addEventListener('complete', onLottieDone);
     anim.goToAndPlay(0, true);
-    // Domino the rest of the week along the arc while today plays.
-    runSideDominoIn();
+    // Past days left→right while today plays; future days wait for settle.
+    runSideDominoDuring();
     later(onLottieDone, DAY_REACHED_LOTTIE_FALLBACK_MS);
   }, HAZE_IN_MS);
 }
