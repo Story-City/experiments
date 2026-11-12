@@ -2,17 +2,16 @@
   --night: #0b051c;
   --paper: #f5f2ff;
   --muted: #a8a0b8;
-  --brand: #7c5cff;
-  /* theme.colors.brand.accent — palette.blue[400] */
   --accent: #009eff;
   --bead-outline: #4e6caf;
   --bead-incomplete: #160d34;
-  --haze-deep: rgba(11, 5, 28, 0.82);
-  --haze-mid: rgba(22, 13, 52, 0.55);
-  --haze-soft: rgba(0, 158, 255, 0.14);
+  --haze-deep: rgba(11, 5, 28, 0.72);
+  --haze-mid: rgba(22, 13, 52, 0.42);
+  --haze-soft: rgba(0, 158, 255, 0.1);
   --haze-clear: rgba(11, 5, 28, 0);
   --in-ms: 280ms;
-  --out-ms: 550ms;
+  --out-ms: 650ms;
+  --shine-ms: 1600ms;
 }
 
 * { box-sizing: border-box; }
@@ -102,124 +101,32 @@ h1 {
   font-size: 14px;
 }
 
+/* Phone is only the screenshot frame — overlay never changes its size. */
 .phone {
   position: relative;
   width: min(390px, 100%);
   aspect-ratio: 9 / 19.5;
   border-radius: 28px;
   overflow: hidden;
-  background:
-    radial-gradient(120% 60% at 50% 0%, #2a1858 0%, transparent 55%),
-    linear-gradient(180deg, #160d34 0%, var(--night) 48%, #070312 100%);
+  background: #170c35;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.surface {
+.underlay {
   position: absolute;
   inset: 0;
-  z-index: 1;
-}
-
-.surface-chapter {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 28px 22px 36px;
-}
-
-.eyebrow {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-.story-title {
-  margin: 0;
-  font-size: 34px;
-  font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-}
-
-.story-body {
-  margin: 0 0 8px;
-  color: var(--muted);
-  font-size: 17px;
-  font-weight: 500;
-}
-
-.stat-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 8px;
-  font-size: 15px;
-}
-
-.ghost,
-.primary {
   width: 100%;
-  border-radius: 14px;
-  padding: 14px 16px;
-  font: inherit;
-  font-weight: 700;
-  font-size: 17px;
-  pointer-events: none;
-}
-
-.ghost {
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: transparent;
-  color: var(--paper);
-}
-
-.primary {
-  border: 0;
-  background: linear-gradient(90deg, #5b3dff, #8f6bff);
-  color: white;
-}
-
-.surface-reader {
-  padding: 72px 22px 28px;
-  background:
-    linear-gradient(180deg, rgba(23, 12, 53, 0.2), rgba(11, 5, 28, 0.72) 55%),
-    radial-gradient(90% 50% at 50% 0%, #3a246e 0%, transparent 60%);
-}
-
-.reader-scroll {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
   height: 100%;
-  justify-content: flex-end;
-  padding-bottom: 18px;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
 }
 
-.reader-speaker {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--accent);
-  letter-spacing: 0.02em;
-}
-
-.reader-text {
-  margin: 0;
-  font-size: 19px;
-  line-height: 1.35;
-  font-weight: 600;
-  color: var(--paper);
-}
-
-.reader-text.is-dim {
-  color: var(--muted);
-  font-weight: 500;
-}
-
+/* Pure overlay — does not participate in layout. */
 .overlay {
   position: absolute;
   inset: 0;
@@ -237,8 +144,8 @@ h1 {
 }
 
 @keyframes hazeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes hazeOut {
@@ -252,9 +159,9 @@ h1 {
   background: linear-gradient(
     180deg,
     var(--haze-deep) 0%,
-    var(--haze-mid) 24%,
-    var(--haze-soft) 44%,
-    var(--haze-clear) 64%
+    var(--haze-mid) 20%,
+    var(--haze-soft) 38%,
+    var(--haze-clear) 58%
   );
 }
 
@@ -262,32 +169,34 @@ h1 {
   position: absolute;
   left: 0;
   right: 0;
-  top: 7%;
+  top: 4%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
 }
 
-/* Full phone width — Training Hub scales to banner width (= screen). */
+/* Wider than the phone so hub bead coords spread toward the edges;
+   mask fades the overshoot so nothing hard-cuts at the rim. */
 .band {
-  width: 100%;
+  width: 118%;
+  margin-left: -9%;
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.35) 6%,
-    #000 16%,
-    #000 84%,
-    rgba(0, 0, 0, 0.35) 94%,
+    rgba(0, 0, 0, 0.25) 8%,
+    #000 18%,
+    #000 82%,
+    rgba(0, 0, 0, 0.25) 92%,
     transparent 100%
   );
   mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.35) 6%,
-    #000 16%,
-    #000 84%,
-    rgba(0, 0, 0, 0.35) 94%,
+    rgba(0, 0, 0, 0.25) 8%,
+    #000 18%,
+    #000 82%,
+    rgba(0, 0, 0, 0.25) 92%,
     transparent 100%
   );
 }
@@ -297,6 +206,9 @@ h1 {
   width: 100%;
   aspect-ratio: 375 / 197;
   overflow: visible;
+  /* Slightly flatter so the arc sits closer / less top-heavy. */
+  transform: scaleY(0.88);
+  transform-origin: top center;
 }
 
 .arc {
@@ -334,13 +246,13 @@ h1 {
   background:
     linear-gradient(160deg, rgba(239, 110, 110, 0.25), rgba(22, 13, 52, 0) 45%, rgba(0, 158, 255, 0.49)),
     var(--accent);
-  box-shadow: 0 0 16px rgba(0, 158, 255, 0.45);
+  box-shadow: 0 0 14px rgba(0, 158, 255, 0.4);
 }
 
 .bead.is-today.is-complete {
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.35),
-    0 0 22px rgba(0, 158, 255, 0.75);
+    0 0 20px rgba(0, 158, 255, 0.7);
 }
 
 .bead.is-hidden-face {
@@ -358,20 +270,20 @@ h1 {
   left: 0;
   right: 0;
   top: 0;
-  height: 35%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0));
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
   opacity: 0;
   pointer-events: none;
 }
 
 .bead.is-shiny .sheen {
-  animation: beadShine 420ms ease-out forwards;
+  animation: beadShine 900ms ease-out forwards;
 }
 
 @keyframes beadShine {
-  0% { opacity: 0; transform: translateY(-40%); }
-  35% { opacity: 1; }
-  100% { opacity: 0; transform: translateY(120%); }
+  0% { opacity: 0; transform: translateY(-50%); }
+  25% { opacity: 1; }
+  100% { opacity: 0.35; transform: translateY(130%); }
 }
 
 .lottie {
@@ -385,8 +297,8 @@ h1 {
   text-align: center;
   opacity: 0;
   transform: translateY(4px);
-  transition: opacity 220ms ease, transform 220ms ease;
-  padding: 0 20px;
+  transition: opacity 280ms ease, transform 280ms ease;
+  padding: 0 24px;
 }
 
 .copy.is-on {
@@ -396,7 +308,7 @@ h1 {
 
 .headline {
   margin: 0;
-  font-size: 30px;
+  font-size: 26px;
   line-height: 1.1;
   font-weight: 900;
   letter-spacing: -0.02em;
@@ -408,17 +320,17 @@ h1 {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: richSweep 900ms ease-out both;
+  animation: richSweep 1200ms ease-out both;
 }
 
 @keyframes richSweep {
-  from { background-position: 100% 0; filter: brightness(1.15); }
+  from { background-position: 100% 0; filter: brightness(1.2); }
   to { background-position: 0 0; filter: brightness(1); }
 }
 
 .subtitle {
   margin: 4px 0 0;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.3;
   font-weight: 600;
   color: rgba(185, 229, 255, 0.92);
@@ -429,16 +341,17 @@ h1 {
   inset: 0;
   pointer-events: none;
   opacity: 0;
-  background: radial-gradient(60% 28% at 50% 18%, rgba(255, 255, 255, 0.28), transparent 70%);
+  background: radial-gradient(70% 32% at 50% 16%, rgba(255, 255, 255, 0.34), transparent 72%);
 }
 
 .shine.is-on {
-  animation: topShine 480ms ease-out forwards;
+  animation: topShine var(--shine-ms) ease-out forwards;
 }
 
 @keyframes topShine {
   0% { opacity: 0; }
-  30% { opacity: 1; }
+  12% { opacity: 1; }
+  55% { opacity: 0.55; }
   100% { opacity: 0; }
 }
 

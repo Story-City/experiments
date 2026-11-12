@@ -8,57 +8,38 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=4">
+<link rel="stylesheet" href="app.css?v=5">
 </head>
 <body>
   <header>
     <h1>Day reached overlay</h1>
     <p class="lede">
-      Same Training Hub streak (weekday beads + day-reached Lottie) from
-      <code>suite-city</code> <code>feature/SC-3526-training-hub</code>.
-      Edge-to-edge arc with a stronger fade mask, daily accent color
-      (<code>brand.accent</code> <code>#009EFF</code>), elegant streak copy, snappy shine.
+      Training Hub streak (weekday beads + day-reached Lottie) over real staging
+      reader screenshots — absolute overlay only, underlay layout unchanged.
+      Arc edge-faded, accent <code>#009EFF</code>, prolonged shine.
     </p>
   </header>
 
   <div class="chips" role="radiogroup" aria-label="Underlay">
-    <button type="button" class="chip" data-surface="chapter" aria-pressed="true">Chapter complete</button>
-    <button type="button" class="chip" data-surface="reader" aria-pressed="false">Reader view</button>
+    <button type="button" class="chip" data-surface="adventure" aria-pressed="true">Adventure pick</button>
+    <button type="button" class="chip" data-surface="audio" aria-pressed="false">Tap to play</button>
+    <button type="button" class="chip" data-surface="reader" aria-pressed="false">Reader text</button>
   </div>
 
   <div class="toolbar">
     <button type="button" class="play" id="play">Play day reached</button>
-    <span class="hint" id="hint">Idle — weekdays, accent beads, soft edge-masked arc.</span>
+    <span class="hint" id="hint">Idle — overlay sits on top of the staging shot.</span>
   </div>
 
-  <main class="phone" id="phone" data-surface="chapter" aria-label="Day-reached overlay preview">
-    <div class="surface surface-chapter" id="surfaceChapter">
-      <p class="eyebrow">Chapter complete</p>
-      <h2 class="story-title">The Summons</h2>
-      <p class="story-body">You cracked the seal. The Society will want a word tomorrow — but tonight the walk is yours.</p>
-      <div class="stat-row">
-        <span><b>1.2 km</b> walked</span>
-        <span><b>1</b> gem</span>
-      </div>
-      <button type="button" class="ghost" tabindex="-1">Save the postcard</button>
-      <button type="button" class="primary" tabindex="-1">Continue</button>
-    </div>
-
-    <div class="surface surface-reader" id="surfaceReader" hidden>
-      <div class="reader-scroll">
-        <p class="reader-speaker">Chane</p>
-        <p class="reader-text">
-          The envelope is heavier than it looks. Wax cracks under your thumb — green as pondwater —
-          and the paper smells like rain on brick. Somewhere behind you, the street keeps walking.
-        </p>
-        <p class="reader-text">
-          “Don’t read it aloud,” she says. “Not yet. Just… feel the weight of what they want from you.”
-        </p>
-        <p class="reader-text is-dim">
-          You keep the letter low, out of the streetlight, and the city leans in as if it already knows the answer.
-        </p>
-      </div>
-    </div>
+  <main class="phone" id="phone" data-surface="adventure" aria-label="Day-reached overlay preview">
+    <img
+      class="underlay"
+      id="underlay"
+      src="underlays/adventure.jpg"
+      alt="Story City staging — adventure mode picker"
+      width="1080"
+      height="2400"
+    >
 
     <div class="overlay" id="overlay" aria-hidden="true">
       <div class="haze" aria-hidden="true"></div>
@@ -80,11 +61,11 @@
   </main>
 
   <p class="meta">
-    Labels: <code>weekday: 'short'</code> like Training Hub. Complete fill: <code>#009EFF</code>.
-    Copy: <code>retentionLoop.trainingHub.streakHeadline</code> / <code>streakKeepItUp</code>.
+    Underlays: staging device screenshots (2026-11-12). Geometry from
+    <code>feature/SC-3526-training-hub</code>. Spread via wider scale + edge mask — same bead coords.
   </p>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

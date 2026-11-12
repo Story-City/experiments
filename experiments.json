@@ -1,9 +1,9 @@
 [
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=4",
+    "path": "day-reached-overlay/?v=5",
     "title": "Day reached — streak overlay",
-    "what": "Training Hub weekday beads + day-reached Lottie (suite-city feature/SC-3526-training-hub), edge-to-edge arc with stronger fade mask, brand.accent #009EFF complete beads, elegant streak copy, snappy shine — over chapter-complete or reader underlays.",
+    "what": "Training Hub weekday beads + day-reached Lottie over real staging reader screenshots (absolute overlay, no layout shift). Edge-faded spread arc, brand.accent #009EFF, prolonged shine.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

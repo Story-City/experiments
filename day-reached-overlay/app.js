@@ -42,11 +42,28 @@ const DAY_REACHED_SETTLE_CENTER_Y = 527.1;
 const DAY_REACHED_SETTLE_DIAMETER = 882.3;
 const DAY_REACHED_LOTTIE_CENTER_DIVISOR = 2;
 const DAY_REACHED_BEAD_REVEAL_MS = 320;
-// Snappier Genshin-style toast.
 const HAZE_IN_MS = 280;
-const HOLD_READABLE_MS = 520;
-const HAZE_OUT_MS = 550;
+// Prolonged shine — hold through the full shine pass before dissolve.
+const SHINE_MS = 1600;
+const HOLD_AFTER_SHINE_MS = 700;
+const HOLD_READABLE_MS = SHINE_MS + HOLD_AFTER_SHINE_MS;
+const HAZE_OUT_MS = 650;
 const STREAK_COUNT = 3;
+
+const UNDERLAYS = {
+  adventure: {
+    src: 'underlays/adventure.jpg',
+    alt: 'Story City staging — adventure mode picker',
+  },
+  audio: {
+    src: 'underlays/audio.jpg',
+    alt: 'Story City staging — tap to play audio',
+  },
+  reader: {
+    src: 'underlays/reader.jpg',
+    alt: 'Story City staging — reader text with Carry on',
+  },
+};
 
 function formatLocalDate(date) {
   const y = date.getFullYear();
@@ -62,7 +79,6 @@ function shiftLocalDate(dateStr, offset) {
   return formatLocalDate(date);
 }
 
-// Same as useTrainingHubStreakBanner weekdayLabel — weekday: 'short'.
 function weekdayLabel(dateStr) {
   const [year, month, day] = dateStr.split('-').map(Number);
   return new Date(year, month - 1, day).toLocaleDateString(undefined, {
@@ -95,8 +111,7 @@ const shineEl = document.getElementById('shine');
 const playBtn = document.getElementById('play');
 const hint = document.getElementById('hint');
 const phone = document.getElementById('phone');
-const surfaceChapter = document.getElementById('surfaceChapter');
-const surfaceReader = document.getElementById('surfaceReader');
+const underlay = document.getElementById('underlay');
 const holdForReview = new URLSearchParams(location.search).has('hold');
 
 let anim = null;
@@ -186,7 +201,6 @@ function placeLottie(scale) {
 }
 
 function setCopyVisible(on) {
-  // retentionLoop.trainingHub.streakHeadline / streakKeepItUp
   headlineEl.innerHTML = `<span class="headline-rich">${STREAK_COUNT}-day streak!</span>`;
   subtitleEl.textContent = 'Keep it up!';
   copyEl.classList.toggle('is-on', on);
@@ -202,7 +216,7 @@ function finishPlay() {
   shineEl.classList.remove('is-on');
   overlay.classList.remove('is-in', 'is-out');
   overlay.setAttribute('aria-hidden', 'true');
-  hint.textContent = 'Done — tap to replay over chapter or reader.';
+  hint.textContent = 'Done — switch underlay or replay.';
   playBtn.disabled = false;
 }
 
@@ -220,14 +234,13 @@ function onLottieDone() {
   buildBeads(false, true);
   setCopyVisible(true);
   shineEl.classList.remove('is-on');
-  // retrigger shine
   void shineEl.offsetWidth;
   shineEl.classList.add('is-on');
   later(() => {
     destroyAnim();
     hint.textContent = holdForReview
       ? 'Held for review (?hold=1). Soft dissolve paused.'
-      : 'Shine held — soft dissolve next…';
+      : 'Prolonged shine — soft dissolve next…';
     if (holdForReview) {
       playBtn.disabled = false;
       playing = false;
@@ -242,7 +255,7 @@ function playDayReached() {
   playing = true;
   lottieFinished = false;
   playBtn.disabled = true;
-  hint.textContent = 'Snappy haze in → weekday beads + day-reached Lottie…';
+  hint.textContent = 'Overlay in — weekday beads + day-reached Lottie…';
   clearTimers();
   destroyAnim();
   setCopyVisible(false);
@@ -277,10 +290,10 @@ function playDayReached() {
 }
 
 function setSurface(name) {
+  const shot = UNDERLAYS[name] ?? UNDERLAYS.adventure;
   phone.dataset.surface = name;
-  const isReader = name === 'reader';
-  surfaceChapter.hidden = isReader;
-  surfaceReader.hidden = !isReader;
+  underlay.src = shot.src;
+  underlay.alt = shot.alt;
   document.querySelectorAll('.chip').forEach((chip) => {
     chip.setAttribute('aria-pressed', chip.dataset.surface === name ? 'true' : 'false');
   });
