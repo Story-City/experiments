@@ -1,5 +1,17 @@
 [
   {
+    "slug": "daily-side-quests",
+    "path": "daily-side-quests/?v=1",
+    "title": "Daily Side Quests",
+    "what": "Figma carry-over: Daily Side quests modal over staging underlay; soft open; stamp tap-to-reveal.",
+    "author": "victoria",
+    "authorName": "Victoria",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "day-reached-overlay",
     "path": "day-reached-overlay/?v=32",
     "title": "Day reached — streak overlay",

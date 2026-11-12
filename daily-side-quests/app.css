@@ -1,0 +1,357 @@
+:root {
+  --night: #0b051c;
+  --paper: #f5f2ff;
+  --muted: #a8a0b8;
+  --accent: #009eff;
+  --indigo: #13123b;
+  --sheet: #151b45;
+  --in-ms: 420ms;
+  --out-ms: 280ms;
+  --stamp-in-ms: 520ms;
+  --reveal-ms: 720ms;
+  --shine-ms: 1100ms;
+  --phone-radius: 28px;
+  --stamp-step-ms: 160ms;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--night);
+  color: var(--paper);
+  font: 15px/1.4 "Darker Grotesque", system-ui, sans-serif;
+}
+
+body {
+  display: grid;
+  place-items: start center;
+  padding: 48px 16px 64px;
+  gap: 14px;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  margin: 0;
+  max-width: 480px;
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.lede code,
+.meta code {
+  font-size: 0.92em;
+  color: #d7d0ff;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  max-width: 390px;
+  width: 100%;
+}
+
+.play,
+.close {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.play {
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: var(--accent);
+  color: #041018;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.play:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.phone {
+  position: relative;
+  width: min(390px, 100%);
+  aspect-ratio: 375 / 814;
+  flex: none;
+  overflow: hidden;
+  border-radius: var(--phone-radius);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  background: #170c35;
+}
+
+.underlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.overlay.is-open {
+  pointer-events: auto;
+}
+
+.dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.57);
+  opacity: 0;
+  transition: opacity var(--out-ms) ease;
+}
+
+.overlay.is-open .dim {
+  opacity: 1;
+  transition: opacity var(--in-ms) ease-out;
+}
+
+.shine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(70% 36% at 50% 28%, rgba(255, 255, 255, 0.28), transparent 68%);
+}
+
+.shine.is-on {
+  animation: topShine var(--shine-ms) ease-out forwards;
+}
+
+@keyframes topShine {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  55% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+
+.sheet {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(355 / 375 * 100%);
+  height: calc(622 / 814 * 100%);
+  transform: translate(-50%, calc(-50% + 18px));
+  border-radius: 20px;
+  border: 1px solid var(--accent);
+  background: var(--sheet);
+  overflow: hidden;
+  box-shadow:
+    0 19px 29px rgba(0, 0, 0, 0.1),
+    0 9.6px 12.6px rgba(0, 0, 0, 0.07),
+    0 3.8px 4.7px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  transition:
+    opacity var(--out-ms) ease,
+    transform var(--out-ms) ease;
+}
+
+.overlay.is-open .sheet {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  transition:
+    opacity var(--in-ms) ease-out,
+    transform var(--in-ms) ease-out;
+}
+
+.hero {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 38%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-img {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: auto;
+  top: 0;
+  display: block;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(21, 27, 69, 0) 45%,
+    var(--sheet) 92%
+  );
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 4;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: transparent;
+  padding: 0;
+}
+
+.close img {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.title {
+  position: relative;
+  z-index: 2;
+  margin: 14% 6% 0;
+  font-size: 24px;
+  line-height: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.subtitle {
+  position: relative;
+  z-index: 2;
+  margin: 10px 6% 0;
+  font-family: "Libre Baskerville", "Times New Roman", serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #fff;
+}
+
+.stamps {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 27%;
+  bottom: 3%;
+  display: flex;
+  flex-direction: column;
+  gap: 3.5%;
+  z-index: 3;
+}
+
+.stamp {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(12px);
+  filter: blur(1.5px);
+  transition:
+    opacity var(--stamp-in-ms) ease-out,
+    transform var(--stamp-in-ms) ease-out,
+    filter var(--stamp-in-ms) ease-out;
+}
+
+.overlay.is-open .stamp.is-in {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.stamp-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  pointer-events: none;
+  transition: opacity 280ms ease, transform 280ms ease;
+}
+
+.stamp.is-revealed .stamp-face {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+.stamp-reveal {
+  position: absolute;
+  inset: 8% 6%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  padding: 0 8%;
+  opacity: 0;
+  transform: translateY(10px);
+  filter: blur(2px);
+  pointer-events: none;
+  transition:
+    opacity var(--reveal-ms) ease-out,
+    transform var(--reveal-ms) ease-out,
+    filter var(--reveal-ms) ease-out;
+}
+
+.stamp.is-revealed .stamp-reveal {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.stamp-title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.stamp-body {
+  margin: 8px 0 0;
+  font-family: "Libre Baskerville", "Times New Roman", serif;
+  font-size: 12px;
+  line-height: 13px;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.meta {
+  margin: 0;
+  max-width: 480px;
+  color: var(--muted);
+  font-size: 13px;
+}
