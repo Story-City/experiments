@@ -16,7 +16,7 @@ const SETTLE_MS = 780;
 const FLASH_MS = 220;
 const CAMERA_ANIMATE_MS = 500;
 const FINDS_NEEDED = 3;
-const PLACEHOLDER_PHOTO = 'assets/parts/footprint.png?v=5';
+let placeholderPhotoUri = null;
 
 const phone = document.getElementById('phone');
 const scene = document.getElementById('scene');
@@ -257,11 +257,27 @@ async function closeCameraSheet(animate) {
   stopStream();
 }
 
+function makePlaceholderCapture() {
+  if (placeholderPhotoUri) return placeholderPhotoUri;
+  const w = 720;
+  const h = 1280;
+  cameraSnap.width = w;
+  cameraSnap.height = h;
+  const ctx = cameraSnap.getContext('2d');
+  const grad = ctx.createRadialGradient(w * 0.5, h * 0.4, 40, w * 0.5, h * 0.45, w * 0.7);
+  grad.addColorStop(0, '#3a1a5c');
+  grad.addColorStop(1, '#120a28');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+  placeholderPhotoUri = cameraSnap.toDataURL('image/jpeg', 0.85);
+  return placeholderPhotoUri;
+}
+
 function snapCapture() {
   const w = cameraVideo.videoWidth;
   const h = cameraVideo.videoHeight;
   if (!w || !h || cameraFallback.hidden === false) {
-    return PLACEHOLDER_PHOTO;
+    return makePlaceholderCapture();
   }
   cameraSnap.width = w;
   cameraSnap.height = h;
@@ -340,7 +356,7 @@ async function handleSkip() {
   await closeCameraSheet(true);
   phase = 'map';
   syncHots();
-  await settleFind(PLACEHOLDER_PHOTO);
+  await settleFind(makePlaceholderCapture());
   busy = false;
   syncHots();
 }
