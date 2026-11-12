@@ -16,7 +16,7 @@
   --streak-zoom: 1.12;
   --phone-radius: 28px;
   /* Room above the phone chrome so the Lottie bloom is not clipped. */
-  --overlay-headroom: 72px;
+  --overlay-headroom: 80px;
 }
 
 * { box-sizing: border-box; }
@@ -201,8 +201,8 @@ h1 {
   position: absolute;
   left: 0;
   right: 0;
-  /* Headroom offset + sit a bit lower in the phone. */
-  top: calc(var(--overlay-headroom) + 7%);
+  /* Headroom offset + sit lower so the today bloom clears the phone top. */
+  top: calc(var(--overlay-headroom) + 9%);
   overflow: visible;
   clip-path: none;
 }
@@ -214,12 +214,13 @@ h1 {
 
 .graphic {
   position: relative;
-  width: 100%;
+  /* Uniform “zoom” via width — avoid transform:scale (Chromium treats it like
+     overflow clipping and was chopping the day-reached bloom). */
+  width: calc(100% * var(--streak-zoom));
+  margin-left: calc((100% * (1 - var(--streak-zoom))) / 2);
   aspect-ratio: 375 / 197;
   overflow: visible;
-  transform: scale(var(--streak-zoom));
-  /* Origin near the today bead so zoom grows into the phone, not off the top. */
-  transform-origin: 50% 28%;
+  clip-path: none;
 }
 
 /* Side fade lives on the arc only — webkit-mask clips to the box, so it must
@@ -259,7 +260,6 @@ h1 {
   width: calc(342 / 375 * 100%);
   height: calc(174.44921875 / 197 * 100%);
   overflow: visible;
-  filter: drop-shadow(0 0 10px rgba(0, 158, 255, 0.28));
 }
 
 .beads {
