@@ -13,10 +13,12 @@
   --in-ms: 200ms;
   --out-ms: 420ms;
   --shine-ms: 1400ms;
-  --streak-zoom: 1.12;
+  --streak-zoom: 1.06;
   --phone-radius: 28px;
   /* Room above the phone chrome so the Lottie bloom is not clipped. */
   --overlay-headroom: 80px;
+  /* Clear of the screenshot status-bar / bezel so the today bloom isn’t flush-cut. */
+  --streak-inset-top: 14%;
 }
 
 * { box-sizing: border-box; }
@@ -201,8 +203,7 @@ h1 {
   position: absolute;
   left: 0;
   right: 0;
-  /* Headroom offset + sit lower so the today bloom clears the phone top. */
-  top: calc(var(--overlay-headroom) + 9%);
+  top: calc(var(--overlay-headroom) + var(--streak-inset-top));
   overflow: visible;
   clip-path: none;
 }
