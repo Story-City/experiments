@@ -45,9 +45,11 @@ const DAY_REACHED_BEAD_REVEAL_MS = 280;
 const HAZE_IN_MS = 160;
 const HOLD_READABLE_MS = 1400;
 const HAZE_OUT_MS = 300;
+const SIDE_BEADS_FADE_OUT_MS = 480;
+const DISSOLVE_WAIT_MS = Math.max(HAZE_OUT_MS, SIDE_BEADS_FADE_OUT_MS);
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=23';
+const UNDERLAY_CACHE = 'v=24';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -210,6 +212,11 @@ function setCopyVisible(on) {
   copyEl.setAttribute('aria-hidden', on ? 'false' : 'true');
 }
 
+function setSideBeadsVisible(on) {
+  beadsHost.classList.toggle('sides-visible', on);
+  beadsHost.classList.toggle('sides-exit', !on);
+}
+
 function stopAnimAtStart() {
   if (!anim) return;
   anim.pause();
@@ -253,6 +260,7 @@ function finishPlay() {
   clearTimers();
   setCopyVisible(false);
   setTodayFace(false);
+  beadsHost.classList.remove('sides-visible', 'sides-exit');
   stopAnimAtStart();
   playLayer.classList.remove('is-in', 'is-out');
   overlay.setAttribute('aria-hidden', 'true');
@@ -262,12 +270,13 @@ function finishPlay() {
 
 function beginDissolve() {
   setCopyVisible(false);
+  setSideBeadsVisible(false);
   playLayer.classList.remove('is-in');
   playLayer.classList.add('is-out');
   later(() => {
     stopAnimAtStart();
     finishPlay();
-  }, HAZE_OUT_MS);
+  }, DISSOLVE_WAIT_MS);
 }
 
 function onLottieDone() {
@@ -302,6 +311,7 @@ async function playDayReached() {
 
   buildArc();
   const scale = layoutBeads();
+  beadsHost.classList.remove('sides-visible', 'sides-exit');
   setTodayFace(false);
   placeLottie(scale);
 
@@ -320,6 +330,9 @@ async function playDayReached() {
 
   later(() => {
     if (!playing || !anim) return;
+    // Rest of the week eases in while today’s celebration plays.
+    void beadsHost.offsetWidth;
+    setSideBeadsVisible(true);
     anim.removeEventListener('complete', onLottieDone);
     anim.addEventListener('complete', onLottieDone);
     anim.goToAndPlay(0, true);

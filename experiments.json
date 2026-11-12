@@ -1,9 +1,9 @@
 [
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=23",
+    "path": "day-reached-overlay/?v=24",
     "title": "Day reached — streak overlay",
-    "what": "Copy +15px; dissolve a bit quicker; today bead after settle; Lottie 1:1.",
+    "what": "Side beads slow-fade in during Lottie and out on dissolve; copy/settle unchanged.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
