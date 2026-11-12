@@ -8,14 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=6b">
+<link rel="stylesheet" href="app.css?v=7">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Daily Side Quests</h1>
     <p class="lede">
-      Camera slides away → find settles → capture flies into a slot. Soft cadence, separate parts.
+      Take → hero photo holds → shrinks to the find → arcs into a progress slot.
     </p>
   </header>
 
@@ -28,13 +28,13 @@
   </div>
 
   <main class="phone" id="phone">
-    <img class="scene" id="scene" src="assets/flow/01.png?v=6" alt="" decoding="async">
+    <img class="scene" id="scene" src="assets/flow/01.png?v=7" alt="" decoding="async">
 
     <div class="map-stage" id="mapStage" hidden>
-      <img class="map-fill" src="assets/parts/map-hunt.png?v=6b" alt="" decoding="async">
+      <img class="map-fill" src="assets/parts/map-hunt.png?v=7" alt="" decoding="async">
 
-      <img class="find-card" id="findCard" src="assets/parts/footprint.png?v=6b" alt="" decoding="async" hidden>
-      <img class="find-plane" id="findPlane" src="assets/parts/airplanes.png?v=6b" alt="" decoding="async" hidden>
+      <img class="find-card" id="findCard" src="assets/parts/footprint.png?v=7" alt="" decoding="async" hidden>
+      <img class="find-plane" id="findPlane" src="assets/parts/airplanes.png?v=7" alt="" decoding="async" hidden>
 
       <!-- Empty map Group 20198: x=124 y=656 w=129 h=38 — three 38px cells -->
       <div class="slots" id="slots" aria-hidden="true">
@@ -43,14 +43,15 @@
         <div class="slot-cell" data-slot="2"><img class="slot" alt=""></div>
       </div>
 
-      <img class="tip-layer" id="tipLayer" src="assets/parts/tip.png?v=6b" alt="" decoding="async" hidden>
-
-      <img class="fly-thumb" id="flyThumb" alt="" hidden>
+      <img class="tip-layer" id="tipLayer" src="assets/parts/tip.png?v=7" alt="" decoding="async" hidden>
 
       <button type="button" class="hot cam-hot" id="camHot" aria-label="Camera"></button>
       <button type="button" class="hot map-hot" id="mapHot" aria-label="Map find"></button>
       <button type="button" class="hot back-hot" id="backHot" aria-label="Back"></button>
     </div>
+
+    <!-- Flies in phone space so map zoom/nudge doesn't skew the path -->
+    <img class="fly-thumb" id="flyThumb" alt="" hidden>
 
     <button type="button" class="hot stamp-hot" data-stamp="0" aria-label="Stamp 1" hidden></button>
     <button type="button" class="hot stamp-hot" data-stamp="1" aria-label="Stamp 2" hidden></button>
@@ -64,7 +65,10 @@
     <div class="camera-sheet" id="camera" aria-hidden="true">
       <video class="camera-video" id="cameraVideo" playsinline muted></video>
       <canvas class="camera-snap" id="cameraSnap" hidden></canvas>
-      <div class="camera-fallback" id="cameraFallback" hidden>Camera unavailable — shutter still works.</div>
+      <div class="camera-fallback" id="cameraFallback" hidden>
+        <img class="camera-fallback-img" id="cameraFallbackImg" src="assets/parts/capture.jpg?v=7" alt="" decoding="async">
+        <span class="camera-fallback-label">Demo capture — shutter to continue</span>
+      </div>
 
       <button type="button" class="camera-back" id="cameraClose" aria-label="Close camera">‹</button>
       <p class="camera-prompt" id="cameraPrompt">Find an animalistic pattern near you</p>
@@ -88,6 +92,6 @@
   <p class="meta">
     Separated Figma parts + app CameraSheet. Capture flies into the progress slots.
   </p>
-  <script src="app.js?v=6b"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

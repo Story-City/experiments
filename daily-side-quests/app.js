@@ -5,24 +5,29 @@ const QUESTS = [
 ];
 
 const FRAME = {
-  home: 'assets/flow/01.png?v=6',
-  menu: 'assets/parts/menu.png?v=6',
-  entry: 'assets/flow/03.png?v=6',
-  revealed: 'assets/parts/revealed.png?v=6',
+  home: 'assets/flow/01.png?v=7',
+  menu: 'assets/parts/menu.png?v=7',
+  entry: 'assets/flow/03.png?v=7',
+  revealed: 'assets/parts/revealed.png?v=7',
 };
 
-const SLIDE_MS = 380;
-const SETTLE_MS = 860;
-const FLIGHT_MS = 720;
-const FLASH_MS = 200;
-const CAMERA_ANIMATE_MS = 560;
-const FINDS_NEEDED = 3;
-
-const PLACEHOLDER_TONES = [
-  ['#5b2a8a', '#1a0b2e'],
-  ['#2a5a8a', '#0b1528'],
-  ['#8a2a5b', '#280b18'],
+const CAPTURE_FULL = 'assets/parts/capture.jpg?v=7';
+const CAPTURE_SLOTS = [
+  'assets/parts/capture-0.jpg?v=7',
+  'assets/parts/capture-1.jpg?v=7',
+  'assets/parts/capture-2.jpg?v=7',
 ];
+
+const SLIDE_MS = 420;
+const SETTLE_MS = 920;
+const FLIGHT_MS = 880;
+const PHOTO_HOLD_MS = 320;
+const PHOTO_SHRINK_MS = 680;
+const FLASH_MS = 180;
+const CAMERA_ANIMATE_MS = 480;
+const FINDS_NEEDED = 3;
+const EASE_OUT = 'cubic-bezier(0.22, 0.8, 0.24, 1)';
+const EASE_SPRING = 'cubic-bezier(0.34, 1.45, 0.64, 1)';
 
 const phone = document.getElementById('phone');
 const scene = document.getElementById('scene');
@@ -38,6 +43,7 @@ const camera = document.getElementById('camera');
 const cameraVideo = document.getElementById('cameraVideo');
 const cameraSnap = document.getElementById('cameraSnap');
 const cameraFallback = document.getElementById('cameraFallback');
+const cameraFallbackImg = document.getElementById('cameraFallbackImg');
 const cameraPrompt = document.getElementById('cameraPrompt');
 const shutter = document.getElementById('shutter');
 const cameraClose = document.getElementById('cameraClose');
@@ -68,6 +74,7 @@ let stream = null;
 let facingMode = 'environment';
 let busy = false;
 let pendingCapture = null;
+let usingLiveCamera = false;
 let timers = [];
 
 function later(fn, ms) {
@@ -151,14 +158,27 @@ function clearFinds() {
   findPlane.classList.remove('is-on');
   tipLayer.hidden = true;
   tipLayer.classList.remove('is-on');
-  flyThumb.hidden = true;
-  flyThumb.classList.remove('is-on');
+  hideFly();
   slotCells.forEach((cell) => {
     const img = cell.querySelector('.slot');
     img.removeAttribute('src');
     cell.classList.remove('is-filled', 'is-land', 'is-ready');
   });
   mapStage.classList.remove('is-zoomed', 'is-settle-nudge');
+}
+
+function hideFly() {
+  flyThumb.hidden = true;
+  flyThumb.classList.remove('is-on', 'is-hero', 'is-arc');
+  flyThumb.style.transition = 'none';
+  flyThumb.style.transform = '';
+  flyThumb.style.left = '';
+  flyThumb.style.top = '';
+  flyThumb.style.width = '';
+  flyThumb.style.height = '';
+  flyThumb.style.borderRadius = '';
+  flyThumb.style.offsetPath = '';
+  flyThumb.style.offsetDistance = '';
 }
 
 async function goHome() {
@@ -208,6 +228,8 @@ async function enterMap() {
 
 async function startStream() {
   cameraFallback.hidden = true;
+  cameraVideo.hidden = false;
+  usingLiveCamera = false;
   try {
     if (stream) {
       stream.getTracks().forEach((t) => t.stop());
@@ -219,9 +241,15 @@ async function startStream() {
     });
     cameraVideo.srcObject = stream;
     await cameraVideo.play();
+    usingLiveCamera = true;
     return true;
   } catch (err) {
+    cameraVideo.hidden = true;
     cameraFallback.hidden = false;
+    if (cameraFallbackImg) {
+      cameraFallbackImg.src = CAPTURE_FULL;
+    }
+    usingLiveCamera = false;
     return false;
   }
 }
@@ -257,12 +285,11 @@ async function openCameraSheet() {
 
 async function closeCameraSheet(animate) {
   confirm.hidden = true;
-  pendingCapture = null;
   if (animate) {
     camera.classList.remove('is-on');
     await wait(SLIDE_MS);
     mapStage.classList.remove('is-zoomed');
-    await wait(220);
+    await wait(160);
   } else {
     camera.classList.remove('is-on');
     mapStage.classList.remove('is-zoomed');
@@ -271,39 +298,18 @@ async function closeCameraSheet(animate) {
   stopStream();
 }
 
-function makePlaceholderCapture(index) {
-  const w = 720;
-  const h = 1280;
-  cameraSnap.width = w;
-  cameraSnap.height = h;
-  const ctx = cameraSnap.getContext('2d');
-  const tones = PLACEHOLDER_TONES[index % PLACEHOLDER_TONES.length];
-  const grad = ctx.createRadialGradient(w * 0.5, h * 0.42, 30, w * 0.5, h * 0.5, w * 0.75);
-  grad.addColorStop(0, tones[0]);
-  grad.addColorStop(1, tones[1]);
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, w, h);
-
-  // Soft “pattern” so each slot reads as a real take.
-  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-  ctx.lineWidth = 6;
-  for (let i = 0; i < 7; i += 1) {
-    ctx.beginPath();
-    ctx.arc(w * 0.5, h * 0.42, 40 + i * 48, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  ctx.fillStyle = 'rgba(255,255,255,0.88)';
-  ctx.font = '700 42px Darker Grotesque, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(`Find ${index + 1}`, w * 0.5, h * 0.78);
-  return cameraSnap.toDataURL('image/jpeg', 0.88);
+function placeholderForFind(index) {
+  return CAPTURE_SLOTS[index % CAPTURE_SLOTS.length];
 }
 
 function snapCapture() {
+  if (!usingLiveCamera) {
+    return CAPTURE_FULL;
+  }
   const w = cameraVideo.videoWidth;
   const h = cameraVideo.videoHeight;
-  if (!w || !h || cameraFallback.hidden === false) {
-    return makePlaceholderCapture(finds);
+  if (!w || !h) {
+    return CAPTURE_FULL;
   }
   cameraSnap.width = w;
   cameraSnap.height = h;
@@ -330,6 +336,11 @@ function handleRetake() {
   setHint('Retake — shutter again.');
 }
 
+function phoneSize() {
+  const box = phone.getBoundingClientRect();
+  return { width: box.width, height: box.height };
+}
+
 function relativeBox(el) {
   const phoneBox = phone.getBoundingClientRect();
   const box = el.getBoundingClientRect();
@@ -338,55 +349,117 @@ function relativeBox(el) {
     top: box.top - phoneBox.top,
     width: box.width,
     height: box.height,
+    cx: box.left - phoneBox.left + box.width / 2,
+    cy: box.top - phoneBox.top + box.height / 2,
   };
 }
 
-function placeFly(box, size) {
-  const side = size ?? Math.max(box.width, box.height);
-  flyThumb.style.left = `${box.left + box.width / 2 - side / 2}px`;
-  flyThumb.style.top = `${box.top + box.height / 2 - side / 2}px`;
-  flyThumb.style.width = `${side}px`;
-  flyThumb.style.height = `${side}px`;
+function setFlyBox(left, top, width, height, radius) {
+  flyThumb.style.left = `${left}px`;
+  flyThumb.style.top = `${top}px`;
+  flyThumb.style.width = `${width}px`;
+  flyThumb.style.height = `${height}px`;
+  if (radius != null) flyThumb.style.borderRadius = radius;
+}
+
+async function animateFlyTo(target, duration, easing) {
+  return new Promise((resolve) => {
+    flyThumb.style.transition = [
+      `left ${duration}ms ${easing}`,
+      `top ${duration}ms ${easing}`,
+      `width ${duration}ms ${easing}`,
+      `height ${duration}ms ${easing}`,
+      `border-radius ${duration}ms ${easing}`,
+      `transform ${duration}ms ${easing}`,
+    ].join(', ');
+    setFlyBox(target.left, target.top, target.width, target.height, target.radius);
+    if (target.rotate != null) {
+      flyThumb.style.transform = `rotate(${target.rotate}deg)`;
+    }
+    later(resolve, duration + 20);
+  });
+}
+
+async function heroPhotoIn(uri) {
+  const size = phoneSize();
+  const heroW = size.width * 0.78;
+  const heroH = size.height * 0.58;
+  const left = (size.width - heroW) / 2;
+  const top = size.height * 0.14;
+
+  flyThumb.src = uri;
+  flyThumb.hidden = false;
+  flyThumb.classList.add('is-on', 'is-hero');
+  flyThumb.style.transition = 'none';
+  flyThumb.style.transform = 'scale(1.08)';
+  setFlyBox(left, top - 24, heroW, heroH, '18px');
+  void flyThumb.offsetWidth;
+  flyThumb.style.transition = `transform ${PHOTO_HOLD_MS}ms ${EASE_OUT}, opacity ${PHOTO_HOLD_MS}ms ease`;
+  flyThumb.style.transform = 'scale(1)';
+  await wait(PHOTO_HOLD_MS + 40);
+}
+
+async function shrinkPhotoTowardFind() {
+  const find = relativeBox(findCard);
+  const pad = 10;
+  await animateFlyTo({
+    left: find.left - pad,
+    top: find.top - pad,
+    width: find.width + pad * 2,
+    height: find.height + pad * 2,
+    radius: '12px',
+    rotate: -10,
+  }, PHOTO_SHRINK_MS, EASE_OUT);
 }
 
 async function flyIntoSlot(uri, index) {
   const cell = slotCells[index];
   const img = cell.querySelector('.slot');
-  const startEl = findCard.hidden ? mapStage : findCard;
-  const start = relativeBox(startEl);
+  const start = relativeBox(flyThumb.hidden ? findCard : flyThumb);
   const end = relativeBox(cell);
+
+  // Arc via mid control point (up then into slot).
+  const midX = (start.cx + end.cx) / 2 + (index === 0 ? -18 : 12);
+  const midY = Math.min(start.cy, end.cy) - phoneSize().height * 0.12;
 
   flyThumb.src = uri;
   flyThumb.hidden = false;
-  flyThumb.classList.add('is-on');
-  placeFly(start, 96);
+  flyThumb.classList.add('is-on', 'is-arc');
   flyThumb.style.transition = 'none';
-  flyThumb.style.transform = 'rotate(-8deg) scale(1)';
+  flyThumb.style.transform = 'rotate(-6deg)';
+  setFlyBox(start.left, start.top, Math.max(start.width, 72), Math.max(start.height, 72), '12px');
   void flyThumb.offsetWidth;
 
-  flyThumb.style.transition = [
-    `left ${FLIGHT_MS}ms var(--ease-out)`,
-    `top ${FLIGHT_MS}ms var(--ease-out)`,
-    `width ${FLIGHT_MS}ms var(--ease-out)`,
-    `height ${FLIGHT_MS}ms var(--ease-out)`,
-    `transform ${FLIGHT_MS}ms var(--ease-spring)`,
-  ].join(', ');
-  placeFly(end, end.width);
-  flyThumb.style.transform = 'rotate(0deg) scale(1)';
+  // Midpoint hop
+  await animateFlyTo({
+    left: midX - 40,
+    top: midY - 40,
+    width: 80,
+    height: 80,
+    radius: '14px',
+    rotate: 4,
+  }, Math.floor(FLIGHT_MS * 0.45), EASE_OUT);
 
-  await wait(FLIGHT_MS);
+  // Land in slot
+  await animateFlyTo({
+    left: end.left,
+    top: end.top,
+    width: end.width,
+    height: end.height,
+    radius: '7px',
+    rotate: 0,
+  }, Math.floor(FLIGHT_MS * 0.55), EASE_SPRING);
 
   img.src = uri;
   cell.classList.add('is-filled', 'is-land');
-  flyThumb.classList.remove('is-on');
-  flyThumb.hidden = true;
+  hideFly();
   hit(true);
-  await wait(420);
+  await wait(480);
   cell.classList.remove('is-land');
 }
 
-async function settleFind(uri) {
-  captures.push(uri);
+async function settleFind(fullUri, slotUri) {
+  captures.push(slotUri);
   finds = captures.length;
   const index = finds - 1;
 
@@ -394,6 +467,10 @@ async function settleFind(uri) {
   void mapStage.offsetWidth;
   mapStage.classList.add('is-settle-nudge');
 
+  // 1) Hero photo holds — continuity from the camera take
+  await heroPhotoIn(fullUri);
+
+  // 2) Find stamp drops while photo shrinks toward it
   if (finds === 1) {
     findCard.hidden = false;
     findPlane.hidden = false;
@@ -401,22 +478,29 @@ async function settleFind(uri) {
     findPlane.classList.remove('is-on');
     void findCard.offsetWidth;
     findCard.classList.add('is-on');
-    findPlane.classList.add('is-on');
-    await wait(SETTLE_MS * 0.72);
-    hit(false);
+    // Plane waits for the shrink beat
   } else {
     findCard.classList.remove('is-pulse');
     void findCard.offsetWidth;
     findCard.classList.add('is-pulse');
-    await wait(280);
   }
 
-  await flyIntoSlot(uri, index);
+  await shrinkPhotoTowardFind();
+  hit(false);
+
+  if (finds === 1) {
+    findPlane.classList.add('is-on');
+  }
+
+  await wait(160);
+
+  // 3) Photo flies into the next progress slot
+  await flyIntoSlot(slotUri, index);
   markNextSlot();
 
   if (finds >= FINDS_NEEDED) {
     setHint('Slots full — tip incoming…');
-    await wait(180);
+    await wait(200);
     tipLayer.hidden = false;
     tipLayer.classList.remove('is-on');
     void tipLayer.offsetWidth;
@@ -433,11 +517,15 @@ async function settleFind(uri) {
 async function handleSendIt() {
   if (!pendingCapture || busy) return;
   busy = true;
-  const uri = pendingCapture;
+  const fullUri = pendingCapture;
+  const slotUri = usingLiveCamera && fullUri.startsWith('data:')
+    ? fullUri
+    : placeholderForFind(finds);
+  pendingCapture = null;
   await closeCameraSheet(true);
   phase = 'map';
   syncHots();
-  await settleFind(uri);
+  await settleFind(fullUri, slotUri);
   busy = false;
   syncHots();
 }
@@ -445,10 +533,12 @@ async function handleSendIt() {
 async function handleSkip() {
   if (phase !== 'camera' || busy) return;
   busy = true;
+  const fullUri = CAPTURE_FULL;
+  const slotUri = placeholderForFind(finds);
   await closeCameraSheet(true);
   phase = 'map';
   syncHots();
-  await settleFind(makePlaceholderCapture(finds));
+  await settleFind(fullUri, slotUri);
   busy = false;
   syncHots();
 }
@@ -515,6 +605,7 @@ shutter.addEventListener('click', () => handleShutter());
 cameraClose.addEventListener('click', async () => {
   if (busy) return;
   busy = true;
+  pendingCapture = null;
   await closeCameraSheet(true);
   phase = 'map';
   syncHots();
@@ -525,6 +616,10 @@ cameraSkip.addEventListener('click', () => handleSkip());
 cameraFlip.addEventListener('click', () => handleFlip());
 retakeBtn.addEventListener('click', () => handleRetake());
 sendItBtn.addEventListener('click', () => handleSendIt());
+
+if (cameraFallbackImg) {
+  cameraFallbackImg.src = CAPTURE_FULL;
+}
 
 buildPicker();
 syncHots();

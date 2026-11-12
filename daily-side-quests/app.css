@@ -195,6 +195,11 @@ h1 {
   animation: findDrop var(--settle-ms) var(--ease-out) forwards;
 }
 
+.find-card.is-awaiting {
+  opacity: 0;
+  transform: rotate(-12deg) scale(0.92);
+}
+
 .find-card.is-pulse {
   animation: findPulse 520ms var(--ease-spring);
 }
@@ -325,7 +330,7 @@ h1 {
   100% { opacity: 1; transform: scale(1); }
 }
 
-/* Capture flies from find → slot */
+/* Capture hero → shrink → arc into slot */
 .fly-thumb {
   position: absolute;
   z-index: 14;
@@ -334,17 +339,30 @@ h1 {
   margin: 0;
   border-radius: 12px;
   object-fit: cover;
+  object-position: center;
   pointer-events: none;
-  box-shadow:
-    0 0 0 2px rgba(179, 107, 255, 0.9),
-    0 12px 36px rgba(0, 0, 0, 0.45),
-    0 0 28px rgba(179, 107, 255, 0.55);
   opacity: 0;
-  will-change: left, top, width, height, opacity, transform;
+  will-change: left, top, width, height, opacity, transform, border-radius;
+  box-shadow:
+    0 0 0 2px rgba(179, 107, 255, 0.85),
+    0 18px 48px rgba(0, 0, 0, 0.5),
+    0 0 32px rgba(179, 107, 255, 0.4);
 }
 
 .fly-thumb.is-on {
   opacity: 1;
+}
+
+.fly-thumb.is-hero {
+  z-index: 16;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.35),
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    0 0 40px rgba(179, 107, 255, 0.45);
+}
+
+.fly-thumb.is-arc {
+  z-index: 17;
 }
 
 .tip-layer {
@@ -516,17 +534,34 @@ h1 {
 }
 
 .camera-fallback {
-  display: grid;
-  place-items: center;
-  padding: 28px;
-  text-align: center;
-  color: rgba(245, 242, 255, 0.88);
-  background:
-    radial-gradient(60% 40% at 50% 40%, rgba(179, 107, 255, 0.28), transparent 70%),
-    #120a28;
-  font-weight: 700;
-  font-size: 17px;
+  position: absolute;
+  inset: 0;
   z-index: 1;
+  display: grid;
+  place-items: end center;
+  padding: 0 0 22%;
+  overflow: hidden;
+  background: #000;
+}
+
+.camera-fallback-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.camera-fallback-label {
+  position: relative;
+  z-index: 1;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: rgba(245, 242, 255, 0.92);
+  font-weight: 700;
+  font-size: 14px;
 }
 
 .camera-back {
