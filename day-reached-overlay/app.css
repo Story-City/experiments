@@ -14,7 +14,7 @@
   --in-ms: 200ms;
   --out-ms: 420ms;
   --shine-ms: 1400ms;
-  --streak-zoom: 1.28;
+  --streak-zoom: 1.16;
 }
 
 * { box-sizing: border-box; }
@@ -186,7 +186,7 @@ h1 {
   position: absolute;
   left: 0;
   right: 0;
-  top: 1%;
+  top: 5.5%;
   overflow: visible;
 }
 
