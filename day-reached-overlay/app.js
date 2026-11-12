@@ -41,6 +41,10 @@ const DAY_REACHED_SETTLE_CENTER_X = 1010.3;
 const DAY_REACHED_SETTLE_CENTER_Y = 527.1;
 const DAY_REACHED_SETTLE_DIAMETER = 882.3;
 const DAY_REACHED_LOTTIE_CENTER_DIVISOR = 2;
+// Hub math matches settle diameter to the bead — that puts the composition’s top
+// edge ~flush with the bead and makes the bloom look hard-cut. Oversize the
+// play so the frame top clears the bead; bead takes over on settle.
+const DAY_REACHED_PLAY_OVERSIZE = 1.7;
 const DAY_REACHED_BEAD_REVEAL_MS = 280;
 const HAZE_IN_MS = 160;
 const SHINE_MS = 1400;
@@ -49,7 +53,7 @@ const HOLD_READABLE_MS = SHINE_MS + HOLD_AFTER_SHINE_MS;
 const HAZE_OUT_MS = 380;
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=16';
+const UNDERLAY_CACHE = 'v=17';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -92,7 +96,8 @@ function dayReachedLottieLayout(scale) {
   const today = FIGMA_BEADS[TODAY_BEAD_INDEX];
   const centerX = (today.left + today.size / DAY_REACHED_LOTTIE_CENTER_DIVISOR) * scale;
   const centerY = (today.top + today.size / DAY_REACHED_LOTTIE_CENTER_DIVISOR) * scale;
-  const compScale = (today.size * scale) / DAY_REACHED_SETTLE_DIAMETER;
+  const compScale =
+    (today.size * scale * DAY_REACHED_PLAY_OVERSIZE) / DAY_REACHED_SETTLE_DIAMETER;
   return {
     width: DAY_REACHED_LOTTIE_WIDTH * compScale,
     height: DAY_REACHED_LOTTIE_HEIGHT * compScale,
@@ -207,6 +212,7 @@ function placeLottie(scale) {
   lottieHost.style.width = `${layout.width}px`;
   lottieHost.style.height = `${layout.height}px`;
   lottieHost.style.overflow = 'visible';
+  lottieHost.style.opacity = '1';
 }
 
 function setCopyVisible(on) {
@@ -279,6 +285,10 @@ function onLottieDone() {
   if (lottieFinished || !playing) return;
   lottieFinished = true;
   setTodayFace(false, true);
+  // Drop the Lottie frame immediately — its viewBox top edge reads as a “cutoff”
+  // once the bead is the real settle target.
+  stopAnimAtStart();
+  lottieHost.style.opacity = '0';
   setCopyVisible(true);
   shineEl.classList.remove('is-on');
   void shineEl.offsetWidth;
