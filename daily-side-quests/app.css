@@ -5,17 +5,26 @@
   --accent: #009eff;
   --hunt: #b36bff;
   --in-ms: 380ms;
-  --out-ms: 280ms;
-  --slide-ms: 320ms;
-  --settle-ms: 780ms;
-  --shine-ms: 1200ms;
-  --flash-ms: 220ms;
+  --slide-ms: 380ms;
+  --settle-ms: 860ms;
+  --flight-ms: 720ms;
+  --shine-ms: 1100ms;
+  --flash-ms: 200ms;
+  --ease-out: cubic-bezier(0.22, 0.8, 0.24, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ease-slide: cubic-bezier(0.32, 0.72, 0, 1);
   --phone-w: 376;
   --phone-h: 814;
   --phone-radius: 28px;
   --shutter: 72px;
   --shutter-border: 5px;
   --map-shutter: 66px;
+  /* Empty-map Group 20198: 124,656 / 129×38 — three 38 cells, 7.5 gaps */
+  --slot-y: 656;
+  --slot-size: 38;
+  --slot-0-x: 124;
+  --slot-1-x: 169.5;
+  --slot-2-x: 215;
 }
 
 * { box-sizing: border-box; }
@@ -122,7 +131,6 @@ h1 {
   background: #000;
 }
 
-/* Full-bleed fills — never letterbox inside the phone */
 .scene,
 .map-fill {
   position: absolute;
@@ -145,68 +153,113 @@ h1 {
   position: absolute;
   inset: 0;
   z-index: 2;
-  transform-origin: 48% 36%;
-  transition: transform 500ms cubic-bezier(0.22, 0.8, 0.24, 1);
+  transform-origin: 50% 78%;
+  transition: transform 560ms var(--ease-out);
 }
 
 .map-stage.is-zoomed {
-  transform: scale(1.18);
+  transform: scale(1.22);
+}
+
+.map-stage.is-settle-nudge {
+  animation: mapSettleNudge 700ms var(--ease-out);
+}
+
+@keyframes mapSettleNudge {
+  0% { transform: scale(1.08); }
+  55% { transform: scale(0.985); }
+  100% { transform: scale(1); }
 }
 
 .map-stage[hidden] {
   display: none !important;
 }
 
-/* Figma footprint 1 — 12.44, 392.54, 171.1×209.6 on 376×814 */
+/* Footprint drops in from camera space — separate layer */
 .find-card {
   position: absolute;
   left: calc(12.44 / var(--phone-w) * 100%);
   top: calc(392.54 / var(--phone-h) * 100%);
   width: calc(171.1 / var(--phone-w) * 100%);
   height: auto;
-  transform: rotate(-12deg) scale(1.08);
-  opacity: 0;
-  filter: blur(4px);
   z-index: 4;
   pointer-events: none;
-  transition:
-    opacity var(--settle-ms) ease-out,
-    transform var(--settle-ms) cubic-bezier(0.22, 0.8, 0.24, 1),
-    filter var(--settle-ms) ease-out;
+  opacity: 0;
+  filter: blur(8px) brightness(1.25);
+  transform: rotate(-18deg) scale(1.45) translateY(-28%);
+  transform-origin: 50% 60%;
+  will-change: transform, opacity, filter;
 }
 
 .find-card.is-on {
-  opacity: 1;
-  transform: rotate(-12deg) scale(1);
-  filter: blur(0);
+  animation: findDrop var(--settle-ms) var(--ease-out) forwards;
 }
 
-/* Figma airplanes — 136, 434.94, 101.84×116.47 */
+.find-card.is-pulse {
+  animation: findPulse 520ms var(--ease-spring);
+}
+
+@keyframes findDrop {
+  0% {
+    opacity: 0;
+    filter: blur(8px) brightness(1.25);
+    transform: rotate(-18deg) scale(1.45) translateY(-28%);
+  }
+  55% {
+    opacity: 1;
+    filter: blur(1px) brightness(1.05);
+    transform: rotate(-10deg) scale(0.97) translateY(2%);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0) brightness(1);
+    transform: rotate(-12deg) scale(1) translateY(0);
+  }
+}
+
+@keyframes findPulse {
+  0% { transform: rotate(-12deg) scale(1); filter: brightness(1); }
+  40% { transform: rotate(-9deg) scale(1.08); filter: brightness(1.2); }
+  100% { transform: rotate(-12deg) scale(1); filter: brightness(1); }
+}
+
 .find-plane {
   position: absolute;
   left: calc(136 / var(--phone-w) * 100%);
   top: calc(434.94 / var(--phone-h) * 100%);
   width: calc(101.84 / var(--phone-w) * 100%);
   height: auto;
-  opacity: 0;
-  transform: translateY(10px) scale(1.06);
-  filter: blur(3px);
   z-index: 5;
   pointer-events: none;
-  transition:
-    opacity var(--settle-ms) ease-out,
-    transform var(--settle-ms) cubic-bezier(0.22, 0.8, 0.24, 1),
-    filter var(--settle-ms) ease-out;
-  transition-delay: 90ms;
+  opacity: 0;
+  filter: blur(5px);
+  transform: translate(-18%, 12%) scale(0.7) rotate(-8deg);
+  will-change: transform, opacity, filter;
 }
 
 .find-plane.is-on {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
+  animation: planeIn 700ms var(--ease-out) 140ms forwards;
 }
 
-/* Progress slots — Figma rects at y=656 */
+@keyframes planeIn {
+  0% {
+    opacity: 0;
+    filter: blur(5px);
+    transform: translate(-18%, 12%) scale(0.7) rotate(-8deg);
+  }
+  70% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(2%, -2%) scale(1.04) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+}
+
+/* Slots — sit exactly on empty map cells */
 .slots {
   position: absolute;
   inset: 0;
@@ -214,31 +267,86 @@ h1 {
   pointer-events: none;
 }
 
-.slot {
+.slot-cell {
   position: absolute;
-  top: calc(656 / var(--phone-h) * 100%);
-  width: calc(38 / var(--phone-w) * 100%);
-  height: calc(38 / var(--phone-h) * 100%);
-  border-radius: 6px;
-  object-fit: cover;
-  opacity: 0;
-  transform: scale(0.85);
-  background: transparent;
-  transition:
-    opacity 360ms ease-out,
-    transform 360ms cubic-bezier(0.22, 0.8, 0.24, 1);
+  top: calc(var(--slot-y) / var(--phone-h) * 100%);
+  width: calc(var(--slot-size) / var(--phone-w) * 100%);
+  height: calc(var(--slot-size) / var(--phone-h) * 100%);
+  border-radius: 7px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 0 transparent;
 }
 
-.slot[data-slot="0"] { left: calc(162 / var(--phone-w) * 100%); }
-.slot[data-slot="1"] { left: calc(208 / var(--phone-w) * 100%); }
-.slot[data-slot="2"] { left: calc(253 / var(--phone-w) * 100%); }
+.slot-cell[data-slot="0"] { left: calc(var(--slot-0-x) / var(--phone-w) * 100%); }
+.slot-cell[data-slot="1"] { left: calc(var(--slot-1-x) / var(--phone-w) * 100%); }
+.slot-cell[data-slot="2"] { left: calc(var(--slot-2-x) / var(--phone-w) * 100%); }
 
-.slot.is-on {
+.slot-cell.is-ready {
+  animation: slotAwait 1.4s ease-in-out infinite;
+}
+
+@keyframes slotAwait {
+  0%, 100% { box-shadow: inset 0 0 0 1px rgba(179, 107, 255, 0); }
+  50% { box-shadow: inset 0 0 0 1.5px rgba(179, 107, 255, 0.55); }
+}
+
+.slot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transform: scale(0.55);
+  border-radius: 6px;
+}
+
+.slot-cell.is-filled .slot {
   opacity: 1;
   transform: scale(1);
 }
 
-/* Tip group — Figma 24, 353, 376×169 (hangs past 376 on 400 frame) */
+.slot-cell.is-land {
+  animation: slotLand 520ms var(--ease-spring);
+}
+
+.slot-cell.is-land .slot {
+  animation: slotPop 520ms var(--ease-spring);
+}
+
+@keyframes slotLand {
+  0% { box-shadow: 0 0 0 0 rgba(179, 107, 255, 0.7); }
+  40% { box-shadow: 0 0 0 10px rgba(179, 107, 255, 0.25); }
+  100% { box-shadow: 0 0 18px 2px rgba(179, 107, 255, 0.35); }
+}
+
+@keyframes slotPop {
+  0% { opacity: 1; transform: scale(0.55); }
+  55% { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Capture flies from find → slot */
+.fly-thumb {
+  position: absolute;
+  z-index: 14;
+  width: 88px;
+  height: 88px;
+  margin: 0;
+  border-radius: 12px;
+  object-fit: cover;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 2px rgba(179, 107, 255, 0.9),
+    0 12px 36px rgba(0, 0, 0, 0.45),
+    0 0 28px rgba(179, 107, 255, 0.55);
+  opacity: 0;
+  will-change: left, top, width, height, opacity, transform;
+}
+
+.fly-thumb.is-on {
+  opacity: 1;
+}
+
 .tip-layer {
   position: absolute;
   left: calc(24 / var(--phone-w) * 100%);
@@ -246,20 +354,32 @@ h1 {
   width: calc(376 / var(--phone-w) * 100%);
   height: auto;
   z-index: 7;
-  opacity: 0;
-  transform: translateY(14px) scale(1.03);
-  filter: blur(3px);
   pointer-events: none;
-  transition:
-    opacity var(--settle-ms) ease-out,
-    transform var(--settle-ms) cubic-bezier(0.22, 0.8, 0.24, 1),
-    filter var(--settle-ms) ease-out;
+  opacity: 0;
+  filter: blur(4px);
+  transform: translateY(22px) scale(0.94);
 }
 
 .tip-layer.is-on {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
+  animation: tipIn var(--settle-ms) var(--ease-out) forwards;
+}
+
+@keyframes tipIn {
+  0% {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(22px) scale(0.94);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(-3px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
 }
 
 .hot {
@@ -336,6 +456,10 @@ h1 {
   animation: topShine var(--shine-ms) ease-out forwards;
 }
 
+.shine.is-slot {
+  background: radial-gradient(42% 18% at 50% 82%, rgba(179, 107, 255, 0.55), transparent 70%);
+}
+
 @keyframes topShine {
   0% { opacity: 0; }
   12% { opacity: 1; }
@@ -362,7 +486,6 @@ h1 {
   100% { opacity: 0; }
 }
 
-/* —— App CameraSheet (RN Modal animationType="slide") —— */
 .camera-sheet {
   position: absolute;
   inset: 0;
@@ -370,8 +493,8 @@ h1 {
   background: #000;
   display: flex;
   flex-direction: column;
-  transform: translateY(100%);
-  transition: transform var(--slide-ms) cubic-bezier(0.32, 0.72, 0, 1);
+  transform: translateY(105%);
+  transition: transform var(--slide-ms) var(--ease-slide);
   pointer-events: none;
 }
 

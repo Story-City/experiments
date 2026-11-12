@@ -5,18 +5,24 @@ const QUESTS = [
 ];
 
 const FRAME = {
-  home: 'assets/flow/01.png?v=5',
-  menu: 'assets/parts/menu.png?v=5',
-  entry: 'assets/flow/03.png?v=5',
-  revealed: 'assets/parts/revealed.png?v=5',
+  home: 'assets/flow/01.png?v=6',
+  menu: 'assets/parts/menu.png?v=6',
+  entry: 'assets/flow/03.png?v=6',
+  revealed: 'assets/parts/revealed.png?v=6',
 };
 
-const SLIDE_MS = 320;
-const SETTLE_MS = 780;
-const FLASH_MS = 220;
-const CAMERA_ANIMATE_MS = 500;
+const SLIDE_MS = 380;
+const SETTLE_MS = 860;
+const FLIGHT_MS = 720;
+const FLASH_MS = 200;
+const CAMERA_ANIMATE_MS = 560;
 const FINDS_NEEDED = 3;
-let placeholderPhotoUri = null;
+
+const PLACEHOLDER_TONES = [
+  ['#5b2a8a', '#1a0b2e'],
+  ['#2a5a8a', '#0b1528'],
+  ['#8a2a5b', '#280b18'],
+];
 
 const phone = document.getElementById('phone');
 const scene = document.getElementById('scene');
@@ -24,7 +30,8 @@ const mapStage = document.getElementById('mapStage');
 const findCard = document.getElementById('findCard');
 const findPlane = document.getElementById('findPlane');
 const tipLayer = document.getElementById('tipLayer');
-const slots = Array.from(document.querySelectorAll('.slot'));
+const flyThumb = document.getElementById('flyThumb');
+const slotCells = Array.from(document.querySelectorAll('.slot-cell'));
 const shineEl = document.getElementById('shine');
 const flashEl = document.getElementById('flash');
 const camera = document.getElementById('camera');
@@ -82,7 +89,8 @@ function setHint(t) {
   hint.textContent = t;
 }
 
-function hit() {
+function hit(slotMode) {
+  shineEl.classList.toggle('is-slot', Boolean(slotMode));
   shineEl.classList.remove('is-on');
   void shineEl.offsetWidth;
   shineEl.classList.add('is-on');
@@ -119,32 +127,38 @@ function syncHots() {
   });
   closeHot.hidden = !(menu || revealed);
   entryHot.hidden = phase !== 'entry';
-  mapStage.hidden = !hunting && phase !== 'camera';
-  // Keep map under camera while sheet is open
-  if (phase === 'camera') {
-    mapStage.hidden = false;
-  }
+  mapStage.hidden = !(hunting || phase === 'camera');
   camHot.hidden = !hunting;
   mapHot.hidden = !hunting;
   backHot.hidden = !hunting;
   playBtn.disabled = phase === 'camera' || busy;
   scene.hidden = hunting || phase === 'camera';
+  markNextSlot();
+}
+
+function markNextSlot() {
+  slotCells.forEach((cell, i) => {
+    cell.classList.toggle('is-ready', phase === 'map' && i === finds && finds < FINDS_NEEDED);
+  });
 }
 
 function clearFinds() {
   finds = 0;
   captures = [];
   findCard.hidden = true;
-  findCard.classList.remove('is-on');
+  findCard.classList.remove('is-on', 'is-pulse');
   findPlane.hidden = true;
   findPlane.classList.remove('is-on');
   tipLayer.hidden = true;
   tipLayer.classList.remove('is-on');
-  slots.forEach((slot) => {
-    slot.removeAttribute('src');
-    slot.classList.remove('is-on');
+  flyThumb.hidden = true;
+  flyThumb.classList.remove('is-on');
+  slotCells.forEach((cell) => {
+    const img = cell.querySelector('.slot');
+    img.removeAttribute('src');
+    cell.classList.remove('is-filled', 'is-land', 'is-ready');
   });
-  mapStage.classList.remove('is-zoomed');
+  mapStage.classList.remove('is-zoomed', 'is-settle-nudge');
 }
 
 async function goHome() {
@@ -175,7 +189,7 @@ async function revealStamp(index) {
   });
   phase = 'revealed';
   await showScene(FRAME.revealed);
-  hit();
+  hit(false);
   busy = false;
   syncHots();
   setHint(`${QUESTS[quest].title} revealed — tap its camera.`);
@@ -230,7 +244,7 @@ async function openCameraSheet() {
   cameraPrompt.textContent = `Find ${finds + 1} of ${FINDS_NEEDED} — animalistic pattern`;
   syncHots();
 
-  // Soft map zoom, then CameraSheet slides up (app Modal slide).
+  mapStage.classList.remove('is-settle-nudge');
   mapStage.classList.add('is-zoomed');
   await wait(CAMERA_ANIMATE_MS);
   camera.classList.add('is-on');
@@ -238,7 +252,7 @@ async function openCameraSheet() {
   await startStream();
   await wait(SLIDE_MS);
   busy = false;
-  setHint('CameraSheet open — shutter, then Send It.');
+  setHint('Camera open — shutter, then Send It.');
 }
 
 async function closeCameraSheet(animate) {
@@ -248,7 +262,7 @@ async function closeCameraSheet(animate) {
     camera.classList.remove('is-on');
     await wait(SLIDE_MS);
     mapStage.classList.remove('is-zoomed');
-    await wait(CAMERA_ANIMATE_MS);
+    await wait(220);
   } else {
     camera.classList.remove('is-on');
     mapStage.classList.remove('is-zoomed');
@@ -257,27 +271,39 @@ async function closeCameraSheet(animate) {
   stopStream();
 }
 
-function makePlaceholderCapture() {
-  if (placeholderPhotoUri) return placeholderPhotoUri;
+function makePlaceholderCapture(index) {
   const w = 720;
   const h = 1280;
   cameraSnap.width = w;
   cameraSnap.height = h;
   const ctx = cameraSnap.getContext('2d');
-  const grad = ctx.createRadialGradient(w * 0.5, h * 0.4, 40, w * 0.5, h * 0.45, w * 0.7);
-  grad.addColorStop(0, '#3a1a5c');
-  grad.addColorStop(1, '#120a28');
+  const tones = PLACEHOLDER_TONES[index % PLACEHOLDER_TONES.length];
+  const grad = ctx.createRadialGradient(w * 0.5, h * 0.42, 30, w * 0.5, h * 0.5, w * 0.75);
+  grad.addColorStop(0, tones[0]);
+  grad.addColorStop(1, tones[1]);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
-  placeholderPhotoUri = cameraSnap.toDataURL('image/jpeg', 0.85);
-  return placeholderPhotoUri;
+
+  // Soft “pattern” so each slot reads as a real take.
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.lineWidth = 6;
+  for (let i = 0; i < 7; i += 1) {
+    ctx.beginPath();
+    ctx.arc(w * 0.5, h * 0.42, 40 + i * 48, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.88)';
+  ctx.font = '700 42px Darker Grotesque, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Find ${index + 1}`, w * 0.5, h * 0.78);
+  return cameraSnap.toDataURL('image/jpeg', 0.88);
 }
 
 function snapCapture() {
   const w = cameraVideo.videoWidth;
   const h = cameraVideo.videoHeight;
   if (!w || !h || cameraFallback.hidden === false) {
-    return makePlaceholderCapture();
+    return makePlaceholderCapture(finds);
   }
   cameraSnap.width = w;
   cameraSnap.height = h;
@@ -304,38 +330,104 @@ function handleRetake() {
   setHint('Retake — shutter again.');
 }
 
+function relativeBox(el) {
+  const phoneBox = phone.getBoundingClientRect();
+  const box = el.getBoundingClientRect();
+  return {
+    left: box.left - phoneBox.left,
+    top: box.top - phoneBox.top,
+    width: box.width,
+    height: box.height,
+  };
+}
+
+function placeFly(box, size) {
+  const side = size ?? Math.max(box.width, box.height);
+  flyThumb.style.left = `${box.left + box.width / 2 - side / 2}px`;
+  flyThumb.style.top = `${box.top + box.height / 2 - side / 2}px`;
+  flyThumb.style.width = `${side}px`;
+  flyThumb.style.height = `${side}px`;
+}
+
+async function flyIntoSlot(uri, index) {
+  const cell = slotCells[index];
+  const img = cell.querySelector('.slot');
+  const startEl = findCard.hidden ? mapStage : findCard;
+  const start = relativeBox(startEl);
+  const end = relativeBox(cell);
+
+  flyThumb.src = uri;
+  flyThumb.hidden = false;
+  flyThumb.classList.add('is-on');
+  placeFly(start, 96);
+  flyThumb.style.transition = 'none';
+  flyThumb.style.transform = 'rotate(-8deg) scale(1)';
+  void flyThumb.offsetWidth;
+
+  flyThumb.style.transition = [
+    `left ${FLIGHT_MS}ms var(--ease-out)`,
+    `top ${FLIGHT_MS}ms var(--ease-out)`,
+    `width ${FLIGHT_MS}ms var(--ease-out)`,
+    `height ${FLIGHT_MS}ms var(--ease-out)`,
+    `transform ${FLIGHT_MS}ms var(--ease-spring)`,
+  ].join(', ');
+  placeFly(end, end.width);
+  flyThumb.style.transform = 'rotate(0deg) scale(1)';
+
+  await wait(FLIGHT_MS);
+
+  img.src = uri;
+  cell.classList.add('is-filled', 'is-land');
+  flyThumb.classList.remove('is-on');
+  flyThumb.hidden = true;
+  hit(true);
+  await wait(420);
+  cell.classList.remove('is-land');
+}
+
 async function settleFind(uri) {
   captures.push(uri);
   finds = captures.length;
+  const index = finds - 1;
 
-  const slot = slots[finds - 1];
-  if (slot) {
-    slot.src = uri;
-    slot.classList.add('is-on');
+  mapStage.classList.remove('is-settle-nudge');
+  void mapStage.offsetWidth;
+  mapStage.classList.add('is-settle-nudge');
+
+  if (finds === 1) {
+    findCard.hidden = false;
+    findPlane.hidden = false;
+    findCard.classList.remove('is-on', 'is-pulse');
+    findPlane.classList.remove('is-on');
+    void findCard.offsetWidth;
+    findCard.classList.add('is-on');
+    findPlane.classList.add('is-on');
+    await wait(SETTLE_MS * 0.72);
+    hit(false);
+  } else {
+    findCard.classList.remove('is-pulse');
+    void findCard.offsetWidth;
+    findCard.classList.add('is-pulse');
+    await wait(280);
   }
 
-  findCard.hidden = false;
-  findPlane.hidden = false;
-  void findCard.offsetWidth;
-  findCard.classList.add('is-on');
-  findPlane.classList.add('is-on');
-
-  await wait(SETTLE_MS);
-  hit();
+  await flyIntoSlot(uri, index);
+  markNextSlot();
 
   if (finds >= FINDS_NEEDED) {
-    setHint('Finds settled — tip incoming…');
-    await wait(220);
+    setHint('Slots full — tip incoming…');
+    await wait(180);
     tipLayer.hidden = false;
+    tipLayer.classList.remove('is-on');
     void tipLayer.offsetWidth;
     tipLayer.classList.add('is-on');
     await wait(SETTLE_MS);
-    hit();
+    hit(false);
     setHint('Done — tip settled. Reset to play again.');
     return;
   }
 
-  setHint(`Find ${finds}/${FINDS_NEEDED} on the map — tap camera again.`);
+  setHint(`Find ${finds}/${FINDS_NEEDED} slotted — tap camera again.`);
 }
 
 async function handleSendIt() {
@@ -356,7 +448,7 @@ async function handleSkip() {
   await closeCameraSheet(true);
   phase = 'map';
   syncHots();
-  await settleFind(makePlaceholderCapture());
+  await settleFind(makePlaceholderCapture(finds));
   busy = false;
   syncHots();
 }

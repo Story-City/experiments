@@ -8,14 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=5b">
+<link rel="stylesheet" href="app.css?v=6">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Daily Side Quests</h1>
     <p class="lede">
-      Layered map + app CameraSheet: stamp → map → camera slides up → capture → find settles on the map.
+      Camera slides away → find settles → capture flies into a slot. Soft cadence, separate parts.
     </p>
   </header>
 
@@ -28,52 +28,30 @@
   </div>
 
   <main class="phone" id="phone">
-    <!-- Stamp menu / home underlays (Figma frames) -->
-    <img class="scene" id="scene" src="assets/flow/01.png?v=5" alt="" decoding="async">
+    <img class="scene" id="scene" src="assets/flow/01.png?v=6" alt="" decoding="async">
 
-    <!-- Persistent map world — parts settle on top, not slideshow swaps -->
     <div class="map-stage" id="mapStage" hidden>
-      <img class="map-fill" src="assets/parts/map-hunt.png?v=5" alt="" decoding="async">
+      <img class="map-fill" src="assets/parts/map-hunt.png?v=6" alt="" decoding="async">
 
-      <img
-        class="find-card"
-        id="findCard"
-        src="assets/parts/footprint.png?v=5"
-        alt=""
-        decoding="async"
-        hidden
-      >
-      <img
-        class="find-plane"
-        id="findPlane"
-        src="assets/parts/airplanes.png?v=5"
-        alt=""
-        decoding="async"
-        hidden
-      >
+      <img class="find-card" id="findCard" src="assets/parts/footprint.png?v=6" alt="" decoding="async" hidden>
+      <img class="find-plane" id="findPlane" src="assets/parts/airplanes.png?v=6" alt="" decoding="async" hidden>
 
-      <!-- Progress slots — filled with real captures -->
+      <!-- Empty map Group 20198: x=124 y=656 w=129 h=38 — three 38px cells -->
       <div class="slots" id="slots" aria-hidden="true">
-        <img class="slot" data-slot="0" alt="">
-        <img class="slot" data-slot="1" alt="">
-        <img class="slot" data-slot="2" alt="">
+        <div class="slot-cell" data-slot="0"><img class="slot" alt=""></div>
+        <div class="slot-cell" data-slot="1"><img class="slot" alt=""></div>
+        <div class="slot-cell" data-slot="2"><img class="slot" alt=""></div>
       </div>
 
-      <img
-        class="tip-layer"
-        id="tipLayer"
-        src="assets/parts/tip.png?v=5"
-        alt=""
-        decoding="async"
-        hidden
-      >
+      <img class="tip-layer" id="tipLayer" src="assets/parts/tip.png?v=6" alt="" decoding="async" hidden>
+
+      <img class="fly-thumb" id="flyThumb" alt="" hidden>
 
       <button type="button" class="hot cam-hot" id="camHot" aria-label="Camera"></button>
       <button type="button" class="hot map-hot" id="mapHot" aria-label="Map find"></button>
       <button type="button" class="hot back-hot" id="backHot" aria-label="Back"></button>
     </div>
 
-    <!-- Stamp / entry hotspots over menu frames -->
     <button type="button" class="hot stamp-hot" data-stamp="0" aria-label="Stamp 1" hidden></button>
     <button type="button" class="hot stamp-hot" data-stamp="1" aria-label="Stamp 2" hidden></button>
     <button type="button" class="hot stamp-hot" data-stamp="2" aria-label="Stamp 3" hidden></button>
@@ -83,7 +61,6 @@
     <div class="shine" id="shine" aria-hidden="true"></div>
     <div class="flash" id="flash" aria-hidden="true"></div>
 
-    <!-- App CameraSheet — full-bleed slide-up modal -->
     <div class="camera-sheet" id="camera" aria-hidden="true">
       <video class="camera-video" id="cameraVideo" playsinline muted></video>
       <canvas class="camera-snap" id="cameraSnap" hidden></canvas>
@@ -109,9 +86,8 @@
   </main>
 
   <p class="meta">
-    Parts from Figma <code>footprint 1</code>, tip group, airplanes + map hunt.
-    Camera mirrors app <code>CameraSheet</code> (slide + shutter + Send It).
+    Separated Figma parts + app CameraSheet. Capture flies into the progress slots.
   </p>
-  <script src="app.js?v=5b"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
