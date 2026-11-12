@@ -1,9 +1,9 @@
 [
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=12",
+    "path": "day-reached-overlay/?v=13",
     "title": "Day reached — streak overlay",
-    "what": "Day-reached over staging shots: side mask on arc only (Lottie unclipped), no contain:size, preloaded Lottie, stable beads.",
+    "what": "Day-reached over staging shots: overlay headroom above phone so Lottie bloom is not clipped; arc-only side mask; preloaded Lottie; no contain:size.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

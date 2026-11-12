@@ -13,8 +13,10 @@
   --in-ms: 200ms;
   --out-ms: 420ms;
   --shine-ms: 1400ms;
-  --streak-zoom: 1.16;
+  --streak-zoom: 1.12;
   --phone-radius: 28px;
+  /* Room above the phone chrome so the Lottie bloom is not clipped. */
+  --overlay-headroom: 56px;
 }
 
 * { box-sizing: border-box; }
@@ -146,17 +148,21 @@ h1 {
 
 .overlay {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: calc(-1 * var(--overlay-headroom));
+  bottom: 0;
   z-index: 5;
   pointer-events: none;
   overflow: visible;
-  /* Stay opacity:1 for layout; fade the play-layer only — kills compositing jumps. */
+  clip-path: none;
 }
 
 .play-layer {
   position: absolute;
   inset: 0;
   overflow: visible;
+  clip-path: none;
   opacity: 0;
 }
 
@@ -180,7 +186,10 @@ h1 {
 
 .haze {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: var(--overlay-headroom);
+  bottom: 0;
   border-radius: var(--phone-radius);
   background:
     radial-gradient(90% 42% at 50% 12%, rgba(0, 158, 255, 0.18), transparent 70%),
@@ -199,8 +208,10 @@ h1 {
   position: absolute;
   left: 0;
   right: 0;
-  top: 6%;
+  /* Headroom offset + sit a bit lower in the phone. */
+  top: calc(var(--overlay-headroom) + 7%);
   overflow: visible;
+  clip-path: none;
 }
 
 .band {
@@ -406,7 +417,10 @@ h1 {
 
 .shine {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: var(--overlay-headroom);
+  bottom: 0;
   pointer-events: none;
   opacity: 0;
   overflow: visible;
