@@ -8,15 +8,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=18">
+<link rel="stylesheet" href="app.css?v=19">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Day reached overlay</h1>
     <p class="lede">
-      Staging underlays + Training Hub Lottie. No overflow:hidden phone wrapper;
-      arc-only side fade; preloaded Lottie; overlay headroom for the bloom.
+      Staging underlays + Training Hub Lottie at the top of the phone.
+      Readable streak copy under the arc — no downward sheen gimmick.
     </p>
   </header>
 
@@ -32,11 +32,10 @@
   </div>
 
   <main class="phone" id="phone" data-surface="adventure" aria-label="Day-reached overlay preview">
-    <!-- Img rounds itself — no overflow:hidden ancestor (that clipped the Lottie bloom). -->
     <img
       class="underlay"
       id="underlay"
-        src="underlays/adventure.jpg?v=18"
+      src="underlays/adventure.jpg?v=19"
       alt="Story City staging — adventure mode picker"
       width="1080"
       height="2400"
@@ -54,14 +53,13 @@
               </div>
               <div class="beads" id="beads"></div>
               <div class="lottie" id="lottie" aria-hidden="true"></div>
-              <div class="copy" id="copy" aria-hidden="true">
-                <p class="headline" id="headline"><span class="headline-rich">3-day streak!</span></p>
-                <p class="subtitle" id="subtitle">Keep it up!</p>
-              </div>
             </div>
           </div>
+          <div class="copy" id="copy" aria-hidden="true">
+            <p class="headline" id="headline"><span class="headline-rich">3-day streak!</span></p>
+            <p class="subtitle" id="subtitle">Keep it up!</p>
+          </div>
         </div>
-        <div class="shine" id="shine" aria-hidden="true"></div>
       </div>
     </div>
   </main>
@@ -71,6 +69,6 @@
   </p>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=18"></script>
+  <script src="app.js?v=19"></script>
 </body>
 </html>

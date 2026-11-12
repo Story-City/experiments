@@ -1,10 +1,6 @@
 // Mirrored from suite-city feature/SC-3526-training-hub
 // TrainingHubStreakBannerStyles + useTrainingHubStreakBanner weekdayLabel.
 const FIGMA_FRAME_WIDTH = 375;
-const FIGMA_FRAME_HEIGHT = 197;
-// Push hub geometry down so today’s bloom isn’t flush with the frame top.
-const FIGMA_Y_PAD = 52;
-const FIGMA_FRAME_HEIGHT_PADDED = FIGMA_FRAME_HEIGHT + FIGMA_Y_PAD;
 const BEAD_SMALL_SIZE = 30;
 const BEAD_CURRENT_SIZE = 54;
 const BEAD_SMALL_LABEL = 12;
@@ -48,16 +44,14 @@ const DAY_REACHED_LOTTIE_CENTER_DIVISOR = 2;
 // Hub math matches settle diameter to the bead — that puts the composition’s top
 // edge ~flush with the bead and makes the bloom look hard-cut. Oversize the
 // play so the frame top clears the bead; bead takes over on settle.
-const DAY_REACHED_PLAY_OVERSIZE = 1.7;
+const DAY_REACHED_PLAY_OVERSIZE = 1.35;
 const DAY_REACHED_BEAD_REVEAL_MS = 280;
 const HAZE_IN_MS = 160;
-const SHINE_MS = 1400;
-const HOLD_AFTER_SHINE_MS = 500;
-const HOLD_READABLE_MS = SHINE_MS + HOLD_AFTER_SHINE_MS;
+const HOLD_READABLE_MS = 1900;
 const HAZE_OUT_MS = 380;
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=18';
+const UNDERLAY_CACHE = 'v=19';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -99,8 +93,7 @@ function weekdayLabel(dateStr) {
 function dayReachedLottieLayout(scale) {
   const today = FIGMA_BEADS[TODAY_BEAD_INDEX];
   const centerX = (today.left + today.size / DAY_REACHED_LOTTIE_CENTER_DIVISOR) * scale;
-  const centerY =
-    (today.top + FIGMA_Y_PAD + today.size / DAY_REACHED_LOTTIE_CENTER_DIVISOR) * scale;
+  const centerY = (today.top + today.size / DAY_REACHED_LOTTIE_CENTER_DIVISOR) * scale;
   const compScale =
     (today.size * scale * DAY_REACHED_PLAY_OVERSIZE) / DAY_REACHED_SETTLE_DIAMETER;
   return {
@@ -120,7 +113,6 @@ const lottieHost = document.getElementById('lottie');
 const copyEl = document.getElementById('copy');
 const headlineEl = document.getElementById('headline');
 const subtitleEl = document.getElementById('subtitle');
-const shineEl = document.getElementById('shine');
 const playBtn = document.getElementById('play');
 const hint = document.getElementById('hint');
 const phone = document.getElementById('phone');
@@ -187,13 +179,10 @@ function layoutBeads() {
     if (SIDE_FAR_INDEXES.has(index)) el.classList.add('is-side-far');
     if (SIDE_NEAR_INDEXES.has(index)) el.classList.add('is-side-near');
     el.style.left = `${spec.left * scale}px`;
-    el.style.top = `${(spec.top + FIGMA_Y_PAD) * scale}px`;
+    el.style.top = `${spec.top * scale}px`;
     el.style.width = `${spec.size * scale}px`;
     el.style.height = `${spec.size * scale}px`;
     el.style.fontSize = `${spec.labelSize * scale}px`;
-    const sheen = document.createElement('div');
-    sheen.className = 'sheen';
-    el.appendChild(sheen);
     const label = document.createElement('span');
     label.textContent = weekdayLabel(date);
     el.appendChild(label);
@@ -202,12 +191,11 @@ function layoutBeads() {
   return scale;
 }
 
-function setTodayFace(awaitingLottie, shiny) {
+function setTodayFace(awaitingLottie) {
   const todayEl = beadsHost.children[TODAY_BEAD_INDEX];
   if (!todayEl) return;
   todayEl.classList.add('is-complete', 'is-today');
   todayEl.classList.toggle('is-awaiting-lottie', awaitingLottie);
-  todayEl.classList.toggle('is-shiny', !awaitingLottie && shiny);
 }
 
 function placeLottie(scale) {
@@ -267,8 +255,7 @@ function finishPlay() {
   playing = false;
   clearTimers();
   setCopyVisible(false);
-  setTodayFace(false, false);
-  shineEl.classList.remove('is-on');
+  setTodayFace(false);
   stopAnimAtStart();
   playLayer.classList.remove('is-in', 'is-out');
   overlay.setAttribute('aria-hidden', 'true');
@@ -289,19 +276,15 @@ function beginDissolve() {
 function onLottieDone() {
   if (lottieFinished || !playing) return;
   lottieFinished = true;
-  setTodayFace(false, true);
-  // Drop the Lottie frame immediately — its viewBox top edge reads as a “cutoff”
-  // once the bead is the real settle target.
+  setTodayFace(false);
+  // Drop the Lottie frame immediately — bead is the settle target.
   stopAnimAtStart();
   lottieHost.style.opacity = '0';
   setCopyVisible(true);
-  shineEl.classList.remove('is-on');
-  void shineEl.offsetWidth;
-  shineEl.classList.add('is-on');
   later(() => {
     hint.textContent = holdForReview
       ? 'Held for review (?hold=1). Soft dissolve paused.'
-      : 'Shine held — soft dissolve next…';
+      : 'Held — soft dissolve next…';
     if (holdForReview) {
       playBtn.disabled = false;
       playing = false;
@@ -319,11 +302,10 @@ async function playDayReached() {
   hint.textContent = 'Day reached…';
   clearTimers();
   setCopyVisible(false);
-  shineEl.classList.remove('is-on');
 
   buildArc();
   const scale = layoutBeads();
-  setTodayFace(true, false);
+  setTodayFace(true);
   placeLottie(scale);
 
   try {
@@ -371,6 +353,7 @@ window.addEventListener('resize', () => {
   placeLottie(scale);
 });
 
+laidOutScale = 0;
 buildArc();
 const initialScale = layoutBeads();
 placeLottie(initialScale);

@@ -1,9 +1,9 @@
 [
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=18",
+    "path": "day-reached-overlay/?v=19",
     "title": "Day reached — streak overlay",
-    "what": "Day-reached over staging shots: oversized Lottie play (no viewBox-edge cutoff), bead takes settle, no transform/contain clip, preloaded Lottie.",
+    "what": "Day-reached at top of phone; copy under the arc; no downward sheen; hub geometry restored.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
