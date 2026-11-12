@@ -8,14 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=4">
+<link rel="stylesheet" href="app.css?v=5">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Daily Side Quests</h1>
     <p class="lede">
-      Functional Figma flow: menu → hand stamps → camera view → zoom-out settle into finds.
+      Layered map + app CameraSheet: stamp → map → camera slides up → capture → find settles on the map.
     </p>
   </header>
 
@@ -28,39 +28,90 @@
   </div>
 
   <main class="phone" id="phone">
-    <div class="stage" id="stage">
-      <img class="scene" id="scene" src="assets/flow/01.png?v=4" alt="" decoding="async">
-      <img class="find" id="find" src="assets/flow/06.png?v=4" alt="" hidden>
-      <div class="tip" id="tip" hidden>
-        <img src="assets/flow/07.png?v=4" alt="" decoding="async">
+    <!-- Stamp menu / home underlays (Figma frames) -->
+    <img class="scene" id="scene" src="assets/flow/01.png?v=5" alt="" decoding="async">
+
+    <!-- Persistent map world — parts settle on top, not slideshow swaps -->
+    <div class="map-stage" id="mapStage" hidden>
+      <img class="map-fill" src="assets/parts/map-hunt.png?v=5" alt="" decoding="async">
+
+      <img
+        class="find-card"
+        id="findCard"
+        src="assets/parts/footprint.png?v=5"
+        alt=""
+        decoding="async"
+        hidden
+      >
+      <img
+        class="find-plane"
+        id="findPlane"
+        src="assets/parts/airplanes.png?v=5"
+        alt=""
+        decoding="async"
+        hidden
+      >
+
+      <!-- Progress slots — filled with real captures -->
+      <div class="slots" id="slots" aria-hidden="true">
+        <img class="slot" data-slot="0" alt="">
+        <img class="slot" data-slot="1" alt="">
+        <img class="slot" data-slot="2" alt="">
       </div>
+
+      <img
+        class="tip-layer"
+        id="tipLayer"
+        src="assets/parts/tip.png?v=5"
+        alt=""
+        decoding="async"
+        hidden
+      >
+
+      <button type="button" class="hot cam-hot" id="camHot" aria-label="Camera"></button>
+      <button type="button" class="hot map-hot" id="mapHot" aria-label="Map find"></button>
+      <button type="button" class="hot back-hot" id="backHot" aria-label="Back"></button>
     </div>
 
-    <!-- Hotspots aligned to Figma chrome — no reinvented buttons -->
+    <!-- Stamp / entry hotspots over menu frames -->
     <button type="button" class="hot stamp-hot" data-stamp="0" aria-label="Stamp 1" hidden></button>
     <button type="button" class="hot stamp-hot" data-stamp="1" aria-label="Stamp 2" hidden></button>
     <button type="button" class="hot stamp-hot" data-stamp="2" aria-label="Stamp 3" hidden></button>
-    <button type="button" class="hot cam-hot" id="camHot" aria-label="Camera" hidden></button>
     <button type="button" class="hot close-hot" id="closeHot" aria-label="Close" hidden></button>
     <button type="button" class="hot entry-hot" id="entryHot" aria-label="Side quest entry" hidden></button>
-    <button type="button" class="hot back-hot" id="backHot" aria-label="Back" hidden></button>
-    <button type="button" class="hot map-hot" id="mapHot" aria-label="Map find" hidden></button>
 
     <div class="shine" id="shine" aria-hidden="true"></div>
     <div class="flash" id="flash" aria-hidden="true"></div>
 
-    <!-- Real camera — map/camera hotspot → zoom in → shutter → zoom-out settle -->
-    <div class="camera" id="camera" aria-hidden="true">
+    <!-- App CameraSheet — full-bleed slide-up modal -->
+    <div class="camera-sheet" id="camera" aria-hidden="true">
       <video class="camera-video" id="cameraVideo" playsinline muted></video>
-      <div class="camera-fallback" id="cameraFallback" hidden>Camera unavailable — tap shutter to continue.</div>
-      <div class="camera-haze"></div>
-      <p class="camera-label" id="cameraLabel">Find a pattern, then shutter</p>
-      <button type="button" class="shutter" id="shutter" aria-label="Shutter"></button>
-      <button type="button" class="camera-close" id="cameraClose" aria-label="Close camera">✕</button>
+      <canvas class="camera-snap" id="cameraSnap" hidden></canvas>
+      <div class="camera-fallback" id="cameraFallback" hidden>Camera unavailable — shutter still works.</div>
+
+      <button type="button" class="camera-back" id="cameraClose" aria-label="Close camera">‹</button>
+      <p class="camera-prompt" id="cameraPrompt">Find an animalistic pattern near you</p>
+
+      <div class="camera-controls">
+        <button type="button" class="camera-skip" id="cameraSkip">Skip photo</button>
+        <button type="button" class="shutter" id="shutter" aria-label="Shutter"></button>
+        <button type="button" class="camera-flip" id="cameraFlip" aria-label="Flip camera">↻</button>
+      </div>
+
+      <div class="confirm" id="confirm" hidden>
+        <img class="confirm-photo" id="confirmPhoto" alt="">
+        <div class="confirm-actions">
+          <button type="button" class="retake" id="retake">Retake</button>
+          <button type="button" class="send-it" id="sendIt">Send It</button>
+        </div>
+      </div>
     </div>
   </main>
 
-  <p class="meta">Figma row <code>5872:391583</code> → map hunt. Mechanics: camera → zoom-out → settle.</p>
-  <script src="app.js?v=4"></script>
+  <p class="meta">
+    Parts from Figma <code>footprint 1</code>, tip group, airplanes + map hunt.
+    Camera mirrors app <code>CameraSheet</code> (slide + shutter + Send It).
+  </p>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

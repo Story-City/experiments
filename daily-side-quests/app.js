@@ -5,34 +5,41 @@ const QUESTS = [
 ];
 
 const FRAME = {
-  home: 'assets/flow/01.png?v=4',
-  menu: 'assets/flow/02.png?v=4',
-  entry: 'assets/flow/03.png?v=4',
-  revealed: 'assets/flow/04.png?v=4',
-  map: 'assets/flow/05.png?v=4',
-  find: 'assets/flow/06.png?v=4',
-  tip: 'assets/flow/07.png?v=4',
+  home: 'assets/flow/01.png?v=5',
+  menu: 'assets/parts/menu.png?v=5',
+  entry: 'assets/flow/03.png?v=5',
+  revealed: 'assets/parts/revealed.png?v=5',
 };
 
-const IN_MS = 380;
-const ZOOM_MS = 920;
+const SLIDE_MS = 320;
 const SETTLE_MS = 780;
 const FLASH_MS = 220;
+const CAMERA_ANIMATE_MS = 500;
 const FINDS_NEEDED = 3;
+const PLACEHOLDER_PHOTO = 'assets/parts/footprint.png?v=5';
 
 const phone = document.getElementById('phone');
-const stage = document.getElementById('stage');
 const scene = document.getElementById('scene');
-const findEl = document.getElementById('find');
-const tipEl = document.getElementById('tip');
+const mapStage = document.getElementById('mapStage');
+const findCard = document.getElementById('findCard');
+const findPlane = document.getElementById('findPlane');
+const tipLayer = document.getElementById('tipLayer');
+const slots = Array.from(document.querySelectorAll('.slot'));
 const shineEl = document.getElementById('shine');
 const flashEl = document.getElementById('flash');
 const camera = document.getElementById('camera');
 const cameraVideo = document.getElementById('cameraVideo');
+const cameraSnap = document.getElementById('cameraSnap');
 const cameraFallback = document.getElementById('cameraFallback');
-const cameraLabel = document.getElementById('cameraLabel');
+const cameraPrompt = document.getElementById('cameraPrompt');
 const shutter = document.getElementById('shutter');
 const cameraClose = document.getElementById('cameraClose');
+const cameraSkip = document.getElementById('cameraSkip');
+const cameraFlip = document.getElementById('cameraFlip');
+const confirm = document.getElementById('confirm');
+const confirmPhoto = document.getElementById('confirmPhoto');
+const retakeBtn = document.getElementById('retake');
+const sendItBtn = document.getElementById('sendIt');
 const hint = document.getElementById('hint');
 const playBtn = document.getElementById('play');
 const resetBtn = document.getElementById('reset');
@@ -44,12 +51,16 @@ const backHot = document.getElementById('backHot');
 const mapHot = document.getElementById('mapHot');
 const stampHots = Array.from(document.querySelectorAll('.stamp-hot'));
 
-/** @type {'home'|'menu'|'entry'|'revealed'|'map'|'find'|'camera'} */
+/** @type {'home'|'menu'|'entry'|'revealed'|'map'|'camera'} */
 let phase = 'home';
 let quest = 0;
 let finds = 0;
+/** @type {string[]} */
+let captures = [];
 let stream = null;
+let facingMode = 'environment';
 let busy = false;
+let pendingCapture = null;
 let timers = [];
 
 function later(fn, ms) {
@@ -89,12 +100,12 @@ function showScene(src) {
       resolve();
       return;
     }
-    stage.classList.add('is-fading');
+    scene.classList.add('is-fading');
     later(() => {
       scene.src = src;
-      stage.classList.remove('is-fading');
+      scene.classList.remove('is-fading');
       resolve();
-    }, IN_MS);
+    }, 280);
   });
 }
 
@@ -102,32 +113,45 @@ function syncHots() {
   phone.dataset.phase = phase;
   const menu = phase === 'menu';
   const revealed = phase === 'revealed';
-  const hunting = phase === 'map' || phase === 'find';
+  const hunting = phase === 'map';
   stampHots.forEach((el) => {
     el.hidden = !(menu || revealed);
   });
   closeHot.hidden = !(menu || revealed);
+  entryHot.hidden = phase !== 'entry';
+  mapStage.hidden = !hunting && phase !== 'camera';
+  // Keep map under camera while sheet is open
+  if (phase === 'camera') {
+    mapStage.hidden = false;
+  }
   camHot.hidden = !hunting;
   mapHot.hidden = !hunting;
   backHot.hidden = !hunting;
-  entryHot.hidden = phase !== 'entry';
   playBtn.disabled = phase === 'camera' || busy;
+  scene.hidden = hunting || phase === 'camera';
 }
 
-function clearFindLayers() {
-  findEl.hidden = true;
-  findEl.classList.remove('is-on');
-  tipEl.hidden = true;
-  tipEl.classList.remove('is-on');
+function clearFinds() {
+  finds = 0;
+  captures = [];
+  findCard.hidden = true;
+  findCard.classList.remove('is-on');
+  findPlane.hidden = true;
+  findPlane.classList.remove('is-on');
+  tipLayer.hidden = true;
+  tipLayer.classList.remove('is-on');
+  slots.forEach((slot) => {
+    slot.removeAttribute('src');
+    slot.classList.remove('is-on');
+  });
+  mapStage.classList.remove('is-zoomed');
 }
 
 async function goHome() {
   clearTimers();
-  await stopCamera(false);
-  finds = 0;
+  await closeCameraSheet(false);
+  clearFinds();
   phase = 'home';
-  clearFindLayers();
-  stage.classList.remove('is-zoomed');
   await showScene(FRAME.home);
   syncHots();
   setHint('Idle — pick a quest, then Play.');
@@ -135,9 +159,8 @@ async function goHome() {
 
 async function openMenu() {
   if (busy) return;
+  clearFinds();
   phase = 'menu';
-  finds = 0;
-  clearFindLayers();
   await showScene(FRAME.menu);
   syncHots();
   setHint('Hand stamps — tap one to reveal.');
@@ -161,58 +184,35 @@ async function revealStamp(index) {
 async function enterMap() {
   if (phase !== 'revealed' || busy) return;
   busy = true;
+  clearFinds();
   phase = 'map';
-  finds = 0;
-  clearFindLayers();
-  await showScene(FRAME.map);
+  await showScene(FRAME.home);
   syncHots();
   busy = false;
   setHint('Map hunt — tap the map or the camera.');
 }
 
-async function openCamera() {
-  if ((phase !== 'map' && phase !== 'find') || busy) return;
-  if (finds >= FINDS_NEEDED) return;
-  busy = true;
-  phase = 'camera';
-  syncHots();
-  cameraLabel.textContent = `Find ${finds + 1} of ${FINDS_NEEDED} — then shutter`;
-
-  // Soft zoom into the map find area, then camera settles open.
-  stage.classList.add('is-zoomed');
-  camera.classList.remove('is-closing');
-  camera.classList.add('is-on');
-  camera.setAttribute('aria-hidden', 'false');
-
+async function startStream() {
   cameraFallback.hidden = true;
   try {
-    if (!stream) {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' } },
-        audio: false,
-      });
-      cameraVideo.srcObject = stream;
-      await cameraVideo.play();
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+      stream = null;
     }
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: facingMode } },
+      audio: false,
+    });
+    cameraVideo.srcObject = stream;
+    await cameraVideo.play();
+    return true;
   } catch (err) {
     cameraFallback.hidden = false;
+    return false;
   }
-
-  await wait(ZOOM_MS);
-  busy = false;
-  setHint('Camera open — shutter to capture, then zoom out.');
 }
 
-async function stopCamera(animate) {
-  if (animate) {
-    camera.classList.add('is-closing');
-    stage.classList.remove('is-zoomed');
-    await wait(ZOOM_MS);
-  } else {
-    stage.classList.remove('is-zoomed');
-  }
-  camera.classList.remove('is-on', 'is-closing');
-  camera.setAttribute('aria-hidden', 'true');
+function stopStream() {
   if (stream) {
     stream.getTracks().forEach((t) => t.stop());
     stream = null;
@@ -220,43 +220,134 @@ async function stopCamera(animate) {
   }
 }
 
-async function captureAndSettle() {
-  if (phase !== 'camera' || busy) return;
+async function openCameraSheet() {
+  if (phase !== 'map' || busy) return;
+  if (finds >= FINDS_NEEDED) return;
   busy = true;
-  finds += 1;
+  phase = 'camera';
+  pendingCapture = null;
+  confirm.hidden = true;
+  cameraPrompt.textContent = `Find ${finds + 1} of ${FINDS_NEEDED} — animalistic pattern`;
+  syncHots();
 
+  // Soft map zoom, then CameraSheet slides up (app Modal slide).
+  mapStage.classList.add('is-zoomed');
+  await wait(CAMERA_ANIMATE_MS);
+  camera.classList.add('is-on');
+  camera.setAttribute('aria-hidden', 'false');
+  await startStream();
+  await wait(SLIDE_MS);
+  busy = false;
+  setHint('CameraSheet open — shutter, then Send It.');
+}
+
+async function closeCameraSheet(animate) {
+  confirm.hidden = true;
+  pendingCapture = null;
+  if (animate) {
+    camera.classList.remove('is-on');
+    await wait(SLIDE_MS);
+    mapStage.classList.remove('is-zoomed');
+    await wait(CAMERA_ANIMATE_MS);
+  } else {
+    camera.classList.remove('is-on');
+    mapStage.classList.remove('is-zoomed');
+  }
+  camera.setAttribute('aria-hidden', 'true');
+  stopStream();
+}
+
+function snapCapture() {
+  const w = cameraVideo.videoWidth;
+  const h = cameraVideo.videoHeight;
+  if (!w || !h || cameraFallback.hidden === false) {
+    return PLACEHOLDER_PHOTO;
+  }
+  cameraSnap.width = w;
+  cameraSnap.height = h;
+  const ctx = cameraSnap.getContext('2d');
+  ctx.drawImage(cameraVideo, 0, 0, w, h);
+  return cameraSnap.toDataURL('image/jpeg', 0.72);
+}
+
+async function handleShutter() {
+  if (phase !== 'camera' || busy || !confirm.hidden) return;
+  busy = true;
   flash();
   await wait(FLASH_MS);
+  pendingCapture = snapCapture();
+  confirmPhoto.src = pendingCapture;
+  confirm.hidden = false;
+  busy = false;
+  setHint('Confirm — Retake or Send It.');
+}
 
-  // Zoom out of camera into the map, then soft-settle the find.
-  await stopCamera(true);
-  await showScene(FRAME.map);
+function handleRetake() {
+  pendingCapture = null;
+  confirm.hidden = true;
+  setHint('Retake — shutter again.');
+}
 
-  findEl.hidden = false;
-  void findEl.offsetWidth;
-  findEl.classList.add('is-on');
-  phase = 'find';
+async function settleFind(uri) {
+  captures.push(uri);
+  finds = captures.length;
+
+  const slot = slots[finds - 1];
+  if (slot) {
+    slot.src = uri;
+    slot.classList.add('is-on');
+  }
+
+  findCard.hidden = false;
+  findPlane.hidden = false;
+  void findCard.offsetWidth;
+  findCard.classList.add('is-on');
+  findPlane.classList.add('is-on');
 
   await wait(SETTLE_MS);
   hit();
 
   if (finds >= FINDS_NEEDED) {
-    setHint('Find settled — tip incoming…');
+    setHint('Finds settled — tip incoming…');
     await wait(220);
-    tipEl.hidden = false;
-    void tipEl.offsetWidth;
-    tipEl.classList.add('is-on');
+    tipLayer.hidden = false;
+    void tipLayer.offsetWidth;
+    tipLayer.classList.add('is-on');
     await wait(SETTLE_MS);
     hit();
     setHint('Done — tip settled. Reset to play again.');
-    busy = false;
-    syncHots();
     return;
   }
 
-  setHint(`Find ${finds}/${FINDS_NEEDED} settled — tap map or camera again.`);
+  setHint(`Find ${finds}/${FINDS_NEEDED} on the map — tap camera again.`);
+}
+
+async function handleSendIt() {
+  if (!pendingCapture || busy) return;
+  busy = true;
+  const uri = pendingCapture;
+  await closeCameraSheet(true);
+  phase = 'map';
+  syncHots();
+  await settleFind(uri);
   busy = false;
   syncHots();
+}
+
+async function handleSkip() {
+  if (phase !== 'camera' || busy) return;
+  busy = true;
+  await closeCameraSheet(true);
+  phase = 'map';
+  syncHots();
+  await settleFind(PLACEHOLDER_PHOTO);
+  busy = false;
+  syncHots();
+}
+
+async function handleFlip() {
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  await startStream();
 }
 
 function buildPicker() {
@@ -284,7 +375,7 @@ resetBtn.addEventListener('click', () => goHome());
 closeHot.addEventListener('click', async () => {
   if (busy) return;
   phase = 'entry';
-  clearFindLayers();
+  clearFinds();
   await showScene(FRAME.entry);
   syncHots();
   setHint('Entry chip on the dock — tap it or Play.');
@@ -300,30 +391,32 @@ stampHots.forEach((el) => {
   });
 });
 
-camHot.addEventListener('click', () => openCamera());
-mapHot.addEventListener('click', () => openCamera());
+camHot.addEventListener('click', () => openCameraSheet());
+mapHot.addEventListener('click', () => openCameraSheet());
 
 backHot.addEventListener('click', async () => {
   if (busy) return;
+  clearFinds();
   phase = 'entry';
-  finds = 0;
-  clearFindLayers();
   await showScene(FRAME.entry);
   syncHots();
   setHint('Back at home entry.');
 });
 
-shutter.addEventListener('click', () => captureAndSettle());
-
+shutter.addEventListener('click', () => handleShutter());
 cameraClose.addEventListener('click', async () => {
   if (busy) return;
   busy = true;
-  await stopCamera(true);
-  phase = finds > 0 ? 'find' : 'map';
+  await closeCameraSheet(true);
+  phase = 'map';
   syncHots();
   busy = false;
   setHint('Camera closed — tap map or camera again.');
 });
+cameraSkip.addEventListener('click', () => handleSkip());
+cameraFlip.addEventListener('click', () => handleFlip());
+retakeBtn.addEventListener('click', () => handleRetake());
+sendItBtn.addEventListener('click', () => handleSendIt());
 
 buildPicker();
 syncHots();

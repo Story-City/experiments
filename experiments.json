@@ -1,9 +1,9 @@
 [
   {
     "slug": "daily-side-quests",
-    "path": "daily-side-quests/?v=4",
+    "path": "daily-side-quests/?v=5",
     "title": "Daily Side Quests",
-    "what": "Functional: stamp menu → map → real camera zoom-in → shutter zoom-out settle finds/tip.",
+    "what": "Layered parts + app CameraSheet slide; footprint/tip settle on map; captures fill slots.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
