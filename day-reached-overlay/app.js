@@ -42,7 +42,6 @@ const DAY_REACHED_SETTLE_CENTER_Y = 527.1;
 const DAY_REACHED_SETTLE_DIAMETER = 882.3;
 const DAY_REACHED_LOTTIE_CENTER_DIVISOR = 2;
 const DAY_REACHED_BEAD_REVEAL_MS = 280;
-const COPY_CELEBRATE_DELAY_MS = 220;
 const COPY_CELEBRATE_MS = 780;
 const FUTURE_DAYS_AFTER_COPY_MS = 360;
 const HAZE_IN_MS = 160;
@@ -72,7 +71,7 @@ const DISSOLVE_WAIT_MS = Math.max(
 );
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=31';
+const UNDERLAY_CACHE = 'v=32';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -367,17 +366,14 @@ function onLottieDone() {
   // Drop the Lottie frame immediately — bead is the settle target.
   stopAnimAtStart();
   lottieHost.style.opacity = '0';
-  // Copy + glory shine: same celebration beat after today settles.
-  later(() => {
-    if (!lottieFinished) return;
-    setCopyVisible(true);
-    triggerGloryShine();
-  }, DAY_REACHED_BEAD_REVEAL_MS + COPY_CELEBRATE_DELAY_MS);
+  // Hit effect (copy + glory shine) lands with the animation finish.
+  setCopyVisible(true);
+  triggerGloryShine();
   // Days after today wait until the streak line has its moment.
   later(() => {
     if (!lottieFinished) return;
     runSideDominoAfterSettle();
-  }, DAY_REACHED_BEAD_REVEAL_MS + COPY_CELEBRATE_DELAY_MS + FUTURE_DAYS_AFTER_COPY_MS);
+  }, FUTURE_DAYS_AFTER_COPY_MS);
   later(() => {
     hint.textContent = holdForReview
       ? 'Held for review (?hold=1). Soft dissolve paused.'
