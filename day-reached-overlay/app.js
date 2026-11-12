@@ -1,17 +1,18 @@
-// Constants mirrored from suite-city feature/SC-3526-training-hub
-// TrainingHubStreakBannerStyles.ts — do not invent new geometry.
+// Mirrored from suite-city feature/SC-3526-training-hub
+// TrainingHubStreakBannerStyles + useTrainingHubStreakBanner weekdayLabel.
 const FIGMA_FRAME_WIDTH = 375;
 const BEAD_SMALL_SIZE = 30;
 const BEAD_CURRENT_SIZE = 54;
 const BEAD_SMALL_LABEL = 12;
 const BEAD_CURRENT_LABEL = 16;
 const FIGMA_BEADS = [
-  { left: 25, top: 95, size: BEAD_SMALL_SIZE, labelSize: BEAD_SMALL_LABEL, label: '1' },
-  { left: 75, top: 42, size: BEAD_SMALL_SIZE, labelSize: BEAD_SMALL_LABEL, label: '2' },
-  { left: 160, top: 0, size: BEAD_CURRENT_SIZE, labelSize: BEAD_CURRENT_LABEL, label: '3' },
-  { left: 261, top: 34, size: BEAD_SMALL_SIZE, labelSize: BEAD_SMALL_LABEL, label: '4' },
-  { left: 315, top: 89, size: BEAD_SMALL_SIZE, labelSize: BEAD_SMALL_LABEL, label: '5' },
+  { left: 25, top: 95, size: BEAD_SMALL_SIZE, labelSize: BEAD_SMALL_LABEL },
+  { left: 75, top: 42, size: BEAD_SMALL_SIZE, labelSize: BEAD_SMALL_LABEL },
+  { left: 160, top: 0, size: BEAD_CURRENT_SIZE, labelSize: BEAD_CURRENT_LABEL },
+  { left: 261, top: 34, size: BEAD_SMALL_SIZE, labelSize: BEAD_SMALL_LABEL },
+  { left: 315, top: 89, size: BEAD_SMALL_SIZE, labelSize: BEAD_SMALL_LABEL },
 ];
+const DAY_OFFSETS = [-2, -1, 0, 1, 2];
 const TODAY_BEAD_INDEX = 2;
 const FIGMA_ARC_PATH =
   'M171 0C265.441 0 342 77.0004 342 171.985C342 172.808 341.993 173.629 341.981 174.449C340.671 80.6001 264.623 4.92773 171 4.92773C77.3773 4.92773 1.32794 80.6001 0.0175781 174.449C0.00613292 173.629 0 172.808 0 171.985C0.000131189 77.0004 76.5594 0 171 0Z';
@@ -41,10 +42,33 @@ const DAY_REACHED_SETTLE_CENTER_Y = 527.1;
 const DAY_REACHED_SETTLE_DIAMETER = 882.3;
 const DAY_REACHED_LOTTIE_CENTER_DIVISOR = 2;
 const DAY_REACHED_BEAD_REVEAL_MS = 320;
-// Genshin-style level toast: soft in → celebrate → readable hold → soft out.
-const HAZE_IN_MS = 450;
-const HOLD_READABLE_MS = 900;
-const HAZE_OUT_MS = 700;
+// Snappier Genshin-style toast.
+const HAZE_IN_MS = 280;
+const HOLD_READABLE_MS = 520;
+const HAZE_OUT_MS = 550;
+const STREAK_COUNT = 3;
+
+function formatLocalDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function shiftLocalDate(dateStr, offset) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  date.setDate(date.getDate() + offset);
+  return formatLocalDate(date);
+}
+
+// Same as useTrainingHubStreakBanner weekdayLabel — weekday: 'short'.
+function weekdayLabel(dateStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString(undefined, {
+    weekday: 'short',
+  });
+}
 
 function dayReachedLottieLayout(scale) {
   const today = FIGMA_BEADS[TODAY_BEAD_INDEX];
@@ -64,8 +88,15 @@ const graphic = document.getElementById('graphic');
 const beadsHost = document.getElementById('beads');
 const arcSvg = document.getElementById('arc');
 const lottieHost = document.getElementById('lottie');
+const copyEl = document.getElementById('copy');
+const headlineEl = document.getElementById('headline');
+const subtitleEl = document.getElementById('subtitle');
+const shineEl = document.getElementById('shine');
 const playBtn = document.getElementById('play');
 const hint = document.getElementById('hint');
+const phone = document.getElementById('phone');
+const surfaceChapter = document.getElementById('surfaceChapter');
+const surfaceReader = document.getElementById('surfaceReader');
 const holdForReview = new URLSearchParams(location.search).has('hold');
 
 let anim = null;
@@ -93,7 +124,7 @@ function destroyAnim() {
 }
 
 function buildArc() {
-  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#5b8cff';
+  const accent = '#009EFF';
   const ns = 'http://www.w3.org/2000/svg';
   arcSvg.replaceChildren();
   ACCENT_GLOW_LAYERS.forEach((layer) => {
@@ -112,25 +143,34 @@ function buildArc() {
   arcSvg.appendChild(fill);
 }
 
-function buildBeads(hideTodayFace) {
+function buildBeads(hideTodayFace, shinyToday) {
   beadsHost.replaceChildren();
   const scale = graphic.clientWidth / FIGMA_FRAME_WIDTH || 1;
-  FIGMA_BEADS.forEach((spec, index) => {
+  const today = formatLocalDate(new Date());
+  DAY_OFFSETS.forEach((offset, index) => {
+    const spec = FIGMA_BEADS[index];
+    const date = shiftLocalDate(today, offset);
     const el = document.createElement('div');
     el.className = 'bead';
     if (index < TODAY_BEAD_INDEX) el.classList.add('is-complete');
     if (index === TODAY_BEAD_INDEX) {
       el.classList.add('is-today');
       if (hideTodayFace) el.classList.add('is-hidden-face');
-      else el.classList.add('is-complete');
+      else {
+        el.classList.add('is-complete');
+        if (shinyToday) el.classList.add('is-shiny');
+      }
     }
     el.style.left = `${spec.left * scale}px`;
     el.style.top = `${spec.top * scale}px`;
     el.style.width = `${spec.size * scale}px`;
     el.style.height = `${spec.size * scale}px`;
     el.style.fontSize = `${spec.labelSize * scale}px`;
+    const sheen = document.createElement('div');
+    sheen.className = 'sheen';
+    el.appendChild(sheen);
     const label = document.createElement('span');
-    label.textContent = spec.label;
+    label.textContent = weekdayLabel(date);
     el.appendChild(label);
     beadsHost.appendChild(el);
   });
@@ -143,21 +183,31 @@ function placeLottie(scale) {
   lottieHost.style.top = `${layout.top}px`;
   lottieHost.style.width = `${layout.width}px`;
   lottieHost.style.height = `${layout.height}px`;
-  return layout;
+}
+
+function setCopyVisible(on) {
+  // retentionLoop.trainingHub.streakHeadline / streakKeepItUp
+  headlineEl.innerHTML = `<span class="headline-rich">${STREAK_COUNT}-day streak!</span>`;
+  subtitleEl.textContent = 'Keep it up!';
+  copyEl.classList.toggle('is-on', on);
+  copyEl.setAttribute('aria-hidden', on ? 'false' : 'true');
 }
 
 function finishPlay() {
-  if (!playing) return;
+  if (!playing && !holdForReview) return;
   playing = false;
   clearTimers();
   destroyAnim();
+  setCopyVisible(false);
+  shineEl.classList.remove('is-on');
   overlay.classList.remove('is-in', 'is-out');
   overlay.setAttribute('aria-hidden', 'true');
-  hint.textContent = 'Done — tap to replay. Beads stay at Training Hub scale.';
+  hint.textContent = 'Done — tap to replay over chapter or reader.';
   playBtn.disabled = false;
 }
 
 function beginDissolve() {
+  setCopyVisible(false);
   destroyAnim();
   overlay.classList.remove('is-in');
   overlay.classList.add('is-out');
@@ -167,13 +217,17 @@ function beginDissolve() {
 function onLottieDone() {
   if (lottieFinished || !playing) return;
   lottieFinished = true;
-  // Reveal today’s bead before fading Lottie (DAY_REACHED_BEAD_REVEAL_MS).
-  buildBeads(false);
+  buildBeads(false, true);
+  setCopyVisible(true);
+  shineEl.classList.remove('is-on');
+  // retrigger shine
+  void shineEl.offsetWidth;
+  shineEl.classList.add('is-on');
   later(() => {
     destroyAnim();
     hint.textContent = holdForReview
       ? 'Held for review (?hold=1). Soft dissolve paused.'
-      : 'Holding readable beat, then soft dissolve…';
+      : 'Shine held — soft dissolve next…';
     if (holdForReview) {
       playBtn.disabled = false;
       playing = false;
@@ -188,12 +242,14 @@ function playDayReached() {
   playing = true;
   lottieFinished = false;
   playBtn.disabled = true;
-  hint.textContent = 'Soft haze in → day-reached Lottie on today’s bead…';
+  hint.textContent = 'Snappy haze in → weekday beads + day-reached Lottie…';
   clearTimers();
   destroyAnim();
+  setCopyVisible(false);
+  shineEl.classList.remove('is-on');
 
   buildArc();
-  const scale = buildBeads(true);
+  const scale = buildBeads(true, false);
   placeLottie(scale);
 
   overlay.classList.remove('is-out');
@@ -208,9 +264,7 @@ function playDayReached() {
       autoplay: false,
       path: 'training_hub_day_reached.json',
     });
-
     anim.addEventListener('DOMLoaded', () => {
-      hint.textContent = 'Playing Training Hub day-reached Lottie…';
       anim.goToAndPlay(0, true);
       later(onLottieDone, DAY_REACHED_LOTTIE_FALLBACK_MS);
     });
@@ -222,13 +276,27 @@ function playDayReached() {
   }, HAZE_IN_MS);
 }
 
+function setSurface(name) {
+  phone.dataset.surface = name;
+  const isReader = name === 'reader';
+  surfaceChapter.hidden = isReader;
+  surfaceReader.hidden = !isReader;
+  document.querySelectorAll('.chip').forEach((chip) => {
+    chip.setAttribute('aria-pressed', chip.dataset.surface === name ? 'true' : 'false');
+  });
+}
+
+document.querySelectorAll('.chip').forEach((chip) => {
+  chip.addEventListener('click', () => setSurface(chip.dataset.surface));
+});
+
 playBtn.addEventListener('click', playDayReached);
 window.addEventListener('resize', () => {
-  if (!overlay.classList.contains('is-in') && !holdForReview) return;
+  if (!overlay.classList.contains('is-in') && !copyEl.classList.contains('is-on')) return;
   const hide = !!document.querySelector('.bead.is-hidden-face');
-  const scale = buildBeads(hide);
+  const scale = buildBeads(hide, !hide);
   placeLottie(scale);
 });
 
 buildArc();
-buildBeads(false);
+buildBeads(false, false);
