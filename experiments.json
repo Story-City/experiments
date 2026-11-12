@@ -1,9 +1,9 @@
 [
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=24",
+    "path": "day-reached-overlay/?v=25",
     "title": "Day reached — streak overlay",
-    "what": "Side beads slow-fade in during Lottie and out on dissolve; copy/settle unchanged.",
+    "what": "Side beads domino along the arc (near→far) during Lottie; reverse on dissolve.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

@@ -45,11 +45,13 @@ const DAY_REACHED_BEAD_REVEAL_MS = 280;
 const HAZE_IN_MS = 160;
 const HOLD_READABLE_MS = 1400;
 const HAZE_OUT_MS = 300;
-const SIDE_BEADS_FADE_OUT_MS = 480;
-const DISSOLVE_WAIT_MS = Math.max(HAZE_OUT_MS, SIDE_BEADS_FADE_OUT_MS);
+const SIDE_BEADS_FADE_OUT_MS = 420;
+const SIDE_BEADS_EXIT_STAGGER_MS = 250;
+const DISSOLVE_WAIT_MS =
+  Math.max(HAZE_OUT_MS, SIDE_BEADS_FADE_OUT_MS + SIDE_BEADS_EXIT_STAGGER_MS);
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=24';
+const UNDERLAY_CACHE = 'v=25';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -172,6 +174,7 @@ function layoutBeads() {
     const date = shiftLocalDate(today, offset);
     const el = document.createElement('div');
     el.className = 'bead';
+    el.dataset.bead = String(index);
     if (index < TODAY_BEAD_INDEX) el.classList.add('is-complete');
     if (index === TODAY_BEAD_INDEX) el.classList.add('is-today');
     if (SIDE_FAR_INDEXES.has(index)) el.classList.add('is-side-far');
