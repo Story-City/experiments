@@ -1,136 +1,117 @@
-// Quests from Figma 5550:355652 / 5569:278* (hidden until reveal).
-const QUESTS = [
+// Figma row from 5872:391583 rightward — see SOURCE.md.
+const FRAMES = [
   {
-    title: 'A Whimsy walk',
-    body: 'Find 3 animalistic pattern near you and share them with your local community',
+    src: 'assets/flow/01.png?v=2',
+    label: '1 · Home',
+    hint: 'Explore home — start of the row.',
+    node: '5872:391583',
   },
   {
-    title: 'Have you noticed...',
-    body: 'Find 3 animalistic pattern near you and share them with your local community',
+    src: 'assets/flow/02.png?v=2',
+    label: '2 · Quests closed',
+    hint: 'Daily Side quests — stamps unrevealed.',
+    node: '5872:390209',
+    hit: true,
   },
   {
-    title: 'Fond memory',
-    body: 'Share a memory of a one place that you find special',
+    src: 'assets/flow/03.png?v=2',
+    label: '3 · Entry chip',
+    hint: 'Home with side-quest entry on the dock.',
+    node: '5872:390968',
+  },
+  {
+    src: 'assets/flow/04.png?v=2',
+    label: '4 · Revealed',
+    hint: 'Stamps revealed — camera on each quest.',
+    node: '5872:392959',
+    hit: true,
+  },
+  {
+    src: 'assets/flow/05.png?v=2',
+    label: '5 · Map hunt',
+    hint: 'A Whimsy Walk map — Debug destination sheet.',
+    node: '5897:281964',
+  },
+  {
+    src: 'assets/flow/06.png?v=2',
+    label: '6 · Footprint',
+    hint: 'Footprint card on the map.',
+    node: '5897:281965',
+  },
+  {
+    src: 'assets/flow/07.png?v=2',
+    label: '7 · Tip',
+    hint: 'Character tip — see what other Challangers found.',
+    node: '5897:281966',
+    hit: true,
   },
 ];
 
-const STAMP_STEP_MS = 160;
-const STAMP_IN_MS = 520;
-const SHEET_IN_MS = 420;
+const FADE_MS = 420;
 
-const overlay = document.getElementById('overlay');
-const sheet = document.getElementById('sheet');
-const stampsHost = document.getElementById('stamps');
-const openBtn = document.getElementById('open');
-const closeBtn = document.getElementById('close');
-const dim = document.getElementById('dim');
-const shineEl = document.getElementById('shine');
+const frameEl = document.getElementById('frame');
+const chips = document.getElementById('chips');
 const hint = document.getElementById('hint');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+const shineEl = document.getElementById('shine');
+const phone = document.getElementById('phone');
 
-let open = false;
-let timers = [];
+let index = 0;
+let busy = false;
 
-function later(fn, ms) {
-  const id = setTimeout(fn, ms);
-  timers.push(id);
-  return id;
-}
-
-function clearTimers() {
-  timers.forEach(clearTimeout);
-  timers = [];
-}
-
-function triggerGloryShine() {
+function triggerHit() {
   shineEl.classList.remove('is-on');
   void shineEl.offsetWidth;
   shineEl.classList.add('is-on');
 }
 
-function buildStamps() {
-  stampsHost.replaceChildren();
-  QUESTS.forEach((quest, index) => {
+function renderChips() {
+  chips.replaceChildren();
+  FRAMES.forEach((frame, i) => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'stamp';
-    btn.dataset.index = String(index);
-    btn.setAttribute('aria-label', `Side quest ${index + 1}: tap to reveal`);
-
-    const face = document.createElement('img');
-    face.className = 'stamp-face';
-    face.src = 'assets/stamp-card.png?v=1';
-    face.alt = '';
-    face.decoding = 'async';
-    face.draggable = false;
-
-    const reveal = document.createElement('div');
-    reveal.className = 'stamp-reveal';
-    const title = document.createElement('p');
-    title.className = 'stamp-title';
-    title.textContent = quest.title;
-    const body = document.createElement('p');
-    body.className = 'stamp-body';
-    body.textContent = quest.body;
-    reveal.append(title, body);
-
-    btn.append(face, reveal);
-    btn.addEventListener('click', () => revealStamp(btn));
-    stampsHost.appendChild(btn);
+    btn.className = 'chip';
+    btn.textContent = frame.label;
+    btn.setAttribute('aria-pressed', i === index ? 'true' : 'false');
+    btn.addEventListener('click', () => goTo(i));
+    chips.appendChild(btn);
   });
 }
 
-function revealStamp(btn) {
-  if (!open || btn.classList.contains('is-revealed')) return;
-  btn.classList.add('is-revealed');
-  btn.setAttribute('aria-label', btn.querySelector('.stamp-title').textContent);
-  triggerGloryShine();
-  hint.textContent = 'Quest revealed — tap another stamp, or close.';
-}
-
-function resetStamps() {
-  Array.from(stampsHost.children).forEach((el) => {
-    el.classList.remove('is-revealed', 'is-in');
+function syncChrome() {
+  const frame = FRAMES[index];
+  hint.textContent = `${frame.hint} (${frame.node})`;
+  prevBtn.disabled = index === 0 || busy;
+  nextBtn.disabled = index === FRAMES.length - 1 || busy;
+  Array.from(chips.children).forEach((chip, i) => {
+    chip.setAttribute('aria-pressed', i === index ? 'true' : 'false');
   });
 }
 
-function openModal() {
-  if (open) return;
-  open = true;
-  clearTimers();
-  resetStamps();
-  shineEl.classList.remove('is-on');
-  overlay.classList.add('is-open');
-  overlay.setAttribute('aria-hidden', 'false');
-  openBtn.disabled = true;
-  hint.textContent = 'Modal open — stamps easing in…';
-
-  Array.from(stampsHost.children).forEach((el, step) => {
-    later(() => {
-      if (!open) return;
-      el.classList.add('is-in');
-    }, SHEET_IN_MS + step * STAMP_STEP_MS);
-  });
-
-  later(() => {
-    if (!open) return;
-    hint.textContent = 'Tap a stamp to reveal its side quest.';
-  }, SHEET_IN_MS + STAMP_IN_MS + STAMP_STEP_MS * (QUESTS.length - 1));
+function goTo(next) {
+  if (busy || next === index || next < 0 || next >= FRAMES.length) return;
+  busy = true;
+  syncChrome();
+  frameEl.classList.add('is-fading');
+  window.setTimeout(() => {
+    index = next;
+    const frame = FRAMES[index];
+    frameEl.src = frame.src;
+    frameEl.alt = frame.label;
+    frameEl.classList.remove('is-fading');
+    if (frame.hit) triggerHit();
+    busy = false;
+    syncChrome();
+  }, FADE_MS);
 }
 
-function closeModal() {
-  if (!open) return;
-  open = false;
-  clearTimers();
-  shineEl.classList.remove('is-on');
-  overlay.classList.remove('is-open');
-  overlay.setAttribute('aria-hidden', 'true');
-  openBtn.disabled = false;
-  hint.textContent = 'Closed — open again anytime.';
-  later(resetStamps, 300);
-}
+prevBtn.addEventListener('click', () => goTo(index - 1));
+nextBtn.addEventListener('click', () => goTo(index + 1));
+phone.addEventListener('click', () => {
+  if (index < FRAMES.length - 1) goTo(index + 1);
+});
 
-openBtn.addEventListener('click', openModal);
-closeBtn.addEventListener('click', closeModal);
-dim.addEventListener('click', closeModal);
-
-buildStamps();
+renderChips();
+syncChrome();
+frameEl.alt = FRAMES[0].label;

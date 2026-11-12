@@ -4,58 +4,38 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Daily Side Quests</title>
+<title>Daily Side Quests — full flow</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=1">
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=2">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Daily Side Quests</h1>
     <p class="lede">
-      Figma carry-over: stamp cards over staging underlay. Soft open, tap to reveal.
+      Full Figma row from <code>5872:391583</code> rightward — seven frames, no invented UI.
     </p>
   </header>
 
+  <div class="chips" id="chips" role="tablist" aria-label="Frame"></div>
+
   <div class="toolbar">
-    <button type="button" class="play" id="open">Open side quests</button>
-    <span class="hint" id="hint">Idle — modal closed over staging home.</span>
+    <button type="button" class="play" id="prev">Back</button>
+    <button type="button" class="play" id="next">Next frame</button>
+    <span class="hint" id="hint"></span>
   </div>
 
-  <main class="phone" id="phone" aria-label="Daily Side Quests preview">
-    <img
-      class="underlay"
-      id="underlay"
-      src="assets/underlay.png?v=1"
-      alt="Story City staging — home underlay"
-      width="375"
-      height="814"
-      decoding="async"
-    >
-
-    <div class="overlay" id="overlay" aria-hidden="true">
-      <div class="dim" id="dim" aria-hidden="true"></div>
-      <div class="shine" id="shine" aria-hidden="true"></div>
-      <section class="sheet" id="sheet" role="dialog" aria-labelledby="title" aria-modal="true">
-        <div class="hero" aria-hidden="true">
-          <img class="hero-img" src="assets/modal-export.png?v=1" alt="" decoding="async">
-        </div>
-        <button type="button" class="close" id="close" aria-label="Close">
-          <img src="assets/close.svg?v=1" alt="" width="14" height="14">
-        </button>
-        <h2 class="title" id="title">Daily Side quests</h2>
-        <p class="subtitle">Complete goals faster with a side quest of the day!</p>
-        <div class="stamps" id="stamps"></div>
-      </section>
-    </div>
+  <main class="phone" id="phone" aria-label="Side quest prototype flow">
+    <img class="frame" id="frame" src="assets/flow/01.png?v=2" alt="" width="375" height="814" decoding="async">
+    <div class="shine" id="shine" aria-hidden="true"></div>
   </main>
 
   <p class="meta">
-    Source: Figma <code>5872:390209</code> — see <code>SOURCE.md</code>.
+    Source frames listed in <code>SOURCE.md</code>. Tap Next or a chip to step the prototype.
   </p>
 
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

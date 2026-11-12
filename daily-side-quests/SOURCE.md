@@ -1,18 +1,19 @@
 # Source (do not reinvent)
 
-Figma prototype — StoryCity Mobile:
+Figma — StoryCity Mobile Design Sandbox, row starting at:
 
-- File: `fjuRfwKKhJQmAAWLjx9qc2`
-- Frame: `5872:390209` / starting `5872:391583`
-- Modal: `5872:390338` — Daily Side quests
-- Stamp card: `5550:355652` — Tap to reveal + hand/dice
-- Proto: https://www.figma.com/proto/fjuRfwKKhJQmAAWLjx9qc2/?node-id=5872-390209&starting-point-node-id=5872:391583
+https://www.figma.com/design/fjuRfwKKhJQmAAWLjx9qc2/?node-id=5872-391583
 
-Copy from the file (hidden until reveal):
+Frames left → right (same y ≈ 11657):
 
-1. A Whimsy walk — Find 3 animalistic pattern near you and share them with your local community
-2. Have you noticed... — Find 3 animalistic pattern near you and share them with your local community
-3. Fond memory — Share a memory of a one place that you find special
+| # | node id | role |
+|---|---------|------|
+| 1 | `5872:391583` | Home / Explore underlay |
+| 2 | `5872:390209` | Daily Side quests modal — stamps unrevealed |
+| 3 | `5872:390968` | Home with side-quest entry chip |
+| 4 | `5872:392959` | Daily Side quests — stamps revealed + camera |
+| 5 | `5897:281964` | Map hunt — A Whimsy Walk / Debug destination |
+| 6 | `5897:281965` | Map hunt — footprint card on map |
+| 7 | `5897:281966` | Map hunt — tip + character (“other Challangers”) |
 
-Underlay: staging screenshot embedded in the Figma frame.
-Assets: exported stamp card + modal hero strip + close icon from that file.
+Experiment pages are exports of those frames. Do not invent chrome.

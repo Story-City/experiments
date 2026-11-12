@@ -1,9 +1,9 @@
 [
   {
     "slug": "daily-side-quests",
-    "path": "daily-side-quests/?v=1",
+    "path": "daily-side-quests/?v=2",
     "title": "Daily Side Quests",
-    "what": "Figma carry-over: Daily Side quests modal over staging underlay; soft open; stamp tap-to-reveal.",
+    "what": "Full Figma row from 5872:391583 rightward — 7 frames (home → stamps → map hunt), soft step-through.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
