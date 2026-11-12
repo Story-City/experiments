@@ -11,7 +11,7 @@
   --haze-mist: rgba(0, 158, 255, 0.12);
   --haze-clear: rgba(11, 5, 28, 0);
   --in-ms: 200ms;
-  --out-ms: 420ms;
+  --out-ms: 300ms;
   --streak-zoom: 1.05;
   --phone-radius: 28px;
   /* Small bleed above the phone so Lottie can paint without a hard bezel cut. */
@@ -333,7 +333,7 @@ h1 {
   position: absolute;
   left: 16%;
   right: 16%;
-  top: 50%;
+  top: calc(50% - 15px);
   z-index: 7;
   text-align: center;
   opacity: 0;
