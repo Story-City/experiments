@@ -47,7 +47,7 @@ const HOLD_READABLE_MS = 1900;
 const HAZE_OUT_MS = 380;
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=20';
+const UNDERLAY_CACHE = 'v=21';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
