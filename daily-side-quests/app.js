@@ -1,55 +1,56 @@
-// Quests + flow from Figma row 5872:391583 → right. See SOURCE.md.
 const QUESTS = [
-  {
-    id: 'whimsy',
-    title: 'A Whimsy walk',
-    body: 'Find 3 animalistic pattern near you and share them with your local community',
-  },
-  {
-    id: 'noticed',
-    title: 'Have you noticed...',
-    body: 'Find 3 animalistic pattern near you and share them with your local community',
-  },
-  {
-    id: 'memory',
-    title: 'Fond memory',
-    body: 'Share a memory of a one place that you find special',
-  },
+  { title: 'A Whimsy walk' },
+  { title: 'Have you noticed...' },
+  { title: 'Fond memory' },
 ];
 
-const SCREENS = {
-  home: 'assets/flow/01.png?v=3',
-  homeEntry: 'assets/flow/03.png?v=3',
-  mapEmpty: 'assets/flow/05.png?v=3',
-  mapPrint: 'assets/flow/06.png?v=3',
-  mapTip: 'assets/flow/07.png?v=3',
+const FRAME = {
+  home: 'assets/flow/01.png?v=4',
+  menu: 'assets/flow/02.png?v=4',
+  entry: 'assets/flow/03.png?v=4',
+  revealed: 'assets/flow/04.png?v=4',
+  map: 'assets/flow/05.png?v=4',
+  find: 'assets/flow/06.png?v=4',
+  tip: 'assets/flow/07.png?v=4',
 };
 
-const SHEET_IN_MS = 380;
-const STAMP_STEP_MS = 140;
-const STAMP_IN_MS = 480;
-const FADE_MS = 320;
+const IN_MS = 380;
+const ZOOM_MS = 920;
+const SETTLE_MS = 780;
+const FLASH_MS = 220;
+const FINDS_NEEDED = 3;
 
-const underlay = document.getElementById('underlay');
-const overlay = document.getElementById('overlay');
-const stampsHost = document.getElementById('stamps');
+const phone = document.getElementById('phone');
+const stage = document.getElementById('stage');
+const scene = document.getElementById('scene');
+const findEl = document.getElementById('find');
+const tipEl = document.getElementById('tip');
+const shineEl = document.getElementById('shine');
+const flashEl = document.getElementById('flash');
+const camera = document.getElementById('camera');
+const cameraVideo = document.getElementById('cameraVideo');
+const cameraFallback = document.getElementById('cameraFallback');
+const cameraLabel = document.getElementById('cameraLabel');
+const shutter = document.getElementById('shutter');
+const cameraClose = document.getElementById('cameraClose');
+const hint = document.getElementById('hint');
 const playBtn = document.getElementById('play');
 const resetBtn = document.getElementById('reset');
-const closeBtn = document.getElementById('close');
-const dim = document.getElementById('dim');
-const shineEl = document.getElementById('shine');
-const hint = document.getElementById('hint');
-const questPicker = document.getElementById('questPicker');
-const entryHit = document.getElementById('entryHit');
-const mapCamera = document.getElementById('mapCamera');
-const mapBack = document.getElementById('mapBack');
+const picker = document.getElementById('picker');
+const camHot = document.getElementById('camHot');
+const closeHot = document.getElementById('closeHot');
+const entryHot = document.getElementById('entryHot');
+const backHot = document.getElementById('backHot');
+const mapHot = document.getElementById('mapHot');
+const stampHots = Array.from(document.querySelectorAll('.stamp-hot'));
 
-/** @type {'home'|'entry'|'menu'|'mapEmpty'|'mapPrint'|'mapTip'} */
+/** @type {'home'|'menu'|'entry'|'revealed'|'map'|'find'|'camera'} */
 let phase = 'home';
-let selectedQuest = 0;
-let menuOpen = false;
+let quest = 0;
+let finds = 0;
+let stream = null;
+let busy = false;
 let timers = [];
-let fading = false;
 
 function later(fn, ms) {
   const id = setTimeout(fn, ms);
@@ -57,222 +58,273 @@ function later(fn, ms) {
   return id;
 }
 
+function wait(ms) {
+  return new Promise((resolve) => later(resolve, ms));
+}
+
 function clearTimers() {
   timers.forEach(clearTimeout);
   timers = [];
 }
 
-function setHint(text) {
-  hint.textContent = text;
+function setHint(t) {
+  hint.textContent = t;
 }
 
-function triggerHit() {
+function hit() {
   shineEl.classList.remove('is-on');
   void shineEl.offsetWidth;
   shineEl.classList.add('is-on');
 }
 
-function setUnderlay(src) {
-  if (underlay.getAttribute('src') === src || fading) {
-    underlay.src = src;
-    return Promise.resolve();
-  }
-  fading = true;
-  underlay.classList.add('is-fading');
+function flash() {
+  flashEl.classList.remove('is-on');
+  void flashEl.offsetWidth;
+  flashEl.classList.add('is-on');
+}
+
+function showScene(src) {
   return new Promise((resolve) => {
-    later(() => {
-      underlay.src = src;
-      underlay.classList.remove('is-fading');
-      fading = false;
+    if (scene.getAttribute('src') === src) {
       resolve();
-    }, FADE_MS);
+      return;
+    }
+    stage.classList.add('is-fading');
+    later(() => {
+      scene.src = src;
+      stage.classList.remove('is-fading');
+      resolve();
+    }, IN_MS);
   });
 }
 
-function syncHits() {
-  entryHit.hidden = phase !== 'entry';
-  mapCamera.hidden = !(phase === 'mapEmpty' || phase === 'mapPrint' || phase === 'mapTip');
-  mapBack.hidden = !(phase === 'mapEmpty' || phase === 'mapPrint' || phase === 'mapTip');
-  playBtn.disabled = menuOpen || phase === 'mapEmpty' || phase === 'mapPrint' || phase === 'mapTip';
+function syncHots() {
+  phone.dataset.phase = phase;
+  const menu = phase === 'menu';
+  const revealed = phase === 'revealed';
+  const hunting = phase === 'map' || phase === 'find';
+  stampHots.forEach((el) => {
+    el.hidden = !(menu || revealed);
+  });
+  closeHot.hidden = !(menu || revealed);
+  camHot.hidden = !hunting;
+  mapHot.hidden = !hunting;
+  backHot.hidden = !hunting;
+  entryHot.hidden = phase !== 'entry';
+  playBtn.disabled = phase === 'camera' || busy;
+}
+
+function clearFindLayers() {
+  findEl.hidden = true;
+  findEl.classList.remove('is-on');
+  tipEl.hidden = true;
+  tipEl.classList.remove('is-on');
+}
+
+async function goHome() {
+  clearTimers();
+  await stopCamera(false);
+  finds = 0;
+  phase = 'home';
+  clearFindLayers();
+  stage.classList.remove('is-zoomed');
+  await showScene(FRAME.home);
+  syncHots();
+  setHint('Idle — pick a quest, then Play.');
+}
+
+async function openMenu() {
+  if (busy) return;
+  phase = 'menu';
+  finds = 0;
+  clearFindLayers();
+  await showScene(FRAME.menu);
+  syncHots();
+  setHint('Hand stamps — tap one to reveal.');
+}
+
+async function revealStamp(index) {
+  if (phase !== 'menu' || busy) return;
+  busy = true;
+  quest = index;
+  Array.from(picker.children).forEach((c, i) => {
+    c.setAttribute('aria-pressed', i === quest ? 'true' : 'false');
+  });
+  phase = 'revealed';
+  await showScene(FRAME.revealed);
+  hit();
+  busy = false;
+  syncHots();
+  setHint(`${QUESTS[quest].title} revealed — tap its camera.`);
+}
+
+async function enterMap() {
+  if (phase !== 'revealed' || busy) return;
+  busy = true;
+  phase = 'map';
+  finds = 0;
+  clearFindLayers();
+  await showScene(FRAME.map);
+  syncHots();
+  busy = false;
+  setHint('Map hunt — tap the map or the camera.');
+}
+
+async function openCamera() {
+  if ((phase !== 'map' && phase !== 'find') || busy) return;
+  if (finds >= FINDS_NEEDED) return;
+  busy = true;
+  phase = 'camera';
+  syncHots();
+  cameraLabel.textContent = `Find ${finds + 1} of ${FINDS_NEEDED} — then shutter`;
+
+  // Soft zoom into the map find area, then camera settles open.
+  stage.classList.add('is-zoomed');
+  camera.classList.remove('is-closing');
+  camera.classList.add('is-on');
+  camera.setAttribute('aria-hidden', 'false');
+
+  cameraFallback.hidden = true;
+  try {
+    if (!stream) {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false,
+      });
+      cameraVideo.srcObject = stream;
+      await cameraVideo.play();
+    }
+  } catch (err) {
+    cameraFallback.hidden = false;
+  }
+
+  await wait(ZOOM_MS);
+  busy = false;
+  setHint('Camera open — shutter to capture, then zoom out.');
+}
+
+async function stopCamera(animate) {
+  if (animate) {
+    camera.classList.add('is-closing');
+    stage.classList.remove('is-zoomed');
+    await wait(ZOOM_MS);
+  } else {
+    stage.classList.remove('is-zoomed');
+  }
+  camera.classList.remove('is-on', 'is-closing');
+  camera.setAttribute('aria-hidden', 'true');
+  if (stream) {
+    stream.getTracks().forEach((t) => t.stop());
+    stream = null;
+    cameraVideo.srcObject = null;
+  }
+}
+
+async function captureAndSettle() {
+  if (phase !== 'camera' || busy) return;
+  busy = true;
+  finds += 1;
+
+  flash();
+  await wait(FLASH_MS);
+
+  // Zoom out of camera into the map, then soft-settle the find.
+  await stopCamera(true);
+  await showScene(FRAME.map);
+
+  findEl.hidden = false;
+  void findEl.offsetWidth;
+  findEl.classList.add('is-on');
+  phase = 'find';
+
+  await wait(SETTLE_MS);
+  hit();
+
+  if (finds >= FINDS_NEEDED) {
+    setHint('Find settled — tip incoming…');
+    await wait(220);
+    tipEl.hidden = false;
+    void tipEl.offsetWidth;
+    tipEl.classList.add('is-on');
+    await wait(SETTLE_MS);
+    hit();
+    setHint('Done — tip settled. Reset to play again.');
+    busy = false;
+    syncHots();
+    return;
+  }
+
+  setHint(`Find ${finds}/${FINDS_NEEDED} settled — tap map or camera again.`);
+  busy = false;
+  syncHots();
 }
 
 function buildPicker() {
-  questPicker.replaceChildren();
-  QUESTS.forEach((quest, i) => {
+  picker.replaceChildren();
+  QUESTS.forEach((q, i) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'chip';
-    btn.textContent = quest.title;
-    btn.setAttribute('aria-pressed', i === selectedQuest ? 'true' : 'false');
+    btn.textContent = q.title;
+    btn.setAttribute('aria-pressed', i === quest ? 'true' : 'false');
     btn.addEventListener('click', () => {
-      selectedQuest = i;
-      Array.from(questPicker.children).forEach((chip, idx) => {
-        chip.setAttribute('aria-pressed', idx === selectedQuest ? 'true' : 'false');
+      quest = i;
+      Array.from(picker.children).forEach((c, idx) => {
+        c.setAttribute('aria-pressed', idx === quest ? 'true' : 'false');
       });
-      if (menuOpen) paintStamps(false);
-      setHint(`Picked “${quest.title}”. Play opens the menu.`);
+      setHint(`Picked “${q.title}”.`);
     });
-    questPicker.appendChild(btn);
+    picker.appendChild(btn);
   });
 }
 
-function paintStamps(animateIn) {
-  stampsHost.replaceChildren();
-  QUESTS.forEach((quest, index) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'stamp is-hand';
-    btn.dataset.index = String(index);
-    if (index !== selectedQuest) btn.classList.add('is-dim');
+playBtn.addEventListener('click', () => openMenu());
+resetBtn.addEventListener('click', () => goHome());
 
-    const face = document.createElement('img');
-    face.className = 'stamp-face';
-    face.src = 'assets/stamp-card.png?v=3';
-    face.alt = '';
-    face.decoding = 'async';
-    face.draggable = false;
-
-    const reveal = document.createElement('div');
-    reveal.className = 'stamp-reveal';
-    const copy = document.createElement('div');
-    copy.className = 'stamp-copy';
-    const title = document.createElement('p');
-    title.className = 'stamp-title';
-    title.textContent = quest.title;
-    const body = document.createElement('p');
-    body.className = 'stamp-body';
-    body.textContent = quest.body;
-    copy.append(title, body);
-
-    const cam = document.createElement('button');
-    cam.type = 'button';
-    cam.className = 'camera-btn';
-    cam.setAttribute('aria-label', `Camera for ${quest.title}`);
-    cam.textContent = '📷';
-    cam.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      enterMap(index);
-    });
-
-    reveal.append(copy, cam);
-    btn.append(face, reveal);
-
-    btn.addEventListener('click', () => {
-      if (!menuOpen) return;
-      selectedQuest = index;
-      Array.from(questPicker.children).forEach((chip, idx) => {
-        chip.setAttribute('aria-pressed', idx === selectedQuest ? 'true' : 'false');
-      });
-      Array.from(stampsHost.children).forEach((el, idx) => {
-        el.classList.toggle('is-dim', idx !== selectedQuest);
-        if (idx === selectedQuest) revealStamp(el);
-      });
-    });
-
-    stampsHost.appendChild(btn);
-    if (animateIn) {
-      later(() => btn.classList.add('is-in'), SHEET_IN_MS + index * STAMP_STEP_MS);
-    } else {
-      btn.classList.add('is-in');
-    }
-  });
-}
-
-function revealStamp(btn) {
-  if (btn.classList.contains('is-revealed')) return;
-  btn.classList.remove('is-hand');
-  btn.classList.add('is-revealed');
-  triggerHit();
-  setHint('Hand settled — tap the camera to enter the map hunt.');
-}
-
-function openMenu(fromEntry) {
-  clearTimers();
-  menuOpen = true;
-  phase = 'menu';
-  syncHits();
-  setUnderlay(fromEntry ? SCREENS.homeEntry : SCREENS.home);
-  overlay.classList.add('is-open');
-  overlay.setAttribute('aria-hidden', 'false');
-  paintStamps(true);
-  setHint('Hand mode — tap a stamp to reveal, then camera.');
-  later(() => {
-    // Auto-focus picker selection into hand mode path.
-    const target = stampsHost.children[selectedQuest];
-    if (target) target.classList.remove('is-dim');
-  }, SHEET_IN_MS + STAMP_IN_MS);
-}
-
-function closeMenu() {
-  menuOpen = false;
-  overlay.classList.remove('is-open');
-  overlay.setAttribute('aria-hidden', 'true');
+closeHot.addEventListener('click', async () => {
+  if (busy) return;
   phase = 'entry';
-  setUnderlay(SCREENS.homeEntry).then(() => {
-    syncHits();
-    setHint('Closed — entry chip on the dock, or Play again.');
+  clearFindLayers();
+  await showScene(FRAME.entry);
+  syncHots();
+  setHint('Entry chip on the dock — tap it or Play.');
+});
+
+entryHot.addEventListener('click', () => openMenu());
+
+stampHots.forEach((el) => {
+  el.addEventListener('click', () => {
+    const i = Number(el.dataset.stamp);
+    if (phase === 'menu') revealStamp(i);
+    else if (phase === 'revealed') enterMap();
   });
-}
+});
 
-async function enterMap(questIndex) {
-  selectedQuest = questIndex;
-  menuOpen = false;
-  overlay.classList.remove('is-open');
-  overlay.setAttribute('aria-hidden', 'true');
-  phase = 'mapEmpty';
-  triggerHit();
-  await setUnderlay(SCREENS.mapEmpty);
-  syncHits();
-  setHint(`Map hunt — ${QUESTS[questIndex].title}. Tap camera.`);
-}
+camHot.addEventListener('click', () => openCamera());
+mapHot.addEventListener('click', () => openCamera());
 
-async function advanceMap() {
-  if (phase === 'mapEmpty') {
-    phase = 'mapPrint';
-    await setUnderlay(SCREENS.mapPrint);
-    syncHits();
-    setHint('Footprint on the map — camera again.');
-    return;
-  }
-  if (phase === 'mapPrint') {
-    phase = 'mapTip';
-    triggerHit();
-    await setUnderlay(SCREENS.mapTip);
-    syncHits();
-    setHint('Tip mode — what other Challangers found. Reset to restart.');
-    return;
-  }
-}
-
-async function goHomeEntry() {
+backHot.addEventListener('click', async () => {
+  if (busy) return;
   phase = 'entry';
-  menuOpen = false;
-  overlay.classList.remove('is-open');
-  await setUnderlay(SCREENS.homeEntry);
-  syncHits();
-  setHint('Home with side-quest entry — tap the chip or Play.');
-}
+  finds = 0;
+  clearFindLayers();
+  await showScene(FRAME.entry);
+  syncHots();
+  setHint('Back at home entry.');
+});
 
-async function resetAll() {
-  clearTimers();
-  menuOpen = false;
-  phase = 'home';
-  overlay.classList.remove('is-open');
-  overlay.setAttribute('aria-hidden', 'true');
-  shineEl.classList.remove('is-on');
-  await setUnderlay(SCREENS.home);
-  syncHits();
-  setHint('Reset — Play opens Daily Side quests.');
-}
+shutter.addEventListener('click', () => captureAndSettle());
 
-playBtn.addEventListener('click', () => openMenu(false));
-resetBtn.addEventListener('click', () => resetAll());
-closeBtn.addEventListener('click', () => closeMenu());
-dim.addEventListener('click', () => closeMenu());
-entryHit.addEventListener('click', () => openMenu(true));
-mapCamera.addEventListener('click', () => advanceMap());
-mapBack.addEventListener('click', () => goHomeEntry());
+cameraClose.addEventListener('click', async () => {
+  if (busy) return;
+  busy = true;
+  await stopCamera(true);
+  phase = finds > 0 ? 'find' : 'map';
+  syncHots();
+  busy = false;
+  setHint('Camera closed — tap map or camera again.');
+});
 
 buildPicker();
-syncHits();
+syncHots();
 setHint('Idle — pick a quest, then Play.');

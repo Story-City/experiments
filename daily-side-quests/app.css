@@ -3,14 +3,14 @@
   --paper: #f5f2ff;
   --muted: #a8a0b8;
   --accent: #009eff;
-  --sheet: #151b45;
+  --stamp-glow: #b36cfe;
   --in-ms: 380ms;
   --out-ms: 280ms;
-  --stamp-in-ms: 480ms;
-  --reveal-ms: 700ms;
-  --shine-ms: 1100ms;
+  --zoom-ms: 920ms;
+  --settle-ms: 780ms;
+  --shine-ms: 1200ms;
+  --flash-ms: 220ms;
   --phone-radius: 28px;
-  --stamp-step-ms: 140ms;
 }
 
 * { box-sizing: border-box; }
@@ -45,20 +45,20 @@ h1 {
   font-weight: 500;
 }
 
-.lede code,
-.meta code {
-  font-size: 0.92em;
+.meta code,
+.lede code {
   color: #d7d0ff;
+  font-size: 0.92em;
 }
 
 .chips,
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 10px;
   max-width: 390px;
   width: 100%;
+  align-items: center;
 }
 
 .chip {
@@ -110,18 +110,37 @@ h1 {
   position: relative;
   width: min(390px, 100%);
   aspect-ratio: 375 / 814;
-  flex: none;
   overflow: hidden;
   border-radius: var(--phone-radius);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-  background: #170c35;
+  background: #120a28;
 }
 
-.underlay {
+.stage {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  /* Zoom toward the map user-dot / find area (Figma 05–06). */
+  transform-origin: 48% 36%;
+  transition:
+    transform var(--zoom-ms) cubic-bezier(0.22, 0.8, 0.24, 1),
+    opacity var(--in-ms) ease;
+  will-change: transform, opacity;
+}
+
+.stage.is-zoomed {
+  transform: scale(2.45);
+}
+
+.stage.is-fading {
+  opacity: 0;
+}
+
+.scene,
+.find,
+.tip img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -129,79 +148,117 @@ h1 {
   display: block;
   pointer-events: none;
   user-select: none;
-  transition: opacity var(--in-ms) ease-out;
 }
 
-.underlay.is-fading {
+.find {
   opacity: 0;
+  transform: scale(1.06);
+  filter: blur(4px);
+  transition:
+    opacity var(--settle-ms) ease-out,
+    transform var(--settle-ms) cubic-bezier(0.22, 0.8, 0.24, 1),
+    filter var(--settle-ms) ease-out;
+  z-index: 2;
 }
 
-.hit {
+.find.is-on {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+.tip {
   position: absolute;
-  z-index: 8;
+  inset: 0;
+  z-index: 3;
+  opacity: 0;
+  transform: translateY(14px) scale(1.02);
+  filter: blur(3px);
+  transition:
+    opacity var(--settle-ms) ease-out,
+    transform var(--settle-ms) cubic-bezier(0.22, 0.8, 0.24, 1),
+    filter var(--settle-ms) ease-out;
+  pointer-events: none;
+}
+
+.tip.is-on {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+.hot {
+  position: absolute;
+  z-index: 6;
   border: 0;
   padding: 0;
   background: transparent;
   cursor: pointer;
 }
 
-.entry-hit {
-  /* Frame 3 dock chip — right of home bar */
-  right: 4%;
-  bottom: 7.5%;
+/* Frame 02 — three stamp cards */
+.stamp-hot[data-stamp="0"] { left: 9%; right: 9%; top: 36.5%; height: 13.5%; }
+.stamp-hot[data-stamp="1"] { left: 9%; right: 9%; top: 51%; height: 13.5%; }
+.stamp-hot[data-stamp="2"] { left: 9%; right: 9%; top: 65.5%; height: 13.5%; }
+
+/* Frame 04 — camera on right of each revealed stamp */
+.phone[data-phase="revealed"] .stamp-hot[data-stamp="0"] {
+  left: auto; right: 11%; top: 39%; width: 13%; height: 9%;
+}
+.phone[data-phase="revealed"] .stamp-hot[data-stamp="1"] {
+  left: auto; right: 11%; top: 53.5%; width: 13%; height: 9%;
+}
+.phone[data-phase="revealed"] .stamp-hot[data-stamp="2"] {
+  left: auto; right: 11%; top: 68%; width: 13%; height: 9%;
+}
+
+.close-hot {
+  right: 6.5%;
+  top: 12.5%;
+  width: 9%;
+  height: 4.2%;
+}
+
+/* Frame 03 — dock entry chip, right of nav */
+.entry-hot {
+  right: 3%;
+  bottom: 6.5%;
   width: 12%;
   aspect-ratio: 1;
   border-radius: 50%;
 }
 
-.camera-hit {
-  /* Frame 5–7 camera CTA */
-  left: 50%;
-  bottom: 6.5%;
+/* Frame 05 — purple-ring camera on sheet */
+.cam-hot {
+  left: 41%;
+  bottom: 5.2%;
   width: 18%;
   aspect-ratio: 1;
-  transform: translateX(-50%);
   border-radius: 50%;
 }
 
-.back-hit {
+.back-hot {
   left: 2%;
-  top: 5.5%;
-  width: 10%;
-  height: 5%;
+  top: 4.8%;
+  width: 11%;
+  height: 4.8%;
 }
 
-.overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  pointer-events: none;
-}
-
-.overlay.is-open {
-  pointer-events: auto;
-}
-
-.dim {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.57);
-  opacity: 0;
-  transition: opacity var(--out-ms) ease;
-}
-
-.overlay.is-open .dim {
-  opacity: 1;
-  transition: opacity var(--in-ms) ease-out;
+/* Map find area around user dot */
+.map-hot {
+  left: 22%;
+  top: 20%;
+  width: 56%;
+  height: 38%;
 }
 
 .shine {
   position: absolute;
   inset: 0;
+  z-index: 8;
   pointer-events: none;
   opacity: 0;
-  z-index: 9;
-  background: radial-gradient(70% 36% at 50% 28%, rgba(255, 255, 255, 0.28), transparent 68%);
+  background: radial-gradient(70% 36% at 50% 30%, rgba(255, 255, 255, 0.32), transparent 68%);
 }
 
 .shine.is-on {
@@ -215,221 +272,127 @@ h1 {
   100% { opacity: 0; }
 }
 
-.sheet {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: calc(355 / 375 * 100%);
-  height: calc(622 / 814 * 100%);
-  transform: translate(-50%, calc(-50% + 16px));
-  border-radius: 20px;
-  border: 1px solid var(--accent);
-  background: var(--sheet);
-  overflow: hidden;
-  box-shadow: 0 19px 29px rgba(0, 0, 0, 0.18);
-  opacity: 0;
-  transition: opacity var(--out-ms) ease, transform var(--out-ms) ease;
-}
-
-.overlay.is-open .sheet {
-  opacity: 1;
-  transform: translate(-50%, -50%);
-  transition: opacity var(--in-ms) ease-out, transform var(--in-ms) ease-out;
-}
-
-.hero {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 38%;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.hero-img {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  top: 0;
-  /* Crop the Figma modal hero out of frame 02 */
-  height: auto;
-  transform: scale(1.02);
-  transform-origin: top center;
-  clip-path: inset(8% 3% 55% 3%);
-  margin-top: -8%;
-}
-
-.hero::after {
-  content: "";
+.flash {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(21, 27, 69, 0) 40%, var(--sheet) 92%);
-}
-
-.close {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  z-index: 4;
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-}
-
-.title {
-  position: relative;
-  z-index: 2;
-  margin: 14% 6% 0;
-  font-size: 24px;
-  line-height: 20px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.subtitle {
-  position: relative;
-  z-index: 2;
-  margin: 10px 6% 0;
-  font-family: "Libre Baskerville", "Times New Roman", serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #fff;
-}
-
-.stamps {
-  position: absolute;
-  left: 4%;
-  right: 4%;
-  top: 27%;
-  bottom: 3%;
-  display: flex;
-  flex-direction: column;
-  gap: 3.5%;
-  z-index: 3;
-}
-
-.stamp {
-  position: relative;
-  flex: 1 1 0;
-  min-height: 0;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
+  z-index: 12;
+  pointer-events: none;
   opacity: 0;
-  transform: translateY(12px);
-  filter: blur(1.5px);
-  transition:
-    opacity var(--stamp-in-ms) ease-out,
-    transform var(--stamp-in-ms) ease-out,
-    filter var(--stamp-in-ms) ease-out;
+  background: #fff;
 }
 
-.overlay.is-open .stamp.is-in {
+.flash.is-on {
+  animation: shutterFlash var(--flash-ms) ease-out forwards;
+}
+
+@keyframes shutterFlash {
+  0% { opacity: 0; }
+  20% { opacity: 0.92; }
+  100% { opacity: 0; }
+}
+
+.camera {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: #05020c;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.88);
+  filter: blur(5px);
+  transition:
+    opacity var(--in-ms) ease-out,
+    transform var(--zoom-ms) cubic-bezier(0.22, 0.8, 0.24, 1),
+    filter var(--zoom-ms) ease-out;
+}
+
+.camera.is-on {
   opacity: 1;
-  transform: translateY(0);
+  pointer-events: auto;
+  transform: scale(1);
   filter: blur(0);
 }
 
-.stamp.is-dim {
-  opacity: 0.38;
+.camera.is-closing {
+  opacity: 0;
+  transform: scale(0.52);
+  filter: blur(3px);
 }
 
-.stamp-face {
+.camera-video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  display: block;
-  pointer-events: none;
-  transition: opacity 260ms ease, transform 260ms ease;
+  object-fit: cover;
+  background: #120a28;
 }
 
-.stamp.is-hand .stamp-face {
-  animation: handBob 3.24s linear infinite;
-}
-
-@keyframes handBob {
-  0%, 18%, 78%, 100% { transform: translateY(0) rotate(0deg); }
-  30% { transform: translateY(4px) rotate(2deg); }
-  50% { transform: translateY(-2px) rotate(-1deg); }
-  65% { transform: translateY(3px) rotate(1.5deg); }
-}
-
-.stamp.is-revealed .stamp-face {
-  opacity: 0;
-  transform: scale(0.96);
-  animation: none;
-}
-
-.stamp-reveal {
+.camera-fallback {
   position: absolute;
-  inset: 8% 4%;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 8px;
-  padding: 0 6% 0 8%;
-  opacity: 0;
-  transform: translateY(10px);
-  filter: blur(2px);
-  pointer-events: none;
-  transition:
-    opacity var(--reveal-ms) ease-out,
-    transform var(--reveal-ms) ease-out,
-    filter var(--reveal-ms) ease-out;
-}
-
-.stamp.is-revealed .stamp-reveal {
-  opacity: 1;
-  transform: translateY(0);
-  filter: blur(0);
-  pointer-events: auto;
-}
-
-.stamp-copy {
-  text-align: left;
-}
-
-.stamp-title {
-  margin: 0;
-  font-size: 18px;
-  line-height: 20px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.stamp-body {
-  margin: 6px 0 0;
-  font-family: "Libre Baskerville", "Times New Roman", serif;
-  font-size: 11px;
-  line-height: 13px;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.camera-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background:
-    radial-gradient(circle at 50% 40%, rgba(0, 158, 255, 0.35), transparent 70%),
-    linear-gradient(180deg, #160d34 22%, #112e63 66%);
-  box-shadow: 0 0 16px rgba(0, 158, 255, 0.45);
-  color: #fff;
-  font-size: 18px;
-  cursor: pointer;
+  inset: 0;
   display: grid;
   place-items: center;
-  padding: 0;
+  padding: 28px;
+  text-align: center;
+  color: rgba(245, 242, 255, 0.88);
+  background:
+    radial-gradient(60% 40% at 50% 40%, rgba(179, 108, 254, 0.28), transparent 70%),
+    #120a28;
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.camera-haze {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(90% 42% at 50% 12%, rgba(0, 158, 255, 0.14), transparent 70%),
+    linear-gradient(180deg, rgba(8, 3, 22, 0.45), transparent 22%, transparent 70%, rgba(8, 3, 22, 0.62));
+  box-shadow: inset 0 0 90px rgba(179, 108, 254, 0.28);
+}
+
+.camera-label {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 16%;
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+}
+
+/* Same purple-ring shutter placement as Figma map camera */
+.shutter {
+  position: absolute;
+  left: 41%;
+  bottom: 5.2%;
+  width: 18%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 4px solid rgba(179, 108, 254, 0.95);
+  background: #fff;
+  box-shadow: 0 0 24px rgba(179, 108, 254, 0.55);
+  cursor: pointer;
+}
+
+.camera-close {
+  position: absolute;
+  top: 5.5%;
+  right: 4.5%;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .meta {

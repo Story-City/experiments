@@ -1,9 +1,9 @@
 [
   {
     "slug": "daily-side-quests",
-    "path": "daily-side-quests/?v=3",
+    "path": "daily-side-quests/?v=4",
     "title": "Daily Side Quests",
-    "what": "Interactive: Play + quest picker, hand-stamp menu, camera into map hunt frames 5–7.",
+    "what": "Functional: stamp menu → map → real camera zoom-in → shutter zoom-out settle finds/tip.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
