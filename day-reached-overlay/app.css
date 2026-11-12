@@ -16,7 +16,7 @@
   --streak-zoom: 1.12;
   --phone-radius: 28px;
   /* Room above the phone chrome so the Lottie bloom is not clipped. */
-  --overlay-headroom: 56px;
+  --overlay-headroom: 72px;
 }
 
 * { box-sizing: border-box; }
@@ -120,23 +120,12 @@ h1 {
   flex: none;
   overflow: visible;
   background: transparent;
-  /* Radius only on underlay-clip / haze — radius on this box can clip overlay paint. */
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-}
-
-.underlay-clip {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: var(--phone-radius);
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #170c35;
 }
 
 .underlay {
   position: absolute;
   inset: 0;
+  z-index: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -144,6 +133,10 @@ h1 {
   display: block;
   pointer-events: none;
   user-select: none;
+  border-radius: var(--phone-radius);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #170c35;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
 .overlay {
@@ -287,7 +280,8 @@ h1 {
   font-family: "Darker Grotesque", system-ui, sans-serif;
   font-weight: 800;
   line-height: 1;
-  overflow: hidden;
+  /* visible — overflow:hidden clipped the today bead bloom at the apex. */
+  overflow: visible;
 }
 
 .bead.is-complete {

@@ -8,15 +8,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=13">
+<link rel="stylesheet" href="app.css?v=14">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Day reached overlay</h1>
     <p class="lede">
-      Staging underlays + Training Hub Lottie. No size-containment clip at the top;
-      Lottie preloaded and reused so the play does not jump.
+      Staging underlays + Training Hub Lottie. No overflow:hidden phone wrapper;
+      arc-only side fade; preloaded Lottie; overlay headroom for the bloom.
     </p>
   </header>
 
@@ -32,17 +32,16 @@
   </div>
 
   <main class="phone" id="phone" data-surface="adventure" aria-label="Day-reached overlay preview">
-    <div class="underlay-clip">
-      <img
-        class="underlay"
-        id="underlay"
-        src="underlays/adventure.jpg?v=13"
-        alt="Story City staging — adventure mode picker"
-        width="1080"
-        height="2400"
-        decoding="async"
-      >
-    </div>
+    <!-- Img rounds itself — no overflow:hidden ancestor (that clipped the Lottie bloom). -->
+    <img
+      class="underlay"
+      id="underlay"
+      src="underlays/adventure.jpg?v=14"
+      alt="Story City staging — adventure mode picker"
+      width="1080"
+      height="2400"
+      decoding="async"
+    >
 
     <div class="overlay" id="overlay" aria-hidden="true">
       <div class="play-layer" id="playLayer">
@@ -50,7 +49,6 @@
         <div class="streak" id="streak">
           <div class="band" id="band">
             <div class="graphic" id="graphic">
-              <!-- Mask only the arc — never wrap Lottie (mask clips to the box and cut the top). -->
               <div class="arc-fade" aria-hidden="true">
                 <svg class="arc" id="arc" viewBox="-34 -34 410 242.44921875"></svg>
               </div>
@@ -73,6 +71,6 @@
   </p>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>
