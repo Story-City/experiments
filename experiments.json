@@ -1,9 +1,9 @@
 [
   {
     "slug": "daily-side-quests",
-    "path": "daily-side-quests/?v=2",
+    "path": "daily-side-quests/?v=3",
     "title": "Daily Side Quests",
-    "what": "Full Figma row from 5872:391583 rightward — 7 frames (home → stamps → map hunt), soft step-through.",
+    "what": "Interactive: Play + quest picker, hand-stamp menu, camera into map hunt frames 5–7.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

@@ -4,38 +4,60 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Daily Side Quests — full flow</title>
+<title>Daily Side Quests — interactive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=2">
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=3">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Daily Side Quests</h1>
     <p class="lede">
-      Full Figma row from <code>5872:391583</code> rightward — seven frames, no invented UI.
+      Interactive Figma flow: Play opens the menu, pick a quest, hand-stamp reveal, camera into map hunt.
     </p>
   </header>
 
-  <div class="chips" id="chips" role="tablist" aria-label="Frame"></div>
+  <div class="chips" role="radiogroup" aria-label="Quest picker" id="questPicker"></div>
 
   <div class="toolbar">
-    <button type="button" class="play" id="prev">Back</button>
-    <button type="button" class="play" id="next">Next frame</button>
-    <span class="hint" id="hint"></span>
+    <button type="button" class="play" id="play">Play</button>
+    <button type="button" class="play secondary" id="reset">Reset</button>
+    <span class="hint" id="hint">Idle — Play opens Daily Side quests.</span>
   </div>
 
-  <main class="phone" id="phone" aria-label="Side quest prototype flow">
-    <img class="frame" id="frame" src="assets/flow/01.png?v=2" alt="" width="375" height="814" decoding="async">
-    <div class="shine" id="shine" aria-hidden="true"></div>
+  <main class="phone" id="phone" aria-label="Side quest interactive preview">
+    <img class="underlay" id="underlay" src="assets/flow/01.png?v=3" alt="" width="375" height="814" decoding="async">
+
+    <!-- Frame 3: side-quest entry on the dock -->
+    <button type="button" class="hit entry-hit" id="entryHit" aria-label="Open side quests" hidden></button>
+
+    <div class="overlay" id="overlay" aria-hidden="true">
+      <div class="dim" id="dim"></div>
+      <div class="shine" id="shine" aria-hidden="true"></div>
+      <section class="sheet" id="sheet" role="dialog" aria-labelledby="sheetTitle" aria-modal="true">
+        <div class="hero" aria-hidden="true">
+          <img class="hero-img" src="assets/flow/02.png?v=3" alt="" decoding="async">
+        </div>
+        <button type="button" class="close" id="close" aria-label="Close">
+          <img src="assets/close.svg?v=3" alt="" width="14" height="14">
+        </button>
+        <h2 class="title" id="sheetTitle">Daily Side quests</h2>
+        <p class="subtitle">Complete goals faster with a side quest of the day!</p>
+        <div class="stamps" id="stamps"></div>
+      </section>
+    </div>
+
+    <!-- Map hunt chrome hits (frames 5–7) -->
+    <button type="button" class="hit camera-hit" id="mapCamera" aria-label="Take photo" hidden></button>
+    <button type="button" class="hit back-hit" id="mapBack" aria-label="Back" hidden></button>
   </main>
 
   <p class="meta">
-    Source frames listed in <code>SOURCE.md</code>. Tap Next or a chip to step the prototype.
+    Frames <code>5872:391583</code> → right. Picker chooses the quest path; Play / entry chip open the menu.
   </p>
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

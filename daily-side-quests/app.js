@@ -1,64 +1,70 @@
-// Figma row from 5872:391583 rightward — see SOURCE.md.
-const FRAMES = [
+// Quests + flow from Figma row 5872:391583 → right. See SOURCE.md.
+const QUESTS = [
   {
-    src: 'assets/flow/01.png?v=2',
-    label: '1 · Home',
-    hint: 'Explore home — start of the row.',
-    node: '5872:391583',
+    id: 'whimsy',
+    title: 'A Whimsy walk',
+    body: 'Find 3 animalistic pattern near you and share them with your local community',
   },
   {
-    src: 'assets/flow/02.png?v=2',
-    label: '2 · Quests closed',
-    hint: 'Daily Side quests — stamps unrevealed.',
-    node: '5872:390209',
-    hit: true,
+    id: 'noticed',
+    title: 'Have you noticed...',
+    body: 'Find 3 animalistic pattern near you and share them with your local community',
   },
   {
-    src: 'assets/flow/03.png?v=2',
-    label: '3 · Entry chip',
-    hint: 'Home with side-quest entry on the dock.',
-    node: '5872:390968',
-  },
-  {
-    src: 'assets/flow/04.png?v=2',
-    label: '4 · Revealed',
-    hint: 'Stamps revealed — camera on each quest.',
-    node: '5872:392959',
-    hit: true,
-  },
-  {
-    src: 'assets/flow/05.png?v=2',
-    label: '5 · Map hunt',
-    hint: 'A Whimsy Walk map — Debug destination sheet.',
-    node: '5897:281964',
-  },
-  {
-    src: 'assets/flow/06.png?v=2',
-    label: '6 · Footprint',
-    hint: 'Footprint card on the map.',
-    node: '5897:281965',
-  },
-  {
-    src: 'assets/flow/07.png?v=2',
-    label: '7 · Tip',
-    hint: 'Character tip — see what other Challangers found.',
-    node: '5897:281966',
-    hit: true,
+    id: 'memory',
+    title: 'Fond memory',
+    body: 'Share a memory of a one place that you find special',
   },
 ];
 
-const FADE_MS = 420;
+const SCREENS = {
+  home: 'assets/flow/01.png?v=3',
+  homeEntry: 'assets/flow/03.png?v=3',
+  mapEmpty: 'assets/flow/05.png?v=3',
+  mapPrint: 'assets/flow/06.png?v=3',
+  mapTip: 'assets/flow/07.png?v=3',
+};
 
-const frameEl = document.getElementById('frame');
-const chips = document.getElementById('chips');
-const hint = document.getElementById('hint');
-const prevBtn = document.getElementById('prev');
-const nextBtn = document.getElementById('next');
+const SHEET_IN_MS = 380;
+const STAMP_STEP_MS = 140;
+const STAMP_IN_MS = 480;
+const FADE_MS = 320;
+
+const underlay = document.getElementById('underlay');
+const overlay = document.getElementById('overlay');
+const stampsHost = document.getElementById('stamps');
+const playBtn = document.getElementById('play');
+const resetBtn = document.getElementById('reset');
+const closeBtn = document.getElementById('close');
+const dim = document.getElementById('dim');
 const shineEl = document.getElementById('shine');
-const phone = document.getElementById('phone');
+const hint = document.getElementById('hint');
+const questPicker = document.getElementById('questPicker');
+const entryHit = document.getElementById('entryHit');
+const mapCamera = document.getElementById('mapCamera');
+const mapBack = document.getElementById('mapBack');
 
-let index = 0;
-let busy = false;
+/** @type {'home'|'entry'|'menu'|'mapEmpty'|'mapPrint'|'mapTip'} */
+let phase = 'home';
+let selectedQuest = 0;
+let menuOpen = false;
+let timers = [];
+let fading = false;
+
+function later(fn, ms) {
+  const id = setTimeout(fn, ms);
+  timers.push(id);
+  return id;
+}
+
+function clearTimers() {
+  timers.forEach(clearTimeout);
+  timers = [];
+}
+
+function setHint(text) {
+  hint.textContent = text;
+}
 
 function triggerHit() {
   shineEl.classList.remove('is-on');
@@ -66,52 +72,207 @@ function triggerHit() {
   shineEl.classList.add('is-on');
 }
 
-function renderChips() {
-  chips.replaceChildren();
-  FRAMES.forEach((frame, i) => {
+function setUnderlay(src) {
+  if (underlay.getAttribute('src') === src || fading) {
+    underlay.src = src;
+    return Promise.resolve();
+  }
+  fading = true;
+  underlay.classList.add('is-fading');
+  return new Promise((resolve) => {
+    later(() => {
+      underlay.src = src;
+      underlay.classList.remove('is-fading');
+      fading = false;
+      resolve();
+    }, FADE_MS);
+  });
+}
+
+function syncHits() {
+  entryHit.hidden = phase !== 'entry';
+  mapCamera.hidden = !(phase === 'mapEmpty' || phase === 'mapPrint' || phase === 'mapTip');
+  mapBack.hidden = !(phase === 'mapEmpty' || phase === 'mapPrint' || phase === 'mapTip');
+  playBtn.disabled = menuOpen || phase === 'mapEmpty' || phase === 'mapPrint' || phase === 'mapTip';
+}
+
+function buildPicker() {
+  questPicker.replaceChildren();
+  QUESTS.forEach((quest, i) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'chip';
-    btn.textContent = frame.label;
-    btn.setAttribute('aria-pressed', i === index ? 'true' : 'false');
-    btn.addEventListener('click', () => goTo(i));
-    chips.appendChild(btn);
+    btn.textContent = quest.title;
+    btn.setAttribute('aria-pressed', i === selectedQuest ? 'true' : 'false');
+    btn.addEventListener('click', () => {
+      selectedQuest = i;
+      Array.from(questPicker.children).forEach((chip, idx) => {
+        chip.setAttribute('aria-pressed', idx === selectedQuest ? 'true' : 'false');
+      });
+      if (menuOpen) paintStamps(false);
+      setHint(`Picked “${quest.title}”. Play opens the menu.`);
+    });
+    questPicker.appendChild(btn);
   });
 }
 
-function syncChrome() {
-  const frame = FRAMES[index];
-  hint.textContent = `${frame.hint} (${frame.node})`;
-  prevBtn.disabled = index === 0 || busy;
-  nextBtn.disabled = index === FRAMES.length - 1 || busy;
-  Array.from(chips.children).forEach((chip, i) => {
-    chip.setAttribute('aria-pressed', i === index ? 'true' : 'false');
+function paintStamps(animateIn) {
+  stampsHost.replaceChildren();
+  QUESTS.forEach((quest, index) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'stamp is-hand';
+    btn.dataset.index = String(index);
+    if (index !== selectedQuest) btn.classList.add('is-dim');
+
+    const face = document.createElement('img');
+    face.className = 'stamp-face';
+    face.src = 'assets/stamp-card.png?v=3';
+    face.alt = '';
+    face.decoding = 'async';
+    face.draggable = false;
+
+    const reveal = document.createElement('div');
+    reveal.className = 'stamp-reveal';
+    const copy = document.createElement('div');
+    copy.className = 'stamp-copy';
+    const title = document.createElement('p');
+    title.className = 'stamp-title';
+    title.textContent = quest.title;
+    const body = document.createElement('p');
+    body.className = 'stamp-body';
+    body.textContent = quest.body;
+    copy.append(title, body);
+
+    const cam = document.createElement('button');
+    cam.type = 'button';
+    cam.className = 'camera-btn';
+    cam.setAttribute('aria-label', `Camera for ${quest.title}`);
+    cam.textContent = '📷';
+    cam.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      enterMap(index);
+    });
+
+    reveal.append(copy, cam);
+    btn.append(face, reveal);
+
+    btn.addEventListener('click', () => {
+      if (!menuOpen) return;
+      selectedQuest = index;
+      Array.from(questPicker.children).forEach((chip, idx) => {
+        chip.setAttribute('aria-pressed', idx === selectedQuest ? 'true' : 'false');
+      });
+      Array.from(stampsHost.children).forEach((el, idx) => {
+        el.classList.toggle('is-dim', idx !== selectedQuest);
+        if (idx === selectedQuest) revealStamp(el);
+      });
+    });
+
+    stampsHost.appendChild(btn);
+    if (animateIn) {
+      later(() => btn.classList.add('is-in'), SHEET_IN_MS + index * STAMP_STEP_MS);
+    } else {
+      btn.classList.add('is-in');
+    }
   });
 }
 
-function goTo(next) {
-  if (busy || next === index || next < 0 || next >= FRAMES.length) return;
-  busy = true;
-  syncChrome();
-  frameEl.classList.add('is-fading');
-  window.setTimeout(() => {
-    index = next;
-    const frame = FRAMES[index];
-    frameEl.src = frame.src;
-    frameEl.alt = frame.label;
-    frameEl.classList.remove('is-fading');
-    if (frame.hit) triggerHit();
-    busy = false;
-    syncChrome();
-  }, FADE_MS);
+function revealStamp(btn) {
+  if (btn.classList.contains('is-revealed')) return;
+  btn.classList.remove('is-hand');
+  btn.classList.add('is-revealed');
+  triggerHit();
+  setHint('Hand settled — tap the camera to enter the map hunt.');
 }
 
-prevBtn.addEventListener('click', () => goTo(index - 1));
-nextBtn.addEventListener('click', () => goTo(index + 1));
-phone.addEventListener('click', () => {
-  if (index < FRAMES.length - 1) goTo(index + 1);
-});
+function openMenu(fromEntry) {
+  clearTimers();
+  menuOpen = true;
+  phase = 'menu';
+  syncHits();
+  setUnderlay(fromEntry ? SCREENS.homeEntry : SCREENS.home);
+  overlay.classList.add('is-open');
+  overlay.setAttribute('aria-hidden', 'false');
+  paintStamps(true);
+  setHint('Hand mode — tap a stamp to reveal, then camera.');
+  later(() => {
+    // Auto-focus picker selection into hand mode path.
+    const target = stampsHost.children[selectedQuest];
+    if (target) target.classList.remove('is-dim');
+  }, SHEET_IN_MS + STAMP_IN_MS);
+}
 
-renderChips();
-syncChrome();
-frameEl.alt = FRAMES[0].label;
+function closeMenu() {
+  menuOpen = false;
+  overlay.classList.remove('is-open');
+  overlay.setAttribute('aria-hidden', 'true');
+  phase = 'entry';
+  setUnderlay(SCREENS.homeEntry).then(() => {
+    syncHits();
+    setHint('Closed — entry chip on the dock, or Play again.');
+  });
+}
+
+async function enterMap(questIndex) {
+  selectedQuest = questIndex;
+  menuOpen = false;
+  overlay.classList.remove('is-open');
+  overlay.setAttribute('aria-hidden', 'true');
+  phase = 'mapEmpty';
+  triggerHit();
+  await setUnderlay(SCREENS.mapEmpty);
+  syncHits();
+  setHint(`Map hunt — ${QUESTS[questIndex].title}. Tap camera.`);
+}
+
+async function advanceMap() {
+  if (phase === 'mapEmpty') {
+    phase = 'mapPrint';
+    await setUnderlay(SCREENS.mapPrint);
+    syncHits();
+    setHint('Footprint on the map — camera again.');
+    return;
+  }
+  if (phase === 'mapPrint') {
+    phase = 'mapTip';
+    triggerHit();
+    await setUnderlay(SCREENS.mapTip);
+    syncHits();
+    setHint('Tip mode — what other Challangers found. Reset to restart.');
+    return;
+  }
+}
+
+async function goHomeEntry() {
+  phase = 'entry';
+  menuOpen = false;
+  overlay.classList.remove('is-open');
+  await setUnderlay(SCREENS.homeEntry);
+  syncHits();
+  setHint('Home with side-quest entry — tap the chip or Play.');
+}
+
+async function resetAll() {
+  clearTimers();
+  menuOpen = false;
+  phase = 'home';
+  overlay.classList.remove('is-open');
+  overlay.setAttribute('aria-hidden', 'true');
+  shineEl.classList.remove('is-on');
+  await setUnderlay(SCREENS.home);
+  syncHits();
+  setHint('Reset — Play opens Daily Side quests.');
+}
+
+playBtn.addEventListener('click', () => openMenu(false));
+resetBtn.addEventListener('click', () => resetAll());
+closeBtn.addEventListener('click', () => closeMenu());
+dim.addEventListener('click', () => closeMenu());
+entryHit.addEventListener('click', () => openMenu(true));
+mapCamera.addEventListener('click', () => advanceMap());
+mapBack.addEventListener('click', () => goHomeEntry());
+
+buildPicker();
+syncHits();
+setHint('Idle — pick a quest, then Play.');
