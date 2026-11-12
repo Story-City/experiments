@@ -41,17 +41,13 @@ const DAY_REACHED_SETTLE_CENTER_X = 1010.3;
 const DAY_REACHED_SETTLE_CENTER_Y = 527.1;
 const DAY_REACHED_SETTLE_DIAMETER = 882.3;
 const DAY_REACHED_LOTTIE_CENTER_DIVISOR = 2;
-// Hub math matches settle diameter to the bead — that puts the composition’s top
-// edge ~flush with the bead and makes the bloom look hard-cut. Oversize the
-// play so the frame top clears the bead; bead takes over on settle.
-const DAY_REACHED_PLAY_OVERSIZE = 1.35;
 const DAY_REACHED_BEAD_REVEAL_MS = 280;
 const HAZE_IN_MS = 160;
 const HOLD_READABLE_MS = 1900;
 const HAZE_OUT_MS = 380;
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=19';
+const UNDERLAY_CACHE = 'v=20';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -94,8 +90,8 @@ function dayReachedLottieLayout(scale) {
   const today = FIGMA_BEADS[TODAY_BEAD_INDEX];
   const centerX = (today.left + today.size / DAY_REACHED_LOTTIE_CENTER_DIVISOR) * scale;
   const centerY = (today.top + today.size / DAY_REACHED_LOTTIE_CENTER_DIVISOR) * scale;
-  const compScale =
-    (today.size * scale * DAY_REACHED_PLAY_OVERSIZE) / DAY_REACHED_SETTLE_DIAMETER;
+  // Hub: settle diameter maps 1:1 onto the today bead.
+  const compScale = (today.size * scale) / DAY_REACHED_SETTLE_DIAMETER;
   return {
     width: DAY_REACHED_LOTTIE_WIDTH * compScale,
     height: DAY_REACHED_LOTTIE_HEIGHT * compScale,
@@ -175,7 +171,7 @@ function layoutBeads() {
     const el = document.createElement('div');
     el.className = 'bead';
     if (index < TODAY_BEAD_INDEX) el.classList.add('is-complete');
-    if (index === TODAY_BEAD_INDEX) el.classList.add('is-today', 'is-complete');
+    if (index === TODAY_BEAD_INDEX) el.classList.add('is-today');
     if (SIDE_FAR_INDEXES.has(index)) el.classList.add('is-side-far');
     if (SIDE_NEAR_INDEXES.has(index)) el.classList.add('is-side-near');
     el.style.left = `${spec.left * scale}px`;
@@ -191,11 +187,12 @@ function layoutBeads() {
   return scale;
 }
 
-function setTodayFace(awaitingLottie) {
+function setTodayFace(visible) {
   const todayEl = beadsHost.children[TODAY_BEAD_INDEX];
   if (!todayEl) return;
-  todayEl.classList.add('is-complete', 'is-today');
-  todayEl.classList.toggle('is-awaiting-lottie', awaitingLottie);
+  todayEl.classList.add('is-today');
+  todayEl.classList.toggle('is-complete', visible);
+  todayEl.classList.toggle('is-hidden-face', !visible);
 }
 
 function placeLottie(scale) {
@@ -276,7 +273,7 @@ function beginDissolve() {
 function onLottieDone() {
   if (lottieFinished || !playing) return;
   lottieFinished = true;
-  setTodayFace(false);
+  setTodayFace(true);
   // Drop the Lottie frame immediately — bead is the settle target.
   stopAnimAtStart();
   lottieHost.style.opacity = '0';
@@ -305,7 +302,7 @@ async function playDayReached() {
 
   buildArc();
   const scale = layoutBeads();
-  setTodayFace(true);
+  setTodayFace(false);
   placeLottie(scale);
 
   try {
