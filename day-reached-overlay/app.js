@@ -50,17 +50,18 @@ const HOLD_READABLE_MS = SHINE_MS + HOLD_AFTER_SHINE_MS;
 const HAZE_OUT_MS = 650;
 const STREAK_COUNT = 3;
 
+const UNDERLAY_CACHE = 'v=6';
 const UNDERLAYS = {
   adventure: {
-    src: 'underlays/adventure.jpg',
+    src: `underlays/adventure.jpg?${UNDERLAY_CACHE}`,
     alt: 'Story City staging — adventure mode picker',
   },
   audio: {
-    src: 'underlays/audio.jpg',
+    src: `underlays/audio.jpg?${UNDERLAY_CACHE}`,
     alt: 'Story City staging — tap to play audio',
   },
   reader: {
-    src: 'underlays/reader.jpg',
+    src: `underlays/reader.jpg?${UNDERLAY_CACHE}`,
     alt: 'Story City staging — reader text with Carry on',
   },
 };
