@@ -14,7 +14,7 @@
   --in-ms: 200ms;
   --out-ms: 420ms;
   --shine-ms: 1400ms;
-  --streak-zoom: 1.48;
+  --streak-zoom: 1.28;
 }
 
 * { box-sizing: border-box; }
@@ -190,39 +190,31 @@ h1 {
   overflow: visible;
 }
 
-/* Strong side fade — outer beads drop away; center Lottie stays clear. */
+/* Soft side fade — outer beads whisper; center Lottie stays fully clear. */
 .band {
   width: 100%;
   overflow: visible;
   -webkit-mask-image: linear-gradient(
     90deg,
-    transparent 0%,
-    transparent 6%,
-    rgba(0, 0, 0, 0.12) 16%,
-    rgba(0, 0, 0, 0.4) 26%,
-    rgba(0, 0, 0, 0.85) 36%,
-    #000 44%,
-    #000 56%,
-    rgba(0, 0, 0, 0.85) 64%,
-    rgba(0, 0, 0, 0.4) 74%,
-    rgba(0, 0, 0, 0.12) 84%,
-    transparent 94%,
-    transparent 100%
+    rgba(0, 0, 0, 0.18) 0%,
+    rgba(0, 0, 0, 0.4) 10%,
+    rgba(0, 0, 0, 0.75) 20%,
+    #000 30%,
+    #000 70%,
+    rgba(0, 0, 0, 0.75) 80%,
+    rgba(0, 0, 0, 0.4) 90%,
+    rgba(0, 0, 0, 0.18) 100%
   );
   mask-image: linear-gradient(
     90deg,
-    transparent 0%,
-    transparent 6%,
-    rgba(0, 0, 0, 0.12) 16%,
-    rgba(0, 0, 0, 0.4) 26%,
-    rgba(0, 0, 0, 0.85) 36%,
-    #000 44%,
-    #000 56%,
-    rgba(0, 0, 0, 0.85) 64%,
-    rgba(0, 0, 0, 0.4) 74%,
-    rgba(0, 0, 0, 0.12) 84%,
-    transparent 94%,
-    transparent 100%
+    rgba(0, 0, 0, 0.18) 0%,
+    rgba(0, 0, 0, 0.4) 10%,
+    rgba(0, 0, 0, 0.75) 20%,
+    #000 30%,
+    #000 70%,
+    rgba(0, 0, 0, 0.75) 80%,
+    rgba(0, 0, 0, 0.4) 90%,
+    rgba(0, 0, 0, 0.18) 100%
   );
 }
 
@@ -280,16 +272,26 @@ h1 {
     0 0 20px rgba(0, 158, 255, 0.7);
 }
 
-.bead.is-hidden-face {
-  opacity: 0;
+/* During Lottie: clear the bead fill so the anim reads, keep today’s weekday label. */
+.bead.is-awaiting-lottie {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.bead.is-awaiting-lottie span {
+  opacity: 1;
+  color: #fff;
+  text-shadow: 0 1px 10px rgba(8, 3, 22, 0.95), 0 0 12px rgba(0, 158, 255, 0.55);
+  z-index: 8;
 }
 
 .bead.is-side-far {
-  opacity: 0.28;
+  opacity: 0.42;
 }
 
 .bead.is-side-near {
-  opacity: 0.55;
+  opacity: 0.72;
 }
 
 .bead span {

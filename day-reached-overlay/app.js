@@ -49,7 +49,7 @@ const HOLD_READABLE_MS = SHINE_MS + HOLD_AFTER_SHINE_MS;
 const HAZE_OUT_MS = 380;
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=8';
+const UNDERLAY_CACHE = 'v=9';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -197,12 +197,13 @@ function layoutBeads() {
   return scale;
 }
 
-function setTodayFace(hide, shiny) {
+function setTodayFace(awaitingLottie, shiny) {
   const todayEl = beadsHost.children[TODAY_BEAD_INDEX];
   if (!todayEl) return;
-  todayEl.classList.toggle('is-hidden-face', hide);
-  todayEl.classList.toggle('is-complete', !hide);
-  todayEl.classList.toggle('is-shiny', !hide && shiny);
+  // Keep the weekday label visible through the play — only the fill yields to Lottie.
+  todayEl.classList.toggle('is-awaiting-lottie', awaitingLottie);
+  todayEl.classList.toggle('is-complete', !awaitingLottie);
+  todayEl.classList.toggle('is-shiny', !awaitingLottie && shiny);
 }
 
 function placeLottie(scale) {
