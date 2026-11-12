@@ -1,6 +1,10 @@
 // Mirrored from suite-city feature/SC-3526-training-hub
 // TrainingHubStreakBannerStyles + useTrainingHubStreakBanner weekdayLabel.
 const FIGMA_FRAME_WIDTH = 375;
+const FIGMA_FRAME_HEIGHT = 197;
+// Push hub geometry down so today’s bloom isn’t flush with the frame top.
+const FIGMA_Y_PAD = 52;
+const FIGMA_FRAME_HEIGHT_PADDED = FIGMA_FRAME_HEIGHT + FIGMA_Y_PAD;
 const BEAD_SMALL_SIZE = 30;
 const BEAD_CURRENT_SIZE = 54;
 const BEAD_SMALL_LABEL = 12;
@@ -53,7 +57,7 @@ const HOLD_READABLE_MS = SHINE_MS + HOLD_AFTER_SHINE_MS;
 const HAZE_OUT_MS = 380;
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=17';
+const UNDERLAY_CACHE = 'v=18';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -95,7 +99,8 @@ function weekdayLabel(dateStr) {
 function dayReachedLottieLayout(scale) {
   const today = FIGMA_BEADS[TODAY_BEAD_INDEX];
   const centerX = (today.left + today.size / DAY_REACHED_LOTTIE_CENTER_DIVISOR) * scale;
-  const centerY = (today.top + today.size / DAY_REACHED_LOTTIE_CENTER_DIVISOR) * scale;
+  const centerY =
+    (today.top + FIGMA_Y_PAD + today.size / DAY_REACHED_LOTTIE_CENTER_DIVISOR) * scale;
   const compScale =
     (today.size * scale * DAY_REACHED_PLAY_OVERSIZE) / DAY_REACHED_SETTLE_DIAMETER;
   return {
@@ -182,7 +187,7 @@ function layoutBeads() {
     if (SIDE_FAR_INDEXES.has(index)) el.classList.add('is-side-far');
     if (SIDE_NEAR_INDEXES.has(index)) el.classList.add('is-side-near');
     el.style.left = `${spec.left * scale}px`;
-    el.style.top = `${spec.top * scale}px`;
+    el.style.top = `${(spec.top + FIGMA_Y_PAD) * scale}px`;
     el.style.width = `${spec.size * scale}px`;
     el.style.height = `${spec.size * scale}px`;
     el.style.fontSize = `${spec.labelSize * scale}px`;

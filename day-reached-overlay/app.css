@@ -219,7 +219,7 @@ h1 {
      overflow clipping and was chopping the day-reached bloom). */
   width: calc(100% * var(--streak-zoom));
   margin-left: calc((100% * (1 - var(--streak-zoom))) / 2);
-  aspect-ratio: 375 / 197;
+  aspect-ratio: 375 / 249;
   overflow: visible;
   clip-path: none;
 }
@@ -257,9 +257,10 @@ h1 {
 .arc {
   position: absolute;
   left: calc(16 / 375 * 100%);
-  top: calc(22.275390625 / 197 * 100%);
+  /* Hub arc top + Y pad, in the taller padded frame. */
+  top: calc((22.275390625 + 52) / 249 * 100%);
   width: calc(342 / 375 * 100%);
-  height: calc(174.44921875 / 197 * 100%);
+  height: calc(174.44921875 / 249 * 100%);
   overflow: visible;
 }
 
@@ -363,7 +364,7 @@ h1 {
   position: absolute;
   left: 18%;
   right: 18%;
-  top: 34%;
+  top: 42%;
   z-index: 7;
   text-align: center;
   opacity: 0;
