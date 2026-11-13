@@ -121,18 +121,15 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 .stamp-under.is-front { opacity: 1; }
 
-.stamp-lift {
-  position: absolute; z-index: 3;
-  border-radius: 12px;
-  box-shadow: 0 18px 40px rgba(0, 158, 255, 0.35), 0 0 0 2px rgba(0, 158, 255, 0.55);
-  pointer-events: none;
-  opacity: 0;
-  transform: scale(1);
-  transition: opacity 160ms ease, transform var(--lift-ms) var(--ease-spring);
+.stamp-hot {
+  transition: transform var(--lift-ms) var(--ease-spring), box-shadow var(--lift-ms) ease;
+  transform-origin: center center;
 }
-.stamp-lift.is-on {
-  opacity: 1;
-  transform: scale(1.04) translateY(-6px);
+.stamp-hot.is-lifting {
+  transform: scale(1.035) translateY(-5px);
+  box-shadow: 0 16px 36px rgba(0, 158, 255, 0.4), 0 0 0 2px rgba(0, 158, 255, 0.55);
+  border-radius: 10px;
+  z-index: 7;
 }
 
 .stamp-hot[data-stamp="0"] { left: 9%; right: 9%; top: 36.5%; height: 13.5%; }
@@ -437,7 +434,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .meta { margin: 0; max-width: 560px; color: var(--muted); font-size: 13px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .scene, .stamp-sheet, .stamp-under, .map-stage, .map-pan, .skiprow, .stamp-lift {
+  .scene, .stamp-sheet, .stamp-under, .map-stage, .map-pan, .skiprow, .stamp-hot {
     transition: none;
   }
 }

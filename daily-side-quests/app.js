@@ -38,7 +38,6 @@ const sceneB = document.getElementById('sceneB');
 const stampSheet = document.getElementById('stampSheet');
 const stampA = document.getElementById('stampA');
 const stampB = document.getElementById('stampB');
-const stampLift = document.getElementById('stampLift');
 const stampHots = Array.from(document.querySelectorAll('.stamp-hot'));
 const mapStage = document.getElementById('mapStage');
 const mapPan = document.getElementById('mapPan');
@@ -210,8 +209,7 @@ function clearFinds() {
 
 function resetStampState() {
   stampsRevealed = false;
-  stampLift.hidden = true;
-  stampLift.classList.remove('is-on');
+  stampHots.forEach((h) => h.classList.remove('is-lifting'));
   stampA.classList.add('is-front');
   stampB.classList.remove('is-front');
   stampFrontIsA = true;
@@ -267,18 +265,6 @@ async function openMenu() {
   setHint('Tap a stamp — it lifts, then reveals in place.');
 }
 
-function placeLiftOn(hot) {
-  const phoneBox = phone.getBoundingClientRect();
-  const box = hot.getBoundingClientRect();
-  stampLift.style.left = `${box.left - phoneBox.left}px`;
-  stampLift.style.top = `${box.top - phoneBox.top}px`;
-  stampLift.style.width = `${box.width}px`;
-  stampLift.style.height = `${box.height}px`;
-  stampLift.hidden = false;
-  void stampLift.offsetWidth;
-  stampLift.classList.add('is-on');
-}
-
 async function revealStamp(index) {
   if (phase !== 'menu' || busy) return;
   busy = true;
@@ -288,15 +274,14 @@ async function revealStamp(index) {
   });
 
   const hot = stampHots[index];
-  placeLiftOn(hot);
+  stampHots.forEach((h) => h.classList.remove('is-lifting'));
+  hot.classList.add('is-lifting');
   await wait(LIFT_MS);
 
   await showStampUnder('revealed');
   stampsRevealed = true;
   phase = 'revealed';
-  stampLift.classList.remove('is-on');
-  await wait(180);
-  stampLift.hidden = true;
+  hot.classList.remove('is-lifting');
 
   busy = false;
   syncChrome();
@@ -358,8 +343,10 @@ async function openCamera() {
   pendingCapture = null;
   cameraPrompt.textContent = `Find ${finds + 1} of ${FINDS_NEEDED} — animalistic pattern`;
   syncChrome();
-  camera.classList.add('is-on');
+  camera.hidden = false;
   camera.setAttribute('aria-hidden', 'false');
+  void camera.offsetWidth;
+  camera.classList.add('is-on');
   await startStream();
   await wait(SLIDE_MS);
   busy = false;
@@ -374,6 +361,7 @@ async function closeCamera(animate) {
     camera.classList.remove('is-on');
   }
   camera.setAttribute('aria-hidden', 'true');
+  camera.hidden = true;
   stopStream();
 }
 
