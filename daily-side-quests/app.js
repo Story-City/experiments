@@ -18,14 +18,12 @@ const CAPTURE_SLOTS = [
   'assets/parts/capture-2.jpg?v=7b',
 ];
 
-const SLIDE_MS = 440;
-const SETTLE_MS = 980;
-const FLIGHT_MS = 980;
-const PHOTO_HOLD_MS = 520;
-const PHOTO_SHRINK_MS = 760;
-const BEAT_MS = 180;
-const FLASH_MS = 180;
-const CAMERA_ANIMATE_MS = 520;
+const SLIDE_MS = 320; // RN Modal animationType="slide"
+const SETTLE_MS = 780;
+const FLIGHT_MS = 720;
+const PHOTO_HOLD_MS = 280;
+const PHOTO_SHRINK_MS = 520;
+const BEAT_MS = 120;
 const FINDS_NEEDED = 3;
 const EASE_OUT = 'cubic-bezier(0.22, 0.8, 0.24, 1)';
 const EASE_SPRING = 'cubic-bezier(0.34, 1.45, 0.64, 1)';
@@ -38,8 +36,6 @@ const findPlane = document.getElementById('findPlane');
 const tipLayer = document.getElementById('tipLayer');
 const flyThumb = document.getElementById('flyThumb');
 const slotCells = Array.from(document.querySelectorAll('.slot-cell'));
-const shineEl = document.getElementById('shine');
-const flashEl = document.getElementById('flash');
 const camera = document.getElementById('camera');
 const cameraVideo = document.getElementById('cameraVideo');
 const cameraSnap = document.getElementById('cameraSnap');
@@ -97,19 +93,6 @@ function setHint(t) {
   hint.textContent = t;
 }
 
-function hit(slotMode) {
-  shineEl.classList.toggle('is-slot', Boolean(slotMode));
-  shineEl.classList.remove('is-on');
-  void shineEl.offsetWidth;
-  shineEl.classList.add('is-on');
-}
-
-function flash() {
-  flashEl.classList.remove('is-on');
-  void flashEl.offsetWidth;
-  flashEl.classList.add('is-on');
-}
-
 function showScene(src) {
   return new Promise((resolve) => {
     if (scene.getAttribute('src') === src) {
@@ -165,7 +148,6 @@ function clearFinds() {
     img.removeAttribute('src');
     cell.classList.remove('is-filled', 'is-land', 'is-ready');
   });
-  mapStage.classList.remove('is-zoomed', 'is-settle-nudge');
 }
 
 function hideFly() {
@@ -210,7 +192,6 @@ async function revealStamp(index) {
   });
   phase = 'revealed';
   await showScene(FRAME.revealed);
-  hit(false);
   busy = false;
   syncHots();
   setHint(`${QUESTS[quest].title} revealed — tap its camera.`);
@@ -273,9 +254,7 @@ async function openCameraSheet() {
   cameraPrompt.textContent = `Find ${finds + 1} of ${FINDS_NEEDED} — animalistic pattern`;
   syncHots();
 
-  mapStage.classList.remove('is-settle-nudge');
-  mapStage.classList.add('is-zoomed');
-  await wait(CAMERA_ANIMATE_MS);
+  // App CameraSheet: full-screen Modal, animationType="slide" — no map zoom.
   camera.classList.add('is-on');
   camera.setAttribute('aria-hidden', 'false');
   await startStream();
@@ -285,16 +264,13 @@ async function openCameraSheet() {
 }
 
 async function closeCameraSheet(animate) {
-  confirm.hidden = true;
   if (animate) {
     camera.classList.remove('is-on');
     await wait(SLIDE_MS);
-    mapStage.classList.remove('is-zoomed');
-    await wait(160);
   } else {
     camera.classList.remove('is-on');
-    mapStage.classList.remove('is-zoomed');
   }
+  confirm.hidden = true;
   camera.setAttribute('aria-hidden', 'true');
   stopStream();
 }
@@ -322,8 +298,6 @@ function snapCapture() {
 async function handleShutter() {
   if (phase !== 'camera' || busy || !confirm.hidden) return;
   busy = true;
-  flash();
-  await wait(FLASH_MS);
   pendingCapture = snapCapture();
   confirmPhoto.src = pendingCapture;
   confirm.hidden = false;
@@ -454,39 +428,18 @@ async function flyIntoSlot(uri, index) {
   img.src = uri;
   cell.classList.add('is-filled', 'is-land');
   hideFly();
-  hit(true);
-  await wait(480);
+  await wait(360);
   cell.classList.remove('is-land');
 }
 
-async function settleFind(fullUri, slotUri, heroAlreadyUp) {
+async function settleFind(fullUri, slotUri) {
   captures.push(slotUri);
   finds = captures.length;
   const index = finds - 1;
 
-  mapStage.classList.remove('is-settle-nudge');
-  void mapStage.offsetWidth;
-  mapStage.classList.add('is-settle-nudge');
+  // After CameraSheet closes — find appears, then capture goes into a slot.
+  await heroPhotoIn(fullUri);
 
-  // 1) Hero photo holds — continuity from the camera take
-  if (heroAlreadyUp) {
-    const size = phoneSize();
-    const heroW = size.width * 0.78;
-    const heroH = size.height * 0.58;
-    await animateFlyTo({
-      left: (size.width - heroW) / 2,
-      top: size.height * 0.14,
-      width: heroW,
-      height: heroH,
-      radius: '18px',
-      rotate: 0,
-    }, PHOTO_HOLD_MS, EASE_OUT);
-    await wait(BEAT_MS);
-  } else {
-    await heroPhotoIn(fullUri);
-  }
-
-  // 2) Find stamp drops while photo shrinks toward it
   if (finds === 1) {
     findCard.hidden = false;
     findPlane.hidden = false;
@@ -494,7 +447,6 @@ async function settleFind(fullUri, slotUri, heroAlreadyUp) {
     findPlane.classList.remove('is-on');
     void findCard.offsetWidth;
     findCard.classList.add('is-on');
-    // Plane waits for the shrink beat
   } else {
     findCard.classList.remove('is-pulse');
     void findCard.offsetWidth;
@@ -502,29 +454,24 @@ async function settleFind(fullUri, slotUri, heroAlreadyUp) {
   }
 
   await shrinkPhotoTowardFind();
-  hit(false);
   await wait(BEAT_MS);
 
   if (finds === 1) {
     findPlane.classList.add('is-on');
-    await wait(BEAT_MS + 80);
-  } else {
     await wait(BEAT_MS);
   }
 
-  // 3) Photo peels off and arcs into the next progress slot
   await flyIntoSlot(slotUri, index);
   markNextSlot();
 
   if (finds >= FINDS_NEEDED) {
     setHint('Slots full — tip incoming…');
-    await wait(200);
+    await wait(160);
     tipLayer.hidden = false;
     tipLayer.classList.remove('is-on');
     void tipLayer.offsetWidth;
     tipLayer.classList.add('is-on');
     await wait(SETTLE_MS);
-    hit(false);
     setHint('Done — tip settled. Reset to play again.');
     return;
   }
@@ -541,26 +488,11 @@ async function handleSendIt() {
     : placeholderForFind(finds);
   pendingCapture = null;
 
-  // Continuity: hero photo takes over the frame while the sheet slides away.
-  const size = phoneSize();
-  flyThumb.src = fullUri;
-  flyThumb.hidden = false;
-  flyThumb.classList.add('is-on', 'is-hero');
-  flyThumb.style.transition = 'none';
-  flyThumb.style.transform = 'scale(1)';
-  setFlyBox(0, 0, size.width, size.height, '0px');
-  confirm.hidden = true;
-
+  // App: Send It → close CameraSheet modal (slide down), then continue.
+  await closeCameraSheet(true);
   phase = 'map';
   syncHots();
-  camera.classList.remove('is-on');
-  stopStream();
-  await wait(SLIDE_MS);
-  camera.setAttribute('aria-hidden', 'true');
-  mapStage.classList.remove('is-zoomed');
-  await wait(160);
-
-  await settleFind(fullUri, slotUri, true);
+  await settleFind(fullUri, slotUri);
   busy = false;
   syncHots();
 }
