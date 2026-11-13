@@ -103,7 +103,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 .scene.is-front { opacity: 1; z-index: 2; }
 
-/* —— Stamp sheet —— */
+/* —— Stamp sheet (Figma parts) —— */
 .stamp-sheet {
   position: absolute; inset: 0; z-index: 5;
   opacity: 0; visibility: hidden; pointer-events: none;
@@ -114,34 +114,110 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   transition: opacity var(--fade-ms) var(--ease-out), visibility 0s;
 }
 
-.stamp-under {
+.stamp-sheet-bg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Cover baked stamps in menu.png with real part buttons */
+.stamp-list {
+  position: absolute;
+  left: calc(25 / var(--phone-w) * 100%);
+  top: calc(269 / var(--phone-h) * 100%);
+  width: calc(322 / var(--phone-w) * 100%);
+  display: flex;
+  flex-direction: column;
+  gap: calc(20 / var(--phone-h) * 100%);
+  z-index: 5;
+}
+
+.stamp-part {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 322 / 127;
+  border: 0;
+  padding: 0;
+  background: #0b1530;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: visible;
+}
+
+.stamp-plate,
+.stamp-tapface,
+.stamp-revealed-img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: fill;
-  pointer-events: none !important;
-  opacity: 0; transition: opacity var(--fade-ms) var(--ease-out);
-  background: var(--bg);
-  z-index: 1;
+  pointer-events: none;
+  display: block;
 }
-.stamp-under.is-front { opacity: 1; }
 
-/* Individual stamp / close hits sit ABOVE the video */
-.stamp-hot {
-  z-index: 20;
-  border-radius: 10px;
+.stamp-unrevealed,
+.stamp-revealed {
+  position: absolute; inset: 0;
+  pointer-events: none;
 }
-.stamp-hot[data-stamp="0"] { left: 9%; right: 9%; top: 36.5%; height: 13.5%; }
-.stamp-hot[data-stamp="1"] { left: 9%; right: 9%; top: 51%; height: 13.5%; }
-.stamp-hot[data-stamp="2"] { left: 9%; right: 9%; top: 65.5%; height: 13.5%; }
+.stamp-unrevealed[hidden],
+.stamp-revealed[hidden] { display: none !important; }
 
-.phone[data-phase="revealed"] .stamp-hot[data-stamp="0"] {
-  left: auto; right: 11%; top: 39%; width: 13%; height: 9%;
+/* Hand + dice — Figma timeline 3.24s loop (get_motion_context) */
+.stamp-motion {
+  position: absolute;
+  right: -8%;
+  top: -58%;
+  width: 72%;
+  height: 180%;
+  pointer-events: none;
+  z-index: 3;
 }
-.phone[data-phase="revealed"] .stamp-hot[data-stamp="1"] {
-  left: auto; right: 11%; top: 53.5%; width: 13%; height: 9%;
+.stamp-hand {
+  position: absolute;
+  left: 8%; top: 6%;
+  width: 78%; height: auto;
+  transform-origin: 50% 50%;
+  animation: figmaHand 3.24s linear infinite;
 }
-.phone[data-phase="revealed"] .stamp-hot[data-stamp="2"] {
-  left: auto; right: 11%; top: 68%; width: 13%; height: 9%;
+.stamp-dice {
+  position: absolute;
+  left: 4%; top: 52%;
+  width: 28%; height: auto;
+  transform-origin: 50% 50%;
+  animation: figmaDice 3.24s linear infinite;
+}
+@keyframes figmaHand {
+  0% { transform: translate(20px, -11px) rotate(0deg); }
+  18.5% { transform: translate(17px, -1px) rotate(3deg); }
+  32% { transform: translate(17px, -5px) rotate(24deg); }
+  49% { transform: translate(17px, -1px) rotate(3deg); }
+  62% { transform: translate(17px, -5px) rotate(24deg); }
+  78% { transform: translate(17px, -1px) rotate(3deg); }
+  96% { transform: translate(20px, -11px) rotate(0deg); }
+  100% { transform: translate(20px, -11px) rotate(0deg); }
+}
+@keyframes figmaDice {
+  0%, 23% { transform: translateY(11px) rotate(0deg); }
+  34% { transform: translateY(-22px) rotate(170deg); }
+  46% { transform: translateY(11px) rotate(360deg); }
+  55% { transform: translateY(11px) rotate(360deg); }
+  67% { transform: translateY(-22px) rotate(560deg); }
+  78% { transform: translateY(11px) rotate(720deg); }
+  100% { transform: translateY(11px) rotate(720deg); }
+}
+
+.stamp-cam-hot {
+  position: absolute;
+  right: 3%;
+  top: 28%;
+  width: 16%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 4;
 }
 
 .close-hot { right: 6.5%; top: 12.5%; width: 9%; height: 4.2%; z-index: 20; }

@@ -8,14 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=22">
+<link rel="stylesheet" href="app.css?v=23">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Daily Side Quests</h1>
     <p class="lede">
-      Stamp stage from Figma video + clickable stamp hits. Find card nearly straight — tap opens fullscreen; text sits under as a popup.
+      Stamp stage built from Figma parts (plate, tap face, hand, dice, revealed rows) — each stamp is its own button.
     </p>
   </header>
 
@@ -31,33 +31,73 @@
     <img class="scene is-front" id="sceneA" src="assets/flow/01.png?v=7" alt="" decoding="async">
     <img class="scene" id="sceneB" alt="" decoding="async">
 
-    <!-- Stamp stage: Figma-exported timeline videos (hand/dice loop), not static invent -->
+    <!-- Stamp stage: Figma PARTS — not a flat video -->
     <div class="stamp-sheet" id="stampSheet" aria-hidden="true">
-      <video class="stamp-under is-front" id="stampA" src="assets/parts/stamp-menu.mp4?v=21" poster="assets/parts/menu.png?v=7" muted loop playsinline preload="auto"></video>
-      <video class="stamp-under" id="stampB" src="assets/parts/stamp-revealed.mp4?v=21" poster="assets/parts/revealed.png?v=7" muted loop playsinline preload="auto"></video>
-      <button type="button" class="hot stamp-hot" data-stamp="0" aria-label="Stamp 1"></button>
-      <button type="button" class="hot stamp-hot" data-stamp="1" aria-label="Stamp 2"></button>
-      <button type="button" class="hot stamp-hot" data-stamp="2" aria-label="Stamp 3"></button>
+      <img class="stamp-sheet-bg" id="stampSheetBg" src="assets/parts/menu.png?v=7" alt="" decoding="async">
+
+      <div class="stamp-list" id="stampList">
+        <button type="button" class="stamp-part" data-stamp="0" aria-label="Stamp 1">
+          <img class="stamp-plate" src="assets/parts/stamp-plate.png?v=23" alt="" decoding="async">
+          <div class="stamp-unrevealed">
+            <img class="stamp-tapface" src="assets/parts/stamp-tapface.png?v=23" alt="" decoding="async">
+            <div class="stamp-motion" aria-hidden="true">
+              <img class="stamp-hand" src="assets/parts/stamp-hand.png?v=23" alt="" decoding="async">
+              <img class="stamp-dice" src="assets/parts/stamp-dice.png?v=23" alt="" decoding="async">
+            </div>
+          </div>
+          <div class="stamp-revealed" hidden>
+            <img class="stamp-revealed-img" src="assets/parts/stamp-r0.png?v=23" alt="" decoding="async">
+            <span class="stamp-cam-hot" data-cam="0" aria-label="Open camera for stamp 1"></span>
+          </div>
+        </button>
+
+        <button type="button" class="stamp-part" data-stamp="1" aria-label="Stamp 2">
+          <img class="stamp-plate" src="assets/parts/stamp-plate.png?v=23" alt="" decoding="async">
+          <div class="stamp-unrevealed">
+            <img class="stamp-tapface" src="assets/parts/stamp-tapface.png?v=23" alt="" decoding="async">
+            <div class="stamp-motion" aria-hidden="true">
+              <img class="stamp-hand" src="assets/parts/stamp-hand.png?v=23" alt="" decoding="async">
+              <img class="stamp-dice" src="assets/parts/stamp-dice.png?v=23" alt="" decoding="async">
+            </div>
+          </div>
+          <div class="stamp-revealed" hidden>
+            <img class="stamp-revealed-img" src="assets/parts/stamp-r1.png?v=23" alt="" decoding="async">
+            <span class="stamp-cam-hot" data-cam="1" aria-label="Open camera for stamp 2"></span>
+          </div>
+        </button>
+
+        <button type="button" class="stamp-part" data-stamp="2" aria-label="Stamp 3">
+          <img class="stamp-plate" src="assets/parts/stamp-plate.png?v=23" alt="" decoding="async">
+          <div class="stamp-unrevealed">
+            <img class="stamp-tapface" src="assets/parts/stamp-tapface.png?v=23" alt="" decoding="async">
+            <div class="stamp-motion" aria-hidden="true">
+              <img class="stamp-hand" src="assets/parts/stamp-hand.png?v=23" alt="" decoding="async">
+              <img class="stamp-dice" src="assets/parts/stamp-dice.png?v=23" alt="" decoding="async">
+            </div>
+          </div>
+          <div class="stamp-revealed" hidden>
+            <img class="stamp-revealed-img" src="assets/parts/stamp-r2.png?v=23" alt="" decoding="async">
+            <span class="stamp-cam-hot" data-cam="2" aria-label="Open camera for stamp 3"></span>
+          </div>
+        </button>
+      </div>
+
       <button type="button" class="hot close-hot" id="closeHot" aria-label="Close"></button>
     </div>
 
     <button type="button" class="hot entry-hot" id="entryHot" aria-label="Side quest entry" hidden></button>
 
-    <!-- Continuous map world — same stage the whole hunt -->
     <div class="map-stage" id="mapStage" aria-hidden="true">
-      <!-- One full Figma map frame — no chrome/tile crop seams -->
       <div class="map-pan" id="mapPan">
         <img class="map-fill" src="assets/parts/map-hunt.png?v=7" alt="" decoding="async">
         <div class="jam-layer" id="jamLayer" aria-hidden="true"></div>
         <div class="gem-layer" id="gemLayer" aria-hidden="true"></div>
-        <!-- Figma plane shape intact; only the tip of the dashed tail twinkles -->
         <div class="plane-mark" id="planeMark" hidden aria-hidden="true">
           <img class="plane-art" src="assets/parts/airplanes-clear.png?v=16" alt="" decoding="async">
           <span class="plane-tail-tip" aria-hidden="true"></span>
         </div>
       </div>
 
-      <!-- Tiny gem — same unlock rules; disabled until challenge finished -->
       <button type="button" class="others-gem" id="othersBtn" hidden disabled aria-label="Show other gems">
         <svg viewBox="0 0 24 22" aria-hidden="true">
           <path d="M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z" fill="#00c2ff"/>
@@ -71,7 +111,6 @@
         <div class="slot-cell" data-slot="2"><img class="slot" alt=""></div>
       </div>
 
-      <!-- Card (near-straight) + text popup underneath -->
       <div class="find-panel" id="findPanel" hidden>
         <div class="find-card-slot">
           <article class="find-card find-card-deep" id="findCardDeep" aria-hidden="true">
@@ -145,8 +184,8 @@
   </main>
 
   <p class="meta">
-    Stamp stage plays Figma-exported MP4 timelines; stamp/camera hits are separate hotspots on top (video pixels are not DOM nodes).
+    Stamp rows are separate Figma parts with hand/dice motion from get_motion_context (3.24s loop). No full-frame video.
   </p>
-  <script src="app.js?v=22"></script>
+  <script src="app.js?v=23"></script>
 </body>
 </html>

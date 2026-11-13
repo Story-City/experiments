@@ -72,9 +72,8 @@ const phone = document.getElementById('phone');
 const sceneA = document.getElementById('sceneA');
 const sceneB = document.getElementById('sceneB');
 const stampSheet = document.getElementById('stampSheet');
-const stampA = document.getElementById('stampA');
-const stampB = document.getElementById('stampB');
-const stampHots = Array.from(document.querySelectorAll('.stamp-hot'));
+const stampSheetBg = document.getElementById('stampSheetBg');
+const stampParts = Array.from(document.querySelectorAll('.stamp-part'));
 const mapStage = document.getElementById('mapStage');
 const mapPan = document.getElementById('mapPan');
 const gemLayer = document.getElementById('gemLayer');
@@ -146,7 +145,6 @@ let busy = false;
 let pendingCapture = null;
 let usingLiveCamera = false;
 let frontIsA = true;
-let stampFrontIsA = true;
 let stampsRevealed = false;
 let otherIndex = 0;
 let gemsBuilt = false;
@@ -183,37 +181,22 @@ async function showScene(src) {
   await wait(FADE_MS);
 }
 
-function playStampVideo(el) {
-  try {
-    el.currentTime = 0;
-    const p = el.play();
-    if (p && p.catch) p.catch(() => {});
-  } catch (_) { /* autoplay policies */ }
-}
-
-function pauseStampVideo(el) {
-  try { el.pause(); } catch (_) { /* ignore */ }
-}
-
-function showStampUnder(which) {
-  const wantA = which === 'menu';
-  if (wantA === stampFrontIsA) {
-    playStampVideo(wantA ? stampA : stampB);
-    return wait(0);
-  }
-  if (wantA) {
-    stampA.classList.add('is-front');
-    stampB.classList.remove('is-front');
-    playStampVideo(stampA);
-    pauseStampVideo(stampB);
-  } else {
-    stampB.classList.add('is-front');
-    stampA.classList.remove('is-front');
-    playStampVideo(stampB);
-    pauseStampVideo(stampA);
-  }
-  stampFrontIsA = wantA;
-  return wait(FADE_MS);
+function setStampFaces(revealed) {
+  stampsRevealed = revealed;
+  stampSheetBg.src = revealed
+    ? 'assets/parts/revealed.png?v=7'
+    : 'assets/parts/menu.png?v=7';
+  stampParts.forEach((part) => {
+    const un = part.querySelector('.stamp-unrevealed');
+    const rev = part.querySelector('.stamp-revealed');
+    if (revealed) {
+      un.hidden = true;
+      rev.hidden = false;
+    } else {
+      un.hidden = false;
+      rev.hidden = true;
+    }
+  });
 }
 
 function gemSvg(fill) {
@@ -626,7 +609,7 @@ function syncChrome() {
   mapStage.classList.toggle('is-gems', finds >= FINDS_NEEDED && (phase === 'map' || phase === 'browse'));
   backHot.hidden = !onMap || phase === 'camera';
   camHot.hidden = phase !== 'map';
-  stampHots.forEach((el) => {
+  stampParts.forEach((el) => {
     el.hidden = !(phase === 'menu' || phase === 'revealed');
   });
   closeHot.hidden = !(phase === 'menu' || phase === 'revealed');
@@ -679,23 +662,16 @@ function clearFinds() {
 }
 
 function resetStampState() {
-  stampsRevealed = false;
-  stampA.classList.add('is-front');
-  stampB.classList.remove('is-front');
-  stampFrontIsA = true;
-  pauseStampVideo(stampB);
+  setStampFaces(false);
 }
 
 async function showStampSheet() {
   stampSheet.classList.add('is-on');
   stampSheet.setAttribute('aria-hidden', 'false');
-  playStampVideo(stampFrontIsA ? stampA : stampB);
   await wait(FADE_MS);
 }
 
 async function hideStampSheet() {
-  pauseStampVideo(stampA);
-  pauseStampVideo(stampB);
   stampSheet.classList.remove('is-on');
   stampSheet.setAttribute('aria-hidden', 'true');
   await wait(FADE_MS);
@@ -734,10 +710,11 @@ async function openMenu() {
   resetStampState();
   if (mapStage.classList.contains('is-on')) await hideMap();
   phase = 'menu';
+  setStampFaces(false);
   await showScene(FRAME.home);
   await showStampSheet();
   syncChrome();
-  setHint('Figma stamp stage — tap a stamp to reveal its camera.');
+  setHint('Tap a stamp part — hand/dice animate; reveal then tap camera.');
 }
 
 async function revealStamp(index) {
@@ -747,9 +724,8 @@ async function revealStamp(index) {
   Array.from(picker.children).forEach((c, i) => {
     c.setAttribute('aria-pressed', i === quest ? 'true' : 'false');
   });
-  // Figma: menu → revealed is the exported timeline swap (hand/dice keeps looping)
-  await showStampUnder('revealed');
-  stampsRevealed = true;
+  setStampFaces(true);
+  await wait(FADE_MS);
   phase = 'revealed';
   busy = false;
   syncChrome();
@@ -1054,9 +1030,16 @@ closeHot.addEventListener('click', async () => {
 
 entryHot.addEventListener('click', () => openMenu());
 
-stampHots.forEach((el) => {
-  el.addEventListener('click', () => {
+stampParts.forEach((el) => {
+  el.addEventListener('click', (e) => {
+    const cam = e.target.closest('.stamp-cam-hot');
     const i = Number(el.dataset.stamp);
+    if (cam && phase === 'revealed') {
+      e.preventDefault();
+      e.stopPropagation();
+      enterMapFromStamp(Number(cam.dataset.cam));
+      return;
+    }
     if (phase === 'menu') revealStamp(i);
     else if (phase === 'revealed') enterMapFromStamp(i);
   });
