@@ -2,7 +2,7 @@
 // Words: copy.js (screens) and stories.js (story lines). Tester panel jumps to any step.
 // Links: #s1…#s9 opens a step; ?walk=dog|city|treadmill|home, ?story=<id>, ?trial=1 (took the first trial).
 const V = window.CACHE_V || '';
-const [{ COPY, STEPS, WALKS }, { STORIES, START_HERE, SAMPLE, SHELVES, FEATURED }] = await Promise.all([
+const [{ COPY, STEPS, WALKS, LIKES }, { STORIES, START_HERE, SAMPLE, SHELVES, FEATURED }] = await Promise.all([
   import('./copy.js' + V), import('./stories.js' + V),
 ]);
 
@@ -20,6 +20,8 @@ const S = {
   walk: WALKS[qs.get('walk')] ? qs.get('walk') : 'dog',
   mode: null, // set from walk
   trial: qs.get('trial') === '1',
+  tiles: ['a', 'b', 'c'].includes(qs.get('tiles')) ? qs.get('tiles') : 'a', // step 2: a = centred, b = big corner icon, c = select all that apply
+  likes: [],
   skipped: false,
   account: false,
   story: STORIES[qs.get('story')] ? qs.get('story') : null,
@@ -60,6 +62,16 @@ const UI_ICON = {
   user: '<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="20" fill="#3a3163"/><circle cx="20" cy="16" r="6.5" fill="#8f86bd"/><path d="M8 34c2.5-6 7-9 12-9s9.5 3 12 9" fill="#8f86bd"/></svg>',
   search: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#EEEEEE" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.6-4.6"/></svg>',
   filter: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#EEEEEE" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>',
+};
+const LIKE_ICON = {
+  alone: '<svg viewBox="0 0 32 32"><circle cx="16" cy="8" r="3.2"/><path d="M16 12.5l-2 7 3 3v6M15 15l4 2.5 3-1.5M14 19.5l-3.5 3"/></svg>',
+  partner: '<svg viewBox="0 0 32 32"><circle cx="11" cy="8" r="3"/><circle cx="21" cy="8" r="3"/><path d="M11 12v8l-2 7M11 20l2 7M21 12v8l-2 7M21 20l2 7M11 15h10"/></svg>',
+  kids: '<svg viewBox="0 0 32 32"><circle cx="11" cy="7" r="3"/><circle cx="22" cy="14" r="2.4"/><path d="M11 11v9l-2 7M11 20l2 7M11 14l5 3 4-1M22 17v5l-1.5 5M22 22l1.5 5"/></svg>',
+  dog: '<svg viewBox="0 0 32 32"><path d="M8 13l-3-4 1-3 4 3h5l3-4h2l1 4 3 2v3l-3 1v7h-3v-5h-7v5H9v-6l-2-1z"/></svg>',
+  route: '<svg viewBox="0 0 32 32"><path d="M10 8h10a6 6 0 010 12H12a4 4 0 000 8h12"/><path d="M21 25l3 3-3 3"/><circle cx="8" cy="8" r="2.2"/></svg>',
+  explore: '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11"/><path d="M20.5 11.5l-2.8 6.2-6.2 2.8 2.8-6.2z"/></svg>',
+  treadmill: '<svg viewBox="0 0 32 32"><path d="M4 24h21l3-4M7 27h18M22 20V8l4-2"/><circle cx="13" cy="6" r="2"/><path d="M13 9l-2 6 3 3v4M12 13l4 2 2-2M11 15l-3 2"/></svg>',
+  home: '<svg viewBox="0 0 32 32"><path d="M5 15L16 6l11 9M8 13v13h16V13M13 26v-7h6v7"/></svg>',
 };
 const PW_ICON = [
   '<svg viewBox="0 0 24 24"><path d="M3 12h4l2.5-5 4 10 2.5-5H21" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -113,6 +125,7 @@ function setStep(n) {
   const url = new URL(location.href);
   url.hash = 's' + n;
   url.searchParams.set('walk', S.walk);
+  url.searchParams.set('tiles', S.tiles);
   if (S.story) url.searchParams.set('story', S.story); else url.searchParams.delete('story');
   if (S.trial) url.searchParams.set('trial', '1'); else url.searchParams.delete('trial');
   history.replaceState(null, '', url);
@@ -128,7 +141,7 @@ async function hook() {
       <div class="hooktop"><img class="logo" src="img/logo-on-dark.png" alt="Story City"></div>
       <div class="hookbody">
         <h1>${c.title}<span>${c.title2}</span></h1>
-        <p class="lede">${c.sub}</p>
+        ${c.sub ? `<p class="lede">${c.sub}</p>` : ''}
         <button class="btn grad" data-k="go">${c.cta}</button>
         <button class="link" data-k="login">${c.login}</button>
       </div>
@@ -142,19 +155,50 @@ async function hook() {
 
 async function walkPick() {
   setStep(2);
+  if (S.tiles === 'c') return walkLikes();
   const c = COPY.walk;
   show(`<div class="pad walk">
       <p class="kick">${c.kick}</p>
       <h1>${c.title}</h1>
       <p class="sub">${c.sub}</p>
-      <div class="walks">${Object.entries(WALKS).map(([k, w]) => `<button class="wcard${k === S.walk ? ' was' : ''}" data-v="${k}">
-          <span class="wic">${WALK_ICON[k]}</span><span class="wt"><b>${w.label}</b><small>${w.line}</small></span></button>`).join('')}</div>
+      <div class="walks t-${S.tiles}">${Object.entries(WALKS).map(([k, w]) => `<button class="wcard${k === S.walk ? ' was' : ''}" data-v="${k}">
+          <span class="wic">${WALK_ICON[k]}</span><span class="wt"><b>${w.label}</b><small>${w.line}</small></span><span class="wbig" aria-hidden="true">${WALK_ICON[k]}</span></button>`).join('')}</div>
       <p class="fine">${c.fine}</p>
     </div>`);
   const v = await choose(screen, '.wcard');
   S.walk = v; S.mode = WALKS[v].mode;
   const b = $(`.wcard[data-v="${v}"]`); b.classList.add('on');
   await wait(380);
+  return trial(1);
+}
+
+// Version C: "How do you like to walk?" Select all that apply. The picks choose the shelf and the starting mode.
+async function walkLikes() {
+  const c = COPY.likes;
+  show(`<div class="pad walk likes">
+      <p class="kick">${COPY.walk.kick}</p>
+      <h1>${c.title}</h1>
+      <p class="sub">${c.sub}</p>
+      <div class="lgrid">${Object.entries(LIKES).map(([k, l]) => `<button class="lcard" data-like="${k}" aria-pressed="${S.likes.includes(k)}"><span class="lic">${LIKE_ICON[k]}</span><b>${l.label}</b><span class="tick" aria-hidden="true">${ICON.check}</span></button>`).join('')}</div>
+      <button class="btn grad lgo" data-k="go"${S.likes.length ? '' : ' disabled'}>${c.cta}</button>
+      <p class="fine">${COPY.walk.fine}</p>
+    </div>`);
+  const my = ++run;
+  const go = $('.lgo', screen);
+  screen.addEventListener('click', (e) => {
+    if (my !== run) return;
+    const b = e.target.closest('.lcard'); if (!b) return;
+    const k = b.dataset.like, on = !S.likes.includes(k);
+    S.likes = on ? [...S.likes, k] : S.likes.filter((x) => x !== k);
+    b.setAttribute('aria-pressed', String(on));
+    go.disabled = !S.likes.length;
+  });
+  await choose(screen, '[data-k="go"]');
+  if (my !== run) return;
+  // the first pick in this order decides the shelf; exploring starts in Hunt, everything else in Steps
+  const order = ['explore', 'home', 'treadmill', 'dog', 'kids', 'route', 'partner', 'alone'];
+  const top = order.find((k) => S.likes.includes(k));
+  S.walk = LIKES[top].walk; S.mode = LIKES[top].mode;
   return trial(1);
 }
 
@@ -704,6 +748,8 @@ function buildPanel() {
     <div class="tchips" id="twalk">${Object.entries(WALKS).map(([k, w]) => `<button class="tchip" data-walk="${k}">${w.short}</button>`).join('')}</div>
     <p class="tl">${COPY.tester.story}</p>
     <div class="tchips" id="tstory"></div>
+    <p class="tl">${COPY.tester.tiles}</p>
+    <div class="tchips"><button class="tchip" data-tiles="a">${COPY.tester.tilesA}</button><button class="tchip" data-tiles="b">${COPY.tester.tilesB}</button><button class="tchip" data-tiles="c">${COPY.tester.tilesC}</button></div>
     <p class="tl">${COPY.tester.trial}</p>
     <div class="tchips" id="ttrial"><button class="tchip" data-trial="0">${COPY.tester.skipped}</button><button class="tchip" data-trial="1">${COPY.tester.took}</button></div>
     <button class="tchip wide" data-reset>${COPY.tester.reset}</button>`;
@@ -713,6 +759,7 @@ function buildPanel() {
     if (b.dataset.walk) { S.walk = b.dataset.walk; S.mode = WALKS[S.walk].mode; if (!START_HERE[S.walk].includes(S.story) && S.story !== SAMPLE) S.story = null; }
     if (b.dataset.story) S.story = b.dataset.story;
     if (b.dataset.trial) { S.trial = b.dataset.trial === '1'; S.skipped = !S.trial; }
+    if (b.dataset.tiles) { S.tiles = b.dataset.tiles; syncPanel(); togglePanel(false); return jump(2); }
     if ('reset' in b.dataset) { S.seen = {}; S.trial = false; S.skipped = false; S.account = false; S.story = null; togglePanel(false); return jump(1); }
     syncPanel();
     jump(S.step);
@@ -723,6 +770,7 @@ function syncPanel() {
   const ids = [...START_HERE[S.walk], SAMPLE];
   $('#tstory').innerHTML = ids.map((id) => `<button class="tchip" data-story="${id}" aria-pressed="${id === (S.story || pickDefault())}">${STORIES[id].title.replace(/^The /, '')}</button>`).join('');
   $$('[data-trial]').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.trial === '1') === S.trial)));
+  $$('[data-tiles]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tiles === S.tiles)));
 }
 function togglePanel(open) {
   const p = $('#tpanel'), b = $('#tbtn');

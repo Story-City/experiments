@@ -24,20 +24,37 @@ export const WALKS = {
   home:      { label: 'At home',            short: 'at home', for: 'playing at home',    line: 'Play from the couch. Walk when you like.', mode: 'steps' }, // [new]
 };
 
+// Step 2, version C: select all that apply. walk = which Start here shelf; mode = starting map mode.
+export const LIKES = {                                              // [new]
+  alone:     { label: 'Alone',                walk: 'dog',       mode: 'steps' },
+  partner:   { label: 'With my partner',      walk: 'dog',       mode: 'steps' },
+  kids:      { label: 'With my kids',         walk: 'home',      mode: 'steps' },
+  dog:       { label: 'With my dog',          walk: 'dog',       mode: 'steps' },
+  route:     { label: 'Same route every day', walk: 'dog',       mode: 'steps' },
+  explore:   { label: 'Exploring new places', walk: 'city',      mode: 'hunt' },
+  treadmill: { label: 'On a treadmill',       walk: 'treadmill', mode: 'steps' },
+  home:      { label: 'At home',              walk: 'home',      mode: 'steps' },
+};
+
 export const COPY = {
   hook: {
     title: 'Pick a story.',                                         // [new] (the brief), in the real welcome layout
     title2: 'Walk to find out what happens next.',                  // [new] blue second line, like “an adventure.”
-    sub: 'Less scrolling, more strolling. Never have a boring walk again.', // [real] welcome screen
+    sub: '',                                                        // removed (Melissa, Nov 12); the real line is “Less scrolling, more strolling. Never have a boring walk again.”
     cta: 'Start Exploring',                                         // [real]
     login: 'Already have an account? Sign in',                      // [real]
     loginToast: 'Sign in opens here',
   },
+  likes: {
+    title: 'How do you like to walk?',                              // [new] (Melissa, Nov 12)
+    sub: 'Select all that apply.',
+    cta: 'Continue',
+  },
   walk: {
     kick: 'Walk to Unlock',                                         // [real] 4.27.2 mode-pick subheader
-    title: 'How do you walk?',                                      // [new] (was “How would you like to unlock adventures?”)
+    title: 'How do you usually walk?',                              // [new] (Melissa, Nov 12; was “How would you like to unlock adventures?”)
     sub: 'Adventures progress as you move in the world.',           // [real] 4.27.2
-    fine: 'Not sure? No problem. Switch any time on the map.',      // [real] 4.27.2, “on your Profile” → “on the map”
+    fine: 'Not sure? No problem. Switch anytime.',                  // [real] 4.27.2, trimmed (Melissa, Nov 12)
   },
   modes: {
     steps: { name: 'Steps', tipTitle: 'STEPS MODE' },               // [real] decision Nov 4 (code still says Walk / WALK MODE)
@@ -179,6 +196,10 @@ export const COPY = {
     title: 'Tester panel',
     walk: 'Walk answer',
     story: 'Story',
+    tiles: 'Step 2 version',
+    tilesA: 'A · Centred',
+    tilesB: 'B · Big icon',
+    tilesC: 'C · Select all',
     trial: 'First trial offer',
     skipped: 'Skipped',
     took: 'Took it',

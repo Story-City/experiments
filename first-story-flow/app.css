@@ -427,3 +427,40 @@ h2 { margin: 0; font-size: 24px; line-height: 1.05; font-weight: 700; }
 .unl.push h2 { font-size: 24px; }
 .bub { white-space: pre-line; }
 .endcard small { display: block; } .endcard .esub { color: #fff; font-size: 16px; margin: 2px 0; }
+
+/* step 2 tiles, two looks (tester panel switch, ?tiles=a|b) */
+.wbig { display: none; }
+.walks.t-a .wcard { align-items: center; text-align: center; padding: 22px 12px 20px; }
+.walks.t-a .wic svg { width: 44px; height: 44px; }
+.walks.t-b .wcard { position: relative; overflow: hidden; isolation: isolate; min-height: 176px; justify-content: flex-start; padding: 18px 16px; background: radial-gradient(120% 120% at 100% 100%, rgba(0, 158, 255, .14), transparent 62%), var(--raised); }
+.walks.t-b .wic { display: none; }
+.walks.t-b .wbig { display: block; position: absolute; z-index: -1; right: -22px; bottom: -26px; width: 128px; height: 128px; opacity: .3; pointer-events: none; }
+.walks.t-b .wbig svg { width: 100%; height: 100%; fill: none; stroke: #fff; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
+.walks.t-b .wbig .dot { fill: #fff; stroke: none; }
+.walks.t-b .wcard.on .wbig { opacity: .55; }
+.walks.t-b .wt { padding-right: 4px; }
+
+/* the elf, sized like the app's tip art (168×151, overhanging the box edge) */
+.spottip { padding-right: 140px; }
+.spottip .elf { width: 150px; right: -16px; bottom: -22px; }
+.snack { padding-right: 132px; }
+.snack .elf { width: 136px; right: 0; bottom: -16px; }
+.maptip p { padding-right: 70px; }
+.maptip img { width: 150px; right: -40px; bottom: -22px; }
+.maptip img[src*="summons"] { width: 126px; right: -30px; bottom: -8px; }
+.hookbody h1 { margin-bottom: 30px; }
+.walks.t-b .wbig { width: 112px; height: 112px; right: -20px; bottom: -32px; opacity: .26; }
+.snack .elf { width: 120px; right: 4px; bottom: -58px; }
+
+/* step 2, version C: select all that apply */
+.lgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.lcard { position: relative; display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 10px 12px; border-radius: 14px; background: var(--raised); border: 1.5px solid transparent; text-align: left; transition: border-color .15s, background .15s; }
+.lcard b { font-size: 18px; line-height: 1.05; font-weight: 700; padding-right: 14px; }
+.lic svg { width: 30px; height: 30px; flex: none; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; display: block; }
+.lcard .tick { position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; border-radius: 99px; border: 1.5px solid rgba(255, 255, 255, .3); display: grid; place-items: center; }
+.lcard .tick svg { width: 12px; height: 12px; fill: none; stroke: transparent; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.lcard[aria-pressed="true"] { border-color: var(--accent); background: #2c2160; }
+.lcard[aria-pressed="true"] .tick { background: var(--accent); border-color: var(--accent); }
+.lcard[aria-pressed="true"] .tick svg { stroke: #fff; }
+.lgo { margin-top: 18px; }
+.lgo:disabled { background: #3a3163; box-shadow: none; color: #b9b2d9; cursor: default; }
