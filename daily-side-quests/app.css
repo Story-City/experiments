@@ -212,13 +212,15 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   transform-origin: 50% 60%;
   border-radius: 10px; overflow: hidden;
   box-shadow: 0 0 0 2px rgba(255,255,255,0.32), 0 12px 24px rgba(0,0,0,0.45);
-  opacity: 0.4; filter: saturate(0.8);
+  opacity: 0; filter: saturate(0.8);
   transition: opacity 420ms ease, transform 520ms var(--ease-spring), filter 420ms ease;
   z-index: 2; pointer-events: none;
 }
 .map-note img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Other finds only appear when browsing */
+.map-stage.is-browse .map-note.other { opacity: 0.45; }
 .map-note.other.is-focus {
-  opacity: 1;
+  opacity: 1 !important;
   filter: saturate(1.1) drop-shadow(0 0 12px rgba(179, 107, 255, 0.7));
   transform: rotate(var(--rot, -12deg)) scale(1.1);
   z-index: 3;

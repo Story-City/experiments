@@ -155,9 +155,12 @@ function syncChrome() {
   entryHot.hidden = phase !== 'entry';
   playBtn.disabled = phase === 'camera' || phase === 'note' || busy;
   const onMap = phase === 'map' || phase === 'camera' || phase === 'note' || phase === 'browse';
+  mapStage.classList.toggle('is-browse', phase === 'browse');
   camHot.hidden = !(phase === 'map' || phase === 'browse');
+  // During note entry, keep shutter available under the skiprow but don't steal focus
   backHot.hidden = !onMap || phase === 'camera';
   seeOther.hidden = !(phase === 'browse' || (tipLayer.classList.contains('is-on') && onMap));
+  camHot.hidden = phase === 'note' || camHot.hidden;
   stampHots.forEach((el) => {
     el.hidden = !(phase === 'menu' || phase === 'revealed');
   });
