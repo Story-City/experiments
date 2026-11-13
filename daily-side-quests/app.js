@@ -89,7 +89,6 @@ const findCardDeep = document.getElementById('findCardDeep');
 const panelPhoto = document.getElementById('panelPhoto');
 const panelPhotoBack = document.getElementById('panelPhotoBack');
 const panelPhotoDeep = document.getElementById('panelPhotoDeep');
-const panelStamp = document.getElementById('panelStamp');
 const writeMode = document.getElementById('writeMode');
 const readMode = document.getElementById('readMode');
 const noteWords = document.getElementById('noteWords');
@@ -359,8 +358,7 @@ function renderStackLayers() {
   }
 }
 
-function setPanelPhoto(src, { stamp, swap }) {
-  panelStamp.hidden = !stamp;
+function setPanelPhoto(src, { swap }) {
   clearStackClasses();
 
   if (swap && panelPhotoSrc && panelPhotoSrc !== src) {
@@ -427,7 +425,7 @@ function showWritePanel(uri) {
   writeMode.hidden = false;
   readMode.hidden = true;
   noteWords.value = '';
-  setPanelPhoto(uri, { stamp: true, swap: false });
+  setPanelPhoto(uri, { swap: false });
   showPlaneForJam(finds);
   findPanel.hidden = false;
   void findPanel.offsetWidth;
@@ -441,7 +439,7 @@ function showReadPanel(entry, { swap }) {
   readLabel.textContent = READ_LABEL_OTHERS;
   readText.textContent = entry.text || '—';
   nextGem.hidden = false;
-  setPanelPhoto(entry.photo, { stamp: false, swap });
+  setPanelPhoto(entry.photo, { swap });
   syncLikeUi({ invite: true });
   hidePlane();
   findPanel.hidden = false;
@@ -456,7 +454,7 @@ function showMyReadPanel(entry, { swap }) {
   readLabel.textContent = READ_LABEL_MINE;
   readText.textContent = entry.text || '—';
   nextGem.hidden = myEntries.length < 2;
-  setPanelPhoto(entry.photo, { stamp: false, swap });
+  setPanelPhoto(entry.photo, { swap });
   syncLikeUi({ invite: false });
   hidePlane();
   findPanel.hidden = false;

@@ -455,17 +455,6 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   object-fit: cover; display: block;
   background: var(--raised);
 }
-.card-stamp {
-  position: absolute;
-  left: 22%; right: 22%; top: 20%; bottom: 24%;
-  width: auto; height: auto;
-  z-index: 2;
-  opacity: 0.72;
-  pointer-events: none;
-  filter: none;
-}
-.card-stamp[hidden] { display: none !important; }
-
 @keyframes noteDrop {
   0% { opacity: 0; transform: rotate(-16deg) scale(1.1) translateY(-6%); }
   100% { opacity: 1; transform: rotate(-12deg) scale(1) translateY(0); }
