@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=13b">
+<link rel="stylesheet" href="app.css?v=14">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -60,7 +60,10 @@
       <!-- Same placement always: tilted card left (above hunt panel) + side panel right -->
       <div class="find-panel" id="findPanel" hidden>
         <div class="find-card-slot">
-          <article class="find-card" id="findCard">
+          <article class="find-card find-card-back" id="findCardBack" aria-hidden="true">
+            <img class="card-photo" id="panelPhotoBack" alt="" decoding="async">
+          </article>
+          <article class="find-card find-card-front" id="findCard">
             <img class="card-photo" id="panelPhoto" alt="" decoding="async">
             <img class="card-stamp" id="panelStamp" src="assets/parts/footprint.png?v=7" alt="" decoding="async" hidden>
           </article>
@@ -87,8 +90,10 @@
         </div>
       </div>
 
-      <img class="tip-layer" id="tipLayer" src="assets/parts/tip.png?v=7" alt="" decoding="async" hidden>
-      <button type="button" class="hot tip-hot" id="seeOther" aria-label="See other challenges" hidden></button>
+      <div class="tip-wrap" id="tipWrap" hidden>
+        <img class="tip-layer" id="tipLayer" src="assets/parts/tip.png?v=7" alt="" decoding="async">
+        <button type="button" class="hot tip-hot" id="seeOther" aria-label="See other challenges"></button>
+      </div>
 
       <button type="button" class="hot cam-hot" id="camHot" aria-label="Camera"></button>
       <button type="button" class="hot back-hot" id="backHot" aria-label="Back"></button>
@@ -115,6 +120,6 @@
   <p class="meta">
     Honesty: Figma frames have no exportable motion curves — recreating prototype smart-animate as layered element motion on the real map tiles.
   </p>
-  <script src="app.js?v=13b"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>

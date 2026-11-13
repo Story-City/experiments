@@ -65,7 +65,9 @@ const mapPan = document.getElementById('mapPan');
 const gemLayer = document.getElementById('gemLayer');
 const findPanel = document.getElementById('findPanel');
 const findCard = document.getElementById('findCard');
+const findCardBack = document.getElementById('findCardBack');
 const panelPhoto = document.getElementById('panelPhoto');
+const panelPhotoBack = document.getElementById('panelPhotoBack');
 const panelStamp = document.getElementById('panelStamp');
 const findPlane = document.getElementById('findPlane');
 const writeMode = document.getElementById('writeMode');
@@ -74,8 +76,11 @@ const noteWords = document.getElementById('noteWords');
 const readText = document.getElementById('readText');
 const readLikes = document.getElementById('readLikes');
 const nextGem = document.getElementById('nextGem');
+const tipWrap = document.getElementById('tipWrap');
 const tipLayer = document.getElementById('tipLayer');
 const seeOther = document.getElementById('seeOther');
+let panelPhotoSrc = '';
+const TIP_SWIPE_DISMISS_PX = 64;
 const flyThumb = document.getElementById('flyThumb');
 const slotCells = Array.from(document.querySelectorAll('.slot-cell'));
 const camera = document.getElementById('camera');
@@ -195,13 +200,27 @@ function resetMapCamera(_animate) {
 }
 
 function setPanelPhoto(src, { stamp, swap }) {
-  panelPhoto.src = src;
   panelStamp.hidden = !stamp;
-  findCard.classList.remove('is-enter', 'is-swap');
-  // Keep is-shown so opacity never falls back to 0 after animation
-  findCard.classList.add('is-shown');
-  void findCard.offsetWidth;
-  findCard.classList.add(swap ? 'is-swap' : 'is-enter');
+  findCard.classList.remove('is-enter', 'is-shuffle');
+  findCardBack.classList.remove('is-shuffle-out');
+
+  if (swap && panelPhotoSrc) {
+    // Previous image stays behind; new one shuffles onto the stack
+    panelPhotoBack.src = panelPhotoSrc;
+    findCardBack.classList.add('is-shown');
+    panelPhoto.src = src;
+    findCard.classList.add('is-shown');
+    void findCard.offsetWidth;
+    findCardBack.classList.add('is-shuffle-out');
+    findCard.classList.add('is-shuffle');
+  } else {
+    panelPhoto.src = src;
+    findCardBack.classList.remove('is-shown');
+    findCard.classList.add('is-shown');
+    void findCard.offsetWidth;
+    findCard.classList.add('is-enter');
+  }
+  panelPhotoSrc = src;
 }
 
 function showWritePanel(uri) {
@@ -233,13 +252,72 @@ function showReadPanel(entry, { swap }) {
 
 function hideFindPanel() {
   findPanel.classList.remove('is-on');
-  findCard.classList.remove('is-shown', 'is-enter', 'is-swap');
+  findCard.classList.remove('is-shown', 'is-enter', 'is-shuffle');
+  findCardBack.classList.remove('is-shown', 'is-shuffle-out');
   findPlane.hidden = true;
   findPlane.classList.remove('is-on');
   findPanel.hidden = true;
   writeMode.hidden = false;
   readMode.hidden = true;
   readLikes.hidden = true;
+  panelPhotoSrc = '';
+}
+
+function showTip() {
+  tipWrap.hidden = false;
+  tipWrap.classList.remove('is-dismissing');
+  tipWrap.style.transform = '';
+  void tipWrap.offsetWidth;
+  tipWrap.classList.add('is-on');
+  seeOther.hidden = false;
+}
+
+function dismissTip() {
+  if (tipWrap.hidden) return;
+  tipWrap.classList.remove('is-on');
+  tipWrap.classList.add('is-dismissing');
+  seeOther.hidden = true;
+  later(() => {
+    tipWrap.hidden = true;
+    tipWrap.classList.remove('is-dismissing');
+    tipWrap.style.transform = '';
+  }, 340);
+}
+
+function bindTipSwipe() {
+  let startX = 0;
+  let dragging = false;
+
+  const onStart = (x) => {
+    if (tipWrap.hidden || !tipWrap.classList.contains('is-on')) return;
+    startX = x;
+    dragging = true;
+    tipWrap.style.transition = 'none';
+  };
+  const onMove = (x) => {
+    if (!dragging) return;
+    const dx = Math.max(0, x - startX);
+    tipWrap.style.transform = `translateX(${dx}px)`;
+  };
+  const onEnd = (x) => {
+    if (!dragging) return;
+    dragging = false;
+    tipWrap.style.transition = '';
+    const dx = x - startX;
+    if (dx >= TIP_SWIPE_DISMISS_PX) {
+      dismissTip();
+    } else {
+      tipWrap.style.transform = '';
+    }
+  };
+
+  tipWrap.addEventListener('pointerdown', (e) => {
+    tipWrap.setPointerCapture(e.pointerId);
+    onStart(e.clientX);
+  });
+  tipWrap.addEventListener('pointermove', (e) => onMove(e.clientX));
+  tipWrap.addEventListener('pointerup', (e) => onEnd(e.clientX));
+  tipWrap.addEventListener('pointercancel', (e) => onEnd(e.clientX));
 }
 
 async function showOtherEntry(index, animate) {
@@ -263,7 +341,7 @@ function syncChrome() {
   const onMap = phase === 'map' || phase === 'camera' || phase === 'note' || phase === 'browse';
   mapStage.classList.toggle('is-browse', phase === 'browse');
   backHot.hidden = !onMap || phase === 'camera';
-  seeOther.hidden = !(phase === 'browse' || (tipLayer.classList.contains('is-on') && onMap));
+  seeOther.hidden = tipWrap.hidden || !tipWrap.classList.contains('is-on');
   camHot.hidden = !(phase === 'map') || phase === 'note';
   stampHots.forEach((el) => {
     el.hidden = !(phase === 'menu' || phase === 'revealed');
@@ -296,8 +374,9 @@ function clearFinds() {
   pendingCapture = null;
   hideFly();
   hideFindPanel();
-  tipLayer.hidden = true;
-  tipLayer.classList.remove('is-on');
+  tipWrap.classList.remove('is-on', 'is-dismissing');
+  tipWrap.hidden = true;
+  tipWrap.style.transform = '';
   seeOther.hidden = true;
   slotCells.forEach((cell) => {
     const img = cell.querySelector('.slot');
@@ -596,15 +675,11 @@ async function submitNote() {
   pendingCapture = null;
 
   if (finds >= FINDS_NEEDED) {
-    tipLayer.hidden = false;
-    tipLayer.classList.remove('is-on');
-    void tipLayer.offsetWidth;
-    tipLayer.classList.add('is-on');
-    seeOther.hidden = false;
-    phase = 'browse';
+    showTip();
+    phase = 'map';
     syncChrome();
     busy = false;
-    setHint('See other Challengers — tap tip or Next to cycle gems.');
+    setHint('Tip — swipe right to dismiss, or tap to see other Challengers.');
     return;
   }
 
@@ -619,14 +694,12 @@ async function enterBrowse() {
   if (phase !== 'browse' && phase !== 'map') return;
   busy = true;
   phase = 'browse';
-  tipLayer.hidden = false;
-  tipLayer.classList.add('is-on');
-  seeOther.hidden = true;
+  dismissTip();
   await showOtherEntry(0, true);
   await wait(PAN_MS);
   busy = false;
   syncChrome();
-  setHint('Next cycles gems — same card + side panel, new image and text.');
+  setHint('Next shuffles the stack — previous card stays behind.');
 }
 
 async function cycleNextGem() {
@@ -689,6 +762,7 @@ stampHots.forEach((el) => {
 camHot.addEventListener('click', () => openCamera());
 seeOther.addEventListener('click', () => enterBrowse());
 nextGem.addEventListener('click', () => cycleNextGem());
+bindTipSwipe();
 
 backHot.addEventListener('click', async () => {
   if (busy) return;
