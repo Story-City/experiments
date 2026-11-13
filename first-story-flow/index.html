@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<title>Story City · First story flow</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👣</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Darker+Grotesque:wght@400;500;600;700;800&display=swap">
+<script>
+window.CACHE_V = '?v=' + Date.now();
+document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
+</script>
+</head>
+<body>
+<div class="stage">
+  <aside class="note" id="note" aria-live="polite"></aside>
+  <div class="phone" id="phone">
+    <div class="status" aria-hidden="true"><b>9:41</b><span>●●● ◔</span></div>
+    <div id="bg"></div>
+    <main class="screen" id="screen"></main>
+    <div class="snack" id="snack" role="status" hidden></div>
+    <div class="toast" id="toast" role="status" hidden></div>
+    <div class="overlay" id="overlay" hidden></div>
+    <div class="spot" id="spot" hidden><div class="spottip" id="spotTip"></div></div>
+    <button class="tbtn" id="tbtn" aria-expanded="false" aria-controls="tpanel">Tester <b id="tbtnN">1/9</b></button>
+    <div class="tpanel" id="tpanel" hidden></div>
+  </div>
+</div>
+<script type="module">import(`./app.js${window.CACHE_V}`);</script>
+</body>
+</html>

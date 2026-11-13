@@ -1,5 +1,19 @@
 [
   {
+    "slug": "first-story-flow",
+    "path": "first-story-flow/",
+    "title": "First story flow",
+    "what": "The recommended first-time path in the current app's look: one hook screen, “How do you walk?”, a skippable trial, a Start here shelf, chapter 1 with first-time tips, a couch-proof first unlock, a soft “Save your story?”, a second trial at the cliffhanger, and the finish with a step-goal reminder. Tester panel jumps to any step, walk answer, story or trial choice.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null,
+    "draft": true,
+    "reviewer": "Melissa"
+  },
+  {
     "slug": "story-progress",
     "path": "story-progress/",
     "title": "Story progress",
