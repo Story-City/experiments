@@ -392,6 +392,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   transition: transform var(--slide-ms) var(--ease-slide);
   pointer-events: none;
 }
+.camera-sheet[hidden] { display: none !important; }
 .camera-sheet.is-on { transform: translateY(0); pointer-events: auto; }
 
 .camera-video, .camera-snap, .camera-fallback, .camera-fallback-img {
