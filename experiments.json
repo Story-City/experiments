@@ -9,9 +9,7 @@
     "date": "2026-11",
     "archived": false,
     "notionPageId": null,
-    "jira": null,
-    "draft": true,
-    "reviewer": "Melissa"
+    "jira": null
   },
   {
     "slug": "story-progress",
