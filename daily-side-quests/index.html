@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=15">
+<link rel="stylesheet" href="app.css?v=16">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -58,18 +58,10 @@
         <img class="map-fill" src="assets/parts/map-hunt.png?v=7" alt="" decoding="async">
         <div class="jam-layer" id="jamLayer" aria-hidden="true"></div>
         <div class="gem-layer" id="gemLayer" aria-hidden="true"></div>
-        <!-- Small SVG plane + dashed trail — no black PNG frame -->
+        <!-- Figma plane shape intact; only the tip of the dashed tail twinkles -->
         <div class="plane-mark" id="planeMark" hidden aria-hidden="true">
-          <svg class="plane-svg" viewBox="0 0 64 64" aria-hidden="true">
-            <path class="plane-trail" d="M18 46 C 22 34, 28 28, 34 30 C 40 32, 42 40, 38 44 C 34 48, 40 42, 46 34"
-              fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"
-              stroke-dasharray="2.2 3.4"/>
-            <g class="plane-body">
-              <path d="M32 20 L48 28 L34 30 L30 40 Z" fill="#d7c8ff"/>
-              <path d="M32 20 L34 30 L22 34 Z" fill="#b36bff"/>
-              <path d="M34 30 L48 28 L30 40" fill="none" stroke="#fff" stroke-opacity="0.45" stroke-width="0.8"/>
-            </g>
-          </svg>
+          <img class="plane-art" src="assets/parts/airplanes-clear.png?v=16" alt="" decoding="async">
+          <span class="plane-tail-tip" aria-hidden="true"></span>
         </div>
       </div>
 
@@ -91,12 +83,16 @@
       <!-- Same placement always: tilted card left (above hunt panel) + side panel right -->
       <div class="find-panel" id="findPanel" hidden>
         <div class="find-card-slot">
+          <article class="find-card find-card-deep" id="findCardDeep" aria-hidden="true">
+            <img class="card-photo" id="panelPhotoDeep" alt="" decoding="async">
+          </article>
           <article class="find-card find-card-back" id="findCardBack" aria-hidden="true">
             <img class="card-photo" id="panelPhotoBack" alt="" decoding="async">
           </article>
           <article class="find-card find-card-front" id="findCard">
             <img class="card-photo" id="panelPhoto" alt="" decoding="async">
-            <img class="card-stamp" id="panelStamp" src="assets/parts/footprint.png?v=7" alt="" decoding="async" hidden>
+            <!-- Print only — never the old full footprint card (that was the artifact) -->
+            <img class="card-stamp" id="panelStamp" src="assets/parts/footprint-print.png?v=16" alt="" decoding="async" hidden>
           </article>
         </div>
 
@@ -113,7 +109,10 @@
             <p class="side-label">See what other Challengers found</p>
             <p class="read-text" id="readText"></p>
             <div class="read-meta">
-              <span class="likes" id="readLikes" hidden></span>
+              <button type="button" class="like-btn" id="likeBtn" aria-label="Like">
+                <span class="like-heart" id="likeHeart" aria-hidden="true">♡</span>
+                <span class="like-count" id="likeCount">0</span>
+              </button>
               <button type="button" class="next-pill" id="nextGem">Next</button>
             </div>
           </div>
@@ -150,6 +149,6 @@
   <p class="meta">
     Honesty: Figma frames have no exportable motion curves — recreating prototype smart-animate as layered element motion on the real map tiles.
   </p>
-  <script src="app.js?v=15"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>

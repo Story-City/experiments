@@ -246,41 +246,41 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   50% { opacity: 0.85; transform: scale(1.35); }
 }
 
-/* Small plane + dashed trail (no PNG black frame) */
+/* Figma plane art — shape frozen; only the last dash tip twinkles */
 .plane-mark {
   position: absolute;
-  width: 54px; height: 54px;
-  margin: -27px 0 0 -27px;
+  width: 44px; height: 56px;
+  margin: -28px 0 0 -22px;
   z-index: 4;
   pointer-events: none;
   opacity: 0;
-  transform: rotate(var(--plane-rot, -28deg)) scale(0.86);
-  transition: opacity 280ms var(--ease-out), left 420ms var(--ease-out), top 420ms var(--ease-out);
+  transition: opacity 280ms var(--ease-out);
 }
-.plane-mark.is-on {
-  opacity: 1;
-  animation: planeBob 2.2s ease-in-out infinite;
-}
+.plane-mark.is-on { opacity: 1; }
 .plane-mark[hidden] { display: none; }
-.plane-svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.plane-trail {
-  stroke-dashoffset: 0;
-  animation: trailDash 1.1s linear infinite;
+.plane-art {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
 }
-.plane-body {
-  transform-origin: 36px 28px;
-  animation: planeWaggle 1.6s ease-in-out infinite;
+.plane-tail-tip {
+  position: absolute;
+  left: 28%; top: 42%;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  filter: blur(1.5px);
+  opacity: 0;
+  pointer-events: none;
 }
-@keyframes trailDash {
-  to { stroke-dashoffset: -22; }
+.plane-mark.is-on .plane-tail-tip {
+  animation: tailTip 1.4s ease-in-out infinite;
 }
-@keyframes planeBob {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 2px -3px; }
-}
-@keyframes planeWaggle {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(6deg); }
+@keyframes tailTip {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50% { opacity: 0.95; transform: scale(1.15); }
 }
 
 /* Gem icons on the map (browse) */
@@ -405,14 +405,22 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   overflow: hidden;
   transform: rotate(-12deg) scale(1);
   transform-origin: 50% 60%;
-  /* Light edge only — heavy drop shadow was the image artifact */
   box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.35);
   opacity: 0;
   filter: none;
   background: var(--raised);
 }
-.find-card-back {
+.find-card-deep {
   z-index: 1;
+  opacity: 0;
+  transform: rotate(-24deg) scale(0.88) translate(18%, 12%);
+}
+.find-card-deep.is-shown {
+  opacity: 0.78;
+  transform: rotate(-24deg) scale(0.88) translate(18%, 12%);
+}
+.find-card-back {
+  z-index: 2;
   opacity: 0;
   transform: rotate(-18deg) scale(0.94) translate(10%, 6%);
 }
@@ -420,8 +428,14 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   opacity: 0.92;
   transform: rotate(-18deg) scale(0.94) translate(10%, 6%);
 }
+.find-card-back.is-shuffle-out {
+  animation: cardPeek 560ms var(--ease-out) both;
+}
+.find-card-deep.is-shuffle-out {
+  animation: cardPeekDeep 560ms var(--ease-out) both;
+}
 .find-card-front {
-  z-index: 2;
+  z-index: 3;
 }
 .find-card-front.is-shown {
   opacity: 1;
@@ -431,10 +445,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   animation: noteDrop var(--settle-ms) var(--ease-out) both;
 }
 .find-card-front.is-shuffle {
-  animation: cardShuffle 520ms var(--ease-out) both;
-}
-.find-card-back.is-shuffle-out {
-  animation: cardPeek 520ms var(--ease-out) both;
+  animation: cardShuffle 560ms var(--ease-out) both;
 }
 
 .card-photo {
@@ -444,9 +455,16 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   background: var(--raised);
 }
 .card-stamp {
-  position: absolute; inset: 6% 8% 14%;
-  width: auto; height: auto; object-fit: contain;
-  z-index: 2; opacity: 0.88; pointer-events: none;
+  position: absolute;
+  left: 18%; right: 18%; top: 16%; bottom: 22%;
+  width: auto; height: auto;
+  object-fit: contain;
+  z-index: 2;
+  opacity: 0.78;
+  pointer-events: none;
+  /* No drop-shadow / no full-card chrome — print only */
+  filter: none;
+  mix-blend-mode: multiply;
 }
 
 @keyframes noteDrop {
@@ -454,13 +472,17 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   100% { opacity: 1; transform: rotate(-12deg) scale(1) translateY(0); }
 }
 @keyframes cardShuffle {
-  0% { opacity: 0.2; transform: rotate(-4deg) scale(1.06) translate(-8%, -14%); }
-  55% { opacity: 1; transform: rotate(-14deg) scale(1.02) translate(2%, 2%); }
+  0% { opacity: 0.15; transform: rotate(-2deg) scale(1.08) translate(-12%, -16%); }
+  60% { opacity: 1; transform: rotate(-13deg) scale(1.02) translate(1%, 1%); }
   100% { opacity: 1; transform: rotate(-12deg) scale(1) translate(0, 0); }
 }
 @keyframes cardPeek {
   0% { opacity: 1; transform: rotate(-12deg) scale(1) translate(0, 0); }
-  100% { opacity: 0.9; transform: rotate(-18deg) scale(0.94) translate(10%, 6%); }
+  100% { opacity: 0.92; transform: rotate(-18deg) scale(0.94) translate(10%, 6%); }
+}
+@keyframes cardPeekDeep {
+  0% { opacity: 0.92; transform: rotate(-18deg) scale(0.94) translate(10%, 6%); }
+  100% { opacity: 0.78; transform: rotate(-24deg) scale(0.88) translate(18%, 12%); }
 }
 
 /* Side panel — lower (near hunt sheet), wider horizontally */
@@ -494,17 +516,56 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .read-text {
   margin: 0 0 10px;
   font-size: 14px; font-weight: 600; line-height: 1.3;
-  color: #fff; min-height: 2.6em;
+  color: #fff;
+  min-height: 2.8em;
 }
-.side-actions, .read-meta {
+.side-actions {
   display: flex; align-items: center; gap: 8px;
 }
-.likes {
-  flex: 1;
-  font-weight: 800; font-size: 13px;
-  color: #ffb4d4;
+/* Fixed two-column meta — Next never jumps when likes change */
+.read-meta {
+  display: grid;
+  grid-template-columns: minmax(72px, 1fr) 84px;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
 }
-.likes[hidden] { display: none; }
+.like-btn {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 72px;
+  height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffb4d4;
+  font: inherit;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+}
+.like-heart {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  font-size: 16px;
+  line-height: 1;
+}
+.like-btn.is-liked {
+  color: #fff;
+  background: rgba(255, 105, 160, 0.28);
+}
+.like-btn.is-liked .like-heart { color: #ff7aab; }
+.like-btn.is-invite .like-heart {
+  animation: likeInvite 1.2s ease-in-out infinite;
+}
+@keyframes likeInvite {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.28); opacity: 1; }
+}
 
 .slots { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
 .slot-cell {
@@ -552,10 +613,11 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .note-input::placeholder { color: rgba(255, 255, 255, 0.4); }
 
 .skippill, .confirm-pill, .next-pill {
-  flex: 1; height: 34px; padding: 0 12px;
+  height: 34px; padding: 0 12px;
   border-radius: 999px; font: inherit; font-weight: 800; font-size: 14px;
   cursor: pointer;
 }
+.skippill, .confirm-pill { flex: 1; }
 .skippill {
   border: 1px solid rgba(0, 158, 255, 0.55);
   background: rgba(0, 158, 255, 0.16);
@@ -566,7 +628,11 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   background: linear-gradient(90deg, #0259a1, var(--accent));
   color: #fff;
 }
-.next-pill { flex: none; padding: 0 18px; }
+.next-pill {
+  width: 84px;
+  padding: 0;
+  justify-self: end;
+}
 
 .tip-wrap {
   position: absolute;

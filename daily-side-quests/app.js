@@ -45,9 +45,8 @@ const MY_JAM_SPOTS = [
   { x: 41, y: 43 },
 ];
 
-/** Offset so plane sits beside the jam and aims at it */
-const PLANE_OFFSET = { x: -7, y: -6 };
-const PLANE_BASE_ROT_DEG = -28;
+/** Place plane so its natural nose (upper-right) aims at the jam */
+const PLANE_OFFSET = { x: -8, y: 5 };
 
 /** @typedef {'tip'|'fab'|'pill'|'chip'} OthersMode */
 
@@ -81,14 +80,18 @@ const planeMark = document.getElementById('planeMark');
 const findPanel = document.getElementById('findPanel');
 const findCard = document.getElementById('findCard');
 const findCardBack = document.getElementById('findCardBack');
+const findCardDeep = document.getElementById('findCardDeep');
 const panelPhoto = document.getElementById('panelPhoto');
 const panelPhotoBack = document.getElementById('panelPhotoBack');
+const panelPhotoDeep = document.getElementById('panelPhotoDeep');
 const panelStamp = document.getElementById('panelStamp');
 const writeMode = document.getElementById('writeMode');
 const readMode = document.getElementById('readMode');
 const noteWords = document.getElementById('noteWords');
 const readText = document.getElementById('readText');
-const readLikes = document.getElementById('readLikes');
+const likeBtn = document.getElementById('likeBtn');
+const likeHeart = document.getElementById('likeHeart');
+const likeCount = document.getElementById('likeCount');
 const nextGem = document.getElementById('nextGem');
 const tipWrap = document.getElementById('tipWrap');
 const seeOther = document.getElementById('seeOther');
@@ -96,7 +99,14 @@ const othersFab = document.getElementById('othersFab');
 const othersPill = document.getElementById('othersPill');
 const othersChip = document.getElementById('othersChip');
 const othersDebugChips = Array.from(document.querySelectorAll('[data-others]'));
+/** Front of the visual stack */
 let panelPhotoSrc = '';
+/** @type {string[]} oldest → newest under the front */
+let stackUnder = [];
+/** @type {Record<number, boolean>} */
+let likedByGem = {};
+/** @type {Record<number, boolean>} first-time invite pulse already shown */
+let likeInviteSeen = {};
 const TIP_SWIPE_DISMISS_PX = 64;
 /** @type {OthersMode} */
 let othersMode = 'tip';
@@ -199,7 +209,10 @@ function buildGems() {
       <path d="${GEM_FACETS}" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1" stroke-linejoin="round"/>
       <path d="${GEM_OUTLINE}" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
     </svg>`;
-    pin.addEventListener('click', () => showOtherEntry(i, true));
+    pin.addEventListener('click', () => {
+      if (phase !== 'browse' || busy) return;
+      showOtherEntry(i, true);
+    });
     gemLayer.appendChild(pin);
   });
 }
@@ -223,14 +236,9 @@ function jamSpotAt(index) {
 }
 
 function aimPlaneAt(spot) {
-  const left = spot.x + PLANE_OFFSET.x;
-  const top = spot.y + PLANE_OFFSET.y;
-  const dx = spot.x - left;
-  const dy = spot.y - top;
-  const rot = (Math.atan2(dy, dx) * 180) / Math.PI + PLANE_BASE_ROT_DEG;
-  planeMark.style.left = `${left}%`;
-  planeMark.style.top = `${top}%`;
-  planeMark.style.setProperty('--plane-rot', `${rot}deg`);
+  // Keep Figma orientation — only reposition so the nose points at the jam
+  planeMark.style.left = `${spot.x + PLANE_OFFSET.x}%`;
+  planeMark.style.top = `${spot.y + PLANE_OFFSET.y}%`;
 }
 
 function showPlaneForJam(index) {
@@ -304,28 +312,70 @@ function setOthersMode(mode) {
   setHint(`See others: ${mode === 'tip' ? 'tip swipe/tap' : mode}.`);
 }
 
-function setPanelPhoto(src, { stamp, swap }) {
-  panelStamp.hidden = !stamp;
+function clearStackClasses() {
   findCard.classList.remove('is-enter', 'is-shuffle');
   findCardBack.classList.remove('is-shuffle-out');
+  findCardDeep.classList.remove('is-shuffle-out');
+}
 
-  if (swap && panelPhotoSrc) {
-    // Previous image stays behind; new one shuffles onto the stack
-    panelPhotoBack.src = panelPhotoSrc;
+function renderStackLayers() {
+  const under = stackUnder;
+  if (under.length >= 2) {
+    panelPhotoDeep.src = under[under.length - 2];
+    findCardDeep.classList.add('is-shown');
+  } else {
+    findCardDeep.classList.remove('is-shown');
+  }
+  if (under.length >= 1) {
+    panelPhotoBack.src = under[under.length - 1];
     findCardBack.classList.add('is-shown');
+  } else {
+    findCardBack.classList.remove('is-shown');
+  }
+}
+
+function setPanelPhoto(src, { stamp, swap }) {
+  panelStamp.hidden = !stamp;
+  clearStackClasses();
+
+  if (swap && panelPhotoSrc && panelPhotoSrc !== src) {
+    // Push current front under; keep a deeper peek for a real stack
+    stackUnder.push(panelPhotoSrc);
+    if (stackUnder.length > 2) stackUnder.shift();
+    renderStackLayers();
     panelPhoto.src = src;
     findCard.classList.add('is-shown');
     void findCard.offsetWidth;
+    if (stackUnder.length >= 2) findCardDeep.classList.add('is-shuffle-out');
     findCardBack.classList.add('is-shuffle-out');
     findCard.classList.add('is-shuffle');
   } else {
-    panelPhoto.src = src;
+    stackUnder = [];
+    findCardDeep.classList.remove('is-shown');
     findCardBack.classList.remove('is-shown');
+    panelPhoto.src = src;
     findCard.classList.add('is-shown');
     void findCard.offsetWidth;
     findCard.classList.add('is-enter');
   }
   panelPhotoSrc = src;
+}
+
+function syncLikeUi({ invite }) {
+  const entry = OTHER_ENTRIES[otherIndex];
+  const liked = !!likedByGem[otherIndex];
+  const count = entry.likes + (liked ? 1 : 0);
+  likeCount.textContent = String(count);
+  likeHeart.textContent = liked ? '♥' : '♡';
+  likeBtn.classList.toggle('is-liked', liked);
+  const showInvite = invite && !liked && !likeInviteSeen[otherIndex];
+  likeBtn.classList.toggle('is-invite', showInvite);
+  if (showInvite) {
+    later(() => {
+      likeInviteSeen[otherIndex] = true;
+      likeBtn.classList.remove('is-invite');
+    }, 2800);
+  }
 }
 
 function showWritePanel(uri) {
@@ -343,9 +393,8 @@ function showReadPanel(entry, { swap }) {
   writeMode.hidden = true;
   readMode.hidden = false;
   readText.textContent = entry.text;
-  // Likes appear on demand when zooming to this gem
-  readLikes.hidden = true;
   setPanelPhoto(entry.photo, { stamp: false, swap });
+  syncLikeUi({ invite: true });
   hidePlane();
   findPanel.hidden = false;
   findPanel.classList.add('is-on');
@@ -355,12 +404,14 @@ function hideFindPanel() {
   findPanel.classList.remove('is-on');
   findCard.classList.remove('is-shown', 'is-enter', 'is-shuffle');
   findCardBack.classList.remove('is-shown', 'is-shuffle-out');
+  findCardDeep.classList.remove('is-shown', 'is-shuffle-out');
   hidePlane();
   findPanel.hidden = true;
   writeMode.hidden = false;
   readMode.hidden = true;
-  readLikes.hidden = true;
   panelPhotoSrc = '';
+  stackUnder = [];
+  likeBtn.classList.remove('is-invite', 'is-liked');
 }
 
 function showTip() {
@@ -421,17 +472,14 @@ function bindTipSwipe() {
 }
 
 async function showOtherEntry(index, animate) {
-  otherIndex = ((index % OTHER_ENTRIES.length) + OTHER_ENTRIES.length) % OTHER_ENTRIES.length;
-  const entry = OTHER_ENTRIES[otherIndex];
+  const next = ((index % OTHER_ENTRIES.length) + OTHER_ENTRIES.length) % OTHER_ENTRIES.length;
+  const entry = OTHER_ENTRIES[next];
+  const same = next === otherIndex && panelPhotoSrc === entry.photo;
+  otherIndex = next;
   gemPins().forEach((p, i) => p.classList.toggle('is-active', i === otherIndex));
   setMapPan(entry, animate);
-  showReadPanel(entry, { swap: true });
-  // Reveal likes after the pan settles
-  later(() => {
-    if (phase !== 'browse') return;
-    readLikes.hidden = false;
-    readLikes.textContent = `♥ ${entry.likes}`;
-  }, animate ? PAN_MS : 80);
+  // Always stack-shuffle when changing gems (Next or pin tap)
+  showReadPanel(entry, { swap: !same });
 }
 
 function syncChrome() {
@@ -475,6 +523,8 @@ function clearFinds() {
   finds = 0;
   captures = [];
   pendingCapture = null;
+  likedByGem = {};
+  likeInviteSeen = {};
   hideFly();
   hideFindPanel();
   clearJams();
@@ -880,6 +930,11 @@ othersChip.addEventListener('click', () => enterBrowse());
 nextGem.addEventListener('click', () => cycleNextGem());
 othersDebugChips.forEach((btn) => {
   btn.addEventListener('click', () => setOthersMode(/** @type {OthersMode} */ (btn.dataset.others)));
+});
+likeBtn.addEventListener('click', () => {
+  likedByGem[otherIndex] = !likedByGem[otherIndex];
+  likeInviteSeen[otherIndex] = true;
+  syncLikeUi({ invite: false });
 });
 bindTipSwipe();
 
