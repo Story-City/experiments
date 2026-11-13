@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=30">
+<link rel="stylesheet" href="app.css?v=31">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -33,7 +33,7 @@
 
     <!-- Stamp stage: Figma PARTS — not a flat video -->
     <div class="stamp-sheet" id="stampSheet" aria-hidden="true">
-      <img class="stamp-sheet-bg" id="stampSheetBg" src="assets/parts/menu.png?v=7" alt="" decoding="async">
+      <img class="stamp-sheet-bg" id="stampSheetBg" src="assets/parts/menu.png?v=31" alt="" decoding="async">
 
       <!-- Hits only — art comes from menu.png / revealed.png (no cropped layers). -->
       <div class="stamp-list" id="stampList">
@@ -101,6 +101,7 @@
             </div>
           </div>
           <div class="read-mode" id="readMode" hidden>
+            <p class="entry-user" id="entryUser">@mara.k</p>
             <p class="side-label" id="readLabel">See what other Challengers found</p>
             <p class="read-text" id="readText"></p>
             <div class="read-meta">
@@ -108,7 +109,10 @@
                 <span class="like-heart" id="likeHeart" aria-hidden="true">♡</span>
                 <span class="like-count" id="likeCount">0</span>
               </button>
-              <button type="button" class="next-pill" id="nextGem">Next</button>
+              <button type="button" class="share-btn" id="shareBtn" aria-label="Share">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10M8.5 6.5 12 3l3.5 3.5M6 12v6.5A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5V12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button type="button" class="next-arrow" id="nextGem" aria-label="Next entry">›</button>
             </div>
           </div>
         </div>
@@ -123,10 +127,14 @@
       </div>
 
       <div class="tip-wrap" id="tipWrap" hidden>
-        <img class="tip-layer" id="tipLayer" src="assets/parts/tip.png?v=7" alt="" decoding="async">
-        <button type="button" class="hot tip-hot" id="seeOther" aria-label="See other challenges"></button>
+        <div class="tip-card glass">
+          <p class="tip-copy" id="tipCopy">When you find a location, tap the camera to snap a photo and share.</p>
+          <img class="tip-character" src="assets/parts/tip-character.png?v=31" alt="" decoding="async">
+        </div>
+        <button type="button" class="hot tip-hot" id="seeOther" aria-label="See other challenges" hidden></button>
       </div>
 
+      <button type="button" class="info-btn" id="infoBtn" hidden aria-label="Show tip">i</button>
       <button type="button" class="hot cam-hot" id="camHot" aria-label="Camera"></button>
       <button type="button" class="hot back-hot" id="backHot" aria-label="Back"></button>
     </div>
@@ -137,7 +145,7 @@
       <video class="camera-video" id="cameraVideo" playsinline muted></video>
       <canvas class="camera-snap" id="cameraSnap" hidden></canvas>
       <div class="camera-fallback" id="cameraFallback" hidden>
-        <img class="camera-fallback-img" id="cameraFallbackImg" src="assets/parts/capture.jpg?v=7b" alt="" decoding="async">
+        <img class="camera-fallback-img" id="cameraFallbackImg" src="assets/parts/find-a.jpg?v=30" alt="" decoding="async">
       </div>
       <button type="button" class="camera-back" id="cameraClose" aria-label="Close camera">‹</button>
       <p class="camera-prompt" id="cameraPrompt">Find an animalistic pattern near you</p>
@@ -150,8 +158,8 @@
   </main>
 
   <p class="meta">
-    LAYOUT-SIDE-BY-SIDE-BOTTOM-v30 SLOTS-FILL-v30 — fingerprint for live verify.
+    ENTRY-ARROW-SHARE-v31 MAP-SWOOSH-v31 — fingerprint for live verify.
   </p>
-  <script src="app.js?v=30"></script>
+  <script src="app.js?v=31"></script>
 </body>
 </html>

@@ -19,24 +19,30 @@ const CAPTURE_SLOTS = [
 /** Other challengers — gem on map + panel image/text (+ likes on zoom) */
 const OTHER_ENTRIES = [
   {
+    user: '@mara.k',
     photo: 'assets/parts/find-b.jpg?v=30',
     text: 'Paw print in the sidewalk concrete near the ravine.',
     likes: 12,
     x: 28, y: 32,
   },
   {
+    user: '@juniper.walks',
     photo: 'assets/parts/find-c.jpg?v=30',
     text: 'Bird-shaped cloud above Victoria Trail.',
     likes: 7,
     x: 68, y: 28,
   },
   {
+    user: '@foxtrail',
     photo: 'assets/parts/find-d.jpg?v=30',
     text: 'Fox silhouette in the ivy on the mailbox.',
     likes: 21,
     x: 48, y: 42,
   },
 ];
+const MY_USER = '@you';
+const TIP_COPY_ONBOARD = 'When you find a location, tap the camera to snap a photo and share.';
+const TIP_COPY_OTHERS = 'See what other Challengers found today';
 
 /** Beach spots for my jams (map %); plane points here */
 const MY_JAM_SPOTS = [
@@ -61,11 +67,12 @@ const READ_LABEL_MINE = 'Your find';
 const FADE_MS = 780;
 const SLIDE_MS = 480;
 const LIFT_MS = 520;
-const PAN_MS = 1100;
+const PAN_MS = 1280;
 const SETTLE_MS = 980;
 const FLIGHT_MS = 860;
 const FINDS_NEEDED = 3;
-const EASE_OUT = 'cubic-bezier(0.33, 0.0, 0.2, 1)';
+const EASE_OUT = 'cubic-bezier(0.22, 0.8, 0.24, 1)';
+const EASE_SWOOSH = 'cubic-bezier(0.16, 1, 0.3, 1)';
 const EASE_SPRING = 'cubic-bezier(0.34, 1.45, 0.64, 1)';
 
 const phone = document.getElementById('phone');
@@ -96,8 +103,12 @@ const likeBtn = document.getElementById('likeBtn');
 const likeHeart = document.getElementById('likeHeart');
 const likeCount = document.getElementById('likeCount');
 const nextGem = document.getElementById('nextGem');
+const shareBtn = document.getElementById('shareBtn');
+const entryUser = document.getElementById('entryUser');
 const tipWrap = document.getElementById('tipWrap');
+const tipCopy = document.getElementById('tipCopy');
 const seeOther = document.getElementById('seeOther');
+const infoBtn = document.getElementById('infoBtn');
 const othersBtn = document.getElementById('othersBtn');
 const photoLightbox = document.getElementById('photoLightbox');
 const lightboxPhoto = document.getElementById('lightboxPhoto');
@@ -184,8 +195,8 @@ async function showScene(src) {
 function setStampFaces(revealed) {
   stampsRevealed = revealed;
   stampSheetBg.src = revealed
-    ? 'assets/parts/revealed.png?v=7'
-    : 'assets/parts/menu.png?v=7';
+    ? 'assets/parts/revealed.png?v=31'
+    : 'assets/parts/menu.png?v=31';
   stampParts.forEach((part) => {
     part.classList.toggle('is-revealed', revealed);
     const cam = part.querySelector('.stamp-cam-hot');
@@ -228,20 +239,24 @@ function gemPins() {
   return Array.from(gemLayer.querySelectorAll('.gem-pin'));
 }
 
-/** Gentle zoom anchored on the gem — keep mild so layout doesn't warp. */
-const GEM_ZOOM = 1.08;
+/** Map swoosh toward a gem — scale + nudge so the pin drifts to center. */
+const GEM_ZOOM = 1.28;
+const GEM_NUDGE_X = 0.42;
+const GEM_NUDGE_Y = 0.36;
 
 function setMapPan(entry, animate) {
   mapPan.style.transition = animate === false
     ? 'none'
-    : `transform ${PAN_MS}ms ${EASE_OUT}`;
+    : `transform ${PAN_MS}ms ${EASE_SWOOSH}`;
   if (!entry || entry.x == null || entry.y == null) {
-    mapPan.style.transformOrigin = '50% 38%';
-    mapPan.style.transform = 'scale(1)';
+    mapPan.style.transformOrigin = '50% 40%';
+    mapPan.style.transform = 'translate3d(0,0,0) scale(1)';
     return;
   }
+  const dx = (50 - entry.x) * GEM_NUDGE_X;
+  const dy = (38 - entry.y) * GEM_NUDGE_Y;
   mapPan.style.transformOrigin = `${entry.x}% ${entry.y}%`;
-  mapPan.style.transform = `scale(${GEM_ZOOM})`;
+  mapPan.style.transform = `translate3d(${dx}%, ${dy}%, 0) scale(${GEM_ZOOM})`;
 }
 
 function resetMapCamera(animate) {
@@ -316,8 +331,12 @@ function syncOthersControl() {
   const ready = finds >= FINDS_NEEDED;
   othersBtn.disabled = !ready;
   othersBtn.setAttribute('aria-disabled', ready ? 'false' : 'true');
-  // Tip hot still works once challenge is done and tip is up
-  seeOther.hidden = !(ready && !tipWrap.hidden && tipWrap.classList.contains('is-on'));
+  seeOther.hidden = !(
+    ready
+    && tipWrap.dataset.tip === 'others'
+    && !tipWrap.hidden
+    && tipWrap.classList.contains('is-on')
+  );
 }
 
 function clearStackClasses() {
@@ -440,14 +459,20 @@ function showWritePanel(uri) {
   findPanel.classList.add('is-on');
 }
 
+function setEntryUser(name) {
+  entryUser.textContent = name || MY_USER;
+}
+
 function showReadPanel(entry, { swap }) {
   viewingMine = false;
   closeLightbox();
   writeMode.hidden = true;
   readMode.hidden = false;
+  setEntryUser(entry.user || '@challenger');
   readLabel.textContent = READ_LABEL_OTHERS;
   readText.textContent = entry.text || '—';
   nextGem.hidden = false;
+  shareBtn.hidden = false;
   setPanelPhoto(entry.photo, { swap });
   syncLikeUi({ invite: true });
   hidePlane();
@@ -462,9 +487,11 @@ function showMyReadPanel(entry, { swap }) {
   closeLightbox();
   writeMode.hidden = true;
   readMode.hidden = false;
+  setEntryUser(entry.user || MY_USER);
   readLabel.textContent = READ_LABEL_MINE;
   readText.textContent = entry.text || '—';
   nextGem.hidden = myEntries.length < 2;
+  shareBtn.hidden = false;
   setPanelPhoto(entry.photo, { swap });
   syncLikeUi({ invite: false });
   hidePlane();
@@ -494,7 +521,12 @@ function hideFindPanel() {
   markActivePins();
 }
 
-function showTip() {
+/** @param {'onboard'|'others'} kind */
+function showTip(kind) {
+  const mode = kind === 'others' ? 'others' : 'onboard';
+  tipWrap.dataset.tip = mode;
+  tipCopy.textContent = mode === 'others' ? TIP_COPY_OTHERS : TIP_COPY_ONBOARD;
+  seeOther.hidden = mode !== 'others';
   tipWrap.hidden = false;
   tipWrap.classList.remove('is-dismissing');
   tipWrap.style.transform = '';
@@ -573,7 +605,7 @@ async function openOtherGem(index) {
   await showOtherEntry(index, true);
   busy = false;
   syncChrome();
-  setHint(`Other find ${otherIndex + 1}/${OTHER_ENTRIES.length} — tap gems or Next.`);
+  setHint(`Other find ${otherIndex + 1}/${OTHER_ENTRIES.length} — arrow cycles entries.`);
 }
 
 async function openMyEntry(index) {
@@ -603,6 +635,7 @@ function syncChrome() {
   mapStage.classList.toggle('is-gems', finds >= FINDS_NEEDED && (phase === 'map' || phase === 'browse'));
   backHot.hidden = !onMap || phase === 'camera';
   camHot.hidden = phase !== 'map';
+  infoBtn.hidden = !(phase === 'map' || phase === 'browse' || phase === 'note');
   stampParts.forEach((el) => {
     el.hidden = !(phase === 'menu' || phase === 'revealed');
   });
@@ -742,7 +775,8 @@ async function enterMapFromStamp(index) {
   await wait(FADE_MS);
   busy = false;
   syncChrome();
-  setHint('Map — photo lands as the tilted card above the hunt panel.');
+  showTip('onboard');
+  setHint('Map — tip explains the camera; info (i) brings the tip back.');
 }
 
 async function startStream() {
@@ -953,7 +987,7 @@ async function submitNote() {
   const noteText = (noteWords.value || '').trim();
 
   // Measure fly start while the card is still laid out, then fade the panel.
-  myEntries.push({ photo: slotUri, text: noteText });
+  myEntries.push({ user: MY_USER, photo: slotUri, text: noteText });
   finds = myEntries.length;
   const index = finds - 1;
 
@@ -966,11 +1000,11 @@ async function submitNote() {
   pendingCapture = null;
 
   if (finds >= FINDS_NEEDED) {
-    showTip();
+    showTip('others');
     phase = 'map';
     syncChrome();
     busy = false;
-    setHint('Challenge done — Show other gems is unlocked.');
+    setHint('Challenge done — tip unlocks others; cyan gem or tip opens browse.');
     return;
   }
 
@@ -991,7 +1025,7 @@ async function enterBrowse() {
   await wait(PAN_MS);
   busy = false;
   syncChrome();
-  setHint('Cyan gems = others. Purple jams = yours. Next cycles the stack.');
+  setHint('Cyan gems = others. Purple jams = yours. Arrow cycles the stack.');
 }
 
 async function cycleNextGem() {
@@ -1077,6 +1111,22 @@ othersBtn.addEventListener('click', () => {
   enterBrowse();
 });
 nextGem.addEventListener('click', () => cycleNextGem());
+shareBtn.addEventListener('click', async () => {
+  const who = entryUser.textContent || MY_USER;
+  const body = readText.textContent || '';
+  const payload = { title: 'Daily Side Quest find', text: `${who} — ${body}` };
+  try {
+    if (navigator.share) await navigator.share(payload);
+    else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(`${who}\n${body}`);
+      setHint('Copied find to clipboard.');
+    }
+  } catch (_) { /* user cancelled share */ }
+});
+infoBtn.addEventListener('click', () => {
+  if (phase !== 'map' && phase !== 'browse' && phase !== 'note') return;
+  showTip(finds >= FINDS_NEEDED ? 'others' : 'onboard');
+});
 likeBtn.addEventListener('click', () => {
   if (viewingMine) return;
   likedByGem[otherIndex] = !likedByGem[otherIndex];
