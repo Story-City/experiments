@@ -8,14 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=23">
+<link rel="stylesheet" href="app.css?v=24">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Daily Side Quests</h1>
     <p class="lede">
-      Stamp stage built from Figma parts (plate, tap face, hand, dice, revealed rows) — each stamp is its own button.
+      Stamp parts aligned to Figma layout; hand and dice animate on separate tracks from get_motion_context.
     </p>
   </header>
 
@@ -37,46 +37,58 @@
 
       <div class="stamp-list" id="stampList">
         <button type="button" class="stamp-part" data-stamp="0" aria-label="Stamp 1">
-          <img class="stamp-plate" src="assets/parts/stamp-plate.png?v=23" alt="" decoding="async">
+          <img class="stamp-plate" src="assets/parts/stamp-plate.png?v=24" alt="" decoding="async">
           <div class="stamp-unrevealed">
-            <img class="stamp-tapface" src="assets/parts/stamp-tapface.png?v=23" alt="" decoding="async">
+            <img class="stamp-tapface" src="assets/parts/stamp-tapface.png?v=24" alt="" decoding="async">
             <div class="stamp-motion" aria-hidden="true">
-              <img class="stamp-hand" src="assets/parts/stamp-hand.png?v=23" alt="" decoding="async">
-              <img class="stamp-dice" src="assets/parts/stamp-dice.png?v=23" alt="" decoding="async">
+              <div class="stamp-hand-track">
+                <img class="stamp-hand" src="assets/parts/stamp-hand.png?v=24" alt="" decoding="async">
+              </div>
+              <div class="stamp-dice-track">
+                <img class="stamp-dice" src="assets/parts/stamp-dice.png?v=24" alt="" decoding="async">
+              </div>
             </div>
           </div>
           <div class="stamp-revealed" hidden>
-            <img class="stamp-revealed-img" src="assets/parts/stamp-r0.png?v=23" alt="" decoding="async">
+            <img class="stamp-revealed-img" src="assets/parts/stamp-r0.png?v=24" alt="" decoding="async">
             <span class="stamp-cam-hot" data-cam="0" aria-label="Open camera for stamp 1"></span>
           </div>
         </button>
 
         <button type="button" class="stamp-part" data-stamp="1" aria-label="Stamp 2">
-          <img class="stamp-plate" src="assets/parts/stamp-plate.png?v=23" alt="" decoding="async">
+          <img class="stamp-plate" src="assets/parts/stamp-plate.png?v=24" alt="" decoding="async">
           <div class="stamp-unrevealed">
-            <img class="stamp-tapface" src="assets/parts/stamp-tapface.png?v=23" alt="" decoding="async">
+            <img class="stamp-tapface" src="assets/parts/stamp-tapface.png?v=24" alt="" decoding="async">
             <div class="stamp-motion" aria-hidden="true">
-              <img class="stamp-hand" src="assets/parts/stamp-hand.png?v=23" alt="" decoding="async">
-              <img class="stamp-dice" src="assets/parts/stamp-dice.png?v=23" alt="" decoding="async">
+              <div class="stamp-hand-track">
+                <img class="stamp-hand" src="assets/parts/stamp-hand.png?v=24" alt="" decoding="async">
+              </div>
+              <div class="stamp-dice-track">
+                <img class="stamp-dice" src="assets/parts/stamp-dice.png?v=24" alt="" decoding="async">
+              </div>
             </div>
           </div>
           <div class="stamp-revealed" hidden>
-            <img class="stamp-revealed-img" src="assets/parts/stamp-r1.png?v=23" alt="" decoding="async">
+            <img class="stamp-revealed-img" src="assets/parts/stamp-r1.png?v=24" alt="" decoding="async">
             <span class="stamp-cam-hot" data-cam="1" aria-label="Open camera for stamp 2"></span>
           </div>
         </button>
 
         <button type="button" class="stamp-part" data-stamp="2" aria-label="Stamp 3">
-          <img class="stamp-plate" src="assets/parts/stamp-plate.png?v=23" alt="" decoding="async">
+          <img class="stamp-plate" src="assets/parts/stamp-plate.png?v=24" alt="" decoding="async">
           <div class="stamp-unrevealed">
-            <img class="stamp-tapface" src="assets/parts/stamp-tapface.png?v=23" alt="" decoding="async">
+            <img class="stamp-tapface" src="assets/parts/stamp-tapface.png?v=24" alt="" decoding="async">
             <div class="stamp-motion" aria-hidden="true">
-              <img class="stamp-hand" src="assets/parts/stamp-hand.png?v=23" alt="" decoding="async">
-              <img class="stamp-dice" src="assets/parts/stamp-dice.png?v=23" alt="" decoding="async">
+              <div class="stamp-hand-track">
+                <img class="stamp-hand" src="assets/parts/stamp-hand.png?v=24" alt="" decoding="async">
+              </div>
+              <div class="stamp-dice-track">
+                <img class="stamp-dice" src="assets/parts/stamp-dice.png?v=24" alt="" decoding="async">
+              </div>
             </div>
           </div>
           <div class="stamp-revealed" hidden>
-            <img class="stamp-revealed-img" src="assets/parts/stamp-r2.png?v=23" alt="" decoding="async">
+            <img class="stamp-revealed-img" src="assets/parts/stamp-r2.png?v=24" alt="" decoding="async">
             <span class="stamp-cam-hot" data-cam="2" aria-label="Open camera for stamp 3"></span>
           </div>
         </button>
@@ -184,8 +196,8 @@
   </main>
 
   <p class="meta">
-    Stamp rows are separate Figma parts with hand/dice motion from get_motion_context (3.24s loop). No full-frame video.
+    Hand translate/rotate and dice toss tracks from Figma node 5550:355652 (3.24s loop). No full-frame video.
   </p>
-  <script src="app.js?v=23"></script>
+  <script src="app.js?v=24"></script>
 </body>
 </html>

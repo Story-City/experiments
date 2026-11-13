@@ -183,12 +183,12 @@ async function showScene(src) {
 
 function setStampFaces(revealed) {
   stampsRevealed = revealed;
-  stampSheetBg.src = revealed
-    ? 'assets/parts/revealed.png?v=7'
-    : 'assets/parts/menu.png?v=7';
+  // Keep menu chrome underlay — stamp-part buttons cover the baked rows.
+  stampSheetBg.src = 'assets/parts/menu.png?v=7';
   stampParts.forEach((part) => {
     const un = part.querySelector('.stamp-unrevealed');
     const rev = part.querySelector('.stamp-revealed');
+    part.classList.toggle('is-revealed', revealed);
     if (revealed) {
       un.hidden = true;
       rev.hidden = false;
