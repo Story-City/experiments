@@ -141,14 +141,12 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   aspect-ratio: 322.37 / 126.62;
   border: 0;
   padding: 0;
-  background: #0b1530;
+  background: transparent;
   border-radius: 4px;
   cursor: pointer;
   overflow: visible;
 }
 
-.stamp-plate,
-.stamp-tapface,
 .stamp-revealed-img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
@@ -157,13 +155,10 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   display: block;
 }
 
-.stamp-part.is-revealed .stamp-plate { visibility: hidden; }
-
 .stamp-unrevealed,
 .stamp-revealed {
   position: absolute; inset: 0;
   pointer-events: none;
-  overflow: visible;
 }
 .stamp-unrevealed[hidden],
 .stamp-revealed[hidden] { display: none !important; }
@@ -451,19 +446,13 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   50% { transform: scale(1.08); }
 }
 
-/* Find panel — lower band near hunt sheet; map stays free above */
+/* LAYOUT-SIDE-BY-SIDE-BOTTOM-v29 — image left + text right; map free above */
 .find-panel {
   position: absolute;
   left: 0; right: 0;
   top: calc(300 / var(--phone-h) * 100%);
-  bottom: calc(210 / var(--phone-h) * 100%);
+  bottom: calc(220 / var(--phone-h) * 100%);
   z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 0 12px;
   pointer-events: none;
   opacity: 0;
   transition: opacity var(--fade-ms) var(--ease-out);
@@ -474,10 +463,11 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .find-panel[hidden] { display: none; }
 
 .find-card-slot {
-  position: relative;
-  width: min(58%, 210px);
-  aspect-ratio: 3 / 4;
-  flex: none;
+  position: absolute;
+  left: calc(12.4 / var(--phone-w) * 100%);
+  top: calc(40 / var(--phone-h) * 100%);
+  width: calc(171 / var(--phone-w) * 100%);
+  aspect-ratio: 171 / 230;
   z-index: 2;
   pointer-events: none;
 }
@@ -486,14 +476,14 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   position: absolute;
   left: 0; top: 0;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 171 / 210;
   border: 0;
   padding: 0;
   border-radius: 12px;
   overflow: hidden;
   /* Nearly straight — slight tilt only */
   transform: rotate(-4deg) scale(1);
-  transform-origin: 50% 50%;
+  transform-origin: 50% 60%;
   box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.35);
   opacity: 0;
   background: var(--raised);
@@ -565,15 +555,17 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   100% { opacity: 0.75; transform: rotate(-10deg) scale(0.9) translate(12%, 8%); }
 }
 
-/* Text popup under the card — wide, near hunt sheet */
+/* Text beside the card — wide field near hunt sheet (v14 placement) */
 .text-popup {
-  position: relative;
-  width: 100%;
-  max-width: none;
+  position: absolute;
+  left: calc(148 / var(--phone-w) * 100%);
+  right: 8px;
+  top: auto;
+  bottom: calc(8 / var(--phone-h) * 100%);
   z-index: 4;
-  padding: 14px 14px 12px;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--raised) 78%, transparent);
+  padding: 12px 14px 14px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--raised) 70%, transparent);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.16);
