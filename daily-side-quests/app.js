@@ -177,15 +177,34 @@ async function showScene(src) {
   await wait(FADE_MS);
 }
 
+function playStampVideo(el) {
+  try {
+    el.currentTime = 0;
+    const p = el.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch (_) { /* autoplay policies */ }
+}
+
+function pauseStampVideo(el) {
+  try { el.pause(); } catch (_) { /* ignore */ }
+}
+
 function showStampUnder(which) {
   const wantA = which === 'menu';
-  if (wantA === stampFrontIsA) return wait(0);
+  if (wantA === stampFrontIsA) {
+    playStampVideo(wantA ? stampA : stampB);
+    return wait(0);
+  }
   if (wantA) {
     stampA.classList.add('is-front');
     stampB.classList.remove('is-front');
+    playStampVideo(stampA);
+    pauseStampVideo(stampB);
   } else {
     stampB.classList.add('is-front');
     stampA.classList.remove('is-front');
+    playStampVideo(stampB);
+    pauseStampVideo(stampA);
   }
   stampFrontIsA = wantA;
   return wait(FADE_MS);
@@ -625,19 +644,22 @@ function clearFinds() {
 
 function resetStampState() {
   stampsRevealed = false;
-  stampHots.forEach((h) => h.classList.remove('is-lifting'));
   stampA.classList.add('is-front');
   stampB.classList.remove('is-front');
   stampFrontIsA = true;
+  pauseStampVideo(stampB);
 }
 
 async function showStampSheet() {
   stampSheet.classList.add('is-on');
   stampSheet.setAttribute('aria-hidden', 'false');
+  playStampVideo(stampFrontIsA ? stampA : stampB);
   await wait(FADE_MS);
 }
 
 async function hideStampSheet() {
+  pauseStampVideo(stampA);
+  pauseStampVideo(stampB);
   stampSheet.classList.remove('is-on');
   stampSheet.setAttribute('aria-hidden', 'true');
   await wait(FADE_MS);
@@ -679,7 +701,7 @@ async function openMenu() {
   await showScene(FRAME.home);
   await showStampSheet();
   syncChrome();
-  setHint('Tap a stamp — it lifts, then reveals in place.');
+  setHint('Figma stamp stage — tap a stamp to reveal its camera.');
 }
 
 async function revealStamp(index) {
@@ -689,14 +711,10 @@ async function revealStamp(index) {
   Array.from(picker.children).forEach((c, i) => {
     c.setAttribute('aria-pressed', i === quest ? 'true' : 'false');
   });
-  const hot = stampHots[index];
-  stampHots.forEach((h) => h.classList.remove('is-lifting'));
-  hot.classList.add('is-lifting');
-  await wait(LIFT_MS);
+  // Figma: menu → revealed is the exported timeline swap (hand/dice keeps looping)
   await showStampUnder('revealed');
   stampsRevealed = true;
   phase = 'revealed';
-  hot.classList.remove('is-lifting');
   busy = false;
   syncChrome();
   setHint(`${QUESTS[quest].title} — tap its camera to open the map.`);

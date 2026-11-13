@@ -117,23 +117,12 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .stamp-under {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  object-fit: cover; pointer-events: none;
+  object-fit: cover; object-position: center top;
+  pointer-events: none;
   opacity: 0; transition: opacity var(--fade-ms) var(--ease-out);
+  background: var(--bg);
 }
 .stamp-under.is-front { opacity: 1; }
-
-.stamp-hot {
-  transition: transform var(--lift-ms) var(--ease-spring), outline var(--lift-ms) ease;
-  transform-origin: center center;
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  border-radius: 10px;
-}
-.stamp-hot.is-lifting {
-  transform: scale(1.03) translateY(-4px);
-  outline-color: rgba(0, 158, 255, 0.7);
-  z-index: 7;
-}
 
 .stamp-hot[data-stamp="0"] { left: 9%; right: 9%; top: 36.5%; height: 13.5%; }
 .stamp-hot[data-stamp="1"] { left: 9%; right: 9%; top: 51%; height: 13.5%; }
@@ -294,55 +283,45 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   z-index: 2;
 }
 
-/* Show other gems — always on map; disabled until challenge done */
-.others-btn {
+/* Tiny gem — always on map; disabled until challenge done */
+.others-gem {
   position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: calc(210 / var(--phone-h) * 100%);
+  right: 10px;
+  bottom: calc(228 / var(--phone-h) * 100%);
   z-index: 14;
-  height: 44px;
-  padding: 0 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: grid;
+  place-items: center;
   border: 0;
-  border-radius: 999px;
-  font: inherit;
-  font-weight: 800;
-  font-size: 16px;
-  color: #041018;
-  background: linear-gradient(90deg, #007ab8, #00c2ff);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--raised) 70%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   cursor: pointer;
   pointer-events: auto;
-  box-shadow: 0 8px 24px rgba(0, 194, 255, 0.35);
-  transition: opacity 220ms ease, transform 220ms var(--ease-out), filter 220ms ease;
+  transition: opacity 220ms ease, filter 220ms ease, transform 220ms var(--ease-out);
 }
-.others-btn-gem {
-  width: 18px;
-  height: 16px;
-  flex: none;
+.others-gem svg {
+  width: 14px;
+  height: 13px;
+  display: block;
 }
-.others-btn[hidden] { display: none !important; }
-.others-btn:disabled {
-  color: rgba(255, 255, 255, 0.55);
-  background: color-mix(in srgb, var(--raised) 78%, transparent);
-  box-shadow: none;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+.others-gem[hidden] { display: none !important; }
+.others-gem:disabled {
+  opacity: 0.4;
+  filter: grayscale(0.7);
   cursor: default;
-  opacity: 0.72;
-  filter: grayscale(0.35);
 }
-.others-btn:disabled .others-btn-gem path:first-child {
-  fill: rgba(255, 255, 255, 0.45);
+.others-gem:not(:disabled) {
+  box-shadow: 0 0 12px rgba(0, 194, 255, 0.55);
+  animation: othersGemPulse 1.8s ease-in-out infinite;
 }
-.others-btn:not(:disabled) {
-  animation: othersReady 1.6s ease-in-out infinite;
-}
-@keyframes othersReady {
-  0%, 100% { transform: translateY(0); box-shadow: 0 8px 24px rgba(0, 194, 255, 0.35); }
-  50% { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0, 194, 255, 0.5); }
+@keyframes othersGemPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
 }
 
 /*

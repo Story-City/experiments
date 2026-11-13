@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=20">
+<link rel="stylesheet" href="app.css?v=21">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -31,10 +31,10 @@
     <img class="scene is-front" id="sceneA" src="assets/flow/01.png?v=7" alt="" decoding="async">
     <img class="scene" id="sceneB" alt="" decoding="async">
 
-    <!-- Stamp menu: dual underlays soft-crossfade (no cropped overlays) -->
+    <!-- Stamp stage: Figma-exported timeline videos (hand/dice loop), not static invent -->
     <div class="stamp-sheet" id="stampSheet" aria-hidden="true">
-      <img class="stamp-under is-front" id="stampA" src="assets/parts/menu.png?v=7" alt="" decoding="async">
-      <img class="stamp-under" id="stampB" src="assets/parts/revealed.png?v=7" alt="" decoding="async">
+      <video class="stamp-under is-front" id="stampA" src="assets/parts/stamp-menu.mp4?v=21" poster="assets/parts/menu.png?v=7" muted loop playsinline preload="auto"></video>
+      <video class="stamp-under" id="stampB" src="assets/parts/stamp-revealed.mp4?v=21" poster="assets/parts/revealed.png?v=7" muted loop playsinline preload="auto"></video>
       <button type="button" class="hot stamp-hot" data-stamp="0" aria-label="Stamp 1"></button>
       <button type="button" class="hot stamp-hot" data-stamp="1" aria-label="Stamp 2"></button>
       <button type="button" class="hot stamp-hot" data-stamp="2" aria-label="Stamp 3"></button>
@@ -57,13 +57,12 @@
         </div>
       </div>
 
-      <!-- Always on map; disabled until challenge finished -->
-      <button type="button" class="others-btn" id="othersBtn" hidden disabled>
-        <svg class="others-btn-gem" viewBox="0 0 24 22" aria-hidden="true">
+      <!-- Tiny gem — same unlock rules; disabled until challenge finished -->
+      <button type="button" class="others-gem" id="othersBtn" hidden disabled aria-label="Show other gems">
+        <svg viewBox="0 0 24 22" aria-hidden="true">
           <path d="M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z" fill="#00c2ff"/>
           <path d="M7 1.5H17L15 7.5H9Z" fill="#fff" fill-opacity="0.35"/>
         </svg>
-        <span>Show other gems</span>
       </button>
 
       <div class="slots" id="slots" aria-hidden="true">
@@ -139,6 +138,6 @@
   <p class="meta">
     Honesty: Figma frames have no exportable motion curves — recreating prototype smart-animate as layered element motion on the real map tiles.
   </p>
-  <script src="app.js?v=20"></script>
+  <script src="app.js?v=21"></script>
 </body>
 </html>
