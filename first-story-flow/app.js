@@ -2,7 +2,7 @@
 // Words: copy.js (screens) and stories.js (story lines). Tester panel jumps to any step.
 // Links: #s1…#s9 opens a step; ?walk=dog|city|treadmill|home, ?story=<id>, ?trial=1 (took the first trial).
 const V = window.CACHE_V || '';
-const [{ COPY, STEPS, WALKS }, { STORIES, START_HERE, SAMPLE, SHELVES }] = await Promise.all([
+const [{ COPY, STEPS, WALKS }, { STORIES, START_HERE, SAMPLE, SHELVES, FEATURED }] = await Promise.all([
   import('./copy.js' + V), import('./stories.js' + V),
 ]);
 
@@ -47,8 +47,25 @@ const ICON = {
   lock: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/></svg>',
   apple: '<svg viewBox="0 0 24 24" aria-hidden="true" class="fillicon"><path d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8C7 7.3 5.6 8.2 4.8 9.6c-1.6 2.8-.4 6.9 1.2 9.1.8 1.1 1.6 2.3 2.8 2.3 1.1 0 1.5-.7 2.9-.7s1.7.7 2.9.7 2-1.1 2.7-2.2c.9-1.3 1.2-2.5 1.2-2.6 0 0-2.3-.9-2.1-3.6zM14.2 5.6c.6-.8 1-1.8.9-2.9-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.7-1 2.8 1 .1 2.1-.5 2.8-1.3z"/></svg>',
   google: '<svg viewBox="0 0 24 24" aria-hidden="true" class="gicon"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 01-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0012 22z"/><path fill="#FBBC05" d="M6.4 14c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7.4H3.1a10 10 0 000 9.2z"/><path fill="#EA4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9A10 10 0 003.1 7.4L6.4 10c.8-2.3 3-4.1 5.6-4.1z"/></svg>',
-  mail: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" aria-hidden="true" class="mailicon"><rect x="2.5" y="5" width="19" height="14" rx="2.5" fill="#1FA4F4"/><path d="M4 7.5l8 6 8-6" fill="none" stroke="#fff" stroke-width="1.8"/></svg>',
+  fb: '<svg viewBox="0 0 24 24" aria-hidden="true" class="fbicon"><circle cx="12" cy="12" r="10.5" fill="#fff"/><path d="M13.3 21.4v-7h2.4l.4-2.8h-2.8V9.9c0-.8.3-1.4 1.4-1.4h1.5V6a19 19 0 00-2.2-.1c-2.2 0-3.6 1.3-3.6 3.7v2h-2.4v2.8h2.4v7z" fill="#1877F2"/></svg>',
 };
+const TAB_ICON = {
+  home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M10.9444 4C10.9444 2.89543 10.049 2 8.94439 2H4.5C3.39543 2 2.5 2.89543 2.5 4V12.8C2.5 13.9046 3.39543 14.8 4.5 14.8H8.94439C10.049 14.8 10.9444 13.9046 10.9444 12.8V4ZM21.4998 4C21.4998 2.89543 20.6044 2 19.4998 2H15.0555C13.9509 2 13.0555 2.89543 13.0555 4V4.8C13.0555 5.90457 13.9509 6.8 15.0555 6.8H19.4998C20.6044 6.8 21.4998 5.90457 21.4998 4.8V4ZM2.5 19.2C2.5 18.0954 3.39543 17.2 4.5 17.2H8.94439C10.049 17.2 10.9444 18.0954 10.9444 19.2V20C10.9444 21.1046 10.049 22 8.94439 22H4.5C3.39543 22 2.5 21.1046 2.5 20V19.2ZM21.4998 11.2C21.4998 10.0954 20.6044 9.2 19.4998 9.2H15.0555C13.9509 9.2 13.0555 10.0954 13.0555 11.2V20C13.0555 21.1046 13.9509 22 15.0555 22H19.4998C20.6044 22 21.4998 21.1046 21.4998 20V11.2Z"/></svg>',
+  feed: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.85714 2C2.83417 2 1.85309 2.39509 1.12973 3.09835C0.406376 3.80161 0 4.75544 0 5.75V18.25C0 19.2446 0.406376 20.1984 1.12973 20.9016C1.85309 21.6049 2.83417 22 3.85714 22H20.1429C21.1658 22 22.1469 21.6049 22.8703 20.9016C23.5936 20.1984 24 19.2446 24 18.25V5.75C24 4.75544 23.5936 3.80161 22.8703 3.09835C22.1469 2.39509 21.1658 2 20.1429 2H3.85714ZM1.71429 5.75C1.71429 5.19747 1.94005 4.66756 2.34191 4.27686C2.74378 3.88616 3.28882 3.66667 3.85714 3.66667H20.1429C20.7112 3.66667 21.2562 3.88616 21.6581 4.27686C22.0599 4.66756 22.2857 5.19747 22.2857 5.75V18.25C22.2857 18.8025 22.0599 19.3324 21.6581 19.7231C21.2562 20.1138 20.7112 20.3333 20.1429 20.3333H3.85714C3.28882 20.3333 2.74378 20.1138 2.34191 19.7231C1.94005 19.3324 1.71429 18.8025 1.71429 18.25V5.75Z"/><path fill="currentColor" d="M8.5 8.70207C8.5 7.939 9.32024 7.4571 9.98679 7.82855L16.3391 11.3685C17.0425 11.7605 17.0177 12.7807 16.2962 13.1381L9.94388 16.2848C9.27921 16.614 8.5 16.1304 8.5 15.3887V8.70207Z"/></svg>',
+  map: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM10 5.47l4 1.4v11.66l-4-1.4V5.47zm-5 .99l3 1.01v11.7l-3-1.16V6.46zm14 11.08l-3 1.16V7.18l3-1.16v11.52z"/></svg>',
+  lib: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="4" width="13" height="17" rx="2"/><path d="M15 10V8M4 9H8M4 13H8M4 17H8"/></svg>',
+};
+const UI_ICON = {
+  user: '<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="20" fill="#3a3163"/><circle cx="20" cy="16" r="6.5" fill="#8f86bd"/><path d="M8 34c2.5-6 7-9 12-9s9.5 3 12 9" fill="#8f86bd"/></svg>',
+  search: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#EEEEEE" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.6-4.6"/></svg>',
+  filter: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#EEEEEE" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>',
+};
+const PW_ICON = [
+  '<svg viewBox="0 0 24 24"><path d="M3 12h4l2.5-5 4 10 2.5-5H21" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  '<svg viewBox="0 0 24 24"><path d="M14 4.5c2.5-1 4.5-.9 5.5-.5.4 1 .5 3-.5 5.5L13 15.5l-4.5-4.5zM8.5 11L5 11.5 3.5 14l4 .5M13 15.5l-.5 3.5-2.5 1.5-.5-4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><circle cx="15.5" cy="8.5" r="1.4" fill="#fff"/></svg>',
+  '<svg viewBox="0 0 24 24"><rect x="7" y="6" width="10" height="12" rx="3" fill="#F5C907"/><rect x="9" y="3" width="6" height="3" rx="1" fill="#F5C907"/><rect x="9" y="18" width="6" height="3" rx="1" fill="#F5C907"/></svg>',
+];
 const WALK_ICON = {
   dog: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 13l-3-4 1-3 4 3h5l3-4h2l1 4 3 2v3l-3 1v7h-3v-5h-7v5H9v-6l-2-1z"/><circle cx="21" cy="9.5" r=".8" class="dot"/></svg>',
   city: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 27V14l6-3v16M10 27V7l8-3v23M18 27V12l9 3v12M3 27h26M13 10h2M13 14h2M13 18h2M22 18h2M22 22h2M6 18h2"/></svg>',
@@ -61,6 +78,7 @@ const WALK_ICON = {
 function show(html, cls = '') {
   screen.className = 'screen ' + cls;
   screen.removeAttribute('data-story');
+  tabs(null);
   $('#bg').removeAttribute('style'); $('#bg').className = '';
   screen.innerHTML = html;
   screen.scrollTop = 0;
@@ -109,7 +127,7 @@ async function hook() {
       <div class="hookart" aria-hidden="true"></div>
       <div class="hooktop"><img class="logo" src="img/logo-on-dark.png" alt="Story City"></div>
       <div class="hookbody">
-        <h1>${c.title}</h1>
+        <h1>${c.title}<span>${c.title2}</span></h1>
         <p class="lede">${c.sub}</p>
         <button class="btn grad" data-k="go">${c.cta}</button>
         <button class="link" data-k="login">${c.login}</button>
@@ -130,8 +148,7 @@ async function walkPick() {
       <h1>${c.title}</h1>
       <p class="sub">${c.sub}</p>
       <div class="walks">${Object.entries(WALKS).map(([k, w]) => `<button class="wcard${k === S.walk ? ' was' : ''}" data-v="${k}">
-          <span class="wic">${WALK_ICON[k]}</span><span class="wt"><b>${w.label}</b><small>${w.line}</small></span>
-          <span class="wmode m-${w.mode}">${COPY.modes[w.mode].name}</span></button>`).join('')}</div>
+          <span class="wic">${WALK_ICON[k]}</span><span class="wt"><b>${w.label}</b><small>${w.line}</small></span></button>`).join('')}</div>
       <p class="fine">${c.fine}</p>
     </div>`);
   const v = await choose(screen, '.wcard');
@@ -150,18 +167,16 @@ async function trial(which) {
   const st = story();
   const cliff = second ? (st.ch[1].cliff || '') : '';
   sheet(`<div class="pw">
-      <button class="pwx" data-k="skip" aria-label="${c.skip}">${ICON.close}</button>
-      <div class="pwhero${second ? ' cliff' : ''}">
-        ${second ? `<p class="kick">${fill(c.kick)}</p><p class="cliffline">“${esc(cliff)}”</p>` : '<img class="logo" src="img/logo-on-dark.png" alt="Story City">'}
-      </div>
-      <h2>${fill(c.title)}</h2>
-      <ul class="pwlist">${c.points.map((p) => `<li>${ICON.check}<span>${fill(p)}</span></li>`).join('')}</ul>
+      <div class="pwhero" aria-hidden="true"></div>
+      ${second ? `<p class="cliffline">“${esc(cliff)}”</p>` : ''}
+      <h2>${fill(c.title)}<span>${fill(c.title2)}</span></h2>
+      <ol class="pwlist">${COPY.paywall.points.map((p, i) => `<li><i class="pwi i${i}">${PW_ICON[i]}</i><span><b>${p[0]}</b><small>${p[1]}</small></span></li>`).join('')}</ol>
       <div class="plans">
-        ${COPY.plans.map((p, i) => `<button class="plan${i === 0 ? ' on' : ''}" data-plan="${i}"><span><b>${p.name}</b><small>${p.sub}</small></span><em>${p.price}</em>${p.tag ? `<i>${p.tag}</i>` : ''}</button>`).join('')}
+        ${COPY.plans.map((p, i) => `<button class="plan${i === 0 ? ' on' : ''}" data-plan="${i}">${p.tag ? `<i>${p.tag}</i>` : ''}<b>${p.name}</b><small>${p.price}</small><span class="radio" aria-hidden="true"></span></button>`).join('')}
       </div>
-      <button class="btn grad" data-k="start">${c.cta}</button>
-      <p class="pwfine">${c.fine}</p>
-      <button class="link" data-k="skip">${c.skip}</button>
+      <button class="btn solid" data-k="start">${COPY.paywall.cta}</button>
+      <button class="link" data-k="skip">${COPY.paywall.skip}</button>
+      <p class="pwfoot"><span>Restore Purchases</span><span>Terms</span><span>Privacy</span></p>
     </div>`, 'full paywall');
   const sh = $('.sheet', overlay);
   sh.addEventListener('click', (e) => {
@@ -170,7 +185,7 @@ async function trial(which) {
   });
   const k = await choose(sh, '[data-k]');
   closeSheet();
-  if (k === 'start') { S.trial = true; await toast(c.started); }
+  if (k === 'start') { S.trial = true; await toast(COPY.paywall.started); }
   else if (!second) { S.skipped = true; }
   if (!second) return library();
   if (S.trial) return unlock(2);
@@ -197,38 +212,109 @@ async function locked() {
 
 // ExploreCard: 2:3 poster, radius 4, title over a dark fade, travel chip bottom-left
 function cover(st, size = '') {
-  const art = st.cover ? `<img src="${st.cover}" alt="" loading="lazy">` : `<span class="glyph">${st.avatar ? `<img src="${st.avatar}" alt="">` : st.glyph}</span>`;
+  const pic = st.art || st.avatar;
+  const art = st.cover ? `<img src="${st.cover}" alt="" loading="lazy">` : `<span class="glyph">${pic ? `<img src="${pic}" alt="">` : st.glyph}</span>`;
   const bg = st.cover ? '' : ` style="--g1:${st.glow[0]};--g2:${st.glow[1]}"`;
   const title = st.cover && st.coverTitle ? '' : `<b class="ctitle">${st.title}</b>`;
   return `<span class="cover ${size}${st.cover ? '' : ' noart'}${title ? ' fade' : ''}"${bg}>${art}${title}</span>`;
 }
 
+// Home (Explore) in the app's dark theme, with the new Start here shelf on top
 async function library() {
+  const my = ++run;
   setStep(4);
   const c = COPY.library, w = WALKS[S.walk];
   const picks = START_HERE[S.walk];
-  show(`<header class="libhead"><h1>${c.title}</h1>
-        <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><input type="search" placeholder="${c.search}" aria-label="${c.search}"></label></header>
+  show(`<div class="wash" style="background-image:url(${FEATURED.cover})" aria-hidden="true"></div>
+      <header class="xhead"><button class="pfp" aria-label="Profile">${UI_ICON.user}</button>
+        <label class="xsearch">${UI_ICON.search}<input type="search" placeholder="${c.search}" aria-label="${c.search}"></label>
+        <button class="xfilter" aria-label="Filters">${UI_ICON.filter}</button></header>
       <section class="shelf start">
-        <div class="shead"><h2>${c.start}</h2><span class="spill m-${S.mode}">${COPY.modes[S.mode].name}</span></div>
+        <div class="shead"><h2>${c.start}</h2></div>
         <p class="ssub">${fill(c.startSub).replace('{for}', w.for)}</p>
         <div class="srow">
-          ${picks.map((id) => storyCard(id)).join('')}
           ${storyCard(SAMPLE, true)}
+          ${picks.map((id) => storyCard(id)).join('')}
         </div>
       </section>
-      ${SHELVES.map((sh) => `<section class="shelf"><div class="shead"><h2>${sh.name}</h2><span class="seeall">${c.seeAll}</span></div>
+      <div class="featured"><img src="${FEATURED.cover}" alt=""><div class="fmeta"><b>${FEATURED.title}</b><span class="fchips">${FEATURED.chips.map((x) => `<i>${x}</i>`).join('')}</span></div></div>
+      ${SHELVES.map((sh) => `<section class="shelf"><div class="shead"><h2>${sh.name}</h2></div>
         <div class="srow">${sh.items.map((it) => `<div class="scard dim"><span class="cover${it.titleOn ? ' fade' : ''}"><img src="${it.cover}" alt="" loading="lazy">${it.titleOn ? `<b class="ctitle">${it.title}</b>` : ''}</span>
-          <small>${it.mins}</small></div>`).join('')}</div></section>`).join('')}
-      <div class="navpad"></div>`, 'lib light');
-  screen.insertAdjacentHTML('beforeend', bottomNav());
-  if (!S.seen.lib) {
-    S.seen.lib = true;
-    snack(COPY.tips.library, 5000, true);
+          <span class="travel">${it.mins}</span></div>`).join('')}</div></section>`).join('')}
+      <div class="navpad"></div>`, 'home');
+  tabs('home');
+  if (!S.seen.tour) {
+    S.seen.tour = true;
+    await wait(500);
+    const stops = COPY.tour;
+    for (let i = 0; i < stops.length && my === run; i++) {
+      const t = $(stops[i].target);
+      if (!t) continue;
+      if (stops[i].target === '.start') screen.scrollTo({ top: 0 });
+      await spotlight(t, fill(stops[i].text).replace('{for}', w.for), { title: stops[i].title, step: `${i + 1} of ${stops.length}` });
+    }
+    if (my !== run) return;
   }
   const id = await choose(screen, '.scard[data-v]');
+  if (my !== run) return;
   S.story = id;
   return overview();
+}
+
+// the floating tab bar (FloatingTabBar): Home · Feed · Map (hidden in 4.28, proposed) · Library
+function tabs(active) {
+  const bar = $('#tabbar');
+  if (!active) { bar.hidden = true; return; }
+  bar.hidden = false;
+  bar.innerHTML = `<div class="tabscrim"></div><div class="tabpill">${COPY.tabs.map((t) => `<button class="tab${t.k === active ? ' on' : ''}" data-tab="${t.k}"${t.k === active ? ' aria-current="page"' : ''}>${TAB_ICON[t.k]}<span>${t.label}</span></button>`).join('')}</div>`;
+}
+$('#tabbar').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  run++; pending.splice(0).forEach((f) => f()); $('#spot').hidden = true; closeSheet(); hideSnack();
+  ({ home: library, feed: feedTab, map: mapTab, lib: libTab })[b.dataset.tab]();
+});
+
+// Map tab (behind debugMode in 4.28; this flow turns it on): your area with the Start here stories as pins
+async function mapTab() {
+  const my = ++run;
+  const c = COPY.mapTab, ids = [SAMPLE, ...START_HERE[S.walk]];
+  const spots = [[120, 230], [300, 210], [95, 470], [290, 520]];
+  show(`<div class="map browse">${mapSvg('browse', 0)}
+      ${ids.map((id, i) => `<button class="pin" data-v="${id}" style="left:${spots[i][0] / 4}%;top:${spots[i][1] / 6.6}%" aria-label="${STORIES[id].title}">${avatar(STORIES[id])}</button>`).join('')}
+    </div>
+    <div class="msheet maptabcard"><h2>${c.title}</h2><p class="sub">${c.sub}</p></div>`, 'mapscreen maptab');
+  tabs('map');
+  const id = await choose(screen, '.pin');
+  if (my !== run) return;
+  S.story = id;
+  return overview();
+}
+
+// Library tab (legacy LibraryView): guests see the sign-in prompt; members see In Progress
+async function libTab() {
+  const my = ++run;
+  const c = COPY.libTab;
+  if (!S.account) {
+    show(`<div class="libtab anon"><img src="img/logo-on-dark.png" alt="" class="lglogo"><p>${c.guest}</p>
+      <button class="btn grad" data-k="signin">${c.signin}</button><button class="link" data-k="browse">${c.browse}</button></div>`, 'libscreen');
+  } else {
+    const started = S.story ? [S.story] : [];
+    show(`<div class="libtab"><div class="lhead"><h2>${c.inProgress}</h2><span class="lcount"><b>${started.length}</b> ${started.length === 1 ? c.one : c.many}</span></div>
+      ${started.length ? `<div class="iprow">${started.map((id) => `<button class="ipcard" data-v="${id}">${cover(STORIES[id], 'ip')}<span class="ipbar"><i style="width:${Math.round(100 * (S.ch + 1) / STORIES[id].ch.length)}%"></i></span><b>${STORIES[id].title}</b></button>`).join('')}</div>`
+      : `<div class="lempty"><p>${c.empty}</p><small>${c.emptySub}</small></div>`}</div>`, 'libscreen');
+  }
+  tabs('lib');
+  const k = await choose(screen, '[data-k],[data-v]');
+  if (my !== run) return;
+  if (k === 'signin') { await toast(c.signinToast); return libTab(); }
+  if (k === 'browse') return library();
+  S.story = k; return overview();
+}
+
+async function feedTab() {
+  ++run;
+  show(`<div class="libtab anon"><p>${COPY.feedTab}</p></div>`, 'libscreen');
+  tabs('feed');
 }
 
 function storyCard(id, sample = false) {
@@ -239,10 +325,6 @@ function storyCard(id, sample = false) {
       ${sample ? `<span class="tag">${c.sampleTag}</span>` : ''}
       <small>${st.mins} · ${st.ch.length} ${c.chapters}</small>
     </button>`;
-}
-
-function bottomNav() {
-  return `<nav class="bnav" aria-label="Tabs"><span class="bt on">${ICON.lib}<small>${COPY.library.title}</small></span></nav>`;
 }
 
 async function overview() {
@@ -270,7 +352,7 @@ async function overview() {
 // ---------------------------------------------------------------- 5 reader
 
 function topbar(title, sub, mapBtn = false) {
-  return `<header class="rtop"><button class="chip ghost" data-k="lib" aria-label="Back to library">${ICON.back}</button>
+  return `<header class="rtop"><button class="chip ghost" data-k="lib" aria-label="Back to Home">${ICON.back}</button>
     <div class="rt"><b>${title}</b><small>${sub}</small></div>
     ${mapBtn ? `<button class="chip ghost mapbtn" data-k="map" aria-label="Open map">${ICON.map}</button>` : '<span class="chip ghost hide"></span>'}</header>`;
 }
@@ -280,13 +362,14 @@ async function reader(ci) {
   S.ch = ci;
   setStep(ci === 0 ? 5 : ci === 1 ? 8 : 9);
   const st = story(), ch = st.ch[ci];
-  show(`${topbar(st.title, `Chapter ${ci + 1} of ${st.ch.length} · ${ch.name}`, true)}
+  show(`${topbar(st.letter ? st.who : st.title, st.letter ? `${st.title} · Chapter ${ci + 1} of ${st.ch.length}` : `Chapter ${ci + 1} of ${st.ch.length} · ${ch.name}`, true)}
     <div class="thread" id="thread"><p class="chname">Chapter ${ci + 1}<b>${ch.name}</b></p></div>
     <div class="reply" id="reply"></div>`, 'reader');
   screen.dataset.story = S.story;
   const bg = $('#bg');
   bg.className = 'on';
-  bg.style.backgroundImage = `url(${st.cover || 'img/ftue_background.png'})`;
+  bg.style.backgroundImage = `url(${st.bg || st.cover || 'img/ftue_background.png'})`;
+  if (st.bg) bg.classList.add('sharp');
   screen.addEventListener('click', (e) => {
     const b = e.target.closest('[data-k="lib"]');
     if (b) { run++; closeSheet(); library(); }
@@ -298,12 +381,18 @@ async function reader(ci) {
     if (!alive()) return;
     if (typeof beat === 'string') { await say(thread, st, beat, alive); continue; }
     if (beat.n) { await wait(450); if (!alive()) return; addRow(thread, `<p class="narr">${esc(beat.n)}</p>`); continue; }
+    if (beat.img) { await wait(500); if (!alive()) return; addRow(thread, `<figure class="pic"><img src="${beat.img}" alt="${esc(beat.alt || '')}"></figure>`); await wait(700); continue; }
+    if (beat.pill) { await wait(350); if (!alive()) return; addRow(thread, `<p class="pill">${esc(beat.pill)}</p>`); continue; }
     if (beat.me) { const v = await offer(reply, [beat.me]); if (!alive()) return; me(thread, v); continue; }
     if (beat.choice) {
       const first = !S.seen.choice;
       if (first) { S.seen.choice = true; snack(COPY.tips.choice, 0); }
-      const v = await offer(reply, beat.choice);
+      let v = await offer(reply, beat.choice, beat.dim);
       if (!alive()) return;
+      if (beat.dim !== undefined && v === beat.choice[beat.dim]) {   // the app's push-back panel for the discouraged choice
+        v = await pushBack(beat.choice[0]);
+        if (!alive()) return;
+      }
       hideSnack();
       me(thread, v);
       for (const line of beat.then[beat.choice.indexOf(v)]) await say(thread, st, line, alive);
@@ -346,12 +435,23 @@ async function say(thread, st, text, alive) {
   await wait(200);
 }
 function avatar(st) {
+  if (st.letter) return `<span class="av letter">${st.letter}</span>`;
   return `<span class="av"${st.avatar ? '' : ` style="--g1:${st.glow[0]};--g2:${st.glow[1]}"`}>${st.avatar ? `<img src="${st.avatar}" alt="">` : st.glyph}</span>`;
 }
 function me(thread, text) { addRow(thread, `<div class="row mine"><div class="bub">${esc(text)}</div></div>`); }
-function offer(reply, opts) {
-  reply.innerHTML = opts.map((o) => `<button class="opt" data-v="${esc(o)}">${esc(o)}</button>`).join('');
+function offer(reply, opts, dim) {
+  reply.innerHTML = opts.map((o, i) => `<button class="opt${i === dim ? ' dim' : ''}" data-v="${esc(o)}">${esc(o)}</button>`).join('');
   return choose(reply, '.opt').then((v) => { reply.innerHTML = ''; return v; });
+}
+
+async function pushBack(yes) {
+  const c = COPY.pushBack;
+  sheet(`<div class="unl push"><h2>${c.title}</h2><p class="sub">${c.sub}</p>
+    <button class="btn grad" data-k="yes">${yes}</button><button class="link" data-k="no">${c.no}</button></div>`, 'small');
+  const k = await choose($('.sheet', overlay), '[data-k]');
+  closeSheet();
+  if (k === 'no') await toast(c.noToast);
+  return yes;
 }
 
 // tap-to-decrypt: each tile flips from a symbol to its letter
@@ -387,6 +487,8 @@ async function unlock(nextCh) {
   const goal = nextCh === 1 ? c.goalSteps : c.goalSteps2;
   const target = st.ch[nextCh - 1].unlock;
   const home = S.walk === 'home';
+  if (target.mode) S.mode = target.mode;
+  const tipKey = 'mapTip' + nextCh;
   let count = 0;
   const render = () => {
     const m = S.mode;
@@ -395,11 +497,11 @@ async function unlock(nextCh) {
         <div class="modes" role="tablist" aria-label="Map mode">${['steps', 'path', 'hunt'].map((k) => `<button role="tab" class="mode m-${k}${k === m ? ' on' : ''}${k === 'path' ? ' soon' : ''}" data-mode="${k}" aria-selected="${k === m}"${k === 'path' ? ' aria-disabled="true"' : ''}>${COPY.modes[k].name}</button>`).join('')}</div>
         <p class="modetip" id="modetip" hidden>${COPY.modes.path.tip}</p>
       </div>
-      ${S.seen.mapTip ? '' : `<div class="maptip" id="maptip"><p><b>${c.tipTitle}</b>${fill(c.tip)}</p><button class="gotit" data-k="gotit">Got It</button><img src="img/elf.png" alt=""></div>`}
+      ${S.seen[tipKey] ? '' : `<div class="maptip" id="maptip"><p><b>${COPY.modes[m].tipTitle}</b>${m === 'hunt' ? esc(target.huntTip || c.huntSub) : (target.tip ? esc(target.tip).replace('{n}', goal) : fill(c.tip))}</p><button class="gotit" data-k="gotit">Got It</button><img src="${st.tipArt || 'img/elf.png'}" alt=""></div>`}
       <div class="msheet">
         ${m === 'hunt' ? `<h2>${esc(target.hunt)}</h2><p class="sub">${c.huntSub}</p>
           <button class="btn hunt" data-k="photo">${ICON.cam}<span>${c.photo}</span></button>`
-        : `<h2>${fill(c.walkTitle).replace('{n}', goal).replace('{place}', esc(target.place))}</h2>
+        : `<h2>${target.objective ? esc(target.objective) : fill(c.walkTitle).replace('{n}', goal).replace('{place}', esc(target.place))}</h2>
           <div class="counter"><b id="cnt">${count}</b><span>${c.outOf.replace('{n}', goal)}</span></div>
           <div class="bar"><i id="barfill" style="width:${100 * count / goal}%"></i></div>
           <p class="sub">${home ? c.walkSubHome : c.walkSub}</p>
@@ -412,7 +514,7 @@ async function unlock(nextCh) {
     if (my !== run) return;
     const lib = e.target.closest('[data-k="lib"]');
     if (lib) { run++; closeSheet(); return library(); }
-    if (e.target.closest('[data-k="gotit"]')) { S.seen.mapTip = true; $('#maptip')?.remove(); return; }
+    if (e.target.closest('[data-k="gotit"]')) { S.seen[tipKey] = true; $('#maptip')?.remove(); return; }
     const mb = e.target.closest('[data-mode]');
     if (mb) {
       if (mb.dataset.mode === 'path') { const t = $('#modetip'); t.hidden = false; setTimeout(() => { if (t.isConnected) t.hidden = true; }, 2600); return; }
@@ -492,15 +594,14 @@ function mapSvg(mode, t) {
 async function account() {
   setStep(7);
   const c = COPY.account, st = story();
-  sheet(`<div class="acct"><span class="grab"></span>
-      <p class="kick">${fill(c.kick)}</p>
+  sheet(`<div class="acct">
       <h2>${fill(c.title)}</h2>
       <p class="sub">${fill(c.sub)}</p>
-      <ul class="benefits">${c.points.map((p, i) => `<li><img src="${c.icons[i]}" alt=""><span>${p}</span></li>`).join('')}</ul>
       <button class="sso" data-k="google">${ICON.google}<span>${c.google}</span></button>
+      <button class="sso fb" data-k="facebook">${ICON.fb}<span>${c.facebook}</span></button>
       <button class="sso" data-k="apple">${ICON.apple}<span>${c.apple}</span></button>
       <button class="sso" data-k="email">${ICON.mail}<span>${c.email}</span></button>
-      <button class="link" data-k="skip">${c.skip}</button>
+      <button class="guest" data-k="skip">${c.skip}</button>
       <p class="legal">${c.legal}</p>
     </div>`, 'drawer');
   const k = await choose($('.sheet', overlay), '[data-k]');
@@ -520,7 +621,7 @@ async function finish() {
   show(`<div class="pad fin">
       <p class="kick">${c.kick}</p>
       <h1>${fill(c.title)}</h1>
-      <div class="endcard">${cover(st, 'mini')}<div><b>${esc(end.name)}</b><small>${c.ending.replace('{n}', end.n).replace('{of}', end.of)}</small></div></div>
+      <div class="endcard">${cover(st, 'mini')}<div><b>${esc(end.name)}</b>${end.sub ? `<small class="esub">${esc(end.sub)}</small>` : ''}<small>${c.ending.replace('{n}', end.n).replace('{of}', end.of)}</small></div></div>
       <p class="sub">${end.of > 1 ? c.replay : c.oneEnd}</p>
       <section class="remind">
         <p class="mk">${c.remindKick}</p>
@@ -557,15 +658,19 @@ async function toast(text) {
   const t = $('#toast'); t.textContent = text; t.hidden = false; t.classList.add('on');
   await wait(1300); t.classList.remove('on'); t.hidden = true;
 }
-function spotlight(target, text) {
+// tap-anywhere spotlight; opts.title = bold first line, opts.step = "1 of 4"
+function spotlight(target, text, opts = {}) {
   return new Promise((done) => {
     const sp = $('#spot');
-    const pr = $('#phone').getBoundingClientRect(), r = target.getBoundingClientRect();
-    const z = parseFloat(getComputedStyle($('#phone')).zoom) || 1;
-    const k = Math.abs(pr.width - $('#phone').offsetWidth) < 2 ? 1 : z;   // rects come back zoomed in some browsers
+    const ph = $('#phone');
+    const pr = ph.getBoundingClientRect(), r = target.getBoundingClientRect();
+    const z = parseFloat(getComputedStyle(ph).zoom) || 1;
+    const k = Math.abs(pr.width - ph.offsetWidth) < 2 ? 1 : z;   // rects come back zoomed in some browsers
     const cx = (r.left - pr.left + r.width / 2) / k, cy = (r.top - pr.top + r.height / 2) / k;
-    sp.style.setProperty('--x', cx + 'px'); sp.style.setProperty('--y', cy + 'px');
-    $('#spotTip').innerHTML = `<p>${text}</p><small>${COPY.tips.tapAnywhere}</small><img class="elf" src="img/elf.png" alt="">`;
+    const rad = Math.max(26, Math.min(150, Math.max(r.width, r.height) / k / 2 + 8));
+    sp.style.setProperty('--x', cx + 'px'); sp.style.setProperty('--y', cy + 'px'); sp.style.setProperty('--r', rad + 'px');
+    sp.classList.toggle('above', cy > ph.offsetHeight * 0.55);
+    $('#spotTip').innerHTML = `${opts.step ? `<em>${opts.step}</em>` : ''}${opts.title ? `<b>${opts.title}</b>` : ''}<p>${text}</p><small>${COPY.tips.tapAnywhere}</small><img class="elf" src="img/elf.png" alt="">`;
     noWidows($('#spotTip'));
     sp.hidden = false;
     const end = () => { sp.hidden = true; sp.onclick = null; done(); };
@@ -580,7 +685,7 @@ function jump(n) {
   pending.splice(0).forEach((f) => f());
   closeSheet(); hideSnack(); $('#spot').hidden = true;
   if (!S.story && n >= 5) S.story = pickDefault();
-  const firstTime = { 5: ['choice', 'puzzle', 'map', 'mapTip'], 6: ['mapTip'] };
+  const firstTime = { 4: ['tour'], 5: ['choice', 'puzzle', 'map', 'mapTip1'], 6: ['mapTip1'], 8: ['mapTip2'] };
   (firstTime[n] || []).forEach((k) => delete S.seen[k]);
   if (n <= 3) { S.trial = false; S.skipped = false; }
   if (n === 8 && !S.trial) S.skipped = true;
@@ -647,7 +752,7 @@ function noWidows(root) {
 }
 
 // fit the framed phone to short laptop screens
-function fit() { document.documentElement.style.setProperty('--s', Math.min(1, (innerHeight - 48) / 866).toFixed(3)); }
+function fit() { document.documentElement.style.setProperty('--s', Math.min(1, (innerHeight - 40) / 866, (innerWidth - 32) / 412).toFixed(3)); }
 fit(); addEventListener('resize', fit);
 
 buildPanel();

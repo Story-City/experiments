@@ -7,18 +7,23 @@
 //   { me: 'text' }              one reply chip; tapping it sends the player's bubble
 //   { choice: [a, b], then: [[...lines after a], [...lines after b]] }   first one shows the "choices" tip
 //   { puzzle: 'WORD', ask: 'line', hint: 'small print' }                 tap-to-decrypt; first one shows the puzzle tip
+//   { img: 'img/x.jpg', alt: 'caption' }   a story picture in the chat
+//   { pill: 'text' }                        a system pill (glass, centred), e.g. “Gem saved to your map”
+//   choice options can carry `dim: 1` (index of the discouraged choice); it opens the app's push-back panel
+// unlock: { place, objective, tip, hunt, huntTip, mode } (mode forces the map mode for that unlock, as the real Summons does)
 // After the last beat of chapters 1 and 2 the map opens for the unlock (see `unlock`).
 //
 // Where the words come from:
 //   knight   real FTUE script (scripts/the-knights-quest-clean.md), Sir Wendell's voice, trimmed
-//   summons  safe-for-all-ages rewrite of the FTUE script: a letter under a streetlight, nobody watching your home
+//   summons  the real scripted FTUE story from the app (SC-3894 branch = main, Nov 12), word for word, condensed to 3 chapters;
+//            art is the app's own (creator.storycity.app media), saved in img/summons-*
 //   others   first lines are the real cold opens (public story API, Nov 4); the rest is written for this mock
 // Covers are Story City's own art (public story API), copied from apps/everyday-app/covers.
 
 export const STORIES = {
   knight: {
     title: 'The Knight’s Quest', who: 'Sir Wendell', avatar: 'img/knight.png', cover: null, glow: ['#3a2b10', '#BED13F'],
-    genre: 'Fantasy', age: 'G', mins: '15 min', chapters: 3, where: 'anywhere', best: 'steps', sample: true,
+    genre: 'Fantasy', age: 'G', mins: '15 min', chapters: 3, where: 'anywhere', best: 'steps',
     blurb: 'A knight is stuck in the wrong century and needs a squire. You, apparently.',
     ch: [
       { name: 'A knight needs your help', beats: [
@@ -55,36 +60,69 @@ export const STORIES = {
   },
 
   summons: {
-    title: 'The Summons', who: 'The Society', avatar: null, glyph: '✉', cover: null, glow: ['#241b46', '#FA7423'],
+    title: 'The Summons', who: 'Unknown number', letter: 'U', avatar: null, art: 'img/summons-character.png', cover: null,
+    glow: ['#2A2458', '#5A38AE'], bg: 'img/summons-chat-bg.jpg', tipArt: 'img/summons-character.png',
     genre: 'Mystery', age: 'PG', mins: '15 min', chapters: 3, where: 'anywhere', best: 'steps',
-    blurb: 'A secret society has chosen you. Nobody told you why.',
+    blurb: 'A secret society is recruiting. Will you answer?',          // [real] welcome door tagline
     ch: [
+      { name: 'The Text', beats: [
+        "Hey, wait, don't block me.\nI need your help!",
+        'Look out your window, the one facing the street.',
+        'Are you looking?',
+        { me: 'Yes… what am I looking for?' },
+        { img: 'img/summons-figure.jpg', alt: 'A figure in the shadows across the street, the hoodie symbol on their chest' },
+        'You see the street corner? The figure in the dark hoodie?',
+        "That's me.",
+        "I'm part of The Society, a group working in the shadows to protect your city.",
+        'Lately, another organization has been working against us.',
+        "You've been on my radar for a while.",
+        "But before I can invite you to join us, you'll need to prove yourself.",
+        "Head to the street if you're in.",
+        'This mission will be brief, likely less than 5 minutes.',
+        "I'll open a map on your screen to show you where to go.",
+        { choice: ['Okay! Open the map.', "I'd rather stay inside"], dim: 1, then: [[], []] },
+      ], unlock: {
+        objective: 'Get to the street',
+        tip: "I've added a circle on your map. Walk in any direction — it will shrink as you near your goal. About {n} steps.",
+        hunt: 'Find a streetlight and take its picture',               // [new] for players who picked Hunt
+        huntTip: 'No steps to count this time. Find a streetlight near you, then tap the camera button to show me with a photo.',
+      } },
       { name: 'The Letter', beats: [
-        { n: 'It’s an ordinary day, just like any other.' },
-        { n: 'Except a letter with a wax seal is waiting under the streetlight. It has your name on it.' },
-        'You found our letter. Good.',
-        { choice: ['Who are you?', 'Open it'], then: [
-          ['Patience. Answers come to those who walk.'],
-          ['Eager. We like that.'],
-        ] },
-        'The seal hides a word. Read it and you’ll know where to go.',
-        { puzzle: 'POST', ask: 'Tap each symbol on the seal.', hint: 'Tap a tile to decrypt it' },
-        'Post. Take the letter for a short walk and we’ll tell you more.',
-      ], unlock: { place: 'the next clue', hunt: 'Find a cozy spot and take its picture' } },
-      { name: 'The Seal', beats: [
-        'Look closer at the seal. There’s a number pressed into the wax.',
-        { choice: ['Read the number', 'Keep it secret'], then: [
-          ['786666. Remember it.'],
-          ['Wise. Keep it close.'],
-        ] },
-        'Someone else wants this letter. Deliver it before they do.',
-      ], cliff: 'A second letter arrives. Same seal. Different handwriting.', unlock: { place: 'the mailbox', hunt: 'Find a mailbox and take its picture' } },
-      { name: 'Welcome to the Society', beats: [
-        'You made it. Slide the letter in.',
-        { me: 'Done' },
-        'Correct. Welcome to the Society.',
-        'Most people never find us. Keep adventuring and you’ll get answers.',
-      ], end: { name: 'Welcome to the Society', n: 1, of: 3 } },
+        'I had to slip away, one of their agents spotted me.',
+        "Don't let your guard down. He could be anywhere.",
+        'He should have left something for his contact.',
+        'WAIT.',
+        "My scans say you're right on top of it!?",
+        'Your instincts are sharper than I expected. It took me hours to find my first drop.',
+        'Have a look around — do you see what he left?',
+        { me: 'Looking now...' },
+        { img: 'img/summons-envelope.jpg', alt: 'An old letter with an intricate wax seal, lying on the sidewalk' },
+        "That's it! Grab it, but be discreet.",
+        "You'll need to find somewhere to hide while we plan your next move.",
+        "Avoid private property though, it'll draw too much attention if you wander into a neighbor's yard.",
+        { me: 'On It, finding somewhere to hide' },
+      ], cliffQuote: "You'll need to find somewhere to hide while we plan your next move.",
+      unlock: {
+        mode: 'hunt', objective: 'Find somewhere to hide', hunt: 'Find somewhere to hide',
+        huntTip: 'No steps to count this time. Search near you for a quiet spot to look at the letter, then tap the camera button to show me with a photo.',
+      } },
+      { name: 'The Hiding Spot', beats: [
+        'Nice spot. Your ingenuity is exactly why I want you on this team.',
+        "Let's save this spot as a gem on your map, in case we need it again.",
+        { me: 'Save it' },
+        { pill: 'Gem saved to your map: My hiding spot' },
+        'Ok, my scans show the coast is clear. Time to look at the letter.',
+        "Dang, it's encrypted. Well, I never said stopping these guys would be easy.",
+        { puzzle: '786666', ask: 'Go ahead and see if you can decrypt it!', hint: 'Tap a tile to decrypt it' },
+        { pill: 'Letter decrypted' },
+        'You did it! I knew I was right about you.',
+        "Okay, you'll need to leave it at one of our drop spots. We'll take it from there.",
+        { img: 'img/summons-mailbox.jpg', alt: 'A glowing mail slot floating in midair, the glowing symbol above it and a code keypad beside it' },
+        'These spots are code-locked.',
+        "I've set this one to the numbers on the letter's seal.",
+        { me: '786666' },
+        { img: 'img/summons-staircase.jpg', alt: 'A hidden staircase opening in the ground' },
+      ], end: { name: 'You found one of our hideouts!', sub: 'Impressive. Welcome to the team.', n: 1, of: 3 } },
     ],
   },
 
@@ -220,23 +258,29 @@ export const STORIES = {
 // The Start here shelf: three short first stories per walk answer, plus the sample story.
 // Placeholder picks for the mock; Matt/Emily to curate the real ones.
 export const START_HERE = {
-  dog:       ['squeaky', 'summons', 'incident'],
-  city:      ['pirate', 'squeaky', 'summons'],
-  treadmill: ['incident', 'adelaide', 'summons'],
-  home:      ['adelaide', 'incident', 'squeaky'],
+  dog:       ['squeaky', 'knight', 'incident'],
+  city:      ['pirate', 'squeaky', 'knight'],
+  treadmill: ['incident', 'adelaide', 'knight'],
+  home:      ['adelaide', 'knight', 'incident'],
 };
-export const SAMPLE = 'knight';
+export const SAMPLE = 'summons';
 
 // The rest of the Library (covers only, not playable in the mock).
+export const FEATURED = { title: 'Frightnight Ghost Tours', cover: 'img/frightnight.jpg', chips: ['★ 5.0', 'Spooky', 'PG'] };
 export const SHELVES = [
+  { name: 'Suggested For You', items: [
+    { title: 'Alice Through The Tear', cover: 'img/alice.jpg', mins: 'Play Anywhere' },
+    { title: 'Spy Academy', cover: 'img/spy.jpg', mins: '12 min away' },
+    { title: 'The Omicron', cover: 'img/omicron.jpg', mins: 'Play Anywhere' },
+  ] },
   { name: 'Play Anywhere Adventures', items: [
-    { title: 'Frightnight Ghost Tours', cover: 'img/frightnight.jpg', mins: '60 min' },
-    { title: 'Alice Through The Tear', cover: 'img/alice.jpg', mins: '45 min' },
-    { title: 'The Omicron', cover: 'img/omicron.jpg', mins: '90 min' },
+    { title: 'Frightnight Ghost Tours', cover: 'img/frightnight.jpg', mins: 'Play Anywhere' },
+    { title: 'Tales from the Incident', cover: 'img/incident.jpg', mins: 'Play Anywhere' },
+    { title: 'Have You Seen Squeaky?', cover: 'img/squeaky.jpg', mins: 'Play Anywhere' },
   ] },
   { name: 'Adventures Near You', items: [
-    { title: 'Spy Academy', cover: 'img/spy.jpg', mins: '45 min' },
-    { title: 'Tips From Your Barista', cover: 'img/barista.jpg', mins: '15 min' },
-    { title: 'The Coronet Caper', cover: 'img/coronet.jpg', mins: '45 min', titleOn: true },
+    { title: 'Tips From Your Barista', cover: 'img/barista.jpg', mins: '8 min away' },
+    { title: 'The Coronet Caper', cover: 'img/coronet.jpg', mins: '20 min away', titleOn: true },
+    { title: 'Pirate Captain', cover: 'img/pirate.jpg', mins: '15 min away' },
   ] },
 ];
