@@ -1,5 +1,19 @@
 [
   {
+    "slug": "story-progress",
+    "path": "story-progress/",
+    "title": "Story progress",
+    "what": "Eight ways to show how far you are in a story (switch inside, A–H): dots, fog path, bar with “about X left”, bookmark ribbon, branch map, three acts, chapter ring, passport stamps. Play The Summons in the phone to see how each copes when a choice makes the story shorter.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null,
+    "draft": true,
+    "reviewer": "Melissa"
+  },
+  {
     "slug": "daily-side-quests",
     "path": "daily-side-quests/?v=7b",
     "title": "Daily Side Quests",
