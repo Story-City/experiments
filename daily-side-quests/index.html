@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=14">
+<link rel="stylesheet" href="app.css?v=15">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -25,6 +25,14 @@
     <button type="button" class="play" id="play">Play</button>
     <button type="button" class="play secondary" id="reset">Reset</button>
     <span class="hint" id="hint">Idle — Play opens Daily Side quests.</span>
+  </div>
+
+  <div class="debugs" role="radiogroup" aria-label="See others control">
+    <span class="debug-label">See others (debug)</span>
+    <button type="button" class="debug-chip" data-others="tip" aria-pressed="true">Tip only</button>
+    <button type="button" class="debug-chip" data-others="fab" aria-pressed="false">Tiny gem</button>
+    <button type="button" class="debug-chip" data-others="pill" aria-pressed="false">Small pill</button>
+    <button type="button" class="debug-chip" data-others="chip" aria-pressed="false">Map chip</button>
   </div>
 
   <main class="phone" id="phone" data-phase="home">
@@ -48,8 +56,31 @@
       <!-- One full Figma map frame — no chrome/tile crop seams -->
       <div class="map-pan" id="mapPan">
         <img class="map-fill" src="assets/parts/map-hunt.png?v=7" alt="" decoding="async">
+        <div class="jam-layer" id="jamLayer" aria-hidden="true"></div>
         <div class="gem-layer" id="gemLayer" aria-hidden="true"></div>
+        <!-- Small SVG plane + dashed trail — no black PNG frame -->
+        <div class="plane-mark" id="planeMark" hidden aria-hidden="true">
+          <svg class="plane-svg" viewBox="0 0 64 64" aria-hidden="true">
+            <path class="plane-trail" d="M18 46 C 22 34, 28 28, 34 30 C 40 32, 42 40, 38 44 C 34 48, 40 42, 46 34"
+              fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"
+              stroke-dasharray="2.2 3.4"/>
+            <g class="plane-body">
+              <path d="M32 20 L48 28 L34 30 L30 40 Z" fill="#d7c8ff"/>
+              <path d="M32 20 L34 30 L22 34 Z" fill="#b36bff"/>
+              <path d="M34 30 L48 28 L30 40" fill="none" stroke="#fff" stroke-opacity="0.45" stroke-width="0.8"/>
+            </g>
+          </svg>
+        </div>
       </div>
+
+      <!-- Persistent “see others” — pick one via debug chips -->
+      <button type="button" class="others-ctl others-fab" id="othersFab" hidden aria-label="See other challenges">
+        <svg viewBox="0 0 24 22" aria-hidden="true"><path d="M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z" fill="#b36bff"/><path d="M7 1.5H17L15 7.5H9Z" fill="#fff" fill-opacity="0.3"/></svg>
+      </button>
+      <button type="button" class="others-ctl others-pill" id="othersPill" hidden aria-label="See other challenges">Others</button>
+      <button type="button" class="others-ctl others-chip" id="othersChip" hidden aria-label="See other challenges">
+        <span class="others-chip-gems" aria-hidden="true"></span>
+      </button>
 
       <div class="slots" id="slots" aria-hidden="true">
         <div class="slot-cell" data-slot="0"><img class="slot" alt=""></div>
@@ -67,7 +98,6 @@
             <img class="card-photo" id="panelPhoto" alt="" decoding="async">
             <img class="card-stamp" id="panelStamp" src="assets/parts/footprint.png?v=7" alt="" decoding="async" hidden>
           </article>
-          <img class="find-plane" id="findPlane" src="assets/parts/airplanes.png?v=7" alt="" decoding="async" hidden>
         </div>
 
         <div class="find-side glass" id="findSide">
@@ -120,6 +150,6 @@
   <p class="meta">
     Honesty: Figma frames have no exportable motion curves — recreating prototype smart-animate as layered element motion on the real map tiles.
   </p>
-  <script src="app.js?v=14"></script>
+  <script src="app.js?v=15"></script>
 </body>
 </html>

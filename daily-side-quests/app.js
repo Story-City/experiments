@@ -38,6 +38,19 @@ const OTHER_ENTRIES = [
   },
 ];
 
+/** Beach spots for my jams (map %); plane points here */
+const MY_JAM_SPOTS = [
+  { x: 46, y: 40 },
+  { x: 52, y: 44 },
+  { x: 41, y: 43 },
+];
+
+/** Offset so plane sits beside the jam and aims at it */
+const PLANE_OFFSET = { x: -7, y: -6 };
+const PLANE_BASE_ROT_DEG = -28;
+
+/** @typedef {'tip'|'fab'|'pill'|'chip'} OthersMode */
+
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
 const GEM_SHADE = 'M15 7.5H22.5L12 20.5Z';
@@ -63,13 +76,14 @@ const stampHots = Array.from(document.querySelectorAll('.stamp-hot'));
 const mapStage = document.getElementById('mapStage');
 const mapPan = document.getElementById('mapPan');
 const gemLayer = document.getElementById('gemLayer');
+const jamLayer = document.getElementById('jamLayer');
+const planeMark = document.getElementById('planeMark');
 const findPanel = document.getElementById('findPanel');
 const findCard = document.getElementById('findCard');
 const findCardBack = document.getElementById('findCardBack');
 const panelPhoto = document.getElementById('panelPhoto');
 const panelPhotoBack = document.getElementById('panelPhotoBack');
 const panelStamp = document.getElementById('panelStamp');
-const findPlane = document.getElementById('findPlane');
 const writeMode = document.getElementById('writeMode');
 const readMode = document.getElementById('readMode');
 const noteWords = document.getElementById('noteWords');
@@ -78,8 +92,14 @@ const readLikes = document.getElementById('readLikes');
 const nextGem = document.getElementById('nextGem');
 const tipWrap = document.getElementById('tipWrap');
 const seeOther = document.getElementById('seeOther');
+const othersFab = document.getElementById('othersFab');
+const othersPill = document.getElementById('othersPill');
+const othersChip = document.getElementById('othersChip');
+const othersDebugChips = Array.from(document.querySelectorAll('[data-others]'));
 let panelPhotoSrc = '';
 const TIP_SWIPE_DISMISS_PX = 64;
+/** @type {OthersMode} */
+let othersMode = 'tip';
 const flyThumb = document.getElementById('flyThumb');
 const slotCells = Array.from(document.querySelectorAll('.slot-cell'));
 const camera = document.getElementById('camera');
@@ -198,6 +218,92 @@ function resetMapCamera(_animate) {
   setMapPan();
 }
 
+function jamSpotAt(index) {
+  return MY_JAM_SPOTS[Math.min(index, MY_JAM_SPOTS.length - 1)];
+}
+
+function aimPlaneAt(spot) {
+  const left = spot.x + PLANE_OFFSET.x;
+  const top = spot.y + PLANE_OFFSET.y;
+  const dx = spot.x - left;
+  const dy = spot.y - top;
+  const rot = (Math.atan2(dy, dx) * 180) / Math.PI + PLANE_BASE_ROT_DEG;
+  planeMark.style.left = `${left}%`;
+  planeMark.style.top = `${top}%`;
+  planeMark.style.setProperty('--plane-rot', `${rot}deg`);
+}
+
+function showPlaneForJam(index) {
+  const spot = jamSpotAt(index);
+  aimPlaneAt(spot);
+  planeMark.hidden = false;
+  planeMark.setAttribute('aria-hidden', 'false');
+  void planeMark.offsetWidth;
+  planeMark.classList.add('is-on');
+}
+
+function hidePlane() {
+  planeMark.classList.remove('is-on');
+  planeMark.hidden = true;
+  planeMark.setAttribute('aria-hidden', 'true');
+}
+
+function placeJam(index, { pulse }) {
+  const spot = jamSpotAt(index);
+  let pin = jamLayer.querySelector(`[data-jam="${index}"]`);
+  if (!pin) {
+    pin = document.createElement('div');
+    pin.className = 'jam-pin';
+    pin.dataset.jam = String(index);
+    pin.innerHTML = '<span class="jam-pulse" aria-hidden="true"></span><span class="jam-core" aria-hidden="true"></span>';
+    jamLayer.appendChild(pin);
+  }
+  pin.style.left = `${spot.x}%`;
+  pin.style.top = `${spot.y}%`;
+  pin.classList.remove('is-born', 'is-live');
+  if (pulse) {
+    void pin.offsetWidth;
+    pin.classList.add('is-born');
+    later(() => {
+      pin.classList.remove('is-born');
+      pin.classList.add('is-live');
+    }, 1100);
+  } else {
+    pin.classList.add('is-live');
+  }
+}
+
+function clearJams() {
+  jamLayer.replaceChildren();
+  hidePlane();
+}
+
+function othersCtlVisible() {
+  const onMap = phase === 'map' || phase === 'note' || phase === 'browse';
+  return onMap && finds > 0 && othersMode !== 'tip';
+}
+
+function syncOthersControl() {
+  const show = othersCtlVisible();
+  othersFab.hidden = !(show && othersMode === 'fab');
+  othersPill.hidden = !(show && othersMode === 'pill');
+  othersChip.hidden = !(show && othersMode === 'chip');
+  // Tip CTA only when tip is on and mode is tip
+  if (othersMode !== 'tip') {
+    seeOther.hidden = true;
+  }
+}
+
+function setOthersMode(mode) {
+  othersMode = mode;
+  othersDebugChips.forEach((btn) => {
+    btn.setAttribute('aria-pressed', btn.dataset.others === mode ? 'true' : 'false');
+  });
+  syncOthersControl();
+  syncChrome();
+  setHint(`See others: ${mode === 'tip' ? 'tip swipe/tap' : mode}.`);
+}
+
 function setPanelPhoto(src, { stamp, swap }) {
   panelStamp.hidden = !stamp;
   findCard.classList.remove('is-enter', 'is-shuffle');
@@ -227,10 +333,7 @@ function showWritePanel(uri) {
   readMode.hidden = true;
   noteWords.value = '';
   setPanelPhoto(uri, { stamp: true, swap: false });
-  findPlane.hidden = false;
-  findPlane.classList.remove('is-on');
-  void findPlane.offsetWidth;
-  findPlane.classList.add('is-on');
+  showPlaneForJam(finds);
   findPanel.hidden = false;
   void findPanel.offsetWidth;
   findPanel.classList.add('is-on');
@@ -243,8 +346,7 @@ function showReadPanel(entry, { swap }) {
   // Likes appear on demand when zooming to this gem
   readLikes.hidden = true;
   setPanelPhoto(entry.photo, { stamp: false, swap });
-  findPlane.hidden = true;
-  findPlane.classList.remove('is-on');
+  hidePlane();
   findPanel.hidden = false;
   findPanel.classList.add('is-on');
 }
@@ -253,8 +355,7 @@ function hideFindPanel() {
   findPanel.classList.remove('is-on');
   findCard.classList.remove('is-shown', 'is-enter', 'is-shuffle');
   findCardBack.classList.remove('is-shown', 'is-shuffle-out');
-  findPlane.hidden = true;
-  findPlane.classList.remove('is-on');
+  hidePlane();
   findPanel.hidden = true;
   writeMode.hidden = false;
   readMode.hidden = true;
@@ -340,12 +441,15 @@ function syncChrome() {
   const onMap = phase === 'map' || phase === 'camera' || phase === 'note' || phase === 'browse';
   mapStage.classList.toggle('is-browse', phase === 'browse');
   backHot.hidden = !onMap || phase === 'camera';
-  seeOther.hidden = tipWrap.hidden || !tipWrap.classList.contains('is-on');
+  seeOther.hidden = othersMode !== 'tip'
+    || tipWrap.hidden
+    || !tipWrap.classList.contains('is-on');
   camHot.hidden = !(phase === 'map') || phase === 'note';
   stampHots.forEach((el) => {
     el.hidden = !(phase === 'menu' || phase === 'revealed');
   });
   closeHot.hidden = !(phase === 'menu' || phase === 'revealed');
+  syncOthersControl();
   markNextSlot();
 }
 
@@ -373,10 +477,14 @@ function clearFinds() {
   pendingCapture = null;
   hideFly();
   hideFindPanel();
+  clearJams();
   tipWrap.classList.remove('is-on', 'is-dismissing');
   tipWrap.hidden = true;
   tipWrap.style.transform = '';
   seeOther.hidden = true;
+  othersFab.hidden = true;
+  othersPill.hidden = true;
+  othersChip.hidden = true;
   slotCells.forEach((cell) => {
     const img = cell.querySelector('.slot');
     img.removeAttribute('src');
@@ -669,23 +777,29 @@ async function submitNote() {
   finds = captures.length;
   const index = finds - 1;
 
+  placeJam(index, { pulse: true });
+  showPlaneForJam(index);
   await flyIntoSlot(slotUri, index);
   hideFindPanel();
+  // Plane stays aimed at the new jam briefly, then settles off
+  later(() => hidePlane(), 900);
   pendingCapture = null;
 
   if (finds >= FINDS_NEEDED) {
-    showTip();
+    if (othersMode === 'tip') showTip();
     phase = 'map';
     syncChrome();
     busy = false;
-    setHint('Tip — swipe right to dismiss, or tap to see other Challengers.');
+    setHint(othersMode === 'tip'
+      ? 'Tip — swipe right to dismiss, or tap to see other Challengers.'
+      : 'Jams on the beach — use the small See others control.');
     return;
   }
 
   phase = 'map';
   syncChrome();
   busy = false;
-  setHint(`Submitted ${finds}/${FINDS_NEEDED} — camera again.`);
+  setHint(`Jam ${finds}/${FINDS_NEEDED} on the beach — camera again.`);
 }
 
 async function enterBrowse() {
@@ -760,7 +874,13 @@ stampHots.forEach((el) => {
 
 camHot.addEventListener('click', () => openCamera());
 seeOther.addEventListener('click', () => enterBrowse());
+othersFab.addEventListener('click', () => enterBrowse());
+othersPill.addEventListener('click', () => enterBrowse());
+othersChip.addEventListener('click', () => enterBrowse());
 nextGem.addEventListener('click', () => cycleNextGem());
+othersDebugChips.forEach((btn) => {
+  btn.addEventListener('click', () => setOthersMode(/** @type {OthersMode} */ (btn.dataset.others)));
+});
 bindTipSwipe();
 
 backHot.addEventListener('click', async () => {
