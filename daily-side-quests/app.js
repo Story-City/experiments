@@ -54,6 +54,11 @@ const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
 const GEM_SHADE = 'M15 7.5H22.5L12 20.5Z';
 const GEM_FACETS = 'M1.5 7.5H22.5M7 1.5L9 7.5L12 20.5L15 7.5L17 1.5';
+/** Others' gems — cyan, distinct from my purple jams */
+const OTHER_GEM_FILL = '#00c2ff';
+const MY_GEM_FILL = '#b36bff';
+const READ_LABEL_OTHERS = 'See what other Challengers found';
+const READ_LABEL_MINE = 'Your find';
 
 const FADE_MS = 480;
 const SLIDE_MS = 320;
@@ -89,6 +94,7 @@ const writeMode = document.getElementById('writeMode');
 const readMode = document.getElementById('readMode');
 const noteWords = document.getElementById('noteWords');
 const readText = document.getElementById('readText');
+const readLabel = document.getElementById('readLabel');
 const likeBtn = document.getElementById('likeBtn');
 const likeHeart = document.getElementById('likeHeart');
 const likeCount = document.getElementById('likeCount');
@@ -131,8 +137,11 @@ const backHot = document.getElementById('backHot');
 let phase = 'home';
 let quest = 0;
 let finds = 0;
-/** @type {string[]} */
-let captures = [];
+/** @type {{ photo: string, text: string }[]} */
+let myEntries = [];
+/** Viewing my finds vs others' gems */
+let viewingMine = false;
+let myIndex = 0;
 let stream = null;
 let facingMode = 'environment';
 let busy = false;
@@ -190,6 +199,16 @@ function showStampUnder(which) {
   return wait(FADE_MS);
 }
 
+function gemSvg(fill) {
+  return `<svg viewBox="0 0 24 22" aria-hidden="true">
+      <path d="${GEM_OUTLINE}" fill="${fill}"/>
+      <path d="${GEM_TABLE}" fill="#fff" fill-opacity="0.3"/>
+      <path d="${GEM_SHADE}" fill="#000" fill-opacity="0.22"/>
+      <path d="${GEM_FACETS}" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1" stroke-linejoin="round"/>
+      <path d="${GEM_OUTLINE}" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>`;
+}
+
 function buildGems() {
   if (gemsBuilt) return;
   gemsBuilt = true;
@@ -201,17 +220,11 @@ function buildGems() {
     pin.dataset.gem = String(i);
     pin.style.left = `${entry.x}%`;
     pin.style.top = `${entry.y}%`;
-    pin.setAttribute('aria-label', `Gem ${i + 1}`);
-    pin.innerHTML = `<svg viewBox="0 0 24 22" aria-hidden="true">
-      <path d="${GEM_OUTLINE}" fill="#b36bff"/>
-      <path d="${GEM_TABLE}" fill="#fff" fill-opacity="0.3"/>
-      <path d="${GEM_SHADE}" fill="#000" fill-opacity="0.22"/>
-      <path d="${GEM_FACETS}" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1" stroke-linejoin="round"/>
-      <path d="${GEM_OUTLINE}" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
-    </svg>`;
-    pin.addEventListener('click', () => {
-      if (phase !== 'browse' || busy) return;
-      showOtherEntry(i, true);
+    pin.setAttribute('aria-label', `Other find ${i + 1}`);
+    pin.innerHTML = gemSvg(OTHER_GEM_FILL);
+    pin.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openOtherGem(i);
     });
     gemLayer.appendChild(pin);
   });
@@ -260,10 +273,16 @@ function placeJam(index, { pulse }) {
   const spot = jamSpotAt(index);
   let pin = jamLayer.querySelector(`[data-jam="${index}"]`);
   if (!pin) {
-    pin = document.createElement('div');
+    pin = document.createElement('button');
+    pin.type = 'button';
     pin.className = 'jam-pin';
     pin.dataset.jam = String(index);
-    pin.innerHTML = '<span class="jam-pulse" aria-hidden="true"></span><span class="jam-core" aria-hidden="true"></span>';
+    pin.setAttribute('aria-label', `Your find ${index + 1}`);
+    pin.innerHTML = `<span class="jam-pulse" aria-hidden="true"></span>${gemSvg(MY_GEM_FILL)}`;
+    pin.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openMyEntry(index);
+    });
     jamLayer.appendChild(pin);
   }
   pin.style.left = `${spot.x}%`;
@@ -286,20 +305,26 @@ function clearJams() {
   hidePlane();
 }
 
+function tipIsOn() {
+  return !tipWrap.hidden && tipWrap.classList.contains('is-on');
+}
+
 function othersCtlVisible() {
-  const onMap = phase === 'map' || phase === 'note' || phase === 'browse';
-  return onMap && finds > 0 && othersMode !== 'tip';
+  const onMap = phase === 'map' || phase === 'browse';
+  // After any find, always keep a way into others (tip dismiss must not strand you)
+  return onMap && finds >= 1;
 }
 
 function syncOthersControl() {
   const show = othersCtlVisible();
-  othersFab.hidden = !(show && othersMode === 'fab');
-  othersPill.hidden = !(show && othersMode === 'pill');
-  othersChip.hidden = !(show && othersMode === 'chip');
-  // Tip CTA only when tip is on and mode is tip
-  if (othersMode !== 'tip') {
-    seeOther.hidden = true;
-  }
+  const tipOn = tipIsOn();
+  // Tip mode: tip CTA while tip is up; otherwise fall back to tiny gem FAB
+  let mode = othersMode;
+  if (othersMode === 'tip') mode = tipOn ? 'tip' : 'fab';
+  othersFab.hidden = !(show && mode === 'fab');
+  othersPill.hidden = !(show && mode === 'pill');
+  othersChip.hidden = !(show && mode === 'chip');
+  seeOther.hidden = !(othersMode === 'tip' && tipOn);
 }
 
 function setOthersMode(mode) {
@@ -362,6 +387,12 @@ function setPanelPhoto(src, { stamp, swap }) {
 }
 
 function syncLikeUi({ invite }) {
+  if (viewingMine) {
+    likeBtn.hidden = true;
+    likeBtn.classList.remove('is-invite', 'is-liked');
+    return;
+  }
+  likeBtn.hidden = false;
   const entry = OTHER_ENTRIES[otherIndex];
   const liked = !!likedByGem[otherIndex];
   const count = entry.likes + (liked ? 1 : 0);
@@ -378,7 +409,21 @@ function syncLikeUi({ invite }) {
   }
 }
 
+function markActivePins() {
+  gemPins().forEach((p, i) => {
+    p.classList.toggle('is-active', !viewingMine && phase === 'browse' && i === otherIndex);
+  });
+  jamLayer.querySelectorAll('.jam-pin').forEach((p) => {
+    const i = Number(p.dataset.jam);
+    p.classList.toggle('is-active', viewingMine && phase === 'browse' && i === myIndex);
+  });
+  slotCells.forEach((cell, i) => {
+    cell.classList.toggle('is-active-slot', viewingMine && phase === 'browse' && i === myIndex);
+  });
+}
+
 function showWritePanel(uri) {
+  viewingMine = false;
   writeMode.hidden = false;
   readMode.hidden = true;
   noteWords.value = '';
@@ -390,14 +435,33 @@ function showWritePanel(uri) {
 }
 
 function showReadPanel(entry, { swap }) {
+  viewingMine = false;
   writeMode.hidden = true;
   readMode.hidden = false;
-  readText.textContent = entry.text;
+  readLabel.textContent = READ_LABEL_OTHERS;
+  readText.textContent = entry.text || '—';
+  nextGem.hidden = false;
   setPanelPhoto(entry.photo, { stamp: false, swap });
   syncLikeUi({ invite: true });
   hidePlane();
   findPanel.hidden = false;
   findPanel.classList.add('is-on');
+  markActivePins();
+}
+
+function showMyReadPanel(entry, { swap }) {
+  viewingMine = true;
+  writeMode.hidden = true;
+  readMode.hidden = false;
+  readLabel.textContent = READ_LABEL_MINE;
+  readText.textContent = entry.text || '—';
+  nextGem.hidden = myEntries.length < 2;
+  setPanelPhoto(entry.photo, { stamp: false, swap });
+  syncLikeUi({ invite: false });
+  hidePlane();
+  findPanel.hidden = false;
+  findPanel.classList.add('is-on');
+  markActivePins();
 }
 
 function hideFindPanel() {
@@ -411,7 +475,11 @@ function hideFindPanel() {
   readMode.hidden = true;
   panelPhotoSrc = '';
   stackUnder = [];
+  viewingMine = false;
+  likeBtn.hidden = false;
+  nextGem.hidden = false;
   likeBtn.classList.remove('is-invite', 'is-liked');
+  markActivePins();
 }
 
 function showTip() {
@@ -420,7 +488,7 @@ function showTip() {
   tipWrap.style.transform = '';
   void tipWrap.offsetWidth;
   tipWrap.classList.add('is-on');
-  seeOther.hidden = false;
+  syncOthersControl();
 }
 
 function dismissTip() {
@@ -432,6 +500,7 @@ function dismissTip() {
     tipWrap.hidden = true;
     tipWrap.classList.remove('is-dismissing');
     tipWrap.style.transform = '';
+    syncOthersControl();
   }, 340);
 }
 
@@ -463,6 +532,8 @@ function bindTipSwipe() {
   };
 
   tipWrap.addEventListener('pointerdown', (e) => {
+    // Don't steal the See others hot-spot — that must stay clickable
+    if (e.target === seeOther || seeOther.contains(/** @type {Node} */ (e.target))) return;
     tipWrap.setPointerCapture(e.pointerId);
     onStart(e.clientX);
   });
@@ -474,12 +545,39 @@ function bindTipSwipe() {
 async function showOtherEntry(index, animate) {
   const next = ((index % OTHER_ENTRIES.length) + OTHER_ENTRIES.length) % OTHER_ENTRIES.length;
   const entry = OTHER_ENTRIES[next];
-  const same = next === otherIndex && panelPhotoSrc === entry.photo;
+  const same = !viewingMine && next === otherIndex && panelPhotoSrc === entry.photo;
   otherIndex = next;
-  gemPins().forEach((p, i) => p.classList.toggle('is-active', i === otherIndex));
   setMapPan(entry, animate);
-  // Always stack-shuffle when changing gems (Next or pin tap)
   showReadPanel(entry, { swap: !same });
+}
+
+async function openOtherGem(index) {
+  if (busy) return;
+  if (phase !== 'map' && phase !== 'browse') return;
+  busy = true;
+  phase = 'browse';
+  dismissTip();
+  await showOtherEntry(index, true);
+  busy = false;
+  syncChrome();
+  setHint(`Other find ${otherIndex + 1}/${OTHER_ENTRIES.length} — tap gems or Next.`);
+}
+
+async function openMyEntry(index) {
+  if (busy) return;
+  if (phase !== 'map' && phase !== 'browse') return;
+  const entry = myEntries[index];
+  if (!entry) return;
+  busy = true;
+  phase = 'browse';
+  dismissTip();
+  const same = viewingMine && index === myIndex && panelPhotoSrc === entry.photo;
+  myIndex = index;
+  gemPins().forEach((p) => p.classList.remove('is-active'));
+  showMyReadPanel(entry, { swap: !same });
+  busy = false;
+  syncChrome();
+  setHint(`Your find ${myIndex + 1}/${myEntries.length} — tap a jam or slot to reopen.`);
 }
 
 function syncChrome() {
@@ -488,17 +586,16 @@ function syncChrome() {
   playBtn.disabled = phase === 'camera' || phase === 'note' || busy;
   const onMap = phase === 'map' || phase === 'camera' || phase === 'note' || phase === 'browse';
   mapStage.classList.toggle('is-browse', phase === 'browse');
+  mapStage.classList.toggle('is-gems', finds >= 1 && (phase === 'map' || phase === 'browse'));
   backHot.hidden = !onMap || phase === 'camera';
-  seeOther.hidden = othersMode !== 'tip'
-    || tipWrap.hidden
-    || !tipWrap.classList.contains('is-on');
-  camHot.hidden = !(phase === 'map') || phase === 'note';
+  camHot.hidden = phase !== 'map';
   stampHots.forEach((el) => {
     el.hidden = !(phase === 'menu' || phase === 'revealed');
   });
   closeHot.hidden = !(phase === 'menu' || phase === 'revealed');
   syncOthersControl();
   markNextSlot();
+  markActivePins();
 }
 
 function markNextSlot() {
@@ -521,7 +618,9 @@ function hideFly() {
 
 function clearFinds() {
   finds = 0;
-  captures = [];
+  myEntries = [];
+  myIndex = 0;
+  viewingMine = false;
   pendingCapture = null;
   likedByGem = {};
   likeInviteSeen = {};
@@ -538,7 +637,7 @@ function clearFinds() {
   slotCells.forEach((cell) => {
     const img = cell.querySelector('.slot');
     img.removeAttribute('src');
-    cell.classList.remove('is-filled', 'is-land', 'is-ready');
+    cell.classList.remove('is-filled', 'is-land', 'is-ready', 'is-active-slot');
   });
   resetMapCamera(false);
 }
@@ -819,19 +918,19 @@ async function submitNote() {
   const slotUri = usingLiveCamera && fullUri.startsWith('data:')
     ? fullUri
     : placeholderForFind(finds);
+  const noteText = (noteWords.value || '').trim();
 
   findPanel.classList.remove('is-on');
   await wait(200);
 
-  captures.push(slotUri);
-  finds = captures.length;
+  myEntries.push({ photo: slotUri, text: noteText });
+  finds = myEntries.length;
   const index = finds - 1;
 
   placeJam(index, { pulse: true });
   showPlaneForJam(index);
   await flyIntoSlot(slotUri, index);
   hideFindPanel();
-  // Plane stays aimed at the new jam briefly, then settles off
   later(() => hidePlane(), 900);
   pendingCapture = null;
 
@@ -840,16 +939,14 @@ async function submitNote() {
     phase = 'map';
     syncChrome();
     busy = false;
-    setHint(othersMode === 'tip'
-      ? 'Tip — swipe right to dismiss, or tap to see other Challengers.'
-      : 'Jams on the beach — use the small See others control.');
+    setHint('Tap cyan gems for others, purple jams/slots for yours — See others stays available.');
     return;
   }
 
   phase = 'map';
   syncChrome();
   busy = false;
-  setHint(`Jam ${finds}/${FINDS_NEEDED} on the beach — camera again.`);
+  setHint(`Jam ${finds}/${FINDS_NEEDED} on the beach — camera again. Tap jam to reopen.`);
 }
 
 async function enterBrowse() {
@@ -862,7 +959,7 @@ async function enterBrowse() {
   await wait(PAN_MS);
   busy = false;
   syncChrome();
-  setHint('Next shuffles the stack — previous card stays behind.');
+  setHint('Cyan gems = others. Purple jams = yours. Next cycles the stack.');
 }
 
 async function cycleNextGem() {
@@ -872,11 +969,18 @@ async function cycleNextGem() {
     return;
   }
   busy = true;
-  await showOtherEntry(otherIndex + 1, true);
-  await wait(PAN_MS);
+  if (viewingMine) {
+    const next = (myIndex + 1) % myEntries.length;
+    myIndex = next;
+    showMyReadPanel(myEntries[next], { swap: true });
+    setHint(`Your find ${myIndex + 1}/${myEntries.length}.`);
+  } else {
+    await showOtherEntry(otherIndex + 1, true);
+    setHint(`Other find ${otherIndex + 1}/${OTHER_ENTRIES.length}.`);
+  }
+  await wait(280);
   busy = false;
   syncChrome();
-  setHint(`Gem ${otherIndex + 1}/${OTHER_ENTRIES.length} — Next again.`);
 }
 
 function buildPicker() {
@@ -932,9 +1036,16 @@ othersDebugChips.forEach((btn) => {
   btn.addEventListener('click', () => setOthersMode(/** @type {OthersMode} */ (btn.dataset.others)));
 });
 likeBtn.addEventListener('click', () => {
+  if (viewingMine) return;
   likedByGem[otherIndex] = !likedByGem[otherIndex];
   likeInviteSeen[otherIndex] = true;
   syncLikeUi({ invite: false });
+});
+slotCells.forEach((cell, i) => {
+  cell.addEventListener('click', () => {
+    if (!cell.classList.contains('is-filled')) return;
+    openMyEntry(i);
+  });
 });
 bindTipSwipe();
 
