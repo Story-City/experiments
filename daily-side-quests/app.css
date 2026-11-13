@@ -446,7 +446,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   50% { transform: scale(1.08); }
 }
 
-/* ENTRY-ARROW-SHARE-v31 MAP-SWOOSH-v31 — image left + text right; map free above */
+/* TIP-PNG-RESTORED-v32 — image left + text right; map free above */
 .find-panel {
   position: absolute;
   left: 0; right: 0;
@@ -806,14 +806,14 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 
 .tip-wrap {
   position: absolute;
-  left: calc(18 / var(--phone-w) * 100%);
-  right: calc(18 / var(--phone-w) * 100%);
-  top: calc(300 / var(--phone-h) * 100%);
+  left: calc(24 / var(--phone-w) * 100%);
+  top: calc(353 / var(--phone-h) * 100%);
+  width: calc(352 / var(--phone-w) * 100%);
   z-index: 16;
   touch-action: pan-y;
   opacity: 0;
   transform: translateX(0);
-  transition: opacity var(--fade-ms) var(--ease-out), transform var(--fade-ms) var(--ease-out);
+  transition: opacity 280ms var(--ease-out), transform 320ms var(--ease-out);
   pointer-events: none;
 }
 .tip-wrap.is-on {
@@ -826,52 +826,26 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   transform: translateX(110%);
   pointer-events: none;
   animation: none;
+  transition: opacity 280ms var(--ease-out), transform 320ms var(--ease-out);
 }
 .tip-wrap[hidden] { display: none; }
 
-.tip-card {
+.tip-layer {
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 88px;
-  padding: 12px 14px;
-  padding-right: 96px;
-  border-radius: 18px;
-  border: 1px solid rgba(0, 194, 255, 0.55);
-  background: color-mix(in srgb, var(--raised) 82%, transparent);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  overflow: visible;
-}
-.tip-copy {
-  margin: 0;
-  flex: 1;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.35;
-  color: #fff;
-}
-.tip-character {
-  position: absolute;
-  right: -4px;
-  bottom: -8px;
-  width: 92px;
-  height: 92px;
-  object-fit: contain;
+  width: 100%;
+  height: auto;
+  display: block;
   pointer-events: none;
   user-select: none;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45));
 }
 .tip-hot {
-  left: 8%; top: 20%;
-  width: 55%; height: 60%;
+  left: 0; top: 55%;
+  width: 70%; height: 28%;
   z-index: 1;
 }
-.tip-hot[hidden] { display: none !important; }
 @keyframes tipIn {
-  0% { opacity: 0; transform: translateX(0) translateY(18px) scale(0.98); }
-  100% { opacity: 1; transform: translateX(0) translateY(0) scale(1); }
+  0% { opacity: 0; transform: translateX(0) translateY(14px); }
+  100% { opacity: 1; transform: translateX(0) translateY(0); }
 }
 
 .info-btn {

@@ -41,8 +41,6 @@ const OTHER_ENTRIES = [
   },
 ];
 const MY_USER = '@you';
-const TIP_COPY_ONBOARD = 'When you find a location, tap the camera to snap a photo and share.';
-const TIP_COPY_OTHERS = 'See what other Challengers found today';
 
 /** Beach spots for my jams (map %); plane points here */
 const MY_JAM_SPOTS = [
@@ -106,7 +104,6 @@ const nextGem = document.getElementById('nextGem');
 const shareBtn = document.getElementById('shareBtn');
 const entryUser = document.getElementById('entryUser');
 const tipWrap = document.getElementById('tipWrap');
-const tipCopy = document.getElementById('tipCopy');
 const seeOther = document.getElementById('seeOther');
 const infoBtn = document.getElementById('infoBtn');
 const othersBtn = document.getElementById('othersBtn');
@@ -331,12 +328,7 @@ function syncOthersControl() {
   const ready = finds >= FINDS_NEEDED;
   othersBtn.disabled = !ready;
   othersBtn.setAttribute('aria-disabled', ready ? 'false' : 'true');
-  seeOther.hidden = !(
-    ready
-    && tipWrap.dataset.tip === 'others'
-    && !tipWrap.hidden
-    && tipWrap.classList.contains('is-on')
-  );
+  seeOther.hidden = !(ready && !tipWrap.hidden && tipWrap.classList.contains('is-on'));
 }
 
 function clearStackClasses() {
@@ -521,12 +513,7 @@ function hideFindPanel() {
   markActivePins();
 }
 
-/** @param {'onboard'|'others'} kind */
-function showTip(kind) {
-  const mode = kind === 'others' ? 'others' : 'onboard';
-  tipWrap.dataset.tip = mode;
-  tipCopy.textContent = mode === 'others' ? TIP_COPY_OTHERS : TIP_COPY_ONBOARD;
-  seeOther.hidden = mode !== 'others';
+function showTip() {
   tipWrap.hidden = false;
   tipWrap.classList.remove('is-dismissing');
   tipWrap.style.transform = '';
@@ -775,8 +762,7 @@ async function enterMapFromStamp(index) {
   await wait(FADE_MS);
   busy = false;
   syncChrome();
-  showTip('onboard');
-  setHint('Map — tip explains the camera; info (i) brings the tip back.');
+  setHint('Map — photo lands left; write right. Info (i) shows the tip.');
 }
 
 async function startStream() {
@@ -1000,7 +986,7 @@ async function submitNote() {
   pendingCapture = null;
 
   if (finds >= FINDS_NEEDED) {
-    showTip('others');
+    showTip();
     phase = 'map';
     syncChrome();
     busy = false;
@@ -1125,7 +1111,7 @@ shareBtn.addEventListener('click', async () => {
 });
 infoBtn.addEventListener('click', () => {
   if (phase !== 'map' && phase !== 'browse' && phase !== 'note') return;
-  showTip(finds >= FINDS_NEEDED ? 'others' : 'onboard');
+  showTip();
 });
 likeBtn.addEventListener('click', () => {
   if (viewingMine) return;
