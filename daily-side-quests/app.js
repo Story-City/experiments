@@ -48,8 +48,6 @@ const MY_JAM_SPOTS = [
 /** Place plane so its natural nose (upper-right) aims at the jam */
 const PLANE_OFFSET = { x: -8, y: 5 };
 
-/** @typedef {'tip'|'fab'|'pill'|'chip'} OthersMode */
-
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
 const GEM_SHADE = 'M15 7.5H22.5L12 20.5Z';
@@ -100,10 +98,7 @@ const likeCount = document.getElementById('likeCount');
 const nextGem = document.getElementById('nextGem');
 const tipWrap = document.getElementById('tipWrap');
 const seeOther = document.getElementById('seeOther');
-const othersFab = document.getElementById('othersFab');
-const othersPill = document.getElementById('othersPill');
-const othersChip = document.getElementById('othersChip');
-const othersDebugChips = Array.from(document.querySelectorAll('[data-others]'));
+const othersBtn = document.getElementById('othersBtn');
 /** Front of the visual stack */
 let panelPhotoSrc = '';
 /** @type {string[]} oldest → newest under the front */
@@ -113,8 +108,6 @@ let likedByGem = {};
 /** @type {Record<number, boolean>} first-time invite pulse already shown */
 let likeInviteSeen = {};
 const TIP_SWIPE_DISMISS_PX = 64;
-/** @type {OthersMode} */
-let othersMode = 'tip';
 const flyThumb = document.getElementById('flyThumb');
 const slotCells = Array.from(document.querySelectorAll('.slot-cell'));
 const camera = document.getElementById('camera');
@@ -315,36 +308,14 @@ function clearJams() {
   hidePlane();
 }
 
-function tipIsOn() {
-  return !tipWrap.hidden && tipWrap.classList.contains('is-on');
-}
-
-function othersCtlVisible() {
-  const onMap = phase === 'map' || phase === 'browse';
-  // After any find, always keep a way into others (tip dismiss must not strand you)
-  return onMap && finds >= 1;
-}
-
 function syncOthersControl() {
-  const show = othersCtlVisible();
-  const tipOn = tipIsOn();
-  // Tip mode: tip CTA while tip is up; otherwise fall back to tiny gem FAB
-  let mode = othersMode;
-  if (othersMode === 'tip') mode = tipOn ? 'tip' : 'fab';
-  othersFab.hidden = !(show && mode === 'fab');
-  othersPill.hidden = !(show && mode === 'pill');
-  othersChip.hidden = !(show && mode === 'chip');
-  seeOther.hidden = !(othersMode === 'tip' && tipOn);
-}
-
-function setOthersMode(mode) {
-  othersMode = mode;
-  othersDebugChips.forEach((btn) => {
-    btn.setAttribute('aria-pressed', btn.dataset.others === mode ? 'true' : 'false');
-  });
-  syncOthersControl();
-  syncChrome();
-  setHint(`See others: ${mode === 'tip' ? 'tip swipe/tap' : mode}.`);
+  const onMap = phase === 'map' || phase === 'browse' || phase === 'note';
+  othersBtn.hidden = !onMap;
+  const ready = finds >= FINDS_NEEDED;
+  othersBtn.disabled = !ready;
+  othersBtn.setAttribute('aria-disabled', ready ? 'false' : 'true');
+  // Tip hot still works once challenge is done and tip is up
+  seeOther.hidden = !(ready && !tipWrap.hidden && tipWrap.classList.contains('is-on'));
 }
 
 function clearStackClasses() {
@@ -562,6 +533,7 @@ async function showOtherEntry(index, animate) {
 
 async function openOtherGem(index) {
   if (busy) return;
+  if (finds < FINDS_NEEDED) return;
   if (phase !== 'map' && phase !== 'browse') return;
   busy = true;
   phase = 'browse';
@@ -596,7 +568,7 @@ function syncChrome() {
   playBtn.disabled = phase === 'camera' || phase === 'note' || busy;
   const onMap = phase === 'map' || phase === 'camera' || phase === 'note' || phase === 'browse';
   mapStage.classList.toggle('is-browse', phase === 'browse');
-  mapStage.classList.toggle('is-gems', finds >= 1 && (phase === 'map' || phase === 'browse'));
+  mapStage.classList.toggle('is-gems', finds >= FINDS_NEEDED && (phase === 'map' || phase === 'browse'));
   backHot.hidden = !onMap || phase === 'camera';
   camHot.hidden = phase !== 'map';
   stampHots.forEach((el) => {
@@ -641,9 +613,8 @@ function clearFinds() {
   tipWrap.hidden = true;
   tipWrap.style.transform = '';
   seeOther.hidden = true;
-  othersFab.hidden = true;
-  othersPill.hidden = true;
-  othersChip.hidden = true;
+  othersBtn.hidden = true;
+  othersBtn.disabled = true;
   slotCells.forEach((cell) => {
     const img = cell.querySelector('.slot');
     img.removeAttribute('src');
@@ -945,11 +916,11 @@ async function submitNote() {
   pendingCapture = null;
 
   if (finds >= FINDS_NEEDED) {
-    if (othersMode === 'tip') showTip();
+    showTip();
     phase = 'map';
     syncChrome();
     busy = false;
-    setHint('Tap cyan gems for others, purple jams/slots for yours — See others stays available.');
+    setHint('Challenge done — Show other gems is unlocked.');
     return;
   }
 
@@ -961,6 +932,7 @@ async function submitNote() {
 
 async function enterBrowse() {
   if (busy) return;
+  if (finds < FINDS_NEEDED) return;
   if (phase !== 'browse' && phase !== 'map') return;
   busy = true;
   phase = 'browse';
@@ -1038,13 +1010,11 @@ stampHots.forEach((el) => {
 
 camHot.addEventListener('click', () => openCamera());
 seeOther.addEventListener('click', () => enterBrowse());
-othersFab.addEventListener('click', () => enterBrowse());
-othersPill.addEventListener('click', () => enterBrowse());
-othersChip.addEventListener('click', () => enterBrowse());
-nextGem.addEventListener('click', () => cycleNextGem());
-othersDebugChips.forEach((btn) => {
-  btn.addEventListener('click', () => setOthersMode(/** @type {OthersMode} */ (btn.dataset.others)));
+othersBtn.addEventListener('click', () => {
+  if (othersBtn.disabled || finds < FINDS_NEEDED) return;
+  enterBrowse();
 });
+nextGem.addEventListener('click', () => cycleNextGem());
 likeBtn.addEventListener('click', () => {
   if (viewingMine) return;
   likedByGem[otherIndex] = !likedByGem[otherIndex];

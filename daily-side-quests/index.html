@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=19">
+<link rel="stylesheet" href="app.css?v=20">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -25,14 +25,6 @@
     <button type="button" class="play" id="play">Play</button>
     <button type="button" class="play secondary" id="reset">Reset</button>
     <span class="hint" id="hint">Idle — Play opens Daily Side quests.</span>
-  </div>
-
-  <div class="debugs" role="radiogroup" aria-label="See others control">
-    <span class="debug-label">See others (debug)</span>
-    <button type="button" class="debug-chip" data-others="tip" aria-pressed="true">Tip only</button>
-    <button type="button" class="debug-chip" data-others="fab" aria-pressed="false">Tiny gem</button>
-    <button type="button" class="debug-chip" data-others="pill" aria-pressed="false">Small pill</button>
-    <button type="button" class="debug-chip" data-others="chip" aria-pressed="false">Map chip</button>
   </div>
 
   <main class="phone" id="phone" data-phase="home">
@@ -65,13 +57,13 @@
         </div>
       </div>
 
-      <!-- Persistent “see others” — pick one via debug chips -->
-      <button type="button" class="others-ctl others-fab" id="othersFab" hidden aria-label="See other challenges">
-        <svg viewBox="0 0 24 22" aria-hidden="true"><path d="M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z" fill="#00c2ff"/><path d="M7 1.5H17L15 7.5H9Z" fill="#fff" fill-opacity="0.3"/></svg>
-      </button>
-      <button type="button" class="others-ctl others-pill" id="othersPill" hidden aria-label="See other challenges">Others</button>
-      <button type="button" class="others-ctl others-chip" id="othersChip" hidden aria-label="See other challenges">
-        <span class="others-chip-gems" aria-hidden="true"></span>
+      <!-- Always on map; disabled until challenge finished -->
+      <button type="button" class="others-btn" id="othersBtn" hidden disabled>
+        <svg class="others-btn-gem" viewBox="0 0 24 22" aria-hidden="true">
+          <path d="M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z" fill="#00c2ff"/>
+          <path d="M7 1.5H17L15 7.5H9Z" fill="#fff" fill-opacity="0.35"/>
+        </svg>
+        <span>Show other gems</span>
       </button>
 
       <div class="slots" id="slots" aria-hidden="true">
@@ -147,6 +139,6 @@
   <p class="meta">
     Honesty: Figma frames have no exportable motion curves — recreating prototype smart-animate as layered element motion on the real map tiles.
   </p>
-  <script src="app.js?v=19"></script>
+  <script src="app.js?v=20"></script>
 </body>
 </html>

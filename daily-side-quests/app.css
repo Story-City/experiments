@@ -80,25 +80,6 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .play:disabled { opacity: 0.5; cursor: default; }
 .hint { color: var(--muted); font-size: 14px; }
 
-.debugs {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  max-width: 390px; width: 100%; align-items: center;
-}
-.debug-label {
-  width: 100%;
-  color: var(--muted); font-size: 13px; font-weight: 700;
-}
-.debug-chip {
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px; padding: 6px 12px;
-  background: transparent; color: var(--muted);
-  font: inherit; font-weight: 700; font-size: 13px; cursor: pointer;
-}
-.debug-chip[aria-pressed="true"] {
-  background: rgba(179, 107, 255, 0.2);
-  border-color: rgba(179, 107, 255, 0.55);
-  color: var(--paper);
-}
 
 .phone {
   position: relative;
@@ -313,57 +294,55 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   z-index: 2;
 }
 
-/* Persistent see-others controls (debug-switched) */
-.others-ctl {
-  position: absolute; z-index: 14;
-  border: 0; cursor: pointer;
-  pointer-events: auto;
-}
-.others-ctl[hidden] { display: none !important; }
-
-.others-fab {
-  right: 10px;
-  bottom: calc(228 / var(--phone-h) * 100%);
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  padding: 0;
-  display: grid; place-items: center;
-  background: color-mix(in srgb, var(--raised) 72%, transparent);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-}
-.others-fab svg { width: 16px; height: 15px; display: block; }
-
-.others-pill {
-  left: 10px;
-  bottom: calc(228 / var(--phone-h) * 100%);
-  height: 28px; padding: 0 10px;
+/* Show other gems — always on map; disabled until challenge done */
+.others-btn {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(210 / var(--phone-h) * 100%);
+  z-index: 14;
+  height: 44px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
   border-radius: 999px;
-  font: inherit; font-weight: 800; font-size: 12px;
-  color: #fff;
-  background: color-mix(in srgb, var(--raised) 72%, transparent);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  font: inherit;
+  font-weight: 800;
+  font-size: 16px;
+  color: #041018;
+  background: linear-gradient(90deg, #007ab8, #00c2ff);
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 8px 24px rgba(0, 194, 255, 0.35);
+  transition: opacity 220ms ease, transform 220ms var(--ease-out), filter 220ms ease;
 }
-
-.others-chip {
-  right: 12px; top: 5.2%;
-  width: 28px; height: 28px;
-  border-radius: 8px; padding: 0;
-  display: grid; place-items: center;
-  background: color-mix(in srgb, var(--raised) 65%, transparent);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+.others-btn-gem {
+  width: 18px;
+  height: 16px;
+  flex: none;
+}
+.others-btn[hidden] { display: none !important; }
+.others-btn:disabled {
+  color: rgba(255, 255, 255, 0.55);
+  background: color-mix(in srgb, var(--raised) 78%, transparent);
+  box-shadow: none;
   border: 1px solid rgba(255, 255, 255, 0.14);
+  cursor: default;
+  opacity: 0.72;
+  filter: grayscale(0.35);
 }
-.others-chip-gems {
-  width: 14px; height: 12px;
-  background:
-    radial-gradient(circle at 30% 60%, #b36bff 0 45%, transparent 46%),
-    radial-gradient(circle at 70% 40%, #d7c8ff 0 40%, transparent 41%),
-    radial-gradient(circle at 55% 75%, #9a4dff 0 35%, transparent 36%);
+.others-btn:disabled .others-btn-gem path:first-child {
+  fill: rgba(255, 255, 255, 0.45);
+}
+.others-btn:not(:disabled) {
+  animation: othersReady 1.6s ease-in-out infinite;
+}
+@keyframes othersReady {
+  0%, 100% { transform: translateY(0); box-shadow: 0 8px 24px rgba(0, 194, 255, 0.35); }
+  50% { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0, 194, 255, 0.5); }
 }
 
 /*
