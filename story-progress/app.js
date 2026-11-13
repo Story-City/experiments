@@ -105,39 +105,36 @@ function stamps(s) {   // H
 const TOP = { A: dots, B: fog, C: bar, E: branch, F: acts, H: stamps };
 
 // ---------------------------------------------------------------- render
-// The phone copies the real chapter screen (mobile-rn main, Nov 6 2026, ReaderView):
-// top bar = back, story name centred, ⋯ menu; then the chapter title in bold, the chapter text as
-// plain paragraphs (texts from the unknown number in bold italic), and the choices as paper tickets
-// with a perforated stub. The Summons' real chapters have no featured picture, so none here.
-const STOCK = ['#C5D1E2', '#E3D1BC', '#C1D5D0'];   // ticketStock1–3 (slate, amber, teal pastels)
-const serial = (i) => 'Nº ' + String(214 + 97 * i).padStart(4, '0');
+// The phone is a real screenshot of The Summons sample story (iOS simulator, dev build, Nov 12 2026;
+// only the dev-only debug pill and gear painted out). It is cut into three slices: the chat header,
+// the chat, and the reply button. Each version's progress band slides in under the header (the chat
+// slice loses the same height of empty background at its bottom), the ring sits in the header's empty
+// right side, and the ribbon runs down the right edge. The story's choices are demo chips under the phone.
+const SHOT = { src: 'img/summons-ch1.jpg', w: 603, h: 1311, head: 161, foot: 1110 };   // px in the image
 
-function ticket([t, to, pin], i) {
-  return `<button type="button" class="ticket" data-to="${to}" style="--stock:${STOCK[i % 3]}">
-    <span class="tbody">${pin ? ic('pin', 'tpin') : ''}<span class="tt">${t}</span><span class="ser">${serial(i)}</span></span>
-    <span class="tstub">${ic('arrow', 'tar')}</span>
-  </button>`;
+function slice(y0, y1, extra = '') {
+  return `<div class="sl" style="--y0:${y0};--y1:${y1};${extra}"></div>`;
 }
 
 function phone() {
-  const s = stats(), c = CH[s.id];
-  const text = c.lines.map(([t, x]) => `<p class="${t === 't' ? 'msg' : ''}">${x}</p>`).join('');
-  const foot = s.ended
-    ? `<div class="endcard"><p class="endk">The end</p><p class="endt">${c.end}</p><button type="button" class="cta" data-act="restart">Play Again</button></div>`
-    : c.choices.map(ticket).join('');
-  return `<div class="phone"><div class="scr">
-    <div class="sb"><span>9:41</span><span class="isl"></span><span>100%</span></div>
-    <div class="pad">
-      <header class="bar">${ic('back', 'bk')}<p class="st">${STORY.title}</p>${ic('more', 'mo')}</header>
-      ${TOP[cur] ? TOP[cur](s) : ''}
-      <div class="feed" aria-live="polite">
-        <div class="chead"><h3 class="ct">${c.title}</h3>${cur === 'G' ? ring(s) : ''}</div>
-        <div class="prose">${text}</div>
-      </div>
-      <div class="foot">${foot}</div>
-    </div>
-    ${cur === 'D' ? ribbon(s) : ''}
+  const s = stats();
+  const band = TOP[cur] ? `<div class="band">${TOP[cur](s)}</div>` : '';
+  return `<div class="phone" style="--src:url(${SHOT.src});--iw:${SHOT.w};--ih:${SHOT.h}"><div class="scr">
+    ${slice(0, SHOT.head)}
+    ${cur === 'G' ? `<div class="hring">${ring(s)}</div>` : ''}
+    ${band}
+    <div class="body">${slice(SHOT.head, SHOT.foot)}${cur === 'D' ? ribbon(s) : ''}</div>
+    ${slice(SHOT.foot, SHOT.h)}
   </div></div>`;
+}
+
+function demo() {
+  const s = stats(), c = CH[s.id];
+  const chips = s.ended
+    ? `<button type="button" class="dchip" data-act="restart">${PAGE.restart}</button>`
+    : c.choices.map(([t, to]) => `<button type="button" class="dchip" data-to="${to}">${t}</button>`).join('');
+  return `<div class="demo"><p class="dnow">${PAGE.now} <b class="ct">${s.n}. ${c.title}</b>${s.ended ? ` · ${PAGE.ending}` : ''}</p>
+    <p class="dlab">${s.ended ? '' : PAGE.pick}</p><div class="dchips">${chips}</div></div>`;
 }
 
 function render() {
@@ -147,7 +144,7 @@ function render() {
     b.setAttribute('aria-selected', String(on));
     b.tabIndex = on ? 0 : -1;
   }
-  $('stage').innerHTML = `<div class="ph">${phone()}<button type="button" class="ghost" data-act="restart">${PAGE.restart}</button><p class="tip">${PAGE.tip}</p></div>
+  $('stage').innerHTML = `<div class="ph">${phone()}${demo()}<p class="tip">${PAGE.tip}</p><p class="src">${PAGE.source}</p></div>
     <article class="note">
       <header class="oh"><span class="let">${o.k}</span><div><h2>${o.name}</h2><p class="tags"><span class="tag t-${o.status.toLowerCase().replace(/\s+/g, '-')}">${o.status}</span><span class="was">${PAGE.was} ${o.was}</span></p></div></header>
       <p class="what">${o.what}</p>

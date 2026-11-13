@@ -2,9 +2,13 @@
 export const PAGE = {
   kicker: 'Idea · Nov 12',
   title: 'Story progress',
-  sub: 'Eight ways to show how far you are in a story. Play The Summons in the phone and watch how each one copes when a choice changes the length.',
+  sub: 'Eight ways to show how far you are in a story, on a real screen from The Summons. Pick the story’s choices under the phone and watch how each one copes when a choice changes the length.',
   tip: 'At chapter 2, pick “I’d rather stay inside” for the shorter route.',
   restart: 'Start over',
+  now: 'Now in chapter',
+  ending: 'an ending',
+  pick: 'Pick a choice to move on:',
+  source: 'Screen: The Summons sample story in the app (simulator, Nov 12). Only the progress is mocked up.',
   lengthLabel: 'When a choice changes the length',
   was: 'was',
 };
