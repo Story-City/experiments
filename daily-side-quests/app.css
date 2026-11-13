@@ -144,7 +144,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   background: #0b1530;
   border-radius: 4px;
   cursor: pointer;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .stamp-plate,
@@ -170,15 +170,18 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 
 /*
  * Hand with Rolling Dice — Figma 5550:355652 / 5565:277034
- * Group box: x=202.62 y=-81.62 w=259.36 h=260.44 (stamp space)
- * Motion nodes 5565:277055/066 (hand), 277121/129 (dice), 3.24s loop
+ * Metadata box sits far right (pre-transform); visual rest matches menu
+ * screenshot — composition centered above "Tap to reveal".
+ * Motion nodes 5565:277055/066 (hand), 277121/129 (dice), 3.24s loop.
+ * Hand↔dice proportions keep group-local % from 5565:277034.
  */
 .stamp-motion {
   position: absolute;
-  left: 62.85%;
-  top: -64.46%;
-  width: 80.45%;
-  height: 205.69%;
+  left: 50%;
+  top: -42%;
+  width: 58%;
+  height: 168%;
+  transform: translateX(-50%);
   pointer-events: none;
   z-index: 3;
   overflow: visible;
