@@ -71,7 +71,7 @@ const DISSOLVE_WAIT_MS = Math.max(
 );
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=34';
+const UNDERLAY_CACHE = 'v=35';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -88,15 +88,7 @@ const UNDERLAYS = {
     alt: 'Story City staging — reader text with Carry on',
   },
 };
-// Celebration colour only — geometry / timing unchanged.
-const ACCENTS = {
-  blue: { hex: '#009EFF', rgb: '0, 158, 255', soft: '#B9E5FF' },
-  orange: { hex: '#FD6A01', rgb: '253, 106, 1', soft: '#FFD0A8' },
-  violet: { hex: '#8B5CFF', rgb: '139, 92, 255', soft: '#D4C4FF' },
-  teal: { hex: '#00C2A8', rgb: '0, 194, 168', soft: '#9FF0E4' },
-  gold: { hex: '#E8B923', rgb: '232, 185, 35', soft: '#FFE9A0' },
-  magenta: { hex: '#E83E8C', rgb: '232, 62, 140', soft: '#FFB3D4' },
-};
+const DEFAULT_ACCENT_HEX = '#009EFF';
 const LOTTIE_SRC = 'training_hub_day_reached.json';
 // Source Lottie blues / green (0–1) — remapped to the active accent.
 const LOTTIE_BLUE_A = [0.4, 0.8, 1];
@@ -104,8 +96,9 @@ const LOTTIE_BLUE_B = [0.388, 0.71, 1];
 const LOTTIE_GREEN = [0.184, 0.753, 0.239];
 const COLOR_EPS = 0.02;
 
-let activeAccent = 'blue';
+let activeAccentHex = DEFAULT_ACCENT_HEX;
 let lottieMaster = null;
+let accentReload = null;
 
 function formatLocalDate(date) {
   const y = date.getFullYear();
@@ -157,6 +150,9 @@ const playBtn = document.getElementById('play');
 const hint = document.getElementById('hint');
 const phone = document.getElementById('phone');
 const underlay = document.getElementById('underlay');
+const accentColorEl = document.getElementById('accentColor');
+const accentHexEl = document.getElementById('accentHex');
+const accentApplyEl = document.getElementById('accentApply');
 const holdForReview = new URLSearchParams(location.search).has('hold');
 
 let anim = null;
@@ -181,8 +177,11 @@ function clearTimers() {
   timers = [];
 }
 
-function currentAccent() {
-  return ACCENTS[activeAccent] ?? ACCENTS.blue;
+function normalizeHex(raw) {
+  const t = String(raw || '').trim();
+  const m = t.match(/^#?([0-9a-fA-F]{6})$/);
+  if (!m) return null;
+  return `#${m[1].toUpperCase()}`;
 }
 
 function hexToRgb01(hex) {
@@ -192,6 +191,24 @@ function hexToRgb01(hex) {
     parseInt(n.slice(2, 4), 16) / 255,
     parseInt(n.slice(4, 6), 16) / 255,
   ];
+}
+
+function hexToRgbCss(hex) {
+  const n = hex.replace('#', '');
+  return `${parseInt(n.slice(0, 2), 16)}, ${parseInt(n.slice(2, 4), 16)}, ${parseInt(n.slice(4, 6), 16)}`;
+}
+
+function softFromHex(hex) {
+  const soft = hexToRgb01(hex).map((c) => Math.round(Math.min(1, c * 0.45 + 0.55) * 255));
+  return `#${soft.map((n) => n.toString(16).padStart(2, '0')).join('').toUpperCase()}`;
+}
+
+function currentAccent() {
+  return {
+    hex: activeAccentHex,
+    rgb: hexToRgbCss(activeAccentHex),
+    soft: softFromHex(activeAccentHex),
+  };
 }
 
 function colorNear(a, b) {
@@ -552,38 +569,54 @@ function setSurface(name) {
   });
 }
 
-function setAccent(name) {
-  if (!ACCENTS[name] || name === activeAccent) {
-    document.querySelectorAll('.chip[data-accent]').forEach((chip) => {
-      chip.setAttribute('aria-pressed', chip.dataset.accent === activeAccent ? 'true' : 'false');
-    });
-    return;
+function syncAccentInputs(hex) {
+  accentColorEl.value = hex.toLowerCase();
+  accentHexEl.value = hex;
+}
+
+function setAccentHex(raw, { play = false } = {}) {
+  const hex = normalizeHex(raw);
+  if (!hex) {
+    hint.textContent = 'Use a 6-digit hex like #009EFF.';
+    syncAccentInputs(activeAccentHex);
+    return Promise.resolve();
   }
-  activeAccent = name;
+  activeAccentHex = hex;
+  syncAccentInputs(hex);
   applyAccentVars();
   buildArc();
-  document.querySelectorAll('.chip[data-accent]').forEach((chip) => {
-    chip.setAttribute('aria-pressed', chip.dataset.accent === name ? 'true' : 'false');
-  });
-  // Reload Lottie with tinted colours — same composition, new fills only.
-  const wasPlaying = playing;
+  if (accentReload) return accentReload;
   destroyAnim();
-  ensureAnim()
+  accentReload = ensureAnim()
     .then(() => {
       placeLottie(layoutBeads());
-      if (wasPlaying) playDayReached();
-      else hint.textContent = `Accent ${name} — tap the phone to test.`;
+      accentReload = null;
+      if (play) return playDayReached();
+      hint.textContent = `${hex} ready — tap Play or the phone.`;
     })
     .catch(() => {
-      hint.textContent = 'Lottie tint failed — tap to retry.';
+      accentReload = null;
+      hint.textContent = 'Lottie tint failed — tap Play to retry.';
     });
+  return accentReload;
 }
 
 document.querySelectorAll('.chip[data-surface]').forEach((chip) => {
   chip.addEventListener('click', () => setSurface(chip.dataset.surface));
 });
-document.querySelectorAll('.chip[data-accent]').forEach((chip) => {
-  chip.addEventListener('click', () => setAccent(chip.dataset.accent));
+accentColorEl.addEventListener('input', () => {
+  setAccentHex(accentColorEl.value, { play: false });
+});
+accentHexEl.addEventListener('change', () => {
+  setAccentHex(accentHexEl.value, { play: false });
+});
+accentHexEl.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter') return;
+  event.preventDefault();
+  setAccentHex(accentHexEl.value, { play: true });
+});
+accentApplyEl.addEventListener('click', () => {
+  setAccentHex(accentHexEl.value || accentColorEl.value, { play: true });
 });
 
 playBtn.addEventListener('click', () => {

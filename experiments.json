@@ -39,9 +39,9 @@
   },
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=34",
+    "path": "day-reached-overlay/?v=35",
     "title": "Day reached � streak overlay",
-    "what": "Same day-reached celebration; Accent chips recolour blue to orange/violet/teal/gold/magenta for testing.",
+    "what": "Day-reached celebration with colour-wheel accent tester (structure unchanged).",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

@@ -105,6 +105,44 @@ h1 {
   letter-spacing: 0.02em;
 }
 
+.accent-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  max-width: 390px;
+  width: 100%;
+}
+
+.accent-row input[type="color"] {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.accent-row input[type="text"] {
+  flex: 1;
+  min-width: 7rem;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--paper);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.accent-row .accent-apply {
+  flex: none;
+}
+
 .play {
   border: 0;
   border-radius: 999px;
