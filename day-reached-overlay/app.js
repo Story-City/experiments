@@ -71,7 +71,7 @@ const DISSOLVE_WAIT_MS = Math.max(
 );
 const STREAK_COUNT = 3;
 
-const UNDERLAY_CACHE = 'v=32';
+const UNDERLAY_CACHE = 'v=34';
 const SIDE_FAR_INDEXES = new Set([0, 4]);
 const SIDE_NEAR_INDEXES = new Set([1, 3]);
 const UNDERLAYS = {
@@ -88,6 +88,24 @@ const UNDERLAYS = {
     alt: 'Story City staging — reader text with Carry on',
   },
 };
+// Celebration colour only — geometry / timing unchanged.
+const ACCENTS = {
+  blue: { hex: '#009EFF', rgb: '0, 158, 255', soft: '#B9E5FF' },
+  orange: { hex: '#FD6A01', rgb: '253, 106, 1', soft: '#FFD0A8' },
+  violet: { hex: '#8B5CFF', rgb: '139, 92, 255', soft: '#D4C4FF' },
+  teal: { hex: '#00C2A8', rgb: '0, 194, 168', soft: '#9FF0E4' },
+  gold: { hex: '#E8B923', rgb: '232, 185, 35', soft: '#FFE9A0' },
+  magenta: { hex: '#E83E8C', rgb: '232, 62, 140', soft: '#FFB3D4' },
+};
+const LOTTIE_SRC = 'training_hub_day_reached.json';
+// Source Lottie blues / green (0–1) — remapped to the active accent.
+const LOTTIE_BLUE_A = [0.4, 0.8, 1];
+const LOTTIE_BLUE_B = [0.388, 0.71, 1];
+const LOTTIE_GREEN = [0.184, 0.753, 0.239];
+const COLOR_EPS = 0.02;
+
+let activeAccent = 'blue';
+let lottieMaster = null;
 
 function formatLocalDate(date) {
   const y = date.getFullYear();
@@ -163,9 +181,62 @@ function clearTimers() {
   timers = [];
 }
 
+function currentAccent() {
+  return ACCENTS[activeAccent] ?? ACCENTS.blue;
+}
+
+function hexToRgb01(hex) {
+  const n = hex.replace('#', '');
+  return [
+    parseInt(n.slice(0, 2), 16) / 255,
+    parseInt(n.slice(2, 4), 16) / 255,
+    parseInt(n.slice(4, 6), 16) / 255,
+  ];
+}
+
+function colorNear(a, b) {
+  return (
+    Math.abs(a[0] - b[0]) < COLOR_EPS &&
+    Math.abs(a[1] - b[1]) < COLOR_EPS &&
+    Math.abs(a[2] - b[2]) < COLOR_EPS
+  );
+}
+
+function tintLottieData(master, accentHex) {
+  const data = JSON.parse(JSON.stringify(master));
+  const solid = hexToRgb01(accentHex);
+  const light = solid.map((c) => Math.min(1, c * 0.55 + 0.45));
+  const walk = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node)) {
+      node.forEach(walk);
+      return;
+    }
+    if ((node.ty === 'fl' || node.ty === 'st') && node.c && Array.isArray(node.c.k) && typeof node.c.k[0] === 'number') {
+      const k = node.c.k;
+      if (colorNear(k, LOTTIE_BLUE_A) || colorNear(k, LOTTIE_BLUE_B)) {
+        node.c.k = [...light, k[3] ?? 1];
+      } else if (colorNear(k, LOTTIE_GREEN)) {
+        node.c.k = [...solid, k[3] ?? 1];
+      }
+    }
+    Object.values(node).forEach(walk);
+  };
+  walk(data);
+  return data;
+}
+
+function applyAccentVars() {
+  const accent = currentAccent();
+  const root = document.documentElement.style;
+  root.setProperty('--accent', accent.hex);
+  root.setProperty('--accent-rgb', accent.rgb);
+  root.setProperty('--accent-soft', accent.soft);
+}
+
 function buildArc() {
-  if (arcSvg.childElementCount > 0) return;
-  const accent = '#009EFF';
+  arcSvg.replaceChildren();
+  const accent = currentAccent().hex;
   const ns = 'http://www.w3.org/2000/svg';
   ACCENT_GLOW_LAYERS.forEach((layer) => {
     const path = document.createElementNS(ns, 'path');
@@ -299,35 +370,64 @@ function stopAnimAtStart() {
   anim.goToAndStop(0, true);
 }
 
+function destroyAnim() {
+  if (anim) {
+    anim.removeEventListener('complete', onLottieDone);
+    anim.destroy();
+  }
+  anim = null;
+  animReady = false;
+  animLoading = null;
+  lottieHost.replaceChildren();
+}
+
+function loadMasterLottie() {
+  if (lottieMaster) return Promise.resolve(lottieMaster);
+  return fetch(LOTTIE_SRC)
+    .then((res) => {
+      if (!res.ok) throw new Error('Lottie fetch failed');
+      return res.json();
+    })
+    .then((data) => {
+      lottieMaster = data;
+      return data;
+    });
+}
+
 function ensureAnim() {
   if (animReady && anim) return Promise.resolve(anim);
   if (animLoading) return animLoading;
-  animLoading = new Promise((resolve, reject) => {
-    anim = window.lottie.loadAnimation({
-      container: lottieHost,
-      renderer: 'svg',
-      loop: false,
-      autoplay: false,
-      path: 'training_hub_day_reached.json',
-      rendererSettings: {
-        preserveAspectRatio: 'xMidYMid meet',
-        progressiveLoad: false,
-        hideOnTransparent: true,
-      },
-    });
-    anim.addEventListener('DOMLoaded', () => {
-      lottieHost.style.overflow = 'visible';
-      const svg = lottieHost.querySelector('svg');
-      if (svg) svg.style.overflow = 'visible';
-      anim.goToAndStop(0, true);
-      animReady = true;
-      resolve(anim);
-    });
-    anim.addEventListener('data_failed', () => {
+  animLoading = loadMasterLottie()
+    .then((master) => new Promise((resolve, reject) => {
+      anim = window.lottie.loadAnimation({
+        container: lottieHost,
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        animationData: tintLottieData(master, currentAccent().hex),
+        rendererSettings: {
+          preserveAspectRatio: 'xMidYMid meet',
+          progressiveLoad: false,
+          hideOnTransparent: true,
+        },
+      });
+      anim.addEventListener('DOMLoaded', () => {
+        lottieHost.style.overflow = 'visible';
+        const svg = lottieHost.querySelector('svg');
+        if (svg) svg.style.overflow = 'visible';
+        anim.goToAndStop(0, true);
+        animReady = true;
+        resolve(anim);
+      });
+      anim.addEventListener('data_failed', () => {
+        animLoading = null;
+        reject(new Error('Lottie failed to load'));
+      });
+    }))
+    .catch((err) => {
       animLoading = null;
-      reject(new Error('Lottie failed to load'));
+      throw err;
     });
-  });
   return animLoading;
 }
 
@@ -391,7 +491,15 @@ function onLottieDone() {
 }
 
 async function playDayReached() {
-  if (!window.lottie || playing) return;
+  if (!window.lottie) return;
+  // Restart from the top if already mid-play — tester can spam tap / Space.
+  if (playing) {
+    clearTimers();
+    if (anim) {
+      anim.removeEventListener('complete', onLottieDone);
+      stopAnimAtStart();
+    }
+  }
   playing = true;
   lottieFinished = false;
   playBtn.disabled = true;
@@ -400,6 +508,7 @@ async function playDayReached() {
   setCopyVisible(false);
   clearGloryShine();
   setArcSettled(false);
+  lottieHost.style.opacity = '1';
 
   buildArc();
   const scale = layoutBeads();
@@ -438,16 +547,64 @@ function setSurface(name) {
   phone.dataset.surface = name;
   underlay.src = shot.src;
   underlay.alt = shot.alt;
-  document.querySelectorAll('.chip').forEach((chip) => {
+  document.querySelectorAll('.chip[data-surface]').forEach((chip) => {
     chip.setAttribute('aria-pressed', chip.dataset.surface === name ? 'true' : 'false');
   });
 }
 
-document.querySelectorAll('.chip').forEach((chip) => {
+function setAccent(name) {
+  if (!ACCENTS[name] || name === activeAccent) {
+    document.querySelectorAll('.chip[data-accent]').forEach((chip) => {
+      chip.setAttribute('aria-pressed', chip.dataset.accent === activeAccent ? 'true' : 'false');
+    });
+    return;
+  }
+  activeAccent = name;
+  applyAccentVars();
+  buildArc();
+  document.querySelectorAll('.chip[data-accent]').forEach((chip) => {
+    chip.setAttribute('aria-pressed', chip.dataset.accent === name ? 'true' : 'false');
+  });
+  // Reload Lottie with tinted colours — same composition, new fills only.
+  const wasPlaying = playing;
+  destroyAnim();
+  ensureAnim()
+    .then(() => {
+      placeLottie(layoutBeads());
+      if (wasPlaying) playDayReached();
+      else hint.textContent = `Accent ${name} — tap the phone to test.`;
+    })
+    .catch(() => {
+      hint.textContent = 'Lottie tint failed — tap to retry.';
+    });
+}
+
+document.querySelectorAll('.chip[data-surface]').forEach((chip) => {
   chip.addEventListener('click', () => setSurface(chip.dataset.surface));
+});
+document.querySelectorAll('.chip[data-accent]').forEach((chip) => {
+  chip.addEventListener('click', () => setAccent(chip.dataset.accent));
 });
 
 playBtn.addEventListener('click', () => {
+  playDayReached();
+});
+
+// Phone itself is the tester control — not only the blue Play button.
+phone.addEventListener('click', () => {
+  playDayReached();
+});
+phone.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    playDayReached();
+  }
+});
+window.addEventListener('keydown', (event) => {
+  if (event.key !== ' ') return;
+  const tag = (event.target && event.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON') return;
+  event.preventDefault();
   playDayReached();
 });
 
@@ -457,11 +614,17 @@ window.addEventListener('resize', () => {
 });
 
 laidOutScale = 0;
+applyAccentVars();
 buildArc();
 const initialScale = layoutBeads();
 placeLottie(initialScale);
 if (window.lottie) {
-  ensureAnim().catch(() => {
-    hint.textContent = 'Lottie preload failed — tap play to retry.';
-  });
+  ensureAnim()
+    .then(() => {
+      hint.textContent = 'Ready — tap the phone to test.';
+      playDayReached();
+    })
+    .catch(() => {
+      hint.textContent = 'Lottie preload failed — tap the phone to retry.';
+    });
 }

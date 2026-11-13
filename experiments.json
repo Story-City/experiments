@@ -27,7 +27,7 @@
   },
   {
     "slug": "daily-side-quests",
-    "path": "daily-side-quests/?v=21",
+    "path": "daily-side-quests/?v=20",
     "title": "Daily Side Quests",
     "what": "Tilted find card above hunt panel + side write/read. Gems on map; Next cycles image+text in the same panel.",
     "author": "victoria",
@@ -39,9 +39,9 @@
   },
   {
     "slug": "day-reached-overlay",
-    "path": "day-reached-overlay/?v=32",
+    "path": "day-reached-overlay/?v=34",
     "title": "Day reached � streak overlay",
-    "what": "Hit effect (copy + shine) lands with Lottie finish; rest of cadence unchanged.",
+    "what": "Same day-reached celebration; Accent chips recolour blue to orange/violet/teal/gold/magenta for testing.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
@@ -52,7 +52,7 @@
   {
     "slug": "golden-path-nov13",
     "path": "golden-path-nov13/",
-    "title": "Golden Path Nov\u00a013: pick by letter",
+    "title": "Golden Path Nov 13: pick by letter",
     "what": "Six questions for Friday's Golden Path meeting, each as A / B / C phone mockups side by side with Melissa's pick marked (switch inside): when to force sign-up, asking again after �Not now�, what Start asks in the first real story, the explore browse map, the treadmill map, and the sample story's name.",
     "author": "melissa",
     "authorName": "Melissa",

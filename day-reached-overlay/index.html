@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=32">
+<link rel="stylesheet" href="app.css?v=34">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -16,26 +16,38 @@
     <h1>Day reached overlay</h1>
     <p class="lede">
       Staging underlays + Training Hub Lottie at the top of the phone.
-      Front settles into the same static cadence as the end; glory shine on copy.
+      Tap the phone (or Space / Play) to run the celebration — underlay chips only change the screenshot behind it.
+      Accent chips recolour the celebration only; layout and timing stay the same.
     </p>
   </header>
 
-  <div class="chips" role="radiogroup" aria-label="Underlay">
+  <p class="chips-label">Underlay</p>
+  <div class="chips" role="radiogroup" aria-label="Underlay screenshot">
     <button type="button" class="chip" data-surface="adventure" aria-pressed="true">Adventure pick</button>
-    <button type="button" class="chip" data-surface="audio" aria-pressed="false">Tap to play</button>
+    <button type="button" class="chip" data-surface="audio" aria-pressed="false">Audio screen</button>
     <button type="button" class="chip" data-surface="reader" aria-pressed="false">Reader text</button>
+  </div>
+
+  <p class="chips-label">Accent</p>
+  <div class="chips" role="radiogroup" aria-label="Celebration accent">
+    <button type="button" class="chip" data-accent="blue" aria-pressed="true">Blue</button>
+    <button type="button" class="chip" data-accent="orange" aria-pressed="false">Orange</button>
+    <button type="button" class="chip" data-accent="violet" aria-pressed="false">Violet</button>
+    <button type="button" class="chip" data-accent="teal" aria-pressed="false">Teal</button>
+    <button type="button" class="chip" data-accent="gold" aria-pressed="false">Gold</button>
+    <button type="button" class="chip" data-accent="magenta" aria-pressed="false">Magenta</button>
   </div>
 
   <div class="toolbar">
     <button type="button" class="play" id="play">Play day reached</button>
-    <span class="hint" id="hint">Idle — overlay on locked underlay.</span>
+    <span class="hint" id="hint">Loading — tap the phone to test.</span>
   </div>
 
-  <main class="phone" id="phone" data-surface="adventure" aria-label="Day-reached overlay preview">
+  <main class="phone" id="phone" data-surface="adventure" aria-label="Day-reached overlay preview" tabindex="0" title="Tap to play day reached">
     <img
       class="underlay"
       id="underlay"
-      src="underlays/adventure.jpg?v=32"
+      src="underlays/adventure.jpg?v=34"
       alt="Story City staging — adventure mode picker"
       width="1080"
       height="2400"
@@ -70,6 +82,6 @@
   </p>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=32"></script>
+  <script src="app.js?v=34"></script>
 </body>
 </html>

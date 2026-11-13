@@ -3,12 +3,14 @@
   --paper: #f5f2ff;
   --muted: #a8a0b8;
   --accent: #009eff;
+  --accent-rgb: 0, 158, 255;
+  --accent-soft: #b9e5ff;
   --bead-outline: #4e6caf;
   --bead-incomplete: #160d34;
   --haze-deep: rgba(8, 3, 22, 0.92);
   --haze-mid: rgba(12, 6, 32, 0.82);
   --haze-soft: rgba(18, 10, 42, 0.55);
-  --haze-mist: rgba(0, 158, 255, 0.12);
+  --haze-mist: rgba(var(--accent-rgb), 0.12);
   --haze-clear: rgba(11, 5, 28, 0);
   --in-ms: 200ms;
   --out-ms: 300ms;
@@ -89,9 +91,18 @@ h1 {
 }
 
 .chip[aria-pressed="true"] {
-  background: rgba(0, 158, 255, 0.18);
-  border-color: rgba(0, 158, 255, 0.55);
+  background: rgba(var(--accent-rgb), 0.18);
+  border-color: rgba(var(--accent-rgb), 0.55);
   color: var(--paper);
+}
+
+.chips-label {
+  width: 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .play {
@@ -128,6 +139,13 @@ h1 {
   flex: none;
   overflow: visible;
   background: transparent;
+  cursor: pointer;
+}
+
+.phone:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: calc(var(--phone-radius) + 2px);
 }
 
 .underlay {
@@ -193,7 +211,7 @@ h1 {
   bottom: 0;
   border-radius: var(--phone-radius);
   background:
-    radial-gradient(90% 42% at 50% 12%, rgba(0, 158, 255, 0.18), transparent 70%),
+    radial-gradient(90% 42% at 50% 12%, rgba(var(--accent-rgb), 0.18), transparent 70%),
     radial-gradient(120% 55% at 50% 8%, rgba(8, 3, 22, 0.9), transparent 72%),
     linear-gradient(
       180deg,
@@ -301,15 +319,15 @@ h1 {
   border-color: transparent;
   color: #fff;
   background:
-    linear-gradient(160deg, rgba(239, 110, 110, 0.25), rgba(22, 13, 52, 0) 45%, rgba(0, 158, 255, 0.49)),
+    linear-gradient(160deg, rgba(239, 110, 110, 0.25), rgba(22, 13, 52, 0) 45%, rgba(var(--accent-rgb), 0.49)),
     var(--accent);
-  box-shadow: 0 0 14px rgba(0, 158, 255, 0.4);
+  box-shadow: 0 0 14px rgba(var(--accent-rgb), 0.4);
 }
 
 .bead.is-today.is-complete {
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.35),
-    0 0 20px rgba(0, 158, 255, 0.7);
+    0 0 20px rgba(var(--accent-rgb), 0.7);
 }
 
 .bead.is-hidden-face {
@@ -393,7 +411,7 @@ h1 {
 }
 
 .headline-rich {
-  background: linear-gradient(100deg, #fff 8%, var(--accent) 42%, #b9e5ff 68%, #fff 100%);
+  background: linear-gradient(100deg, #fff 8%, var(--accent) 42%, var(--accent-soft) 68%, #fff 100%);
   background-size: 180% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -409,7 +427,7 @@ h1 {
   font-size: 13px;
   line-height: 1.25;
   font-weight: 600;
-  color: rgba(185, 229, 255, 0.95);
+  color: color-mix(in srgb, var(--accent-soft) 95%, white);
   text-shadow: 0 1px 12px rgba(8, 3, 22, 0.9);
   opacity: 0;
 }
