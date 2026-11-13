@@ -54,21 +54,34 @@ h2 { margin: 0; font-size: 26px; line-height: 1.05; font-weight: 900; }
 .isl { width: 82px; height: 22px; border-radius: 12px; background: #000; }
 .pad { position: absolute; inset: 34px 0 0; padding: 8px 16px 16px; display: flex; flex-direction: column; }
 .ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+/* top bar: back, story name centred (bold), ⋯ menu — NavigationHeader */
 .bar { display: flex; align-items: center; gap: 8px; min-height: 40px; }
-.bk { color: var(--muted); }
-.bt { flex: 1; min-width: 0; }
-.st { margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
-.ct { margin: 0; font-size: 20px; font-weight: 900; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.chn { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); font-weight: 900; font-size: 16px; padding-bottom: 2px; color: var(--muted); }
+.bk, .mo { color: #E8E8EA; }
+.mo { fill: currentColor; }
+.st { flex: 1; min-width: 0; margin: 0; text-align: center; font-size: 19px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 2px; }
 
-.feed { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 12px 0; overflow: hidden; }
-.bub { background: var(--surface); border-radius: 16px 16px 16px 4px; padding: 8px 12px 10px; font-size: 17px; line-height: 1.15; max-width: 88%; }
-.bub.txt { background: color-mix(in srgb, var(--accent) 22%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); font-style: italic; font-weight: 700; }
-.from { display: block; font-style: normal; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #8cc8ff; margin-bottom: 2px; }
+/* chapter: bold title, then the chapter text as plain paragraphs (Darker Grotesque 18px, #E8E8EA) */
+.feed { flex: 1; padding: 10px 2px 8px; overflow: hidden; }
+.chead { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; }
+.ct { flex: 1; margin: 0; font-size: 23px; line-height: 1.1; font-weight: 800; }
+.prose p { margin: 0 0 9px; font-size: 16.5px; line-height: 1.25; font-weight: 500; color: #E8E8EA; }
+.prose p.msg { font-weight: 800; font-style: italic; color: #fff; }
+
+/* choices: paper tickets with a perforated stub — TicketChoiceButton (88pt tall in the app) */
 .foot { display: flex; flex-direction: column; gap: 8px; }
-.cta, .alt { width: 100%; min-height: 46px; border-radius: 23px; font-size: 19px; font-weight: 800; padding: 0 14px 2px; }
-.cta { border: 0; background: var(--grad); box-shadow: 0 8px 20px -10px #009EFF; }
-.alt { background: none; border: 1px solid var(--line); color: var(--muted); }
+.ticket { position: relative; display: flex; width: 100%; height: 64px; padding: 0; border: 0; background: none; text-align: left; color: #2C2C2C; }
+.tbody, .tstub { position: relative; height: 100%; background: var(--stock); display: flex; align-items: center; }
+.tbody { flex: 1; min-width: 0; gap: 8px; padding: 0 10px 0 12px; border-radius: 10px 0 0 10px; box-shadow: inset 0 0 0 3px var(--stock), inset 0 0 0 4.5px rgba(44, 44, 44, .35); }
+.tstub { flex: none; width: 52px; justify-content: center; border-radius: 0 10px 10px 0; border-left: 2px dotted rgba(23, 12, 53, .55); box-shadow: inset 0 0 0 3px var(--stock), inset 0 0 0 4.5px rgba(44, 44, 44, .35); }
+.ticket::before, .ticket::after { content: ''; position: absolute; right: 45px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); z-index: 1; }
+.ticket::before { top: -7px; }
+.ticket::after { bottom: -7px; }
+.tt { flex: 1; font-size: 17px; line-height: 1.05; font-weight: 800; padding-bottom: 2px; }
+.ser { position: absolute; top: 6px; right: 9px; font-size: 9px; font-weight: 700; color: rgba(44, 44, 44, .45); }
+.tpin { width: 22px; height: 22px; color: #2C2C2C; }
+.tar { width: 22px; height: 22px; color: rgba(44, 44, 44, .7); }
+.ticket:active { transform: translateY(1px); }
+.cta { width: 100%; min-height: 46px; border: 0; border-radius: 23px; font-size: 19px; font-weight: 800; padding: 0 14px 2px; background: var(--grad); box-shadow: 0 8px 20px -10px #009EFF; }
 .endcard { text-align: center; padding: 12px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
 .endk { margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--citrine); }
 .endt { margin: 4px 0 10px; font-size: 17px; color: var(--muted); }

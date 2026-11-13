@@ -29,6 +29,9 @@ const ICON = {
   sofa: '<path d="M5 11V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M3 11h18v6H3zM5 17v2M19 17v2"/>',
   tv: '<rect x="3" y="7" width="18" height="12" rx="1"/><path d="M8 3l4 4 4-4"/>',
   back: '<path d="M15 5l-7 7 7 7"/>',
+  more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+  pin: '<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/>',
+  arrow: '<path d="M5 12h13M13 6l6 6-6 6"/>',
   flag: '<path d="M6 21V4M6 4h11l-2 4 2 4H6"/>',
 };
 const ic = (k, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
@@ -102,21 +105,35 @@ function stamps(s) {   // H
 const TOP = { A: dots, B: fog, C: bar, E: branch, F: acts, H: stamps };
 
 // ---------------------------------------------------------------- render
+// The phone copies the real chapter screen (mobile-rn main, Nov 6 2026, ReaderView):
+// top bar = back, story name centred, ⋯ menu; then the chapter title in bold, the chapter text as
+// plain paragraphs (texts from the unknown number in bold italic), and the choices as paper tickets
+// with a perforated stub. The Summons' real chapters have no featured picture, so none here.
+const STOCK = ['#C5D1E2', '#E3D1BC', '#C1D5D0'];   // ticketStock1–3 (slate, amber, teal pastels)
+const serial = (i) => 'Nº ' + String(214 + 97 * i).padStart(4, '0');
+
+function ticket([t, to, pin], i) {
+  return `<button type="button" class="ticket" data-to="${to}" style="--stock:${STOCK[i % 3]}">
+    <span class="tbody">${pin ? ic('pin', 'tpin') : ''}<span class="tt">${t}</span><span class="ser">${serial(i)}</span></span>
+    <span class="tstub">${ic('arrow', 'tar')}</span>
+  </button>`;
+}
+
 function phone() {
   const s = stats(), c = CH[s.id];
-  const badge = cur === 'G' ? ring(s) : `<span class="chn">${s.n}</span>`;
-  const lines = c.lines.map(([t, x]) => t === 't'
-    ? `<div class="bub txt"><span class="from">Unknown number</span>${x}</div>`
-    : `<div class="bub">${x}</div>`).join('');
+  const text = c.lines.map(([t, x]) => `<p class="${t === 't' ? 'msg' : ''}">${x}</p>`).join('');
   const foot = s.ended
     ? `<div class="endcard"><p class="endk">The end</p><p class="endt">${c.end}</p><button type="button" class="cta" data-act="restart">Play Again</button></div>`
-    : c.choices.map(([t, to], i) => `<button type="button" class="${i === c.choices.length - 1 ? 'cta' : 'alt'}" data-to="${to}">${t}</button>`).join('');
+    : c.choices.map(ticket).join('');
   return `<div class="phone"><div class="scr">
     <div class="sb"><span>9:41</span><span class="isl"></span><span>100%</span></div>
     <div class="pad">
-      <header class="bar">${ic('back', 'bk')}<div class="bt"><p class="st">${STORY.title}</p><p class="ct">${c.title}</p></div>${badge}</header>
+      <header class="bar">${ic('back', 'bk')}<p class="st">${STORY.title}</p>${ic('more', 'mo')}</header>
       ${TOP[cur] ? TOP[cur](s) : ''}
-      <div class="feed" aria-live="polite">${lines}</div>
+      <div class="feed" aria-live="polite">
+        <div class="chead"><h3 class="ct">${c.title}</h3>${cur === 'G' ? ring(s) : ''}</div>
+        <div class="prose">${text}</div>
+      </div>
       <div class="foot">${foot}</div>
     </div>
     ${cur === 'D' ? ribbon(s) : ''}
@@ -142,7 +159,7 @@ function render() {
 
 // keep the last two words together (no lone last word)
 function noWidows(root) {
-  root.querySelectorAll('h1, h2, .sub, .what, .len, .tip, .bub, .endt').forEach((el) => {
+  root.querySelectorAll('h1, h2, .sub, .what, .len, .tip, .prose p, .tt, .endt').forEach((el) => {
     const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     let last = null;
     while (w.nextNode()) if (w.currentNode.nodeValue.trim()) last = w.currentNode;

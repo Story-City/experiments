@@ -37,19 +37,20 @@ export const OPTIONS = [
     length: 'It only counts what you’ve done, so it needs no total.' },
 ];
 
-// The Summons, shortened from the real script (docs/script-the-summons.md).
-// Each chapter: title, icon (for the stamps), lines (n = narration, t = text from the unknown number), choices.
+// The Summons, lightly shortened from the real chapter text (docs/script-the-summons.md).
+// Each chapter: title, icon (for the stamps), lines (n = paragraph, t = text from the unknown number,
+// shown bold italic as in the real chapter), choices as [ticket label, next chapter, walk there? (pin)].
 export const STORY = {
   title: 'The Summons',
   start: 'c1',
   ch: {
-    c1: { title: 'The Summons', icon: 'window', lines: [['n', 'It’s an ordinary day, just like any other.'], ['n', 'Except you get a text from an unknown number.'], ['t', 'Look out your window']], choices: [['I’m Here', 'c2']] },
-    c2: { title: 'A mysterious figure', icon: 'eye', lines: [['n', 'On the street corner, a figure in a dark hoodie taps at their phone.'], ['t', 'Are you ready for a higher purpose? Come to the street corner.']], choices: [['I’d Rather Stay Inside', 'c3r'], ['I’m at the Street Corner', 'c3']] },
-    c3: { title: 'The mysterious letter', icon: 'letter', lines: [['n', 'The figure drops something and dashes around the corner.'], ['n', 'It’s a letter with a wax seal: “Take a picture with me. Then deliver me.”']], choices: [['I’m at the Mailbox', 'c4']] },
-    c4: { title: 'The mailbox', icon: 'mailbox', lines: [['n', 'The figure is nowhere to be seen.'], ['t', 'Deliver the letter, enter its code, and all will be revealed.']], choices: [['Enter the Code', 'c5'], ['I’m Done with This', 'c5x']] },
-    c5: { title: 'Welcome to the Society', icon: 'stairs', lines: [['n', 'A trap door slides open beside you.'], ['n', 'A dim staircase leads down into the unknown.']], end: 'The secret is yours. That was 1 of 3 endings.' },
-    c5x: { title: 'Throw away adventure', icon: 'flame', lines: [['n', 'You toss the letter into the gutter.'], ['n', 'Behind you, it starts to smoke and turns to ash.']], end: 'You tossed this mystery aside. That was 1 of 3 endings.' },
-    c3r: { title: 'Reject the call', icon: 'sofa', lines: [['n', 'You close the window and settle in to watch some TV.']], choices: [['Sit Down and Relax', 'c4r']] },
-    c4r: { title: 'Static', icon: 'tv', lines: [['n', 'Every channel is static. A strange symbol fills the screen.'], ['t', 'To reject us is to reject life itself.']], end: 'Secret societies don’t love rejection. That was 1 of 3 endings.' },
+    c1: { title: 'The Summons', icon: 'window', lines: [['n', 'It’s an ordinary day just like any other.'], ['n', 'Except… you receive a text from an unknown number that simply says'], ['t', 'Look out your window'], ['n', 'Curiosity leading your steps, you approach your nearest street-facing window.']], choices: [['I’m here', 'c2']] },
+    c2: { title: 'A mysterious figure', icon: 'eye', lines: [['n', 'On the nearby street corner, a mysterious figure in a dark hoodie makes eye contact with you. They tap at the phone in their hand.'], ['t', 'Are you ready for a higher purpose? Come to the street corner.']], choices: [['I’d rather stay inside', 'c3r'], ['I’m at the street corner', 'c3', true]] },
+    c3: { title: 'The mysterious letter', icon: 'letter', lines: [['n', 'As you approach, the figure drops something on the ground and dashes around the corner.'], ['n', 'It’s a letter with an intricate wax seal. The cursive script says “Take a picture with me. Then deliver me.”'], ['n', 'With no better ideas, you head to your closest mailbox.']], choices: [['I’m here', 'c4', true]] },
+    c4: { title: 'The mailbox', icon: 'mailbox', lines: [['n', 'As you approach the mailbox, the figure is nowhere to be seen.'], ['t', 'Deliver the letter, enter its code, and all will be revealed']], choices: [['Enter the letter’s code', 'c5'], ['I’m done with this goose chase!', 'c5x']] },
+    c5: { title: 'Welcome to the Society', icon: 'stairs', lines: [['n', 'You slide the letter through the slot and enter the code into a glowing keypad.'], ['n', 'A trap door slides to the side to reveal a dimly lit staircase, leading down into the unknown.']], end: 'The secret is yours, but that was just 1 of 3 endings.' },
+    c5x: { title: 'Throw away adventure', icon: 'flame', lines: [['n', 'Tossing the letter to the gutter, you decide this chase isn’t worth it anymore.'], ['n', 'Behind you, the letter starts smoking and quickly turns to ash.']], end: 'You tossed this mystery aside. Perhaps another will tempt you.' },
+    c3r: { title: 'Reject the call', icon: 'sofa', lines: [['n', 'You reject the mysterious figure’s beckoning, leave your window, and settle in to watch some TV.']], choices: [['Sit down and relax', 'c4r']] },
+    c4r: { title: 'You don’t reject the society', icon: 'tv', lines: [['n', 'As you turn on your TV, every channel is static. Through the noise, a symbol appears on your screen. Where have you seen it before?'], ['t', 'To reject us is to reject life itself']], end: 'Turns out, secret societies don’t love rejection.' },
   },
 };
