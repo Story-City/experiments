@@ -8,14 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=9">
+<link rel="stylesheet" href="app.css?v=10">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Daily Side Quests</h1>
     <p class="lede">
-      Stamp menu unchanged. Map is a live hunt world — glass field, soft fades, gems you can cycle.
+      App CameraSheet: slide up → shutter → Send It → slide down. Then find into slots.
     </p>
   </header>
 
@@ -27,77 +27,30 @@
     <span class="hint" id="hint">Idle — Play opens Daily Side quests.</span>
   </div>
 
-  <main class="phone" id="phone" data-phase="home">
-    <!-- Dual buffers: soft crossfade, never fade-to-black -->
-    <img class="scene is-front" id="sceneA" src="assets/flow/01.png?v=7" alt="" decoding="async">
-    <img class="scene" id="sceneB" alt="" decoding="async">
+  <main class="phone" id="phone">
+    <img class="scene" id="scene" src="assets/flow/01.png?v=7" alt="" decoding="async">
 
-    <div class="map-world" id="mapWorld" aria-hidden="true">
-      <div class="map-pan" id="mapPan">
-        <svg class="map-svg" id="mapSvg" viewBox="0 0 390 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
-        <div class="gem-layer" id="gemLayer"></div>
-        <div class="me-dot" id="meDot" aria-hidden="true">
-          <i class="pulse"></i>
-          <i class="dot"></i>
-        </div>
+    <div class="map-stage" id="mapStage" hidden>
+      <img class="map-fill" src="assets/parts/map-hunt.png?v=7" alt="" decoding="async">
+
+      <img class="find-card" id="findCard" src="assets/parts/footprint.png?v=7" alt="" decoding="async" hidden>
+      <img class="find-plane" id="findPlane" src="assets/parts/airplanes.png?v=7" alt="" decoding="async" hidden>
+
+      <!-- Empty map Group 20198: x=124 y=656 w=129 h=38 — three 38px cells -->
+      <div class="slots" id="slots" aria-hidden="true">
+        <div class="slot-cell" data-slot="0"><img class="slot" alt=""></div>
+        <div class="slot-cell" data-slot="1"><img class="slot" alt=""></div>
+        <div class="slot-cell" data-slot="2"><img class="slot" alt=""></div>
       </div>
 
-      <div class="map-sheet glass" id="mapSheet">
-        <button type="button" class="map-back" id="backHot" aria-label="Back">‹</button>
-        <div class="map-sheet-body">
-          <span class="hunt-chip">Scavenger hunt</span>
-          <h2 class="map-title" id="mapTitle">Have you noticed…</h2>
-          <p class="map-sub" id="mapSub">Find 3 animalistic patterns nearby.</p>
-          <div class="slots" id="slots" aria-hidden="true">
-            <div class="slot-cell" data-slot="0"><img class="slot" alt=""></div>
-            <div class="slot-cell" data-slot="1"><img class="slot" alt=""></div>
-            <div class="slot-cell" data-slot="2"><img class="slot" alt=""></div>
-          </div>
-          <div class="map-actions">
-            <button type="button" class="see-other" id="seeOther">See other challenges</button>
-            <button type="button" class="cam-shutter" id="camHot" aria-label="Open camera"></button>
-          </div>
-        </div>
-      </div>
+      <img class="tip-layer" id="tipLayer" src="assets/parts/tip.png?v=7" alt="" decoding="async" hidden>
 
-      <div class="done-tip glass" id="doneTip" hidden>
-        <p><b>Nice finds.</b> Your gems are on the map — or peek at another challenge.</p>
-        <button type="button" class="see-other solid" id="seeOtherTip">See other challenges</button>
-      </div>
+      <button type="button" class="hot cam-hot" id="camHot" aria-label="Camera"></button>
+      <button type="button" class="hot map-hot" id="mapHot" aria-label="Map find"></button>
+      <button type="button" class="hot back-hot" id="backHot" aria-label="Back"></button>
     </div>
 
-    <!-- Transparent field over the map (treadmill / hunt glass) -->
-    <div class="cam-field" id="camField" aria-hidden="true">
-      <video class="cam-video" id="cameraVideo" playsinline muted></video>
-      <canvas class="cam-snap" id="cameraSnap" hidden></canvas>
-      <div class="cam-fallback" id="cameraFallback" hidden>
-        <img class="cam-fallback-img" id="cameraFallbackImg" src="assets/parts/capture.jpg?v=7b" alt="" decoding="async">
-      </div>
-      <img class="cam-overlay" id="camOverlay" src="assets/parts/footprint.png?v=7" alt="" decoding="async">
-      <div class="vf" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-
-      <button type="button" class="cam-close glass-pill" id="cameraClose" aria-label="Close">‹</button>
-
-      <div class="cam-prompt glass" id="camPromptWrap">
-        <p id="cameraPrompt">Find an animalistic pattern near you</p>
-        <button type="button" class="skip-pill" id="cameraSkip">Skip</button>
-      </div>
-
-      <div class="cam-controls" id="camControls">
-        <span class="cam-spacer"></span>
-        <button type="button" class="shutter" id="shutter" aria-label="Shutter"></button>
-        <button type="button" class="cam-flip glass-pill" id="cameraFlip" aria-label="Flip">↻</button>
-      </div>
-
-      <div class="confirm-bar glass" id="confirm" hidden>
-        <img class="confirm-thumb" id="confirmPhoto" alt="">
-        <div class="confirm-actions">
-          <button type="button" class="retake" id="retake">Retake</button>
-          <button type="button" class="send-it" id="sendIt">Confirm</button>
-        </div>
-      </div>
-    </div>
-
+    <!-- Flies in phone space so map zoom/nudge doesn't skew the path -->
     <img class="fly-thumb" id="flyThumb" alt="" hidden>
 
     <button type="button" class="hot stamp-hot" data-stamp="0" aria-label="Stamp 1" hidden></button>
@@ -105,11 +58,37 @@
     <button type="button" class="hot stamp-hot" data-stamp="2" aria-label="Stamp 3" hidden></button>
     <button type="button" class="hot close-hot" id="closeHot" aria-label="Close" hidden></button>
     <button type="button" class="hot entry-hot" id="entryHot" aria-label="Side quest entry" hidden></button>
+
+    <div class="camera-sheet" id="camera" aria-hidden="true">
+      <video class="camera-video" id="cameraVideo" playsinline muted></video>
+      <canvas class="camera-snap" id="cameraSnap" hidden></canvas>
+      <div class="camera-fallback" id="cameraFallback" hidden>
+        <img class="camera-fallback-img" id="cameraFallbackImg" src="assets/parts/capture.jpg?v=7b" alt="" decoding="async">
+        <span class="camera-fallback-label">Demo capture — shutter to continue</span>
+      </div>
+
+      <button type="button" class="camera-back" id="cameraClose" aria-label="Close camera">‹</button>
+      <p class="camera-prompt" id="cameraPrompt">Find an animalistic pattern near you</p>
+
+      <div class="camera-controls">
+        <button type="button" class="camera-skip" id="cameraSkip">Skip photo</button>
+        <button type="button" class="shutter" id="shutter" aria-label="Shutter"></button>
+        <button type="button" class="camera-flip" id="cameraFlip" aria-label="Flip camera">↻</button>
+      </div>
+
+      <div class="confirm" id="confirm" hidden>
+        <img class="confirm-photo" id="confirmPhoto" alt="">
+        <div class="confirm-actions">
+          <button type="button" class="retake" id="retake">Retake</button>
+          <button type="button" class="send-it" id="sendIt">Send It</button>
+        </div>
+      </div>
+    </div>
   </main>
 
   <p class="meta">
-    Soft scene crossfade · mimicked hunt map · glass camera field · gem cycle.
+    Separated Figma parts + app CameraSheet. Capture flies into the progress slots.
   </p>
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>
