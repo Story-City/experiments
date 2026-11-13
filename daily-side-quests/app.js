@@ -1088,10 +1088,15 @@ bindTipSwipe();
 
 backHot.addEventListener('click', async () => {
   if (busy) return;
+  busy = true;
   clearFinds();
   phase = 'entry';
-  await hideMap();
-  await showScene(FRAME.entry);
+  const sceneP = showScene(FRAME.entry);
+  mapStage.classList.remove('is-on');
+  mapStage.setAttribute('aria-hidden', 'true');
+  await sceneP;
+  await wait(FADE_MS);
+  busy = false;
   syncChrome();
   setHint('Back at home entry.');
 });
