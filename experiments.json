@@ -27,9 +27,9 @@
   },
   {
     "slug": "daily-side-quests",
-    "path": "daily-side-quests/?v=10",
+    "path": "daily-side-quests/?v=11",
     "title": "Daily Side Quests",
-    "what": "App CameraSheet only: slide up/down, shutter, Send It. No map zoom or shine.",
+    "what": "Figma map tiles + stamp flips. Photo lands as a note on the map, then Confirm. See other challenges pans the map camera.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

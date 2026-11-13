@@ -1,13 +1,17 @@
 :root {
   --night: #0b051c;
+  --bg: #170c35;
+  --raised: #241b46;
   --paper: #f5f2ff;
   --muted: #a8a0b8;
   --accent: #009eff;
   --hunt: #b36bff;
-  --in-ms: 380ms;
+  --fade-ms: 420ms;
   --slide-ms: 380ms;
   --settle-ms: 860ms;
   --flight-ms: 720ms;
+  --flip-ms: 620ms;
+  --pan-ms: 780ms;
   --ease-out: cubic-bezier(0.22, 0.8, 0.24, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
   --ease-slide: cubic-bezier(0.32, 0.72, 0, 1);
@@ -17,12 +21,13 @@
   --shutter: 72px;
   --shutter-border: 5px;
   --map-shutter: 66px;
-  /* Empty-map Group 20198: 124,656 / 129×38 — three 38 cells, 7.5 gaps */
   --slot-y: 656;
   --slot-size: 38;
   --slot-0-x: 124;
   --slot-1-x: 169.5;
   --slot-2-x: 215;
+  --glass: color-mix(in srgb, var(--raised) 72%, transparent);
+  --glass-line: rgba(255, 255, 255, 0.16);
 }
 
 * { box-sizing: border-box; }
@@ -55,12 +60,6 @@ h1 {
   color: var(--muted);
   font-size: 16px;
   font-weight: 500;
-}
-
-.meta code,
-.lede code {
-  color: #d7d0ff;
-  font-size: 0.92em;
 }
 
 .chips,
@@ -126,11 +125,12 @@ h1 {
   border-radius: var(--phone-radius);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-  background: #000;
+  background: var(--bg);
+  perspective: 1200px;
 }
 
-.scene,
-.map-fill {
+/* Soft dual-buffer scenes — never black */
+.scene {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -140,117 +140,294 @@ h1 {
   display: block;
   pointer-events: none;
   user-select: none;
-}
-
-.scene.is-fading {
   opacity: 0;
-  transition: opacity var(--in-ms) ease;
+  transition: opacity var(--fade-ms) var(--ease-out);
+  z-index: 1;
 }
 
-.map-stage {
-  position: absolute;
-  inset: 0;
+.scene.is-front {
+  opacity: 1;
   z-index: 2;
 }
 
-.map-stage[hidden] {
-  display: none !important;
+.phone.is-overlay .scene {
+  /* keep home visible under stamp sheet */
 }
 
-/* Footprint drops in from camera space — separate layer */
-.find-card {
+/* —— Stamp sheet + flip cards —— */
+.stamp-sheet {
   position: absolute;
-  left: calc(12.44 / var(--phone-w) * 100%);
-  top: calc(392.54 / var(--phone-h) * 100%);
-  width: calc(171.1 / var(--phone-w) * 100%);
-  height: auto;
-  z-index: 4;
+  inset: 0;
+  z-index: 5;
+  opacity: 0;
+  visibility: hidden;
   pointer-events: none;
+  transition: opacity var(--fade-ms) var(--ease-out), visibility 0s linear var(--fade-ms);
+}
+
+.stamp-sheet.is-on {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity var(--fade-ms) var(--ease-out), visibility 0s;
+}
+
+.stamp-under {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.stamp-stack {
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  top: 36.2%;
+  bottom: 18%;
+  display: flex;
+  flex-direction: column;
+  gap: 2.2%;
+  z-index: 2;
+}
+
+.stamp-card {
+  position: relative;
+  flex: 1;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform var(--flip-ms) var(--ease-out);
+}
+
+.stamp-card.is-flip {
+  transform: rotateY(180deg);
+}
+
+.stamp-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.stamp-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.stamp-back {
+  transform: rotateY(180deg);
+}
+
+.stamp-card.is-armed:not(.is-flip) {
+  animation: stampWait 1.6s ease-in-out infinite;
+}
+
+@keyframes stampWait {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.12); }
+}
+
+.stamp-card.is-flip .stamp-back {
+  /* camera hot sits on the right of revealed card */
+}
+
+/* —— Map from Figma view —— */
+.map-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
   opacity: 0;
-  filter: blur(8px) brightness(1.25);
-  transform: rotate(-18deg) scale(1.45) translateY(-28%);
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--fade-ms) var(--ease-out), visibility 0s linear var(--fade-ms);
+  background: var(--bg);
+}
+
+.map-stage.is-on {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity var(--fade-ms) var(--ease-out), visibility 0s;
+}
+
+.map-viewport {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(72 / var(--phone-h) * 100%);
+  bottom: calc(188 / var(--phone-h) * 100%);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.map-pan {
+  position: absolute;
+  inset: -18%;
+  transform-origin: 50% 45%;
+  transition: transform var(--pan-ms) var(--ease-out);
+  will-change: transform;
+}
+
+.map-tiles {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.chrome-top,
+.chrome-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 4;
+  user-select: none;
+}
+
+.chrome-top {
+  top: 0;
+  height: calc(85 / var(--phone-h) * 100%);
+  object-fit: cover;
+  object-position: top center;
+}
+
+.chrome-bottom {
+  bottom: 0;
+  height: calc(264 / var(--phone-h) * 100%);
+  object-fit: cover;
+  object-position: bottom center;
+}
+
+/* Notes on the map */
+.map-note {
+  position: absolute;
+  left: var(--nx, 30%);
+  top: var(--ny, 40%);
+  width: 34%;
+  aspect-ratio: 3 / 3.6;
+  transform: rotate(var(--rot, -12deg)) scale(0.92);
   transform-origin: 50% 60%;
-  will-change: transform, opacity, filter;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.35),
+    0 14px 28px rgba(0, 0, 0, 0.45);
+  opacity: 0.55;
+  filter: saturate(0.85);
+  transition: opacity 400ms ease, transform 500ms var(--ease-spring), filter 400ms ease;
+  z-index: 2;
+  pointer-events: none;
 }
 
-.find-card.is-on {
-  animation: findDrop var(--settle-ms) var(--ease-out) forwards;
+.map-note img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-.find-card.is-awaiting {
+.map-note.other.is-focus {
+  opacity: 1;
+  filter: saturate(1.1) drop-shadow(0 0 14px rgba(179, 107, 255, 0.65));
+  transform: rotate(var(--rot, -12deg)) scale(1.08);
+  z-index: 3;
+}
+
+.map-note.mine {
+  left: 12%;
+  top: 38%;
+  width: 46%;
   opacity: 0;
-  transform: rotate(-12deg) scale(0.92);
+  filter: blur(6px);
+  transform: rotate(-16deg) scale(1.2) translateY(-12%);
+  z-index: 5;
 }
 
-.find-card.is-pulse {
-  animation: findPulse 520ms var(--ease-spring);
+.map-note.mine.is-on {
+  animation: noteDrop var(--settle-ms) var(--ease-out) forwards;
 }
 
-@keyframes findDrop {
+.map-note.mine .note-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.map-note.mine .note-stamp {
+  position: absolute;
+  inset: 8% 10% 18%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  z-index: 2;
+  opacity: 0.92;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+@keyframes noteDrop {
   0% {
     opacity: 0;
-    filter: blur(6px) brightness(1.15);
-    transform: rotate(-16deg) scale(1.28) translateY(-18%);
+    filter: blur(6px);
+    transform: rotate(-16deg) scale(1.22) translateY(-14%);
   }
   62% {
     opacity: 1;
-    filter: blur(0.5px) brightness(1.04);
-    transform: rotate(-11deg) scale(0.985) translateY(1%);
+    filter: blur(0.4px);
+    transform: rotate(-10deg) scale(0.98) translateY(1%);
   }
   100% {
     opacity: 1;
-    filter: blur(0) brightness(1);
+    filter: blur(0);
     transform: rotate(-12deg) scale(1) translateY(0);
   }
 }
 
-@keyframes findPulse {
-  0% { transform: rotate(-12deg) scale(1); filter: brightness(1); }
-  40% { transform: rotate(-9deg) scale(1.08); filter: brightness(1.2); }
-  100% { transform: rotate(-12deg) scale(1); filter: brightness(1); }
-}
-
 .find-plane {
   position: absolute;
-  left: calc(136 / var(--phone-w) * 100%);
-  top: calc(434.94 / var(--phone-h) * 100%);
-  width: calc(101.84 / var(--phone-w) * 100%);
+  left: 36%;
+  top: 42%;
+  width: 27%;
   height: auto;
-  z-index: 5;
+  z-index: 6;
   pointer-events: none;
   opacity: 0;
-  filter: blur(5px);
-  transform: translate(-18%, 12%) scale(0.7) rotate(-8deg);
-  will-change: transform, opacity, filter;
+  filter: blur(4px);
+  transform: translate(-12%, 10%) scale(0.7) rotate(-8deg);
 }
 
 .find-plane.is-on {
-  animation: planeIn 700ms var(--ease-out) 140ms forwards;
+  animation: planeIn 700ms var(--ease-out) 120ms forwards;
 }
 
 @keyframes planeIn {
-  0% {
-    opacity: 0;
-    filter: blur(5px);
-    transform: translate(-18%, 12%) scale(0.7) rotate(-8deg);
-  }
-  70% {
-    opacity: 1;
-    filter: blur(0);
-    transform: translate(2%, -2%) scale(1.04) rotate(2deg);
-  }
-  100% {
-    opacity: 1;
-    filter: blur(0);
-    transform: translate(0, 0) scale(1) rotate(0deg);
-  }
+  0% { opacity: 0; filter: blur(4px); transform: translate(-12%, 10%) scale(0.7) rotate(-8deg); }
+  70% { opacity: 1; filter: blur(0); transform: translate(2%, -2%) scale(1.04) rotate(2deg); }
+  100% { opacity: 1; filter: blur(0); transform: translate(0, 0) scale(1) rotate(0deg); }
 }
 
-/* Slots — sit exactly on empty map cells */
+/* Slots sit on chrome-bottom cells */
 .slots {
   position: absolute;
   inset: 0;
-  z-index: 6;
+  z-index: 7;
   pointer-events: none;
 }
 
@@ -261,7 +438,6 @@ h1 {
   height: calc(var(--slot-size) / var(--phone-h) * 100%);
   border-radius: 7px;
   overflow: hidden;
-  box-shadow: inset 0 0 0 0 transparent;
 }
 
 .slot-cell[data-slot="0"] { left: calc(var(--slot-0-x) / var(--phone-w) * 100%); }
@@ -312,39 +488,87 @@ h1 {
   100% { opacity: 1; transform: scale(1); }
 }
 
-/* Capture hero → shrink → arc into slot */
-.fly-thumb {
+/* Glass note field — after photo, before submit */
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-line);
+}
+
+.note-field {
   position: absolute;
-  z-index: 14;
-  width: 88px;
-  height: 88px;
-  margin: 0;
-  border-radius: 12px;
-  object-fit: cover;
-  object-position: center;
-  pointer-events: none;
+  left: 14px;
+  right: 14px;
+  top: 46%;
+  z-index: 10;
+  padding: 12px 14px 14px;
+  border-radius: 20px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   opacity: 0;
-  will-change: left, top, width, height, opacity, transform, border-radius;
-  box-shadow:
-    0 0 0 2px rgba(179, 107, 255, 0.85),
-    0 18px 48px rgba(0, 0, 0, 0.5),
-    0 0 32px rgba(179, 107, 255, 0.4);
+  transform: translateY(10px);
+  transition: opacity 320ms var(--ease-out), transform 320ms var(--ease-out);
 }
 
-.fly-thumb.is-on {
+.note-field.is-on {
   opacity: 1;
+  transform: translateY(0);
 }
 
-.fly-thumb.is-hero {
-  z-index: 16;
-  box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.35),
-    0 24px 60px rgba(0, 0, 0, 0.55),
-    0 0 40px rgba(179, 107, 255, 0.45);
+.note-field[hidden] {
+  display: none;
 }
 
-.fly-thumb.is-arc {
-  z-index: 17;
+.note-label {
+  display: block;
+  font-weight: 800;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.note-input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(7, 8, 15, 0.35);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.note-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.note-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.skip-pill,
+.confirm-pill {
+  flex: 1;
+  border-radius: 999px;
+  padding: 11px 14px;
+  font: inherit;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.skip-pill {
+  border: 1px solid rgba(0, 158, 255, 0.55);
+  background: rgba(0, 158, 255, 0.14);
+  color: #fff;
+}
+
+.confirm-pill {
+  border: 0;
+  background: linear-gradient(90deg, #0259a1, var(--accent));
+  color: #fff;
 }
 
 .tip-layer {
@@ -353,11 +577,11 @@ h1 {
   top: calc(353 / var(--phone-h) * 100%);
   width: calc(376 / var(--phone-w) * 100%);
   height: auto;
-  z-index: 7;
+  z-index: 11;
   pointer-events: none;
   opacity: 0;
   filter: blur(4px);
-  transform: translateY(22px) scale(0.94);
+  transform: translateY(18px) scale(0.94);
 }
 
 .tip-layer.is-on {
@@ -365,44 +589,37 @@ h1 {
 }
 
 @keyframes tipIn {
-  0% {
-    opacity: 0;
-    filter: blur(4px);
-    transform: translateY(22px) scale(0.94);
-  }
-  60% {
-    opacity: 1;
-    filter: blur(0);
-    transform: translateY(-3px) scale(1.02);
-  }
-  100% {
-    opacity: 1;
-    filter: blur(0);
-    transform: translateY(0) scale(1);
-  }
+  0% { opacity: 0; filter: blur(4px); transform: translateY(18px) scale(0.94); }
+  60% { opacity: 1; filter: blur(0); transform: translateY(-3px) scale(1.02); }
+  100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
 }
+
+.fly-thumb {
+  position: absolute;
+  z-index: 20;
+  width: 88px;
+  height: 88px;
+  margin: 0;
+  border-radius: 12px;
+  object-fit: cover;
+  pointer-events: none;
+  opacity: 0;
+  will-change: left, top, width, height, opacity, transform;
+  box-shadow:
+    0 0 0 2px rgba(179, 107, 255, 0.85),
+    0 18px 48px rgba(0, 0, 0, 0.5);
+}
+
+.fly-thumb.is-on { opacity: 1; }
+.fly-thumb.is-hero { z-index: 22; }
 
 .hot {
   position: absolute;
-  z-index: 8;
+  z-index: 12;
   border: 0;
   padding: 0;
   background: transparent;
   cursor: pointer;
-}
-
-.stamp-hot[data-stamp="0"] { left: 9%; right: 9%; top: 36.5%; height: 13.5%; }
-.stamp-hot[data-stamp="1"] { left: 9%; right: 9%; top: 51%; height: 13.5%; }
-.stamp-hot[data-stamp="2"] { left: 9%; right: 9%; top: 65.5%; height: 13.5%; }
-
-.phone[data-phase="revealed"] .stamp-hot[data-stamp="0"] {
-  left: auto; right: 11%; top: 39%; width: 13%; height: 9%;
-}
-.phone[data-phase="revealed"] .stamp-hot[data-stamp="1"] {
-  left: auto; right: 11%; top: 53.5%; width: 13%; height: 9%;
-}
-.phone[data-phase="revealed"] .stamp-hot[data-stamp="2"] {
-  left: auto; right: 11%; top: 68%; width: 13%; height: 9%;
 }
 
 .close-hot {
@@ -410,6 +627,7 @@ h1 {
   top: 12.5%;
   width: 9%;
   height: 4.2%;
+  z-index: 6;
 }
 
 .entry-hot {
@@ -418,6 +636,7 @@ h1 {
   width: 12%;
   aspect-ratio: 1;
   border-radius: 50%;
+  z-index: 4;
 }
 
 .cam-hot {
@@ -427,13 +646,7 @@ h1 {
   height: var(--map-shutter);
   transform: translateX(-50%);
   border-radius: 50%;
-}
-
-.map-hot {
-  left: 22%;
-  top: 20%;
-  width: 56%;
-  height: 38%;
+  z-index: 12;
 }
 
 .back-hot {
@@ -441,13 +654,23 @@ h1 {
   top: 4.8%;
   width: 11%;
   height: 4.8%;
+  z-index: 12;
 }
 
+.tip-hot {
+  left: 8%;
+  top: 58%;
+  width: 62%;
+  height: 7%;
+  z-index: 13;
+}
+
+/* Camera sheet — capture only; confirm is on the map note */
 .camera-sheet {
   position: absolute;
   inset: 0;
-  z-index: 15;
-  background: #000;
+  z-index: 25;
+  background: #0b051c;
   display: flex;
   flex-direction: column;
   transform: translateY(105%);
@@ -463,33 +686,20 @@ h1 {
 .camera-video,
 .camera-snap,
 .camera-fallback,
-.confirm-photo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  background: #000;
-}
-
-.camera-fallback {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  display: grid;
-  place-items: end center;
-  padding: 0 0 22%;
-  overflow: hidden;
-  background: #000;
-}
-
 .camera-fallback-img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+}
+
+.camera-fallback {
+  display: grid;
+  place-items: end center;
+  padding: 0 0 22%;
+  overflow: hidden;
+  background: #0b051c;
 }
 
 .camera-fallback-label {
@@ -528,7 +738,9 @@ h1 {
   margin: 0;
   padding: 10px 14px;
   border-radius: 14px;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   color: #fff;
   font-weight: 700;
   font-size: 16px;
@@ -568,7 +780,6 @@ h1 {
   border: var(--shutter-border) solid #fff;
   background: transparent;
   cursor: pointer;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
 
 .camera-flip {
@@ -582,49 +793,19 @@ h1 {
   cursor: pointer;
 }
 
-.confirm {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  background: #000;
-}
-
-.confirm-actions {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  padding: 0 24px 36px;
-}
-
-.retake,
-.send-it {
-  border: 0;
-  border-radius: 999px;
-  padding: 12px 22px;
-  font: inherit;
-  font-weight: 800;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.retake {
-  background: transparent;
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.55);
-}
-
-.send-it {
-  background: var(--accent);
-  color: #041018;
-}
-
 .meta {
   margin: 0;
   max-width: 560px;
   color: var(--muted);
   font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene, .stamp-sheet, .map-stage, .map-pan, .stamp-card, .note-field {
+    transition: none;
+  }
+  .stamp-card.is-armed,
+  .slot-cell.is-ready {
+    animation: none;
+  }
 }

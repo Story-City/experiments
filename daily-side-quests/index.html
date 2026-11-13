@@ -8,14 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=10">
+<link rel="stylesheet" href="app.css?v=11">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Daily Side Quests</h1>
     <p class="lede">
-      App CameraSheet: slide up → shutter → Send It → slide down. Then find into slots.
+      Stamp flip → real map tiles → photo becomes a note on the map → Confirm → See other challenges pans the camera.
     </p>
   </header>
 
@@ -27,37 +27,86 @@
     <span class="hint" id="hint">Idle — Play opens Daily Side quests.</span>
   </div>
 
-  <main class="phone" id="phone">
-    <img class="scene" id="scene" src="assets/flow/01.png?v=7" alt="" decoding="async">
+  <main class="phone" id="phone" data-phase="home">
+    <img class="scene is-front" id="sceneA" src="assets/flow/01.png?v=7" alt="" decoding="async">
+    <img class="scene" id="sceneB" alt="" decoding="async">
 
-    <div class="map-stage" id="mapStage" hidden>
-      <img class="map-fill" src="assets/parts/map-hunt.png?v=7" alt="" decoding="async">
+    <!-- Stamp sheet: menu underlay + separate flip cards -->
+    <div class="stamp-sheet" id="stampSheet" aria-hidden="true">
+      <img class="stamp-under" id="stampUnder" src="assets/parts/menu.png?v=7" alt="" decoding="async">
+      <div class="stamp-stack" id="stampStack">
+        <button type="button" class="stamp-card" data-stamp="0" aria-label="Stamp 1">
+          <span class="stamp-face stamp-front"><img src="assets/parts/stamp-0.png?v=11" alt="" decoding="async"></span>
+          <span class="stamp-face stamp-back"><img src="assets/parts/stamp-r0.png?v=11" alt="" decoding="async"></span>
+        </button>
+        <button type="button" class="stamp-card" data-stamp="1" aria-label="Stamp 2">
+          <span class="stamp-face stamp-front"><img src="assets/parts/stamp-1.png?v=11" alt="" decoding="async"></span>
+          <span class="stamp-face stamp-back"><img src="assets/parts/stamp-r1.png?v=11" alt="" decoding="async"></span>
+        </button>
+        <button type="button" class="stamp-card" data-stamp="2" aria-label="Stamp 3">
+          <span class="stamp-face stamp-front"><img src="assets/parts/stamp-2.png?v=11" alt="" decoding="async"></span>
+          <span class="stamp-face stamp-back"><img src="assets/parts/stamp-r2.png?v=11" alt="" decoding="async"></span>
+        </button>
+      </div>
+      <button type="button" class="hot close-hot" id="closeHot" aria-label="Close"></button>
+    </div>
 
-      <img class="find-card" id="findCard" src="assets/parts/footprint.png?v=7" alt="" decoding="async" hidden>
-      <img class="find-plane" id="findPlane" src="assets/parts/airplanes.png?v=7" alt="" decoding="async" hidden>
+    <button type="button" class="hot entry-hot" id="entryHot" aria-label="Side quest entry" hidden></button>
 
-      <!-- Empty map Group 20198: x=124 y=656 w=129 h=38 — three 38px cells -->
+    <!-- Real map from the Figma view + chrome crops -->
+    <div class="map-stage" id="mapStage" aria-hidden="true">
+      <div class="map-viewport" id="mapViewport">
+        <div class="map-pan" id="mapPan">
+          <img class="map-tiles" id="mapTiles" src="assets/parts/map-tiles.png?v=11" alt="" decoding="async">
+
+          <!-- Other challengers' notes (cycled) -->
+          <article class="map-note other" data-entry="0" style="--nx:22%; --ny:34%; --rot:-14deg;">
+            <img src="assets/parts/capture-0.jpg?v=7b" alt="" decoding="async">
+          </article>
+          <article class="map-note other" data-entry="1" style="--nx:58%; --ny:28%; --rot:10deg;">
+            <img src="assets/parts/capture-1.jpg?v=7b" alt="" decoding="async">
+          </article>
+          <article class="map-note other" data-entry="2" style="--nx:40%; --ny:52%; --rot:-6deg;">
+            <img src="assets/parts/capture-2.jpg?v=7b" alt="" decoding="async">
+          </article>
+
+          <!-- Your note after capture — before submit -->
+          <article class="map-note mine" id="mineNote" hidden>
+            <img class="note-photo" id="minePhoto" alt="" decoding="async">
+            <img class="note-stamp" src="assets/parts/footprint.png?v=7" alt="" decoding="async">
+          </article>
+
+          <img class="find-plane" id="findPlane" src="assets/parts/airplanes.png?v=7" alt="" decoding="async" hidden>
+        </div>
+      </div>
+
+      <img class="chrome-top" src="assets/parts/chrome-top.png?v=11" alt="" decoding="async">
+      <img class="chrome-bottom" src="assets/parts/chrome-bottom.png?v=11" alt="" decoding="async">
+
       <div class="slots" id="slots" aria-hidden="true">
         <div class="slot-cell" data-slot="0"><img class="slot" alt=""></div>
         <div class="slot-cell" data-slot="1"><img class="slot" alt=""></div>
         <div class="slot-cell" data-slot="2"><img class="slot" alt=""></div>
       </div>
 
+      <!-- Glass field on the note — few words / skip / confirm -->
+      <div class="note-field glass" id="noteField" hidden>
+        <label class="note-label" for="noteWords">Add a few words</label>
+        <input class="note-input" id="noteWords" type="text" maxlength="80" placeholder="Optional…" autocomplete="off">
+        <div class="note-actions">
+          <button type="button" class="skip-pill" id="noteSkip">Skip</button>
+          <button type="button" class="confirm-pill" id="noteConfirm">Confirm</button>
+        </div>
+      </div>
+
       <img class="tip-layer" id="tipLayer" src="assets/parts/tip.png?v=7" alt="" decoding="async" hidden>
+      <button type="button" class="hot tip-hot" id="seeOther" aria-label="See other challenges" hidden></button>
 
       <button type="button" class="hot cam-hot" id="camHot" aria-label="Camera"></button>
-      <button type="button" class="hot map-hot" id="mapHot" aria-label="Map find"></button>
       <button type="button" class="hot back-hot" id="backHot" aria-label="Back"></button>
     </div>
 
-    <!-- Flies in phone space so map zoom/nudge doesn't skew the path -->
     <img class="fly-thumb" id="flyThumb" alt="" hidden>
-
-    <button type="button" class="hot stamp-hot" data-stamp="0" aria-label="Stamp 1" hidden></button>
-    <button type="button" class="hot stamp-hot" data-stamp="1" aria-label="Stamp 2" hidden></button>
-    <button type="button" class="hot stamp-hot" data-stamp="2" aria-label="Stamp 3" hidden></button>
-    <button type="button" class="hot close-hot" id="closeHot" aria-label="Close" hidden></button>
-    <button type="button" class="hot entry-hot" id="entryHot" aria-label="Side quest entry" hidden></button>
 
     <div class="camera-sheet" id="camera" aria-hidden="true">
       <video class="camera-video" id="cameraVideo" playsinline muted></video>
@@ -75,20 +124,12 @@
         <button type="button" class="shutter" id="shutter" aria-label="Shutter"></button>
         <button type="button" class="camera-flip" id="cameraFlip" aria-label="Flip camera">↻</button>
       </div>
-
-      <div class="confirm" id="confirm" hidden>
-        <img class="confirm-photo" id="confirmPhoto" alt="">
-        <div class="confirm-actions">
-          <button type="button" class="retake" id="retake">Retake</button>
-          <button type="button" class="send-it" id="sendIt">Send It</button>
-        </div>
-      </div>
     </div>
   </main>
 
   <p class="meta">
-    Separated Figma parts + app CameraSheet. Capture flies into the progress slots.
+    Map tiles + chrome from Figma hunt view. Stamp cards flip in place. Note lands on map before Confirm.
   </p>
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>
