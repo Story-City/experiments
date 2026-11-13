@@ -58,14 +58,14 @@ const MY_GEM_FILL = '#b36bff';
 const READ_LABEL_OTHERS = 'See what other Challengers found';
 const READ_LABEL_MINE = 'Your find';
 
-const FADE_MS = 480;
-const SLIDE_MS = 320;
-const LIFT_MS = 420;
-const PAN_MS = 960;
-const SETTLE_MS = 780;
-const FLIGHT_MS = 720;
+const FADE_MS = 780;
+const SLIDE_MS = 480;
+const LIFT_MS = 520;
+const PAN_MS = 1100;
+const SETTLE_MS = 980;
+const FLIGHT_MS = 860;
 const FINDS_NEEDED = 3;
-const EASE_OUT = 'cubic-bezier(0.22, 0.8, 0.24, 1)';
+const EASE_OUT = 'cubic-bezier(0.33, 0.0, 0.2, 1)';
 const EASE_SPRING = 'cubic-bezier(0.34, 1.45, 0.64, 1)';
 
 const phone = document.getElementById('phone');
@@ -738,8 +738,14 @@ async function enterMapFromStamp(index) {
   quest = index;
   clearFinds();
   phase = 'map';
-  await hideStampSheet();
-  await showMap();
+  // Overlap fades so stamp→map does not blink through black
+  buildGems();
+  mapStage.classList.add('is-on');
+  mapStage.setAttribute('aria-hidden', 'false');
+  resetMapCamera(false);
+  stampSheet.classList.remove('is-on');
+  stampSheet.setAttribute('aria-hidden', 'true');
+  await wait(FADE_MS);
   busy = false;
   syncChrome();
   setHint('Map — photo lands as the tilted card above the hunt panel.');
@@ -1019,11 +1025,16 @@ resetBtn.addEventListener('click', () => goHome());
 
 closeHot.addEventListener('click', async () => {
   if (busy) return;
+  busy = true;
   phase = 'entry';
   clearFinds();
   resetStampState();
-  await hideStampSheet();
-  await showScene(FRAME.entry);
+  const sceneP = showScene(FRAME.entry);
+  stampSheet.classList.remove('is-on');
+  stampSheet.setAttribute('aria-hidden', 'true');
+  await sceneP;
+  await wait(FADE_MS);
+  busy = false;
   syncChrome();
   setHint('Entry chip — tap it or Play.');
 });
