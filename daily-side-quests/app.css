@@ -23,11 +23,11 @@
   --shutter: 72px;
   --shutter-border: 5px;
   --map-shutter: 66px;
-  --slot-y: 656;
-  --slot-size: 38;
-  --slot-0-x: 124;
-  --slot-1-x: 169.5;
-  --slot-2-x: 215;
+  --slot-y: 652;
+  --slot-size: 40;
+  --slot-0-x: 123;
+  --slot-1-x: 168;
+  --slot-2-x: 213;
   --glass: color-mix(in srgb, var(--raised) 78%, transparent);
 }
 
@@ -446,7 +446,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   50% { transform: scale(1.08); }
 }
 
-/* LAYOUT-SIDE-BY-SIDE-BOTTOM-v29 — image left + text right; map free above */
+/* LAYOUT-SIDE-BY-SIDE-BOTTOM-v30 — image left + text right; map free above */
 .find-panel {
   position: absolute;
   left: 0; right: 0;
@@ -689,7 +689,8 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   50% { transform: scale(1.28); opacity: 1; }
 }
 
-.slots { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+/* SLOTS-FILL-v30 — hunt thumbs must sit in the three baked frames */
+.slots { position: absolute; inset: 0; z-index: 12; pointer-events: none; }
 .slot-cell {
   position: absolute;
   top: calc(var(--slot-y) / var(--phone-h) * 100%);
@@ -697,6 +698,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   height: calc(var(--slot-size) / var(--phone-h) * 100%);
   border-radius: 7px; overflow: hidden;
   pointer-events: none;
+  background: rgba(0, 0, 0, 0.35);
 }
 .slot-cell.is-filled {
   pointer-events: auto;
@@ -717,8 +719,13 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .slot {
   width: 100%; height: 100%; object-fit: cover; display: block;
   opacity: 0; transform: scale(0.55); border-radius: 6px;
+  background: #1a1230;
 }
-.slot-cell.is-filled .slot { opacity: 1; transform: scale(1); }
+.slot-cell.is-filled .slot {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out);
+}
 .slot-cell.is-land { animation: slotLand 520ms var(--ease-spring); }
 .slot-cell.is-land .slot { animation: slotPop 520ms var(--ease-spring); }
 @keyframes slotLand {

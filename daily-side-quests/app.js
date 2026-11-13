@@ -9,29 +9,29 @@ const FRAME = {
   entry: 'assets/flow/03.png?v=7',
 };
 
-const CAPTURE_FULL = 'assets/parts/capture.jpg?v=7b';
+const CAPTURE_FULL = 'assets/parts/find-a.jpg?v=30';
 const CAPTURE_SLOTS = [
-  'assets/parts/capture-0.jpg?v=7b',
-  'assets/parts/capture-1.jpg?v=7b',
-  'assets/parts/capture-2.jpg?v=7b',
+  'assets/parts/find-a.jpg?v=30',
+  'assets/parts/find-b.jpg?v=30',
+  'assets/parts/find-c.jpg?v=30',
 ];
 
 /** Other challengers — gem on map + panel image/text (+ likes on zoom) */
 const OTHER_ENTRIES = [
   {
-    photo: 'assets/parts/capture-0.jpg?v=7b',
+    photo: 'assets/parts/find-b.jpg?v=30',
     text: 'Paw print in the sidewalk concrete near the ravine.',
     likes: 12,
     x: 28, y: 32,
   },
   {
-    photo: 'assets/parts/capture-1.jpg?v=7b',
+    photo: 'assets/parts/find-c.jpg?v=30',
     text: 'Bird-shaped cloud above Victoria Trail.',
     likes: 7,
     x: 68, y: 28,
   },
   {
-    photo: 'assets/parts/capture-2.jpg?v=7b',
+    photo: 'assets/parts/find-d.jpg?v=30',
     text: 'Fox silhouette in the ivy on the mailbox.',
     likes: 21,
     x: 48, y: 42,
@@ -891,21 +891,44 @@ async function animateFlyTo(target, duration, easing) {
   });
 }
 
+function fillSlot(uri, index) {
+  const cell = slotCells[index];
+  if (!cell) return;
+  const img = cell.querySelector('.slot');
+  img.src = uri;
+  cell.classList.add('is-filled', 'is-land');
+  later(() => cell.classList.remove('is-land'), 520);
+}
+
 async function flyIntoSlot(uri, index) {
   const cell = slotCells[index];
-  const img = cell.querySelector('.slot');
+  if (!cell) return;
   const start = relativeBox(findCard);
   const end = relativeBox(cell);
-  const midX = (start.cx + end.cx) / 2;
-  const midY = Math.min(start.cy, end.cy) - phoneSize().height * 0.08;
+  const hasStart = start.width > 8 && start.height > 8;
+  const hasEnd = end.width > 8 && end.height > 8;
+
+  // Always land the thumbnail even if the fly animation cannot measure boxes.
+  if (!hasEnd) {
+    fillSlot(uri, index);
+    return;
+  }
 
   flyThumb.src = uri;
   flyThumb.hidden = false;
   flyThumb.classList.add('is-on', 'is-arc');
   flyThumb.style.transition = 'none';
   flyThumb.style.transform = 'rotate(-6deg)';
-  setFlyBox(start.left, start.top, Math.max(start.width * 0.7, 64), Math.max(start.height * 0.7, 64), '12px');
+  if (hasStart) {
+    setFlyBox(start.left, start.top, Math.max(start.width * 0.7, 64), Math.max(start.height * 0.7, 64), '12px');
+  } else {
+    const phoneBox = phoneSize();
+    setFlyBox(phoneBox.width * 0.2, phoneBox.height * 0.42, 96, 128, '12px');
+  }
   void flyThumb.offsetWidth;
+
+  const midX = ((hasStart ? start.cx : end.cx) + end.cx) / 2;
+  const midY = Math.min(hasStart ? start.cy : end.cy, end.cy) - phoneSize().height * 0.08;
 
   await animateFlyTo({
     left: midX - 32, top: midY - 32, width: 64, height: 64, radius: '12px', rotate: 4,
@@ -915,11 +938,9 @@ async function flyIntoSlot(uri, index) {
     left: end.left, top: end.top, width: end.width, height: end.height, radius: '7px', rotate: 0,
   }, Math.floor(FLIGHT_MS * 0.55), EASE_SPRING);
 
-  img.src = uri;
-  cell.classList.add('is-filled', 'is-land');
+  fillSlot(uri, index);
   hideFly();
   await wait(280);
-  cell.classList.remove('is-land');
 }
 
 async function submitNote() {
@@ -931,9 +952,7 @@ async function submitNote() {
     : placeholderForFind(finds);
   const noteText = (noteWords.value || '').trim();
 
-  findPanel.classList.remove('is-on');
-  await wait(200);
-
+  // Measure fly start while the card is still laid out, then fade the panel.
   myEntries.push({ photo: slotUri, text: noteText });
   finds = myEntries.length;
   const index = finds - 1;
@@ -941,6 +960,7 @@ async function submitNote() {
   placeJam(index, { pulse: true });
   showPlaneForJam(index);
   await flyIntoSlot(slotUri, index);
+  findPanel.classList.remove('is-on');
   hideFindPanel();
   later(() => hidePlane(), 900);
   pendingCapture = null;
