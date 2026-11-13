@@ -77,7 +77,6 @@ const readText = document.getElementById('readText');
 const readLikes = document.getElementById('readLikes');
 const nextGem = document.getElementById('nextGem');
 const tipWrap = document.getElementById('tipWrap');
-const tipLayer = document.getElementById('tipLayer');
 const seeOther = document.getElementById('seeOther');
 let panelPhotoSrc = '';
 const TIP_SWIPE_DISMISS_PX = 64;
