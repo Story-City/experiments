@@ -117,13 +117,19 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .stamp-under {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  object-fit: cover; object-position: center top;
-  pointer-events: none;
+  object-fit: fill;
+  pointer-events: none !important;
   opacity: 0; transition: opacity var(--fade-ms) var(--ease-out);
   background: var(--bg);
+  z-index: 1;
 }
 .stamp-under.is-front { opacity: 1; }
 
+/* Individual stamp / close hits sit ABOVE the video */
+.stamp-hot {
+  z-index: 20;
+  border-radius: 10px;
+}
 .stamp-hot[data-stamp="0"] { left: 9%; right: 9%; top: 36.5%; height: 13.5%; }
 .stamp-hot[data-stamp="1"] { left: 9%; right: 9%; top: 51%; height: 13.5%; }
 .stamp-hot[data-stamp="2"] { left: 9%; right: 9%; top: 65.5%; height: 13.5%; }
@@ -138,7 +144,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   left: auto; right: 11%; top: 68%; width: 13%; height: 9%;
 }
 
-.close-hot { right: 6.5%; top: 12.5%; width: 9%; height: 4.2%; z-index: 6; }
+.close-hot { right: 6.5%; top: 12.5%; width: 9%; height: 4.2%; z-index: 20; }
 .entry-hot {
   right: 3%; bottom: 6.5%; width: 12%; aspect-ratio: 1;
   border-radius: 50%; z-index: 4;
@@ -324,33 +330,33 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   50% { transform: scale(1.08); }
 }
 
-/*
-  Find panel — above hunt sheet.
-  Left: tilted bold card (Figma footprint slot).
-  Right: write OR read (same placement, different mode).
-*/
+/* Find panel — card above, text popup underneath (stable layout) */
 .find-panel {
   position: absolute;
   left: 0; right: 0;
-  top: calc(300 / var(--phone-h) * 100%);
-  bottom: calc(220 / var(--phone-h) * 100%);
+  top: calc(88 / var(--phone-h) * 100%);
+  bottom: calc(210 / var(--phone-h) * 100%);
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 0 16px;
   pointer-events: none;
   opacity: 0;
   transition: opacity 320ms var(--ease-out);
 }
 .find-panel.is-on {
   opacity: 1;
-  pointer-events: none;
 }
 .find-panel[hidden] { display: none; }
 
 .find-card-slot {
-  position: absolute;
-  left: calc(12.4 / var(--phone-w) * 100%);
-  top: calc(40 / var(--phone-h) * 100%);
-  width: calc(171 / var(--phone-w) * 100%);
-  aspect-ratio: 171 / 230;
+  position: relative;
+  width: min(58%, 210px);
+  aspect-ratio: 3 / 4;
+  flex: none;
   z-index: 2;
   pointer-events: none;
 }
@@ -359,33 +365,37 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   position: absolute;
   left: 0; top: 0;
   width: 100%;
-  aspect-ratio: 171 / 210;
-  border-radius: 10px;
+  height: 100%;
+  border: 0;
+  padding: 0;
+  border-radius: 12px;
   overflow: hidden;
-  transform: rotate(-12deg) scale(1);
-  transform-origin: 50% 60%;
+  /* Nearly straight — slight tilt only */
+  transform: rotate(-4deg) scale(1);
+  transform-origin: 50% 50%;
   box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.35);
   opacity: 0;
-  filter: none;
   background: var(--raised);
 }
 .find-card-deep {
   z-index: 1;
   opacity: 0;
-  transform: rotate(-24deg) scale(0.88) translate(18%, 12%);
+  transform: rotate(-10deg) scale(0.9) translate(12%, 8%);
+  pointer-events: none;
 }
 .find-card-deep.is-shown {
-  opacity: 0.78;
-  transform: rotate(-24deg) scale(0.88) translate(18%, 12%);
+  opacity: 0.75;
+  transform: rotate(-10deg) scale(0.9) translate(12%, 8%);
 }
 .find-card-back {
   z-index: 2;
   opacity: 0;
-  transform: rotate(-18deg) scale(0.94) translate(10%, 6%);
+  transform: rotate(-7deg) scale(0.95) translate(7%, 4%);
+  pointer-events: none;
 }
 .find-card-back.is-shown {
-  opacity: 0.92;
-  transform: rotate(-18deg) scale(0.94) translate(10%, 6%);
+  opacity: 0.9;
+  transform: rotate(-7deg) scale(0.95) translate(7%, 4%);
 }
 .find-card-back.is-shuffle-out {
   animation: cardPeek 560ms var(--ease-out) both;
@@ -395,10 +405,12 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 .find-card-front {
   z-index: 3;
+  pointer-events: auto;
+  cursor: zoom-in;
 }
 .find-card-front.is-shown {
   opacity: 1;
-  transform: rotate(-12deg) scale(1);
+  transform: rotate(-4deg) scale(1);
 }
 .find-card-front.is-enter {
   animation: noteDrop var(--settle-ms) var(--ease-out) both;
@@ -412,36 +424,35 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   width: 100%; height: 100%;
   object-fit: cover; display: block;
   background: var(--raised);
+  pointer-events: none;
 }
 @keyframes noteDrop {
-  0% { opacity: 0; transform: rotate(-16deg) scale(1.1) translateY(-6%); }
-  100% { opacity: 1; transform: rotate(-12deg) scale(1) translateY(0); }
+  0% { opacity: 0; transform: rotate(-6deg) scale(1.06) translateY(-4%); }
+  100% { opacity: 1; transform: rotate(-4deg) scale(1) translateY(0); }
 }
 @keyframes cardShuffle {
-  0% { opacity: 0.15; transform: rotate(-2deg) scale(1.08) translate(-12%, -16%); }
-  60% { opacity: 1; transform: rotate(-13deg) scale(1.02) translate(1%, 1%); }
-  100% { opacity: 1; transform: rotate(-12deg) scale(1) translate(0, 0); }
+  0% { opacity: 0.15; transform: rotate(0deg) scale(1.05) translate(-8%, -10%); }
+  60% { opacity: 1; transform: rotate(-5deg) scale(1.01) translate(1%, 1%); }
+  100% { opacity: 1; transform: rotate(-4deg) scale(1) translate(0, 0); }
 }
 @keyframes cardPeek {
-  0% { opacity: 1; transform: rotate(-12deg) scale(1) translate(0, 0); }
-  100% { opacity: 0.92; transform: rotate(-18deg) scale(0.94) translate(10%, 6%); }
+  0% { opacity: 1; transform: rotate(-4deg) scale(1) translate(0, 0); }
+  100% { opacity: 0.9; transform: rotate(-7deg) scale(0.95) translate(7%, 4%); }
 }
 @keyframes cardPeekDeep {
-  0% { opacity: 0.92; transform: rotate(-18deg) scale(0.94) translate(10%, 6%); }
-  100% { opacity: 0.78; transform: rotate(-24deg) scale(0.88) translate(18%, 12%); }
+  0% { opacity: 0.9; transform: rotate(-7deg) scale(0.95) translate(7%, 4%); }
+  100% { opacity: 0.75; transform: rotate(-10deg) scale(0.9) translate(12%, 8%); }
 }
 
-/* Side panel — lower (near hunt sheet), wider horizontally */
-.find-side {
-  position: absolute;
-  left: calc(148 / var(--phone-w) * 100%);
-  right: 8px;
-  top: auto;
-  bottom: calc(8 / var(--phone-h) * 100%);
+/* Text popup under the card */
+.text-popup {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
   z-index: 4;
-  padding: 12px 14px 14px;
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--raised) 70%, transparent);
+  padding: 14px 14px 12px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--raised) 78%, transparent);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -450,8 +461,60 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   transform: translateY(8px);
   transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out);
 }
-.find-panel.is-on .find-side {
+.find-panel.is-on .text-popup {
   opacity: 1; transform: translateY(0);
+}
+.text-popup.is-closed {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+.text-popup-x {
+  position: absolute;
+  top: 6px; right: 8px;
+  width: 28px; height: 28px;
+  border: 0; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 20px; line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* Fullscreen photo + caption sheet */
+.photo-lightbox {
+  position: absolute; inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: rgba(7, 5, 18, 0.94);
+  pointer-events: auto;
+}
+.photo-lightbox[hidden] { display: none !important; }
+.lightbox-img {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  object-fit: contain;
+  background: #000;
+}
+.lightbox-sheet {
+  position: relative;
+  flex: none;
+  padding: 16px 40px 20px 16px;
+  border-radius: 18px 18px 0 0;
+  background: color-mix(in srgb, var(--raised) 88%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+.lightbox-caption {
+  margin: 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  min-height: 2.4em;
 }
 
 .side-label {

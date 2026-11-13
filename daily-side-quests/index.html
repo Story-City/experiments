@@ -8,14 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=21">
+<link rel="stylesheet" href="app.css?v=22">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Daily Side Quests</h1>
     <p class="lede">
-      Tilted find card above the hunt panel. Write or read beside it. Gems on the map — Next cycles image + text in the same panel.
+      Stamp stage from Figma video + clickable stamp hits. Find card nearly straight — tap opens fullscreen; text sits under as a popup.
     </p>
   </header>
 
@@ -71,7 +71,7 @@
         <div class="slot-cell" data-slot="2"><img class="slot" alt=""></div>
       </div>
 
-      <!-- Same placement always: tilted card left (above hunt panel) + side panel right -->
+      <!-- Card (near-straight) + text popup underneath -->
       <div class="find-panel" id="findPanel" hidden>
         <div class="find-card-slot">
           <article class="find-card find-card-deep" id="findCardDeep" aria-hidden="true">
@@ -80,12 +80,13 @@
           <article class="find-card find-card-back" id="findCardBack" aria-hidden="true">
             <img class="card-photo" id="panelPhotoBack" alt="" decoding="async">
           </article>
-          <article class="find-card find-card-front" id="findCard">
+          <button type="button" class="find-card find-card-front" id="findCard" aria-label="Open photo fullscreen">
             <img class="card-photo" id="panelPhoto" alt="" decoding="async">
-          </article>
+          </button>
         </div>
 
-        <div class="find-side glass" id="findSide">
+        <div class="text-popup glass" id="findSide">
+          <button type="button" class="text-popup-x" id="textPopupClose" aria-label="Close">×</button>
           <div class="write-mode" id="writeMode">
             <p class="side-label">Add a few words</p>
             <input class="note-input" id="noteWords" type="text" maxlength="60" placeholder="Optional…" autocomplete="off" aria-label="A few words">
@@ -105,6 +106,14 @@
               <button type="button" class="next-pill" id="nextGem">Next</button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div class="photo-lightbox" id="photoLightbox" hidden>
+        <img class="lightbox-img" id="lightboxPhoto" alt="" decoding="async">
+        <div class="lightbox-sheet glass">
+          <button type="button" class="text-popup-x" id="lightboxClose" aria-label="Close">×</button>
+          <p class="lightbox-caption" id="lightboxCaption"></p>
         </div>
       </div>
 
@@ -136,8 +145,8 @@
   </main>
 
   <p class="meta">
-    Honesty: Figma frames have no exportable motion curves — recreating prototype smart-animate as layered element motion on the real map tiles.
+    Stamp stage plays Figma-exported MP4 timelines; stamp/camera hits are separate hotspots on top (video pixels are not DOM nodes).
   </p>
-  <script src="app.js?v=21"></script>
+  <script src="app.js?v=22"></script>
 </body>
 </html>

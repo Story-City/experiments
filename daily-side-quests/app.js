@@ -84,6 +84,7 @@ const findPanel = document.getElementById('findPanel');
 const findCard = document.getElementById('findCard');
 const findCardBack = document.getElementById('findCardBack');
 const findCardDeep = document.getElementById('findCardDeep');
+const findSide = document.getElementById('findSide');
 const panelPhoto = document.getElementById('panelPhoto');
 const panelPhotoBack = document.getElementById('panelPhotoBack');
 const panelPhotoDeep = document.getElementById('panelPhotoDeep');
@@ -99,6 +100,11 @@ const nextGem = document.getElementById('nextGem');
 const tipWrap = document.getElementById('tipWrap');
 const seeOther = document.getElementById('seeOther');
 const othersBtn = document.getElementById('othersBtn');
+const photoLightbox = document.getElementById('photoLightbox');
+const lightboxPhoto = document.getElementById('lightboxPhoto');
+const lightboxCaption = document.getElementById('lightboxCaption');
+const lightboxClose = document.getElementById('lightboxClose');
+const textPopupClose = document.getElementById('textPopupClose');
 /** Front of the visual stack */
 let panelPhotoSrc = '';
 /** @type {string[]} oldest → newest under the front */
@@ -245,8 +251,8 @@ function gemPins() {
   return Array.from(gemLayer.querySelectorAll('.gem-pin'));
 }
 
-/** Gentle zoom anchored on the gem — origin at pin, light scale (no hard pan). */
-const GEM_ZOOM = 1.14;
+/** Gentle zoom anchored on the gem — keep mild so layout doesn't warp. */
+const GEM_ZOOM = 1.08;
 
 function setMapPan(entry, animate) {
   mapPan.style.transition = animate === false
@@ -421,13 +427,37 @@ function markActivePins() {
   });
 }
 
+function openTextPopup() {
+  findSide.classList.remove('is-closed');
+}
+
+function closeTextPopup() {
+  findSide.classList.add('is-closed');
+}
+
+function openLightbox() {
+  if (!panelPhotoSrc) return;
+  lightboxPhoto.src = panelPhotoSrc;
+  lightboxCaption.textContent = readMode.hidden
+    ? (noteWords.value || 'Add a few words…')
+    : (readText.textContent || '');
+  photoLightbox.hidden = false;
+}
+
+function closeLightbox() {
+  photoLightbox.hidden = true;
+  lightboxPhoto.removeAttribute('src');
+}
+
 function showWritePanel(uri) {
   viewingMine = false;
+  closeLightbox();
   writeMode.hidden = false;
   readMode.hidden = true;
   noteWords.value = '';
   setPanelPhoto(uri, { swap: false });
   showPlaneForJam(finds);
+  openTextPopup();
   findPanel.hidden = false;
   void findPanel.offsetWidth;
   findPanel.classList.add('is-on');
@@ -435,6 +465,7 @@ function showWritePanel(uri) {
 
 function showReadPanel(entry, { swap }) {
   viewingMine = false;
+  closeLightbox();
   writeMode.hidden = true;
   readMode.hidden = false;
   readLabel.textContent = READ_LABEL_OTHERS;
@@ -443,6 +474,7 @@ function showReadPanel(entry, { swap }) {
   setPanelPhoto(entry.photo, { swap });
   syncLikeUi({ invite: true });
   hidePlane();
+  openTextPopup();
   findPanel.hidden = false;
   findPanel.classList.add('is-on');
   markActivePins();
@@ -450,6 +482,7 @@ function showReadPanel(entry, { swap }) {
 
 function showMyReadPanel(entry, { swap }) {
   viewingMine = true;
+  closeLightbox();
   writeMode.hidden = true;
   readMode.hidden = false;
   readLabel.textContent = READ_LABEL_MINE;
@@ -458,16 +491,19 @@ function showMyReadPanel(entry, { swap }) {
   setPanelPhoto(entry.photo, { swap });
   syncLikeUi({ invite: false });
   hidePlane();
+  openTextPopup();
   findPanel.hidden = false;
   findPanel.classList.add('is-on');
   markActivePins();
 }
 
 function hideFindPanel() {
+  closeLightbox();
   findPanel.classList.remove('is-on');
   findCard.classList.remove('is-shown', 'is-enter', 'is-shuffle');
   findCardBack.classList.remove('is-shown', 'is-shuffle-out');
   findCardDeep.classList.remove('is-shown', 'is-shuffle-out');
+  findSide.classList.remove('is-closed');
   hidePlane();
   findPanel.hidden = true;
   writeMode.hidden = false;
@@ -1038,6 +1074,15 @@ likeBtn.addEventListener('click', () => {
   likedByGem[otherIndex] = !likedByGem[otherIndex];
   likeInviteSeen[otherIndex] = true;
   syncLikeUi({ invite: false });
+});
+findCard.addEventListener('click', (e) => {
+  e.preventDefault();
+  openLightbox();
+});
+textPopupClose.addEventListener('click', () => closeTextPopup());
+lightboxClose.addEventListener('click', () => closeLightbox());
+photoLightbox.addEventListener('click', (e) => {
+  if (e.target === photoLightbox || e.target === lightboxPhoto) closeLightbox();
 });
 slotCells.forEach((cell, i) => {
   cell.addEventListener('click', () => {
