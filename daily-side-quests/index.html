@@ -8,14 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=12d">
+<link rel="stylesheet" href="app.css?v=13">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Daily Side Quests</h1>
     <p class="lede">
-      Continuous map (Figma tiles). Stamp soft-reveals. Note stays visible — field sits in the sheet like treadmill Skip.
+      Tilted find card above the hunt panel. Write or read beside it. Gems on the map — Next cycles image + text in the same panel.
     </p>
   </header>
 
@@ -48,23 +48,7 @@
       <div class="map-viewport" id="mapViewport">
         <div class="map-pan" id="mapPan">
           <img class="map-tiles" src="assets/parts/map-tiles.png?v=12" alt="" decoding="async">
-
-          <article class="map-note other" data-entry="0" style="--nx:18%; --ny:30%; --rot:-14deg;">
-            <img src="assets/parts/capture-0.jpg?v=7b" alt="" decoding="async">
-          </article>
-          <article class="map-note other" data-entry="1" style="--nx:62%; --ny:24%; --rot:11deg;">
-            <img src="assets/parts/capture-1.jpg?v=7b" alt="" decoding="async">
-          </article>
-          <article class="map-note other" data-entry="2" style="--nx:44%; --ny:48%; --rot:-7deg;">
-            <img src="assets/parts/capture-2.jpg?v=7b" alt="" decoding="async">
-          </article>
-
-          <article class="map-note mine" id="mineNote" hidden>
-            <img class="note-photo" id="minePhoto" alt="" decoding="async">
-            <img class="note-stamp" src="assets/parts/footprint.png?v=7" alt="" decoding="async">
-          </article>
-
-          <img class="find-plane" id="findPlane" src="assets/parts/airplanes.png?v=7" alt="" decoding="async" hidden>
+          <div class="gem-layer" id="gemLayer" aria-hidden="true"></div>
         </div>
       </div>
 
@@ -77,11 +61,34 @@
         <div class="slot-cell" data-slot="2"><img class="slot" alt=""></div>
       </div>
 
-      <!-- Treadmill-style skiprow in the sheet band — never over the note image -->
-      <div class="skiprow" id="noteField" hidden>
-        <button type="button" class="skippill" id="noteSkip">Skip</button>
-        <input class="note-input" id="noteWords" type="text" maxlength="60" placeholder="A few words…" autocomplete="off" aria-label="A few words">
-        <button type="button" class="confirm-pill" id="noteConfirm">Confirm</button>
+      <!-- Same placement always: tilted card left (above hunt panel) + side panel right -->
+      <div class="find-panel" id="findPanel" hidden>
+        <div class="find-card-slot">
+          <article class="find-card" id="findCard">
+            <img class="card-photo" id="panelPhoto" alt="" decoding="async">
+            <img class="card-stamp" id="panelStamp" src="assets/parts/footprint.png?v=7" alt="" decoding="async" hidden>
+          </article>
+          <img class="find-plane" id="findPlane" src="assets/parts/airplanes.png?v=7" alt="" decoding="async" hidden>
+        </div>
+
+        <div class="find-side glass" id="findSide">
+          <div class="write-mode" id="writeMode">
+            <p class="side-label">Add a few words</p>
+            <input class="note-input" id="noteWords" type="text" maxlength="60" placeholder="Optional…" autocomplete="off" aria-label="A few words">
+            <div class="side-actions">
+              <button type="button" class="skippill" id="noteSkip">Skip</button>
+              <button type="button" class="confirm-pill" id="noteConfirm">Confirm</button>
+            </div>
+          </div>
+          <div class="read-mode" id="readMode" hidden>
+            <p class="side-label">See what other Challengers found</p>
+            <p class="read-text" id="readText"></p>
+            <div class="read-meta">
+              <span class="likes" id="readLikes" hidden></span>
+              <button type="button" class="next-pill" id="nextGem">Next</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <img class="tip-layer" id="tipLayer" src="assets/parts/tip.png?v=7" alt="" decoding="async" hidden>
@@ -112,6 +119,6 @@
   <p class="meta">
     Honesty: Figma frames have no exportable motion curves — recreating prototype smart-animate as layered element motion on the real map tiles.
   </p>
-  <script src="app.js?v=12d"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

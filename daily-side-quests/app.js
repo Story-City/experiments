@@ -16,11 +16,35 @@ const CAPTURE_SLOTS = [
   'assets/parts/capture-2.jpg?v=7b',
 ];
 
+/** Other challengers — gem on map + panel image/text (+ likes on zoom) */
 const OTHER_ENTRIES = [
-  { scale: 1.26, tx: 16, ty: 12 },
-  { scale: 1.3, tx: -20, ty: 16 },
-  { scale: 1.22, tx: -2, ty: -14 },
+  {
+    photo: 'assets/parts/capture-0.jpg?v=7b',
+    text: 'Paw print in the sidewalk concrete near the ravine.',
+    likes: 12,
+    x: 28, y: 36,
+    scale: 1.28, tx: 14, ty: 10,
+  },
+  {
+    photo: 'assets/parts/capture-1.jpg?v=7b',
+    text: 'Bird-shaped cloud above Victoria Trail.',
+    likes: 7,
+    x: 68, y: 30,
+    scale: 1.32, tx: -22, ty: 14,
+  },
+  {
+    photo: 'assets/parts/capture-2.jpg?v=7b',
+    text: 'Fox silhouette in the ivy on the mailbox.',
+    likes: 21,
+    x: 48, y: 58,
+    scale: 1.24, tx: -4, ty: -16,
+  },
 ];
+
+const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
+const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
+const GEM_SHADE = 'M15 7.5H22.5L12 20.5Z';
+const GEM_FACETS = 'M1.5 7.5H22.5M7 1.5L9 7.5L12 20.5L15 7.5L17 1.5';
 
 const FADE_MS = 480;
 const SLIDE_MS = 320;
@@ -41,14 +65,20 @@ const stampB = document.getElementById('stampB');
 const stampHots = Array.from(document.querySelectorAll('.stamp-hot'));
 const mapStage = document.getElementById('mapStage');
 const mapPan = document.getElementById('mapPan');
-const mineNote = document.getElementById('mineNote');
-const minePhoto = document.getElementById('minePhoto');
+const gemLayer = document.getElementById('gemLayer');
+const findPanel = document.getElementById('findPanel');
+const findCard = document.getElementById('findCard');
+const panelPhoto = document.getElementById('panelPhoto');
+const panelStamp = document.getElementById('panelStamp');
 const findPlane = document.getElementById('findPlane');
-const noteField = document.getElementById('noteField');
+const writeMode = document.getElementById('writeMode');
+const readMode = document.getElementById('readMode');
 const noteWords = document.getElementById('noteWords');
+const readText = document.getElementById('readText');
+const readLikes = document.getElementById('readLikes');
+const nextGem = document.getElementById('nextGem');
 const tipLayer = document.getElementById('tipLayer');
 const seeOther = document.getElementById('seeOther');
-const otherNotes = Array.from(document.querySelectorAll('.map-note.other'));
 const flyThumb = document.getElementById('flyThumb');
 const slotCells = Array.from(document.querySelectorAll('.slot-cell'));
 const camera = document.getElementById('camera');
@@ -81,6 +111,7 @@ let frontIsA = true;
 let stampFrontIsA = true;
 let stampsRevealed = false;
 let otherIndex = 0;
+let gemsBuilt = false;
 let timers = [];
 
 function later(fn, ms) {
@@ -115,7 +146,6 @@ async function showScene(src) {
 }
 
 function showStampUnder(which) {
-  // which: 'menu' | 'revealed'
   const wantA = which === 'menu';
   if (wantA === stampFrontIsA) return wait(0);
   if (wantA) {
@@ -129,6 +159,34 @@ function showStampUnder(which) {
   return wait(FADE_MS);
 }
 
+function buildGems() {
+  if (gemsBuilt) return;
+  gemsBuilt = true;
+  gemLayer.replaceChildren();
+  OTHER_ENTRIES.forEach((entry, i) => {
+    const pin = document.createElement('button');
+    pin.type = 'button';
+    pin.className = 'gem-pin';
+    pin.dataset.gem = String(i);
+    pin.style.left = `${entry.x}%`;
+    pin.style.top = `${entry.y}%`;
+    pin.setAttribute('aria-label', `Gem ${i + 1}`);
+    pin.innerHTML = `<svg viewBox="0 0 24 22" aria-hidden="true">
+      <path d="${GEM_OUTLINE}" fill="#b36bff"/>
+      <path d="${GEM_TABLE}" fill="#fff" fill-opacity="0.3"/>
+      <path d="${GEM_SHADE}" fill="#000" fill-opacity="0.22"/>
+      <path d="${GEM_FACETS}" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1" stroke-linejoin="round"/>
+      <path d="${GEM_OUTLINE}" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>`;
+    pin.addEventListener('click', () => showOtherEntry(i, true));
+    gemLayer.appendChild(pin);
+  });
+}
+
+function gemPins() {
+  return Array.from(gemLayer.querySelectorAll('.gem-pin'));
+}
+
 function setMapPan(entry, animate) {
   const e = entry || { scale: 1.06, tx: 0, ty: 0 };
   if (!animate) mapPan.style.transition = 'none';
@@ -139,15 +197,69 @@ function setMapPan(entry, animate) {
   }
 }
 
-function focusOther(index, animate) {
-  otherIndex = ((index % OTHER_ENTRIES.length) + OTHER_ENTRIES.length) % OTHER_ENTRIES.length;
-  otherNotes.forEach((n, i) => n.classList.toggle('is-focus', i === otherIndex));
-  setMapPan(OTHER_ENTRIES[otherIndex], animate);
+function resetMapCamera(animate) {
+  gemPins().forEach((p) => p.classList.remove('is-active'));
+  setMapPan({ scale: 1.06, tx: 0, ty: 0 }, animate);
 }
 
-function resetMapCamera(animate) {
-  otherNotes.forEach((n) => n.classList.remove('is-focus'));
-  setMapPan({ scale: 1.06, tx: 0, ty: 0 }, animate);
+function setPanelPhoto(src, { stamp, swap }) {
+  panelPhoto.src = src;
+  panelStamp.hidden = !stamp;
+  findCard.classList.remove('is-on', 'is-swap');
+  void findCard.offsetWidth;
+  findCard.classList.add(swap ? 'is-swap' : 'is-on');
+}
+
+function showWritePanel(uri) {
+  writeMode.hidden = false;
+  readMode.hidden = true;
+  noteWords.value = '';
+  setPanelPhoto(uri, { stamp: true, swap: false });
+  findPlane.hidden = false;
+  findPlane.classList.remove('is-on');
+  void findPlane.offsetWidth;
+  findPlane.classList.add('is-on');
+  findPanel.hidden = false;
+  void findPanel.offsetWidth;
+  findPanel.classList.add('is-on');
+}
+
+function showReadPanel(entry, { swap }) {
+  writeMode.hidden = true;
+  readMode.hidden = false;
+  readText.textContent = entry.text;
+  // Likes appear on demand when zooming to this gem
+  readLikes.hidden = true;
+  setPanelPhoto(entry.photo, { stamp: false, swap });
+  findPlane.hidden = true;
+  findPlane.classList.remove('is-on');
+  findPanel.hidden = false;
+  findPanel.classList.add('is-on');
+}
+
+function hideFindPanel() {
+  findPanel.classList.remove('is-on');
+  findCard.classList.remove('is-on', 'is-swap');
+  findPlane.hidden = true;
+  findPlane.classList.remove('is-on');
+  findPanel.hidden = true;
+  writeMode.hidden = false;
+  readMode.hidden = true;
+  readLikes.hidden = true;
+}
+
+async function showOtherEntry(index, animate) {
+  otherIndex = ((index % OTHER_ENTRIES.length) + OTHER_ENTRIES.length) % OTHER_ENTRIES.length;
+  const entry = OTHER_ENTRIES[otherIndex];
+  gemPins().forEach((p, i) => p.classList.toggle('is-active', i === otherIndex));
+  setMapPan(entry, animate);
+  showReadPanel(entry, { swap: true });
+  // Reveal likes after the pan settles
+  later(() => {
+    if (phase !== 'browse') return;
+    readLikes.hidden = false;
+    readLikes.textContent = `♥ ${entry.likes}`;
+  }, animate ? PAN_MS : 80);
 }
 
 function syncChrome() {
@@ -156,11 +268,9 @@ function syncChrome() {
   playBtn.disabled = phase === 'camera' || phase === 'note' || busy;
   const onMap = phase === 'map' || phase === 'camera' || phase === 'note' || phase === 'browse';
   mapStage.classList.toggle('is-browse', phase === 'browse');
-  camHot.hidden = !(phase === 'map' || phase === 'browse');
-  // During note entry, keep shutter available under the skiprow but don't steal focus
   backHot.hidden = !onMap || phase === 'camera';
   seeOther.hidden = !(phase === 'browse' || (tipLayer.classList.contains('is-on') && onMap));
-  camHot.hidden = phase === 'note' || camHot.hidden;
+  camHot.hidden = !(phase === 'map') || phase === 'note';
   stampHots.forEach((el) => {
     el.hidden = !(phase === 'menu' || phase === 'revealed');
   });
@@ -191,17 +301,10 @@ function clearFinds() {
   captures = [];
   pendingCapture = null;
   hideFly();
-  mineNote.hidden = true;
-  mineNote.classList.remove('is-on');
-  findPlane.hidden = true;
-  findPlane.classList.remove('is-on');
-  noteField.hidden = true;
-  noteField.classList.remove('is-on');
-  noteWords.value = '';
+  hideFindPanel();
   tipLayer.hidden = true;
   tipLayer.classList.remove('is-on');
   seeOther.hidden = true;
-  otherNotes.forEach((n) => n.classList.remove('is-focus'));
   slotCells.forEach((cell) => {
     const img = cell.querySelector('.slot');
     img.removeAttribute('src');
@@ -231,6 +334,7 @@ async function hideStampSheet() {
 }
 
 async function showMap() {
+  buildGems();
   mapStage.classList.add('is-on');
   mapStage.setAttribute('aria-hidden', 'false');
   resetMapCamera(false);
@@ -275,17 +379,14 @@ async function revealStamp(index) {
   Array.from(picker.children).forEach((c, i) => {
     c.setAttribute('aria-pressed', i === quest ? 'true' : 'false');
   });
-
   const hot = stampHots[index];
   stampHots.forEach((h) => h.classList.remove('is-lifting'));
   hot.classList.add('is-lifting');
   await wait(LIFT_MS);
-
   await showStampUnder('revealed');
   stampsRevealed = true;
   phase = 'revealed';
   hot.classList.remove('is-lifting');
-
   busy = false;
   syncChrome();
   setHint(`${QUESTS[quest].title} — tap its camera to open the map.`);
@@ -301,7 +402,7 @@ async function enterMapFromStamp(index) {
   await showMap();
   busy = false;
   syncChrome();
-  setHint('Map — take a photo. Note lands on the map; Confirm sits in the sheet.');
+  setHint('Map — photo lands as the tilted card above the hunt panel.');
 }
 
 async function startStream() {
@@ -339,7 +440,7 @@ function stopStream() {
 }
 
 async function openCamera() {
-  if ((phase !== 'map' && phase !== 'browse') || busy) return;
+  if (phase !== 'map' || busy) return;
   if (finds >= FINDS_NEEDED) return;
   busy = true;
   phase = 'camera';
@@ -353,7 +454,7 @@ async function openCamera() {
   await startStream();
   await wait(SLIDE_MS);
   busy = false;
-  setHint('Shutter — then the note drops onto the map (field stays in the sheet).');
+  setHint('Shutter — card drops left; write beside it.');
 }
 
 async function closeCamera(animate) {
@@ -385,26 +486,10 @@ function placeholderForFind(index) {
 
 async function landNoteOnMap(uri) {
   pendingCapture = uri;
-  minePhoto.src = uri;
-  mineNote.hidden = false;
-  mineNote.classList.remove('is-on');
-  void mineNote.offsetWidth;
-  mineNote.classList.add('is-on');
-
-  findPlane.hidden = false;
-  findPlane.classList.remove('is-on');
-  void findPlane.offsetWidth;
-  findPlane.classList.add('is-on');
-
-  // Field in sheet band — after note is visible, never covering it
-  noteWords.value = '';
-  noteField.hidden = false;
-  void noteField.offsetWidth;
-  noteField.classList.add('is-on');
-
+  showWritePanel(uri);
   phase = 'note';
   syncChrome();
-  setHint('Note is on the map. Field is in the sheet — Skip or Confirm.');
+  setHint('Card left, write right — soft overlay above the hunt panel.');
 }
 
 async function handleShutter() {
@@ -469,7 +554,7 @@ async function animateFlyTo(target, duration, easing) {
 async function flyIntoSlot(uri, index) {
   const cell = slotCells[index];
   const img = cell.querySelector('.slot');
-  const start = relativeBox(mineNote.hidden ? cell : mineNote);
+  const start = relativeBox(findCard);
   const end = relativeBox(cell);
   const midX = (start.cx + end.cx) / 2;
   const midY = Math.min(start.cy, end.cy) - phoneSize().height * 0.08;
@@ -505,19 +590,15 @@ async function submitNote() {
     ? fullUri
     : placeholderForFind(finds);
 
-  noteField.classList.remove('is-on');
-  await wait(220);
-  noteField.hidden = true;
+  findPanel.classList.remove('is-on');
+  await wait(200);
 
   captures.push(slotUri);
   finds = captures.length;
   const index = finds - 1;
 
   await flyIntoSlot(slotUri, index);
-
-  mineNote.classList.remove('is-on');
-  await wait(160);
-  mineNote.hidden = true;
+  hideFindPanel();
   pendingCapture = null;
 
   if (finds >= FINDS_NEEDED) {
@@ -529,7 +610,7 @@ async function submitNote() {
     phase = 'browse';
     syncChrome();
     busy = false;
-    setHint('Tap the tip — See other challenges pans the map camera.');
+    setHint('See other Challengers — tap tip or Next to cycle gems.');
     return;
   }
 
@@ -539,19 +620,33 @@ async function submitNote() {
   setHint(`Submitted ${finds}/${FINDS_NEEDED} — camera again.`);
 }
 
-async function cycleOtherChallenges() {
+async function enterBrowse() {
   if (busy) return;
   if (phase !== 'browse' && phase !== 'map') return;
   busy = true;
   phase = 'browse';
   tipLayer.hidden = false;
   tipLayer.classList.add('is-on');
-  seeOther.hidden = false;
-  focusOther(otherIndex + 1, true);
+  seeOther.hidden = true;
+  await showOtherEntry(0, true);
   await wait(PAN_MS);
   busy = false;
   syncChrome();
-  setHint(`Other find ${otherIndex + 1}/${OTHER_ENTRIES.length} — tap tip again to cycle.`);
+  setHint('Next cycles gems — same card + side panel, new image and text.');
+}
+
+async function cycleNextGem() {
+  if (busy) return;
+  if (phase !== 'browse') {
+    await enterBrowse();
+    return;
+  }
+  busy = true;
+  await showOtherEntry(otherIndex + 1, true);
+  await wait(PAN_MS);
+  busy = false;
+  syncChrome();
+  setHint(`Gem ${otherIndex + 1}/${OTHER_ENTRIES.length} — Next again.`);
 }
 
 function buildPicker() {
@@ -598,7 +693,8 @@ stampHots.forEach((el) => {
 });
 
 camHot.addEventListener('click', () => openCamera());
-seeOther.addEventListener('click', () => cycleOtherChallenges());
+seeOther.addEventListener('click', () => enterBrowse());
+nextGem.addEventListener('click', () => cycleNextGem());
 
 backHot.addEventListener('click', async () => {
   if (busy) return;
@@ -635,5 +731,6 @@ document.getElementById('noteConfirm').addEventListener('click', () => submitNot
 if (cameraFallbackImg) cameraFallbackImg.src = CAPTURE_FULL;
 
 buildPicker();
+buildGems();
 syncChrome();
 setHint('Idle — pick a quest, then Play.');
