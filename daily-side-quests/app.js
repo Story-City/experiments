@@ -16,21 +16,18 @@ const CAPTURE_SLOTS = [
   'assets/parts/capture-2.jpg?v=7b',
 ];
 
-/** Fake other challengers — camera pans between these map anchors */
 const OTHER_ENTRIES = [
-  { x: 22, y: 34, scale: 1.22, tx: 18, ty: 10 },
-  { x: 58, y: 28, scale: 1.28, tx: -22, ty: 14 },
-  { x: 40, y: 52, scale: 1.2, tx: -4, ty: -16 },
+  { scale: 1.26, tx: 16, ty: 12 },
+  { scale: 1.3, tx: -20, ty: 16 },
+  { scale: 1.22, tx: -2, ty: -14 },
 ];
 
-const FADE_MS = 420;
+const FADE_MS = 480;
 const SLIDE_MS = 320;
-const FLIP_MS = 620;
-const PAN_MS = 780;
+const LIFT_MS = 420;
+const PAN_MS = 820;
 const SETTLE_MS = 780;
 const FLIGHT_MS = 720;
-const PHOTO_HOLD_MS = 240;
-const BEAT_MS = 120;
 const FINDS_NEEDED = 3;
 const EASE_OUT = 'cubic-bezier(0.22, 0.8, 0.24, 1)';
 const EASE_SPRING = 'cubic-bezier(0.34, 1.45, 0.64, 1)';
@@ -39,7 +36,10 @@ const phone = document.getElementById('phone');
 const sceneA = document.getElementById('sceneA');
 const sceneB = document.getElementById('sceneB');
 const stampSheet = document.getElementById('stampSheet');
-const stampCards = Array.from(document.querySelectorAll('.stamp-card'));
+const stampA = document.getElementById('stampA');
+const stampB = document.getElementById('stampB');
+const stampLift = document.getElementById('stampLift');
+const stampHots = Array.from(document.querySelectorAll('.stamp-hot'));
 const mapStage = document.getElementById('mapStage');
 const mapPan = document.getElementById('mapPan');
 const mineNote = document.getElementById('mineNote');
@@ -47,8 +47,6 @@ const minePhoto = document.getElementById('minePhoto');
 const findPlane = document.getElementById('findPlane');
 const noteField = document.getElementById('noteField');
 const noteWords = document.getElementById('noteWords');
-const noteSkip = document.getElementById('noteSkip');
-const noteConfirm = document.getElementById('noteConfirm');
 const tipLayer = document.getElementById('tipLayer');
 const seeOther = document.getElementById('seeOther');
 const otherNotes = Array.from(document.querySelectorAll('.map-note.other'));
@@ -60,10 +58,6 @@ const cameraSnap = document.getElementById('cameraSnap');
 const cameraFallback = document.getElementById('cameraFallback');
 const cameraFallbackImg = document.getElementById('cameraFallbackImg');
 const cameraPrompt = document.getElementById('cameraPrompt');
-const shutter = document.getElementById('shutter');
-const cameraClose = document.getElementById('cameraClose');
-const cameraSkip = document.getElementById('cameraSkip');
-const cameraFlip = document.getElementById('cameraFlip');
 const hint = document.getElementById('hint');
 const playBtn = document.getElementById('play');
 const resetBtn = document.getElementById('reset');
@@ -73,7 +67,7 @@ const closeHot = document.getElementById('closeHot');
 const entryHot = document.getElementById('entryHot');
 const backHot = document.getElementById('backHot');
 
-/** @type {'home'|'menu'|'entry'|'map'|'camera'|'note'|'browse'} */
+/** @type {'home'|'menu'|'revealed'|'entry'|'map'|'camera'|'note'|'browse'} */
 let phase = 'home';
 let quest = 0;
 let finds = 0;
@@ -85,6 +79,8 @@ let busy = false;
 let pendingCapture = null;
 let usingLiveCamera = false;
 let frontIsA = true;
+let stampFrontIsA = true;
+let stampsRevealed = false;
 let otherIndex = 0;
 let timers = [];
 
@@ -93,46 +89,49 @@ function later(fn, ms) {
   timers.push(id);
   return id;
 }
-
 function wait(ms) {
   return new Promise((resolve) => later(resolve, ms));
 }
-
 function clearTimers() {
   timers.forEach(clearTimeout);
   timers = [];
 }
-
 function setHint(t) {
   hint.textContent = t;
 }
 
-function frontScene() {
-  return frontIsA ? sceneA : sceneB;
-}
-
-function backScene() {
-  return frontIsA ? sceneB : sceneA;
-}
+function frontScene() { return frontIsA ? sceneA : sceneB; }
+function backScene() { return frontIsA ? sceneB : sceneA; }
 
 async function showScene(src) {
   const front = frontScene();
   if (front.getAttribute('src') === src && front.classList.contains('is-front')) return;
   const next = backScene();
   next.src = src;
-  try {
-    if (next.decode) await next.decode();
-  } catch (_) {
-    await wait(40);
-  }
+  try { if (next.decode) await next.decode(); } catch (_) { await wait(40); }
   next.classList.add('is-front');
   front.classList.remove('is-front');
   frontIsA = next === sceneA;
   await wait(FADE_MS);
 }
 
+function showStampUnder(which) {
+  // which: 'menu' | 'revealed'
+  const wantA = which === 'menu';
+  if (wantA === stampFrontIsA) return wait(0);
+  if (wantA) {
+    stampA.classList.add('is-front');
+    stampB.classList.remove('is-front');
+  } else {
+    stampB.classList.add('is-front');
+    stampA.classList.remove('is-front');
+  }
+  stampFrontIsA = wantA;
+  return wait(FADE_MS);
+}
+
 function setMapPan(entry, animate) {
-  const e = entry || { scale: 1.08, tx: 0, ty: 0 };
+  const e = entry || { scale: 1.06, tx: 0, ty: 0 };
   if (!animate) mapPan.style.transition = 'none';
   mapPan.style.transform = `translate(${e.tx}%, ${e.ty}%) scale(${e.scale})`;
   if (!animate) {
@@ -149,19 +148,21 @@ function focusOther(index, animate) {
 
 function resetMapCamera(animate) {
   otherNotes.forEach((n) => n.classList.remove('is-focus'));
-  setMapPan({ scale: 1.08, tx: 0, ty: 0 }, animate);
+  setMapPan({ scale: 1.06, tx: 0, ty: 0 }, animate);
 }
 
 function syncChrome() {
-  phone.dataset.phase = phase;
-  const onStamp = phase === 'menu';
-  const onMap = phase === 'map' || phase === 'camera' || phase === 'note' || phase === 'browse';
+  phone.dataset.phase = phase === 'revealed' ? 'revealed' : phase;
   entryHot.hidden = phase !== 'entry';
-  phone.classList.toggle('is-overlay', onStamp || onMap);
   playBtn.disabled = phase === 'camera' || phase === 'note' || busy;
+  const onMap = phase === 'map' || phase === 'camera' || phase === 'note' || phase === 'browse';
   camHot.hidden = !(phase === 'map' || phase === 'browse');
   backHot.hidden = !onMap || phase === 'camera';
-  seeOther.hidden = !(phase === 'browse' || (phase === 'map' && tipLayer.classList.contains('is-on')));
+  seeOther.hidden = !(phase === 'browse' || (tipLayer.classList.contains('is-on') && onMap));
+  stampHots.forEach((el) => {
+    el.hidden = !(phase === 'menu' || phase === 'revealed');
+  });
+  closeHot.hidden = !(phase === 'menu' || phase === 'revealed');
   markNextSlot();
 }
 
@@ -173,7 +174,7 @@ function markNextSlot() {
 
 function hideFly() {
   flyThumb.hidden = true;
-  flyThumb.classList.remove('is-on', 'is-hero', 'is-arc');
+  flyThumb.classList.remove('is-on', 'is-arc');
   flyThumb.style.transition = 'none';
   flyThumb.style.transform = '';
   flyThumb.style.left = '';
@@ -207,10 +208,13 @@ function clearFinds() {
   resetMapCamera(false);
 }
 
-function resetStamps() {
-  stampCards.forEach((card) => {
-    card.classList.remove('is-flip', 'is-armed');
-  });
+function resetStampState() {
+  stampsRevealed = false;
+  stampLift.hidden = true;
+  stampLift.classList.remove('is-on');
+  stampA.classList.add('is-front');
+  stampB.classList.remove('is-front');
+  stampFrontIsA = true;
 }
 
 async function showStampSheet() {
@@ -242,7 +246,7 @@ async function goHome() {
   clearTimers();
   await closeCamera(false);
   clearFinds();
-  resetStamps();
+  resetStampState();
   phase = 'home';
   if (stampSheet.classList.contains('is-on')) await hideStampSheet();
   if (mapStage.classList.contains('is-on')) await hideMap();
@@ -254,38 +258,53 @@ async function goHome() {
 async function openMenu() {
   if (busy) return;
   clearFinds();
-  resetStamps();
+  resetStampState();
   if (mapStage.classList.contains('is-on')) await hideMap();
   phase = 'menu';
   await showScene(FRAME.home);
   await showStampSheet();
-  stampCards.forEach((c) => c.classList.add('is-armed'));
   syncChrome();
-  setHint('Stamps — tap one to flip / reveal.');
+  setHint('Tap a stamp — it lifts, then reveals in place.');
 }
 
-async function flipStamp(index) {
+function placeLiftOn(hot) {
+  const phoneBox = phone.getBoundingClientRect();
+  const box = hot.getBoundingClientRect();
+  stampLift.style.left = `${box.left - phoneBox.left}px`;
+  stampLift.style.top = `${box.top - phoneBox.top}px`;
+  stampLift.style.width = `${box.width}px`;
+  stampLift.style.height = `${box.height}px`;
+  stampLift.hidden = false;
+  void stampLift.offsetWidth;
+  stampLift.classList.add('is-on');
+}
+
+async function revealStamp(index) {
   if (phase !== 'menu' || busy) return;
-  const card = stampCards[index];
-  if (!card || card.classList.contains('is-flip')) {
-    // Already revealed — camera on this stamp enters map
-    await enterMapFromStamp(index);
-    return;
-  }
   busy = true;
   quest = index;
   Array.from(picker.children).forEach((c, i) => {
     c.setAttribute('aria-pressed', i === quest ? 'true' : 'false');
   });
-  card.classList.add('is-flip');
-  card.classList.remove('is-armed');
-  await wait(FLIP_MS);
+
+  const hot = stampHots[index];
+  placeLiftOn(hot);
+  await wait(LIFT_MS);
+
+  await showStampUnder('revealed');
+  stampsRevealed = true;
+  phase = 'revealed';
+  stampLift.classList.remove('is-on');
+  await wait(180);
+  stampLift.hidden = true;
+
   busy = false;
-  setHint(`${QUESTS[quest].title} revealed — tap again (camera) to open the map.`);
+  syncChrome();
+  setHint(`${QUESTS[quest].title} — tap its camera to open the map.`);
 }
 
 async function enterMapFromStamp(index) {
-  if (busy) return;
+  if (phase !== 'revealed' || busy) return;
   busy = true;
   quest = index;
   clearFinds();
@@ -294,7 +313,7 @@ async function enterMapFromStamp(index) {
   await showMap();
   busy = false;
   syncChrome();
-  setHint('Map hunt — take a photo. It lands as a note before Confirm.');
+  setHint('Map — take a photo. Note lands on the map; Confirm sits in the sheet.');
 }
 
 async function startStream() {
@@ -344,7 +363,7 @@ async function openCamera() {
   await startStream();
   await wait(SLIDE_MS);
   busy = false;
-  setHint('Shutter — then your note drops onto the map.');
+  setHint('Shutter — then the note drops onto the map (field stays in the sheet).');
 }
 
 async function closeCamera(animate) {
@@ -365,8 +384,7 @@ function snapCapture() {
   if (!w || !h) return CAPTURE_FULL;
   cameraSnap.width = w;
   cameraSnap.height = h;
-  const ctx = cameraSnap.getContext('2d');
-  ctx.drawImage(cameraVideo, 0, 0, w, h);
+  cameraSnap.getContext('2d').drawImage(cameraVideo, 0, 0, w, h);
   return cameraSnap.toDataURL('image/jpeg', 0.72);
 }
 
@@ -374,7 +392,6 @@ function placeholderForFind(index) {
   return CAPTURE_SLOTS[index % CAPTURE_SLOTS.length];
 }
 
-/** After shutter: close camera → note on map → glass field (Confirm later) */
 async function landNoteOnMap(uri) {
   pendingCapture = uri;
   minePhoto.src = uri;
@@ -388,6 +405,7 @@ async function landNoteOnMap(uri) {
   void findPlane.offsetWidth;
   findPlane.classList.add('is-on');
 
+  // Field in sheet band — after note is visible, never covering it
   noteWords.value = '';
   noteField.hidden = false;
   void noteField.offsetWidth;
@@ -395,7 +413,7 @@ async function landNoteOnMap(uri) {
 
   phase = 'note';
   syncChrome();
-  setHint('Note on the map — add a few words, Skip, or Confirm to submit.');
+  setHint('Note is on the map. Field is in the sheet — Skip or Confirm.');
 }
 
 async function handleShutter() {
@@ -463,38 +481,28 @@ async function flyIntoSlot(uri, index) {
   const start = relativeBox(mineNote.hidden ? cell : mineNote);
   const end = relativeBox(cell);
   const midX = (start.cx + end.cx) / 2;
-  const midY = Math.min(start.cy, end.cy) - phoneSize().height * 0.1;
+  const midY = Math.min(start.cy, end.cy) - phoneSize().height * 0.08;
 
   flyThumb.src = uri;
   flyThumb.hidden = false;
   flyThumb.classList.add('is-on', 'is-arc');
   flyThumb.style.transition = 'none';
   flyThumb.style.transform = 'rotate(-6deg)';
-  setFlyBox(start.left, start.top, Math.max(start.width, 72), Math.max(start.height, 72), '12px');
+  setFlyBox(start.left, start.top, Math.max(start.width * 0.7, 64), Math.max(start.height * 0.7, 64), '12px');
   void flyThumb.offsetWidth;
 
   await animateFlyTo({
-    left: midX - 36,
-    top: midY - 36,
-    width: 72,
-    height: 72,
-    radius: '14px',
-    rotate: 4,
+    left: midX - 32, top: midY - 32, width: 64, height: 64, radius: '12px', rotate: 4,
   }, Math.floor(FLIGHT_MS * 0.45), EASE_OUT);
 
   await animateFlyTo({
-    left: end.left,
-    top: end.top,
-    width: end.width,
-    height: end.height,
-    radius: '7px',
-    rotate: 0,
+    left: end.left, top: end.top, width: end.width, height: end.height, radius: '7px', rotate: 0,
   }, Math.floor(FLIGHT_MS * 0.55), EASE_SPRING);
 
   img.src = uri;
   cell.classList.add('is-filled', 'is-land');
   hideFly();
-  await wait(300);
+  await wait(280);
   cell.classList.remove('is-land');
 }
 
@@ -507,17 +515,17 @@ async function submitNote() {
     : placeholderForFind(finds);
 
   noteField.classList.remove('is-on');
-  await wait(200);
+  await wait(220);
   noteField.hidden = true;
 
   captures.push(slotUri);
   finds = captures.length;
   const index = finds - 1;
 
-  await wait(PHOTO_HOLD_MS);
   await flyIntoSlot(slotUri, index);
 
   mineNote.classList.remove('is-on');
+  await wait(160);
   mineNote.hidden = true;
   pendingCapture = null;
 
@@ -530,14 +538,14 @@ async function submitNote() {
     phase = 'browse';
     syncChrome();
     busy = false;
-    setHint('Tip — tap “See other challenges” to pan the map camera.');
+    setHint('Tap the tip — See other challenges pans the map camera.');
     return;
   }
 
   phase = 'map';
   syncChrome();
   busy = false;
-  setHint(`Submitted ${finds}/${FINDS_NEEDED} — take another photo.`);
+  setHint(`Submitted ${finds}/${FINDS_NEEDED} — camera again.`);
 }
 
 async function cycleOtherChallenges() {
@@ -545,14 +553,14 @@ async function cycleOtherChallenges() {
   if (phase !== 'browse' && phase !== 'map') return;
   busy = true;
   phase = 'browse';
-  tipLayer.classList.add('is-on');
   tipLayer.hidden = false;
+  tipLayer.classList.add('is-on');
   seeOther.hidden = false;
   focusOther(otherIndex + 1, true);
   await wait(PAN_MS);
   busy = false;
   syncChrome();
-  setHint(`Other find ${otherIndex + 1}/${OTHER_ENTRIES.length} — tap again to cycle.`);
+  setHint(`Other find ${otherIndex + 1}/${OTHER_ENTRIES.length} — tap tip again to cycle.`);
 }
 
 function buildPicker() {
@@ -581,7 +589,7 @@ closeHot.addEventListener('click', async () => {
   if (busy) return;
   phase = 'entry';
   clearFinds();
-  resetStamps();
+  resetStampState();
   await hideStampSheet();
   await showScene(FRAME.entry);
   syncChrome();
@@ -590,16 +598,16 @@ closeHot.addEventListener('click', async () => {
 
 entryHot.addEventListener('click', () => openMenu());
 
-stampCards.forEach((card) => {
-  card.addEventListener('click', () => {
-    const i = Number(card.dataset.stamp);
-    flipStamp(i);
+stampHots.forEach((el) => {
+  el.addEventListener('click', () => {
+    const i = Number(el.dataset.stamp);
+    if (phase === 'menu') revealStamp(i);
+    else if (phase === 'revealed') enterMapFromStamp(i);
   });
 });
 
 camHot.addEventListener('click', () => openCamera());
 seeOther.addEventListener('click', () => cycleOtherChallenges());
-tipLayer.addEventListener('click', () => cycleOtherChallenges());
 
 backHot.addEventListener('click', async () => {
   if (busy) return;
@@ -611,8 +619,8 @@ backHot.addEventListener('click', async () => {
   setHint('Back at home entry.');
 });
 
-shutter.addEventListener('click', () => handleShutter());
-cameraClose.addEventListener('click', async () => {
+document.getElementById('shutter').addEventListener('click', () => handleShutter());
+document.getElementById('cameraClose').addEventListener('click', async () => {
   if (busy) return;
   busy = true;
   pendingCapture = null;
@@ -622,17 +630,16 @@ cameraClose.addEventListener('click', async () => {
   busy = false;
   setHint('Camera closed.');
 });
-cameraSkip.addEventListener('click', () => handleCameraSkip());
-cameraFlip.addEventListener('click', async () => {
+document.getElementById('cameraSkip').addEventListener('click', () => handleCameraSkip());
+document.getElementById('cameraFlip').addEventListener('click', async () => {
   facingMode = facingMode === 'environment' ? 'user' : 'environment';
   await startStream();
 });
-
-noteSkip.addEventListener('click', () => {
+document.getElementById('noteSkip').addEventListener('click', () => {
   noteWords.value = '';
   submitNote();
 });
-noteConfirm.addEventListener('click', () => submitNote());
+document.getElementById('noteConfirm').addEventListener('click', () => submitNote());
 
 if (cameraFallbackImg) cameraFallbackImg.src = CAPTURE_FULL;
 

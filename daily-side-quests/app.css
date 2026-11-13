@@ -6,12 +6,14 @@
   --muted: #a8a0b8;
   --accent: #009eff;
   --hunt: #b36bff;
-  --fade-ms: 420ms;
+  --lav: #cfc8ec;
+  --hudline: rgba(255, 255, 255, 0.12);
+  --fade-ms: 480ms;
   --slide-ms: 380ms;
   --settle-ms: 860ms;
   --flight-ms: 720ms;
-  --flip-ms: 620ms;
-  --pan-ms: 780ms;
+  --lift-ms: 420ms;
+  --pan-ms: 820ms;
   --ease-out: cubic-bezier(0.22, 0.8, 0.24, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
   --ease-slide: cubic-bezier(0.32, 0.72, 0, 1);
@@ -26,8 +28,7 @@
   --slot-0-x: 124;
   --slot-1-x: 169.5;
   --slot-2-x: 215;
-  --glass: color-mix(in srgb, var(--raised) 72%, transparent);
-  --glass-line: rgba(255, 255, 255, 0.16);
+  --glass: color-mix(in srgb, var(--raised) 78%, transparent);
 }
 
 * { box-sizing: border-box; }
@@ -47,42 +48,20 @@ body {
   gap: 14px;
 }
 
-h1 {
-  margin: 0 0 6px;
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-}
+h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em; }
+.lede { margin: 0; max-width: 560px; color: var(--muted); font-size: 16px; font-weight: 500; }
 
-.lede {
-  margin: 0;
-  max-width: 560px;
-  color: var(--muted);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.chips,
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  max-width: 390px;
-  width: 100%;
-  align-items: center;
+.chips, .toolbar {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  max-width: 390px; width: 100%; align-items: center;
 }
 
 .chip {
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  padding: 8px 14px;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
+  border-radius: 999px; padding: 8px 14px;
+  background: transparent; color: var(--muted);
+  font: inherit; font-weight: 700; cursor: pointer;
 }
-
 .chip[aria-pressed="true"] {
   background: rgba(0, 158, 255, 0.18);
   border-color: rgba(0, 158, 255, 0.55);
@@ -90,32 +69,16 @@ h1 {
 }
 
 .play {
-  border: 0;
-  border-radius: 999px;
-  padding: 10px 18px;
-  background: var(--accent);
-  color: #041018;
-  font: inherit;
-  font-weight: 800;
-  font-size: 16px;
-  cursor: pointer;
+  border: 0; border-radius: 999px; padding: 10px 18px;
+  background: var(--accent); color: #041018;
+  font: inherit; font-weight: 800; font-size: 16px; cursor: pointer;
 }
-
 .play.secondary {
-  background: transparent;
-  color: var(--paper);
+  background: transparent; color: var(--paper);
   border: 1px solid rgba(255, 255, 255, 0.22);
 }
-
-.play:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.hint {
-  color: var(--muted);
-  font-size: 14px;
-}
+.play:disabled { opacity: 0.5; cursor: default; }
+.hint { color: var(--muted); font-size: 14px; }
 
 .phone {
   position: relative;
@@ -126,445 +89,261 @@ h1 {
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
   background: var(--bg);
-  perspective: 1200px;
 }
 
-/* Soft dual-buffer scenes — never black */
+/* Dual-buffer scenes — never fade to black */
 .scene {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-  display: block;
-  pointer-events: none;
-  user-select: none;
-  opacity: 0;
-  transition: opacity var(--fade-ms) var(--ease-out);
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+  display: block; pointer-events: none; user-select: none;
+  opacity: 0; transition: opacity var(--fade-ms) var(--ease-out);
   z-index: 1;
 }
+.scene.is-front { opacity: 1; z-index: 2; }
 
-.scene.is-front {
-  opacity: 1;
-  z-index: 2;
-}
-
-.phone.is-overlay .scene {
-  /* keep home visible under stamp sheet */
-}
-
-/* —— Stamp sheet + flip cards —— */
+/* —— Stamp sheet —— */
 .stamp-sheet {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+  position: absolute; inset: 0; z-index: 5;
+  opacity: 0; visibility: hidden; pointer-events: none;
   transition: opacity var(--fade-ms) var(--ease-out), visibility 0s linear var(--fade-ms);
 }
-
 .stamp-sheet.is-on {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
+  opacity: 1; visibility: visible; pointer-events: auto;
   transition: opacity var(--fade-ms) var(--ease-out), visibility 0s;
 }
 
 .stamp-under {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; pointer-events: none;
+  opacity: 0; transition: opacity var(--fade-ms) var(--ease-out);
+}
+.stamp-under.is-front { opacity: 1; }
+
+.stamp-lift {
+  position: absolute; z-index: 3;
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(0, 158, 255, 0.35), 0 0 0 2px rgba(0, 158, 255, 0.55);
   pointer-events: none;
-}
-
-.stamp-stack {
-  position: absolute;
-  left: 9%;
-  right: 9%;
-  top: 36.2%;
-  bottom: 18%;
-  display: flex;
-  flex-direction: column;
-  gap: 2.2%;
-  z-index: 2;
-}
-
-.stamp-card {
-  position: relative;
-  flex: 1;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
-  transform-style: preserve-3d;
-  transition: transform var(--flip-ms) var(--ease-out);
-}
-
-.stamp-card.is-flip {
-  transform: rotateY(180deg);
-}
-
-.stamp-face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.stamp-face img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-}
-
-.stamp-back {
-  transform: rotateY(180deg);
-}
-
-.stamp-card.is-armed:not(.is-flip) {
-  animation: stampWait 1.6s ease-in-out infinite;
-}
-
-@keyframes stampWait {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.12); }
-}
-
-.stamp-card.is-flip .stamp-back {
-  /* camera hot sits on the right of revealed card */
-}
-
-/* —— Map from Figma view —— */
-.map-stage {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
   opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity var(--fade-ms) var(--ease-out), visibility 0s linear var(--fade-ms);
-  background: var(--bg);
+  transform: scale(1);
+  transition: opacity 160ms ease, transform var(--lift-ms) var(--ease-spring);
+}
+.stamp-lift.is-on {
+  opacity: 1;
+  transform: scale(1.04) translateY(-6px);
 }
 
+.stamp-hot[data-stamp="0"] { left: 9%; right: 9%; top: 36.5%; height: 13.5%; }
+.stamp-hot[data-stamp="1"] { left: 9%; right: 9%; top: 51%; height: 13.5%; }
+.stamp-hot[data-stamp="2"] { left: 9%; right: 9%; top: 65.5%; height: 13.5%; }
+
+.phone[data-phase="revealed"] .stamp-hot[data-stamp="0"] {
+  left: auto; right: 11%; top: 39%; width: 13%; height: 9%;
+}
+.phone[data-phase="revealed"] .stamp-hot[data-stamp="1"] {
+  left: auto; right: 11%; top: 53.5%; width: 13%; height: 9%;
+}
+.phone[data-phase="revealed"] .stamp-hot[data-stamp="2"] {
+  left: auto; right: 11%; top: 68%; width: 13%; height: 9%;
+}
+
+.close-hot { right: 6.5%; top: 12.5%; width: 9%; height: 4.2%; z-index: 6; }
+.entry-hot {
+  right: 3%; bottom: 6.5%; width: 12%; aspect-ratio: 1;
+  border-radius: 50%; z-index: 4;
+}
+
+/* —— Continuous map —— */
+.map-stage {
+  position: absolute; inset: 0; z-index: 6;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  background: var(--bg);
+  transition: opacity var(--fade-ms) var(--ease-out), visibility 0s linear var(--fade-ms);
+}
 .map-stage.is-on {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
+  opacity: 1; visibility: visible; pointer-events: auto;
   transition: opacity var(--fade-ms) var(--ease-out), visibility 0s;
 }
 
 .map-viewport {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(72 / var(--phone-h) * 100%);
-  bottom: calc(188 / var(--phone-h) * 100%);
+  left: 0; right: 0;
+  top: calc(83 / var(--phone-h) * 100%);
+  bottom: calc(193 / var(--phone-h) * 100%);
   overflow: hidden;
   z-index: 1;
 }
 
 .map-pan {
   position: absolute;
-  inset: -18%;
-  transform-origin: 50% 45%;
+  inset: -22%;
+  transform-origin: 50% 42%;
   transition: transform var(--pan-ms) var(--ease-out);
   will-change: transform;
 }
 
 .map-tiles {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  pointer-events: none;
-  user-select: none;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  pointer-events: none; user-select: none;
 }
 
-.chrome-top,
-.chrome-bottom {
-  position: absolute;
-  left: 0;
-  right: 0;
-  width: 100%;
-  pointer-events: none;
-  z-index: 4;
-  user-select: none;
+.chrome-top, .chrome-bottom {
+  position: absolute; left: 0; right: 0; width: 100%;
+  pointer-events: none; z-index: 4; user-select: none;
 }
-
 .chrome-top {
   top: 0;
-  height: calc(85 / var(--phone-h) * 100%);
-  object-fit: cover;
-  object-position: top center;
+  height: calc(83 / var(--phone-h) * 100%);
+  object-fit: cover; object-position: top center;
 }
-
 .chrome-bottom {
   bottom: 0;
-  height: calc(264 / var(--phone-h) * 100%);
-  object-fit: cover;
-  object-position: bottom center;
+  height: calc(256 / var(--phone-h) * 100%);
+  object-fit: cover; object-position: bottom center;
 }
 
-/* Notes on the map */
 .map-note {
   position: absolute;
-  left: var(--nx, 30%);
-  top: var(--ny, 40%);
-  width: 34%;
-  aspect-ratio: 3 / 3.6;
-  transform: rotate(var(--rot, -12deg)) scale(0.92);
+  left: var(--nx, 30%); top: var(--ny, 40%);
+  width: 32%;
+  aspect-ratio: 3 / 3.55;
+  transform: rotate(var(--rot, -12deg)) scale(0.9);
   transform-origin: 50% 60%;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.35),
-    0 14px 28px rgba(0, 0, 0, 0.45);
-  opacity: 0.55;
-  filter: saturate(0.85);
-  transition: opacity 400ms ease, transform 500ms var(--ease-spring), filter 400ms ease;
-  z-index: 2;
-  pointer-events: none;
+  border-radius: 10px; overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.32), 0 12px 24px rgba(0,0,0,0.45);
+  opacity: 0.4; filter: saturate(0.8);
+  transition: opacity 420ms ease, transform 520ms var(--ease-spring), filter 420ms ease;
+  z-index: 2; pointer-events: none;
 }
-
-.map-note img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
+.map-note img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .map-note.other.is-focus {
   opacity: 1;
-  filter: saturate(1.1) drop-shadow(0 0 14px rgba(179, 107, 255, 0.65));
-  transform: rotate(var(--rot, -12deg)) scale(1.08);
+  filter: saturate(1.1) drop-shadow(0 0 12px rgba(179, 107, 255, 0.7));
+  transform: rotate(var(--rot, -12deg)) scale(1.1);
   z-index: 3;
 }
 
 .map-note.mine {
-  left: 12%;
-  top: 38%;
+  left: 12.4%; top: 36%;
   width: 46%;
   opacity: 0;
   filter: blur(6px);
-  transform: rotate(-16deg) scale(1.2) translateY(-12%);
+  transform: rotate(-16deg) scale(1.18) translateY(-10%);
   z-index: 5;
 }
-
-.map-note.mine.is-on {
-  animation: noteDrop var(--settle-ms) var(--ease-out) forwards;
-}
-
-.map-note.mine .note-photo {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-
+.map-note.mine.is-on { animation: noteDrop var(--settle-ms) var(--ease-out) forwards; }
+.map-note.mine .note-photo { position: absolute; inset: 0; z-index: 1; }
 .map-note.mine .note-stamp {
-  position: absolute;
-  inset: 8% 10% 18%;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  z-index: 2;
-  opacity: 0.92;
-  mix-blend-mode: multiply;
-  pointer-events: none;
+  position: absolute; inset: 6% 8% 14%;
+  width: auto; height: auto; object-fit: contain;
+  z-index: 2; opacity: 0.9; mix-blend-mode: multiply; pointer-events: none;
 }
 
 @keyframes noteDrop {
-  0% {
-    opacity: 0;
-    filter: blur(6px);
-    transform: rotate(-16deg) scale(1.22) translateY(-14%);
-  }
-  62% {
-    opacity: 1;
-    filter: blur(0.4px);
-    transform: rotate(-10deg) scale(0.98) translateY(1%);
-  }
-  100% {
-    opacity: 1;
-    filter: blur(0);
-    transform: rotate(-12deg) scale(1) translateY(0);
-  }
+  0% { opacity: 0; filter: blur(6px); transform: rotate(-16deg) scale(1.2) translateY(-12%); }
+  65% { opacity: 1; filter: blur(0); transform: rotate(-10deg) scale(0.98) translateY(1%); }
+  100% { opacity: 1; filter: blur(0); transform: rotate(-12deg) scale(1) translateY(0); }
 }
 
 .find-plane {
-  position: absolute;
-  left: 36%;
-  top: 42%;
-  width: 27%;
-  height: auto;
-  z-index: 6;
-  pointer-events: none;
-  opacity: 0;
+  position: absolute; left: 36%; top: 40%; width: 27%; height: auto;
+  z-index: 6; pointer-events: none; opacity: 0;
   filter: blur(4px);
-  transform: translate(-12%, 10%) scale(0.7) rotate(-8deg);
+  transform: translate(-10%, 8%) scale(0.72) rotate(-8deg);
 }
-
-.find-plane.is-on {
-  animation: planeIn 700ms var(--ease-out) 120ms forwards;
-}
+.find-plane.is-on { animation: planeIn 700ms var(--ease-out) 100ms forwards; }
 
 @keyframes planeIn {
-  0% { opacity: 0; filter: blur(4px); transform: translate(-12%, 10%) scale(0.7) rotate(-8deg); }
+  0% { opacity: 0; filter: blur(4px); transform: translate(-10%, 8%) scale(0.72) rotate(-8deg); }
   70% { opacity: 1; filter: blur(0); transform: translate(2%, -2%) scale(1.04) rotate(2deg); }
   100% { opacity: 1; filter: blur(0); transform: translate(0, 0) scale(1) rotate(0deg); }
 }
 
-/* Slots sit on chrome-bottom cells */
-.slots {
-  position: absolute;
-  inset: 0;
-  z-index: 7;
-  pointer-events: none;
-}
-
+.slots { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
 .slot-cell {
   position: absolute;
   top: calc(var(--slot-y) / var(--phone-h) * 100%);
   width: calc(var(--slot-size) / var(--phone-w) * 100%);
   height: calc(var(--slot-size) / var(--phone-h) * 100%);
-  border-radius: 7px;
-  overflow: hidden;
+  border-radius: 7px; overflow: hidden;
 }
-
 .slot-cell[data-slot="0"] { left: calc(var(--slot-0-x) / var(--phone-w) * 100%); }
 .slot-cell[data-slot="1"] { left: calc(var(--slot-1-x) / var(--phone-w) * 100%); }
 .slot-cell[data-slot="2"] { left: calc(var(--slot-2-x) / var(--phone-w) * 100%); }
-
-.slot-cell.is-ready {
-  animation: slotAwait 1.4s ease-in-out infinite;
-}
-
+.slot-cell.is-ready { animation: slotAwait 1.4s ease-in-out infinite; }
 @keyframes slotAwait {
   0%, 100% { box-shadow: inset 0 0 0 1px rgba(179, 107, 255, 0); }
   50% { box-shadow: inset 0 0 0 1.5px rgba(179, 107, 255, 0.55); }
 }
-
 .slot {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  opacity: 0;
-  transform: scale(0.55);
-  border-radius: 6px;
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  opacity: 0; transform: scale(0.55); border-radius: 6px;
 }
-
-.slot-cell.is-filled .slot {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.slot-cell.is-land {
-  animation: slotLand 520ms var(--ease-spring);
-}
-
-.slot-cell.is-land .slot {
-  animation: slotPop 520ms var(--ease-spring);
-}
-
+.slot-cell.is-filled .slot { opacity: 1; transform: scale(1); }
+.slot-cell.is-land { animation: slotLand 520ms var(--ease-spring); }
+.slot-cell.is-land .slot { animation: slotPop 520ms var(--ease-spring); }
 @keyframes slotLand {
   0% { box-shadow: 0 0 0 0 rgba(179, 107, 255, 0.7); }
   40% { box-shadow: 0 0 0 10px rgba(179, 107, 255, 0.25); }
   100% { box-shadow: 0 0 18px 2px rgba(179, 107, 255, 0.35); }
 }
-
 @keyframes slotPop {
   0% { opacity: 1; transform: scale(0.55); }
   55% { opacity: 1; transform: scale(1.12); }
   100% { opacity: 1; transform: scale(1); }
 }
 
-/* Glass note field — after photo, before submit */
-.glass {
-  background: var(--glass);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-  border: 1px solid var(--glass-line);
-}
-
-.note-field {
+/*
+  Treadmill skiprow — sits in the sheet band ABOVE the shutter,
+  never over mid-map note image.
+*/
+.skiprow {
   position: absolute;
-  left: 14px;
-  right: 14px;
-  top: 46%;
-  z-index: 10;
-  padding: 12px 14px 14px;
-  border-radius: 20px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  left: 14px; right: 14px;
+  bottom: calc(118 / var(--phone-h) * 100%);
+  z-index: 14;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  border-radius: 16px;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 320ms var(--ease-out), transform 320ms var(--ease-out);
+  transform: translateY(8px);
+  transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out);
+  pointer-events: none;
 }
-
-.note-field.is-on {
-  opacity: 1;
-  transform: translateY(0);
+.skiprow.is-on {
+  opacity: 1; transform: translateY(0); pointer-events: auto;
 }
-
-.note-field[hidden] {
-  display: none;
-}
-
-.note-label {
-  display: block;
-  font-weight: 800;
-  font-size: 15px;
-  margin-bottom: 8px;
-}
+.skiprow[hidden] { display: none; }
 
 .note-input {
-  width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 12px;
-  padding: 10px 12px;
+  flex: 1; min-width: 0;
+  border: 0; border-radius: 10px;
+  padding: 8px 10px;
   background: rgba(7, 8, 15, 0.35);
-  color: #fff;
-  font: inherit;
-  font-size: 15px;
+  color: #fff; font: inherit; font-size: 14px; font-weight: 600;
   outline: none;
 }
+.note-input::placeholder { color: rgba(255, 255, 255, 0.4); }
 
-.note-input::placeholder {
-  color: rgba(255, 255, 255, 0.45);
-}
-
-.note-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.skip-pill,
-.confirm-pill {
-  flex: 1;
-  border-radius: 999px;
-  padding: 11px 14px;
-  font: inherit;
-  font-weight: 800;
-  font-size: 15px;
+.skippill, .confirm-pill {
+  flex: none; height: 34px; padding: 0 14px;
+  border-radius: 999px; font: inherit; font-weight: 800; font-size: 14px;
   cursor: pointer;
 }
-
-.skip-pill {
+.skippill {
   border: 1px solid rgba(0, 158, 255, 0.55);
-  background: rgba(0, 158, 255, 0.14);
+  background: rgba(0, 158, 255, 0.16);
   color: #fff;
 }
-
 .confirm-pill {
   border: 0;
   background: linear-gradient(90deg, #0259a1, var(--accent));
@@ -576,236 +355,89 @@ h1 {
   left: calc(24 / var(--phone-w) * 100%);
   top: calc(353 / var(--phone-h) * 100%);
   width: calc(376 / var(--phone-w) * 100%);
-  height: auto;
-  z-index: 11;
-  pointer-events: none;
-  opacity: 0;
-  filter: blur(4px);
-  transform: translateY(18px) scale(0.94);
+  height: auto; z-index: 11; pointer-events: none;
+  opacity: 0; filter: blur(4px);
+  transform: translateY(16px) scale(0.96);
 }
-
-.tip-layer.is-on {
-  animation: tipIn var(--settle-ms) var(--ease-out) forwards;
-}
-
+.tip-layer.is-on { animation: tipIn var(--settle-ms) var(--ease-out) forwards; }
 @keyframes tipIn {
-  0% { opacity: 0; filter: blur(4px); transform: translateY(18px) scale(0.94); }
-  60% { opacity: 1; filter: blur(0); transform: translateY(-3px) scale(1.02); }
+  0% { opacity: 0; filter: blur(4px); transform: translateY(16px) scale(0.96); }
+  60% { opacity: 1; filter: blur(0); transform: translateY(-2px) scale(1.01); }
   100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
 }
 
 .fly-thumb {
-  position: absolute;
-  z-index: 20;
-  width: 88px;
-  height: 88px;
-  margin: 0;
-  border-radius: 12px;
-  object-fit: cover;
-  pointer-events: none;
-  opacity: 0;
+  position: absolute; z-index: 20;
+  width: 88px; height: 88px; margin: 0; border-radius: 12px;
+  object-fit: cover; pointer-events: none; opacity: 0;
   will-change: left, top, width, height, opacity, transform;
-  box-shadow:
-    0 0 0 2px rgba(179, 107, 255, 0.85),
-    0 18px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 2px rgba(179, 107, 255, 0.85), 0 18px 48px rgba(0, 0, 0, 0.5);
 }
-
 .fly-thumb.is-on { opacity: 1; }
-.fly-thumb.is-hero { z-index: 22; }
 
 .hot {
-  position: absolute;
-  z-index: 12;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
+  position: absolute; z-index: 12;
+  border: 0; padding: 0; background: transparent; cursor: pointer;
 }
-
-.close-hot {
-  right: 6.5%;
-  top: 12.5%;
-  width: 9%;
-  height: 4.2%;
-  z-index: 6;
-}
-
-.entry-hot {
-  right: 3%;
-  bottom: 6.5%;
-  width: 12%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  z-index: 4;
-}
-
 .cam-hot {
-  left: 50%;
-  bottom: calc(42 / var(--phone-h) * 100%);
-  width: var(--map-shutter);
-  height: var(--map-shutter);
-  transform: translateX(-50%);
-  border-radius: 50%;
-  z-index: 12;
+  left: 50%; bottom: calc(42 / var(--phone-h) * 100%);
+  width: var(--map-shutter); height: var(--map-shutter);
+  transform: translateX(-50%); border-radius: 50%; z-index: 15;
 }
+.back-hot { left: 2%; top: 4.8%; width: 11%; height: 4.8%; z-index: 15; }
+.tip-hot { left: 8%; top: 56%; width: 62%; height: 8%; z-index: 16; }
 
-.back-hot {
-  left: 2%;
-  top: 4.8%;
-  width: 11%;
-  height: 4.8%;
-  z-index: 12;
-}
-
-.tip-hot {
-  left: 8%;
-  top: 58%;
-  width: 62%;
-  height: 7%;
-  z-index: 13;
-}
-
-/* Camera sheet — capture only; confirm is on the map note */
+/* Camera — capture only */
 .camera-sheet {
-  position: absolute;
-  inset: 0;
-  z-index: 25;
-  background: #0b051c;
-  display: flex;
-  flex-direction: column;
+  position: absolute; inset: 0; z-index: 30;
+  background: var(--bg);
   transform: translateY(105%);
   transition: transform var(--slide-ms) var(--ease-slide);
   pointer-events: none;
 }
+.camera-sheet.is-on { transform: translateY(0); pointer-events: auto; }
 
-.camera-sheet.is-on {
-  transform: translateY(0);
-  pointer-events: auto;
+.camera-video, .camera-snap, .camera-fallback, .camera-fallback-img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
 }
-
-.camera-video,
-.camera-snap,
-.camera-fallback,
-.camera-fallback-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.camera-fallback {
-  display: grid;
-  place-items: end center;
-  padding: 0 0 22%;
-  overflow: hidden;
-  background: #0b051c;
-}
-
-.camera-fallback-label {
-  position: relative;
-  z-index: 1;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.55);
-  color: rgba(245, 242, 255, 0.92);
-  font-weight: 700;
-  font-size: 14px;
-}
+.camera-fallback { overflow: hidden; background: var(--bg); }
 
 .camera-back {
-  position: absolute;
-  top: 4.5%;
-  left: 5%;
-  z-index: 3;
-  width: 40px;
-  height: 40px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.35);
-  color: #fff;
-  font-size: 28px;
-  line-height: 1;
-  cursor: pointer;
+  position: absolute; top: 4.5%; left: 5%; z-index: 3;
+  width: 40px; height: 40px; border: 0; border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35); color: #fff; font-size: 28px; line-height: 1; cursor: pointer;
 }
-
 .camera-prompt {
-  position: absolute;
-  top: 12%;
-  left: 4%;
-  right: 4%;
-  z-index: 3;
-  margin: 0;
-  padding: 10px 14px;
-  border-radius: 14px;
-  background: rgba(0, 0, 0, 0.45);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  color: #fff;
-  font-weight: 700;
-  font-size: 16px;
-  text-align: center;
+  position: absolute; top: 12%; left: 4%; right: 4%; z-index: 3;
+  margin: 0; padding: 10px 14px; border-radius: 14px;
+  background: rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  color: #fff; font-weight: 700; font-size: 16px; text-align: center;
   pointer-events: none;
 }
-
 .camera-controls {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+  display: flex; align-items: center; justify-content: space-between;
   padding: 0 24px calc(18px + var(--shutter) / 2);
 }
-
 .camera-skip {
-  width: var(--shutter);
-  border: 0;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.82);
-  font: inherit;
-  font-weight: 700;
-  font-size: 15px;
-  text-decoration: underline;
-  cursor: pointer;
-  text-align: center;
+  width: var(--shutter); border: 0; background: transparent;
+  color: rgba(255, 255, 255, 0.82); font: inherit; font-weight: 700;
+  font-size: 15px; text-decoration: underline; cursor: pointer; text-align: center;
 }
-
 .shutter {
-  width: var(--shutter);
-  height: var(--shutter);
-  border-radius: 50%;
-  border: var(--shutter-border) solid #fff;
-  background: transparent;
-  cursor: pointer;
+  width: var(--shutter); height: var(--shutter); border-radius: 50%;
+  border: var(--shutter-border) solid #fff; background: transparent; cursor: pointer;
 }
-
 .camera-flip {
-  width: var(--shutter);
-  height: 50px;
-  border: 0;
-  border-radius: 50%;
-  background: #fff;
-  color: #111;
-  font-size: 22px;
-  cursor: pointer;
+  width: var(--shutter); height: 50px; border: 0; border-radius: 50%;
+  background: #fff; color: #111; font-size: 22px; cursor: pointer;
 }
 
-.meta {
-  margin: 0;
-  max-width: 560px;
-  color: var(--muted);
-  font-size: 13px;
-}
+.meta { margin: 0; max-width: 560px; color: var(--muted); font-size: 13px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .scene, .stamp-sheet, .map-stage, .map-pan, .stamp-card, .note-field {
+  .scene, .stamp-sheet, .stamp-under, .map-stage, .map-pan, .skiprow, .stamp-lift {
     transition: none;
-  }
-  .stamp-card.is-armed,
-  .slot-cell.is-ready {
-    animation: none;
   }
 }
