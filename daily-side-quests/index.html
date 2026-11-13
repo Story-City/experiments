@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=13">
+<link rel="stylesheet" href="app.css?v=13b">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -45,15 +45,11 @@
 
     <!-- Continuous map world — same stage the whole hunt -->
     <div class="map-stage" id="mapStage" aria-hidden="true">
-      <div class="map-viewport" id="mapViewport">
-        <div class="map-pan" id="mapPan">
-          <img class="map-tiles" src="assets/parts/map-tiles.png?v=12" alt="" decoding="async">
-          <div class="gem-layer" id="gemLayer" aria-hidden="true"></div>
-        </div>
+      <!-- One full Figma map frame — no chrome/tile crop seams -->
+      <div class="map-pan" id="mapPan">
+        <img class="map-fill" src="assets/parts/map-hunt.png?v=7" alt="" decoding="async">
+        <div class="gem-layer" id="gemLayer" aria-hidden="true"></div>
       </div>
-
-      <img class="chrome-top" src="assets/parts/chrome-top.png?v=12" alt="" decoding="async">
-      <img class="chrome-bottom" src="assets/parts/chrome-bottom.png?v=12" alt="" decoding="async">
 
       <div class="slots" id="slots" aria-hidden="true">
         <div class="slot-cell" data-slot="0"><img class="slot" alt=""></div>
@@ -119,6 +115,6 @@
   <p class="meta">
     Honesty: Figma frames have no exportable motion curves — recreating prototype smart-animate as layered element motion on the real map tiles.
   </p>
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=13b"></script>
 </body>
 </html>

@@ -122,13 +122,15 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .stamp-under.is-front { opacity: 1; }
 
 .stamp-hot {
-  transition: transform var(--lift-ms) var(--ease-spring), box-shadow var(--lift-ms) ease;
+  transition: transform var(--lift-ms) var(--ease-spring), outline var(--lift-ms) ease;
   transform-origin: center center;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-radius: 10px;
 }
 .stamp-hot.is-lifting {
-  transform: scale(1.035) translateY(-5px);
-  box-shadow: 0 16px 36px rgba(0, 158, 255, 0.4), 0 0 0 2px rgba(0, 158, 255, 0.55);
-  border-radius: 10px;
+  transform: scale(1.03) translateY(-4px);
+  outline-color: rgba(0, 158, 255, 0.7);
   z-index: 7;
 }
 
@@ -164,43 +166,21 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   transition: opacity var(--fade-ms) var(--ease-out), visibility 0s;
 }
 
-.map-viewport {
+.map-pan {
   position: absolute;
-  left: 0; right: 0;
-  top: calc(83 / var(--phone-h) * 100%);
-  bottom: calc(193 / var(--phone-h) * 100%);
-  overflow: hidden;
+  inset: 0;
+  transform-origin: 50% 38%;
+  transition: transform var(--pan-ms) var(--ease-out);
+  will-change: transform;
   z-index: 1;
 }
 
-.map-pan {
-  position: absolute;
-  inset: -22%;
-  transform-origin: 50% 42%;
-  transition: transform var(--pan-ms) var(--ease-out);
-  will-change: transform;
-}
-
-.map-tiles {
+.map-fill {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  object-fit: cover; object-position: center;
+  object-fit: cover; object-position: center top;
   pointer-events: none; user-select: none;
-}
-
-.chrome-top, .chrome-bottom {
-  position: absolute; left: 0; right: 0; width: 100%;
-  pointer-events: none; z-index: 4; user-select: none;
-}
-.chrome-top {
-  top: 0;
-  height: calc(83 / var(--phone-h) * 100%);
-  object-fit: cover; object-position: top center;
-}
-.chrome-bottom {
-  bottom: 0;
-  height: calc(256 / var(--phone-h) * 100%);
-  object-fit: cover; object-position: bottom center;
+  display: block;
 }
 
 /* Gem icons on the map (browse) */
@@ -240,7 +220,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   position: absolute;
   left: 0; right: 0;
   top: calc(300 / var(--phone-h) * 100%);
-  bottom: calc(256 / var(--phone-h) * 100%);
+  bottom: calc(220 / var(--phone-h) * 100%);
   z-index: 10;
   pointer-events: none;
   opacity: 0;
@@ -267,38 +247,45 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   aspect-ratio: 171 / 210;
   border-radius: 10px;
   overflow: hidden;
-  transform: rotate(-12deg);
+  transform: rotate(-12deg) scale(1);
   transform-origin: 50% 60%;
   box-shadow:
     0 0 0 2px rgba(255, 255, 255, 0.4),
     0 14px 28px rgba(0, 0, 0, 0.45);
+  /* Stay visible once shown — never fall back to opacity 0 after animation */
   opacity: 0;
-  filter: blur(5px);
+  filter: none;
 }
-.find-card.is-on { animation: noteDrop var(--settle-ms) var(--ease-out) forwards; }
+.find-card.is-shown {
+  opacity: 1;
+  transform: rotate(-12deg) scale(1);
+}
+.find-card.is-enter {
+  animation: noteDrop var(--settle-ms) var(--ease-out) both;
+}
 .find-card.is-swap {
-  animation: cardSwap 420ms var(--ease-out);
+  animation: cardSwap 420ms var(--ease-out) both;
 }
 
 .card-photo {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: cover; display: block;
+  background: var(--raised);
 }
 .card-stamp {
   position: absolute; inset: 6% 8% 14%;
   width: auto; height: auto; object-fit: contain;
-  z-index: 2; opacity: 0.9; mix-blend-mode: multiply; pointer-events: none;
+  z-index: 2; opacity: 0.88; pointer-events: none;
 }
 
 @keyframes noteDrop {
-  0% { opacity: 0; filter: blur(6px); transform: rotate(-16deg) scale(1.18) translateY(-10%); }
-  65% { opacity: 1; filter: blur(0); transform: rotate(-10deg) scale(0.98) translateY(1%); }
-  100% { opacity: 1; filter: blur(0); transform: rotate(-12deg) scale(1) translateY(0); }
+  0% { opacity: 0; filter: blur(5px); transform: rotate(-16deg) scale(1.14) translateY(-8%); }
+  100% { opacity: 1; filter: none; transform: rotate(-12deg) scale(1) translateY(0); }
 }
 @keyframes cardSwap {
-  0% { opacity: 0.35; filter: blur(3px); transform: rotate(-12deg) scale(0.94); }
-  100% { opacity: 1; filter: blur(0); transform: rotate(-12deg) scale(1); }
+  0% { opacity: 0.55; filter: blur(2px); transform: rotate(-12deg) scale(0.96); }
+  100% { opacity: 1; filter: none; transform: rotate(-12deg) scale(1); }
 }
 
 .find-plane {

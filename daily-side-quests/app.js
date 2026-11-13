@@ -22,22 +22,19 @@ const OTHER_ENTRIES = [
     photo: 'assets/parts/capture-0.jpg?v=7b',
     text: 'Paw print in the sidewalk concrete near the ravine.',
     likes: 12,
-    x: 28, y: 36,
-    scale: 1.28, tx: 14, ty: 10,
+    x: 28, y: 32,
   },
   {
     photo: 'assets/parts/capture-1.jpg?v=7b',
     text: 'Bird-shaped cloud above Victoria Trail.',
     likes: 7,
-    x: 68, y: 30,
-    scale: 1.32, tx: -22, ty: 14,
+    x: 68, y: 28,
   },
   {
     photo: 'assets/parts/capture-2.jpg?v=7b',
     text: 'Fox silhouette in the ivy on the mailbox.',
     likes: 21,
-    x: 48, y: 58,
-    scale: 1.24, tx: -4, ty: -16,
+    x: 48, y: 42,
   },
 ];
 
@@ -187,27 +184,24 @@ function gemPins() {
   return Array.from(gemLayer.querySelectorAll('.gem-pin'));
 }
 
-function setMapPan(entry, animate) {
-  const e = entry || { scale: 1.06, tx: 0, ty: 0 };
-  if (!animate) mapPan.style.transition = 'none';
-  mapPan.style.transform = `translate(${e.tx}%, ${e.ty}%) scale(${e.scale})`;
-  if (!animate) {
-    void mapPan.offsetWidth;
-    mapPan.style.transition = '';
-  }
+function setMapPan(_entry, _animate) {
+  // Keep map-hunt locked — panning the full frame shifts baked HUD over fixed slots (seam artifacts).
+  mapPan.style.transform = 'none';
 }
 
-function resetMapCamera(animate) {
+function resetMapCamera(_animate) {
   gemPins().forEach((p) => p.classList.remove('is-active'));
-  setMapPan({ scale: 1.06, tx: 0, ty: 0 }, animate);
+  setMapPan();
 }
 
 function setPanelPhoto(src, { stamp, swap }) {
   panelPhoto.src = src;
   panelStamp.hidden = !stamp;
-  findCard.classList.remove('is-on', 'is-swap');
+  findCard.classList.remove('is-enter', 'is-swap');
+  // Keep is-shown so opacity never falls back to 0 after animation
+  findCard.classList.add('is-shown');
   void findCard.offsetWidth;
-  findCard.classList.add(swap ? 'is-swap' : 'is-on');
+  findCard.classList.add(swap ? 'is-swap' : 'is-enter');
 }
 
 function showWritePanel(uri) {
@@ -239,7 +233,7 @@ function showReadPanel(entry, { swap }) {
 
 function hideFindPanel() {
   findPanel.classList.remove('is-on');
-  findCard.classList.remove('is-on', 'is-swap');
+  findCard.classList.remove('is-shown', 'is-enter', 'is-swap');
   findPlane.hidden = true;
   findPlane.classList.remove('is-on');
   findPanel.hidden = true;
