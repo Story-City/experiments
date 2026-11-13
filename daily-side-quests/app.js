@@ -63,7 +63,7 @@ const READ_LABEL_MINE = 'Your find';
 const FADE_MS = 480;
 const SLIDE_MS = 320;
 const LIFT_MS = 420;
-const PAN_MS = 820;
+const PAN_MS = 960;
 const SETTLE_MS = 780;
 const FLIGHT_MS = 720;
 const FINDS_NEEDED = 3;
@@ -233,14 +233,25 @@ function gemPins() {
   return Array.from(gemLayer.querySelectorAll('.gem-pin'));
 }
 
-function setMapPan(_entry, _animate) {
-  // Keep map-hunt locked — panning the full frame shifts baked HUD over fixed slots (seam artifacts).
-  mapPan.style.transform = 'none';
+/** Gentle zoom anchored on the gem — origin at pin, light scale (no hard pan). */
+const GEM_ZOOM = 1.14;
+
+function setMapPan(entry, animate) {
+  mapPan.style.transition = animate === false
+    ? 'none'
+    : `transform ${PAN_MS}ms ${EASE_OUT}`;
+  if (!entry || entry.x == null || entry.y == null) {
+    mapPan.style.transformOrigin = '50% 38%';
+    mapPan.style.transform = 'scale(1)';
+    return;
+  }
+  mapPan.style.transformOrigin = `${entry.x}% ${entry.y}%`;
+  mapPan.style.transform = `scale(${GEM_ZOOM})`;
 }
 
-function resetMapCamera(_animate) {
+function resetMapCamera(animate) {
   gemPins().forEach((p) => p.classList.remove('is-active'));
-  setMapPan();
+  setMapPan(null, animate);
 }
 
 function jamSpotAt(index) {
@@ -572,6 +583,7 @@ async function openMyEntry(index) {
   const same = viewingMine && index === myIndex && panelPhotoSrc === entry.photo;
   myIndex = index;
   gemPins().forEach((p) => p.classList.remove('is-active'));
+  setMapPan(jamSpotAt(index), true);
   showMyReadPanel(entry, { swap: !same });
   busy = false;
   syncChrome();
