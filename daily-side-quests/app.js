@@ -22,6 +22,7 @@ const OTHER_ENTRIES = [
     user: '@mara.k',
     photo: 'assets/parts/find-b.jpg?v=30',
     text: 'Paw print in the sidewalk concrete near the ravine.',
+    place: 'Kennedale Ravine',
     likes: 12,
     x: 28, y: 32,
   },
@@ -29,6 +30,7 @@ const OTHER_ENTRIES = [
     user: '@juniper.walks',
     photo: 'assets/parts/find-c.jpg?v=30',
     text: 'Bird-shaped cloud above Victoria Trail.',
+    place: 'Victoria Trail NW',
     likes: 7,
     x: 68, y: 28,
   },
@@ -36,11 +38,14 @@ const OTHER_ENTRIES = [
     user: '@foxtrail',
     photo: 'assets/parts/find-d.jpg?v=30',
     text: 'Fox silhouette in the ivy on the mailbox.',
+    place: '28 St NW',
     likes: 21,
     x: 48, y: 42,
   },
 ];
 const MY_USER = '@you';
+const MY_PLACE = 'Whimsy Walk · near you';
+const SHARE_LIFT_MS = 1280;
 
 /** Beach spots for my jams (map %); plane points here */
 const MY_JAM_SPOTS = [
@@ -110,6 +115,13 @@ const likeHeart = document.getElementById('likeHeart');
 const likeCount = document.getElementById('likeCount');
 const nextGem = document.getElementById('nextGem');
 const shareBtn = document.getElementById('shareBtn');
+const shareSheet = document.getElementById('shareSheet');
+const shareCard = document.getElementById('shareCard');
+const sharePhoto = document.getElementById('sharePhoto');
+const shareUser = document.getElementById('shareUser');
+const shareBody = document.getElementById('shareBody');
+const sharePlace = document.getElementById('sharePlace');
+const shareClose = document.getElementById('shareClose');
 const entryUser = document.getElementById('entryUser');
 const tipWrap = document.getElementById('tipWrap');
 const tipCopy = document.getElementById('tipCopy');
@@ -460,9 +472,11 @@ function closeLightbox() {
 function showWritePanel(uri) {
   viewingMine = false;
   closeLightbox();
+  closeShareSheet(false);
   writeMode.hidden = false;
   readMode.hidden = true;
   noteWords.value = '';
+  nextGem.hidden = true;
   setPanelPhoto(uri, { swap: false });
   showPlaneForJam(finds);
   openTextPopup();
@@ -513,6 +527,86 @@ function showMyReadPanel(entry, { swap }) {
   markActivePins();
 }
 
+function currentShareEntry() {
+  if (viewingMine) {
+    const entry = myEntries[myIndex];
+    if (!entry) return null;
+    return {
+      user: entry.user || MY_USER,
+      text: entry.text || '',
+      photo: entry.photo || panelPhotoSrc,
+      place: entry.place || MY_PLACE,
+    };
+  }
+  const entry = OTHER_ENTRIES[otherIndex];
+  if (!entry) return null;
+  return {
+    user: entry.user,
+    text: entry.text || '',
+    photo: entry.photo || panelPhotoSrc,
+    place: entry.place || 'Nearby',
+  };
+}
+
+function closeShareSheet(animate) {
+  if (!shareSheet || shareSheet.hidden) return;
+  shareSheet.classList.remove('is-up');
+  if (animate === false) {
+    shareSheet.classList.remove('is-on');
+    shareSheet.hidden = true;
+    return;
+  }
+  shareSheet.classList.remove('is-on');
+  later(() => {
+    if (!shareSheet.classList.contains('is-on')) shareSheet.hidden = true;
+  }, FADE_MS);
+}
+
+async function shareEntryPayload(entry) {
+  const title = 'Daily Side Quest find';
+  const text = `${entry.user}\n${entry.text}\n📍 ${entry.place}`;
+  const payload = { title, text };
+  try {
+    if (entry.photo && navigator.canShare) {
+      const res = await fetch(entry.photo);
+      const blob = await res.blob();
+      const file = new File([blob], 'side-quest-find.jpg', { type: blob.type || 'image/jpeg' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ title, text, files: [file] });
+        return;
+      }
+    }
+    if (navigator.share) {
+      await navigator.share(payload);
+      return;
+    }
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      setHint('Copied find + place to clipboard.');
+    }
+  } catch (_) { /* user cancelled share */ }
+}
+
+async function openShareSheet() {
+  const entry = currentShareEntry();
+  if (!entry || !entry.photo || busy) return;
+  busy = true;
+  shareUser.textContent = entry.user;
+  shareBody.textContent = entry.text || '—';
+  sharePlace.textContent = `📍 ${entry.place}`;
+  sharePhoto.src = entry.photo;
+  shareSheet.hidden = false;
+  shareSheet.classList.remove('is-up');
+  void shareSheet.offsetWidth;
+  shareSheet.classList.add('is-on');
+  await wait(40);
+  shareSheet.classList.add('is-up');
+  await wait(SHARE_LIFT_MS);
+  await shareEntryPayload(entry);
+  busy = false;
+  setHint('Share ready — image, note, and snap place.');
+}
+
 function hideFindPanel() {
   closeLightbox();
   findPanel.classList.remove('is-on');
@@ -529,8 +623,9 @@ function hideFindPanel() {
   stackUnder = [];
   viewingMine = false;
   likeBtn.hidden = false;
-  nextGem.hidden = false;
+  nextGem.hidden = true;
   likeBtn.classList.remove('is-invite', 'is-liked');
+  closeShareSheet(false);
   markActivePins();
 }
 
@@ -1033,7 +1128,7 @@ async function submitNote() {
     : placeholderForFind(finds);
   const noteText = (noteWords.value || '').trim();
 
-  myEntries.push({ user: MY_USER, photo: slotUri, text: noteText });
+  myEntries.push({ user: MY_USER, photo: slotUri, text: noteText, place: MY_PLACE });
   finds = myEntries.length;
   const index = finds - 1;
 
@@ -1091,6 +1186,7 @@ async function cycleNextGem() {
     await enterBrowse();
     return;
   }
+  closeShareSheet(false);
   busy = true;
   if (viewingMine) {
     const next = (myIndex + 1) % myEntries.length;
@@ -1168,18 +1264,8 @@ othersBtn.addEventListener('click', () => {
   enterBrowse();
 });
 nextGem.addEventListener('click', () => cycleNextGem());
-shareBtn.addEventListener('click', async () => {
-  const who = entryUser.textContent || MY_USER;
-  const body = readText.textContent || '';
-  const payload = { title: 'Daily Side Quest find', text: `${who} — ${body}` };
-  try {
-    if (navigator.share) await navigator.share(payload);
-    else if (navigator.clipboard) {
-      await navigator.clipboard.writeText(`${who}\n${body}`);
-      setHint('Copied find to clipboard.');
-    }
-  } catch (_) { /* user cancelled share */ }
-});
+shareBtn.addEventListener('click', () => openShareSheet());
+shareClose.addEventListener('click', () => closeShareSheet(true));
 infoBtn.addEventListener('click', () => {
   if (phase !== 'map' && phase !== 'browse' && phase !== 'note') return;
   if (finds >= FINDS_NEEDED) showOthersTip();
