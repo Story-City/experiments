@@ -47,15 +47,13 @@ const MY_USER = '@you';
 const MY_PLACE = 'Whimsy Walk · near you';
 const SHARE_LIFT_MS = 1280;
 
-/** Beach spots for my jams (map %); plane points here */
+/** Beach spots for my jams (map %) */
 const MY_JAM_SPOTS = [
   { x: 46, y: 40 },
   { x: 52, y: 44 },
   { x: 41, y: 43 },
 ];
-
-/** Place plane so its natural nose (upper-right) aims at the jam */
-const PLANE_OFFSET = { x: -8, y: 5 };
+const JAM_BORN_MS = 1100;
 
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
@@ -100,7 +98,6 @@ const mapStage = document.getElementById('mapStage');
 const mapPan = document.getElementById('mapPan');
 const gemLayer = document.getElementById('gemLayer');
 const jamLayer = document.getElementById('jamLayer');
-const planeMark = document.getElementById('planeMark');
 const findPanel = document.getElementById('findPanel');
 const findCard = document.getElementById('findCard');
 const findCardBack = document.getElementById('findCardBack');
@@ -321,27 +318,6 @@ function jamSpotAt(index) {
   return MY_JAM_SPOTS[Math.min(index, MY_JAM_SPOTS.length - 1)];
 }
 
-function aimPlaneAt(spot) {
-  // Keep Figma orientation — only reposition so the nose points at the jam
-  planeMark.style.left = `${spot.x + PLANE_OFFSET.x}%`;
-  planeMark.style.top = `${spot.y + PLANE_OFFSET.y}%`;
-}
-
-function showPlaneForJam(index) {
-  const spot = jamSpotAt(index);
-  aimPlaneAt(spot);
-  planeMark.hidden = false;
-  planeMark.setAttribute('aria-hidden', 'false');
-  void planeMark.offsetWidth;
-  planeMark.classList.add('is-on');
-}
-
-function hidePlane() {
-  planeMark.classList.remove('is-on');
-  planeMark.hidden = true;
-  planeMark.setAttribute('aria-hidden', 'true');
-}
-
 function placeJam(index, { pulse }) {
   const spot = jamSpotAt(index);
   let pin = jamLayer.querySelector(`[data-jam="${index}"]`);
@@ -351,7 +327,7 @@ function placeJam(index, { pulse }) {
     pin.className = 'jam-pin';
     pin.dataset.jam = String(index);
     pin.setAttribute('aria-label', `Your find ${index + 1}`);
-    pin.innerHTML = `<span class="jam-pulse" aria-hidden="true"></span>${gemSvg(MY_GEM_FILL)}`;
+    pin.innerHTML = `<span class="jam-pulse" aria-hidden="true"></span><span class="jam-shine" aria-hidden="true"></span>${gemSvg(MY_GEM_FILL)}`;
     pin.addEventListener('click', (e) => {
       e.stopPropagation();
       openMyEntry(index);
@@ -367,7 +343,7 @@ function placeJam(index, { pulse }) {
     later(() => {
       pin.classList.remove('is-born');
       pin.classList.add('is-live');
-    }, 1100);
+    }, JAM_BORN_MS);
   } else {
     pin.classList.add('is-live');
   }
@@ -375,7 +351,6 @@ function placeJam(index, { pulse }) {
 
 function clearJams() {
   jamLayer.replaceChildren();
-  hidePlane();
 }
 
 function syncOthersControl() {
@@ -511,7 +486,6 @@ function showWritePanel(uri) {
   noteWords.value = '';
   nextGem.hidden = true;
   setPanelPhoto(uri, { swap: false });
-  showPlaneForJam(finds);
   openTextPopup();
   findPanel.hidden = false;
   void findPanel.offsetWidth;
@@ -534,7 +508,6 @@ function showReadPanel(entry, { swap }) {
   shareBtn.hidden = false;
   setPanelPhoto(entry.photo, { swap });
   syncLikeUi({ invite: true });
-  hidePlane();
   openTextPopup();
   findPanel.hidden = false;
   findPanel.classList.add('is-on');
@@ -553,7 +526,6 @@ function showMyReadPanel(entry, { swap }) {
   shareBtn.hidden = false;
   setPanelPhoto(entry.photo, { swap });
   syncLikeUi({ invite: false });
-  hidePlane();
   openTextPopup();
   findPanel.hidden = false;
   findPanel.classList.add('is-on');
@@ -648,7 +620,6 @@ function hideFindPanel() {
   findCardBack.classList.remove('is-shown', 'is-shuffle-out');
   findCardDeep.classList.remove('is-shown', 'is-shuffle-out');
   findSide.classList.remove('is-closed');
-  hidePlane();
   findPanel.hidden = true;
   writeMode.hidden = false;
   readMode.hidden = true;
@@ -1391,10 +1362,8 @@ async function submitNote() {
   findCard.style.visibility = 'hidden';
   findPanel.classList.remove('is-on');
   placeJam(index, { pulse: true });
-  showPlaneForJam(index);
   await flyIntoSlot(slotUri, index, start);
   hideFindPanel();
-  later(() => hidePlane(), 900);
   pendingCapture = null;
 
   if (finds >= FINDS_NEEDED) {
