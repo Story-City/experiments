@@ -404,7 +404,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   50% { opacity: 0.95; transform: scale(1.15); }
 }
 
-/* LOCKED-GEMS-v36 — others' gems always on map; gray until 3 finds */
+/* NO-X-v37 — others' gems always on map; gray until 3 finds */
 .gem-layer {
   position: absolute; inset: 0;
   pointer-events: none;
@@ -735,18 +735,6 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   transform: translateY(12px);
   pointer-events: none;
 }
-.text-popup-x {
-  position: absolute;
-  top: 6px; right: 8px;
-  width: 28px; height: 28px;
-  border: 0; border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  font-size: 20px; line-height: 1;
-  cursor: pointer;
-  z-index: 2;
-}
-
 /* Fullscreen photo + caption sheet */
 .photo-lightbox {
   position: absolute; inset: 0;
@@ -767,7 +755,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .lightbox-sheet {
   position: relative;
   flex: none;
-  padding: 16px 40px 20px 16px;
+  padding: 16px 16px 20px;
   border-radius: 18px 18px 0 0;
   background: color-mix(in srgb, var(--raised) 88%, transparent);
   -webkit-backdrop-filter: blur(16px);

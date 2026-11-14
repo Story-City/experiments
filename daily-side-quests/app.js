@@ -143,8 +143,6 @@ const othersBtn = document.getElementById('othersBtn');
 const photoLightbox = document.getElementById('photoLightbox');
 const lightboxPhoto = document.getElementById('lightboxPhoto');
 const lightboxCaption = document.getElementById('lightboxCaption');
-const lightboxClose = document.getElementById('lightboxClose');
-const textPopupClose = document.getElementById('textPopupClose');
 /** Front of the visual stack */
 let panelPhotoSrc = '';
 /** @type {string[]} oldest → newest under the front */
@@ -1516,8 +1514,6 @@ findCard.addEventListener('click', (e) => {
   e.preventDefault();
   openLightbox();
 });
-textPopupClose.addEventListener('click', () => closeTextPopup());
-lightboxClose.addEventListener('click', () => closeLightbox());
 photoLightbox.addEventListener('click', (e) => {
   if (e.target === photoLightbox || e.target === lightboxPhoto) closeLightbox();
 });
