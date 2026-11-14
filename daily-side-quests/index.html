@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=35">
+<link rel="stylesheet" href="app.css?v=36">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -153,6 +153,27 @@
       <button type="button" class="info-btn" id="infoBtn" hidden aria-label="Show tip">i</button>
       <button type="button" class="hot cam-hot" id="camHot" aria-label="Camera"></button>
       <button type="button" class="hot back-hot" id="backHot" aria-label="Back"></button>
+
+      <div class="complete-sheet" id="completeSheet" hidden>
+        <button type="button" class="complete-scrim" id="completeCancel" aria-label="Keep walking"></button>
+        <div class="complete-card glass" role="dialog" aria-labelledby="completeTitle">
+          <p class="complete-title" id="completeTitle">Complete your walk?</p>
+          <p class="complete-copy">Finish to see your route — or keep hunting.</p>
+          <div class="complete-actions">
+            <button type="button" class="skippill" id="completeKeep">Keep walking</button>
+            <button type="button" class="confirm-pill" id="completeConfirm">Complete walk</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-sheet" id="routeSheet" hidden>
+        <div class="route-card">
+          <p class="route-title">Your walk</p>
+          <canvas class="route-map" id="routeMap" width="640" height="820" aria-label="Map with your route"></canvas>
+          <button type="button" class="share-location-btn" id="shareLocationBtn">Share your location</button>
+          <button type="button" class="skippill route-done" id="routeDone">Done</button>
+        </div>
+      </div>
     </div>
 
     <img class="fly-thumb" id="flyThumb" alt="" hidden>
@@ -174,8 +195,8 @@
   </main>
 
   <p class="meta">
-    ARROW-IN-META-v35 — fingerprint for live verify.
+    LOCKED-GEMS-v36 — fingerprint for live verify.
   </p>
-  <script src="app.js?v=35"></script>
+  <script src="app.js?v=36"></script>
 </body>
 </html>
