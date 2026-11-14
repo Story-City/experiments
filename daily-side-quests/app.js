@@ -61,6 +61,13 @@ const OTHER_GEM_FILL = '#00c2ff';
 const MY_GEM_FILL = '#b36bff';
 const READ_LABEL_OTHERS = 'See what other Challengers found';
 const READ_LABEL_MINE = 'Your find';
+const ONBOARD_TIPS = [
+  'Find 3 animalistic patterns near you',
+  'Snap each one to fill a slot below',
+  'Fill all 3 to see what others found today',
+];
+const TIP_TAP_SLOP_PX = 6;
+const REVEAL_MS = 1000;
 
 const FADE_MS = 780;
 const SLIDE_MS = 480;
@@ -69,6 +76,7 @@ const PAN_MS = 1280;
 const SETTLE_MS = 980;
 const FLIGHT_MS = 860;
 const FINDS_NEEDED = 3;
+const CARD_TILT_DEG = -4;
 const EASE_OUT = 'cubic-bezier(0.22, 0.8, 0.24, 1)';
 const EASE_SWOOSH = 'cubic-bezier(0.16, 1, 0.3, 1)';
 const EASE_SPRING = 'cubic-bezier(0.34, 1.45, 0.64, 1)';
@@ -104,6 +112,7 @@ const nextGem = document.getElementById('nextGem');
 const shareBtn = document.getElementById('shareBtn');
 const entryUser = document.getElementById('entryUser');
 const tipWrap = document.getElementById('tipWrap');
+const tipCopy = document.getElementById('tipCopy');
 const seeOther = document.getElementById('seeOther');
 const infoBtn = document.getElementById('infoBtn');
 const othersBtn = document.getElementById('othersBtn');
@@ -156,6 +165,9 @@ let frontIsA = true;
 let stampsRevealed = false;
 let otherIndex = 0;
 let gemsBuilt = false;
+/** @type {'onboard'|'others'} */
+let tipMode = 'others';
+let tipStep = 0;
 let timers = [];
 
 function later(fn, ms) {
@@ -324,11 +336,19 @@ function clearJams() {
 
 function syncOthersControl() {
   const onMap = phase === 'map' || phase === 'browse' || phase === 'note';
-  othersBtn.hidden = !onMap;
+  othersBtn.hidden = !onMap || !findPanel.hidden;
   const ready = finds >= FINDS_NEEDED;
   othersBtn.disabled = !ready;
   othersBtn.setAttribute('aria-disabled', ready ? 'false' : 'true');
-  seeOther.hidden = !(ready && !tipWrap.hidden && tipWrap.classList.contains('is-on'));
+  seeOther.hidden = !(ready && tipMode === 'others' && !tipWrap.hidden && tipWrap.classList.contains('is-on'));
+}
+
+function revealOthers() {
+  othersBtn.classList.remove('is-reveal');
+  void othersBtn.offsetWidth;
+  othersBtn.classList.add('is-reveal');
+  mapStage.classList.add('is-gems-reveal');
+  later(() => mapStage.classList.remove('is-gems-reveal'), REVEAL_MS);
 }
 
 function clearStackClasses() {
@@ -497,6 +517,7 @@ function hideFindPanel() {
   closeLightbox();
   findPanel.classList.remove('is-on');
   findCard.classList.remove('is-shown', 'is-enter', 'is-shuffle');
+  findCard.style.visibility = '';
   findCardBack.classList.remove('is-shown', 'is-shuffle-out');
   findCardDeep.classList.remove('is-shown', 'is-shuffle-out');
   findSide.classList.remove('is-closed');
@@ -513,7 +534,41 @@ function hideFindPanel() {
   markActivePins();
 }
 
+function renderTipCopy() {
+  if (tipMode === 'onboard') {
+    tipCopy.textContent = ONBOARD_TIPS[tipStep];
+    tipCopy.hidden = false;
+    tipCopy.classList.remove('is-swap');
+    void tipCopy.offsetWidth;
+    tipCopy.classList.add('is-swap');
+  } else {
+    tipCopy.hidden = true;
+  }
+}
+
+function showOnboarding() {
+  tipMode = 'onboard';
+  tipStep = 0;
+  showTip();
+}
+
+function advanceTip() {
+  if (tipMode !== 'onboard') return;
+  if (tipStep >= ONBOARD_TIPS.length - 1) {
+    dismissTip();
+    return;
+  }
+  tipStep += 1;
+  renderTipCopy();
+}
+
+function showOthersTip() {
+  tipMode = 'others';
+  showTip();
+}
+
 function showTip() {
+  renderTipCopy();
   tipWrap.hidden = false;
   tipWrap.classList.remove('is-dismissing');
   tipWrap.style.transform = '';
@@ -559,6 +614,7 @@ function bindTipSwipe() {
       dismissTip();
     } else {
       tipWrap.style.transform = '';
+      if (Math.abs(dx) <= TIP_TAP_SLOP_PX) advanceTip();
     }
   };
 
@@ -664,9 +720,14 @@ function clearFinds() {
   tipWrap.classList.remove('is-on', 'is-dismissing');
   tipWrap.hidden = true;
   tipWrap.style.transform = '';
+  tipCopy.hidden = true;
+  tipMode = 'others';
+  tipStep = 0;
   seeOther.hidden = true;
   othersBtn.hidden = true;
   othersBtn.disabled = true;
+  othersBtn.classList.remove('is-reveal');
+  mapStage.classList.remove('is-gems-reveal');
   slotCells.forEach((cell) => {
     const img = cell.querySelector('.slot');
     img.removeAttribute('src');
@@ -762,7 +823,8 @@ async function enterMapFromStamp(index) {
   await wait(FADE_MS);
   busy = false;
   syncChrome();
-  setHint('Map — photo lands left; write right. Info (i) shows the tip.');
+  showOnboarding();
+  setHint('Map — tap the tip to read on. Info (i) replays it.');
 }
 
 async function startStream() {
@@ -803,6 +865,7 @@ async function openCamera() {
   if (phase !== 'map' || busy) return;
   if (finds >= FINDS_NEEDED) return;
   busy = true;
+  dismissTip();
   phase = 'camera';
   pendingCapture = null;
   cameraPrompt.textContent = `Find ${finds + 1} of ${FINDS_NEEDED} — animalistic pattern`;
@@ -920,10 +983,9 @@ function fillSlot(uri, index) {
   later(() => cell.classList.remove('is-land'), 520);
 }
 
-async function flyIntoSlot(uri, index) {
+async function flyIntoSlot(uri, index, start) {
   const cell = slotCells[index];
   if (!cell) return;
-  const start = relativeBox(findCard);
   const end = relativeBox(cell);
   const hasStart = start.width > 8 && start.height > 8;
   const hasEnd = end.width > 8 && end.height > 8;
@@ -938,9 +1000,9 @@ async function flyIntoSlot(uri, index) {
   flyThumb.hidden = false;
   flyThumb.classList.add('is-on', 'is-arc');
   flyThumb.style.transition = 'none';
-  flyThumb.style.transform = 'rotate(-6deg)';
+  flyThumb.style.transform = `rotate(${CARD_TILT_DEG}deg)`;
   if (hasStart) {
-    setFlyBox(start.left, start.top, Math.max(start.width * 0.7, 64), Math.max(start.height * 0.7, 64), '12px');
+    setFlyBox(start.left, start.top, start.width, start.height, '12px');
   } else {
     const phoneBox = phoneSize();
     setFlyBox(phoneBox.width * 0.2, phoneBox.height * 0.42, 96, 128, '12px');
@@ -960,7 +1022,6 @@ async function flyIntoSlot(uri, index) {
 
   fillSlot(uri, index);
   hideFly();
-  await wait(280);
 }
 
 async function submitNote() {
@@ -972,23 +1033,33 @@ async function submitNote() {
     : placeholderForFind(finds);
   const noteText = (noteWords.value || '').trim();
 
-  // Measure fly start while the card is still laid out, then fade the panel.
   myEntries.push({ user: MY_USER, photo: slotUri, text: noteText });
   finds = myEntries.length;
   const index = finds - 1;
 
+  // The fly thumb takes over the card's exact box, so the card must vanish now, not after landing.
+  const cardBox = relativeBox(findCard);
+  const start = {
+    ...cardBox,
+    left: cardBox.cx - findCard.offsetWidth / 2,
+    top: cardBox.cy - findCard.offsetHeight / 2,
+    width: findCard.offsetWidth,
+    height: findCard.offsetHeight,
+  };
+  findCard.style.visibility = 'hidden';
+  findPanel.classList.remove('is-on');
   placeJam(index, { pulse: true });
   showPlaneForJam(index);
-  await flyIntoSlot(slotUri, index);
-  findPanel.classList.remove('is-on');
+  await flyIntoSlot(slotUri, index, start);
   hideFindPanel();
   later(() => hidePlane(), 900);
   pendingCapture = null;
 
   if (finds >= FINDS_NEEDED) {
-    showTip();
     phase = 'map';
     syncChrome();
+    revealOthers();
+    showOthersTip();
     busy = false;
     setHint('Challenge done — tip unlocks others; cyan gem or tip opens browse.');
     return;
@@ -1111,7 +1182,8 @@ shareBtn.addEventListener('click', async () => {
 });
 infoBtn.addEventListener('click', () => {
   if (phase !== 'map' && phase !== 'browse' && phase !== 'note') return;
-  showTip();
+  if (finds >= FINDS_NEEDED) showOthersTip();
+  else showOnboarding();
 });
 likeBtn.addEventListener('click', () => {
   if (viewingMine) return;

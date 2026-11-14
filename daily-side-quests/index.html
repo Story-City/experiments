@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=32">
+<link rel="stylesheet" href="app.css?v=33">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -54,13 +54,16 @@
     <button type="button" class="hot entry-hot" id="entryHot" aria-label="Side quest entry" hidden></button>
 
     <div class="map-stage" id="mapStage" aria-hidden="true">
-      <div class="map-pan" id="mapPan">
-        <img class="map-fill" src="assets/parts/map-hunt.png?v=7" alt="" decoding="async">
-        <div class="jam-layer" id="jamLayer" aria-hidden="true"></div>
-        <div class="gem-layer" id="gemLayer" aria-hidden="true"></div>
-        <div class="plane-mark" id="planeMark" hidden aria-hidden="true">
-          <img class="plane-art" src="assets/parts/airplanes-clear.png?v=16" alt="" decoding="async">
-          <span class="plane-tail-tip" aria-hidden="true"></span>
+      <img class="map-fill" src="assets/parts/map-hunt.png?v=7" alt="" decoding="async">
+      <div class="map-view">
+        <div class="map-pan" id="mapPan">
+          <img class="map-layer" src="assets/figma/map-layer.png?v=33" alt="" decoding="async">
+          <div class="jam-layer" id="jamLayer" aria-hidden="true"></div>
+          <div class="gem-layer" id="gemLayer" aria-hidden="true"></div>
+          <div class="plane-mark" id="planeMark" hidden aria-hidden="true">
+            <img class="plane-art" src="assets/parts/airplanes-clear.png?v=16" alt="" decoding="async">
+            <span class="plane-tail-tip" aria-hidden="true"></span>
+          </div>
         </div>
       </div>
 
@@ -128,6 +131,7 @@
 
       <div class="tip-wrap" id="tipWrap" hidden>
         <img class="tip-layer" id="tipLayer" src="assets/parts/tip.png?v=7" alt="" decoding="async">
+        <p class="tip-copy" id="tipCopy" hidden></p>
         <button type="button" class="hot tip-hot" id="seeOther" aria-label="See other challenges"></button>
       </div>
 
@@ -155,8 +159,8 @@
   </main>
 
   <p class="meta">
-    TIP-PNG-RESTORED-v32 — fingerprint for live verify.
+    MAP-ONLY-ZOOM-v33 — fingerprint for live verify.
   </p>
-  <script src="app.js?v=32"></script>
+  <script src="app.js?v=33"></script>
 </body>
 </html>

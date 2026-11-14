@@ -23,11 +23,11 @@
   --shutter: 72px;
   --shutter-border: 5px;
   --map-shutter: 66px;
-  --slot-y: 652;
-  --slot-size: 40;
-  --slot-0-x: 123;
-  --slot-1-x: 168;
-  --slot-2-x: 213;
+  --slot-y: 656;
+  --slot-size: 38;
+  --slot-0-x: 124;
+  --slot-1-x: 170;
+  --slot-2-x: 215;
   --glass: color-mix(in srgb, var(--raised) 78%, transparent);
 }
 
@@ -278,21 +278,49 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   transition: opacity var(--fade-ms) var(--ease-out), visibility 0s;
 }
 
-.map-pan {
-  position: absolute;
-  inset: 0;
-  transform-origin: 50% 38%;
-  transition: transform var(--pan-ms) var(--ease-out);
-  will-change: transform;
-  z-index: 1;
-}
-
+/* MAP-ONLY-ZOOM-v33 — map-hunt.png stays fixed (header, panel, slots);
+   only the Figma map layer zooms, masked to the band where both are identical. */
 .map-fill {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: cover; object-position: center top;
   pointer-events: none; user-select: none;
   display: block;
+  z-index: 0;
+}
+.map-view {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom,
+    transparent calc(120 / var(--phone-h) * 100%),
+    #000 calc(170 / var(--phone-h) * 100%),
+    #000 calc(540 / var(--phone-h) * 100%),
+    transparent calc(556 / var(--phone-h) * 100%));
+  mask-image: linear-gradient(to bottom,
+    transparent calc(120 / var(--phone-h) * 100%),
+    #000 calc(170 / var(--phone-h) * 100%),
+    #000 calc(540 / var(--phone-h) * 100%),
+    transparent calc(556 / var(--phone-h) * 100%));
+}
+.map-pan {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 38%;
+  transition: transform var(--pan-ms) var(--ease-out);
+  will-change: transform;
+}
+.map-layer {
+  position: absolute;
+  left: 0;
+  top: calc(83 / var(--phone-h) * 100%);
+  width: 100%;
+  height: calc(644 / var(--phone-h) * 100%);
+  display: block;
+  pointer-events: none;
+  user-select: none;
 }
 
 /* My jams — purple, stay on beach, tappable to reopen */
@@ -440,6 +468,49 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .others-gem:not(:disabled) {
   box-shadow: 0 0 12px rgba(0, 194, 255, 0.55);
   animation: othersGemPulse 1.8s ease-in-out infinite;
+}
+.others-gem::before,
+.others-gem::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+.others-gem::before { border: 2px solid rgba(0, 194, 255, 0.9); }
+.others-gem::after {
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.85) 50%, transparent 70%) -40px 0 / 200% 100% no-repeat;
+}
+.others-gem.is-reveal {
+  animation: othersGemUnlock 900ms var(--ease-spring) both, othersGemPulse 1.8s ease-in-out 900ms infinite;
+}
+.others-gem.is-reveal::before { animation: othersGemRing 900ms var(--ease-out) both; }
+.others-gem.is-reveal::after { animation: othersGemShine 900ms var(--ease-out) 260ms both; }
+@keyframes othersGemUnlock {
+  0% { transform: scale(0.6) rotate(-25deg); filter: grayscale(0.7); }
+  55% { transform: scale(1.35) rotate(8deg); filter: grayscale(0) brightness(1.5); }
+  100% { transform: scale(1) rotate(0); filter: none; }
+}
+@keyframes othersGemRing {
+  0% { opacity: 0.95; transform: scale(0.8); }
+  100% { opacity: 0; transform: scale(2.6); }
+}
+@keyframes othersGemShine {
+  0% { opacity: 1; background-position: -40px 0; }
+  100% { opacity: 0; background-position: 40px 0; }
+}
+.map-stage.is-gems-reveal .gem-pin {
+  animation: gemPinReveal 620ms var(--ease-spring) both;
+}
+.map-stage.is-gems-reveal .gem-pin:nth-child(2) { animation-delay: 120ms; }
+.map-stage.is-gems-reveal .gem-pin:nth-child(3) { animation-delay: 240ms; }
+@keyframes gemPinReveal {
+  0% { opacity: 0; transform: translateY(-14px) scale(0.3); }
+  60% { opacity: 1; transform: translateY(2px) scale(1.2); }
+  100% { opacity: 0.7; transform: translateY(0) scale(1); }
 }
 @keyframes othersGemPulse {
   0%, 100% { transform: scale(1); }
@@ -704,9 +775,9 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   top: calc(var(--slot-y) / var(--phone-h) * 100%);
   width: calc(var(--slot-size) / var(--phone-w) * 100%);
   height: calc(var(--slot-size) / var(--phone-h) * 100%);
-  border-radius: 7px; overflow: hidden;
+  border-radius: 4px; overflow: hidden;
   pointer-events: none;
-  background: rgba(0, 0, 0, 0.35);
+  background: transparent;
 }
 .slot-cell.is-filled {
   pointer-events: auto;
@@ -726,7 +797,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 .slot {
   width: 100%; height: 100%; object-fit: cover; display: block;
-  opacity: 0; transform: scale(0.55); border-radius: 6px;
+  opacity: 0; transform: scale(0.55); border-radius: 4px;
   background: #1a1230;
 }
 .slot-cell.is-filled .slot {
@@ -837,6 +908,32 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   display: block;
   pointer-events: none;
   user-select: none;
+}
+.tip-wrap { container-type: inline-size; }
+/* Mechanic tips reuse tip.png; the patch is the bubble's own fill (#13123b) over its baked line. */
+.tip-copy {
+  position: absolute;
+  left: calc(30 / 752 * 100%);
+  top: calc(250 / 364 * 100%);
+  width: calc(372 / 752 * 100%);
+  height: calc(96 / 364 * 100%);
+  margin: 0;
+  padding-left: calc(10 / 752 * 100%);
+  display: flex;
+  align-items: center;
+  background: #13123b;
+  color: #fff;
+  font-family: 'Darker Grotesque', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: calc(16 / 352 * 100cqw);
+  line-height: calc(16 / 352 * 100cqw);
+  pointer-events: none;
+}
+.tip-copy[hidden] { display: none; }
+.tip-copy.is-swap { animation: tipCopySwap 360ms var(--ease-out) both; }
+@keyframes tipCopySwap {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 .tip-hot {
   left: 0; top: 55%;
