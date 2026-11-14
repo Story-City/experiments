@@ -163,6 +163,7 @@ const cameraPrompt = document.getElementById('cameraPrompt');
 const hint = document.getElementById('hint');
 const playBtn = document.getElementById('play');
 const resetBtn = document.getElementById('reset');
+const debugMapBtn = document.getElementById('debugMap');
 const picker = document.getElementById('picker');
 const camHot = document.getElementById('camHot');
 const closeHot = document.getElementById('closeHot');
@@ -1144,6 +1145,30 @@ async function enterMapFromStamp(index) {
   setHint('Map — tap the tip to read on. Info (i) replays it.');
 }
 
+/** Debug — skip stamps and land on the hunt map. */
+async function jumpStraightToMap() {
+  if (busy) return;
+  busy = true;
+  clearTimers();
+  await closeCamera(false);
+  clearFinds();
+  resetStampState();
+  if (stampSheet.classList.contains('is-on')) {
+    stampSheet.classList.remove('is-on');
+    stampSheet.setAttribute('aria-hidden', 'true');
+  }
+  phase = 'map';
+  buildGems();
+  mapStage.classList.add('is-on');
+  mapStage.setAttribute('aria-hidden', 'false');
+  resetMapCamera(false);
+  await wait(FADE_MS);
+  busy = false;
+  syncChrome();
+  showOnboarding();
+  setHint('Debug — straight to map.');
+}
+
 async function startStream() {
   cameraFallback.hidden = true;
   cameraVideo.hidden = false;
@@ -1451,6 +1476,7 @@ resetBtn.addEventListener('click', () => {
   }
   goHome();
 });
+debugMapBtn.addEventListener('click', () => jumpStraightToMap());
 
 closeHot.addEventListener('click', async () => {
   if (busy) return;
