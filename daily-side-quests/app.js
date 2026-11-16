@@ -79,11 +79,13 @@ const TIP_TAP_SLOP_PX = 6;
 const REVEAL_MS = 1000;
 const ROUTE_STROKE = '#00c2ff';
 const ROUTE_LINE_WIDTH = 5;
-/** Zoomed walk crop — wide card, not the full tall map layer */
-const ROUTE_CANVAS_W = 640;
-const ROUTE_CANVAS_H = 400;
-const ROUTE_CROP_MIN = 0.34;
-const ROUTE_CROP_PAD = 0.16;
+/** Zoomed walk crop — tall phone card (3:4), focused on jams */
+const ROUTE_CANVAS_W = 480;
+const ROUTE_CANVAS_H = 640;
+const ROUTE_CROP_MIN = 0.28;
+const ROUTE_CROP_PAD = 0.14;
+const ROUTE_MAP_LAYER = 'assets/figma/map-layer.png?v=33';
+const ROUTE_DOT_MAX = 5;
 const NAV_ZOOM = 2.45;
 const NAV_NUDGE_X = 0.68;
 const NAV_NUDGE_Y = 0.6;
@@ -170,17 +172,18 @@ const routeGems = document.getElementById('routeGems');
 const routeMap = document.getElementById('routeMap');
 const routeStill = document.getElementById('routeStill');
 const routeDownload = document.getElementById('routeDownload');
+const routeShareBtn = document.getElementById('routeShareBtn');
+const routeDots = document.getElementById('routeDots');
 const statSteps = document.getElementById('statSteps');
 const statMinutes = document.getElementById('statMinutes');
 const statGems = document.getElementById('statGems');
 const routeCarousel = document.getElementById('routeCarousel');
 const routeCarouselTrack = document.getElementById('routeCarouselTrack');
 const routeCarouselViewport = document.getElementById('routeCarouselViewport');
-const routeCarouselPrev = document.getElementById('routeCarouselPrev');
-const routeCarouselNext = document.getElementById('routeCarouselNext');
 const routeStage = document.getElementById('routeStage');
 const routeStageGlow = document.getElementById('routeStageGlow');
 let carouselIndex = 0;
+let routeDotStart = 0;
 const stepGlance = document.getElementById('stepGlance');
 const stepGlanceTrack = document.getElementById('stepGlanceTrack');
 const stepGlanceFill = document.getElementById('stepGlanceFill');
@@ -1053,7 +1056,12 @@ function hideRouteSheet() {
   if (routeCarouselTrack) {
     routeCarouselTrack.querySelectorAll('.route-carousel-gem').forEach((el) => el.remove());
   }
+  if (routeDots) {
+    routeDots.replaceChildren();
+    routeDots.hidden = true;
+  }
   carouselIndex = 0;
+  routeDotStart = 0;
 }
 
 function loadImage(src) {
@@ -1177,6 +1185,42 @@ function resetStepGlance() {
   if (stepGlanceSteps) stepGlanceSteps.textContent = '0';
 }
 
+function carouselSlideCount() {
+  return routeCarouselTrack ? routeCarouselTrack.children.length : 0;
+}
+
+function syncRouteDots() {
+  if (!routeDots) return;
+  const pages = carouselSlideCount();
+  if (pages <= 1) {
+    routeDots.replaceChildren();
+    routeDots.hidden = true;
+    return;
+  }
+  routeDots.hidden = false;
+  const maxOffset = Math.max(0, pages - ROUTE_DOT_MAX);
+  if (carouselIndex === routeDotStart && carouselIndex !== 0) {
+    routeDotStart = Math.max(0, carouselIndex - 1);
+  } else if (carouselIndex === routeDotStart + ROUTE_DOT_MAX - 1 && carouselIndex !== pages - 1) {
+    routeDotStart = Math.min(maxOffset, carouselIndex - (ROUTE_DOT_MAX - 2));
+  } else if (carouselIndex > routeDotStart + ROUTE_DOT_MAX - 1) {
+    routeDotStart = Math.min(carouselIndex - (ROUTE_DOT_MAX - 1), maxOffset);
+  } else if (carouselIndex < routeDotStart) {
+    routeDotStart = Math.max(0, carouselIndex);
+  }
+  const end = Math.min(routeDotStart + ROUTE_DOT_MAX, pages);
+  routeDots.replaceChildren();
+  for (let i = routeDotStart; i < end; i += 1) {
+    const atEdge = (i === routeDotStart || i === end - 1) && i !== 0 && i !== pages - 1;
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = `route-dot${atEdge ? ' is-edge' : ''}${i === carouselIndex ? ' is-active' : ''}`;
+    dot.setAttribute('aria-label', `Slide ${i + 1}`);
+    dot.addEventListener('click', () => scrollCarouselTo(i, { smooth: true }));
+    routeDots.appendChild(dot);
+  }
+}
+
 function scrollCarouselTo(index, { smooth }) {
   if (!routeCarouselTrack || !routeCarouselViewport) return;
   const slides = routeCarouselTrack.children;
@@ -1192,23 +1236,90 @@ function scrollCarouselTo(index, { smooth }) {
   Array.from(slides).forEach((el, i) => {
     el.classList.toggle('is-active', i === next);
   });
+  syncRouteDots();
+}
+
+function syncCarouselFromScroll() {
+  if (!routeCarouselTrack || !routeCarouselViewport) return;
+  const slides = Array.from(routeCarouselTrack.children);
+  if (!slides.length) return;
+  const mid = routeCarouselViewport.scrollLeft + routeCarouselViewport.clientWidth / 2;
+  let best = 0;
+  let bestDist = Infinity;
+  slides.forEach((slide, i) => {
+    const center = slide.offsetLeft + slide.clientWidth / 2;
+    const dist = Math.abs(center - mid);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = i;
+    }
+  });
+  if (best !== carouselIndex) {
+    carouselIndex = best;
+    slides.forEach((el, i) => el.classList.toggle('is-active', i === best));
+    syncRouteDots();
+  }
+}
+
+function mediaActionIcons() {
+  return {
+    share: '<svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M15 4.5a2.5 2.5 0 1 1-1.96 4.04l-5.1 2.55a2.5 2.5 0 0 1 0 1.82l5.1 2.55a2.5 2.5 0 1 1-.9 1.79l-5.1-2.55a2.5 2.5 0 1 1 0-5.4l5.1-2.55A2.5 2.5 0 0 1 15 4.5z"/></svg>',
+    download: '<svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M10 2.5a1 1 0 0 1 1 1V11l2.3-2.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L9 11V3.5a1 1 0 0 1 1-1zM3.5 15a1 1 0 0 1 1-1h11a1 1 0 1 1 0 2h-11a1 1 0 0 1-1-1z"/></svg>',
+  };
+}
+
+async function shareMediaUrl(url, title) {
+  if (!url) return;
+  try {
+    if (navigator.canShare) {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const file = new File([blob], 'whimsy-share.png', { type: blob.type || 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ title, files: [file] });
+        return;
+      }
+    }
+    if (navigator.share) await navigator.share({ title, url });
+  } catch (_) { /* cancelled */ }
 }
 
 function fillRouteCarousel() {
   if (!routeCarouselTrack) return;
   routeCarouselTrack.querySelectorAll('.route-carousel-gem').forEach((el) => el.remove());
   carouselIndex = 0;
+  routeDotStart = 0;
+  const icons = mediaActionIcons();
   myEntries.forEach((entry, i) => {
-    const cell = document.createElement('button');
-    cell.type = 'button';
+    const cell = document.createElement('div');
     cell.className = 'route-carousel-gem route-carousel-slide';
     cell.setAttribute('aria-label', `Gem ${i + 1}`);
     const img = document.createElement('img');
     img.src = entry.photo;
     img.alt = '';
     img.decoding = 'async';
+    const actions = document.createElement('div');
+    actions.className = 'route-media-actions';
+    const share = document.createElement('button');
+    share.type = 'button';
+    share.className = 'sc-icon-btn';
+    share.setAttribute('aria-label', 'Share');
+    share.innerHTML = icons.share;
+    share.addEventListener('click', (e) => {
+      e.stopPropagation();
+      shareMediaUrl(entry.photo, '[share gem]');
+    });
+    const dl = document.createElement('a');
+    dl.className = 'sc-icon-btn';
+    dl.href = entry.photo;
+    dl.download = `gem-${i + 1}.png`;
+    dl.setAttribute('aria-label', 'Download');
+    dl.innerHTML = icons.download;
+    dl.addEventListener('click', (e) => e.stopPropagation());
+    actions.appendChild(share);
+    actions.appendChild(dl);
     cell.appendChild(img);
-    cell.addEventListener('click', () => scrollCarouselTo(i + 1, { smooth: true }));
+    cell.appendChild(actions);
     routeCarouselTrack.appendChild(cell);
   });
   if (routeCarousel) routeCarousel.hidden = false;
@@ -1266,13 +1377,15 @@ async function prepareRouteStageBg() {
 
   const drawZoomed = (img, srcX, srcY, srcW, srcH) => {
     ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, c.width, c.height);
+    routeStageBg.style.objectFit = '';
+    routeStageBg.style.objectPosition = '';
     routeStageBg.src = c.toDataURL('image/jpeg', 0.92);
     routeStageBg.hidden = false;
   };
 
   try {
     /** map-layer is already the hunt band — crop zoomed to today's jams */
-    const layer = await loadImage('assets/figma/map-layer.png?v=33');
+    const layer = await loadImage(ROUTE_MAP_LAYER);
     drawZoomed(
       layer,
       crop.x * layer.width,
@@ -1319,9 +1432,18 @@ function resetRouteStage() {
   }
 }
 
+function showRouteMapImmediate() {
+  if (!routeStageBg) return;
+  routeStageBg.src = ROUTE_MAP_LAYER;
+  routeStageBg.hidden = false;
+  routeStageBg.style.objectFit = 'cover';
+  routeStageBg.style.objectPosition = '50% 42%';
+}
+
 async function playRouteDomino() {
   const points = routePoints();
   resetRouteStage();
+  showRouteMapImmediate();
   await prepareRouteStageBg();
 
   if (points.length >= 2) {
@@ -1410,8 +1532,10 @@ async function freezeRouteStill(points) {
   routeStill.hidden = false;
   void routeStill.offsetWidth;
   routeStill.classList.add('is-on');
-  routeDownload.href = dataUrl;
-  routeDownload.hidden = false;
+  if (routeDownload) {
+    routeDownload.href = dataUrl;
+    routeDownload.hidden = false;
+  }
   await wait(ROUTE_STILL_MS);
   routeGems.replaceChildren();
   routePath.classList.remove('is-on', 'is-draw', 'is-glow');
@@ -1420,23 +1544,34 @@ async function freezeRouteStill(points) {
   if (routeStageGlow) routeStageGlow.classList.remove('is-on');
 }
 
-async function showRouteSheet() {
-  hideCompleteSheet();
+async function revealHomeBehindRoute() {
   hideFindPanel();
   dismissTip();
   closeShareSheet(false);
   resetMapCamera(false);
+  if (mapStage.classList.contains('is-on')) {
+    mapStage.classList.remove('is-on');
+    mapStage.setAttribute('aria-hidden', 'true');
+  }
+  phase = 'home';
+  await showScene(FRAME.home);
+  syncChrome();
+}
+
+async function showRouteSheet() {
+  hideCompleteSheet();
+  await revealHomeBehindRoute();
   locationShared = false;
   shareLocationBtn.classList.remove('is-shared');
   shareLocationBtn.textContent = '[publish your gems]';
   fillRouteStats();
   resetStepGlance();
+  showRouteMapImmediate();
+  fillRouteCarousel();
   routeSheet.hidden = false;
   void routeSheet.offsetWidth;
   routeSheet.classList.add('is-on');
-  fillRouteCarousel();
   await playRouteDomino();
-  fillRouteCarousel();
   await playStepGlance();
 }
 
@@ -1512,15 +1647,24 @@ async function finishRouteAndLeave() {
   if (busy) return;
   busy = true;
   hideRouteSheet();
-  await leaveMapToEntry();
+  clearFinds();
+  phase = 'home';
+  if (mapStage.classList.contains('is-on')) await hideMap();
+  await showScene(FRAME.home);
+  syncChrome();
   busy = false;
+  setHint('Back at home.');
 }
 
 async function seeOtherChallengesFromRoute() {
   if (busy) return;
   busy = true;
   hideRouteSheet();
-  await leaveMapToEntry();
+  clearFinds();
+  phase = 'home';
+  if (mapStage.classList.contains('is-on')) await hideMap();
+  await showScene(FRAME.home);
+  syncChrome();
   busy = false;
   setHint('[see other challenges]');
 }
@@ -2053,15 +2197,14 @@ shareLocationBtn.addEventListener('click', () => shareMyLocation());
 routeSeeOthers.addEventListener('click', () => seeOtherChallengesFromRoute());
 routeClose.addEventListener('click', () => closeRouteToFeed());
 routeScrim.addEventListener('click', () => closeRouteToFeed());
-if (routeCarouselPrev) {
-  routeCarouselPrev.addEventListener('click', () => {
-    scrollCarouselTo(carouselIndex - 1, { smooth: true });
+if (routeShareBtn) {
+  routeShareBtn.addEventListener('click', () => {
+    const url = routeStill?.src || routeStageBg?.src || '';
+    shareMediaUrl(url, '[share walk title]');
   });
 }
-if (routeCarouselNext) {
-  routeCarouselNext.addEventListener('click', () => {
-    scrollCarouselTo(carouselIndex + 1, { smooth: true });
-  });
+if (routeCarouselViewport) {
+  routeCarouselViewport.addEventListener('scroll', () => syncCarouselFromScroll(), { passive: true });
 }
 likeBtn.addEventListener('click', () => {
   if (viewingMine) return;

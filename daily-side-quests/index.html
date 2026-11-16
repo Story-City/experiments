@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=49">
+<link rel="stylesheet" href="app.css?v=50">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -184,23 +184,29 @@
           <button type="button" class="route-close" id="routeClose" aria-label="Close">×</button>
           <p class="route-title" id="routeTitle">[announce walk complete like story end batch]</p>
           <div class="route-carousel" id="routeCarousel" aria-label="Walk summary">
-            <button type="button" class="route-carousel-nav" id="routeCarouselPrev" aria-label="Previous">‹</button>
             <div class="route-carousel-viewport" id="routeCarouselViewport">
               <div class="route-carousel-track" id="routeCarouselTrack">
                 <div class="route-carousel-slide is-map is-active" data-slide="0">
                   <div class="route-stage" id="routeStage">
                     <img class="route-stage-bg" id="routeStageBg" alt="" decoding="async">
-                    <svg class="route-path" id="routePath" viewBox="0 0 640 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+                    <svg class="route-path" id="routePath" viewBox="0 0 480 640" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
                     <div class="route-gems" id="routeGems" aria-hidden="true"></div>
                     <div class="route-stage-glow" id="routeStageGlow" aria-hidden="true"></div>
-                    <canvas class="route-map" id="routeMap" width="640" height="400" hidden aria-hidden="true"></canvas>
+                    <canvas class="route-map" id="routeMap" width="480" height="640" hidden aria-hidden="true"></canvas>
                     <img class="route-still" id="routeStill" alt="" hidden decoding="async">
-                    <a class="route-download" id="routeDownload" download="whimsy-walk.png" hidden>[download walk image]</a>
+                    <div class="route-media-actions" id="routeMapActions">
+                      <button type="button" class="sc-icon-btn" id="routeShareBtn" aria-label="Share">
+                        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M15 4.5a2.5 2.5 0 1 1-1.96 4.04l-5.1 2.55a2.5 2.5 0 0 1 0 1.82l5.1 2.55a2.5 2.5 0 1 1-.9 1.79l-5.1-2.55a2.5 2.5 0 1 1 0-5.4l5.1-2.55A2.5 2.5 0 0 1 15 4.5z"/></svg>
+                      </button>
+                      <a class="sc-icon-btn" id="routeDownload" download="whimsy-walk.png" aria-label="Download" hidden>
+                        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M10 2.5a1 1 0 0 1 1 1V11l2.3-2.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L9 11V3.5a1 1 0 0 1 1-1zM3.5 15a1 1 0 0 1 1-1h11a1 1 0 1 1 0 2h-11a1 1 0 0 1-1-1z"/></svg>
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            <button type="button" class="route-carousel-nav" id="routeCarouselNext" aria-label="Next">›</button>
+            <div class="route-dots" id="routeDots" aria-hidden="true"></div>
           </div>
           <div class="route-stats" id="routeStats" aria-label="Walk stats">
             <p class="route-stat"><span class="route-stat-value" id="statSteps">0</span> steps</p>
@@ -216,7 +222,7 @@
               <div class="step-glance-glass-clip" aria-hidden="true">
                 <div class="step-glance-glass"></div>
               </div>
-              <svg class="step-glance-svg" id="stepGlanceSvg" viewBox="-38 -10.6 316 139.2" aria-hidden="true">
+              <svg class="step-glance-svg" id="stepGlanceSvg" viewBox="-38 -54 316 182.11" aria-hidden="true">
                 <path class="step-glance-track" id="stepGlanceTrack" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
                 <path class="step-glance-fill" id="stepGlanceFill" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
               </svg>
@@ -249,8 +255,8 @@
   </main>
 
   <p class="meta">
-    EXIT-JUICE-v49 — fingerprint for live verify.
+    EXIT-JUICE-v50 — fingerprint for live verify.
   </p>
-  <script src="app.js?v=49"></script>
+  <script src="app.js?v=50"></script>
 </body>
 </html>

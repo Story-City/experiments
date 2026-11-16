@@ -614,9 +614,9 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 .route-sheet {
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background: transparent;
-  padding: calc(48 / var(--phone-h) * 100%) calc(22 / var(--phone-w) * 100%) calc(96 / var(--phone-h) * 100%);
+  padding: calc(72 / var(--phone-h) * 100%) calc(22 / var(--phone-w) * 100%) calc(118 / var(--phone-h) * 100%);
   box-sizing: border-box;
 }
 .route-scrim {
@@ -630,13 +630,14 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .route-card {
   position: relative;
   z-index: 1;
-  width: 100%;
-  max-width: 100%;
+  width: 88%;
+  max-width: 88%;
+  max-height: 72%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   min-height: 0;
-  padding: 18px 14px 14px;
+  padding: 16px 12px 12px;
   border-radius: 16px;
   background: #151b45;
   border: 1px solid var(--accent);
@@ -644,6 +645,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   transform: translateY(48px);
   opacity: 0;
   transition: transform 820ms var(--ease-out), opacity 820ms var(--ease-out);
+  overflow: hidden;
 }
 .route-sheet.is-on .route-card {
   transform: translateY(0);
@@ -674,27 +676,18 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 .route-carousel {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
   width: 100%;
-  flex: none;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 .route-carousel[hidden] { display: none !important; }
-.route-carousel-nav {
-  flex: none;
-  width: 28px;
-  height: 28px;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-}
 .route-carousel-viewport {
   flex: 1 1 auto;
   min-width: 0;
+  min-height: 0;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -706,8 +699,8 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .route-carousel-track {
   display: flex;
   align-items: stretch;
-  gap: 10px;
-  padding: 2px 0;
+  gap: 0;
+  height: 100%;
 }
 .route-carousel-slide,
 .route-carousel-gem {
@@ -723,13 +716,9 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 .route-carousel-gem {
   position: relative;
-  aspect-ratio: 8 / 5;
+  aspect-ratio: 3 / 4;
   cursor: pointer;
   box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.18);
-}
-.route-carousel-gem.is-active,
-.route-carousel-slide.is-active .route-stage {
-  box-shadow: 0 0 0 2px rgba(0, 158, 255, 0.75);
 }
 .route-carousel-gem img {
   width: 100%;
@@ -741,11 +730,69 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .route-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 8 / 5;
+  aspect-ratio: 3 / 4;
   border-radius: 12px;
   overflow: hidden;
   background: #120c22;
   border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.route-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: none;
+  min-height: 8px;
+}
+.route-dots[hidden] { display: none !important; }
+.route-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.route-dot.is-edge {
+  width: 4px;
+  height: 4px;
+  border-radius: 4px;
+}
+.route-dot.is-active {
+  background: #1fa4f4;
+}
+/* StoryCityIconButton — MediaCaptureResult top-right stack */
+.route-media-actions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  pointer-events: auto;
+}
+.sc-icon-btn {
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #170c35;
+  color: #009eff;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.55);
+}
+.sc-icon-btn[hidden] { display: none !important; }
+.sc-icon-btn:active {
+  background: #241b46;
 }
 .route-stage-glow {
   position: absolute;
@@ -875,12 +922,12 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   font-weight: 800;
   letter-spacing: -0.02em;
 }
-/* StepGlance — sits at phone bottom like FloatingTabBar, not inside the card */
+/* StepGlance — app geometry (StepGlancePill / ArcProgressStyles) */
 .step-glance {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: calc(10 / var(--phone-h) * 100%);
+  bottom: calc(8 / var(--phone-h) * 100%);
   z-index: 6;
   display: flex;
   justify-content: center;
@@ -900,21 +947,23 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 8px;
+  padding-top: 24px;
+  padding-bottom: 16px;
+  overflow: visible;
 }
 .step-glance-arc-wrap {
   position: relative;
   width: 240px;
-  height: 90.6px;
+  height: 106.11px;
   margin-top: -20px;
   overflow: visible;
 }
 .step-glance-glass-clip {
   position: absolute;
   left: 40px;
-  top: 0;
+  top: 4.22px;
   width: 160px;
-  height: 66px;
+  height: 93.89px;
   overflow: hidden;
   pointer-events: none;
 }
@@ -922,19 +971,19 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   width: 160px;
   height: 160px;
   border-radius: 80px;
-  background: rgba(11, 5, 28, 0.85);
+  background: rgba(23, 12, 53, 0.85);
 }
 .step-glance-svg {
   position: absolute;
   left: -38px;
-  top: -10.6px;
+  top: -38px;
   width: 316px;
-  height: 139.2px;
+  height: 182.11px;
   overflow: visible;
   pointer-events: none;
 }
 .step-glance-track {
-  stroke: rgba(36, 27, 70, 0.95);
+  stroke: #2a2f5c;
 }
 .step-glance-fill {
   stroke: var(--accent);
@@ -946,7 +995,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   position: absolute;
   left: -36px;
   right: -36px;
-  top: 18px;
+  top: 12px;
   text-align: center;
   pointer-events: none;
 }
@@ -960,28 +1009,11 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 .step-glance-out {
   margin: 2px 0 0;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgba(238, 238, 238, 0.9);
   font-size: 12px;
   font-weight: 600;
   line-height: 1.2;
 }
-.route-download {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  z-index: 5;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(7, 5, 18, 0.72);
-  color: rgba(0, 194, 255, 0.98);
-  font-weight: 700;
-  font-size: 12px;
-  text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-}
-.route-download[hidden] { display: none !important; }
 /* GradientButton medium — padding/radius/type from mobile-rn */
 .share-location-btn,
 .route-see-others {
