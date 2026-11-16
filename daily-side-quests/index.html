@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=43">
+<link rel="stylesheet" href="app.css?v=44">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -176,32 +176,41 @@
       <div class="route-sheet" id="routeSheet" hidden>
         <div class="route-card">
           <p class="route-title">[announce walk complete like story end batch]</p>
-          <div class="route-stage" id="routeStage">
-            <img class="route-stage-bg" id="routeStageBg" alt="" decoding="async">
-            <svg class="route-path" id="routePath" viewBox="0 0 640 460" preserveAspectRatio="none" aria-hidden="true"></svg>
-            <div class="route-gems" id="routeGems" aria-hidden="true"></div>
-            <canvas class="route-map" id="routeMap" width="640" height="460" hidden aria-hidden="true"></canvas>
-            <img class="route-still" id="routeStill" alt="" hidden decoding="async">
+          <div class="route-media">
+            <div class="route-carousel" id="routeCarousel" aria-label="Today's gems"></div>
+            <div class="route-stage" id="routeStage">
+              <img class="route-stage-bg" id="routeStageBg" alt="" decoding="async">
+              <svg class="route-path" id="routePath" viewBox="0 0 640 460" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+              <div class="route-gems" id="routeGems" aria-hidden="true"></div>
+              <canvas class="route-map" id="routeMap" width="640" height="460" hidden aria-hidden="true"></canvas>
+              <img class="route-still" id="routeStill" alt="" hidden decoding="async">
+              <a class="route-download" id="routeDownload" download="whimsy-walk.png" hidden>[download walk image]</a>
+            </div>
           </div>
           <div class="route-stats" id="routeStats" aria-label="Walk stats">
             <p class="route-stat"><span class="route-stat-value" id="statSteps">0</span> [label steps]</p>
             <p class="route-stat route-stat-right"><span class="route-stat-value" id="statMinutes">0</span> [label minutes]</p>
             <p class="route-stat"><span class="route-stat-value" id="statGems">0</span> [label gems]</p>
-            <p class="route-stat route-stat-right"><span class="route-stat-value" id="statGoal">0</span> / <span id="statGoalCap">8000</span> [label daily goal]</p>
           </div>
-          <p class="route-goal-note" id="routeGoalNote">[show steps added to daily goal]</p>
-          <div class="hub-celebrate" id="hubCelebrate" aria-hidden="true">
-            <div class="hub-haze" aria-hidden="true"></div>
-            <div class="hub-band" id="hubBand">
-              <div class="hub-graphic" id="hubGraphic">
-                <div class="hub-beads" id="hubBeads"></div>
-                <div class="hub-lottie" id="hubLottie" aria-hidden="true"></div>
+          <div class="step-glance" id="stepGlance" aria-hidden="true">
+            <div class="step-glance-pill">
+              <div class="step-glance-arc-wrap">
+                <div class="step-glance-glass-clip" aria-hidden="true">
+                  <div class="step-glance-glass"></div>
+                </div>
+                <svg class="step-glance-svg" id="stepGlanceSvg" viewBox="-38 -10.6 316 139.2" aria-hidden="true">
+                  <path class="step-glance-track" id="stepGlanceTrack" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
+                  <path class="step-glance-fill" id="stepGlanceFill" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
+                </svg>
+              </div>
+              <div class="step-glance-text">
+                <p class="step-glance-steps" id="stepGlanceSteps">0</p>
+                <p class="step-glance-out" id="stepGlanceOut">[out of steps today]</p>
               </div>
             </div>
-            <p class="hub-copy" id="hubCopy">[show steps landing in training hub]</p>
           </div>
-          <a class="route-download" id="routeDownload" download="whimsy-walk.png" hidden>[download walk image]</a>
           <button type="button" class="share-location-btn" id="shareLocationBtn">[publish your gems]</button>
+          <button type="button" class="skippill route-see-others" id="routeSeeOthers">[see other challenges]</button>
           <button type="button" class="skippill route-done" id="routeDone">[done]</button>
         </div>
       </div>
@@ -226,9 +235,8 @@
   </main>
 
   <p class="meta">
-    EXIT-JUICE-v40 — fingerprint for live verify.
+    EXIT-JUICE-v44 — fingerprint for live verify.
   </p>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=43"></script>
+  <script src="app.js?v=44"></script>
 </body>
 </html>

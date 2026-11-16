@@ -88,16 +88,15 @@ const DAILY_GOAL_BASE_STEPS = 2100;
 const ROUTE_GEM_STAGGER_MS = 220;
 const ROUTE_PATH_MS = 900;
 const ROUTE_STILL_MS = 480;
-const HUB_LOTTIE_SRC = '../day-reached-overlay/training_hub_day_reached.json';
-const HUB_BEAD_LAYOUT = [
-  { left: 18, top: 48, size: 22, label: 'M' },
-  { left: 55, top: 22, size: 22, label: 'T' },
-  { left: 118, top: 2, size: 36, label: 'W', today: true },
-  { left: 190, top: 18, size: 22, label: 'T' },
-  { left: 232, top: 46, size: 22, label: 'F' },
-];
-const HUB_BEAD_STAGGER_MS = 160;
-const HUB_LOTTIE_MS = 1600;
+/** StepGlance arc — same geometry as mobile-rn StepGlanceArcProgressStyles */
+const GLANCE_ARC_CX = 120;
+const GLANCE_ARC_CY = 96;
+const GLANCE_ARC_R = 80;
+const GLANCE_ARC_START = 190;
+const GLANCE_ARC_END = -10;
+const GLANCE_ARC_LEN = (Math.abs(GLANCE_ARC_END - GLANCE_ARC_START) / 360) * 2 * Math.PI * GLANCE_ARC_R;
+const GLANCE_FILL_MS = 980;
+const GLANCE_COUNT_MS = 980;
 
 const FADE_MS = 780;
 const SLIDE_MS = 480;
@@ -164,18 +163,16 @@ const routeDownload = document.getElementById('routeDownload');
 const statSteps = document.getElementById('statSteps');
 const statMinutes = document.getElementById('statMinutes');
 const statGems = document.getElementById('statGems');
-const statGoal = document.getElementById('statGoal');
-const statGoalCap = document.getElementById('statGoalCap');
-const routeGoalNote = document.getElementById('routeGoalNote');
-const hubCelebrate = document.getElementById('hubCelebrate');
-const hubBeads = document.getElementById('hubBeads');
-const hubLottie = document.getElementById('hubLottie');
-const hubCopy = document.getElementById('hubCopy');
+const routeCarousel = document.getElementById('routeCarousel');
+const stepGlance = document.getElementById('stepGlance');
+const stepGlanceTrack = document.getElementById('stepGlanceTrack');
+const stepGlanceFill = document.getElementById('stepGlanceFill');
+const stepGlanceSteps = document.getElementById('stepGlanceSteps');
+const stepGlanceOut = document.getElementById('stepGlanceOut');
 const shareLocationBtn = document.getElementById('shareLocationBtn');
+const routeSeeOthers = document.getElementById('routeSeeOthers');
 const routeDone = document.getElementById('routeDone');
 const entryUser = document.getElementById('entryUser');
-/** @type {any} */
-let hubAnim = null;
 const tipWrap = document.getElementById('tipWrap');
 const tipCopy = document.getElementById('tipCopy');
 const seeOther = document.getElementById('seeOther');
@@ -1059,67 +1056,98 @@ function walkStepsEarned() {
 function fillRouteStats() {
   const gems = myEntries.length;
   const earned = walkStepsEarned();
-  const towardGoal = Math.min(DAILY_GOAL_STEPS, DAILY_GOAL_BASE_STEPS + earned);
   statSteps.textContent = String(earned);
   statMinutes.textContent = String(gems * MINUTES_PER_FIND);
   statGems.textContent = String(gems);
-  if (statGoal) statGoal.textContent = String(towardGoal);
-  if (statGoalCap) statGoalCap.textContent = String(DAILY_GOAL_STEPS);
-  if (routeGoalNote) {
-    routeGoalNote.textContent = `[show +${earned} steps added to daily goal]`;
-  }
 }
 
-function resetHubCelebrate() {
-  if (hubAnim) {
-    hubAnim.destroy();
-    hubAnim = null;
-  }
-  if (hubLottie) {
-    hubLottie.replaceChildren();
-    hubLottie.classList.remove('is-on');
-  }
-  if (hubBeads) hubBeads.replaceChildren();
-  if (hubCelebrate) {
-    hubCelebrate.classList.remove('is-on');
-    hubCelebrate.setAttribute('aria-hidden', 'true');
-  }
+function glancePolar(cx, cy, r, deg) {
+  const rad = (deg * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
 }
 
-async function playHubCelebrate() {
-  if (!hubCelebrate || !window.lottie) return;
-  resetHubCelebrate();
-  hubCelebrate.classList.add('is-on');
-  hubCelebrate.setAttribute('aria-hidden', 'false');
-  if (hubCopy) {
-    hubCopy.textContent = `[show +${walkStepsEarned()} steps landing in training hub]`;
-  }
+function glanceArcPath() {
+  const start = glancePolar(GLANCE_ARC_CX, GLANCE_ARC_CY, GLANCE_ARC_R, GLANCE_ARC_START);
+  const end = glancePolar(GLANCE_ARC_CX, GLANCE_ARC_CY, GLANCE_ARC_R, GLANCE_ARC_END);
+  const sweep = Math.abs(GLANCE_ARC_END - GLANCE_ARC_START);
+  const large = sweep <= 180 ? 0 : 1;
+  return `M ${start.x} ${start.y} A ${GLANCE_ARC_R} ${GLANCE_ARC_R} 0 ${large} 1 ${end.x} ${end.y}`;
+}
 
-  HUB_BEAD_LAYOUT.forEach((bead, i) => {
-    const el = document.createElement('div');
-    el.className = `hub-bead${bead.today ? ' is-today' : ''}`;
-    el.style.left = `${bead.left}px`;
-    el.style.top = `${bead.top}px`;
-    el.style.width = `${bead.size}px`;
-    el.style.height = `${bead.size}px`;
-    el.textContent = bead.label;
-    hubBeads.appendChild(el);
-    later(() => el.classList.add('is-in'), i * HUB_BEAD_STAGGER_MS);
+function formatGlanceSteps(n) {
+  return Math.round(n).toLocaleString('en-US');
+}
+
+function setGlanceRatio(ratio, { animate }) {
+  if (!stepGlanceFill) return;
+  const clamped = Math.min(1, Math.max(0, ratio));
+  const offset = GLANCE_ARC_LEN * (1 - clamped);
+  stepGlanceFill.style.transition = animate
+    ? `stroke-dashoffset ${GLANCE_FILL_MS}ms var(--ease-out)`
+    : 'none';
+  stepGlanceFill.style.strokeDasharray = `${GLANCE_ARC_LEN} ${GLANCE_ARC_LEN}`;
+  stepGlanceFill.style.strokeDashoffset = String(offset);
+}
+
+function resetStepGlance() {
+  if (!stepGlance) return;
+  stepGlance.classList.remove('is-on');
+  stepGlance.setAttribute('aria-hidden', 'true');
+  setGlanceRatio(0, { animate: false });
+  if (stepGlanceSteps) stepGlanceSteps.textContent = '0';
+}
+
+function fillRouteCarousel() {
+  if (!routeCarousel) return;
+  routeCarousel.replaceChildren();
+  myEntries.forEach((entry) => {
+    const btn = document.createElement('div');
+    btn.className = 'route-carousel-gem';
+    const img = document.createElement('img');
+    img.src = entry.photo;
+    img.alt = '';
+    img.decoding = 'async';
+    btn.appendChild(img);
+    routeCarousel.appendChild(btn);
   });
+}
 
-  try {
-    hubAnim = window.lottie.loadAnimation({
-      container: hubLottie,
-      renderer: 'svg',
-      loop: false,
-      autoplay: true,
-      path: HUB_LOTTIE_SRC,
-    });
-    hubLottie.classList.add('is-on');
-  } catch (_) {
-    /* keep beads even if lottie fails */
+async function countGlanceSteps(from, to) {
+  if (!stepGlanceSteps) return;
+  const start = performance.now();
+  await new Promise((resolve) => {
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / GLANCE_COUNT_MS);
+      const eased = 1 - (1 - t) ** 3;
+      const value = from + (to - from) * eased;
+      stepGlanceSteps.textContent = formatGlanceSteps(value);
+      if (t < 1) requestAnimationFrame(tick);
+      else resolve();
+    };
+    requestAnimationFrame(tick);
+  });
+}
+
+async function playStepGlance() {
+  if (!stepGlance || !stepGlanceTrack || !stepGlanceFill) return;
+  const d = glanceArcPath();
+  stepGlanceTrack.setAttribute('d', d);
+  stepGlanceFill.setAttribute('d', d);
+  const from = DAILY_GOAL_BASE_STEPS;
+  const to = Math.min(DAILY_GOAL_STEPS, from + walkStepsEarned());
+  const fromRatio = from / DAILY_GOAL_STEPS;
+  const toRatio = to / DAILY_GOAL_STEPS;
+  if (stepGlanceOut) {
+    stepGlanceOut.textContent = `out of ${formatGlanceSteps(DAILY_GOAL_STEPS)} steps today`;
   }
-  await wait(HUB_LOTTIE_MS);
+  setGlanceRatio(fromRatio, { animate: false });
+  if (stepGlanceSteps) stepGlanceSteps.textContent = formatGlanceSteps(from);
+  stepGlance.classList.add('is-on');
+  stepGlance.setAttribute('aria-hidden', 'false');
+  await wait(60);
+  setGlanceRatio(toRatio, { animate: true });
+  await countGlanceSteps(from, to);
+  await wait(120);
 }
 
 async function prepareRouteStageBg() {
@@ -1148,7 +1176,8 @@ function resetRouteStage() {
   routeStill.removeAttribute('src');
   routeDownload.hidden = true;
   routeDownload.removeAttribute('href');
-  resetHubCelebrate();
+  if (routeCarousel) routeCarousel.replaceChildren();
+  resetStepGlance();
   if (routeStillUrl) {
     URL.revokeObjectURL(routeStillUrl);
     routeStillUrl = null;
@@ -1257,11 +1286,13 @@ async function showRouteSheet() {
   shareLocationBtn.classList.remove('is-shared');
   shareLocationBtn.textContent = '[publish your gems]';
   fillRouteStats();
+  resetStepGlance();
   routeSheet.hidden = false;
   void routeSheet.offsetWidth;
   routeSheet.classList.add('is-on');
   await playRouteDomino();
-  await playHubCelebrate();
+  fillRouteCarousel();
+  await playStepGlance();
   showPublishTip();
 }
 
@@ -1339,6 +1370,15 @@ async function finishRouteAndLeave() {
   hideRouteSheet();
   await leaveMapToEntry();
   busy = false;
+}
+
+async function seeOtherChallengesFromRoute() {
+  if (busy) return;
+  busy = true;
+  hideRouteSheet();
+  await leaveMapToEntry();
+  busy = false;
+  setHint('[see other challenges]');
 }
 
 function resetStampState() {
@@ -1862,6 +1902,7 @@ completeCancel.addEventListener('click', () => hideCompleteSheet());
 completeKeep.addEventListener('click', () => hideCompleteSheet());
 completeConfirm.addEventListener('click', () => confirmCompleteWalk());
 shareLocationBtn.addEventListener('click', () => shareMyLocation());
+routeSeeOthers.addEventListener('click', () => seeOtherChallengesFromRoute());
 routeDone.addEventListener('click', () => finishRouteAndLeave());
 likeBtn.addEventListener('click', () => {
   if (viewingMine) return;
