@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=47">
+<link rel="stylesheet" href="app.css?v=48">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -184,15 +184,21 @@
           <button type="button" class="route-close" id="routeClose" aria-label="Close">×</button>
           <p class="route-title" id="routeTitle">[announce walk complete like story end batch]</p>
           <div class="route-media">
-            <div class="route-carousel" id="routeCarousel" aria-label="Today's gems"></div>
             <div class="route-stage" id="routeStage">
               <img class="route-stage-bg" id="routeStageBg" alt="" decoding="async">
-              <svg class="route-path" id="routePath" viewBox="0 0 640 805" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+              <svg class="route-path" id="routePath" viewBox="0 0 640 1096" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
               <div class="route-gems" id="routeGems" aria-hidden="true"></div>
               <div class="route-stage-glow" id="routeStageGlow" aria-hidden="true"></div>
-              <canvas class="route-map" id="routeMap" width="640" height="805" hidden aria-hidden="true"></canvas>
+              <canvas class="route-map" id="routeMap" width="640" height="1096" hidden aria-hidden="true"></canvas>
               <img class="route-still" id="routeStill" alt="" hidden decoding="async">
               <a class="route-download" id="routeDownload" download="whimsy-walk.png" hidden>[download walk image]</a>
+            </div>
+            <div class="route-carousel" id="routeCarousel" aria-label="Today's gems">
+              <button type="button" class="route-carousel-nav" id="routeCarouselPrev" aria-label="Previous gem">‹</button>
+              <div class="route-carousel-viewport" id="routeCarouselViewport">
+                <div class="route-carousel-track" id="routeCarouselTrack"></div>
+              </div>
+              <button type="button" class="route-carousel-nav" id="routeCarouselNext" aria-label="Next gem">›</button>
             </div>
           </div>
           <div class="route-stats" id="routeStats" aria-label="Walk stats">
@@ -242,8 +248,8 @@
   </main>
 
   <p class="meta">
-    EXIT-JUICE-v47 — fingerprint for live verify.
+    EXIT-JUICE-v48 — fingerprint for live verify.
   </p>
-  <script src="app.js?v=47"></script>
+  <script src="app.js?v=48"></script>
 </body>
 </html>

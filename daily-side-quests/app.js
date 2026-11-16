@@ -79,9 +79,9 @@ const TIP_TAP_SLOP_PX = 6;
 const REVEAL_MS = 1000;
 const ROUTE_STROKE = '#00c2ff';
 const ROUTE_LINE_WIDTH = 5;
-/** Match map-band aspect (phone 376 × band 473) so the stage is not stretched */
+/** Match map-layer band aspect (phone 376 × layer 644) so the stage is not stretched */
 const ROUTE_CANVAS_W = 640;
-const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (473 / 376));
+const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (644 / 376));
 const NAV_ZOOM = 2.15;
 const NAV_NUDGE_X = 0.62;
 const NAV_NUDGE_Y = 0.55;
@@ -172,8 +172,13 @@ const statSteps = document.getElementById('statSteps');
 const statMinutes = document.getElementById('statMinutes');
 const statGems = document.getElementById('statGems');
 const routeCarousel = document.getElementById('routeCarousel');
+const routeCarouselTrack = document.getElementById('routeCarouselTrack');
+const routeCarouselViewport = document.getElementById('routeCarouselViewport');
+const routeCarouselPrev = document.getElementById('routeCarouselPrev');
+const routeCarouselNext = document.getElementById('routeCarouselNext');
 const routeStage = document.getElementById('routeStage');
 const routeStageGlow = document.getElementById('routeStageGlow');
+let carouselIndex = 0;
 const stepGlance = document.getElementById('stepGlance');
 const stepGlanceTrack = document.getElementById('stepGlanceTrack');
 const stepGlanceFill = document.getElementById('stepGlanceFill');
@@ -1043,7 +1048,8 @@ function hideRouteSheet() {
   routeSheet.classList.remove('is-on');
   routeSheet.hidden = true;
   resetRouteStage();
-  if (routeCarousel) routeCarousel.replaceChildren();
+  if (routeCarouselTrack) routeCarouselTrack.replaceChildren();
+  carouselIndex = 0;
 }
 
 function loadImage(src) {
@@ -1056,9 +1062,10 @@ function loadImage(src) {
 }
 
 function routeBand() {
+  /** Matches .map-layer placement on the hunt pan */
   const bandTop = 83 / 814;
-  const bandBottom = 556 / 814;
-  return { bandTop, bandBottom, bandH: bandBottom - bandTop };
+  const bandH = 644 / 814;
+  return { bandTop, bandBottom: bandTop + bandH, bandH };
 }
 
 function routePoints() {
@@ -1122,19 +1129,47 @@ function resetStepGlance() {
   if (stepGlanceSteps) stepGlanceSteps.textContent = '0';
 }
 
+function scrollCarouselTo(index, { smooth }) {
+  if (!routeCarouselTrack || !routeCarouselViewport) return;
+  const slides = routeCarouselTrack.children;
+  if (!slides.length) return;
+  const next = ((index % slides.length) + slides.length) % slides.length;
+  carouselIndex = next;
+  const slide = slides[next];
+  const left = slide.offsetLeft - (routeCarouselViewport.clientWidth - slide.clientWidth) / 2;
+  routeCarouselViewport.scrollTo({
+    left: Math.max(0, left),
+    behavior: smooth === false ? 'auto' : 'smooth',
+  });
+  Array.from(slides).forEach((el, i) => {
+    el.classList.toggle('is-active', i === next);
+  });
+}
+
 function fillRouteCarousel() {
-  if (!routeCarousel) return;
-  routeCarousel.replaceChildren();
-  myEntries.forEach((entry) => {
-    const cell = document.createElement('div');
+  if (!routeCarouselTrack) return;
+  routeCarouselTrack.replaceChildren();
+  carouselIndex = 0;
+  myEntries.forEach((entry, i) => {
+    const cell = document.createElement('button');
+    cell.type = 'button';
     cell.className = 'route-carousel-gem';
+    cell.setAttribute('aria-label', `Gem ${i + 1}`);
     const img = document.createElement('img');
     img.src = entry.photo;
     img.alt = '';
     img.decoding = 'async';
     cell.appendChild(img);
-    routeCarousel.appendChild(cell);
+    cell.addEventListener('click', () => scrollCarouselTo(i, { smooth: true }));
+    routeCarouselTrack.appendChild(cell);
   });
+  if (routeCarousel) {
+    routeCarousel.hidden = myEntries.length === 0;
+  }
+  if (myEntries.length) {
+    void routeCarouselTrack.offsetWidth;
+    scrollCarouselTo(0, { smooth: false });
+  }
 }
 
 async function countGlanceSteps(from, to) {
@@ -1177,16 +1212,31 @@ async function playStepGlance() {
 
 async function prepareRouteStageBg() {
   const { bandTop, bandH } = routeBand();
+  const c = document.createElement('canvas');
+  c.width = ROUTE_CANVAS_W;
+  c.height = ROUTE_CANVAS_H;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#120c22';
+  ctx.fillRect(0, 0, c.width, c.height);
+
+  try {
+    /** map-layer is already the hunt band art shown on the live map */
+    const layer = await loadImage('assets/figma/map-layer.png?v=33');
+    ctx.drawImage(layer, 0, 0, layer.width, layer.height, 0, 0, c.width, c.height);
+    routeStageBg.src = c.toDataURL('image/jpeg', 0.92);
+    routeStageBg.hidden = false;
+    return;
+  } catch (_) {
+    /* fall through to full hunt crop */
+  }
+
   try {
     const base = await loadImage('assets/parts/map-hunt.png?v=7');
-    const c = document.createElement('canvas');
-    c.width = ROUTE_CANVAS_W;
-    c.height = ROUTE_CANVAS_H;
-    const ctx = c.getContext('2d');
     const srcY = bandTop * base.height;
     const srcH = bandH * base.height;
     ctx.drawImage(base, 0, srcY, base.width, srcH, 0, 0, c.width, c.height);
     routeStageBg.src = c.toDataURL('image/jpeg', 0.92);
+    routeStageBg.hidden = false;
   } catch (_) {
     routeStageBg.removeAttribute('src');
   }
@@ -1305,8 +1355,10 @@ async function freezeRouteStill(points) {
   routeDownload.hidden = false;
   await wait(ROUTE_STILL_MS);
   routeGems.replaceChildren();
-  routePath.classList.remove('is-on', 'is-draw');
+  routePath.classList.remove('is-on', 'is-draw', 'is-glow');
   routePath.innerHTML = '';
+  if (routeStage) routeStage.classList.remove('is-progress', 'is-glowing');
+  if (routeStageGlow) routeStageGlow.classList.remove('is-on');
 }
 
 async function showRouteSheet() {
@@ -1942,6 +1994,16 @@ shareLocationBtn.addEventListener('click', () => shareMyLocation());
 routeSeeOthers.addEventListener('click', () => seeOtherChallengesFromRoute());
 routeClose.addEventListener('click', () => closeRouteToFeed());
 routeScrim.addEventListener('click', () => closeRouteToFeed());
+if (routeCarouselPrev) {
+  routeCarouselPrev.addEventListener('click', () => {
+    scrollCarouselTo(carouselIndex - 1, { smooth: true });
+  });
+}
+if (routeCarouselNext) {
+  routeCarouselNext.addEventListener('click', () => {
+    scrollCarouselTo(carouselIndex + 1, { smooth: true });
+  });
+}
 likeBtn.addEventListener('click', () => {
   if (viewingMine) return;
   likedByGem[otherIndex] = !likedByGem[otherIndex];
