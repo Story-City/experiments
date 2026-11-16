@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=51">
+<link rel="stylesheet" href="app.css?v=52">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -137,18 +137,6 @@
         </div>
       </div>
 
-      <div class="share-sheet" id="shareSheet" hidden>
-        <button type="button" class="share-sheet-scrim" id="shareClose" aria-label="Close share"></button>
-        <article class="share-card" id="shareCard">
-          <img class="share-card-photo" id="sharePhoto" alt="" decoding="async">
-          <div class="share-card-body">
-            <p class="share-card-user" id="shareUser"></p>
-            <p class="share-card-text" id="shareBody"></p>
-            <p class="share-card-place" id="sharePlace"></p>
-          </div>
-        </article>
-      </div>
-
       <div class="photo-lightbox" id="photoLightbox" hidden>
         <img class="lightbox-img" id="lightboxPhoto" alt="" decoding="async">
         <div class="lightbox-sheet glass">
@@ -178,59 +166,72 @@
         </div>
       </div>
 
-      <div class="route-sheet" id="routeSheet" hidden>
-        <button type="button" class="route-scrim" id="routeScrim" aria-label="Close"></button>
-        <div class="route-card" role="dialog" aria-labelledby="routeTitle">
-          <button type="button" class="route-close" id="routeClose" aria-label="Close">×</button>
-          <p class="route-title" id="routeTitle">[announce walk complete like story end batch]</p>
-          <div class="route-carousel" id="routeCarousel" aria-label="Walk summary">
-            <div class="route-carousel-viewport" id="routeCarouselViewport">
-              <div class="route-carousel-track" id="routeCarouselTrack">
-                <div class="route-carousel-slide is-map is-active" data-slide="0">
-                  <div class="route-stage" id="routeStage">
-                    <img class="route-stage-bg" id="routeStageBg" alt="" decoding="async">
-                    <svg class="route-path" id="routePath" viewBox="0 0 480 640" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
-                    <div class="route-gems" id="routeGems" aria-hidden="true"></div>
-                    <div class="route-stage-glow" id="routeStageGlow" aria-hidden="true"></div>
-                    <canvas class="route-map" id="routeMap" width="480" height="640" hidden aria-hidden="true"></canvas>
-                    <img class="route-still" id="routeStill" alt="" hidden decoding="async">
-                    <div class="route-media-actions" id="routeMapActions">
-                      <button type="button" class="sc-icon-btn" id="routeShareBtn" aria-label="Share">
-                        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M15 4.5a2.5 2.5 0 1 1-1.96 4.04l-5.1 2.55a2.5 2.5 0 0 1 0 1.82l5.1 2.55a2.5 2.5 0 1 1-.9 1.79l-5.1-2.55a2.5 2.5 0 1 1 0-5.4l5.1-2.55A2.5 2.5 0 0 1 15 4.5z"/></svg>
-                      </button>
-                      <a class="sc-icon-btn" id="routeDownload" download="whimsy-walk.png" aria-label="Download" hidden>
-                        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M10 2.5a1 1 0 0 1 1 1V11l2.3-2.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L9 11V3.5a1 1 0 0 1 1-1zM3.5 15a1 1 0 0 1 1-1h11a1 1 0 1 1 0 2h-11a1 1 0 0 1-1-1z"/></svg>
-                      </a>
-                    </div>
+    </div>
+
+    <div class="share-sheet" id="shareSheet" hidden>
+      <button type="button" class="share-sheet-scrim" id="shareClose" aria-label="Close share"></button>
+      <article class="share-card" id="shareCard">
+        <img class="share-card-photo" id="sharePhoto" alt="" decoding="async">
+        <div class="share-card-body">
+          <p class="share-card-user" id="shareUser"></p>
+          <p class="share-card-text" id="shareBody"></p>
+          <p class="share-card-place" id="sharePlace"></p>
+        </div>
+      </article>
+    </div>
+
+    <div class="route-sheet" id="routeSheet" hidden>
+      <button type="button" class="route-scrim" id="routeScrim" aria-label="Close"></button>
+      <div class="route-card" role="dialog" aria-labelledby="routeTitle">
+        <button type="button" class="route-close" id="routeClose" aria-label="Close">×</button>
+        <p class="route-title" id="routeTitle">[announce walk complete like story end batch]</p>
+        <div class="route-carousel" id="routeCarousel" aria-label="Walk summary">
+          <div class="route-carousel-viewport" id="routeCarouselViewport">
+            <div class="route-carousel-track" id="routeCarouselTrack">
+              <div class="route-carousel-slide is-map is-active" data-slide="0">
+                <div class="route-stage" id="routeStage">
+                  <img class="route-stage-bg" id="routeStageBg" alt="" decoding="async">
+                  <svg class="route-path" id="routePath" viewBox="0 0 480 640" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+                  <div class="route-gems" id="routeGems" aria-hidden="true"></div>
+                  <div class="route-stage-glow" id="routeStageGlow" aria-hidden="true"></div>
+                  <canvas class="route-map" id="routeMap" width="480" height="640" hidden aria-hidden="true"></canvas>
+                  <img class="route-still" id="routeStill" alt="" hidden decoding="async">
+                  <div class="route-media-actions" id="routeMapActions">
+                    <button type="button" class="sc-icon-btn" id="routeShareBtn" aria-label="Share">
+                      <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M15 4.5a2.5 2.5 0 1 1-1.96 4.04l-5.1 2.55a2.5 2.5 0 0 1 0 1.82l5.1 2.55a2.5 2.5 0 1 1-.9 1.79l-5.1-2.55a2.5 2.5 0 1 1 0-5.4l5.1-2.55A2.5 2.5 0 0 1 15 4.5z"/></svg>
+                    </button>
+                    <a class="sc-icon-btn" id="routeDownload" download="whimsy-walk.png" aria-label="Download" hidden>
+                      <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M10 2.5a1 1 0 0 1 1 1V11l2.3-2.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L9 11V3.5a1 1 0 0 1 1-1zM3.5 15a1 1 0 0 1 1-1h11a1 1 0 1 1 0 2h-11a1 1 0 0 1-1-1z"/></svg>
+                    </a>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="route-dots" id="routeDots" aria-hidden="true"></div>
           </div>
-          <div class="route-stats" id="routeStats" aria-label="Walk stats">
-            <p class="route-stat"><span class="route-stat-value" id="statSteps">0</span> steps</p>
-            <p class="route-stat route-stat-right"><span class="route-stat-value" id="statMinutes">0</span> min</p>
-            <p class="route-stat"><span class="route-stat-value" id="statGems">0</span> [gems]</p>
-          </div>
-          <button type="button" class="share-location-btn" id="shareLocationBtn">[publish your gems]</button>
-          <button type="button" class="route-see-others" id="routeSeeOthers">[see other challenges]</button>
+          <div class="route-dots" id="routeDots" aria-hidden="true"></div>
         </div>
-        <div class="step-glance" id="stepGlance" aria-hidden="true">
-          <div class="step-glance-pill">
-            <div class="step-glance-arc-wrap">
-              <div class="step-glance-glass-clip" aria-hidden="true">
-                <div class="step-glance-glass"></div>
-              </div>
-              <svg class="step-glance-svg" id="stepGlanceSvg" viewBox="-38 -54 316 182.11" aria-hidden="true">
-                <path class="step-glance-track" id="stepGlanceTrack" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
-                <path class="step-glance-fill" id="stepGlanceFill" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
-              </svg>
+        <div class="route-stats" id="routeStats" aria-label="Walk stats">
+          <p class="route-stat"><span class="route-stat-value" id="statSteps">0</span> steps</p>
+          <p class="route-stat route-stat-right"><span class="route-stat-value" id="statMinutes">0</span> min</p>
+          <p class="route-stat"><span class="route-stat-value" id="statGems">0</span> [gems]</p>
+        </div>
+        <button type="button" class="share-location-btn" id="shareLocationBtn">[publish your gems]</button>
+        <button type="button" class="route-see-others" id="routeSeeOthers">[see other challenges]</button>
+      </div>
+      <div class="step-glance" id="stepGlance" aria-hidden="true">
+        <div class="step-glance-pill">
+          <div class="step-glance-arc-wrap">
+            <div class="step-glance-glass-clip" aria-hidden="true">
+              <div class="step-glance-glass"></div>
             </div>
-            <div class="step-glance-text">
-              <p class="step-glance-steps" id="stepGlanceSteps">0</p>
-              <p class="step-glance-out" id="stepGlanceOut">[out of steps today]</p>
-            </div>
+            <svg class="step-glance-svg" id="stepGlanceSvg" viewBox="-38 -54 316 182.11" aria-hidden="true">
+              <path class="step-glance-track" id="stepGlanceTrack" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
+              <path class="step-glance-fill" id="stepGlanceFill" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
+            </svg>
+          </div>
+          <div class="step-glance-text">
+            <p class="step-glance-steps" id="stepGlanceSteps">0</p>
+            <p class="step-glance-out" id="stepGlanceOut">[out of steps today]</p>
           </div>
         </div>
       </div>
@@ -255,8 +256,8 @@
   </main>
 
   <p class="meta">
-    EXIT-JUICE-v51 — fingerprint for live verify.
+    EXIT-JUICE-v52 — fingerprint for live verify.
   </p>
-  <script src="app.js?v=51"></script>
+  <script src="app.js?v=52"></script>
 </body>
 </html>
