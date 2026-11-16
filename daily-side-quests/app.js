@@ -79,8 +79,14 @@ const TIP_TAP_SLOP_PX = 6;
 const REVEAL_MS = 1000;
 const ROUTE_STROKE = '#00c2ff';
 const ROUTE_LINE_WIDTH = 5;
+/** Match map-band aspect (phone 376 × band 473) so the stage is not stretched */
 const ROUTE_CANVAS_W = 640;
-const ROUTE_CANVAS_H = 460;
+const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (473 / 376));
+const NAV_ZOOM = 1.62;
+const NAV_NUDGE_X = 0.55;
+const NAV_NUDGE_Y = 0.48;
+const NAV_LABEL = '[navigate to jam]';
+const NAV_CANCEL_LABEL = '[cancel navigation]';
 const STEPS_PER_FIND = 847;
 const MINUTES_PER_FIND = 4;
 const DAILY_GOAL_STEPS = 8000;
@@ -340,7 +346,10 @@ const GEM_ZOOM = 1.28;
 const GEM_NUDGE_X = 0.42;
 const GEM_NUDGE_Y = 0.36;
 
-function setMapPan(entry, animate) {
+function setMapPan(entry, animate, opts) {
+  const zoom = opts?.zoom ?? GEM_ZOOM;
+  const nudgeX = opts?.nudgeX ?? GEM_NUDGE_X;
+  const nudgeY = opts?.nudgeY ?? GEM_NUDGE_Y;
   mapPan.style.transition = animate === false
     ? 'none'
     : `transform ${PAN_MS}ms ${EASE_SWOOSH}`;
@@ -349,10 +358,10 @@ function setMapPan(entry, animate) {
     mapPan.style.transform = 'translate3d(0,0,0) scale(1)';
     return;
   }
-  const dx = (50 - entry.x) * GEM_NUDGE_X;
-  const dy = (38 - entry.y) * GEM_NUDGE_Y;
+  const dx = (50 - entry.x) * nudgeX;
+  const dy = (38 - entry.y) * nudgeY;
   mapPan.style.transformOrigin = `${entry.x}% ${entry.y}%`;
-  mapPan.style.transform = `translate3d(${dx}%, ${dy}%, 0) scale(${GEM_ZOOM})`;
+  mapPan.style.transform = `translate3d(${dx}%, ${dy}%, 0) scale(${zoom})`;
 }
 
 function resetMapCamera(animate) {
@@ -375,6 +384,8 @@ function syncNavButton() {
   navJam.hidden = !onRead;
   navJam.classList.toggle('is-cancel', navigating);
   navJam.setAttribute('aria-label', navigating ? NAV_CANCEL_ARIA : NAV_ARIA);
+  const label = navJam.querySelector('.nav-jam-label');
+  if (label) label.textContent = navigating ? NAV_CANCEL_LABEL : NAV_LABEL;
 }
 
 function setFindPhotoHidden(hidden) {
@@ -397,6 +408,8 @@ function clearNavGuideVisual() {
 function cancelNavigation() {
   navigating = false;
   clearNavGuideVisual();
+  const target = currentNavTarget();
+  if (target) setMapPan(target, true);
   syncNavButton();
 }
 
@@ -431,7 +444,7 @@ function startNavigation() {
     p.classList.toggle('is-nav-dim', !isTarget);
   });
 
-  setMapPan(target, true);
+  setMapPan(target, true, { zoom: NAV_ZOOM, nudgeX: NAV_NUDGE_X, nudgeY: NAV_NUDGE_Y });
   syncNavButton();
 }
 
