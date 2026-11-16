@@ -53,6 +53,10 @@ const MY_JAM_SPOTS = [
   { x: 52, y: 44 },
   { x: 41, y: 43 },
 ];
+/** Player position on the hunt map (%) — line origin for navigate */
+const YOU_SPOT = { x: 50, y: 62 };
+const NAV_LABEL = '[navigate to jam]';
+const NAV_CANCEL_LABEL = '[cancel navigation]';
 const JAM_BORN_MS = 1100;
 
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -63,18 +67,37 @@ const GEM_FACETS = 'M1.5 7.5H22.5M7 1.5L9 7.5L12 20.5L15 7.5L17 1.5';
 const OTHER_GEM_FILL = '#00c2ff';
 const LOCKED_GEM_FILL = '#8a8a96';
 const MY_GEM_FILL = '#b36bff';
-const READ_LABEL_OTHERS = 'See what other Challengers found';
-const READ_LABEL_MINE = 'Your find';
+const READ_LABEL_OTHERS = '[label other challenger find]';
+const READ_LABEL_MINE = '[label your find]';
 const ONBOARD_TIPS = [
-  'Find 3 animalistic patterns near you',
-  'Snap each one to fill a slot below',
-  'Fill all 3 to see what others found today',
+  '[explain challenge: find 3 animalistic patterns]',
+  '[explain slots: snap each find into a slot]',
 ];
-const LOCKED_TIP = 'Take 3 finds to unlock what others found';
+const LOCKED_TIP = '[explain need 3 finds to unlock others]';
+const PUBLISH_TIP = '[persuade user to share]';
 const TIP_TAP_SLOP_PX = 6;
 const REVEAL_MS = 1000;
 const ROUTE_STROKE = '#00c2ff';
 const ROUTE_LINE_WIDTH = 5;
+const ROUTE_CANVAS_W = 640;
+const ROUTE_CANVAS_H = 460;
+const STEPS_PER_FIND = 847;
+const MINUTES_PER_FIND = 4;
+const DAILY_GOAL_STEPS = 8000;
+const DAILY_GOAL_BASE_STEPS = 2100;
+const ROUTE_GEM_STAGGER_MS = 220;
+const ROUTE_PATH_MS = 900;
+const ROUTE_STILL_MS = 480;
+const HUB_LOTTIE_SRC = '../day-reached-overlay/training_hub_day_reached.json';
+const HUB_BEAD_LAYOUT = [
+  { left: 18, top: 48, size: 22, label: 'M' },
+  { left: 55, top: 22, size: 22, label: 'T' },
+  { left: 118, top: 2, size: 36, label: 'W', today: true },
+  { left: 190, top: 18, size: 22, label: 'T' },
+  { left: 232, top: 46, size: 22, label: 'F' },
+];
+const HUB_BEAD_STAGGER_MS = 160;
+const HUB_LOTTIE_MS = 1600;
 
 const FADE_MS = 780;
 const SLIDE_MS = 480;
@@ -98,6 +121,9 @@ const mapStage = document.getElementById('mapStage');
 const mapPan = document.getElementById('mapPan');
 const gemLayer = document.getElementById('gemLayer');
 const jamLayer = document.getElementById('jamLayer');
+const navGuide = document.getElementById('navGuide');
+const navGuideLine = document.getElementById('navGuideLine');
+const youDot = document.getElementById('youDot');
 const findPanel = document.getElementById('findPanel');
 const findCard = document.getElementById('findCard');
 const findCardBack = document.getElementById('findCardBack');
@@ -115,6 +141,7 @@ const likeBtn = document.getElementById('likeBtn');
 const likeHeart = document.getElementById('likeHeart');
 const likeCount = document.getElementById('likeCount');
 const nextGem = document.getElementById('nextGem');
+const navJam = document.getElementById('navJam');
 const shareBtn = document.getElementById('shareBtn');
 const shareSheet = document.getElementById('shareSheet');
 const shareCard = document.getElementById('shareCard');
@@ -128,10 +155,27 @@ const completeCancel = document.getElementById('completeCancel');
 const completeKeep = document.getElementById('completeKeep');
 const completeConfirm = document.getElementById('completeConfirm');
 const routeSheet = document.getElementById('routeSheet');
+const routeStageBg = document.getElementById('routeStageBg');
+const routePath = document.getElementById('routePath');
+const routeGems = document.getElementById('routeGems');
 const routeMap = document.getElementById('routeMap');
+const routeStill = document.getElementById('routeStill');
+const routeDownload = document.getElementById('routeDownload');
+const statSteps = document.getElementById('statSteps');
+const statMinutes = document.getElementById('statMinutes');
+const statGems = document.getElementById('statGems');
+const statGoal = document.getElementById('statGoal');
+const statGoalCap = document.getElementById('statGoalCap');
+const routeGoalNote = document.getElementById('routeGoalNote');
+const hubCelebrate = document.getElementById('hubCelebrate');
+const hubBeads = document.getElementById('hubBeads');
+const hubLottie = document.getElementById('hubLottie');
+const hubCopy = document.getElementById('hubCopy');
 const shareLocationBtn = document.getElementById('shareLocationBtn');
 const routeDone = document.getElementById('routeDone');
 const entryUser = document.getElementById('entryUser');
+/** @type {any} */
+let hubAnim = null;
 const tipWrap = document.getElementById('tipWrap');
 const tipCopy = document.getElementById('tipCopy');
 const seeOther = document.getElementById('seeOther');
@@ -161,6 +205,7 @@ const hint = document.getElementById('hint');
 const playBtn = document.getElementById('play');
 const resetBtn = document.getElementById('reset');
 const debugMapBtn = document.getElementById('debugMap');
+const debugFilledBtn = document.getElementById('debugFilled');
 const picker = document.getElementById('picker');
 const camHot = document.getElementById('camHot');
 const closeHot = document.getElementById('closeHot');
@@ -176,6 +221,8 @@ let myEntries = [];
 /** Viewing my finds vs others' gems */
 let viewingMine = false;
 let myIndex = 0;
+/** Guide line active from you → current jam/gem */
+let navigating = false;
 let stream = null;
 let facingMode = 'environment';
 let busy = false;
@@ -185,10 +232,12 @@ let frontIsA = true;
 let stampsRevealed = false;
 let otherIndex = 0;
 let gemsBuilt = false;
-/** @type {'onboard'|'others'|'locked'} */
+/** @type {'onboard'|'others'|'locked'|'publish'} */
 let tipMode = 'others';
 let tipStep = 0;
 let locationShared = false;
+/** @type {string|null} */
+let routeStillUrl = null;
 let timers = [];
 
 function later(fn, ms) {
@@ -314,6 +363,80 @@ function resetMapCamera(animate) {
   setMapPan(null, animate);
 }
 
+function currentNavTarget() {
+  if (viewingMine) {
+    return jamSpotAt(myIndex);
+  }
+  const entry = OTHER_ENTRIES[otherIndex];
+  if (!entry) return null;
+  return { x: entry.x, y: entry.y };
+}
+
+function syncNavButton() {
+  if (!navJam) return;
+  const onRead = !readMode.hidden && !findPanel.hidden;
+  navJam.hidden = !onRead;
+  navJam.classList.toggle('is-cancel', navigating);
+  navJam.textContent = navigating ? NAV_CANCEL_LABEL : NAV_LABEL;
+}
+
+function clearNavGuideVisual() {
+  if (navGuide) {
+    navGuide.classList.remove('is-on', 'is-draw', 'is-mine');
+    if (navGuideLine) navGuideLine.setAttribute('d', '');
+  }
+  if (youDot) youDot.classList.remove('is-on');
+  gemPins().forEach((p) => p.classList.remove('is-nav-dim', 'is-nav-target'));
+  jamLayer.querySelectorAll('.jam-pin').forEach((p) => {
+    p.classList.remove('is-nav-dim', 'is-nav-target');
+  });
+}
+
+function cancelNavigation() {
+  navigating = false;
+  clearNavGuideVisual();
+  syncNavButton();
+}
+
+function startNavigation() {
+  const target = currentNavTarget();
+  if (!target || !navGuide || !navGuideLine || !youDot) return;
+  navigating = true;
+  clearNavGuideVisual();
+
+  youDot.style.left = `${YOU_SPOT.x}%`;
+  youDot.style.top = `${YOU_SPOT.y}%`;
+  youDot.classList.add('is-on');
+
+  const d = `M${YOU_SPOT.x} ${YOU_SPOT.y} L${target.x} ${target.y}`;
+  navGuideLine.setAttribute('d', d);
+  navGuide.classList.toggle('is-mine', viewingMine);
+  navGuide.classList.add('is-on');
+  void navGuide.offsetWidth;
+  navGuide.classList.add('is-draw');
+
+  gemPins().forEach((p) => {
+    const i = Number(p.dataset.gem);
+    const isTarget = !viewingMine && i === otherIndex;
+    p.classList.toggle('is-nav-target', isTarget);
+    p.classList.toggle('is-nav-dim', !isTarget);
+  });
+  jamLayer.querySelectorAll('.jam-pin').forEach((p) => {
+    const i = Number(p.dataset.jam);
+    const isTarget = viewingMine && i === myIndex;
+    p.classList.toggle('is-nav-target', isTarget);
+    p.classList.toggle('is-nav-dim', !isTarget);
+  });
+
+  setMapPan(target, true);
+  syncNavButton();
+}
+
+function toggleNavigation() {
+  if (navigating) cancelNavigation();
+  else startNavigation();
+}
+
 function jamSpotAt(index) {
   return MY_JAM_SPOTS[Math.min(index, MY_JAM_SPOTS.length - 1)];
 }
@@ -361,6 +484,8 @@ function syncOthersControl() {
   othersBtn.disabled = !ready;
   othersBtn.setAttribute('aria-disabled', ready ? 'false' : 'true');
   seeOther.hidden = !(ready && tipMode === 'others' && !tipWrap.hidden && tipWrap.classList.contains('is-on'));
+  // Publish tip reuses tip.png but must not steal the See others hot-spot
+  if (tipMode === 'publish') seeOther.hidden = true;
 }
 
 function revealOthers() {
@@ -479,6 +604,7 @@ function closeLightbox() {
 
 function showWritePanel(uri) {
   viewingMine = false;
+  cancelNavigation();
   closeLightbox();
   closeShareSheet(false);
   writeMode.hidden = false;
@@ -490,6 +616,7 @@ function showWritePanel(uri) {
   findPanel.hidden = false;
   void findPanel.offsetWidth;
   findPanel.classList.add('is-on');
+  syncNavButton();
 }
 
 function setEntryUser(name) {
@@ -498,6 +625,7 @@ function setEntryUser(name) {
 
 function showReadPanel(entry, { swap }) {
   viewingMine = false;
+  cancelNavigation();
   closeLightbox();
   writeMode.hidden = true;
   readMode.hidden = false;
@@ -512,17 +640,19 @@ function showReadPanel(entry, { swap }) {
   findPanel.hidden = false;
   findPanel.classList.add('is-on');
   markActivePins();
+  syncNavButton();
 }
 
 function showMyReadPanel(entry, { swap }) {
   viewingMine = true;
+  cancelNavigation();
   closeLightbox();
   writeMode.hidden = true;
   readMode.hidden = false;
   setEntryUser(entry.user || MY_USER);
   readLabel.textContent = READ_LABEL_MINE;
   readText.textContent = entry.text || '—';
-  nextGem.hidden = myEntries.length < 2;
+  nextGem.hidden = false;
   shareBtn.hidden = false;
   setPanelPhoto(entry.photo, { swap });
   syncLikeUi({ invite: false });
@@ -530,6 +660,7 @@ function showMyReadPanel(entry, { swap }) {
   findPanel.hidden = false;
   findPanel.classList.add('is-on');
   markActivePins();
+  syncNavButton();
 }
 
 function currentShareEntry() {
@@ -613,6 +744,7 @@ async function openShareSheet() {
 }
 
 function hideFindPanel() {
+  cancelNavigation();
   closeLightbox();
   findPanel.classList.remove('is-on');
   findCard.classList.remove('is-shown', 'is-enter', 'is-shuffle');
@@ -631,6 +763,7 @@ function hideFindPanel() {
   likeBtn.classList.remove('is-invite', 'is-liked');
   closeShareSheet(false);
   markActivePins();
+  syncNavButton();
 }
 
 function renderTipCopy() {
@@ -646,6 +779,12 @@ function renderTipCopy() {
     tipCopy.classList.remove('is-swap');
     void tipCopy.offsetWidth;
     tipCopy.classList.add('is-swap');
+  } else if (tipMode === 'publish') {
+    tipCopy.textContent = PUBLISH_TIP;
+    tipCopy.hidden = false;
+    tipCopy.classList.remove('is-swap');
+    void tipCopy.offsetWidth;
+    tipCopy.classList.add('is-swap');
   } else {
     tipCopy.hidden = true;
   }
@@ -657,8 +796,13 @@ function showOnboarding() {
   showTip();
 }
 
+function showPublishTip() {
+  tipMode = 'publish';
+  showTip();
+}
+
 function advanceTip() {
-  if (tipMode === 'locked') {
+  if (tipMode === 'locked' || tipMode === 'publish') {
     dismissTip();
     return;
   }
@@ -851,7 +995,7 @@ function clearFinds() {
   syncGemLock();
   if (shareLocationBtn) {
     shareLocationBtn.classList.remove('is-shared');
-    shareLocationBtn.textContent = 'Share your location';
+    shareLocationBtn.textContent = '[publish your gems]';
   }
   slotCells.forEach((cell) => {
     const img = cell.querySelector('.slot');
@@ -877,6 +1021,7 @@ function hideRouteSheet() {
   if (!routeSheet) return;
   routeSheet.classList.remove('is-on');
   routeSheet.hidden = true;
+  resetRouteStage();
 }
 
 function loadImage(src) {
@@ -888,58 +1033,218 @@ function loadImage(src) {
   });
 }
 
-async function drawRouteMap() {
-  const ctx = routeMap.getContext('2d');
-  const w = routeMap.width;
-  const h = routeMap.height;
+function routeBand() {
   const bandTop = 83 / 814;
   const bandBottom = 556 / 814;
-  const bandH = bandBottom - bandTop;
-  ctx.clearRect(0, 0, w, h);
+  return { bandTop, bandBottom, bandH: bandBottom - bandTop };
+}
+
+function routePoints() {
+  const { bandTop, bandH } = routeBand();
+  const w = ROUTE_CANVAS_W;
+  const h = ROUTE_CANVAS_H;
+  return myEntries.map((_, i) => {
+    const spot = jamSpotAt(i);
+    return {
+      x: (spot.x / 100) * w,
+      y: (((spot.y / 100) - bandTop) / bandH) * h,
+    };
+  });
+}
+
+function walkStepsEarned() {
+  return myEntries.length * STEPS_PER_FIND;
+}
+
+function fillRouteStats() {
+  const gems = myEntries.length;
+  const earned = walkStepsEarned();
+  const towardGoal = Math.min(DAILY_GOAL_STEPS, DAILY_GOAL_BASE_STEPS + earned);
+  statSteps.textContent = String(earned);
+  statMinutes.textContent = String(gems * MINUTES_PER_FIND);
+  statGems.textContent = String(gems);
+  if (statGoal) statGoal.textContent = String(towardGoal);
+  if (statGoalCap) statGoalCap.textContent = String(DAILY_GOAL_STEPS);
+  if (routeGoalNote) {
+    routeGoalNote.textContent = `[show +${earned} steps added to daily goal]`;
+  }
+}
+
+function resetHubCelebrate() {
+  if (hubAnim) {
+    hubAnim.destroy();
+    hubAnim = null;
+  }
+  if (hubLottie) {
+    hubLottie.replaceChildren();
+    hubLottie.classList.remove('is-on');
+  }
+  if (hubBeads) hubBeads.replaceChildren();
+  if (hubCelebrate) {
+    hubCelebrate.classList.remove('is-on');
+    hubCelebrate.setAttribute('aria-hidden', 'true');
+  }
+}
+
+async function playHubCelebrate() {
+  if (!hubCelebrate || !window.lottie) return;
+  resetHubCelebrate();
+  hubCelebrate.classList.add('is-on');
+  hubCelebrate.setAttribute('aria-hidden', 'false');
+  if (hubCopy) {
+    hubCopy.textContent = `[show +${walkStepsEarned()} steps landing in training hub]`;
+  }
+
+  HUB_BEAD_LAYOUT.forEach((bead, i) => {
+    const el = document.createElement('div');
+    el.className = `hub-bead${bead.today ? ' is-today' : ''}`;
+    el.style.left = `${bead.left}px`;
+    el.style.top = `${bead.top}px`;
+    el.style.width = `${bead.size}px`;
+    el.style.height = `${bead.size}px`;
+    el.textContent = bead.label;
+    hubBeads.appendChild(el);
+    later(() => el.classList.add('is-in'), i * HUB_BEAD_STAGGER_MS);
+  });
+
+  try {
+    hubAnim = window.lottie.loadAnimation({
+      container: hubLottie,
+      renderer: 'svg',
+      loop: false,
+      autoplay: true,
+      path: HUB_LOTTIE_SRC,
+    });
+    hubLottie.classList.add('is-on');
+  } catch (_) {
+    /* keep beads even if lottie fails */
+  }
+  await wait(HUB_LOTTIE_MS);
+}
+
+async function prepareRouteStageBg() {
+  const { bandTop, bandH } = routeBand();
   try {
     const base = await loadImage('assets/parts/map-hunt.png?v=7');
+    const c = document.createElement('canvas');
+    c.width = ROUTE_CANVAS_W;
+    c.height = ROUTE_CANVAS_H;
+    const ctx = c.getContext('2d');
     const srcY = bandTop * base.height;
     const srcH = bandH * base.height;
-    ctx.drawImage(base, 0, srcY, base.width, srcH, 0, 0, w, h);
+    ctx.drawImage(base, 0, srcY, base.width, srcH, 0, 0, c.width, c.height);
+    routeStageBg.src = c.toDataURL('image/jpeg', 0.92);
   } catch (_) {
+    routeStageBg.removeAttribute('src');
+  }
+}
+
+function resetRouteStage() {
+  routeGems.replaceChildren();
+  routePath.innerHTML = '';
+  routePath.classList.remove('is-on', 'is-draw');
+  routeStill.hidden = true;
+  routeStill.classList.remove('is-on');
+  routeStill.removeAttribute('src');
+  routeDownload.hidden = true;
+  routeDownload.removeAttribute('href');
+  resetHubCelebrate();
+  if (routeStillUrl) {
+    URL.revokeObjectURL(routeStillUrl);
+    routeStillUrl = null;
+  }
+}
+
+async function playRouteDomino() {
+  const points = routePoints();
+  resetRouteStage();
+  await prepareRouteStageBg();
+
+  if (points.length >= 2) {
+    const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+    routePath.innerHTML = `<path d="${d}"></path>`;
+  }
+
+  for (let i = 0; i < points.length; i += 1) {
+    const p = points[i];
+    const gem = document.createElement('div');
+    gem.className = 'route-gem';
+    gem.style.left = `${(p.x / ROUTE_CANVAS_W) * 100}%`;
+    gem.style.top = `${(p.y / ROUTE_CANVAS_H) * 100}%`;
+    gem.innerHTML = gemSvg(MY_GEM_FILL);
+    routeGems.appendChild(gem);
+    void gem.offsetWidth;
+    gem.classList.add('is-in');
+    await wait(ROUTE_GEM_STAGGER_MS);
+  }
+
+  if (points.length >= 2) {
+    routePath.classList.add('is-on');
+    void routePath.offsetWidth;
+    routePath.classList.add('is-draw');
+    await wait(ROUTE_PATH_MS);
+  } else {
+    await wait(280);
+  }
+
+  await freezeRouteStill(points);
+}
+
+async function freezeRouteStill(points) {
+  const ctx = routeMap.getContext('2d');
+  const w = ROUTE_CANVAS_W;
+  const h = ROUTE_CANVAS_H;
+  routeMap.width = w;
+  routeMap.height = h;
+  ctx.clearRect(0, 0, w, h);
+
+  if (routeStageBg.src) {
+    try {
+      const bg = await loadImage(routeStageBg.src);
+      ctx.drawImage(bg, 0, 0, w, h);
+    } catch (_) {
+      ctx.fillStyle = '#120c22';
+      ctx.fillRect(0, 0, w, h);
+    }
+  } else {
     ctx.fillStyle = '#120c22';
     ctx.fillRect(0, 0, w, h);
   }
 
-  const spots = myEntries.map((_, i) => jamSpotAt(i));
-  if (spots.length === 0) return;
+  if (points.length >= 2) {
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = ROUTE_STROKE;
+    ctx.lineWidth = ROUTE_LINE_WIDTH;
+    ctx.beginPath();
+    points.forEach((p, i) => {
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+    ctx.stroke();
+  }
 
-  const toXY = (spot) => ({
-    x: (spot.x / 100) * w,
-    y: (((spot.y / 100) - bandTop) / bandH) * h,
-  });
-  const points = spots.map(toXY);
-
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.strokeStyle = ROUTE_STROKE;
-  ctx.lineWidth = ROUTE_LINE_WIDTH;
-  ctx.beginPath();
-  points.forEach((p, i) => {
-    if (i === 0) ctx.moveTo(p.x, p.y);
-    else ctx.lineTo(p.x, p.y);
-  });
-  ctx.stroke();
-
-  points.forEach((p, i) => {
+  points.forEach((p) => {
     ctx.beginPath();
     ctx.fillStyle = MY_GEM_FILL;
-    ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, 11, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.stroke();
-    ctx.fillStyle = '#fff';
-    ctx.font = '700 12px Darker Grotesque, system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(String(i + 1), p.x, p.y + 0.5);
   });
+
+  const dataUrl = routeMap.toDataURL('image/png');
+  routeStill.src = dataUrl;
+  routeStill.hidden = false;
+  void routeStill.offsetWidth;
+  routeStill.classList.add('is-on');
+  routeDownload.href = dataUrl;
+  routeDownload.hidden = false;
+  await wait(ROUTE_STILL_MS);
+  routeGems.replaceChildren();
+  routePath.classList.remove('is-on', 'is-draw');
+  routePath.innerHTML = '';
 }
 
 async function showRouteSheet() {
@@ -950,11 +1255,14 @@ async function showRouteSheet() {
   resetMapCamera(false);
   locationShared = false;
   shareLocationBtn.classList.remove('is-shared');
-  shareLocationBtn.textContent = 'Share your location';
+  shareLocationBtn.textContent = '[publish your gems]';
+  fillRouteStats();
   routeSheet.hidden = false;
   void routeSheet.offsetWidth;
   routeSheet.classList.add('is-on');
-  await drawRouteMap();
+  await playRouteDomino();
+  await playHubCelebrate();
+  showPublishTip();
 }
 
 async function leaveMapToEntry() {
@@ -986,7 +1294,7 @@ async function requestLeaveMap() {
   dismissTip();
   closeShareSheet(false);
   showCompleteSheet();
-  setHint('Complete your walk — or keep hunting.');
+  setHint('[confirm complete walk]');
 }
 
 async function confirmCompleteWalk() {
@@ -994,27 +1302,35 @@ async function confirmCompleteWalk() {
   busy = true;
   await showRouteSheet();
   busy = false;
-  setHint('Your route — share your location to make finds public.');
+  setHint('[persuade user to share]');
 }
 
 async function shareMyLocation() {
   if (locationShared) return;
   locationShared = true;
   shareLocationBtn.classList.add('is-shared');
-  shareLocationBtn.textContent = 'Location shared';
-  jamLayer.querySelectorAll('.jam-pin').forEach((pin) => {
-    pin.classList.add('is-live');
-  });
-  const text = `Shared my Whimsy Walk finds near ${MY_PLACE}`;
+  shareLocationBtn.textContent = '[gems published]';
+  dismissTip();
+  const text = `[share payload] ${myEntries.length} gems · ${myEntries.length * STEPS_PER_FIND} steps · ${MY_PLACE}`;
   try {
-    if (navigator.share) await navigator.share({ title: 'StoryCity walk', text });
-    else if (navigator.clipboard) {
-      await navigator.clipboard.writeText(text);
-      setHint('Location copied — your finds are public for others.');
+    if (routeStill.src && navigator.canShare) {
+      const res = await fetch(routeStill.src);
+      const blob = await res.blob();
+      const file = new File([blob], 'whimsy-walk.png', { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ title: '[share walk title]', text, files: [file] });
+        return;
+      }
+    }
+    if (navigator.share) {
+      await navigator.share({ title: '[share walk title]', text });
       return;
     }
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      setHint('[copied share payload]');
+    }
   } catch (_) { /* cancelled */ }
-  setHint('Location shared — others can find your gems.');
 }
 
 async function finishRouteAndLeave() {
@@ -1140,6 +1456,46 @@ async function jumpStraightToMap() {
   setHint('Debug — straight to map.');
 }
 
+/** Debug — map with all 3 finds filled (daily/weekly challenge complete). */
+async function jumpFilledChallenge() {
+  if (busy) return;
+  busy = true;
+  clearTimers();
+  await closeCamera(false);
+  clearFinds();
+  resetStampState();
+  if (stampSheet.classList.contains('is-on')) {
+    stampSheet.classList.remove('is-on');
+    stampSheet.setAttribute('aria-hidden', 'true');
+  }
+  for (let i = 0; i < FINDS_NEEDED; i += 1) {
+    const photo = placeholderForFind(i);
+    myEntries.push({
+      user: MY_USER,
+      photo,
+      text: `[debug find ${i + 1}]`,
+      place: MY_PLACE,
+    });
+    const cell = slotCells[i];
+    const img = cell.querySelector('.slot');
+    img.src = photo;
+    cell.classList.add('is-filled');
+    placeJam(i, { pulse: false });
+  }
+  finds = myEntries.length;
+  phase = 'map';
+  buildGems();
+  mapStage.classList.add('is-on');
+  mapStage.setAttribute('aria-hidden', 'false');
+  resetMapCamera(false);
+  await wait(FADE_MS);
+  revealOthers();
+  busy = false;
+  syncChrome();
+  showOthersTip();
+  setHint('Debug — challenge done (map filled).');
+}
+
 async function startStream() {
   cameraFallback.hidden = true;
   cameraVideo.hidden = false;
@@ -1181,7 +1537,7 @@ async function openCamera() {
   dismissTip();
   phase = 'camera';
   pendingCapture = null;
-  cameraPrompt.textContent = `Find ${finds + 1} of ${FINDS_NEEDED} — animalistic pattern`;
+  cameraPrompt.textContent = `[camera prompt find ${finds + 1} of ${FINDS_NEEDED}]`;
   syncChrome();
   camera.hidden = false;
   camera.setAttribute('aria-hidden', 'false');
@@ -1402,13 +1758,19 @@ async function cycleNextGem() {
     await enterBrowse();
     return;
   }
+  cancelNavigation();
   closeShareSheet(false);
   busy = true;
   if (viewingMine) {
-    const next = (myIndex + 1) % myEntries.length;
-    myIndex = next;
-    showMyReadPanel(myEntries[next], { swap: true });
-    setHint(`Your find ${myIndex + 1}/${myEntries.length}.`);
+    if (myEntries.length < 2 && gemsUnlocked()) {
+      await showOtherEntry(0, true);
+      setHint(`Other find 1/${OTHER_ENTRIES.length}.`);
+    } else {
+      const next = (myIndex + 1) % myEntries.length;
+      myIndex = next;
+      showMyReadPanel(myEntries[next], { swap: true });
+      setHint(`Your find ${myIndex + 1}/${myEntries.length}.`);
+    }
   } else {
     await showOtherEntry(otherIndex + 1, true);
     setHint(`Other find ${otherIndex + 1}/${OTHER_ENTRIES.length}.`);
@@ -1446,6 +1808,7 @@ resetBtn.addEventListener('click', () => {
   goHome();
 });
 debugMapBtn.addEventListener('click', () => jumpStraightToMap());
+debugFilledBtn.addEventListener('click', () => jumpFilledChallenge());
 
 closeHot.addEventListener('click', async () => {
   if (busy) return;
@@ -1487,6 +1850,7 @@ othersBtn.addEventListener('click', () => {
   enterBrowse();
 });
 nextGem.addEventListener('click', () => cycleNextGem());
+navJam.addEventListener('click', () => toggleNavigation());
 shareBtn.addEventListener('click', () => openShareSheet());
 shareClose.addEventListener('click', () => closeShareSheet(true));
 infoBtn.addEventListener('click', () => {

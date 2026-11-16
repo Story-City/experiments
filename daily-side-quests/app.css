@@ -337,6 +337,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   border: 0; padding: 0; background: transparent;
   pointer-events: auto;
   cursor: pointer;
+  transition: opacity 900ms var(--ease-out), filter 900ms var(--ease-out), transform 480ms var(--ease-spring);
 }
 .jam-pin svg { width: 22px; height: 20px; display: block; z-index: 1; }
 .jam-pin .jam-pulse {
@@ -410,7 +411,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   50% { opacity: 0.85; transform: scale(1.35); }
 }
 
-/* JAM-SHINE-v39 — others' gems always on map; gray until 3 finds */
+/* EXIT-JUICE-v40 — others' gems always on map; gray until 3 finds */
 .gem-layer {
   position: absolute; inset: 0;
   pointer-events: none;
@@ -441,6 +442,70 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   filter: saturate(1.2) drop-shadow(0 0 12px rgba(0, 194, 255, 0.9));
   transform: scale(1.22);
   z-index: 2;
+}
+.gem-pin.is-nav-dim,
+.jam-pin.is-nav-dim {
+  opacity: 0.14;
+  filter: saturate(0.35) brightness(0.85);
+  pointer-events: none;
+  transition: opacity 900ms var(--ease-out), filter 900ms var(--ease-out);
+}
+.gem-pin.is-nav-target,
+.jam-pin.is-nav-target {
+  opacity: 1;
+  z-index: 3;
+  transition: opacity 900ms var(--ease-out), filter 900ms var(--ease-out), transform 480ms var(--ease-spring);
+}
+
+/* Navigate guide — soft line from you → jam */
+.nav-guide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0;
+  transition: opacity 480ms var(--ease-out);
+}
+.nav-guide.is-on {
+  opacity: 1;
+}
+.nav-guide-line {
+  stroke: rgba(0, 194, 255, 0.92);
+  stroke-width: 0.55;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 2px rgba(0, 194, 255, 0.55));
+}
+.nav-guide.is-mine .nav-guide-line {
+  stroke: rgba(179, 107, 255, 0.95);
+  filter: drop-shadow(0 0 2px rgba(179, 107, 255, 0.55));
+}
+.nav-guide.is-draw .nav-guide-line {
+  animation: navLineDraw 920ms var(--ease-out) forwards;
+}
+@keyframes navLineDraw {
+  to { stroke-dashoffset: 0; }
+}
+.you-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff 0%, #7ad4ff 42%, #0259a1 100%);
+  box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.28), 0 0 14px rgba(0, 194, 255, 0.55);
+  pointer-events: none;
+  z-index: 7;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 520ms var(--ease-out), transform 520ms var(--ease-spring);
+}
+.you-dot.is-on {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* Tiny gem — always on map; disabled until challenge done */
@@ -550,36 +615,216 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .route-sheet {
   align-items: stretch;
   justify-content: center;
-  background: rgba(7, 5, 18, 0.92);
-  padding: calc(52 / var(--phone-h) * 100%) calc(18 / var(--phone-w) * 100%) calc(28 / var(--phone-h) * 100%);
+  background: rgba(7, 5, 18, 0.94);
+  padding: calc(40 / var(--phone-h) * 100%) calc(16 / var(--phone-w) * 100%) calc(20 / var(--phone-h) * 100%);
   box-sizing: border-box;
 }
 .route-card {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   min-height: 0;
 }
 .route-title {
   margin: 0;
   color: #fff;
   font-weight: 800;
-  font-size: 18px;
+  font-size: 17px;
   text-align: center;
   flex: none;
 }
-.route-map {
+.route-stage {
+  position: relative;
   width: 100%;
-  aspect-ratio: 376 / 460;
-  height: auto;
+  aspect-ratio: 640 / 460;
   flex: none;
   border-radius: 18px;
-  display: block;
+  overflow: hidden;
   background: #120c22;
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
+.route-stage-bg,
+.route-still,
+.route-map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+.route-path {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 420ms var(--ease-out);
+}
+.route-path.is-on { opacity: 1; }
+.route-path path {
+  fill: none;
+  stroke: #00c2ff;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+}
+.route-path.is-draw path {
+  animation: routeDraw 900ms var(--ease-out) forwards;
+}
+@keyframes routeDraw {
+  to { stroke-dashoffset: 0; }
+}
+.route-gems {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.route-gem {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(0.3);
+}
+.route-gem.is-in {
+  animation: gemPinUnlock 620ms var(--ease-spring) both;
+}
+.route-gem svg { width: 22px; height: 20px; display: block; }
+.route-still.is-on {
+  z-index: 3;
+  animation: routeStillIn 480ms var(--ease-out) both;
+}
+@keyframes routeStillIn {
+  0% { opacity: 0; transform: scale(1.03); }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* EndStoryStatsSection pattern — bold value + soft label, 2-col grid */
+.route-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  flex: none;
+  padding: 2px 4px 0;
+}
+.route-stat {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+}
+.route-stat-value {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.route-goal-note {
+  margin: 0;
+  color: rgba(0, 194, 255, 0.92);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+/* Training-hub day-reached strip — overlaid celebration, keeps route art intact */
+.hub-celebrate {
+  position: relative;
+  flex: none;
+  min-height: 120px;
+  border-radius: 16px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 480ms var(--ease-out), transform 520ms var(--ease-spring);
+}
+.hub-celebrate.is-on {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.hub-haze {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 20%, rgba(0, 158, 255, 0.28), transparent 70%);
+  pointer-events: none;
+}
+.hub-band {
+  position: relative;
+  height: 100px;
+  margin-top: 6px;
+}
+.hub-graphic {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  width: 280px;
+  height: 88px;
+  transform: translateX(-50%);
+}
+.hub-beads {
+  position: absolute;
+  inset: 0;
+}
+.hub-bead {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(0.6);
+}
+.hub-bead.is-in {
+  animation: hubBeadIn 520ms var(--ease-spring) both;
+}
+.hub-bead.is-today {
+  background: rgba(0, 158, 255, 0.35);
+  border-color: rgba(0, 158, 255, 0.9);
+  box-shadow: 0 0 18px rgba(0, 158, 255, 0.55);
+}
+@keyframes hubBeadIn {
+  0% { opacity: 0; transform: scale(0.55); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.hub-lottie {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 280ms var(--ease-out);
+}
+.hub-lottie.is-on { opacity: 1; }
+.hub-lottie svg { overflow: visible; }
+.hub-copy {
+  margin: 4px 0 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 13px;
+  font-weight: 700;
+}
+.route-download {
+  flex: none;
+  text-align: center;
+  color: rgba(0, 194, 255, 0.92);
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: underline;
+}
+.route-download[hidden] { display: none !important; }
 .share-location-btn {
   flex: none;
   height: 44px;
@@ -791,37 +1036,45 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .side-actions {
   display: flex; align-items: center; gap: 8px;
 }
-.entry-user {
+.read-user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   margin: 0 0 4px;
+  min-height: 22px;
+}
+.entry-user {
+  margin: 0;
   font-weight: 800;
   font-size: 12px;
   letter-spacing: 0.04em;
   text-transform: lowercase;
   color: rgba(0, 194, 255, 0.92);
 }
-/* like | share | small bare arrow — arrow stays inside the container */
+/* like + share sit together; next lives on the username row */
 .read-meta {
-  display: grid;
-  grid-template-columns: minmax(64px, 1fr) auto 22px;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 34px;
+  gap: 6px;
+  min-height: 28px;
 }
 .like-btn {
   justify-self: start;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-width: 72px;
-  height: 34px;
-  padding: 0 10px;
+  gap: 4px;
+  width: auto;
+  min-width: 0;
+  height: 28px;
+  padding: 0 8px;
   border: 0;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
   color: #ffb4d4;
   font: inherit;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
 }
 .like-heart {
@@ -921,38 +1174,32 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   background: linear-gradient(90deg, #0259a1, var(--accent));
   color: #fff;
 }
-/* Modern mobile share — filled pill, not a chrome circle */
+/* Share matches like size, sits beside it */
 .share-btn {
-  justify-self: end;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px 0 12px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
   border: 0;
   border-radius: 999px;
-  background: #fff;
-  color: #0b0a14;
-  font: inherit;
-  font-weight: 800;
-  font-size: 13px;
-  letter-spacing: 0.01em;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  flex: none;
 }
 .share-btn svg {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   display: block;
-  flex: none;
 }
 .share-btn[hidden] { display: none !important; }
 
-/* Small bare chevron inside read-meta — no frame */
+/* Next — opposite the username on the user row */
 .next-arrow {
-  justify-self: end;
+  flex: none;
   width: 22px;
-  height: 34px;
+  height: 22px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -967,6 +1214,29 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   display: block;
 }
 .next-arrow[hidden] { display: none !important; }
+
+.nav-jam-btn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0259a1, var(--accent));
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+.nav-jam-btn.is-cancel {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.nav-jam-btn[hidden] { display: none !important; }
 
 /* ARROW-IN-META-v35 — isolated find pulled to the top */
 .share-sheet {
@@ -1048,9 +1318,9 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .tip-wrap {
   position: absolute;
   left: calc(24 / var(--phone-w) * 100%);
-  top: calc(353 / var(--phone-h) * 100%);
+  top: calc(400 / var(--phone-h) * 100%);
   width: calc(352 / var(--phone-w) * 100%);
-  z-index: 16;
+  z-index: 50;
   touch-action: pan-y;
   opacity: 0;
   transform: translateX(0);
@@ -1115,10 +1385,12 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   100% { opacity: 1; transform: translateX(0) translateY(0); }
 }
 
+/* Top-right corner of the hunt map card (title row, inset from card edge). */
 .info-btn {
   position: absolute;
-  top: calc(52 / var(--phone-h) * 100%);
-  right: calc(14 / var(--phone-w) * 100%);
+  top: calc(598 / var(--phone-h) * 100%);
+  right: calc(22 / var(--phone-w) * 100%);
+  left: auto;
   z-index: 18;
   width: 28px;
   height: 28px;
