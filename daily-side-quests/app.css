@@ -672,32 +672,12 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   text-align: left;
   flex: none;
 }
-.route-media {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex: none;
-  min-height: 0;
-}
-.route-stage {
-  position: relative;
-  width: 100%;
-  flex: none;
-  aspect-ratio: 376 / 644;
-  max-height: calc(260 / var(--phone-h) * 100%);
-  min-height: 160px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #120c22;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
 .route-carousel {
   display: flex;
   align-items: center;
   gap: 4px;
   width: 100%;
   flex: none;
-  min-height: 88px;
 }
 .route-carousel[hidden] { display: none !important; }
 .route-carousel-nav {
@@ -727,28 +707,29 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   display: flex;
   align-items: stretch;
   gap: 10px;
-  padding: 2px 4px;
+  padding: 2px 0;
 }
+.route-carousel-slide,
 .route-carousel-gem {
   flex: none;
-  width: min(148px, 72%);
-  aspect-ratio: 3 / 4;
+  width: 100%;
   border: 0;
   padding: 0;
   border-radius: 12px;
   overflow: hidden;
   background: #120c22;
-  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.22);
   scroll-snap-align: center;
-  cursor: pointer;
-  opacity: 0.72;
-  transform: scale(0.94);
-  transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out), box-shadow 280ms var(--ease-out);
+  scroll-snap-stop: always;
 }
-.route-carousel-gem.is-active {
-  opacity: 1;
-  transform: scale(1);
-  box-shadow: 0 0 0 2px rgba(0, 158, 255, 0.85);
+.route-carousel-gem {
+  position: relative;
+  aspect-ratio: 8 / 5;
+  cursor: pointer;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.18);
+}
+.route-carousel-gem.is-active,
+.route-carousel-slide.is-active .route-stage {
+  box-shadow: 0 0 0 2px rgba(0, 158, 255, 0.75);
 }
 .route-carousel-gem img {
   width: 100%;
@@ -756,6 +737,15 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   object-fit: cover;
   display: block;
   pointer-events: none;
+}
+.route-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 8 / 5;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #120c22;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .route-stage-glow {
   position: absolute;

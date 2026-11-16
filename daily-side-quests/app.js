@@ -79,12 +79,14 @@ const TIP_TAP_SLOP_PX = 6;
 const REVEAL_MS = 1000;
 const ROUTE_STROKE = '#00c2ff';
 const ROUTE_LINE_WIDTH = 5;
-/** Match map-layer band aspect (phone 376 × layer 644) so the stage is not stretched */
+/** Zoomed walk crop — wide card, not the full tall map layer */
 const ROUTE_CANVAS_W = 640;
-const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (644 / 376));
-const NAV_ZOOM = 2.15;
-const NAV_NUDGE_X = 0.62;
-const NAV_NUDGE_Y = 0.55;
+const ROUTE_CANVAS_H = 400;
+const ROUTE_CROP_MIN = 0.34;
+const ROUTE_CROP_PAD = 0.16;
+const NAV_ZOOM = 2.45;
+const NAV_NUDGE_X = 0.68;
+const NAV_NUDGE_Y = 0.6;
 const ROUTE_GEM_GLOW_MS = 900;
 const ROUTE_PROGRESS_HOLD_MS = 420;
 const NAV_LABEL = '[navigate to jam]';
@@ -1048,7 +1050,9 @@ function hideRouteSheet() {
   routeSheet.classList.remove('is-on');
   routeSheet.hidden = true;
   resetRouteStage();
-  if (routeCarouselTrack) routeCarouselTrack.replaceChildren();
+  if (routeCarouselTrack) {
+    routeCarouselTrack.querySelectorAll('.route-carousel-gem').forEach((el) => el.remove());
+  }
   carouselIndex = 0;
 }
 
@@ -1068,17 +1072,61 @@ function routeBand() {
   return { bandTop, bandBottom: bandTop + bandH, bandH };
 }
 
-function routePoints() {
+function jamPointsInBand() {
   const { bandTop, bandH } = routeBand();
-  const w = ROUTE_CANVAS_W;
-  const h = ROUTE_CANVAS_H;
   return myEntries.map((_, i) => {
     const spot = jamSpotAt(i);
     return {
-      x: (spot.x / 100) * w,
-      y: (((spot.y / 100) - bandTop) / bandH) * h,
+      x: spot.x / 100,
+      y: (spot.y / 100 - bandTop) / bandH,
     };
   });
+}
+
+/** Normalized crop of the map-layer focused on today's jams */
+function routeCropRect() {
+  const pts = jamPointsInBand();
+  if (!pts.length) {
+    return { x: 0.2, y: 0.28, w: 0.6, h: 0.6 * (ROUTE_CANVAS_H / ROUTE_CANVAS_W) };
+  }
+  let minX = Math.min(...pts.map((p) => p.x));
+  let maxX = Math.max(...pts.map((p) => p.x));
+  let minY = Math.min(...pts.map((p) => p.y));
+  let maxY = Math.max(...pts.map((p) => p.y));
+  const padX = Math.max(ROUTE_CROP_PAD, (maxX - minX) * 0.45);
+  const padY = Math.max(ROUTE_CROP_PAD, (maxY - minY) * 0.45);
+  minX = Math.max(0, minX - padX);
+  maxX = Math.min(1, maxX + padX);
+  minY = Math.max(0, minY - padY);
+  maxY = Math.min(1, maxY + padY);
+  let w = Math.max(ROUTE_CROP_MIN, maxX - minX);
+  let h = Math.max(ROUTE_CROP_MIN * (ROUTE_CANVAS_H / ROUTE_CANVAS_W), maxY - minY);
+  const targetAspect = ROUTE_CANVAS_W / ROUTE_CANVAS_H;
+  if (w / h > targetAspect) h = w / targetAspect;
+  else w = h * targetAspect;
+  if (w > 1) {
+    h *= 1 / w;
+    w = 1;
+  }
+  if (h > 1) {
+    w *= 1 / h;
+    h = 1;
+  }
+  let x = (minX + maxX) / 2 - w / 2;
+  let y = (minY + maxY) / 2 - h / 2;
+  x = Math.min(Math.max(0, x), 1 - w);
+  y = Math.min(Math.max(0, y), 1 - h);
+  return { x, y, w, h };
+}
+
+function routePoints() {
+  const crop = routeCropRect();
+  const w = ROUTE_CANVAS_W;
+  const h = ROUTE_CANVAS_H;
+  return jamPointsInBand().map((p) => ({
+    x: ((p.x - crop.x) / crop.w) * w,
+    y: ((p.y - crop.y) / crop.h) * h,
+  }));
 }
 
 function walkStepsEarned() {
@@ -1148,28 +1196,24 @@ function scrollCarouselTo(index, { smooth }) {
 
 function fillRouteCarousel() {
   if (!routeCarouselTrack) return;
-  routeCarouselTrack.replaceChildren();
+  routeCarouselTrack.querySelectorAll('.route-carousel-gem').forEach((el) => el.remove());
   carouselIndex = 0;
   myEntries.forEach((entry, i) => {
     const cell = document.createElement('button');
     cell.type = 'button';
-    cell.className = 'route-carousel-gem';
+    cell.className = 'route-carousel-gem route-carousel-slide';
     cell.setAttribute('aria-label', `Gem ${i + 1}`);
     const img = document.createElement('img');
     img.src = entry.photo;
     img.alt = '';
     img.decoding = 'async';
     cell.appendChild(img);
-    cell.addEventListener('click', () => scrollCarouselTo(i, { smooth: true }));
+    cell.addEventListener('click', () => scrollCarouselTo(i + 1, { smooth: true }));
     routeCarouselTrack.appendChild(cell);
   });
-  if (routeCarousel) {
-    routeCarousel.hidden = myEntries.length === 0;
-  }
-  if (myEntries.length) {
-    void routeCarouselTrack.offsetWidth;
-    scrollCarouselTo(0, { smooth: false });
-  }
+  if (routeCarousel) routeCarousel.hidden = false;
+  void routeCarouselTrack.offsetWidth;
+  scrollCarouselTo(0, { smooth: false });
 }
 
 async function countGlanceSteps(from, to) {
@@ -1211,6 +1255,7 @@ async function playStepGlance() {
 }
 
 async function prepareRouteStageBg() {
+  const crop = routeCropRect();
   const { bandTop, bandH } = routeBand();
   const c = document.createElement('canvas');
   c.width = ROUTE_CANVAS_W;
@@ -1219,24 +1264,38 @@ async function prepareRouteStageBg() {
   ctx.fillStyle = '#120c22';
   ctx.fillRect(0, 0, c.width, c.height);
 
-  try {
-    /** map-layer is already the hunt band art shown on the live map */
-    const layer = await loadImage('assets/figma/map-layer.png?v=33');
-    ctx.drawImage(layer, 0, 0, layer.width, layer.height, 0, 0, c.width, c.height);
+  const drawZoomed = (img, srcX, srcY, srcW, srcH) => {
+    ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, c.width, c.height);
     routeStageBg.src = c.toDataURL('image/jpeg', 0.92);
     routeStageBg.hidden = false;
+  };
+
+  try {
+    /** map-layer is already the hunt band — crop zoomed to today's jams */
+    const layer = await loadImage('assets/figma/map-layer.png?v=33');
+    drawZoomed(
+      layer,
+      crop.x * layer.width,
+      crop.y * layer.height,
+      crop.w * layer.width,
+      crop.h * layer.height,
+    );
     return;
   } catch (_) {
-    /* fall through to full hunt crop */
+    /* fall through */
   }
 
   try {
     const base = await loadImage('assets/parts/map-hunt.png?v=7');
-    const srcY = bandTop * base.height;
-    const srcH = bandH * base.height;
-    ctx.drawImage(base, 0, srcY, base.width, srcH, 0, 0, c.width, c.height);
-    routeStageBg.src = c.toDataURL('image/jpeg', 0.92);
-    routeStageBg.hidden = false;
+    const bandY = bandTop * base.height;
+    const bandSrcH = bandH * base.height;
+    drawZoomed(
+      base,
+      crop.x * base.width,
+      bandY + crop.y * bandSrcH,
+      crop.w * base.width,
+      crop.h * bandSrcH,
+    );
   } catch (_) {
     routeStageBg.removeAttribute('src');
   }
