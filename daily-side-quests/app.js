@@ -55,8 +55,8 @@ const MY_JAM_SPOTS = [
 ];
 /** Player position on the hunt map (%) — line origin for navigate */
 const YOU_SPOT = { x: 50, y: 62 };
-const NAV_LABEL = '[navigate to jam]';
-const NAV_CANCEL_LABEL = '[cancel navigation]';
+const NAV_ARIA = 'Navigate to jam';
+const NAV_CANCEL_ARIA = 'Cancel navigation';
 const JAM_BORN_MS = 1100;
 
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -85,9 +85,9 @@ const STEPS_PER_FIND = 847;
 const MINUTES_PER_FIND = 4;
 const DAILY_GOAL_STEPS = 8000;
 const DAILY_GOAL_BASE_STEPS = 2100;
-const ROUTE_GEM_STAGGER_MS = 220;
-const ROUTE_PATH_MS = 900;
-const ROUTE_STILL_MS = 480;
+const ROUTE_GEM_STAGGER_MS = 520;
+const ROUTE_PATH_MS = 1400;
+const ROUTE_STILL_MS = 720;
 /** StepGlance arc — same geometry as mobile-rn StepGlanceArcProgressStyles */
 const GLANCE_ARC_CX = 120;
 const GLANCE_ARC_CY = 96;
@@ -163,7 +163,6 @@ const routeDownload = document.getElementById('routeDownload');
 const statSteps = document.getElementById('statSteps');
 const statMinutes = document.getElementById('statMinutes');
 const statGems = document.getElementById('statGems');
-const routeCarousel = document.getElementById('routeCarousel');
 const stepGlance = document.getElementById('stepGlance');
 const stepGlanceTrack = document.getElementById('stepGlanceTrack');
 const stepGlanceFill = document.getElementById('stepGlanceFill');
@@ -171,7 +170,8 @@ const stepGlanceSteps = document.getElementById('stepGlanceSteps');
 const stepGlanceOut = document.getElementById('stepGlanceOut');
 const shareLocationBtn = document.getElementById('shareLocationBtn');
 const routeSeeOthers = document.getElementById('routeSeeOthers');
-const routeDone = document.getElementById('routeDone');
+const routeClose = document.getElementById('routeClose');
+const routeScrim = document.getElementById('routeScrim');
 const entryUser = document.getElementById('entryUser');
 const tipWrap = document.getElementById('tipWrap');
 const tipCopy = document.getElementById('tipCopy');
@@ -374,7 +374,11 @@ function syncNavButton() {
   const onRead = !readMode.hidden && !findPanel.hidden;
   navJam.hidden = !onRead;
   navJam.classList.toggle('is-cancel', navigating);
-  navJam.textContent = navigating ? NAV_CANCEL_LABEL : NAV_LABEL;
+  navJam.setAttribute('aria-label', navigating ? NAV_CANCEL_ARIA : NAV_ARIA);
+}
+
+function setFindPhotoHidden(hidden) {
+  findPanel.classList.toggle('is-navigating', !!hidden);
 }
 
 function clearNavGuideVisual() {
@@ -387,6 +391,7 @@ function clearNavGuideVisual() {
   jamLayer.querySelectorAll('.jam-pin').forEach((p) => {
     p.classList.remove('is-nav-dim', 'is-nav-target');
   });
+  setFindPhotoHidden(false);
 }
 
 function cancelNavigation() {
@@ -400,6 +405,7 @@ function startNavigation() {
   if (!target || !navGuide || !navGuideLine || !youDot) return;
   navigating = true;
   clearNavGuideVisual();
+  setFindPhotoHidden(true);
 
   youDot.style.left = `${YOU_SPOT.x}%`;
   youDot.style.top = `${YOU_SPOT.y}%`;
@@ -1097,21 +1103,6 @@ function resetStepGlance() {
   if (stepGlanceSteps) stepGlanceSteps.textContent = '0';
 }
 
-function fillRouteCarousel() {
-  if (!routeCarousel) return;
-  routeCarousel.replaceChildren();
-  myEntries.forEach((entry) => {
-    const btn = document.createElement('div');
-    btn.className = 'route-carousel-gem';
-    const img = document.createElement('img');
-    img.src = entry.photo;
-    img.alt = '';
-    img.decoding = 'async';
-    btn.appendChild(img);
-    routeCarousel.appendChild(btn);
-  });
-}
-
 async function countGlanceSteps(from, to) {
   if (!stepGlanceSteps) return;
   const start = performance.now();
@@ -1176,7 +1167,6 @@ function resetRouteStage() {
   routeStill.removeAttribute('src');
   routeDownload.hidden = true;
   routeDownload.removeAttribute('href');
-  if (routeCarousel) routeCarousel.replaceChildren();
   resetStepGlance();
   if (routeStillUrl) {
     URL.revokeObjectURL(routeStillUrl);
@@ -1291,9 +1281,7 @@ async function showRouteSheet() {
   void routeSheet.offsetWidth;
   routeSheet.classList.add('is-on');
   await playRouteDomino();
-  fillRouteCarousel();
   await playStepGlance();
-  showPublishTip();
 }
 
 async function leaveMapToEntry() {
@@ -1379,6 +1367,10 @@ async function seeOtherChallengesFromRoute() {
   await leaveMapToEntry();
   busy = false;
   setHint('[see other challenges]');
+}
+
+function closeRouteToFeed() {
+  finishRouteAndLeave();
 }
 
 function resetStampState() {
@@ -1903,7 +1895,8 @@ completeKeep.addEventListener('click', () => hideCompleteSheet());
 completeConfirm.addEventListener('click', () => confirmCompleteWalk());
 shareLocationBtn.addEventListener('click', () => shareMyLocation());
 routeSeeOthers.addEventListener('click', () => seeOtherChallengesFromRoute());
-routeDone.addEventListener('click', () => finishRouteAndLeave());
+routeClose.addEventListener('click', () => closeRouteToFeed());
+routeScrim.addEventListener('click', () => closeRouteToFeed());
 likeBtn.addEventListener('click', () => {
   if (viewingMine) return;
   likedByGem[otherIndex] = !likedByGem[otherIndex];

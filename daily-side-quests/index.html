@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=44">
+<link rel="stylesheet" href="app.css?v=45">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -63,7 +63,7 @@
           <div class="jam-layer" id="jamLayer" aria-hidden="true"></div>
           <div class="gem-layer" id="gemLayer" aria-hidden="true"></div>
           <svg class="nav-guide" id="navGuide" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            <path class="nav-guide-line" id="navGuideLine" d="" fill="none" pathLength="1"></path>
+            <path class="nav-guide-line" id="navGuideLine" d="" fill="none"></path>
           </svg>
           <div class="you-dot" id="youDot" aria-hidden="true"></div>
         </div>
@@ -126,8 +126,13 @@
                   <path d="M8.4 10.7 15.6 6.7M8.4 13.3l7.2 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                 </svg>
               </button>
+              <button type="button" class="nav-jam-btn" id="navJam" hidden aria-label="Navigate to jam">
+                <svg class="nav-jam-go" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3v18M12 3l4 4M12 3 8 7M5 14h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="nav-jam-cancel" aria-hidden="true">×</span>
+              </button>
             </div>
-            <button type="button" class="nav-jam-btn" id="navJam" hidden>[navigate to jam]</button>
           </div>
         </div>
       </div>
@@ -174,44 +179,42 @@
       </div>
 
       <div class="route-sheet" id="routeSheet" hidden>
-        <div class="route-card">
-          <p class="route-title">[announce walk complete like story end batch]</p>
-          <div class="route-media">
-            <div class="route-carousel" id="routeCarousel" aria-label="Today's gems"></div>
-            <div class="route-stage" id="routeStage">
-              <img class="route-stage-bg" id="routeStageBg" alt="" decoding="async">
-              <svg class="route-path" id="routePath" viewBox="0 0 640 460" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
-              <div class="route-gems" id="routeGems" aria-hidden="true"></div>
-              <canvas class="route-map" id="routeMap" width="640" height="460" hidden aria-hidden="true"></canvas>
-              <img class="route-still" id="routeStill" alt="" hidden decoding="async">
-              <a class="route-download" id="routeDownload" download="whimsy-walk.png" hidden>[download walk image]</a>
-            </div>
+        <button type="button" class="route-scrim" id="routeScrim" aria-label="Close"></button>
+        <div class="route-card" role="dialog" aria-labelledby="routeTitle">
+          <button type="button" class="route-close" id="routeClose" aria-label="Close">×</button>
+          <p class="route-title" id="routeTitle">[announce walk complete like story end batch]</p>
+          <div class="route-stage" id="routeStage">
+            <img class="route-stage-bg" id="routeStageBg" alt="" decoding="async">
+            <svg class="route-path" id="routePath" viewBox="0 0 640 460" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+            <div class="route-gems" id="routeGems" aria-hidden="true"></div>
+            <canvas class="route-map" id="routeMap" width="640" height="460" hidden aria-hidden="true"></canvas>
+            <img class="route-still" id="routeStill" alt="" hidden decoding="async">
+            <a class="route-download" id="routeDownload" download="whimsy-walk.png" hidden>[download walk image]</a>
           </div>
           <div class="route-stats" id="routeStats" aria-label="Walk stats">
-            <p class="route-stat"><span class="route-stat-value" id="statSteps">0</span> [label steps]</p>
-            <p class="route-stat route-stat-right"><span class="route-stat-value" id="statMinutes">0</span> [label minutes]</p>
-            <p class="route-stat"><span class="route-stat-value" id="statGems">0</span> [label gems]</p>
-          </div>
-          <div class="step-glance" id="stepGlance" aria-hidden="true">
-            <div class="step-glance-pill">
-              <div class="step-glance-arc-wrap">
-                <div class="step-glance-glass-clip" aria-hidden="true">
-                  <div class="step-glance-glass"></div>
-                </div>
-                <svg class="step-glance-svg" id="stepGlanceSvg" viewBox="-38 -10.6 316 139.2" aria-hidden="true">
-                  <path class="step-glance-track" id="stepGlanceTrack" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
-                  <path class="step-glance-fill" id="stepGlanceFill" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
-                </svg>
-              </div>
-              <div class="step-glance-text">
-                <p class="step-glance-steps" id="stepGlanceSteps">0</p>
-                <p class="step-glance-out" id="stepGlanceOut">[out of steps today]</p>
-              </div>
-            </div>
+            <p class="route-stat"><span class="route-stat-value" id="statSteps">0</span></p>
+            <p class="route-stat route-stat-right"><span class="route-stat-value" id="statMinutes">0</span></p>
+            <p class="route-stat"><span class="route-stat-value" id="statGems">0</span></p>
           </div>
           <button type="button" class="share-location-btn" id="shareLocationBtn">[publish your gems]</button>
-          <button type="button" class="skippill route-see-others" id="routeSeeOthers">[see other challenges]</button>
-          <button type="button" class="skippill route-done" id="routeDone">[done]</button>
+          <button type="button" class="route-see-others" id="routeSeeOthers">[see other challenges]</button>
+        </div>
+        <div class="step-glance" id="stepGlance" aria-hidden="true">
+          <div class="step-glance-pill">
+            <div class="step-glance-arc-wrap">
+              <div class="step-glance-glass-clip" aria-hidden="true">
+                <div class="step-glance-glass"></div>
+              </div>
+              <svg class="step-glance-svg" id="stepGlanceSvg" viewBox="-38 -10.6 316 139.2" aria-hidden="true">
+                <path class="step-glance-track" id="stepGlanceTrack" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
+                <path class="step-glance-fill" id="stepGlanceFill" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
+              </svg>
+            </div>
+            <div class="step-glance-text">
+              <p class="step-glance-steps" id="stepGlanceSteps">0</p>
+              <p class="step-glance-out" id="stepGlanceOut">[out of steps today]</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -235,8 +238,8 @@
   </main>
 
   <p class="meta">
-    EXIT-JUICE-v44 — fingerprint for live verify.
+    EXIT-JUICE-v45 — fingerprint for live verify.
   </p>
-  <script src="app.js?v=44"></script>
+  <script src="app.js?v=45"></script>
 </body>
 </html>
