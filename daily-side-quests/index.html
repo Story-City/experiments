@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=46">
+<link rel="stylesheet" href="app.css?v=47">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -183,18 +183,22 @@
         <div class="route-card" role="dialog" aria-labelledby="routeTitle">
           <button type="button" class="route-close" id="routeClose" aria-label="Close">×</button>
           <p class="route-title" id="routeTitle">[announce walk complete like story end batch]</p>
-          <div class="route-stage" id="routeStage">
-            <img class="route-stage-bg" id="routeStageBg" alt="" decoding="async">
-            <svg class="route-path" id="routePath" viewBox="0 0 640 805" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
-            <div class="route-gems" id="routeGems" aria-hidden="true"></div>
-            <canvas class="route-map" id="routeMap" width="640" height="805" hidden aria-hidden="true"></canvas>
-            <img class="route-still" id="routeStill" alt="" hidden decoding="async">
-            <a class="route-download" id="routeDownload" download="whimsy-walk.png" hidden>[download walk image]</a>
+          <div class="route-media">
+            <div class="route-carousel" id="routeCarousel" aria-label="Today's gems"></div>
+            <div class="route-stage" id="routeStage">
+              <img class="route-stage-bg" id="routeStageBg" alt="" decoding="async">
+              <svg class="route-path" id="routePath" viewBox="0 0 640 805" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+              <div class="route-gems" id="routeGems" aria-hidden="true"></div>
+              <div class="route-stage-glow" id="routeStageGlow" aria-hidden="true"></div>
+              <canvas class="route-map" id="routeMap" width="640" height="805" hidden aria-hidden="true"></canvas>
+              <img class="route-still" id="routeStill" alt="" hidden decoding="async">
+              <a class="route-download" id="routeDownload" download="whimsy-walk.png" hidden>[download walk image]</a>
+            </div>
           </div>
           <div class="route-stats" id="routeStats" aria-label="Walk stats">
-            <p class="route-stat"><span class="route-stat-value" id="statSteps">0</span></p>
-            <p class="route-stat route-stat-right"><span class="route-stat-value" id="statMinutes">0</span></p>
-            <p class="route-stat"><span class="route-stat-value" id="statGems">0</span></p>
+            <p class="route-stat"><span class="route-stat-value" id="statSteps">0</span> steps</p>
+            <p class="route-stat route-stat-right"><span class="route-stat-value" id="statMinutes">0</span> min</p>
+            <p class="route-stat"><span class="route-stat-value" id="statGems">0</span> [gems]</p>
           </div>
           <button type="button" class="share-location-btn" id="shareLocationBtn">[publish your gems]</button>
           <button type="button" class="route-see-others" id="routeSeeOthers">[see other challenges]</button>
@@ -238,8 +242,8 @@
   </main>
 
   <p class="meta">
-    EXIT-JUICE-v46 — fingerprint for live verify.
+    EXIT-JUICE-v47 — fingerprint for live verify.
   </p>
-  <script src="app.js?v=46"></script>
+  <script src="app.js?v=47"></script>
 </body>
 </html>

@@ -82,9 +82,11 @@ const ROUTE_LINE_WIDTH = 5;
 /** Match map-band aspect (phone 376 × band 473) so the stage is not stretched */
 const ROUTE_CANVAS_W = 640;
 const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (473 / 376));
-const NAV_ZOOM = 1.62;
-const NAV_NUDGE_X = 0.55;
-const NAV_NUDGE_Y = 0.48;
+const NAV_ZOOM = 2.15;
+const NAV_NUDGE_X = 0.62;
+const NAV_NUDGE_Y = 0.55;
+const ROUTE_GEM_GLOW_MS = 900;
+const ROUTE_PROGRESS_HOLD_MS = 420;
 const NAV_LABEL = '[navigate to jam]';
 const NAV_CANCEL_LABEL = '[cancel navigation]';
 const STEPS_PER_FIND = 847;
@@ -169,6 +171,9 @@ const routeDownload = document.getElementById('routeDownload');
 const statSteps = document.getElementById('statSteps');
 const statMinutes = document.getElementById('statMinutes');
 const statGems = document.getElementById('statGems');
+const routeCarousel = document.getElementById('routeCarousel');
+const routeStage = document.getElementById('routeStage');
+const routeStageGlow = document.getElementById('routeStageGlow');
 const stepGlance = document.getElementById('stepGlance');
 const stepGlanceTrack = document.getElementById('stepGlanceTrack');
 const stepGlanceFill = document.getElementById('stepGlanceFill');
@@ -1038,6 +1043,7 @@ function hideRouteSheet() {
   routeSheet.classList.remove('is-on');
   routeSheet.hidden = true;
   resetRouteStage();
+  if (routeCarousel) routeCarousel.replaceChildren();
 }
 
 function loadImage(src) {
@@ -1116,6 +1122,21 @@ function resetStepGlance() {
   if (stepGlanceSteps) stepGlanceSteps.textContent = '0';
 }
 
+function fillRouteCarousel() {
+  if (!routeCarousel) return;
+  routeCarousel.replaceChildren();
+  myEntries.forEach((entry) => {
+    const cell = document.createElement('div');
+    cell.className = 'route-carousel-gem';
+    const img = document.createElement('img');
+    img.src = entry.photo;
+    img.alt = '';
+    img.decoding = 'async';
+    cell.appendChild(img);
+    routeCarousel.appendChild(cell);
+  });
+}
+
 async function countGlanceSteps(from, to) {
   if (!stepGlanceSteps) return;
   const start = performance.now();
@@ -1174,7 +1195,9 @@ async function prepareRouteStageBg() {
 function resetRouteStage() {
   routeGems.replaceChildren();
   routePath.innerHTML = '';
-  routePath.classList.remove('is-on', 'is-draw');
+  routePath.classList.remove('is-on', 'is-draw', 'is-glow');
+  if (routeStage) routeStage.classList.remove('is-progress', 'is-glowing');
+  if (routeStageGlow) routeStageGlow.classList.remove('is-on');
   routeStill.hidden = true;
   routeStill.classList.remove('is-on');
   routeStill.removeAttribute('src');
@@ -1210,8 +1233,15 @@ async function playRouteDomino() {
     await wait(ROUTE_GEM_STAGGER_MS);
   }
 
+  await wait(ROUTE_PROGRESS_HOLD_MS);
+  routeGems.querySelectorAll('.route-gem').forEach((gem) => gem.classList.add('is-glow'));
+  if (routeStage) routeStage.classList.add('is-glowing');
+  if (routeStageGlow) routeStageGlow.classList.add('is-on');
+  await wait(ROUTE_GEM_GLOW_MS);
+
   if (points.length >= 2) {
-    routePath.classList.add('is-on');
+    if (routeStage) routeStage.classList.add('is-progress');
+    routePath.classList.add('is-on', 'is-glow');
     void routePath.offsetWidth;
     routePath.classList.add('is-draw');
     await wait(ROUTE_PATH_MS);
@@ -1293,7 +1323,9 @@ async function showRouteSheet() {
   routeSheet.hidden = false;
   void routeSheet.offsetWidth;
   routeSheet.classList.add('is-on');
+  fillRouteCarousel();
   await playRouteDomino();
+  fillRouteCarousel();
   await playStepGlance();
 }
 
