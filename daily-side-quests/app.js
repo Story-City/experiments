@@ -730,8 +730,8 @@ function closeShareSheet(animate) {
 }
 
 async function shareEntryPayload(entry) {
-  const title = 'Daily Side Quest find';
-  const text = `${entry.user}\n${entry.text}\n📍 ${entry.place}`;
+  const title = entry.shareTitle || 'Daily Side Quest find';
+  const text = entry.shareText || `${entry.user}\n${entry.text}\n📍 ${entry.place}`;
   const payload = { title, text };
   try {
     if (entry.photo && navigator.canShare) {
@@ -754,13 +754,13 @@ async function shareEntryPayload(entry) {
   } catch (_) { /* user cancelled share */ }
 }
 
-async function openShareSheet() {
-  const entry = currentShareEntry();
-  if (!entry || !entry.photo || busy) return;
+/** Same lift motion as sharing a find during the challenge */
+async function openShareSheetWith(entry) {
+  if (!entry || !entry.photo || busy) return false;
   busy = true;
   shareUser.textContent = entry.user;
   shareBody.textContent = entry.text || '—';
-  sharePlace.textContent = `📍 ${entry.place}`;
+  sharePlace.textContent = entry.place ? `📍 ${entry.place}` : '';
   sharePhoto.src = entry.photo;
   shareSheet.hidden = false;
   shareSheet.classList.remove('is-up');
@@ -772,6 +772,26 @@ async function openShareSheet() {
   await shareEntryPayload(entry);
   busy = false;
   setHint('Share ready — image, note, and snap place.');
+  return true;
+}
+
+async function openShareSheet() {
+  await openShareSheetWith(currentShareEntry());
+}
+
+function walkShareEntry() {
+  const photo = (routeStill && routeStill.src) || (routeStageBg && routeStageBg.src) || '';
+  if (!photo) return null;
+  const gems = myEntries.length;
+  const steps = gems * STEPS_PER_FIND;
+  return {
+    user: MY_USER,
+    text: `[share walk summary] ${gems} [gems] · ${steps} steps`,
+    photo,
+    place: MY_PLACE,
+    shareTitle: '[share walk title]',
+    shareText: `[share payload] ${gems} gems · ${steps} steps · ${MY_PLACE}`,
+  };
 }
 
 function hideFindPanel() {
@@ -1268,22 +1288,6 @@ function mediaActionIcons() {
   };
 }
 
-async function shareMediaUrl(url, title) {
-  if (!url) return;
-  try {
-    if (navigator.canShare) {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const file = new File([blob], 'whimsy-share.png', { type: blob.type || 'image/png' });
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({ title, files: [file] });
-        return;
-      }
-    }
-    if (navigator.share) await navigator.share({ title, url });
-  } catch (_) { /* cancelled */ }
-}
-
 function fillRouteCarousel() {
   if (!routeCarouselTrack) return;
   routeCarouselTrack.querySelectorAll('.route-carousel-gem').forEach((el) => el.remove());
@@ -1307,7 +1311,12 @@ function fillRouteCarousel() {
     share.innerHTML = icons.share;
     share.addEventListener('click', (e) => {
       e.stopPropagation();
-      shareMediaUrl(entry.photo, '[share gem]');
+      openShareSheetWith({
+        user: entry.user || MY_USER,
+        text: entry.text || '',
+        photo: entry.photo,
+        place: entry.place || MY_PLACE,
+      });
     });
     const dl = document.createElement('a');
     dl.className = 'sc-icon-btn';
@@ -1379,8 +1388,13 @@ async function prepareRouteStageBg() {
     ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, c.width, c.height);
     routeStageBg.style.objectFit = '';
     routeStageBg.style.objectPosition = '';
-    routeStageBg.src = c.toDataURL('image/jpeg', 0.92);
+    const dataUrl = c.toDataURL('image/jpeg', 0.92);
+    routeStageBg.src = dataUrl;
     routeStageBg.hidden = false;
+    if (routeDownload) {
+      routeDownload.href = dataUrl;
+      routeDownload.hidden = false;
+    }
   };
 
   try {
@@ -1491,15 +1505,15 @@ async function freezeRouteStill(points) {
   routeMap.height = h;
   ctx.clearRect(0, 0, w, h);
 
+  let painted = false;
   if (routeStageBg.src) {
     try {
       const bg = await loadImage(routeStageBg.src);
       ctx.drawImage(bg, 0, 0, w, h);
-    } catch (_) {
-      ctx.fillStyle = '#120c22';
-      ctx.fillRect(0, 0, w, h);
-    }
-  } else {
+      painted = true;
+    } catch (_) { /* keep live stage */ }
+  }
+  if (!painted) {
     ctx.fillStyle = '#120c22';
     ctx.fillRect(0, 0, w, h);
   }
@@ -1526,6 +1540,15 @@ async function freezeRouteStill(points) {
     ctx.lineWidth = 2;
     ctx.stroke();
   });
+
+  if (!painted) {
+    /** Keep live map/gems — do not blank the stage */
+    if (routeDownload && routeStageBg.src) {
+      routeDownload.href = routeStageBg.src;
+      routeDownload.hidden = false;
+    }
+    return;
+  }
 
   const dataUrl = routeMap.toDataURL('image/png');
   routeStill.src = dataUrl;
@@ -1554,13 +1577,12 @@ async function revealHomeBehindRoute() {
     mapStage.setAttribute('aria-hidden', 'true');
   }
   phase = 'home';
-  await showScene(FRAME.home);
   syncChrome();
+  await showScene(FRAME.home);
 }
 
 async function showRouteSheet() {
   hideCompleteSheet();
-  await revealHomeBehindRoute();
   locationShared = false;
   shareLocationBtn.classList.remove('is-shared');
   shareLocationBtn.textContent = '[publish your gems]';
@@ -1568,11 +1590,20 @@ async function showRouteSheet() {
   resetStepGlance();
   showRouteMapImmediate();
   fillRouteCarousel();
+  /** Sheet first so confirm never drops into an empty phone */
   routeSheet.hidden = false;
+  if (routeScrim) routeScrim.style.pointerEvents = 'none';
+  if (routeClose) routeClose.style.pointerEvents = 'none';
   void routeSheet.offsetWidth;
   routeSheet.classList.add('is-on');
+  /** Sheet is up — allow find-style share lift; dismiss stays locked until juice ends */
+  busy = false;
+  const homeP = revealHomeBehindRoute();
   await playRouteDomino();
   await playStepGlance();
+  await homeP;
+  if (routeScrim) routeScrim.style.pointerEvents = '';
+  if (routeClose) routeClose.style.pointerEvents = '';
 }
 
 async function leaveMapToEntry() {
@@ -1616,31 +1647,15 @@ async function confirmCompleteWalk() {
 }
 
 async function shareMyLocation() {
-  if (locationShared) return;
+  if (locationShared || busy) return;
+  dismissTip();
+  const entry = walkShareEntry();
+  if (!entry) return;
+  const shared = await openShareSheetWith(entry);
+  if (!shared) return;
   locationShared = true;
   shareLocationBtn.classList.add('is-shared');
   shareLocationBtn.textContent = '[gems published]';
-  dismissTip();
-  const text = `[share payload] ${myEntries.length} gems · ${myEntries.length * STEPS_PER_FIND} steps · ${MY_PLACE}`;
-  try {
-    if (routeStill.src && navigator.canShare) {
-      const res = await fetch(routeStill.src);
-      const blob = await res.blob();
-      const file = new File([blob], 'whimsy-walk.png', { type: 'image/png' });
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({ title: '[share walk title]', text, files: [file] });
-        return;
-      }
-    }
-    if (navigator.share) {
-      await navigator.share({ title: '[share walk title]', text });
-      return;
-    }
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(text);
-      setHint('[copied share payload]');
-    }
-  } catch (_) { /* cancelled */ }
 }
 
 async function finishRouteAndLeave() {
@@ -2199,8 +2214,7 @@ routeClose.addEventListener('click', () => closeRouteToFeed());
 routeScrim.addEventListener('click', () => closeRouteToFeed());
 if (routeShareBtn) {
   routeShareBtn.addEventListener('click', () => {
-    const url = routeStill?.src || routeStageBg?.src || '';
-    shareMediaUrl(url, '[share walk title]');
+    openShareSheetWith(walkShareEntry());
   });
 }
 if (routeCarouselViewport) {
