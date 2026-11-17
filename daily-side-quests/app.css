@@ -632,7 +632,6 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   z-index: 1;
   width: 88%;
   max-width: 88%;
-  max-height: 72%;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -645,8 +644,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   transform: translateY(48px);
   opacity: 0;
   transition: transform 820ms var(--ease-out), opacity 820ms var(--ease-out);
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
 }
 .route-sheet.is-on .route-card {
   transform: translateY(0);
@@ -714,7 +712,8 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 .route-carousel-gem {
   position: relative;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 376 / 473;
+  max-height: calc(280 / var(--phone-h) * 100%);
   height: auto;
   cursor: pointer;
   box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.18);
@@ -729,12 +728,22 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .route-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 376 / 473;
+  max-height: calc(280 / var(--phone-h) * 100%);
   height: auto;
   border-radius: 12px;
   overflow: hidden;
   background: #120c22;
   border: 1px solid rgba(255, 255, 255, 0.12);
+  transform-origin: 50% 50%;
+}
+.route-stage.is-pop {
+  animation: routeMapPop 720ms var(--ease-spring) both;
+}
+@keyframes routeMapPop {
+  0% { opacity: 0.72; transform: scale(0.92); }
+  55% { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
 }
 .route-dots {
   display: flex;
@@ -875,17 +884,18 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   display: grid;
   place-items: center;
   opacity: 0;
-  transform: scale(0.92);
+  transform: scale(0.35);
 }
 .route-gem.is-in {
-  animation: routeGemFade 900ms var(--ease-out) both;
+  animation: routeGemPop 680ms var(--ease-spring) both;
 }
 .route-gem.is-glow {
   animation: routeGemGlow 900ms var(--ease-out) both;
 }
 .route-gem svg { width: 22px; height: 20px; display: block; }
-@keyframes routeGemFade {
-  0% { opacity: 0; transform: scale(0.88); }
+@keyframes routeGemPop {
+  0% { opacity: 0; transform: scale(0.28); }
+  55% { opacity: 1; transform: scale(1.28); }
   100% { opacity: 1; transform: scale(1); }
 }
 @keyframes routeGemGlow {

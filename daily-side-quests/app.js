@@ -79,11 +79,9 @@ const TIP_TAP_SLOP_PX = 6;
 const REVEAL_MS = 1000;
 const ROUTE_STROKE = '#00c2ff';
 const ROUTE_LINE_WIDTH = 5;
-/** Zoomed walk crop — tall phone card (3:4), focused on jams */
-const ROUTE_CANVAS_W = 480;
-const ROUTE_CANVAS_H = 640;
-const ROUTE_CROP_MIN = 0.28;
-const ROUTE_CROP_PAD = 0.14;
+/** Completion map — band aspect (same juice as pre-carousel crush) */
+const ROUTE_CANVAS_W = 640;
+const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (473 / 376));
 const ROUTE_MAP_LAYER = 'assets/figma/map-layer.png?v=33';
 const ROUTE_DOT_MAX = 5;
 const NAV_ZOOM = 2.45;
@@ -1094,67 +1092,23 @@ function loadImage(src) {
 }
 
 function routeBand() {
-  /** Matches .map-layer placement on the hunt pan */
+  /** Hunt band on the map pan — same geometry the gems pop against */
   const bandTop = 83 / 814;
-  const bandH = 644 / 814;
-  return { bandTop, bandBottom: bandTop + bandH, bandH };
-}
-
-function jamPointsInBand() {
-  const { bandTop, bandH } = routeBand();
-  return myEntries.map((_, i) => {
-    const spot = jamSpotAt(i);
-    return {
-      x: spot.x / 100,
-      y: (spot.y / 100 - bandTop) / bandH,
-    };
-  });
-}
-
-/** Normalized crop of the map-layer focused on today's jams */
-function routeCropRect() {
-  const pts = jamPointsInBand();
-  if (!pts.length) {
-    return { x: 0.2, y: 0.28, w: 0.6, h: 0.6 * (ROUTE_CANVAS_H / ROUTE_CANVAS_W) };
-  }
-  let minX = Math.min(...pts.map((p) => p.x));
-  let maxX = Math.max(...pts.map((p) => p.x));
-  let minY = Math.min(...pts.map((p) => p.y));
-  let maxY = Math.max(...pts.map((p) => p.y));
-  const padX = Math.max(ROUTE_CROP_PAD, (maxX - minX) * 0.45);
-  const padY = Math.max(ROUTE_CROP_PAD, (maxY - minY) * 0.45);
-  minX = Math.max(0, minX - padX);
-  maxX = Math.min(1, maxX + padX);
-  minY = Math.max(0, minY - padY);
-  maxY = Math.min(1, maxY + padY);
-  let w = Math.max(ROUTE_CROP_MIN, maxX - minX);
-  let h = Math.max(ROUTE_CROP_MIN * (ROUTE_CANVAS_H / ROUTE_CANVAS_W), maxY - minY);
-  const targetAspect = ROUTE_CANVAS_W / ROUTE_CANVAS_H;
-  if (w / h > targetAspect) h = w / targetAspect;
-  else w = h * targetAspect;
-  if (w > 1) {
-    h *= 1 / w;
-    w = 1;
-  }
-  if (h > 1) {
-    w *= 1 / h;
-    h = 1;
-  }
-  let x = (minX + maxX) / 2 - w / 2;
-  let y = (minY + maxY) / 2 - h / 2;
-  x = Math.min(Math.max(0, x), 1 - w);
-  y = Math.min(Math.max(0, y), 1 - h);
-  return { x, y, w, h };
+  const bandBottom = 556 / 814;
+  return { bandTop, bandBottom, bandH: bandBottom - bandTop };
 }
 
 function routePoints() {
-  const crop = routeCropRect();
+  const { bandTop, bandH } = routeBand();
   const w = ROUTE_CANVAS_W;
   const h = ROUTE_CANVAS_H;
-  return jamPointsInBand().map((p) => ({
-    x: ((p.x - crop.x) / crop.w) * w,
-    y: ((p.y - crop.y) / crop.h) * h,
-  }));
+  return myEntries.map((_, i) => {
+    const spot = jamSpotAt(i);
+    return {
+      x: (spot.x / 100) * w,
+      y: ((spot.y / 100 - bandTop) / bandH) * h,
+    };
+  });
 }
 
 function walkStepsEarned() {
@@ -1375,7 +1329,6 @@ async function playStepGlance() {
 }
 
 async function prepareRouteStageBg() {
-  const crop = routeCropRect();
   const { bandTop, bandH } = routeBand();
   const c = document.createElement('canvas');
   c.width = ROUTE_CANVAS_W;
@@ -1384,8 +1337,7 @@ async function prepareRouteStageBg() {
   ctx.fillStyle = '#120c22';
   ctx.fillRect(0, 0, c.width, c.height);
 
-  const drawZoomed = (img, srcX, srcY, srcW, srcH) => {
-    ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, c.width, c.height);
+  const commit = () => {
     routeStageBg.style.objectFit = '';
     routeStageBg.style.objectPosition = '';
     const dataUrl = c.toDataURL('image/jpeg', 0.92);
@@ -1398,15 +1350,9 @@ async function prepareRouteStageBg() {
   };
 
   try {
-    /** map-layer is already the hunt band — crop zoomed to today's jams */
     const layer = await loadImage(ROUTE_MAP_LAYER);
-    drawZoomed(
-      layer,
-      crop.x * layer.width,
-      crop.y * layer.height,
-      crop.w * layer.width,
-      crop.h * layer.height,
-    );
+    ctx.drawImage(layer, 0, 0, layer.width, layer.height, 0, 0, c.width, c.height);
+    commit();
     return;
   } catch (_) {
     /* fall through */
@@ -1414,15 +1360,10 @@ async function prepareRouteStageBg() {
 
   try {
     const base = await loadImage('assets/parts/map-hunt.png?v=7');
-    const bandY = bandTop * base.height;
-    const bandSrcH = bandH * base.height;
-    drawZoomed(
-      base,
-      crop.x * base.width,
-      bandY + crop.y * bandSrcH,
-      crop.w * base.width,
-      crop.h * bandSrcH,
-    );
+    const srcY = bandTop * base.height;
+    const srcH = bandH * base.height;
+    ctx.drawImage(base, 0, srcY, base.width, srcH, 0, 0, c.width, c.height);
+    commit();
   } catch (_) {
     routeStageBg.removeAttribute('src');
   }
@@ -1432,7 +1373,7 @@ function resetRouteStage() {
   routeGems.replaceChildren();
   routePath.innerHTML = '';
   routePath.classList.remove('is-on', 'is-draw', 'is-glow');
-  if (routeStage) routeStage.classList.remove('is-progress', 'is-glowing');
+  if (routeStage) routeStage.classList.remove('is-progress', 'is-glowing', 'is-pop');
   if (routeStageGlow) routeStageGlow.classList.remove('is-on');
   routeStill.hidden = true;
   routeStill.classList.remove('is-on');
@@ -1458,6 +1399,11 @@ async function playRouteDomino() {
   const points = routePoints();
   resetRouteStage();
   showRouteMapImmediate();
+  if (routeStage) {
+    routeStage.classList.remove('is-pop');
+    void routeStage.offsetWidth;
+    routeStage.classList.add('is-pop');
+  }
   await prepareRouteStageBg();
 
   if (points.length >= 2) {
