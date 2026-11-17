@@ -1356,11 +1356,12 @@ async function prepareRouteStageBg() {
   ctx.fillStyle = '#120c22';
   ctx.fillRect(0, 0, c.width, c.height);
 
-  const commit = () => {
-    routeStageBg.style.objectFit = '';
-    routeStageBg.style.objectPosition = '';
+  const commit = async () => {
     const dataUrl = c.toDataURL('image/jpeg', 0.92);
+    routeStageBg.style.objectFit = 'cover';
+    routeStageBg.style.objectPosition = 'center';
     routeStageBg.src = dataUrl;
+    try { if (routeStageBg.decode) await routeStageBg.decode(); } catch (_) { /* painted */ }
     routeStageBg.hidden = false;
     if (routeDownload) {
       routeDownload.href = dataUrl;
@@ -1373,7 +1374,7 @@ async function prepareRouteStageBg() {
     const srcY = ((ROUTE_VIEW_TOP - ROUTE_LAYER_TOP) / ROUTE_LAYER_H) * layer.height;
     const srcH = (ROUTE_VIEW_H / ROUTE_LAYER_H) * layer.height;
     ctx.drawImage(layer, 0, srcY, layer.width, srcH, 0, 0, c.width, c.height);
-    commit();
+    await commit();
     return;
   } catch (_) {
     /* fall through */
@@ -1384,7 +1385,7 @@ async function prepareRouteStageBg() {
     const srcY = ROUTE_VIEW_TOP * base.height;
     const srcH = ROUTE_VIEW_H * base.height;
     ctx.drawImage(base, 0, srcY, base.width, srcH, 0, 0, c.width, c.height);
-    commit();
+    await commit();
   } catch (_) {
     routeStageBg.removeAttribute('src');
   }
@@ -1408,24 +1409,14 @@ function resetRouteStage() {
   }
 }
 
-function showRouteMapImmediate() {
-  if (!routeStageBg) return;
-  routeStageBg.src = ROUTE_MAP_LAYER;
-  routeStageBg.hidden = false;
-  routeStageBg.style.objectFit = 'cover';
-  routeStageBg.style.objectPosition = '50% 42%';
-}
-
 async function playRouteDomino() {
   const points = routePoints();
   resetRouteStage();
-  showRouteMapImmediate();
   if (routeStage) {
     routeStage.classList.remove('is-pop');
     void routeStage.offsetWidth;
     routeStage.classList.add('is-pop');
   }
-  await prepareRouteStageBg();
 
   if (routePath) routePath.setAttribute('viewBox', `0 0 ${ROUTE_CANVAS_W} ${ROUTE_CANVAS_H}`);
   if (points.length >= 2) {
@@ -1556,7 +1547,8 @@ async function showRouteSheet() {
   shareLocationBtn.textContent = '[publish your gems]';
   fillRouteStats();
   resetStepGlance();
-  showRouteMapImmediate();
+  if (routeStageBg) routeStageBg.hidden = true;
+  await prepareRouteStageBg();
   fillRouteCarousel();
   /** Sheet first so confirm never drops into an empty phone */
   routeSheet.hidden = false;
