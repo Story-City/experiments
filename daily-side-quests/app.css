@@ -583,6 +583,9 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   pointer-events: auto;
 }
 .route-sheet.is-on { display: flex; }
+.route-sheet {
+  transition: none;
+}
 .complete-sheet[hidden],
 .route-sheet[hidden] { display: none !important; }
 .complete-scrim {
@@ -654,13 +657,12 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   background: #151b45;
   border: 1px solid var(--accent);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.4);
-  transform: translateY(48px);
-  opacity: 0;
-  transition: transform 820ms var(--ease-out), opacity 820ms var(--ease-out);
+  transform: none;
+  opacity: 1;
   overflow: hidden;
 }
 .route-sheet.is-on .route-card {
-  transform: translateY(0);
+  transform: none;
   opacity: 1;
 }
 .route-close {
@@ -759,13 +761,9 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   background: linear-gradient(to top, rgba(7, 5, 18, 0.9), transparent);
   pointer-events: none;
 }
-.route-stage.is-pop {
-  animation: routeMapPop 720ms var(--ease-spring) both;
-}
-@keyframes routeMapPop {
-  0% { opacity: 0.72; transform: scale(0.92); }
-  55% { opacity: 1; transform: scale(1.04); }
-  100% { opacity: 1; transform: scale(1); }
+.route-stage-bg[hidden],
+.route-still[hidden] {
+  display: none !important;
 }
 .route-dots {
   display: flex;

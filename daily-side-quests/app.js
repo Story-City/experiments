@@ -1412,12 +1412,6 @@ function resetRouteStage() {
 async function playRouteDomino() {
   const points = routePoints();
   resetRouteStage();
-  if (routeStage) {
-    routeStage.classList.remove('is-pop');
-    void routeStage.offsetWidth;
-    routeStage.classList.add('is-pop');
-  }
-
   if (routePath) routePath.setAttribute('viewBox', `0 0 ${ROUTE_CANVAS_W} ${ROUTE_CANVAS_H}`);
   if (points.length >= 2) {
     const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
@@ -1551,11 +1545,10 @@ async function showRouteSheet() {
   await prepareRouteStageBg();
   fillRouteCarousel();
   /** Sheet first so confirm never drops into an empty phone */
+  routeSheet.classList.add('is-on');
   routeSheet.hidden = false;
   if (routeScrim) routeScrim.style.pointerEvents = 'none';
   if (routeClose) routeClose.style.pointerEvents = 'none';
-  void routeSheet.offsetWidth;
-  routeSheet.classList.add('is-on');
   /** Sheet is up — allow find-style share lift; dismiss stays locked until juice ends */
   busy = false;
   const homeP = revealHomeBehindRoute();
