@@ -967,39 +967,54 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .steps-to-glance {
   position: fixed;
   z-index: 60;
+  width: 0;
+  height: 0;
   margin: 0;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: rgba(23, 12, 53, 0.92);
-  color: #00c2ff;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1;
+  padding: 0;
   pointer-events: none;
   opacity: 0;
-  transform: translate(-50%, -50%) scale(1);
-  box-shadow: 0 0 16px rgba(0, 194, 255, 0.45);
+  transform: translate(-50%, -50%);
 }
 .steps-to-glance.is-fly {
-  animation: stepsToGlanceFly 920ms var(--ease-out) both;
+  animation: stepsToGlanceSwirl 980ms var(--ease-out) both;
 }
-@keyframes stepsToGlanceFly {
+.steps-swirl-orb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: #00c2ff;
+  box-shadow: 0 0 10px rgba(0, 194, 255, 0.9);
+  opacity: 0;
+}
+.steps-to-glance.is-fly .steps-swirl-orb {
+  animation: stepsSwirlOrb 980ms var(--ease-out) both;
+}
+.steps-to-glance.is-fly .steps-swirl-orb:nth-child(1) { animation-delay: 0ms; --orb-r: 16px; --orb-spin: 1; }
+.steps-to-glance.is-fly .steps-swirl-orb:nth-child(2) { animation-delay: 40ms; --orb-r: 12px; --orb-spin: -1; }
+.steps-to-glance.is-fly .steps-swirl-orb:nth-child(3) { animation-delay: 80ms; --orb-r: 18px; --orb-spin: 1; }
+.steps-to-glance.is-fly .steps-swirl-orb:nth-child(4) { animation-delay: 120ms; --orb-r: 10px; --orb-spin: -1; }
+.steps-to-glance.is-fly .steps-swirl-orb:nth-child(5) { animation-delay: 160ms; --orb-r: 14px; --orb-spin: 1; }
+@keyframes stepsToGlanceSwirl {
   0% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.85);
+    transform: translate(-50%, -50%) rotate(0deg) scale(0.7);
   }
-  12% {
+  10% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.08);
+    transform: translate(-50%, -50%) rotate(40deg) scale(1);
   }
-  70% {
+  55% {
     opacity: 1;
     transform: translate(
-        calc(-50% + var(--stx) * 0.92),
-        calc(-50% + var(--sty) * 0.92)
+        calc(-50% + var(--stx) * 0.48 + var(--swx)),
+        calc(-50% + var(--sty) * 0.48)
       )
-      scale(0.92);
+      rotate(220deg)
+      scale(1.05);
   }
   100% {
     opacity: 0;
@@ -1007,7 +1022,21 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
         calc(-50% + var(--stx)),
         calc(-50% + var(--sty))
       )
-      scale(0.55);
+      rotate(400deg)
+      scale(0.35);
+  }
+}
+@keyframes stepsSwirlOrb {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg) translateX(var(--orb-r)) scale(0.5);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(calc(var(--orb-spin) * 460deg)) translateX(3px) scale(0.2);
   }
 }
 /* StepGlance — app geometry (StepGlancePill / ArcProgressStyles) */
@@ -1015,7 +1044,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   position: absolute;
   left: 0;
   right: 0;
-  bottom: calc(8 / var(--phone-h) * 100%);
+  bottom: calc(-26 / var(--phone-h) * 100%);
   z-index: 6;
   display: flex;
   justify-content: center;

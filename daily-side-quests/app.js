@@ -86,7 +86,8 @@ const ROUTE_LAYER_TOP = 83 / 814;
 const ROUTE_LAYER_H = 644 / 814;
 const ROUTE_CANVAS_W = 640;
 const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (473 / 376));
-const STEPS_TO_GLANCE_MS = 920;
+const STEPS_TO_GLANCE_MS = 980;
+const STEPS_SWIRL_ORB_N = 5;
 const ROUTE_MAP_LAYER = 'assets/figma/map-layer.png?v=33';
 const ROUTE_DOT_MAX = 5;
 const NAV_ZOOM = 1.9;
@@ -1356,11 +1357,23 @@ async function playStepsToGlanceBridge() {
   const fromY = from.top + from.height / 2;
   const toX = to.left + to.width / 2;
   const toY = to.top + to.height * 0.42;
-  stepsToGlance.textContent = `+${earned}`;
+  const dx = toX - fromX;
+  const dy = toY - fromY;
+  const swirlSide = dx >= 0 ? -1 : 1;
+  const swirlX = swirlSide * Math.min(72, Math.max(36, Math.hypot(dx, dy) * 0.22));
+  if (!stepsToGlance.querySelector('.steps-swirl-orb')) {
+    for (let i = 0; i < STEPS_SWIRL_ORB_N; i += 1) {
+      const orb = document.createElement('span');
+      orb.className = 'steps-swirl-orb';
+      orb.setAttribute('aria-hidden', 'true');
+      stepsToGlance.appendChild(orb);
+    }
+  }
   stepsToGlance.style.left = `${fromX}px`;
   stepsToGlance.style.top = `${fromY}px`;
-  stepsToGlance.style.setProperty('--stx', `${toX - fromX}px`);
-  stepsToGlance.style.setProperty('--sty', `${toY - fromY}px`);
+  stepsToGlance.style.setProperty('--stx', `${dx}px`);
+  stepsToGlance.style.setProperty('--sty', `${dy}px`);
+  stepsToGlance.style.setProperty('--swx', `${swirlX}px`);
   stepsToGlance.hidden = false;
   stepsToGlance.setAttribute('aria-hidden', 'false');
   stepsToGlance.classList.remove('is-fly');
