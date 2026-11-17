@@ -322,6 +322,19 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   pointer-events: none;
   user-select: none;
 }
+.map-dismiss {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(170 / var(--phone-h) * 100%);
+  height: calc(370 / var(--phone-h) * 100%);
+  z-index: 2;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  pointer-events: auto;
+  cursor: default;
+}
 
 /* My jams — purple, stay on beach, tappable to reopen */
 .jam-layer {
@@ -728,14 +741,23 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .route-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 376 / 473;
-  max-height: calc(280 / var(--phone-h) * 100%);
+  aspect-ratio: 376 / 370;
   height: auto;
   border-radius: 12px;
   overflow: hidden;
   background: #120c22;
   border: 1px solid rgba(255, 255, 255, 0.12);
   transform-origin: 50% 50%;
+}
+.route-gem-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  padding: 36px 12px 12px;
+  background: linear-gradient(to top, rgba(7, 5, 18, 0.9), transparent);
+  pointer-events: none;
 }
 .route-stage.is-pop {
   animation: routeMapPop 720ms var(--ease-spring) both;
@@ -1078,8 +1100,8 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   opacity: 1;
 }
 .find-panel.is-navigating {
-  top: calc(420 / var(--phone-h) * 100%);
-  bottom: calc(210 / var(--phone-h) * 100%);
+  top: calc(600 / var(--phone-h) * 100%);
+  bottom: calc(10 / var(--phone-h) * 100%);
 }
 .find-panel.is-navigating .find-card-slot {
   opacity: 0;
@@ -1329,7 +1351,17 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 
 /* SLOTS-FILL-v30 — hunt thumbs must sit in the three baked frames */
-.slots { position: absolute; inset: 0; z-index: 12; pointer-events: none; }
+.slots {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  transition: transform 560ms var(--ease-out), opacity 420ms var(--ease-out);
+}
+.map-stage.is-nav-focus .slots {
+  transform: translateY(80%);
+  opacity: 0;
+}
 .slot-cell {
   position: absolute;
   top: calc(var(--slot-y) / var(--phone-h) * 100%);

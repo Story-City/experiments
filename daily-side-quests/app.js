@@ -79,12 +79,16 @@ const TIP_TAP_SLOP_PX = 6;
 const REVEAL_MS = 1000;
 const ROUTE_STROKE = '#00c2ff';
 const ROUTE_LINE_WIDTH = 5;
-/** Completion map — band aspect (same juice as pre-carousel crush) */
+/** Visible hunt window (mask 170→540) — same pixels the live map shows */
+const ROUTE_VIEW_TOP = 170 / 814;
+const ROUTE_VIEW_H = 370 / 814;
+const ROUTE_LAYER_TOP = 83 / 814;
+const ROUTE_LAYER_H = 644 / 814;
 const ROUTE_CANVAS_W = 640;
-const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (473 / 376));
+const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (370 / 376));
 const ROUTE_MAP_LAYER = 'assets/figma/map-layer.png?v=33';
 const ROUTE_DOT_MAX = 5;
-const NAV_ZOOM = 2.45;
+const NAV_ZOOM = 1.9;
 const NAV_NUDGE_X = 0.68;
 const NAV_NUDGE_Y = 0.6;
 const ROUTE_GEM_GLOW_MS = 900;
@@ -406,6 +410,7 @@ function setFindPhotoHidden(hidden) {
 }
 
 function clearNavGuideVisual() {
+  if (mapStage) mapStage.classList.remove('is-nav-focus');
   if (navGuide) {
     navGuide.classList.remove('is-on', 'is-draw', 'is-mine');
     if (navGuideLine) navGuideLine.setAttribute('d', '');
@@ -458,6 +463,7 @@ function startNavigation() {
   });
 
   setMapPan(target, true, { zoom: NAV_ZOOM, nudgeX: NAV_NUDGE_X, nudgeY: NAV_NUDGE_Y });
+  if (mapStage) mapStage.classList.add('is-nav-focus');
   syncNavButton();
 }
 
@@ -1099,14 +1105,13 @@ function routeBand() {
 }
 
 function routePoints() {
-  const { bandTop, bandH } = routeBand();
   const w = ROUTE_CANVAS_W;
   const h = ROUTE_CANVAS_H;
   return myEntries.map((_, i) => {
     const spot = jamSpotAt(i);
     return {
       x: (spot.x / 100) * w,
-      y: ((spot.y / 100 - bandTop) / bandH) * h,
+      y: ((spot.y / 100 - ROUTE_VIEW_TOP) / ROUTE_VIEW_H) * h,
     };
   });
 }
@@ -1281,7 +1286,22 @@ function fillRouteCarousel() {
     dl.addEventListener('click', (e) => e.stopPropagation());
     actions.appendChild(share);
     actions.appendChild(dl);
+    const cap = document.createElement('div');
+    cap.className = 'route-gem-caption';
+    const user = document.createElement('p');
+    user.className = 'share-card-user';
+    user.textContent = entry.user || MY_USER;
+    const body = document.createElement('p');
+    body.className = 'share-card-text';
+    body.textContent = entry.text || '—';
+    const place = document.createElement('p');
+    place.className = 'share-card-place';
+    place.textContent = `📍 ${entry.place || MY_PLACE}`;
+    cap.appendChild(user);
+    cap.appendChild(body);
+    cap.appendChild(place);
     cell.appendChild(img);
+    cell.appendChild(cap);
     cell.appendChild(actions);
     routeCarouselTrack.appendChild(cell);
   });
@@ -1329,7 +1349,6 @@ async function playStepGlance() {
 }
 
 async function prepareRouteStageBg() {
-  const { bandTop, bandH } = routeBand();
   const c = document.createElement('canvas');
   c.width = ROUTE_CANVAS_W;
   c.height = ROUTE_CANVAS_H;
@@ -1351,7 +1370,9 @@ async function prepareRouteStageBg() {
 
   try {
     const layer = await loadImage(ROUTE_MAP_LAYER);
-    ctx.drawImage(layer, 0, 0, layer.width, layer.height, 0, 0, c.width, c.height);
+    const srcY = ((ROUTE_VIEW_TOP - ROUTE_LAYER_TOP) / ROUTE_LAYER_H) * layer.height;
+    const srcH = (ROUTE_VIEW_H / ROUTE_LAYER_H) * layer.height;
+    ctx.drawImage(layer, 0, srcY, layer.width, srcH, 0, 0, c.width, c.height);
     commit();
     return;
   } catch (_) {
@@ -1360,8 +1381,8 @@ async function prepareRouteStageBg() {
 
   try {
     const base = await loadImage('assets/parts/map-hunt.png?v=7');
-    const srcY = bandTop * base.height;
-    const srcH = bandH * base.height;
+    const srcY = ROUTE_VIEW_TOP * base.height;
+    const srcH = ROUTE_VIEW_H * base.height;
     ctx.drawImage(base, 0, srcY, base.width, srcH, 0, 0, c.width, c.height);
     commit();
   } catch (_) {
@@ -1406,6 +1427,7 @@ async function playRouteDomino() {
   }
   await prepareRouteStageBg();
 
+  if (routePath) routePath.setAttribute('viewBox', `0 0 ${ROUTE_CANVAS_W} ${ROUTE_CANVAS_H}`);
   if (points.length >= 2) {
     const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
     routePath.innerHTML = `<path d="${d}"></path>`;
@@ -2137,6 +2159,13 @@ stampParts.forEach((el) => {
 });
 
 camHot.addEventListener('click', () => openCamera());
+const mapDismiss = document.getElementById('mapDismiss');
+if (mapDismiss) {
+  mapDismiss.addEventListener('click', () => {
+    if (findPanel.hidden) return;
+    hideFindPanel();
+  });
+}
 seeOther.addEventListener('click', () => enterBrowse());
 othersBtn.addEventListener('click', () => {
   if (othersBtn.disabled || finds < FINDS_NEEDED) return;
