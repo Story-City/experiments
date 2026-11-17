@@ -710,7 +710,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .route-carousel-viewport::-webkit-scrollbar { display: none; }
 .route-carousel-track {
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
   gap: 0;
 }
 .route-carousel-slide,
@@ -724,6 +724,9 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   background: #120c22;
   scroll-snap-align: center;
   scroll-snap-stop: always;
+}
+.route-carousel-slide.is-map {
+  background: transparent;
 }
 .route-carousel-gem {
   position: relative;
@@ -743,7 +746,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .route-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 376 / 370;
+  aspect-ratio: 376 / 250;
   height: auto;
   border-radius: 12px;
   overflow: hidden;
@@ -760,10 +763,6 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   padding: 36px 12px 12px;
   background: linear-gradient(to top, rgba(7, 5, 18, 0.9), transparent);
   pointer-events: none;
-}
-.route-stage-bg[hidden],
-.route-still[hidden] {
-  display: none !important;
 }
 .route-dots {
   display: flex;
@@ -851,10 +850,14 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   inset: 0;
   width: 100%;
   height: 100%;
-  display: block;
   object-fit: cover;
   object-position: center;
-  background: #120c22;
+  background: transparent;
+}
+.route-stage-bg[hidden],
+.route-still[hidden],
+.route-map[hidden] {
+  display: none !important;
 }
 .route-stage-bg {
   z-index: 0;
@@ -925,11 +928,7 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 .route-still.is-on {
   z-index: 3;
-  animation: routeStillIn 720ms var(--ease-out) both;
-}
-@keyframes routeStillIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  opacity: 1;
 }
 /* EndStoryStatsSection — value + approved labels */
 .route-stats {

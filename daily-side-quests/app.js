@@ -81,11 +81,11 @@ const ROUTE_STROKE = '#00c2ff';
 const ROUTE_LINE_WIDTH = 5;
 /** Visible hunt window (mask 170→540) — same pixels the live map shows */
 const ROUTE_VIEW_TOP = 170 / 814;
-const ROUTE_VIEW_H = 370 / 814;
+const ROUTE_VIEW_H = 250 / 814;
 const ROUTE_LAYER_TOP = 83 / 814;
 const ROUTE_LAYER_H = 644 / 814;
 const ROUTE_CANVAS_W = 640;
-const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (370 / 376));
+const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (250 / 376));
 const ROUTE_MAP_LAYER = 'assets/figma/map-layer.png?v=33';
 const ROUTE_DOT_MAX = 5;
 const NAV_ZOOM = 1.9;
@@ -1200,6 +1200,21 @@ function syncRouteDots() {
   }
 }
 
+function fitCarouselViewport() {
+  if (!routeCarouselTrack || !routeCarouselViewport) return;
+  const slides = routeCarouselTrack.children;
+  if (!slides.length) return;
+  const viewW = routeCarouselViewport.clientWidth;
+  if (!viewW) return;
+  const pos = routeCarouselViewport.scrollLeft / viewW;
+  const i = Math.min(slides.length - 1, Math.max(0, Math.floor(pos)));
+  const t = Math.min(1, Math.max(0, pos - i));
+  const a = slides[i].offsetHeight;
+  const b = slides[Math.min(slides.length - 1, i + 1)].offsetHeight;
+  const h = a * (1 - t) + b * t;
+  if (h > 0) routeCarouselViewport.style.height = `${Math.round(h)}px`;
+}
+
 function scrollCarouselTo(index, { smooth }) {
   if (!routeCarouselTrack || !routeCarouselViewport) return;
   const slides = routeCarouselTrack.children;
@@ -1216,6 +1231,7 @@ function scrollCarouselTo(index, { smooth }) {
     el.classList.toggle('is-active', i === next);
   });
   syncRouteDots();
+  fitCarouselViewport();
 }
 
 function syncCarouselFromScroll() {
@@ -1238,6 +1254,7 @@ function syncCarouselFromScroll() {
     slides.forEach((el, i) => el.classList.toggle('is-active', i === best));
     syncRouteDots();
   }
+  fitCarouselViewport();
 }
 
 function mediaActionIcons() {
@@ -1547,6 +1564,7 @@ async function showRouteSheet() {
   /** Sheet first so confirm never drops into an empty phone */
   routeSheet.classList.add('is-on');
   routeSheet.hidden = false;
+  fitCarouselViewport();
   if (routeScrim) routeScrim.style.pointerEvents = 'none';
   if (routeClose) routeClose.style.pointerEvents = 'none';
   /** Sheet is up — allow find-style share lift; dismiss stays locked until juice ends */
