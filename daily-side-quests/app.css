@@ -730,7 +730,8 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 }
 .route-carousel-gem {
   position: relative;
-  aspect-ratio: 376 / 250;
+  aspect-ratio: 376 / 473;
+  max-height: calc(280 / var(--phone-h) * 100%);
   height: auto;
   cursor: pointer;
   box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.18);
@@ -748,7 +749,8 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
 .route-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 376 / 250;
+  aspect-ratio: 376 / 473;
+  max-height: calc(280 / var(--phone-h) * 100%);
   height: auto;
   border-radius: 12px;
   overflow: hidden;
@@ -952,6 +954,61 @@ h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; letter-spacing: -0.02em
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.02em;
+}
+.route-stat-value.is-send {
+  animation: stepsStatPulse 520ms var(--ease-out) both;
+}
+@keyframes stepsStatPulse {
+  0% { transform: scale(1); color: #fff; }
+  40% { transform: scale(1.12); color: #00c2ff; }
+  100% { transform: scale(1); color: #fff; }
+}
+/* Extra bridge only — leaves StepGlance / gem / path animations alone */
+.steps-to-glance {
+  position: fixed;
+  z-index: 60;
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(23, 12, 53, 0.92);
+  color: #00c2ff;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1);
+  box-shadow: 0 0 16px rgba(0, 194, 255, 0.45);
+}
+.steps-to-glance.is-fly {
+  animation: stepsToGlanceFly 920ms var(--ease-out) both;
+}
+@keyframes stepsToGlanceFly {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+  12% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(
+        calc(-50% + var(--stx) * 0.92),
+        calc(-50% + var(--sty) * 0.92)
+      )
+      scale(0.92);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+        calc(-50% + var(--stx)),
+        calc(-50% + var(--sty))
+      )
+      scale(0.55);
+  }
 }
 /* StepGlance — app geometry (StepGlancePill / ArcProgressStyles) */
 .step-glance {

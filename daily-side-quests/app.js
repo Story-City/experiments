@@ -81,11 +81,12 @@ const ROUTE_STROKE = '#00c2ff';
 const ROUTE_LINE_WIDTH = 5;
 /** Visible hunt window (mask 170→540) — same pixels the live map shows */
 const ROUTE_VIEW_TOP = 170 / 814;
-const ROUTE_VIEW_H = 250 / 814;
+const ROUTE_VIEW_H = 280 / 814;
 const ROUTE_LAYER_TOP = 83 / 814;
 const ROUTE_LAYER_H = 644 / 814;
 const ROUTE_CANVAS_W = 640;
-const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (250 / 376));
+const ROUTE_CANVAS_H = Math.round(ROUTE_CANVAS_W * (473 / 376));
+const STEPS_TO_GLANCE_MS = 920;
 const ROUTE_MAP_LAYER = 'assets/figma/map-layer.png?v=33';
 const ROUTE_DOT_MAX = 5;
 const NAV_ZOOM = 1.9;
@@ -191,6 +192,7 @@ const stepGlanceTrack = document.getElementById('stepGlanceTrack');
 const stepGlanceFill = document.getElementById('stepGlanceFill');
 const stepGlanceSteps = document.getElementById('stepGlanceSteps');
 const stepGlanceOut = document.getElementById('stepGlanceOut');
+const stepsToGlance = document.getElementById('stepsToGlance');
 const shareLocationBtn = document.getElementById('shareLocationBtn');
 const routeSeeOthers = document.getElementById('routeSeeOthers');
 const routeClose = document.getElementById('routeClose');
@@ -1343,6 +1345,36 @@ async function countGlanceSteps(from, to) {
   });
 }
 
+async function playStepsToGlanceBridge() {
+  if (!stepsToGlance || !statSteps || !stepGlance) return;
+  const earned = walkStepsEarned();
+  if (earned <= 0) return;
+  const from = statSteps.getBoundingClientRect();
+  const to = stepGlance.getBoundingClientRect();
+  if (!from.width || !to.width) return;
+  const fromX = from.left + from.width / 2;
+  const fromY = from.top + from.height / 2;
+  const toX = to.left + to.width / 2;
+  const toY = to.top + to.height * 0.42;
+  stepsToGlance.textContent = `+${earned}`;
+  stepsToGlance.style.left = `${fromX}px`;
+  stepsToGlance.style.top = `${fromY}px`;
+  stepsToGlance.style.setProperty('--stx', `${toX - fromX}px`);
+  stepsToGlance.style.setProperty('--sty', `${toY - fromY}px`);
+  stepsToGlance.hidden = false;
+  stepsToGlance.setAttribute('aria-hidden', 'false');
+  stepsToGlance.classList.remove('is-fly');
+  void stepsToGlance.offsetWidth;
+  statSteps.classList.add('is-send');
+  stepsToGlance.classList.add('is-fly');
+  await wait(STEPS_TO_GLANCE_MS);
+  stepsToGlance.classList.remove('is-fly');
+  stepsToGlance.hidden = true;
+  stepsToGlance.setAttribute('aria-hidden', 'true');
+  stepsToGlance.removeAttribute('style');
+  statSteps.classList.remove('is-send');
+}
+
 async function playStepGlance() {
   if (!stepGlance || !stepGlanceTrack || !stepGlanceFill) return;
   const d = glanceArcPath();
@@ -1571,6 +1603,7 @@ async function showRouteSheet() {
   busy = false;
   const homeP = revealHomeBehindRoute();
   await playRouteDomino();
+  await playStepsToGlanceBridge();
   await playStepGlance();
   await homeP;
   if (routeScrim) routeScrim.style.pointerEvents = '';
