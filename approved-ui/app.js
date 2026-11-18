@@ -1,5 +1,5 @@
-/** Approved UI library — APPROVED-UI-v9
- * Tip sprites: Summons/Knight/Remix only — Elf tip stays on its own card.
+/** Approved UI library — APPROVED-UI-v10
+ * Compact: Elf with tip sprites. Spotlight from location-gems hub.
  */
 
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -9,8 +9,6 @@ const GEM_FACETS = 'M1.5 7.5H22.5M7 1.5L9 7.5L12 20.5L15 7.5L17 1.5';
 const CYAN = '#00c2ff';
 const PURPLE = '#b36bff';
 const GRAY = '#8a8a96';
-const TIP_SWIPE_PX = 64;
-const TIP_TAP_SLOP = 6;
 const DOMINO_MS = 220;
 
 /* Exact timing from location-gems/app.js — do not invent */
@@ -77,17 +75,11 @@ const ELEMENT_DEFS = [
     mount: mountStepGlance,
   },
   {
-    id: 'elf-tip',
-    title: 'Elf tip',
-    source: 'tip.png · daily-side-quests / gems',
-    ux: 'When: teaching a challenge or map action. Try: tap copy to advance · swipe right to dismiss.',
-    mount: mountElfTip,
-  },
-  {
     id: 'spotlight-tip',
     title: 'Spotlight tip',
-    source: 'first-story-flow / location-gems onboard',
-    ux: 'When: first-time highlight of one control. Hole in scrim + tip card. Try: tap scrim to dismiss.',
+    source: 'location-gems hub onboard · tip.png + hole',
+    ux: 'When: gems management onboard. Soft hole on a control + tip.png under it. Tap tip or scrim · swipe right to advance steps. Try: Play tour.',
+    stage: 'spot',
     mount: mountSpotlightTip,
   },
   {
@@ -173,8 +165,8 @@ const ELEMENT_DEFS = [
   {
     id: 'tip-sprites',
     title: 'Tip sprites',
-    source: 'FtueMapElfTip · 168×151 tipElf · remix puzzle-sprite.webp',
-    ux: 'When: coach tip with story/remix characters (Elf tip is the card above). Same tip box + overhang. Tap tip to dismiss. Try: switch sprite.',
+    source: 'FtueMapElfTip · Elf / Summons / Knight / Remix',
+    ux: 'When: coach tip on map / remix. Same tip box + 168×151 overhang. Switch character. Tap tip to dismiss.',
     stage: 'tip',
     mount: mountTipSprites,
   },
@@ -548,40 +540,88 @@ function mountGlassBubble(stage, actions) {
   });
 }
 
-function mountElfTip(stage, actions) {
-  const tip = document.createElement('div');
-  tip.className = 'demo-tip is-on';
-  tip.innerHTML = `
-    <img class="demo-tip-art" src="assets/tip.png" alt="" decoding="async">
-    <p class="demo-tip-copy">[explain challenge: find 3 patterns]</p>
-  `;
-  stage.appendChild(tip);
-  const copy = tip.querySelector('.demo-tip-copy');
-  const lines = [
-    '[explain challenge: find 3 patterns]',
-    '[explain slots: snap each find]',
-    '[persuade user to share]',
+function mountSpotlightTip(stage, actions) {
+  /* Faithful to location-gems onboard: hole scrim + tip.png, tap/swipe advances. */
+  const TIP_OUT_MS = 360;
+  const TIP_SWIPE_DISMISS_PX = 72;
+  const TIP_TAP_SLOP_PX = 8;
+  const STEPS = [
+    '[hold the photo to activate sides]',
+    '[swipe left to hide]',
+    '[swipe right to publish]',
+    '[take a snapshot anytime on the camera]',
   ];
+
+  const host = document.createElement('div');
+  host.className = 'gems-spot-host';
+  host.innerHTML = `
+    <span class="gems-spot-target" id="gemsSpotTarget" aria-hidden="true"></span>
+    <div class="gems-spot" id="gemsSpot">
+      <div class="gems-spot-tip" id="gemsSpotTip">
+        <img class="gems-spot-tip-layer" src="assets/tip.png" alt="" decoding="async">
+        <p class="gems-spot-tip-copy" id="gemsSpotCopy"></p>
+      </div>
+    </div>
+  `;
+  stage.appendChild(host);
+
+  const spot = host.querySelector('#gemsSpot');
+  const tip = host.querySelector('#gemsSpotTip');
+  const copy = host.querySelector('#gemsSpotCopy');
+  const target = host.querySelector('#gemsSpotTarget');
   let step = 0;
-  const show = () => {
-    tip.classList.remove('is-out');
-    tip.classList.add('is-on');
-    step = 0;
-    copy.textContent = lines[0];
+  let advanceTimer = 0;
+
+  const placeHole = () => {
+    const hr = host.getBoundingClientRect();
+    const tr = target.getBoundingClientRect();
+    const cx = tr.left - hr.left + tr.width / 2;
+    const cy = tr.top - hr.top + tr.height / 2;
+    const rad = Math.max(26, Math.max(tr.width, tr.height) / 2 + 8);
+    spot.style.setProperty('--x', `${cx}px`);
+    spot.style.setProperty('--y', `${cy}px`);
+    spot.style.setProperty('--r', `${rad}px`);
+    spot.classList.toggle('above', cy > hr.height * 0.55);
   };
+
   const hide = () => {
+    window.clearTimeout(advanceTimer);
     tip.classList.remove('is-on');
     tip.classList.add('is-out');
-    setTimeout(() => tip.classList.remove('is-out'), 340);
+    window.setTimeout(() => {
+      tip.classList.remove('is-out');
+      tip.style.transform = '';
+      spot.hidden = true;
+    }, TIP_OUT_MS);
   };
+
+  const showStep = (i) => {
+    step = i;
+    spot.hidden = false;
+    placeHole();
+    copy.textContent = STEPS[step];
+    copy.classList.remove('is-swap');
+    void copy.offsetWidth;
+    copy.classList.add('is-swap');
+    tip.classList.remove('is-out');
+    tip.style.transform = '';
+    void tip.offsetWidth;
+    tip.classList.add('is-on');
+  };
+
   const advance = () => {
-    if (step >= lines.length - 1) {
-      hide();
-      return;
-    }
-    step += 1;
-    copy.textContent = lines[step];
+    tip.classList.remove('is-on');
+    tip.classList.add('is-out');
+    window.clearTimeout(advanceTimer);
+    advanceTimer = window.setTimeout(() => {
+      if (step >= STEPS.length - 1) {
+        hide();
+        return;
+      }
+      showStep(step + 1);
+    }, TIP_OUT_MS);
   };
+
   let startX = 0;
   let dragging = false;
   tip.addEventListener('pointerdown', (e) => {
@@ -600,33 +640,24 @@ function mountElfTip(stage, actions) {
     dragging = false;
     tip.style.transition = '';
     const dx = e.clientX - startX;
-    if (dx >= TIP_SWIPE_PX) hide();
+    if (dx >= TIP_SWIPE_DISMISS_PX) advance();
     else {
       tip.style.transform = '';
-      if (Math.abs(dx) <= TIP_TAP_SLOP) advance();
+      if (Math.abs(dx) <= TIP_TAP_SLOP_PX) advance();
     }
   });
-  addPlay(actions, 'Show tip', show);
-  addGhost(actions, 'Dismiss', hide);
-}
+  tip.addEventListener('pointercancel', () => {
+    dragging = false;
+    tip.style.transition = '';
+    tip.style.transform = '';
+  });
+  spot.addEventListener('click', (e) => {
+    if (e.target === spot) advance();
+  });
 
-function mountSpotlightTip(stage, actions) {
-  const wrap = document.createElement('div');
-  wrap.className = 'demo-spot is-on';
-  wrap.innerHTML = `
-    <button type="button" class="demo-spot-scrim" aria-label="Dismiss"></button>
-    <span class="demo-spot-target" aria-hidden="true"></span>
-    <div class="demo-spot-card">
-      <p>[spotlight: explain this control]</p>
-      <small>[short supporting line]</small>
-      <img class="demo-spot-elf" src="ports/sprites/elf.png" alt="" decoding="async">
-    </div>
-  `;
-  stage.appendChild(wrap);
-  const show = () => wrap.classList.add('is-on');
-  const hide = () => wrap.classList.remove('is-on');
-  wrap.querySelector('.demo-spot-scrim').addEventListener('click', hide);
-  addPlay(actions, 'Show spotlight', show);
+  showStep(0);
+  window.addEventListener('resize', placeHole);
+  addPlay(actions, 'Play tour', () => showStep(0));
   addGhost(actions, 'Dismiss', hide);
 }
 
@@ -1031,8 +1062,13 @@ function mountRevealHaze(stage, actions) {
 
 function mountTipSprites(stage, actions) {
   /* Character images go in FtueMapElfTip’s 168×151 tipElf slot (contain). */
-  /* Elf tip is its own card — variants here are the other tip characters only. */
   const SPRITES = [
+    {
+      id: 'elf',
+      label: 'Elf',
+      src: 'ports/sprites/elf.png',
+      copy: '[map tip — FTUE elf]',
+    },
     {
       id: 'summons',
       label: 'Summons',

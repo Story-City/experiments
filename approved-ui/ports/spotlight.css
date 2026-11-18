@@ -1,0 +1,104 @@
+/* Location Gems hub spotlight + tip.png — from location-gems/app.css. Do not invent. */
+.gems-spot-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+}
+.gems-spot-target {
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  width: 56px;
+  height: 56px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid var(--brand-accent);
+  background: color-mix(in srgb, var(--brand-accent) 18%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-accent) 22%, transparent);
+  pointer-events: none;
+}
+.gems-spot {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  cursor: pointer;
+  --x: 50%;
+  --y: 28%;
+  --r: 36px;
+  background: radial-gradient(
+    circle at var(--x) var(--y),
+    transparent 0 calc(var(--r) - 1px),
+    rgba(7, 8, 15, 0.12) calc(var(--r) + 1px),
+    rgba(7, 8, 15, 0.38) calc(var(--r) + 4px),
+    rgba(7, 8, 15, 0.56) calc(var(--r) + 9px),
+    rgba(7, 8, 15, 0.62) calc(var(--r) + 14px),
+    rgba(7, 8, 15, 0.62) 100%
+  );
+}
+.gems-spot[hidden] { display: none !important; }
+.gems-spot-tip {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: calc(var(--y) + var(--r) + 14px);
+  z-index: 3;
+  container-type: inline-size;
+  touch-action: pan-y;
+  opacity: 0;
+  transform: translateX(48px);
+  transition:
+    opacity 320ms var(--ease-out),
+    transform 360ms var(--ease-out);
+  pointer-events: auto;
+}
+.gems-spot.above .gems-spot-tip {
+  top: auto;
+  bottom: calc(100% - var(--y) + var(--r) + 14px);
+}
+.gems-spot-tip.is-on {
+  opacity: 1;
+  transform: translateX(0);
+}
+.gems-spot-tip.is-out {
+  opacity: 0;
+  transform: translateX(110%);
+  transition:
+    opacity 360ms var(--ease-in),
+    transform 360ms var(--ease-in);
+  pointer-events: none;
+}
+.gems-spot-tip-layer {
+  position: relative;
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+.gems-spot-tip-copy {
+  position: absolute;
+  left: calc(30 / 752 * 100%);
+  top: calc(250 / 364 * 100%);
+  width: calc(372 / 752 * 100%);
+  height: calc(96 / 364 * 100%);
+  margin: 0;
+  padding-left: calc(10 / 752 * 100%);
+  display: flex;
+  align-items: center;
+  background: #13123b;
+  color: #fff;
+  font-family: 'Darker Grotesque', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: calc(16 / 352 * 100cqw);
+  line-height: calc(18 / 352 * 100cqw);
+  pointer-events: none;
+}
+.gems-spot-tip-copy.is-swap {
+  animation: gemsTipCopySwap 360ms var(--ease-out) both;
+}
+@keyframes gemsTipCopySwap {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}

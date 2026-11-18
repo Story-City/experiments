@@ -27,9 +27,9 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=9",
+    "path": "approved-ui/?v=10",
     "title": "Approved UI library",
-    "what": "Tip sprites Summons/Knight/Remix only (Elf tip not duplicated). Portal, reveal haze, Radial on/off.",
+    "what": "Compact tip sprites (Elf+Summons+Knight+Remix). Spotlight from location-gems tip.png tour.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
