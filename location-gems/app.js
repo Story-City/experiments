@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v37 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v38 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -9,6 +9,17 @@ const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
 const GEM_SHADE = 'M9 7.5H15L12 20.5Z';
 const GEM_FACETS = 'M9 7.5L12 20.5L15 7.5M1.5 7.5H22.5';
+const GEM_STROKE = 1.5;
+const GEM_FACET_STROKE = 1;
+/** Softer outline when the gem renders large (rails, likes card, empty). */
+const GEM_STROKE_SOFT = 0.7;
+const GEM_FACET_STROKE_SOFT = 0.45;
+const GEM_OUTLINE_OPACITY_SOFT = 0.42;
+const GEM_FACET_OPACITY_SOFT = 0.32;
+/** Same fav heart path as app outline — stroke matches gem icons on tabs */
+const HEART_PATH =
+  'M15.0007 10.0002C16.2423 8.7835 17.5007 7.32516 17.5007 5.41683C17.5007 4.20125 17.0178 3.03547 16.1582 2.17592C15.2987 1.31638 14.1329 0.833496 12.9173 0.833496C11.4507 0.833496 10.4173 1.25016 9.16732 2.50016C7.91732 1.25016 6.88398 0.833496 5.41732 0.833496C4.20174 0.833496 3.03595 1.31638 2.17641 2.17592C1.31687 3.03547 0.833984 4.20125 0.833984 5.41683C0.833984 7.3335 2.08398 8.79183 3.33398 10.0002L9.16732 15.8335L15.0007 10.0002Z';
+const LIKE_PINK_HOT = '#ff7aab';
 
 const PUBLIC_GEM_FILL = '#00c2ff';
 const HIDDEN_GEM_FILL = '#9370c4';
@@ -411,13 +422,25 @@ function displayCopy(text) {
   return s;
 }
 
-function gemSvg(fill) {
+function gemSvg(fill, opts = {}) {
+  const soft = !!opts.softOutline;
+  const outlineW = soft ? GEM_STROKE_SOFT : GEM_STROKE;
+  const facetW = soft ? GEM_FACET_STROKE_SOFT : GEM_FACET_STROKE;
+  const outlineOp = soft ? GEM_OUTLINE_OPACITY_SOFT : 1;
+  const facetOp = soft ? GEM_FACET_OPACITY_SOFT : 0.6;
   return `<svg viewBox="0 0 24 22" aria-hidden="true">
     <path d="${GEM_OUTLINE}" fill="${fill}"/>
     <path d="${GEM_TABLE}" fill="#fff" fill-opacity="0.3"/>
     <path d="${GEM_SHADE}" fill="#000" fill-opacity="0.22"/>
-    <path d="${GEM_FACETS}" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1" stroke-linejoin="round"/>
-    <path d="${GEM_OUTLINE}" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="${GEM_FACETS}" fill="none" stroke="#fff" stroke-opacity="${facetOp}" stroke-width="${facetW}" stroke-linejoin="round"/>
+    <path d="${GEM_OUTLINE}" fill="none" stroke="#fff" stroke-opacity="${outlineOp}" stroke-width="${outlineW}" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+function heartSvg() {
+  return `<svg viewBox="0 0 19 17" aria-hidden="true">
+    <path d="${HEART_PATH}" fill="${LIKE_PINK_HOT}"/>
+    <path d="${HEART_PATH}" fill="none" stroke="#fff" stroke-width="${GEM_STROKE}" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
 }
 
@@ -713,7 +736,7 @@ function nextRarity(rarity) {
 }
 
 function setLikesCardRarity(rarity, { pop = false } = {}) {
-  likesJamGem.innerHTML = gemSvg(rarity.fill);
+  likesJamGem.innerHTML = gemSvg(rarity.fill, { softOutline: true });
   likesJamRarity.hidden = false;
   likesJamRarity.textContent = rarity.label;
   likesJamRarity.classList.toggle('is-pop', !!pop);
@@ -950,6 +973,7 @@ function renderGrid(enterId) {
     emptyBody.textContent = copy.body;
     emptyIcon.innerHTML = gemSvg(
       activeSection === 'public' ? PUBLIC_GEM_FILL : HIDDEN_GEM_FILL,
+      { softOutline: true },
     );
     emptyState.hidden = false;
     return;
@@ -1720,12 +1744,14 @@ function resetState() {
 }
 
 function initIcons() {
-  railPrivateIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL);
-  railPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL);
-  dropHiddenIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL);
-  dropPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL);
+  railPrivateIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL, { softOutline: true });
+  railPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL, { softOutline: true });
+  dropHiddenIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL, { softOutline: true });
+  dropPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL, { softOutline: true });
   tabPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL);
   tabHiddenIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL);
+  const tabLikedIcon = document.querySelector('#tabLiked .tab-like-icon');
+  if (tabLikedIcon) tabLikedIcon.innerHTML = heartSvg();
 }
 
 function init() {
