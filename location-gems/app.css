@@ -108,6 +108,32 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   cursor: pointer;
 }
 .accent-pick input[type="range"] { width: 72px; }
+.variant-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+.variant-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.variant-btn.is-on {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
 
 .phone {
   position: relative;
@@ -902,6 +928,15 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
 }
+.feed-chip.is-stack {
+  grid-template-columns: 1fr;
+  width: 168px;
+  gap: 10px;
+}
+.feed-chip.is-signal {
+  grid-template-columns: 96px minmax(0, 1fr);
+  width: 248px;
+}
 .feed-chip.is-fresh {
   border-color: color-mix(in srgb, var(--brand-accent) 45%, rgba(255, 255, 255, 0.2));
 }
@@ -997,6 +1032,64 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   line-height: 1.15;
   text-align: center;
   white-space: nowrap;
+}
+.feed-chip-dist.is-loud {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-align: left;
+  line-height: 1.1;
+}
+.feed-chip-stack-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.feed-chip.is-stack .feed-chip-media {
+  width: 100%;
+  height: 140px;
+}
+.feed-chip.is-stack .feed-chip-likes {
+  position: static;
+  background: rgba(255, 255, 255, 0.08);
+}
+.feed-chip.is-stack .feed-chip-likes.is-empty {
+  min-width: 28px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+}
+.feed-chip.is-stack .feed-chip-gem {
+  width: 28px;
+  height: 26px;
+}
+.feed-chip-signal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.feed-chip-signal-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.feed-chip.is-signal .feed-chip-media {
+  width: 96px;
+  height: 96px;
+}
+.feed-chip.is-signal .feed-chip-likes {
+  position: static;
+  background: rgba(255, 255, 255, 0.08);
+}
+.feed-chip.is-signal .feed-chip-rarity-badge {
+  position: static;
+}
+.feed-chip.is-signal .feed-chip-gem {
+  width: 28px;
+  height: 26px;
 }
 
 /* Inline sort on the main hub page */

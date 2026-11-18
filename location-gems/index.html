@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=34">
+<link rel="stylesheet" href="app.css?v=35">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -16,17 +16,23 @@
     <h1>Location Gems hub</h1>
     <p class="lede">
       Press and hold a find card — sides light up while you hold. Swipe to sort.
-      Debug: drag-to-sections mode.
+      Optional: drag-to-sections mode.
     </p>
   </header>
 
   <div class="toolbar">
     <button type="button" class="play secondary" id="resetHub">Reset</button>
-    <button type="button" class="play secondary" id="debugLikes">Debug: likes banner</button>
-    <button type="button" class="play secondary" id="debugRarityUp">Debug: rarity up</button>
-    <button type="button" class="play secondary" id="debugOnboard">Debug: tips</button>
-    <button type="button" class="play secondary" id="debugSpoof" aria-pressed="false">Debug: spoof wording</button>
-    <button type="button" class="play secondary" id="debugDragMode" aria-pressed="false">Debug: drag to sections</button>
+    <button type="button" class="play secondary" id="debugLikes">Likes banner</button>
+    <button type="button" class="play secondary" id="debugRarityUp">Rarity up</button>
+    <button type="button" class="play secondary" id="debugOnboard">Tips</button>
+    <button type="button" class="play secondary" id="debugSpoof" aria-pressed="false">Spoof wording</button>
+    <button type="button" class="play secondary" id="debugDragMode" aria-pressed="false">Drag to sections</button>
+    <div class="variant-pick" role="group" aria-label="Nearby chip variants">
+      <span>Nearby</span>
+      <button type="button" class="variant-btn is-on" data-feed-variant="heat" aria-pressed="true">Heat</button>
+      <button type="button" class="variant-btn" data-feed-variant="stack" aria-pressed="false">Stack</button>
+      <button type="button" class="variant-btn" data-feed-variant="signal" aria-pressed="false">Signal</button>
+    </div>
     <label class="accent-pick" title="Accent color (keeps gradients)">
       <span>Accent</span>
       <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
@@ -240,8 +246,8 @@
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v34. Nearby chips: effort, rarity, likes, fresh.
+    LOCATION-GEMS-HUB-v35. Nearby Heat/Stack/Signal; no Debug labels.
   </p>
-  <script src="app.js?v=34"></script>
+  <script src="app.js?v=35"></script>
 </body>
 </html>

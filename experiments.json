@@ -27,9 +27,9 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=7",
+    "path": "approved-ui/?v=8",
     "title": "Approved UI library",
-    "what": "Portal (Summons/Knight), decrypt reveal haze, tip sprite variations (FTUE + remix tip character). Radial on/off + jump nav.",
+    "what": "FtueMapElfTip-correct tip sprites, tighter stages, portal + reveal haze, Radial on/off.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
@@ -51,7 +51,7 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=34",
+    "path": "location-gems/?v=35",
     "title": "Location Gems hub",
     "what": "Sort on the main hub (hold+swipe). Spotlight tips. Likes banner. Embed mode for Approved UI (?embed=1).",
     "author": "victoria",
