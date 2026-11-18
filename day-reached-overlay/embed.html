@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Day reached — embed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=36">
+<meta http-equiv="Cache-Control" content="no-cache">
+<style>
+  /* Phone-only shell for approved-ui iframe — same celebration as full page */
+  html, body.is-embed {
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    background: transparent;
+    display: block;
+  }
+  body.is-embed header,
+  body.is-embed .chips-label,
+  body.is-embed .chips,
+  body.is-embed .accent-row,
+  body.is-embed .toolbar,
+  body.is-embed .meta {
+    display: none !important;
+  }
+  body.is-embed .phone {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
+    aspect-ratio: 376 / 814;
+    box-shadow: none;
+  }
+</style>
+</head>
+<body class="is-embed">
+  <!-- Hidden controls so app.js bindings still resolve -->
+  <div class="chips" hidden>
+    <button type="button" class="chip" data-surface="adventure" aria-pressed="true">Adventure</button>
+  </div>
+  <div class="accent-row" hidden>
+    <input type="color" id="accentColor" value="#009EFF">
+    <input type="text" id="accentHex" value="#009EFF">
+    <button type="button" class="play" id="accentApply">Apply</button>
+  </div>
+  <div class="toolbar" hidden>
+    <button type="button" class="play" id="play">Play</button>
+    <span class="hint" id="hint"></span>
+  </div>
+
+  <main class="phone" id="phone" data-surface="adventure" tabindex="0" title="Tap to play day reached">
+    <img
+      class="underlay"
+      id="underlay"
+      src="underlays/adventure.jpg?v=35"
+      alt=""
+      width="1080"
+      height="2400"
+      decoding="async"
+    >
+    <div class="overlay" id="overlay" aria-hidden="true">
+      <div class="play-layer" id="playLayer">
+        <div class="haze" aria-hidden="true"></div>
+        <div class="shine" id="shine" aria-hidden="true"></div>
+        <div class="streak" id="streak">
+          <div class="band" id="band">
+            <div class="graphic" id="graphic">
+              <div class="arc-fade" id="arcFade" aria-hidden="true">
+                <svg class="arc" id="arc" viewBox="-34 -34 410 242.44921875"></svg>
+              </div>
+              <div class="beads" id="beads"></div>
+              <div class="lottie" id="lottie" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div class="copy" id="copy" aria-hidden="true">
+            <p class="headline" id="headline"><span class="headline-rich">3-day streak!</span></p>
+            <p class="subtitle" id="subtitle">Keep it up!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="app.js?v=36"></script>
+</body>
+</html>

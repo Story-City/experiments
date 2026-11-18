@@ -646,16 +646,37 @@ window.addEventListener('resize', () => {
   placeLottie(scale);
 });
 
+window.addEventListener('message', (event) => {
+  if (!event || !event.data) return;
+  if (event.data?.type === 'set-day-reached-accent') {
+    const hex = event.data?.accent;
+    if (typeof hex === 'string' && hex) setAccentHex(hex, { play: false });
+    return;
+  }
+  if (event.data === 'play-day-reached' || event.data?.type === 'play-day-reached') {
+    const hex = event.data?.accent;
+    if (typeof hex === 'string' && hex) {
+      setAccentHex(hex, { play: true });
+      return;
+    }
+    playDayReached();
+  }
+});
+
 laidOutScale = 0;
 applyAccentVars();
 buildArc();
 const initialScale = layoutBeads();
 placeLottie(initialScale);
+const isEmbedShell = document.body.classList.contains('is-embed');
 if (window.lottie) {
   ensureAnim()
     .then(() => {
-      hint.textContent = 'Ready — tap the phone to test.';
-      playDayReached();
+      hint.textContent = isEmbedShell
+        ? 'Ready — parent Play or tap phone.'
+        : 'Ready — tap the phone to test.';
+      // Catalog iframe waits for Play; full page still auto-previews once.
+      if (!isEmbedShell) playDayReached();
     })
     .catch(() => {
       hint.textContent = 'Lottie preload failed — tap the phone to retry.';

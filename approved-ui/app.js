@@ -1,5 +1,6 @@
-/** Approved UI library — APPROVED-UI-v1
+/** Approved UI library — APPROVED-UI-v2
  * Playable catalog of elements we’re keeping, plus Location Gems color sliders.
+ * v2 adds day-reached embed, likes banner, step glance, glass bubble.
  */
 
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -22,6 +23,25 @@ const MOTION_VARS = {
 /** @type {{ id: string, title: string, behavior: string, mount: (stage: HTMLElement, actions: HTMLElement) => void }[]} */
 const ELEMENT_DEFS = [
   {
+    id: 'day-reached',
+    title: 'Day reached (Training Hub)',
+    behavior: 'App streak overlay: haze → Lottie bloom on today bead → side beads domino → glory shine on copy → dissolve. Full SC-3526 timing. Tap Play (or the phone). Accent follows the library slider.',
+    mount: mountDayReached,
+    wide: true,
+  },
+  {
+    id: 'likes-banner',
+    title: 'Likes banner + rarity up',
+    behavior: 'Location Gems celebration: haze + shine sweep + jam card slide/impact · optional rarity promote pop. Same rich-text shine family as day-reached.',
+    mount: mountLikesBanner,
+  },
+  {
+    id: 'step-glance',
+    title: 'Step Glance land',
+    behavior: 'App StepGlance pill: arc fill + step count land (from daily-side-quests / StepGlanceArcProgress).',
+    mount: mountStepGlance,
+  },
+  {
     id: 'elf-tip',
     title: 'Elf tip (tip.png)',
     behavior: 'Show · tap advances copy · swipe right dismisses · same tip.png bubble + elf. Bracket copy for the team.',
@@ -32,6 +52,12 @@ const ELEMENT_DEFS = [
     title: 'Spotlight tip',
     behavior: 'Scrim with a hole on a target · tip card + elf below · tap scrim to dismiss. From first-story / gems onboard.',
     mount: mountSpotlightTip,
+  },
+  {
+    id: 'glass-bubble',
+    title: 'FTUE glass bubble',
+    behavior: 'Frosted chat/map bubble (GLASS_BUBBLE family): soft enter. From ScriptedFtue / first-story-flow.',
+    mount: mountGlassBubble,
   },
   {
     id: 'jam-birth',
@@ -74,6 +100,12 @@ const ELEMENT_DEFS = [
     title: 'Primary CTA + radial',
     behavior: 'Gradient pill with Location Gems radial wash. Pulse uses the active motion preset.',
     mount: mountPrimaryCta,
+  },
+  {
+    id: 'claim-pulse',
+    title: 'Claim CTA pulse',
+    behavior: 'End-of-story / gift claim: soft glow idle pulse (useBannerPulse family) · tap press. From claim-pulse experiment + app event CTA.',
+    mount: mountClaimPulse,
   },
 ];
 
@@ -160,7 +192,7 @@ function wait(ms) {
 
 function makeCard(def) {
   const card = document.createElement('article');
-  card.className = 'card';
+  card.className = def.wide ? 'card card-wide' : 'card';
   card.dataset.element = def.id;
 
   const head = document.createElement('div');
@@ -169,7 +201,7 @@ function makeCard(def) {
   card.appendChild(head);
 
   const stage = document.createElement('div');
-  stage.className = 'stage';
+  stage.className = def.wide ? 'stage stage-tall' : 'stage';
   stage.id = `stage-${def.id}`;
   card.appendChild(stage);
 
@@ -199,6 +231,181 @@ function addGhost(actions, label, onClick) {
   btn.addEventListener('click', onClick);
   actions.appendChild(btn);
   return btn;
+}
+
+function mountDayReached(stage, actions) {
+  const frame = document.createElement('iframe');
+  frame.className = 'embed-frame';
+  frame.title = 'Day reached celebration';
+  frame.src = `../day-reached-overlay/embed.html?v=36&n=${Date.now()}`;
+  frame.allow = 'autoplay';
+  stage.appendChild(frame);
+
+  const play = () => {
+    const accent = accentColor.value || '#009EFF';
+    frame.contentWindow?.postMessage({ type: 'play-day-reached', accent }, '*');
+  };
+  addPlay(actions, 'Play day reached', play);
+  addGhost(actions, 'Open full', () => {
+    window.open('../day-reached-overlay/?v=36', '_blank', 'noopener');
+  });
+}
+
+function mountLikesBanner(stage, actions) {
+  const banner = document.createElement('div');
+  banner.className = 'demo-likes';
+  banner.innerHTML = `
+    <div class="demo-likes-haze"></div>
+    <div class="demo-likes-shine"></div>
+    <div class="demo-likes-copy">
+      <p class="demo-likes-headline"><span class="demo-likes-rich">48 likes</span></p>
+      <p class="demo-likes-sub">[likes landed on your gem]</p>
+    </div>
+    <article class="demo-likes-card">
+      <img src="../location-gems/assets/find-a.jpg" alt="" decoding="async">
+      <div class="demo-likes-gem" aria-hidden="true">${gemSvg(CYAN)}</div>
+      <p class="demo-likes-rarity" hidden>Silver</p>
+      <div class="demo-likes-body">
+        <p class="demo-likes-user">@you</p>
+        <p class="demo-likes-text">[find caption]</p>
+      </div>
+    </article>
+  `;
+  stage.appendChild(banner);
+  const card = banner.querySelector('.demo-likes-card');
+  const rarity = banner.querySelector('.demo-likes-rarity');
+  const rich = banner.querySelector('.demo-likes-rich');
+  const shine = banner.querySelector('.demo-likes-shine');
+  const copy = banner.querySelector('.demo-likes-copy');
+  let busy = false;
+
+  const reset = () => {
+    banner.classList.remove('is-on', 'is-out');
+    card.classList.remove('is-in', 'is-impact', 'is-rarity-up', 'is-out');
+    shine.classList.remove('is-on');
+    copy.classList.remove('is-on', 'is-swipe');
+    rarity.hidden = true;
+    rarity.classList.remove('is-pop');
+    rich.textContent = '48 likes';
+  };
+
+  const play = async ({ promote } = {}) => {
+    if (busy) return;
+    busy = true;
+    reset();
+    banner.classList.add('is-on');
+    await wait(120);
+    shine.classList.add('is-on');
+    card.classList.add('is-in');
+    copy.classList.add('is-on');
+    await wait(560);
+    card.classList.add('is-impact');
+    if (promote) {
+      await wait(720);
+      rich.textContent = '120 likes';
+      rarity.hidden = false;
+      rarity.textContent = 'Gold';
+      rarity.classList.add('is-pop');
+      card.classList.add('is-rarity-up');
+      await wait(720);
+    } else {
+      await wait(1400);
+    }
+    await wait(900);
+    copy.classList.add('is-swipe');
+    await wait(700);
+    card.classList.remove('is-in', 'is-impact', 'is-rarity-up');
+    card.classList.add('is-out');
+    await wait(360);
+    banner.classList.add('is-out');
+    await wait(240);
+    reset();
+    busy = false;
+  };
+
+  addPlay(actions, 'Play likes', () => play({ promote: false }));
+  addGhost(actions, 'Rarity up', () => play({ promote: true }));
+}
+
+function mountStepGlance(stage, actions) {
+  const wrap = document.createElement('div');
+  wrap.className = 'demo-glance';
+  const ARC_LEN = 279.25;
+  wrap.innerHTML = `
+    <div class="demo-glance-pill">
+      <div class="demo-glance-arc">
+        <svg viewBox="-38 -54 316 182.11" aria-hidden="true">
+          <path class="demo-glance-track" d="" fill="none" stroke-linecap="round" stroke-width="8"></path>
+          <path class="demo-glance-fill" d="" fill="none" stroke-linecap="round" stroke-width="8"></path>
+        </svg>
+      </div>
+      <p class="demo-glance-steps">0</p>
+      <p class="demo-glance-out">out of 5,000 steps today</p>
+    </div>
+  `;
+  stage.appendChild(wrap);
+  const track = wrap.querySelector('.demo-glance-track');
+  const fill = wrap.querySelector('.demo-glance-fill');
+  const stepsEl = wrap.querySelector('.demo-glance-steps');
+
+  // Same geometry as daily-side-quests / StepGlanceArcProgressStyles
+  const cx = 120;
+  const cy = 96;
+  const r = 80;
+  const start = (190 * Math.PI) / 180;
+  const end = (-10 * Math.PI) / 180;
+  const x1 = cx + r * Math.cos(start);
+  const y1 = cy + r * Math.sin(start);
+  const x2 = cx + r * Math.cos(end);
+  const y2 = cy + r * Math.sin(end);
+  const d = `M ${x1} ${y1} A ${r} ${r} 0 1 1 ${x2} ${y2}`;
+  track.setAttribute('d', d);
+  fill.setAttribute('d', d);
+  fill.style.strokeDasharray = `${ARC_LEN}`;
+  fill.style.strokeDashoffset = `${ARC_LEN}`;
+
+  const play = async () => {
+    wrap.classList.add('is-on');
+    fill.style.transition = 'none';
+    fill.style.strokeDashoffset = `${ARC_LEN * 0.55}`;
+    stepsEl.textContent = '2,200';
+    void fill.offsetWidth;
+    fill.style.transition = `stroke-dashoffset 980ms var(--motion)`;
+    fill.style.strokeDashoffset = `${ARC_LEN * 0.12}`;
+    const from = 2200;
+    const to = 4400;
+    const t0 = performance.now();
+    await new Promise((resolve) => {
+      const tick = (now) => {
+        const t = Math.min(1, (now - t0) / 980);
+        stepsEl.textContent = String(Math.round(from + (to - from) * t)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        if (t < 1) requestAnimationFrame(tick);
+        else resolve();
+      };
+      requestAnimationFrame(tick);
+    });
+  };
+  const reset = () => {
+    wrap.classList.remove('is-on');
+    fill.style.transition = 'none';
+    fill.style.strokeDashoffset = `${ARC_LEN}`;
+    stepsEl.textContent = '0';
+  };
+  addPlay(actions, 'Land glance', play);
+  addGhost(actions, 'Reset', reset);
+}
+
+function mountGlassBubble(stage, actions) {
+  const bubble = document.createElement('div');
+  bubble.className = 'demo-glass';
+  bubble.innerHTML = `<p>[glass bubble message from the map or chat]</p>`;
+  stage.appendChild(bubble);
+  const show = () => {
+    bubble.classList.remove('is-on');
+    void bubble.offsetWidth;
+    bubble.classList.add('is-on');
+  };
+  addPlay(actions, 'Enter bubble', show);
 }
 
 function mountElfTip(stage, actions) {
@@ -472,12 +679,43 @@ function mountPrimaryCta(stage, actions) {
   addPlay(actions, 'Pulse CTA', pulse);
 }
 
+function mountClaimPulse(stage, actions) {
+  const wrap = document.createElement('div');
+  wrap.className = 'demo-claim';
+  wrap.innerHTML = `
+    <div class="demo-claim-glow" aria-hidden="true"></div>
+    <button type="button" class="demo-claim-cta">[claim free trial]</button>
+  `;
+  stage.appendChild(wrap);
+  const cta = wrap.querySelector('.demo-claim-cta');
+  const press = () => {
+    cta.classList.remove('is-press');
+    void cta.offsetWidth;
+    cta.classList.add('is-press');
+  };
+  cta.addEventListener('click', press);
+  addPlay(actions, 'Tap claim', press);
+  addGhost(actions, 'Open full', () => {
+    window.open('../claim-pulse/?v=1', '_blank', 'noopener');
+  });
+}
+
 function buildLibrary() {
   library.replaceChildren();
   ELEMENT_DEFS.forEach((def) => library.appendChild(makeCard(def)));
 }
 
-accentColor.addEventListener('input', applyAccent);
+function syncDayReachedAccent() {
+  const accent = accentColor.value || '#009EFF';
+  document.querySelectorAll('.embed-frame').forEach((frame) => {
+    frame.contentWindow?.postMessage({ type: 'set-day-reached-accent', accent }, '*');
+  });
+}
+
+accentColor.addEventListener('input', () => {
+  applyAccent();
+  syncDayReachedAccent();
+});
 accentAlpha.addEventListener('input', applyAccent);
 radialColor.addEventListener('input', applyRadial);
 radialAmount.addEventListener('input', applyRadial);
