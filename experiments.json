@@ -38,6 +38,18 @@
     "jira": null
   },
   {
+    "slug": "location-gems",
+    "path": "location-gems/?v=1",
+    "title": "Location Gems hub",
+    "what": "Keeping-gems hub from feature/location-gems: snapshot hero, Collected/Created/Favourites, polaroids, tip, detail. Photos borrow Daily Side Quests finds.",
+    "author": "victoria",
+    "authorName": "Victoria",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "day-reached-overlay",
     "path": "day-reached-overlay/?v=35",
     "title": "Day reached � streak overlay",

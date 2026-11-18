@@ -1,0 +1,17 @@
+<svg width="79" height="104" viewBox="325.181 13.9541 79.1262 104.335" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="polaroidTapeShadow" x="325.181" y="13.9541" width="79.1262" height="104.335" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="-2"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+  </defs>
+  <g opacity="0.57" filter="url(#polaroidTapeShadow)">
+    <path d="M340.755 15.9541L325.181 106.929L388.733 118.29L404.307 27.3153L340.755 15.9541Z" fill="white"/>
+    <path d="M343.631 93.9736L375.682 99.7034L385.857 40.2701L353.805 34.5403L343.631 93.9736Z" stroke="white" stroke-width="32"/>
+  </g>
+</svg>
