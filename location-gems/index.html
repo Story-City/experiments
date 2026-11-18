@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=35">
+<link rel="stylesheet" href="app.css?v=36">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -16,45 +16,57 @@
     <h1>Location Gems hub</h1>
     <p class="lede">
       Press and hold a find card — sides light up while you hold. Swipe to sort.
-      Optional: drag-to-sections mode.
     </p>
   </header>
 
-  <div class="toolbar">
-    <button type="button" class="play secondary" id="resetHub">Reset</button>
-    <button type="button" class="play secondary" id="debugLikes">Likes banner</button>
-    <button type="button" class="play secondary" id="debugRarityUp">Rarity up</button>
-    <button type="button" class="play secondary" id="debugOnboard">Tips</button>
-    <button type="button" class="play secondary" id="debugSpoof" aria-pressed="false">Spoof wording</button>
-    <button type="button" class="play secondary" id="debugDragMode" aria-pressed="false">Drag to sections</button>
-    <div class="variant-pick" role="group" aria-label="Nearby chip variants">
-      <span>Nearby</span>
-      <button type="button" class="variant-btn is-on" data-feed-variant="heat" aria-pressed="true">Heat</button>
-      <button type="button" class="variant-btn" data-feed-variant="stack" aria-pressed="false">Stack</button>
-      <button type="button" class="variant-btn" data-feed-variant="signal" aria-pressed="false">Signal</button>
-    </div>
-    <label class="accent-pick" title="Accent color (keeps gradients)">
-      <span>Accent</span>
-      <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
-      <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
-    </label>
-    <label class="accent-pick" title="Secondary radial wash colour + strength">
-      <span>Radial</span>
-      <input type="color" id="radialColor" value="#b36bff" aria-label="Button radial color">
-      <input type="range" id="radialAmount" min="0" max="100" value="55" aria-label="Radial amount">
-    </label>
-    <label class="accent-pick" title="How impactful the secondary radial wash is">
-      <span>Radial impact</span>
-      <input type="range" id="radialImpact" min="0" max="100" value="60" aria-label="Radial impact">
-    </label>
-    <label class="accent-pick" title="Page background indigo">
-      <span>Background</span>
-      <input type="color" id="bgColor" value="#170c35" aria-label="Background color">
-      <input type="range" id="bgDepth" min="40" max="100" value="100" aria-label="Background depth">
-    </label>
-    <span class="hint" id="hint">Press + hold a card, then swipe.</span>
-  </div>
+  <div class="workspace">
+    <aside class="tool-rail" aria-label="Prototype tools">
+      <section class="tool-block">
+        <h2 class="tool-title">Try</h2>
+        <button type="button" class="play secondary" id="resetHub">Reset</button>
+        <button type="button" class="play secondary" id="debugLikes">Likes banner</button>
+        <button type="button" class="play secondary" id="debugRarityUp">Rarity up</button>
+        <button type="button" class="play secondary" id="debugOnboard">Tips</button>
+        <button type="button" class="play secondary" id="debugSpoof" aria-pressed="false">Spoof wording</button>
+        <button type="button" class="play secondary" id="debugDragMode" aria-pressed="false">Drag to sections</button>
+        <p class="hint" id="hint">Press + hold a card, then swipe.</p>
+      </section>
 
+      <section class="tool-block">
+        <h2 class="tool-title">Nearby lead</h2>
+        <p class="tool-note">Critical only: time · rarity · likes · photo</p>
+        <div class="variant-pick is-rail" role="group" aria-label="Nearby chip variants">
+          <button type="button" class="variant-btn is-on" data-feed-variant="read" aria-pressed="true">Read</button>
+          <button type="button" class="variant-btn" data-feed-variant="line" aria-pressed="false">Line</button>
+          <button type="button" class="variant-btn" data-feed-variant="pair" aria-pressed="false">Pair</button>
+        </div>
+      </section>
+
+      <section class="tool-block">
+        <h2 class="tool-title">Look</h2>
+        <label class="accent-pick is-rail" title="Accent color (keeps gradients)">
+          <span>Accent</span>
+          <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
+          <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
+        </label>
+        <label class="accent-pick is-rail" title="Secondary radial wash colour + strength">
+          <span>Radial</span>
+          <input type="color" id="radialColor" value="#b36bff" aria-label="Button radial color">
+          <input type="range" id="radialAmount" min="0" max="100" value="55" aria-label="Radial amount">
+        </label>
+        <label class="accent-pick is-rail" title="How impactful the secondary radial wash is">
+          <span>Radial impact</span>
+          <input type="range" id="radialImpact" min="0" max="100" value="60" aria-label="Radial impact">
+        </label>
+        <label class="accent-pick is-rail" title="Page background indigo">
+          <span>Background</span>
+          <input type="color" id="bgColor" value="#170c35" aria-label="Background color">
+          <input type="range" id="bgDepth" min="40" max="100" value="100" aria-label="Background depth">
+        </label>
+      </section>
+    </aside>
+
+    <div class="stage">
   <main class="phone" id="phone" aria-label="Location Gems hub">
     <div class="hub" id="hub">
       <div class="hub-scroll" id="hubScroll">
@@ -246,8 +258,10 @@
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v35. Nearby Heat/Stack/Signal; no Debug labels.
+    LOCATION-GEMS-HUB-v36. Info-led nearby; tools on the side.
   </p>
-  <script src="app.js?v=35"></script>
+    </div>
+  </div>
+  <script src="app.js?v=36"></script>
 </body>
 </html>

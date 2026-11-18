@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v35 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v36 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -323,7 +323,7 @@ const feedStrip = document.getElementById('feedStrip');
 const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
-let feedVariant = 'heat';
+let feedVariant = 'read';
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
 const sortSub = document.getElementById('sortSub');
@@ -792,60 +792,70 @@ function feedChipBits(g) {
 }
 
 function buildFeedChip(g, variant) {
-  const { dist, fresh, rarityBadge, likesEl, freshEl, gemEl } = feedChipBits(g);
+  const { rarity, dist, likes, fresh, rarityBadge, likesEl, freshEl, gemEl } =
+    feedChipBits(g);
   const chip = document.createElement('article');
   chip.className = `feed-chip is-${variant}`;
   if (fresh) chip.classList.add('is-fresh');
-  if (variant === 'stack') {
+  const rarityWord =
+    rarity.id !== 'cyan'
+      ? `<span class="feed-chip-rarity-word is-${rarity.id}">${rarity.label}</span>`
+      : '';
+  const lineBits = [dist];
+  if (likes > 0) lineBits.push(`♥ ${t('likesHeart', likes)}`);
+  if (rarity.id !== 'cyan') lineBits.push(rarity.label);
+  if (fresh) lineBits.push(t('feedFresh'));
+
+  if (variant === 'line') {
     chip.innerHTML = `
-      <div class="feed-chip-media">
+      <p class="feed-chip-line">${lineBits.join(' · ')}</p>
+      <div class="feed-chip-media is-wide">
         <img src="${g.imageUri}" alt="">
-        ${rarityBadge}
-        ${freshEl}
-      </div>
-      <div class="feed-chip-stack-bar">
-        ${likesEl || '<span class="feed-chip-likes is-empty"></span>'}
-        ${gemEl}
-        <p class="feed-chip-dist">${dist}</p>
       </div>`;
-  } else if (variant === 'signal') {
+  } else if (variant === 'pair') {
     chip.innerHTML = `
-      <div class="feed-chip-media">
-        <img src="${g.imageUri}" alt="">
+      <div class="feed-chip-pair-top">
+        <p class="feed-chip-dist is-loud">${dist}</p>
+        <div class="feed-chip-pair-rarity">
+          ${gemEl}
+          ${rarityWord}
+        </div>
+      </div>
+      <div class="feed-chip-pair-mid">
+        ${likesEl}
         ${freshEl}
       </div>
-      <div class="feed-chip-signal">
-        <p class="feed-chip-dist is-loud">${dist}</p>
-        <div class="feed-chip-signal-row">
-          ${likesEl}
-          ${gemEl}
-          ${rarityBadge}
-        </div>
+      <div class="feed-chip-media is-band">
+        <img src="${g.imageUri}" alt="">
       </div>`;
   } else {
+    /* read — lead with effort + facts; photo confirms */
     chip.innerHTML = `
-      <div class="feed-chip-media">
-        <img src="${g.imageUri}" alt="">
-        ${rarityBadge}
-        ${freshEl}
-        ${likesEl}
+      <div class="feed-chip-lead">
+        <p class="feed-chip-dist is-loud">${dist}</p>
+        <div class="feed-chip-facts">
+          ${likesEl}
+          ${gemEl}
+          ${rarityWord}
+          ${freshEl}
+        </div>
       </div>
-      <div class="feed-chip-rarity">
-        ${gemEl}
-        <p class="feed-chip-dist">${dist}</p>
+      <div class="feed-chip-media is-thumb">
+        <img src="${g.imageUri}" alt="">
       </div>`;
   }
   return chip;
 }
 
 function setFeedVariant(variant) {
-  feedVariant = variant;
+  const next = variant === 'line' || variant === 'pair' ? variant : 'read';
+  feedVariant = next;
   document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
-    const on = btn.getAttribute('data-feed-variant') === variant;
+    const on = btn.getAttribute('data-feed-variant') === next;
     btn.classList.toggle('is-on', on);
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
-  if (feedStrip) feedStrip.dataset.variant = variant;
+  if (feedStrip) feedStrip.dataset.variant = next;
   renderFeed();
 }
 
