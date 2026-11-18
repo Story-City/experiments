@@ -39,9 +39,9 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=1",
+    "path": "location-gems/?v=2",
     "title": "Location Gems hub",
-    "what": "Keeping-gems hub from feature/location-gems: snapshot hero, Collected/Created/Favourites, polaroids, tip, detail. Photos borrow Daily Side Quests finds.",
+    "what": "Hub + sort finds into gems (swipe private/public/delete). Collected from Daily Side Quests. Likes banner debug-only (day-reached vibe).",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

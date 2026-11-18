@@ -8,22 +8,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=1">
+<link rel="stylesheet" href="app.css?v=2">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Location Gems hub</h1>
     <p class="lede">
-      Port of the keeping-gems hub from <code>feature/location-gems</code>:
-      snapshot hero, Collected / Created / Favourites, polaroid grid, empty states, snapshot tip, gem detail.
-      Gem photos borrow Daily Side Quests finds where needed. Camera capture is not ported yet — snapshot adds a sample created gem for now.
+      Hub + sort-into-gems swipe (challenge finds → private / public / delete).
+      Collected gems use Daily Side Quests find cards. Likes banner is debug-only (day-reached vibe, no days / no Lottie).
     </p>
   </header>
 
   <div class="toolbar">
-    <button type="button" class="play" id="resetHub">Reset hub</button>
-    <span class="hint" id="hint">Hub ready — tap a polaroid or the camera.</span>
+    <button type="button" class="play" id="openSort">[sort finds into gems]</button>
+    <button type="button" class="play secondary" id="resetHub">Reset</button>
+    <button type="button" class="play secondary" id="debugLikes">Debug: likes banner</button>
+    <button type="button" class="play secondary" id="debugOnboard">Debug: onboarding</button>
+    <span class="hint" id="hint">Hub ready.</span>
   </div>
 
   <main class="phone" id="phone" aria-label="Location Gems hub">
@@ -51,6 +53,16 @@
           </button>
         </section>
 
+        <section class="feed-strip" id="feedStrip" aria-label="[gems feed]"></section>
+
+        <button type="button" class="sort-cta" id="sortCta">
+          <span class="sort-cta-gem" aria-hidden="true"></span>
+          <span class="sort-cta-copy">
+            <strong id="sortCtaTitle">[take a moment to sort finds into gems]</strong>
+            <span id="sortCtaCount">0 waiting</span>
+          </span>
+        </button>
+
         <div class="tab-bar" role="tablist" aria-label="Gem sections">
           <button type="button" class="tab-button is-active" role="tab" aria-selected="true" data-section="collected" id="tabCollected">
             <img class="tab-gem-icon" src="assets/location_gem.svg" alt="" width="10" height="20">
@@ -77,6 +89,42 @@
       </div>
     </div>
 
+    <div class="onboard" id="onboard" hidden aria-hidden="true">
+      <div class="onboard-card">
+        <p class="onboard-kicker" id="onboardKicker">1 / 3</p>
+        <p class="onboard-title" id="onboardTitle"></p>
+        <p class="onboard-body" id="onboardBody"></p>
+        <div class="onboard-actions">
+          <button type="button" class="onboard-skip" id="onboardSkip">[skip]</button>
+          <button type="button" class="onboard-next" id="onboardNext">[next]</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sort-sheet" id="sortSheet" hidden aria-hidden="true">
+      <div class="sort-head">
+        <button type="button" class="sort-close" id="sortClose" aria-label="Close">×</button>
+        <p class="sort-title">[sort your finds into location gems]</p>
+        <p class="sort-sub" id="sortSub">0 left</p>
+      </div>
+      <div class="sort-stage" id="sortStage">
+        <div class="sort-hint sort-hint-left is-flash" id="hintPrivate">[hidden gems · keep private]</div>
+        <div class="sort-hint sort-hint-right" id="hintPublic">[public · map + photo + writing]</div>
+        <div class="sort-hint sort-hint-down" id="hintDelete">[delete]</div>
+        <div class="sort-stack" id="sortStack"></div>
+      </div>
+      <p class="sort-legend">← private · ↓ delete · public →</p>
+    </div>
+
+    <div class="likes-banner" id="likesBanner" hidden aria-hidden="true">
+      <div class="likes-haze" aria-hidden="true"></div>
+      <div class="likes-shine" id="likesShine" aria-hidden="true"></div>
+      <div class="likes-copy" id="likesCopy" aria-hidden="true">
+        <p class="likes-headline" id="likesHeadline"><span class="likes-rich">12 likes</span></p>
+        <p class="likes-subtitle">[on gems you already posted]</p>
+      </div>
+    </div>
+
     <div class="snapshot-tip" id="snapshotTip" hidden aria-hidden="true">
       <button type="button" class="snapshot-tip-scrim" id="snapshotTipScrim" aria-label="Dismiss tip"></button>
       <div class="snapshot-tip-card" role="dialog" aria-labelledby="snapshotTipTitle">
@@ -99,6 +147,7 @@
           </button>
         </header>
         <img class="detail-photo" id="detailPhoto" alt="">
+        <p class="detail-visibility" id="detailVisibility" hidden></p>
         <p class="detail-gem-title" id="detailGemTitle"></p>
         <p class="detail-tagline" id="detailTagline"></p>
         <p class="detail-author" id="detailAuthor" hidden></p>
@@ -108,8 +157,8 @@
   </main>
 
   <p class="meta">
-    Source: mobile-rn <code>feature/location-gems</code> → <code>LocationGemsHub</code>. Fingerprint LOCATION-GEMS-HUB-v1.
+    Hub from <code>feature/location-gems</code>. Sort cards from Daily Side Quests. Likes banner timing from day-reached overlay. LOCATION-GEMS-HUB-v2.
   </p>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>
