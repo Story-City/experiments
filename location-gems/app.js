@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v41 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v42 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -323,6 +323,10 @@ const radialAmount = document.getElementById('radialAmount');
 const radialImpact = document.getElementById('radialImpact');
 const bgColor = document.getElementById('bgColor');
 const bgDepth = document.getElementById('bgDepth');
+const midToneOn = document.getElementById('midToneOn');
+const midToneColor = document.getElementById('midToneColor');
+const midTonePick = document.getElementById('midTonePick');
+const MID_TONE_DEFAULT = '#241b46';
 const tabPublic = document.getElementById('tabPublic');
 const tabHidden = document.getElementById('tabHidden');
 const tabLiked = document.getElementById('tabLiked');
@@ -710,6 +714,25 @@ function applyBg() {
   const { r, g, b } = hexToRgb(hex);
   const out = `rgb(${Math.round(r * depth)}, ${Math.round(g * depth)}, ${Math.round(b * depth)})`;
   document.documentElement.style.setProperty('--bg', out);
+}
+
+function midToneEnabled() {
+  return !!(midToneOn && midToneOn.getAttribute('aria-checked') === 'true');
+}
+
+function applyMidTone() {
+  const on = midToneEnabled();
+  if (midTonePick) midTonePick.hidden = !on;
+  const hex =
+    on && midToneColor && midToneColor.value
+      ? midToneColor.value
+      : MID_TONE_DEFAULT;
+  document.documentElement.style.setProperty('--raised', hex);
+}
+
+function setSwitch(el, on) {
+  if (!el) return;
+  el.setAttribute('aria-checked', on ? 'true' : 'false');
 }
 
 function nextRarity(rarity) {
@@ -1678,8 +1701,7 @@ async function playLikesBanner(opts = {}) {
 
 function setSpoofWording(on) {
   spoofWording = on;
-  debugSpoof.setAttribute('aria-pressed', on ? 'true' : 'false');
-  debugSpoof.textContent = on ? 'Spoof wording ✓' : 'Spoof wording';
+  setSwitch(debugSpoof, on);
   refreshHub();
   if (openGemId) openDetail(openGemId);
 }
@@ -1687,14 +1709,18 @@ function setSpoofWording(on) {
 function setDragMode(on) {
   dragMode = on;
   hub.classList.toggle('is-drag-mode', on);
-  debugDragMode.setAttribute('aria-pressed', on ? 'true' : 'false');
-  debugDragMode.textContent = on ? 'Drag to sections ✓' : 'Drag to sections';
+  setSwitch(debugDragMode, on);
   dropHidden.hidden = !on;
   dropPublic.hidden = !on;
   dropHidden.setAttribute('aria-hidden', on ? 'false' : 'true');
   dropPublic.setAttribute('aria-hidden', on ? 'false' : 'true');
   hideTargets();
   applyStaticCopy();
+}
+
+function setMidTone(on) {
+  setSwitch(midToneOn, on);
+  applyMidTone();
 }
 
 function resetState() {
@@ -1732,6 +1758,7 @@ function init() {
   applyAccent();
   applyRadial();
   applyBg();
+  applyMidTone();
   seedGems();
   seedPendingSort();
   setupSnapshotArc();
@@ -1773,6 +1800,10 @@ if (radialAmount) radialAmount.addEventListener('input', applyRadial);
 if (radialImpact) radialImpact.addEventListener('input', applyRadial);
 if (bgColor) bgColor.addEventListener('input', applyBg);
 if (bgDepth) bgDepth.addEventListener('input', applyBg);
+if (midToneColor) midToneColor.addEventListener('input', applyMidTone);
+if (midToneOn) {
+  midToneOn.addEventListener('click', () => setMidTone(!midToneEnabled()));
+}
 resetHub.addEventListener('click', resetState);
 debugLikes.addEventListener('click', () => playLikesBanner());
 debugRarityUp.addEventListener('click', () => playLikesBanner({ promote: true }));

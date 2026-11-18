@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=41">
+<link rel="stylesheet" href="app.css?v=42">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -27,8 +27,18 @@
         <button type="button" class="play secondary" id="debugLikes">Likes banner</button>
         <button type="button" class="play secondary" id="debugRarityUp">Rarity up</button>
         <button type="button" class="play secondary" id="debugOnboard">Tips</button>
-        <button type="button" class="play secondary" id="debugSpoof" aria-pressed="false">Spoof wording</button>
-        <button type="button" class="play secondary" id="debugDragMode" aria-pressed="false">Drag to sections</button>
+        <div class="tool-toggle">
+          <span>Spoof wording</span>
+          <button type="button" class="switch" id="debugSpoof" role="switch" aria-checked="false" aria-label="Spoof wording">
+            <span class="switch-knob" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="tool-toggle">
+          <span>Drag to sections</span>
+          <button type="button" class="switch" id="debugDragMode" role="switch" aria-checked="false" aria-label="Drag to sections">
+            <span class="switch-knob" aria-hidden="true"></span>
+          </button>
+        </div>
         <p class="hint" id="hint">Press + hold a card, then swipe.</p>
       </section>
 
@@ -62,6 +72,16 @@
           <span>Background</span>
           <input type="color" id="bgColor" value="#170c35" aria-label="Background color">
           <input type="range" id="bgDepth" min="40" max="100" value="100" aria-label="Background depth">
+        </label>
+        <div class="tool-toggle">
+          <span>Mid tone</span>
+          <button type="button" class="switch" id="midToneOn" role="switch" aria-checked="false" aria-label="Mid tone">
+            <span class="switch-knob" aria-hidden="true"></span>
+          </button>
+        </div>
+        <label class="accent-pick is-rail is-mid-tone" id="midTonePick" title="Raised / card mid tone" hidden>
+          <span>Mid</span>
+          <input type="color" id="midToneColor" value="#241b46" aria-label="Mid tone color">
         </label>
       </section>
     </aside>
@@ -258,10 +278,10 @@
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v41. Rarity labels = gemstones (moonstone/topaz/opal).
+    LOCATION-GEMS-HUB-v42. Switch toggles + optional mid tone.
   </p>
     </div>
   </div>
-  <script src="app.js?v=41"></script>
+  <script src="app.js?v=42"></script>
 </body>
 </html>
