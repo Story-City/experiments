@@ -211,6 +211,11 @@ h1 {
   aspect-ratio: unset;
   overflow: visible; /* tipElf overhangs 14px like the app */
 }
+.stage.stage-tip-reply {
+  height: 248px;
+  aspect-ratio: unset;
+  overflow: visible;
+}
 .stage.stage-spot {
   height: 420px;
   aspect-ratio: unset;

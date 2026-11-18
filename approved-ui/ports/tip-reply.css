@@ -1,0 +1,162 @@
+/* Tip + reply bubble button — FtueMapElfTip tipActions + ActionPanel ReplyButton. */
+.tip-reply-host {
+  --tip-char-w: 168px;
+  --tip-char-h: 151px;
+  --tip-overhang: 14px;
+  --tip-radius: 28px;
+  --tip-border: 2px;
+  --tip-edge: #009EFF;
+  --tip-fill: #170c35;
+  --reply-radius: 18px;
+  --reply-border: 1.5px;
+  --reply-edge: #402364; /* Summons STORY_ACCENTS.edge */
+  --reply-fill: rgba(120, 90, 175, 0.72); /* Summons choiceFill */
+  --reply-wash: rgba(5, 2, 12, 0.88); /* CHAT_GLASS_WASH Summons */
+  --reply-pulse: rgba(215, 194, 255, 1);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  overflow: visible;
+}
+.tip-reply-host.is-knight {
+  --reply-edge: #FD6A01;
+  --reply-fill: rgba(180, 90, 30, 0.72);
+  --reply-wash: rgba(26, 14, 6, 0.88);
+  --reply-pulse: rgba(255, 197, 138, 1);
+}
+.tip-reply-wrap {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 8px;
+  opacity: 0;
+  transform: translateX(-12px);
+  transition: opacity 280ms ease, transform 320ms ease;
+  pointer-events: none;
+}
+.tip-reply-wrap.is-on {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.tip-reply-wrap.is-out {
+  opacity: 0;
+  transform: translateX(64px);
+}
+.tip-reply-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 16px calc(var(--tip-char-w) - var(--tip-overhang)) 16px 16px;
+  border-radius: var(--tip-radius);
+  border: var(--tip-border) solid var(--tip-edge);
+  background: var(--tip-fill);
+  color: #fff;
+  box-sizing: border-box;
+}
+.tip-reply-copy {
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 20px;
+  text-align: left;
+}
+.tip-reply-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding-top: 4px;
+}
+/* ReplyButton — glass choice bubble (wide, for map tip) */
+.tip-reply-btn-wrap {
+  position: relative;
+  align-self: stretch;
+  max-width: 100%;
+  overflow: visible;
+}
+.tip-reply-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 8px 16px;
+  border-radius: var(--reply-radius);
+  border: var(--reply-border) solid var(--reply-edge);
+  background: var(--reply-wash);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 22px;
+  text-align: left;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: pointer;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.tip-reply-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--reply-fill);
+  pointer-events: none;
+}
+.tip-reply-btn > span {
+  position: relative;
+  z-index: 1;
+}
+.tip-reply-btn-wrap.is-pulse .tip-reply-pulse {
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(var(--reply-radius) + 1px);
+  border: 2px solid var(--reply-pulse);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--reply-pulse) 55%, transparent);
+  pointer-events: none;
+  animation: tipReplyPulse 900ms ease-in-out infinite alternate;
+}
+@keyframes tipReplyPulse {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
+}
+.tip-reply-char {
+  position: absolute;
+  right: calc(-1 * var(--tip-overhang));
+  bottom: 0;
+  width: var(--tip-char-w);
+  height: var(--tip-char-h);
+  object-fit: contain;
+  object-position: bottom center;
+  pointer-events: none;
+}
+.tip-reply-chips {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  z-index: 2;
+}
+.tip-reply-chips button {
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 11px;
+  cursor: pointer;
+}
+.tip-reply-chips button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--brand-accent) 32%, transparent);
+  border-color: var(--brand-accent);
+}

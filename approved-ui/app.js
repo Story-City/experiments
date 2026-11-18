@@ -1,5 +1,5 @@
-/** Approved UI library — APPROVED-UI-v12
- * Gem rarity labels = gemstones (not metals). Spotlight hub pieces.
+/** Approved UI library — APPROVED-UI-v13
+ * Rarity stones (aquamarine…). Tip + reply bubble button from FTUE.
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -20,7 +20,7 @@ const GOLD_GEM_FILL = '#ffc448';
 const PLATINUM_GEM_FILL = '#d2dcff';
 const DIAMOND_GEM_FILL = '#b4f0ff';
 const RARITY = {
-  cyan: { id: 'cyan', fill: PUBLIC_GEM_FILL, label: 'cyan', minLikes: 0 },
+  cyan: { id: 'cyan', fill: PUBLIC_GEM_FILL, label: 'aquamarine', minLikes: 0 },
   silver: { id: 'silver', fill: SILVER_GEM_FILL, label: 'moonstone', minLikes: 20 },
   gold: { id: 'gold', fill: GOLD_GEM_FILL, label: 'topaz', minLikes: 50 },
   platinum: { id: 'platinum', fill: PLATINUM_GEM_FILL, label: 'opal', minLikes: 100 },
@@ -197,6 +197,14 @@ const ELEMENT_DEFS = [
     ux: 'When: coach tip on map / remix. Same tip box + 168×151 overhang. Switch character. Tap tip to dismiss.',
     stage: 'tip',
     mount: mountTipSprites,
+  },
+  {
+    id: 'tip-reply',
+    title: 'Tip + reply bubble',
+    source: 'FtueMapElfTip tipActions · ActionPanel ReplyButton',
+    ux: 'When: map tip asks for a response (share location / steps). Tip stays until the glass reply bubble is tapped. Try: Summons / Knight accent · tap reply.',
+    stage: 'tip-reply',
+    mount: mountTipWithReply,
   },
   {
     id: 'choice-pulse',
@@ -757,7 +765,7 @@ function mountGemRarityLibrary(stage, actions) {
   const grid = document.createElement('div');
   grid.className = 'rarity-grid';
   const rows = [
-    { ...RARITY.cyan, meta: 'public · 0+ likes' },
+    { ...RARITY.cyan, meta: 'public · base' },
     { ...RARITY.silver, meta: '20+ likes' },
     { ...RARITY.gold, meta: '50+ likes' },
     { ...RARITY.platinum, meta: '100+ likes' },
@@ -1257,6 +1265,90 @@ function mountTipSprites(stage, actions) {
     tip.classList.add('is-on');
   };
   copy.addEventListener('click', dismiss);
+  addPlay(actions, 'Show tip', show);
+  addGhost(actions, 'Dismiss', dismiss);
+}
+
+function mountTipWithReply(stage, actions) {
+  /* FtueMapElfTip + ReplyButton (MapShareLocationButton replyScript path). */
+  const STORIES = [
+    {
+      id: 'summons',
+      label: 'Summons',
+      src: 'ports/sprites/summons-character.png',
+      copy: '[ask to share location]',
+      reply: '[share my location]',
+    },
+    {
+      id: 'knight',
+      label: 'Knight',
+      src: 'ports/sprites/knight-character.png',
+      copy: '[ask to share steps]',
+      reply: '[share my steps]',
+    },
+  ];
+
+  const host = document.createElement('div');
+  host.className = 'tip-reply-host';
+  host.innerHTML = `
+    <div class="tip-reply-chips" role="radiogroup" aria-label="Story accent"></div>
+    <div class="tip-reply-wrap is-on" id="tipReplyWrap">
+      <div class="tip-reply-box">
+        <p class="tip-reply-copy" id="tipReplyCopy"></p>
+        <div class="tip-reply-actions">
+          <div class="tip-reply-btn-wrap is-pulse" id="tipReplyBtnWrap">
+            <span class="tip-reply-pulse" aria-hidden="true"></span>
+            <button type="button" class="tip-reply-btn" id="tipReplyBtn"><span></span></button>
+          </div>
+        </div>
+      </div>
+      <img class="tip-reply-char" id="tipReplyChar" alt="" decoding="async">
+    </div>
+  `;
+  stage.appendChild(host);
+
+  const chips = host.querySelector('.tip-reply-chips');
+  const wrap = host.querySelector('#tipReplyWrap');
+  const copy = host.querySelector('#tipReplyCopy');
+  const char = host.querySelector('#tipReplyChar');
+  const btn = host.querySelector('#tipReplyBtn');
+  const btnLabel = btn.querySelector('span');
+  let active = STORIES[0];
+
+  const apply = (story) => {
+    active = story;
+    host.classList.toggle('is-knight', story.id === 'knight');
+    char.src = story.src;
+    copy.textContent = story.copy;
+    btnLabel.textContent = story.reply;
+    chips.querySelectorAll('button').forEach((b) => {
+      b.setAttribute('aria-pressed', b.dataset.id === story.id ? 'true' : 'false');
+    });
+    wrap.classList.remove('is-out');
+    wrap.classList.add('is-on');
+  };
+
+  STORIES.forEach((story, i) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.textContent = story.label;
+    chip.dataset.id = story.id;
+    chip.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
+    chip.addEventListener('click', () => apply(story));
+    chips.appendChild(chip);
+  });
+
+  const dismiss = () => {
+    wrap.classList.remove('is-on');
+    wrap.classList.add('is-out');
+  };
+  const show = () => {
+    wrap.classList.remove('is-out');
+    void wrap.offsetWidth;
+    wrap.classList.add('is-on');
+  };
+  btn.addEventListener('click', dismiss);
+  apply(active);
   addPlay(actions, 'Show tip', show);
   addGhost(actions, 'Dismiss', dismiss);
 }
