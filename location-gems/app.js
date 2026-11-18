@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v30 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v31 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -192,6 +192,7 @@ const COPY = {
   feedLive: '[live]',
   feedLabel: '[nearby public gems]',
   feedDismiss: '[dismiss all]',
+  feedDistance: (m) => `[${m} m]`,
 };
 
 const SPOOF_COPY = {
@@ -238,6 +239,7 @@ const SPOOF_COPY = {
   feedLive: 'Live',
   feedLabel: 'Nearby public gems',
   feedDismiss: 'Dismiss all',
+  feedDistance: (m) => `${m} m`,
   emptyPublicTitle: 'Nothing public yet',
   emptyPublicBody: 'Publish a find and it’ll show up here.',
   emptyHiddenTitle: 'No hidden gems',
@@ -454,6 +456,13 @@ function rarityForLikes(likes, isPublic) {
   return RARITY.cyan;
 }
 
+const FEED_DISTANCE_BY_FIND = {
+  'find-mara': 80,
+  'find-juniper': 140,
+  'find-fox': 220,
+};
+const SPOOF_FEED_DISTANCE_M = 35;
+
 function createSpoofCollectedGem() {
   return {
     id: SPOOF_COLLECTED_GEM_ID,
@@ -466,6 +475,7 @@ function createSpoofCollectedGem() {
     isPublic: true,
     owned: false,
     likes: LIKES_DEMO,
+    distanceM: SPOOF_FEED_DISTANCE_M,
     createdAt: new Date(Date.now() - 172_800_000).toISOString(),
     entries: [COPY.spoofCollectedReflection, '[another note left at this gem]'],
   };
@@ -484,6 +494,7 @@ function findToGem(find, opts) {
     isPublic: !!opts.isPublic,
     owned: !!opts.owned,
     likes: opts.isPublic ? find.likes || 0 : 0,
+    distanceM: opts.distanceM != null ? opts.distanceM : FEED_DISTANCE_BY_FIND[find.id],
     createdAt: new Date().toISOString(),
     entries: [find.text],
   };
@@ -738,21 +749,38 @@ function renderFeed() {
     feedDock.hidden = true;
     return;
   }
-  const publicGems = gems.filter((g) => g.isPublic);
-  const items = publicGems.slice(0, 5).map((g) => ({
-    photo: g.imageUri,
-    title: g.owned ? displayCopy(getGemTitle(g)) : `@${g.authorUsername || 'walker'}`,
-    body: displayCopy(getGemTagline(g)) || t('gemNearby'),
-  }));
-  if (!items.length) {
+  const publicGems = gems
+    .filter((g) => g.isPublic)
+    .slice()
+    .sort((a, b) => (Number(a.distanceM) || 9999) - (Number(b.distanceM) || 9999))
+    .slice(0, 5);
+  if (!publicGems.length) {
     feedDock.hidden = true;
     return;
   }
   feedDock.hidden = false;
-  items.forEach((item) => {
+  publicGems.forEach((g) => {
+    const rarity = rarityForLikes(g.likes, true);
+    const who = g.owned
+      ? displayCopy(getGemTitle(g))
+      : `@${g.authorUsername || 'walker'}`;
+    const meters = Number(g.distanceM);
+    const dist =
+      Number.isFinite(meters) && meters >= 0 ? t('feedDistance', meters) : t('gemNearby');
     const chip = document.createElement('article');
     chip.className = 'feed-chip';
-    chip.innerHTML = `<img src="${item.photo}" alt=""><p><strong>${item.title}</strong>${item.body}</p>`;
+    const gemClass =
+      rarity.id !== 'cyan' ? `feed-chip-gem is-${rarity.id}` : 'feed-chip-gem';
+    chip.innerHTML = `
+      <img src="${g.imageUri}" alt="">
+      <div class="feed-chip-meta">
+        <p class="feed-chip-dist">${dist}</p>
+        <p class="feed-chip-who">${who}</p>
+      </div>
+      <div class="feed-chip-rarity">
+        <span class="${gemClass}" aria-hidden="true">${gemSvg(rarity.fill)}</span>
+        <p class="feed-chip-rarity-label">${rarity.label}</p>
+      </div>`;
     feedStrip.appendChild(chip);
   });
 }
