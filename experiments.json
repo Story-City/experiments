@@ -27,9 +27,9 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=8",
+    "path": "approved-ui/?v=9",
     "title": "Approved UI library",
-    "what": "FtueMapElfTip-correct tip sprites, tighter stages, portal + reveal haze, Radial on/off.",
+    "what": "Tip sprites Summons/Knight/Remix only (Elf tip not duplicated). Portal, reveal haze, Radial on/off.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

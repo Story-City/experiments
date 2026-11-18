@@ -1,5 +1,5 @@
-/** Approved UI library — APPROVED-UI-v8
- * Tip sprites use FtueMapElfTip layout (168×151 overhang). Stages trimmed.
+/** Approved UI library — APPROVED-UI-v9
+ * Tip sprites: Summons/Knight/Remix only — Elf tip stays on its own card.
  */
 
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -174,7 +174,7 @@ const ELEMENT_DEFS = [
     id: 'tip-sprites',
     title: 'Tip sprites',
     source: 'FtueMapElfTip · 168×151 tipElf · remix puzzle-sprite.webp',
-    ux: 'When: coach tip on map / remix. Same tip box + character overhang as the app. Remix puzzle-sprite is the tip character only. Tap tip to dismiss. Try: switch sprite.',
+    ux: 'When: coach tip with story/remix characters (Elf tip is the card above). Same tip box + overhang. Tap tip to dismiss. Try: switch sprite.',
     stage: 'tip',
     mount: mountTipSprites,
   },
@@ -1031,13 +1031,8 @@ function mountRevealHaze(stage, actions) {
 
 function mountTipSprites(stage, actions) {
   /* Character images go in FtueMapElfTip’s 168×151 tipElf slot (contain). */
+  /* Elf tip is its own card — variants here are the other tip characters only. */
   const SPRITES = [
-    {
-      id: 'elf',
-      label: 'Elf',
-      src: 'ports/sprites/elf.png',
-      copy: '[map tip — FTUE elf]',
-    },
     {
       id: 'summons',
       label: 'Summons',
