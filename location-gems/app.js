@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v8 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v9 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -107,8 +107,6 @@ const CARD_IN_MS = 980;
 const CARD_OUT_MS = 560;
 const FLY_MS = 720;
 const LIKES_DEMO = 12;
-const HOLD_RING_LEN = 163.36;
-
 const GLANCE_ARC_CX = 120;
 const GLANCE_ARC_CY = 96;
 const GLANCE_ARC_R = 80;
@@ -293,8 +291,6 @@ const dropHidden = document.getElementById('dropHidden');
 const dropPublic = document.getElementById('dropPublic');
 const dropHiddenIcon = document.getElementById('dropHiddenIcon');
 const dropPublicIcon = document.getElementById('dropPublicIcon');
-const holdCue = document.getElementById('holdCue');
-const holdRingFill = document.getElementById('holdRingFill');
 const spot = document.getElementById('spot');
 const spotTip = document.getElementById('spotTip');
 const snack = document.getElementById('snack');
@@ -593,12 +589,21 @@ function buildGemCard(gem, opts = {}) {
   img.alt = '';
   img.decoding = 'async';
   wrap.appendChild(img);
+  const scrim = document.createElement('div');
+  scrim.className = 'gem-card-scrim';
+  wrap.appendChild(scrim);
   if (gem.isPublic && rarity.id !== 'cyan') {
     const rarityEl = document.createElement('span');
     rarityEl.className = 'gem-card-rarity';
     rarityEl.textContent = rarity.label;
     wrap.appendChild(rarityEl);
   }
+  const footer = document.createElement('div');
+  footer.className = 'gem-card-footer';
+  const caption = document.createElement('p');
+  caption.className = 'gem-card-caption';
+  caption.textContent = displayCopy(getGemTagline(gem) || getGemTitle(gem) || '—');
+  footer.appendChild(caption);
   const corner = document.createElement('div');
   corner.className = 'gem-card-corner';
   const likes = publicLikes(gem);
@@ -614,7 +619,8 @@ function buildGemCard(gem, opts = {}) {
   else if (rarity.id !== 'cyan') gemEl.classList.add(`is-${rarity.id}`);
   gemEl.innerHTML = gemSvg(rarity.fill);
   corner.appendChild(gemEl);
-  wrap.appendChild(corner);
+  footer.appendChild(corner);
+  wrap.appendChild(footer);
   return wrap;
 }
 
@@ -660,10 +666,6 @@ function renderGrid(enterId) {
     card.setAttribute('aria-label', getGemTitle(gem) || 'Gem');
     card.addEventListener('click', () => openDetail(gem.id));
     cell.appendChild(card);
-    const caption = document.createElement('p');
-    caption.className = 'gem-card-caption';
-    caption.textContent = displayCopy(getGemTagline(gem) || getGemTitle(gem) || '—');
-    cell.appendChild(caption);
     gemGrid.appendChild(cell);
   });
 }
@@ -713,18 +715,6 @@ function setTargets(mode, armed) {
   }
 }
 
-function setHoldCue(on, ready) {
-  holdCue.classList.toggle('is-on', on);
-  holdCue.classList.toggle('is-ready', !!ready);
-  if (on) {
-    holdRingFill.style.transition = 'stroke-dashoffset 280ms linear';
-    holdRingFill.style.strokeDashoffset = '0';
-  } else {
-    holdRingFill.style.transition = 'none';
-    holdRingFill.style.strokeDashoffset = String(HOLD_RING_LEN);
-  }
-}
-
 function buildSortCard(find, under, enter) {
   const card = document.createElement('article');
   card.className = `sort-card${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
@@ -749,7 +739,6 @@ function renderSortStack() {
   sortInlineEl.classList.toggle('is-done', n === 0);
   setSortingFocus(false);
   hideTargets();
-  setHoldCue(false, false);
   if (!n) return;
   const top = pendingSort[0];
   const next = pendingSort[1];
@@ -1087,7 +1076,6 @@ function bindSortDrag(card) {
   const finishDrag = (dx, dy) => {
     const armed = !!(drag && drag.armed);
     drag = null;
-    setHoldCue(false, false);
     setTargets(null, false);
     setSortingFocus(false);
     if (hubScroll) hubScroll.style.overflowY = '';
@@ -1128,7 +1116,6 @@ function bindSortDrag(card) {
       card.style.animation = 'none';
       hub.classList.add('is-sorting-focus');
       if (hubScroll) hubScroll.style.overflowY = 'hidden';
-      setHoldCue(true, true);
       setTargets(null, true);
       drag = {
         card,
@@ -1325,8 +1312,6 @@ function initIcons() {
   dropPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL);
   tabPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL);
   tabHiddenIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL);
-  holdRingFill.style.strokeDasharray = String(HOLD_RING_LEN);
-  holdRingFill.style.strokeDashoffset = String(HOLD_RING_LEN);
 }
 
 function init() {

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=8">
+<link rel="stylesheet" href="app.css?v=9">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -80,7 +80,7 @@
               <span class="sort-rail-chip" data-copy="public">[publish]</span>
             </div>
             <div class="sort-rail sort-rail-down" id="railDelete" data-rail="delete" aria-hidden="true">
-              <span class="sort-rail-icon sort-rail-x" aria-hidden="true">×</span>
+              <img class="sort-rail-x" src="assets/close.svg" alt="" width="22" height="22">
               <span class="sort-rail-chip" data-copy="delete">[delete]</span>
             </div>
             <!-- Drag-to-section drop zones (debug mode) -->
@@ -91,13 +91,6 @@
             <div class="drop-zone drop-zone-public" id="dropPublic" hidden aria-hidden="true">
               <span class="drop-zone-gem" id="dropPublicIcon" aria-hidden="true"></span>
               <span class="drop-zone-label" data-copy="dropPublic">[public gems]</span>
-            </div>
-            <div class="hold-cue" id="holdCue" aria-hidden="true">
-              <img class="hold-hand" src="assets/stamp-hand.png" alt="" draggable="false">
-              <svg class="hold-ring" viewBox="0 0 64 64" aria-hidden="true">
-                <circle class="hold-ring-track" cx="32" cy="32" r="26" fill="none" stroke-width="4"></circle>
-                <circle class="hold-ring-fill" id="holdRingFill" cx="32" cy="32" r="26" fill="none" stroke-width="4"></circle>
-              </svg>
             </div>
             <div class="sort-stack" id="sortStack"></div>
             <p class="sort-empty" id="sortEmpty" hidden>[all finds sorted — scroll for your gems]</p>
@@ -211,8 +204,8 @@
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v8. Challenge-style likes + entry. Accent picker. Fly into section.
+    LOCATION-GEMS-HUB-v9. Gem bottom scrim. No hold palm. Cleaner delete X.
   </p>
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
