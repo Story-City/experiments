@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v5 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v6 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -152,9 +152,17 @@ const COPY = {
   hiddenIntroBody: '[only for you — dull purple. publish anytime from the gem]',
   privateBadge: '[hidden]',
   publicBadge: '[public]',
-  cardNav: '[navigate]',
-  cardPublish: '[publish]',
-  cardUnpublish: '[unpublish]',
+  descriptionLabel: '[description]',
+  sortEmpty: '[all finds sorted — scroll for your gems]',
+  allSortedCount: '[all sorted]',
+  leftCount: (n) => `${n} left`,
+  likesHeart: (n) => `${n} ♥`,
+  likesPlain: (n) => `${n} likes`,
+  leftBy: (name) => `Left by @${name}`,
+  navigateSpoof: '[navigate spoofed — walk to jam]',
+  anotherEntry: '[another entry on this jam]',
+  gemNearby: '[gem nearby]',
+  feedLive: '[your public gem is live]',
 };
 
 const SPOOF_COPY = {
@@ -182,14 +190,28 @@ const SPOOF_COPY = {
   hiddenIntroBody: 'Only for you — dull purple. Publish anytime from the gem.',
   privateBadge: 'Hidden',
   publicBadge: 'Public',
-  cardNav: 'Navigate',
-  cardPublish: 'Publish',
-  cardUnpublish: 'Unpublish',
+  descriptionLabel: 'Description',
+  sortEmpty: 'All finds sorted — scroll for your gems',
+  allSortedCount: 'All sorted',
+  leftCount: (n) => `${n} left`,
+  likesHeart: (n) => `${n} likes`,
+  likesPlain: (n) => `${n} likes on this jam`,
   likesLine: (n) => `${n} likes on this jam`,
+  leftBy: (name) => `Left by @${name}`,
+  navigateSpoof: 'Navigate spoofed — you’d walk to this jam',
+  anotherEntry: 'Another line on my jam',
+  gemNearby: 'Gem nearby',
+  feedLive: 'Your public gem is live',
   emptyPublicTitle: 'No public gems yet',
   emptyPublicBody: 'Publish a find or collect one on a walk — cyan glow lives here.',
   emptyHiddenTitle: 'No hidden gems yet',
   emptyHiddenBody: 'Keep a find just for you — dull purple, only you see it.',
+  detailOwnSubtitle: 'A memory you marked on the map',
+  detailCollectedSubtitle: 'A memory another reader left at this place',
+  spoofCollectedTitle: 'Morning light on the corner',
+  spoofCollectedTagline: 'Fresh bread before the city wakes',
+  spoofCollectedReflection:
+    'This corner always smells like fresh bread before the city wakes up. I come here when I need to feel grounded.',
 };
 
 const phone = document.getElementById('phone');
@@ -219,15 +241,17 @@ const detailGemTitle = document.getElementById('detailGemTitle');
 const detailTagline = document.getElementById('detailTagline');
 const detailAuthor = document.getElementById('detailAuthor');
 const detailCaption = document.getElementById('detailCaption');
-const detailVisibility = document.getElementById('detailVisibility');
 const detailLikes = document.getElementById('detailLikes');
 const detailRarity = document.getElementById('detailRarity');
+const detailChips = document.getElementById('detailChips');
+const detailSectionLabel = document.getElementById('detailSectionLabel');
 const detailNav = document.getElementById('detailNav');
 const detailPublish = document.getElementById('detailPublish');
 const detailEntries = document.getElementById('detailEntries');
 const detailBanner = document.getElementById('detailBanner');
 const detailBannerCopy = document.getElementById('detailBannerCopy');
 const detailAdd = document.getElementById('detailAdd');
+const hubScroll = document.getElementById('hubScroll');
 const hint = document.getElementById('hint');
 const resetHub = document.getElementById('resetHub');
 const feedStrip = document.getElementById('feedStrip');
@@ -286,11 +310,25 @@ let drag = null;
 /** @type {Array<() => void>} */
 const pendingEnds = [];
 
-function t(key) {
-  if (spoofWording && Object.prototype.hasOwnProperty.call(SPOOF_COPY, key)) {
-    return SPOOF_COPY[key];
+function t(key, ...args) {
+  const table = spoofWording ? { ...COPY, ...SPOOF_COPY } : COPY;
+  const val = table[key];
+  if (typeof val === 'function') return val(...args);
+  return val;
+}
+
+/** When spoof is on, replace leftover [bracket] copy with readable text */
+function displayCopy(text) {
+  if (text == null) return '';
+  const s = String(text);
+  if (!spoofWording) return s;
+  if (s === COPY.spoofCollectedTitle) return SPOOF_COPY.spoofCollectedTitle;
+  if (s === COPY.spoofCollectedTagline) return SPOOF_COPY.spoofCollectedTagline;
+  if (s === COPY.spoofCollectedReflection) return SPOOF_COPY.spoofCollectedReflection;
+  if (/^\[.*\]$/.test(s.trim())) {
+    return s.replace(/^\[/, '').replace(/\]$/, '');
   }
-  return COPY[key];
+  return s;
 }
 
 function gemSvg(fill) {
@@ -464,7 +502,9 @@ function applyStaticCopy() {
   });
   detailNav.textContent = t('detailNav');
   detailAdd.textContent = t('detailAdd');
+  detailSectionLabel.textContent = t('descriptionLabel');
   likesSubtitle.textContent = t('likesSubtitle');
+  sortEmpty.textContent = t('sortEmpty');
   hint.textContent = dragMode ? t('holdHintDrag') : t('holdHint');
   syncSectionIntro();
 }
@@ -494,7 +534,7 @@ function buildGemCard(gem, opts = {}) {
   if (gem.isPublic && likes > 0) {
     const likesEl = document.createElement('span');
     likesEl.className = 'gem-card-likes';
-    likesEl.textContent = spoofWording ? SPOOF_COPY.likesLine(likes) : `${likes} ♥`;
+    likesEl.textContent = t('likesHeart', likes);
     wrap.appendChild(likesEl);
   }
   if (gem.isPublic && rarity.id !== 'cyan') {
@@ -517,8 +557,8 @@ function renderFeed() {
   const publicGems = gems.filter((g) => g.isPublic);
   const items = publicGems.slice(0, 5).map((g) => ({
     photo: g.imageUri,
-    title: g.owned ? getGemTitle(g) : `@${g.authorUsername || 'walker'}`,
-    body: getGemTagline(g) || (spoofWording ? 'gem nearby' : '[gem nearby]'),
+    title: g.owned ? displayCopy(getGemTitle(g)) : `@${g.authorUsername || 'walker'}`,
+    body: displayCopy(getGemTagline(g)) || t('gemNearby'),
   }));
   items.forEach((item) => {
     const chip = document.createElement('article');
@@ -556,46 +596,8 @@ function renderGrid(enterId) {
     cell.appendChild(card);
     const caption = document.createElement('p');
     caption.className = 'gem-card-caption';
-    caption.textContent = getGemTagline(gem) || getGemTitle(gem) || '—';
+    caption.textContent = displayCopy(getGemTagline(gem) || getGemTitle(gem) || '—');
     cell.appendChild(caption);
-    if (gem.owned) {
-      const actions = document.createElement('div');
-      actions.className = 'gem-card-actions';
-      const nav = document.createElement('button');
-      nav.type = 'button';
-      nav.textContent = t('cardNav');
-      nav.addEventListener('click', (e) => {
-        e.stopPropagation();
-        hint.textContent = spoofWording
-          ? 'Navigate spoofed — you’d walk to this jam'
-          : '[navigate spoofed — walk to jam]';
-      });
-      actions.appendChild(nav);
-      const pub = document.createElement('button');
-      pub.type = 'button';
-      pub.className = 'is-secondary';
-      pub.textContent = gem.isPublic ? t('cardUnpublish') : t('cardPublish');
-      pub.addEventListener('click', (e) => {
-        e.stopPropagation();
-        togglePublish(gem.id);
-      });
-      actions.appendChild(pub);
-      cell.appendChild(actions);
-    } else {
-      const actions = document.createElement('div');
-      actions.className = 'gem-card-actions';
-      const nav = document.createElement('button');
-      nav.type = 'button';
-      nav.textContent = t('cardNav');
-      nav.addEventListener('click', (e) => {
-        e.stopPropagation();
-        hint.textContent = spoofWording
-          ? 'Navigate spoofed — you’d walk to this jam'
-          : '[navigate spoofed — walk to jam]';
-      });
-      actions.appendChild(nav);
-      cell.appendChild(actions);
-    }
     gemGrid.appendChild(cell);
   });
 }
@@ -665,8 +667,8 @@ function buildSortCard(find, under, enter) {
     <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
     <div class="sort-card-body">
       <p class="sort-card-user">${find.user}</p>
-      <p class="sort-card-text">${find.text}</p>
-      <p class="sort-card-place">📍 ${find.place}</p>
+      <p class="sort-card-text">${displayCopy(find.text)}</p>
+      <p class="sort-card-place">📍 ${displayCopy(find.place)}</p>
     </div>
   `;
   return card;
@@ -675,8 +677,9 @@ function buildSortCard(find, under, enter) {
 function renderSortStack() {
   sortStack.replaceChildren();
   const n = pendingSort.length;
-  sortSub.textContent = n ? `${n} left` : '[all sorted]';
+  sortSub.textContent = n ? t('leftCount', n) : t('allSortedCount');
   sortEmpty.hidden = n > 0;
+  sortEmpty.textContent = t('sortEmpty');
   setSortingFocus(false);
   hideTargets();
   setHoldCue(false, false);
@@ -755,7 +758,7 @@ function renderDetailEntries(gem) {
   entries.forEach((text) => {
     const p = document.createElement('p');
     p.className = 'detail-entry';
-    p.textContent = text;
+    p.textContent = displayCopy(text);
     detailEntries.appendChild(p);
   });
   detailEntries.hidden = false;
@@ -770,17 +773,15 @@ function openDetail(id) {
   openGemId = id;
   const rarity = rarityForLikes(gem.likes, gem.isPublic);
   detailSubtitle.textContent = gem.owned
-    ? COPY.detailOwnSubtitle
-    : COPY.detailCollectedSubtitle;
+    ? t('detailOwnSubtitle')
+    : t('detailCollectedSubtitle');
   detailPhoto.src = gem.imageUri;
-  detailGemTitle.textContent = getGemTitle(gem);
-  detailTagline.textContent = getGemTagline(gem);
+  detailGemTitle.textContent = displayCopy(getGemTitle(gem));
+  detailTagline.textContent = displayCopy(getGemTagline(gem));
   const likes = publicLikes(gem);
   if (gem.isPublic && likes > 0) {
     detailLikes.hidden = false;
-    detailLikes.textContent = spoofWording
-      ? SPOOF_COPY.likesLine(likes)
-      : `${likes} likes`;
+    detailLikes.textContent = t('likesPlain', likes);
   } else {
     detailLikes.hidden = true;
   }
@@ -790,22 +791,31 @@ function openDetail(id) {
   } else {
     detailRarity.hidden = true;
   }
+  detailChips.replaceChildren();
+  const visChip = document.createElement('span');
+  visChip.className = 'detail-chip';
+  visChip.textContent = gem.isPublic ? t('publicBadge') : t('privateBadge');
+  detailChips.appendChild(visChip);
+  if (gem.isPublic && rarity.id !== 'cyan') {
+    const rChip = document.createElement('span');
+    rChip.className = 'detail-chip';
+    rChip.textContent = rarity.label;
+    detailChips.appendChild(rChip);
+  }
   if (gem.owned) {
-    detailVisibility.hidden = false;
-    detailVisibility.textContent = gem.isPublic ? t('publicBadge') : t('privateBadge');
     detailPublish.hidden = false;
     detailPublish.textContent = gem.isPublic ? t('detailUnpublish') : t('detailPublish');
   } else {
-    detailVisibility.hidden = true;
     detailPublish.hidden = true;
   }
   if (gem.authorUsername) {
     detailAuthor.hidden = false;
-    detailAuthor.textContent = `Left by @${gem.authorUsername}`;
+    detailAuthor.textContent = t('leftBy', gem.authorUsername);
   } else {
     detailAuthor.hidden = true;
   }
-  detailCaption.textContent = gem.caption || '';
+  detailSectionLabel.textContent = t('descriptionLabel');
+  detailCaption.textContent = displayCopy(gem.caption || '');
   detailNav.hidden = false;
   detailNav.textContent = t('detailNav');
   renderDetailEntries(gem);
@@ -827,7 +837,7 @@ function addEntryToOpenGem() {
   if (!Array.isArray(gem.entries)) {
     gem.entries = [gem.caption || gem.tagline || ''].filter(Boolean);
   }
-  gem.entries.push(spoofWording ? 'Another line on my jam' : '[another entry on this jam]');
+  gem.entries.push(t('anotherEntry'));
   renderDetailEntries(gem);
 }
 
@@ -965,18 +975,25 @@ function railModeFromDelta(dx, dy) {
 }
 
 function bindSortDrag(card) {
+  const snapBack = () => {
+    card.classList.remove('is-dragging');
+    card.style.transition = 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)';
+    card.style.transform = 'rotate(-4deg)';
+    window.setTimeout(() => {
+      card.style.transition = '';
+      card.style.transform = '';
+    }, 240);
+  };
+
   const finishDrag = (dx, dy) => {
     const armed = !!(drag && drag.armed);
     drag = null;
     setHoldCue(false, false);
     setTargets(null, false);
     setSortingFocus(false);
+    if (hubScroll) hubScroll.style.overflowY = '';
     if (!armed) {
-      card.style.transition = 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)';
-      card.style.transform = '';
-      window.setTimeout(() => {
-        card.style.transition = '';
-      }, 240);
+      snapBack();
       return;
     }
     if (dx > SWIPE_COMMIT_X) {
@@ -991,11 +1008,13 @@ function bindSortDrag(card) {
       settleSort(card, 'delete');
       return;
     }
-    card.style.transition = 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)';
-    card.style.transform = '';
-    window.setTimeout(() => {
-      card.style.transition = '';
-    }, 240);
+    snapBack();
+  };
+
+  const moveCard = (dx, dy) => {
+    const rot = -4 + dx * 0.08;
+    const lift = 1.03;
+    card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg) scale(${lift})`;
   };
 
   card.addEventListener(
@@ -1003,9 +1022,13 @@ function bindSortDrag(card) {
     (e) => {
       if (drag || e.button === 2) return;
       e.preventDefault();
+      e.stopPropagation();
       card.setPointerCapture(e.pointerId);
+      card.classList.remove('is-enter');
+      card.classList.add('is-dragging');
+      card.style.animation = 'none';
       hub.classList.add('is-sorting-focus');
-      /** Activate immediately on press-hold start */
+      if (hubScroll) hubScroll.style.overflowY = 'hidden';
       setHoldCue(true, true);
       setTargets(null, true);
       drag = {
@@ -1017,6 +1040,7 @@ function bindSortDrag(card) {
         dy: 0,
         armed: true,
       };
+      moveCard(0, 0);
       hint.textContent = dragMode ? t('holdHintDrag') : t('holdHint');
     },
     { passive: false },
@@ -1027,10 +1051,10 @@ function bindSortDrag(card) {
     (e) => {
       if (!drag || drag.id !== e.pointerId) return;
       e.preventDefault();
+      e.stopPropagation();
       drag.dx = e.clientX - drag.x0;
       drag.dy = e.clientY - drag.y0;
-      const rot = -4 + drag.dx * 0.06;
-      card.style.transform = `translate(${drag.dx}px, ${drag.dy}px) rotate(${rot}deg)`;
+      moveCard(drag.dx, drag.dy);
       setTargets(railModeFromDelta(drag.dx, drag.dy), true);
     },
     { passive: false },
@@ -1221,9 +1245,7 @@ detailFav.addEventListener('click', () => {
   if (openGemId) toggleFavourite(openGemId);
 });
 detailNav.addEventListener('click', () => {
-  hint.textContent = spoofWording
-    ? 'Navigate spoofed — you’d walk to this jam'
-    : '[navigate spoofed — walk to jam]';
+  hint.textContent = t('navigateSpoof');
 });
 detailPublish.addEventListener('click', () => {
   if (openGemId) togglePublish(openGemId);
