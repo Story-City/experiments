@@ -1824,10 +1824,14 @@ body.is-embed {
   display: block;
 }
 body.is-embed > header,
-body.is-embed > .toolbar,
-body.is-embed > .meta,
-body.is-embed > .hint {
+body.is-embed > .workspace > .tool-rail,
+body.is-embed > .workspace > .stage > .meta,
+body.is-embed .hint {
   display: none !important;
+}
+body.is-embed > .workspace {
+  display: block;
+  width: auto;
 }
 body.is-embed .phone {
   width: 100%;
