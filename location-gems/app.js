@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v7 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v8 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -116,98 +116,108 @@ const GLANCE_ARC_START = 190;
 const GLANCE_ARC_END = -10;
 
 const COPY = {
-  emptyPublicTitle: '[no public gems yet]',
-  emptyPublicBody: '[publish a find or collect one on a walk — they show here with a cyan glow]',
-  emptyHiddenTitle: '[no hidden gems yet]',
-  emptyHiddenBody: '[keep a find just for you — dull purple, only you can see it]',
+  emptyPublicTitle: '[nothing public yet]',
+  emptyPublicBody: '[publish a find and it’ll show up here]',
+  emptyHiddenTitle: '[no hidden gems]',
+  emptyHiddenBody: '[keep one just for yourself — it’ll land here]',
+  emptyLikedTitle: '[no liked gems yet]',
+  emptyLikedBody: '[heart a gem and it’ll show up in Liked]',
   spoofCollectedTitle: 'Morning light on the corner',
   spoofCollectedTagline: 'Fresh bread before the city wakes',
   spoofCollectedReflection:
     'This corner always smells like fresh bread before the city wakes up. I come here when I need to feel grounded.',
-  detailOwnSubtitle: 'A memory you marked on the map',
-  detailCollectedSubtitle: 'A memory another reader left at this place',
+  detailOwnSubtitle: 'Yours',
+  detailCollectedSubtitle: 'Left by someone else',
   railPrivate: '[keep hidden]',
   railPublic: '[publish]',
   railDelete: '[delete]',
-  dropHidden: '[hidden gems]',
-  dropPublic: '[public gems]',
-  likesSubtitle: '[on this public gem]',
-  detailNav: '[navigate to gem]',
-  detailPublish: '[publish gem]',
-  detailUnpublish: '[unpublish gem]',
-  detailAdd: '[add more to this gem]',
-  bannerOwn: '[add as many entries as you like on your gem]',
-  bannerOther: '[you have to be at the location to add more to somebody else’s gem]',
-  holdHint: 'Press + hold the photo — sides light up. Then swipe.',
-  holdHintDrag: 'Press + hold — then drag onto Hidden or Public.',
-  sortTitle: '[sort finds into gems]',
-  sortIntro:
-    '[press and hold the photo — swipe left to keep hidden, right to publish, or down to delete]',
-  sortIntroDrag:
-    '[press and hold the photo — drag onto Hidden gems or Public gems]',
-  publicIntroTitle: '[public gems]',
-  publicIntroBody:
-    '[on the map for others — cyan glow; more likes unlock silver → gold → platinum → diamond]',
-  hiddenIntroTitle: '[hidden gems]',
-  hiddenIntroBody: '[only for you — dull purple. publish anytime from the gem]',
+  dropHidden: '[hidden]',
+  dropPublic: '[public]',
+  likesSubtitle: '[likes on this gem]',
+  detailNav: '[navigate]',
+  detailPublish: '[publish]',
+  detailUnpublish: '[unpublish]',
+  detailAdd: '[confirm]',
+  detailWriteLabel: '[add a few words]',
+  detailNotePh: '[optional note]',
+  detailSkip: '[skip]',
+  bannerOwn: '[you can add more anytime]',
+  bannerOther: '[you need to be there to add to theirs]',
+  holdHint: 'Press + hold, then swipe.',
+  holdHintDrag: 'Press + hold, then drag to Hidden or Public.',
+  sortTitle: '[sort your finds]',
+  sortIntro: '[hold the photo — left hidden, right public, down delete]',
+  sortIntroDrag: '[hold the photo — drag onto Hidden or Public]',
+  publicIntroTitle: '[public]',
+  publicIntroBody: '[on the map for other people]',
+  hiddenIntroTitle: '[hidden]',
+  hiddenIntroBody: '[just for you]',
+  likedIntroTitle: '[liked]',
+  likedIntroBody: '[gems you hearted]',
   privateBadge: '[hidden]',
   publicBadge: '[public]',
-  descriptionLabel: '[description]',
-  sortEmpty: '[all finds sorted — scroll for your gems]',
-  allSortedCount: '[all sorted]',
+  descriptionLabel: '[notes]',
+  sortEmpty: '[all sorted]',
+  allSortedCount: '[done]',
   leftCount: (n) => `${n} left`,
-  likesHeart: (n) => `${n} ♥`,
-  likesPlain: (n) => `${n} likes`,
-  leftBy: (name) => `Left by @${name}`,
-  navigateSpoof: '[navigate spoofed — walk to gem]',
-  anotherEntry: '[another entry on this gem]',
-  gemNearby: '[gem nearby]',
-  feedLive: '[your public gem is live]',
+  likesHeart: (n) => String(n),
+  likesPlain: (n) => String(n),
+  leftBy: (name) => `@${name}`,
+  navigateSpoof: '[would open navigate]',
+  anotherEntry: '[another note]',
+  gemNearby: '[nearby]',
+  feedLive: '[live]',
 };
 
 const SPOOF_COPY = {
-  railPrivate: 'Keep as a quiet gem',
-  railPublic: 'Publish this gem',
-  railDelete: 'Toss this find',
-  dropHidden: 'Hidden gems',
-  dropPublic: 'Public gems',
-  likesSubtitle: 'on this public gem',
-  detailNav: 'Navigate to gem',
-  detailPublish: 'Publish gem',
-  detailUnpublish: 'Unpublish gem',
-  detailAdd: 'Add more to this gem',
-  bannerOwn: 'On your gems, add as much as you’d like.',
-  bannerOther: 'On somebody else’s gems, be at the location to add more.',
-  holdHint: 'Press + hold the photo — sides light up. Then swipe.',
-  holdHintDrag: 'Press + hold — drag onto Hidden or Public.',
-  sortTitle: 'Sort finds into gems',
-  sortIntro: 'Press and hold the photo — swipe left hidden, right publish, down delete.',
-  sortIntroDrag: 'Press and hold — drag onto Hidden gems or Public gems.',
-  publicIntroTitle: 'Public gems',
-  publicIntroBody:
-    'On the map for others — cyan glow; more likes unlock silver → gold → platinum → diamond.',
-  hiddenIntroTitle: 'Hidden gems',
-  hiddenIntroBody: 'Only for you — dull purple. Publish anytime from the gem.',
+  railPrivate: 'Keep hidden',
+  railPublic: 'Publish',
+  railDelete: 'Delete',
+  dropHidden: 'Hidden',
+  dropPublic: 'Public',
+  likesSubtitle: 'likes on this gem',
+  detailNav: 'Navigate',
+  detailPublish: 'Publish',
+  detailUnpublish: 'Unpublish',
+  detailAdd: 'Confirm',
+  detailWriteLabel: 'Add a few words',
+  detailNotePh: 'Optional note',
+  detailSkip: 'Skip',
+  bannerOwn: 'You can add more anytime.',
+  bannerOther: 'You need to be there to add to theirs.',
+  holdHint: 'Press + hold, then swipe.',
+  holdHintDrag: 'Press + hold, then drag to Hidden or Public.',
+  sortTitle: 'Sort your finds',
+  sortIntro: 'Hold the photo — left hidden, right public, down delete.',
+  sortIntroDrag: 'Hold the photo — drag onto Hidden or Public.',
+  publicIntroTitle: 'Public',
+  publicIntroBody: 'On the map for other people.',
+  hiddenIntroTitle: 'Hidden',
+  hiddenIntroBody: 'Just for you.',
+  likedIntroTitle: 'Liked',
+  likedIntroBody: 'Gems you hearted.',
   privateBadge: 'Hidden',
   publicBadge: 'Public',
-  descriptionLabel: 'Description',
-  sortEmpty: 'All finds sorted — scroll for your gems',
-  allSortedCount: 'All sorted',
+  descriptionLabel: 'Notes',
+  sortEmpty: 'All sorted',
+  allSortedCount: 'Done',
   leftCount: (n) => `${n} left`,
-  likesHeart: (n) => `${n} likes`,
-  likesPlain: (n) => `${n} likes on this gem`,
-  likesLine: (n) => `${n} likes on this gem`,
-  leftBy: (name) => `Left by @${name}`,
-  navigateSpoof: 'Navigate spoofed — you’d walk to this gem',
-  anotherEntry: 'Another line on my gem',
-  gemNearby: 'Gem nearby',
-  feedLive: 'Your public gem is live',
-  emptyPublicTitle: 'No public gems yet',
-  emptyPublicBody: 'Publish a find or collect one on a walk — cyan glow lives here.',
-  emptyHiddenTitle: 'No hidden gems yet',
-  emptyHiddenBody: 'Keep a find just for you — dull purple, only you see it.',
-  detailOwnSubtitle: 'A memory you marked on the map',
-  detailCollectedSubtitle: 'A memory another reader left at this place',
+  likesHeart: (n) => String(n),
+  likesPlain: (n) => String(n),
+  likesLine: (n) => `${n} likes`,
+  leftBy: (name) => `@${name}`,
+  navigateSpoof: 'Would open navigate',
+  anotherEntry: 'Another note',
+  gemNearby: 'Nearby',
+  feedLive: 'Live',
+  emptyPublicTitle: 'Nothing public yet',
+  emptyPublicBody: 'Publish a find and it’ll show up here.',
+  emptyHiddenTitle: 'No hidden gems',
+  emptyHiddenBody: 'Keep one just for yourself — it’ll land here.',
+  emptyLikedTitle: 'No liked gems yet',
+  emptyLikedBody: 'Heart a gem and it’ll show up in Liked.',
+  detailOwnSubtitle: 'Yours',
+  detailCollectedSubtitle: 'Left by someone else',
   spoofCollectedTitle: 'Morning light on the corner',
   spoofCollectedTagline: 'Fresh bread before the city wakes',
   spoofCollectedReflection:
@@ -242,16 +252,29 @@ const detailTagline = document.getElementById('detailTagline');
 const detailAuthor = document.getElementById('detailAuthor');
 const detailCaption = document.getElementById('detailCaption');
 const detailLikes = document.getElementById('detailLikes');
+const detailLikeBtn = document.getElementById('detailLikeBtn');
+const detailLikeHeart = document.getElementById('detailLikeHeart');
 const detailRarity = document.getElementById('detailRarity');
 const detailChips = document.getElementById('detailChips');
+const detailChipsBottom = document.getElementById('detailChipsBottom');
 const detailSectionLabel = document.getElementById('detailSectionLabel');
 const detailNav = document.getElementById('detailNav');
 const detailPublish = document.getElementById('detailPublish');
 const detailEntries = document.getElementById('detailEntries');
 const detailBanner = document.getElementById('detailBanner');
 const detailBannerCopy = document.getElementById('detailBannerCopy');
+const detailWrite = document.getElementById('detailWrite');
+const detailWriteLabel = document.getElementById('detailWriteLabel');
+const detailNote = document.getElementById('detailNote');
+const detailNoteSkip = document.getElementById('detailNoteSkip');
 const detailAdd = document.getElementById('detailAdd');
 const hubScroll = document.getElementById('hubScroll');
+const accentColor = document.getElementById('accentColor');
+const accentAlpha = document.getElementById('accentAlpha');
+const tabPublic = document.getElementById('tabPublic');
+const tabHidden = document.getElementById('tabHidden');
+const tabLiked = document.getElementById('tabLiked');
+const sortInlineEl = document.getElementById('sortInline');
 const hint = document.getElementById('hint');
 const resetHub = document.getElementById('resetHub');
 const feedStrip = document.getElementById('feedStrip');
@@ -291,12 +314,14 @@ const debugOnboard = document.getElementById('debugOnboard');
 const debugSpoof = document.getElementById('debugSpoof');
 const debugDragMode = document.getElementById('debugDragMode');
 
-/** @type {'public'|'hidden'} */
+/** @type {'public'|'hidden'|'liked'} */
 let activeSection = 'public';
 /** @type {any[]} */
 let gems = [];
 /** @type {string[]} */
 let favouriteGemIds = [];
+/** @type {Record<string, boolean>} */
+let likedByGem = {};
 /** @type {any[]} */
 let pendingSort = [];
 let openGemId = null;
@@ -451,14 +476,18 @@ function publicLikes(gem) {
 
 function activeGems() {
   if (activeSection === 'public') return gems.filter((g) => g.isPublic);
-  return gems.filter((g) => !g.isPublic && g.owned);
+  if (activeSection === 'hidden') return gems.filter((g) => !g.isPublic && g.owned);
+  return gems.filter((g) => likedByGem[g.id] || favouriteGemIds.includes(g.id));
 }
 
 function emptyCopy() {
   if (activeSection === 'public') {
     return { title: t('emptyPublicTitle'), body: t('emptyPublicBody') };
   }
-  return { title: t('emptyHiddenTitle'), body: t('emptyHiddenBody') };
+  if (activeSection === 'hidden') {
+    return { title: t('emptyHiddenTitle'), body: t('emptyHiddenBody') };
+  }
+  return { title: t('emptyLikedTitle'), body: t('emptyLikedBody') };
 }
 
 function glancePolar(cx, cy, r, deg) {
@@ -502,6 +531,9 @@ function applyStaticCopy() {
   });
   detailNav.textContent = t('detailNav');
   detailAdd.textContent = t('detailAdd');
+  detailWriteLabel.textContent = t('detailWriteLabel');
+  detailNote.placeholder = t('detailNotePh');
+  detailNoteSkip.textContent = t('detailSkip');
   detailSectionLabel.textContent = t('descriptionLabel');
   likesSubtitle.textContent = t('likesSubtitle');
   sortEmpty.textContent = t('sortEmpty');
@@ -513,10 +545,41 @@ function syncSectionIntro() {
   if (activeSection === 'public') {
     sectionIntroTitle.textContent = t('publicIntroTitle');
     sectionIntroBody.textContent = t('publicIntroBody');
-  } else {
+  } else if (activeSection === 'hidden') {
     sectionIntroTitle.textContent = t('hiddenIntroTitle');
     sectionIntroBody.textContent = t('hiddenIntroBody');
+  } else {
+    sectionIntroTitle.textContent = t('likedIntroTitle');
+    sectionIntroBody.textContent = t('likedIntroBody');
   }
+}
+
+function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  const n = h.length === 3
+    ? h.split('').map((c) => c + c).join('')
+    : h;
+  return {
+    r: parseInt(n.slice(0, 2), 16),
+    g: parseInt(n.slice(2, 4), 16),
+    b: parseInt(n.slice(4, 6), 16),
+  };
+}
+
+function applyAccent() {
+  const hex = accentColor.value || '#00c2ff';
+  const alpha = (Number(accentAlpha.value) || 100) / 100;
+  const { r, g, b } = hexToRgb(hex);
+  const deep = `rgb(${Math.max(0, r - 40)}, ${Math.max(0, g - 50)}, ${Math.max(0, b - 20)})`;
+  const accent = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  const solid = `rgb(${r}, ${g}, ${b})`;
+  document.documentElement.style.setProperty('--brand-accent', accent);
+  document.documentElement.style.setProperty('--brand-primary', solid);
+  document.documentElement.style.setProperty('--brand-primary-deep', deep);
+  document.documentElement.style.setProperty(
+    '--accent-glow',
+    `rgba(${r}, ${g}, ${b}, ${0.55 * alpha})`,
+  );
 }
 
 function buildGemCard(gem, opts = {}) {
@@ -530,25 +593,28 @@ function buildGemCard(gem, opts = {}) {
   img.alt = '';
   img.decoding = 'async';
   wrap.appendChild(img);
-  const likes = publicLikes(gem);
-  if (gem.isPublic && likes > 0) {
-    const likesEl = document.createElement('span');
-    likesEl.className = 'gem-card-likes';
-    likesEl.textContent = t('likesHeart', likes);
-    wrap.appendChild(likesEl);
-  }
   if (gem.isPublic && rarity.id !== 'cyan') {
     const rarityEl = document.createElement('span');
     rarityEl.className = 'gem-card-rarity';
     rarityEl.textContent = rarity.label;
     wrap.appendChild(rarityEl);
   }
+  const corner = document.createElement('div');
+  corner.className = 'gem-card-corner';
+  const likes = publicLikes(gem);
+  if (gem.isPublic && likes > 0) {
+    const likesEl = document.createElement('span');
+    likesEl.className = 'gem-card-likes';
+    likesEl.innerHTML = `<span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span>`;
+    corner.appendChild(likesEl);
+  }
   const gemEl = document.createElement('span');
   gemEl.className = 'gem-card-gem';
   if (!gem.isPublic) gemEl.classList.add('is-hidden-fill');
   else if (rarity.id !== 'cyan') gemEl.classList.add(`is-${rarity.id}`);
   gemEl.innerHTML = gemSvg(rarity.fill);
-  wrap.appendChild(gemEl);
+  corner.appendChild(gemEl);
+  wrap.appendChild(corner);
   return wrap;
 }
 
@@ -680,6 +746,7 @@ function renderSortStack() {
   sortSub.textContent = n ? t('leftCount', n) : t('allSortedCount');
   sortEmpty.hidden = n > 0;
   sortEmpty.textContent = t('sortEmpty');
+  sortInlineEl.classList.toggle('is-done', n === 0);
   setSortingFocus(false);
   hideTargets();
   setHoldCue(false, false);
@@ -753,18 +820,38 @@ function renderDetailEntries(gem) {
   detailEntries.replaceChildren();
   if (!entries.length) {
     detailEntries.hidden = true;
-    return;
+  } else {
+    entries.forEach((text) => {
+      const p = document.createElement('p');
+      p.className = 'detail-entry';
+      p.textContent = displayCopy(text);
+      detailEntries.appendChild(p);
+    });
+    detailEntries.hidden = false;
   }
-  entries.forEach((text) => {
-    const p = document.createElement('p');
-    p.className = 'detail-entry';
-    p.textContent = displayCopy(text);
-    detailEntries.appendChild(p);
-  });
-  detailEntries.hidden = false;
   detailBanner.hidden = false;
   detailBannerCopy.textContent = gem.owned ? t('bannerOwn') : t('bannerOther');
-  detailAdd.hidden = !gem.owned;
+  detailWrite.hidden = !gem.owned;
+  if (gem.owned) {
+    detailWriteLabel.textContent = t('detailWriteLabel');
+    detailNote.placeholder = t('detailNotePh');
+    detailNoteSkip.textContent = t('detailSkip');
+    detailAdd.textContent = t('detailAdd');
+    detailNote.value = '';
+  }
+}
+
+function syncDetailLike(gem) {
+  const likes = publicLikes(gem);
+  const liked = !!likedByGem[gem.id];
+  if (!gem.isPublic) {
+    detailLikeBtn.hidden = true;
+    return;
+  }
+  detailLikeBtn.hidden = false;
+  detailLikes.textContent = t('likesPlain', likes);
+  detailLikeHeart.textContent = liked ? '♥' : likes > 0 ? '♥' : '♡';
+  detailLikeBtn.classList.toggle('is-liked', liked);
 }
 
 function openDetail(id) {
@@ -778,13 +865,6 @@ function openDetail(id) {
   detailPhoto.src = gem.imageUri;
   detailGemTitle.textContent = displayCopy(getGemTitle(gem));
   detailTagline.textContent = displayCopy(getGemTagline(gem));
-  const likes = publicLikes(gem);
-  if (gem.isPublic && likes > 0) {
-    detailLikes.hidden = false;
-    detailLikes.textContent = t('likesPlain', likes);
-  } else {
-    detailLikes.hidden = true;
-  }
   if (gem.isPublic && rarity.id !== 'cyan') {
     detailRarity.hidden = false;
     detailRarity.textContent = rarity.label;
@@ -792,15 +872,16 @@ function openDetail(id) {
     detailRarity.hidden = true;
   }
   detailChips.replaceChildren();
+  detailChipsBottom.replaceChildren();
   const visChip = document.createElement('span');
   visChip.className = 'detail-chip';
   visChip.textContent = gem.isPublic ? t('publicBadge') : t('privateBadge');
-  detailChips.appendChild(visChip);
+  detailChipsBottom.appendChild(visChip);
   if (gem.isPublic && rarity.id !== 'cyan') {
     const rChip = document.createElement('span');
     rChip.className = 'detail-chip';
     rChip.textContent = rarity.label;
-    detailChips.appendChild(rChip);
+    detailChipsBottom.appendChild(rChip);
   }
   if (gem.owned) {
     detailPublish.hidden = false;
@@ -818,6 +899,7 @@ function openDetail(id) {
   detailCaption.textContent = displayCopy(gem.caption || '');
   detailNav.hidden = false;
   detailNav.textContent = t('detailNav');
+  syncDetailLike(gem);
   renderDetailEntries(gem);
   syncDetailFav();
   detail.hidden = false;
@@ -837,8 +919,25 @@ function addEntryToOpenGem() {
   if (!Array.isArray(gem.entries)) {
     gem.entries = [gem.caption || gem.tagline || ''].filter(Boolean);
   }
-  gem.entries.push(t('anotherEntry'));
+  const note = (detailNote.value || '').trim();
+  gem.entries.push(note || t('anotherEntry'));
+  detailNote.value = '';
   renderDetailEntries(gem);
+}
+
+function toggleDetailLike() {
+  if (!openGemId) return;
+  const gem = findGem(openGemId);
+  if (!gem || !gem.isPublic) return;
+  likedByGem[gem.id] = !likedByGem[gem.id];
+  if (likedByGem[gem.id]) {
+    gem.likes = (Number(gem.likes) || 0) + 1;
+    if (!favouriteGemIds.includes(gem.id)) favouriteGemIds.push(gem.id);
+  } else {
+    gem.likes = Math.max(0, (Number(gem.likes) || 0) - 1);
+  }
+  syncDetailLike(gem);
+  if (activeSection === 'liked') renderGrid();
 }
 
 function togglePublish(id) {
@@ -1071,20 +1170,30 @@ function bindSortDrag(card) {
 
 function flyGemIntoSection(photoSrc, toPublic) {
   return new Promise((resolve) => {
-    const card = document.createElement('div');
-    card.className = 'fly-card is-swing';
-    card.innerHTML = `<img src="${photoSrc}" alt="">`;
+    const target = toPublic ? tabPublic : tabHidden;
     const stage = document.getElementById('sortStage');
-    const sr = stage.getBoundingClientRect();
     const pr = phone.getBoundingClientRect();
-    card.style.left = `${sr.left - pr.left + sr.width / 2 - 70}px`;
-    card.style.top = `${sr.top - pr.top + 70}px`;
-    if (!toPublic) card.style.animationName = 'gemSwingIn';
+    const sr = stage.getBoundingClientRect();
+    const tr = target.getBoundingClientRect();
+    const startX = sr.left - pr.left + sr.width / 2 - 70;
+    const startY = sr.top - pr.top + 70;
+    const endX = tr.left - pr.left + tr.width / 2 - 35;
+    const endY = tr.top - pr.top + tr.height / 2 - 40;
+    const card = document.createElement('div');
+    card.className = 'fly-card is-fly';
+    card.innerHTML = `<img src="${photoSrc}" alt="">`;
+    card.style.left = `${startX}px`;
+    card.style.top = `${startY}px`;
+    card.style.width = '140px';
     flyLayer.appendChild(card);
+    requestAnimationFrame(() => {
+      card.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.28)`;
+      card.style.opacity = '0';
+    });
     window.setTimeout(() => {
       card.remove();
       resolve();
-    }, FLY_MS);
+    }, 660);
   });
 }
 
@@ -1195,6 +1304,7 @@ function resetState() {
   clearSpotlights();
   gems = [];
   favouriteGemIds = [];
+  likedByGem = {};
   gemSeq = 0;
   seedGems();
   seedPendingSort();
@@ -1221,6 +1331,7 @@ function initIcons() {
 
 function init() {
   initIcons();
+  applyAccent();
   seedGems();
   seedPendingSort();
   setupSnapshotArc();
@@ -1251,6 +1362,12 @@ detailPublish.addEventListener('click', () => {
   if (openGemId) togglePublish(openGemId);
 });
 detailAdd.addEventListener('click', addEntryToOpenGem);
+detailNoteSkip.addEventListener('click', () => {
+  detailNote.value = '';
+});
+detailLikeBtn.addEventListener('click', toggleDetailLike);
+accentColor.addEventListener('input', applyAccent);
+accentAlpha.addEventListener('input', applyAccent);
 resetHub.addEventListener('click', resetState);
 debugLikes.addEventListener('click', () => playLikesBanner());
 debugOnboard.addEventListener('click', () => runOnboardingTips());

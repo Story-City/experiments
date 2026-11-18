@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=7">
+<link rel="stylesheet" href="app.css?v=8">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -26,6 +26,11 @@
     <button type="button" class="play secondary" id="debugOnboard">Debug: tips</button>
     <button type="button" class="play secondary" id="debugSpoof" aria-pressed="false">Debug: spoof wording</button>
     <button type="button" class="play secondary" id="debugDragMode" aria-pressed="false">Debug: drag to sections</button>
+    <label class="accent-pick" title="Accent color (keeps gradients)">
+      <span>Accent</span>
+      <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
+      <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
+    </label>
     <span class="hint" id="hint">Press + hold a card, then swipe.</span>
   </div>
 
@@ -75,7 +80,7 @@
               <span class="sort-rail-chip" data-copy="public">[publish]</span>
             </div>
             <div class="sort-rail sort-rail-down" id="railDelete" data-rail="delete" aria-hidden="true">
-              <img class="sort-rail-icon" src="assets/trash.svg" alt="" width="28" height="28">
+              <span class="sort-rail-icon sort-rail-x" aria-hidden="true">×</span>
               <span class="sort-rail-chip" data-copy="delete">[delete]</span>
             </div>
             <!-- Drag-to-section drop zones (debug mode) -->
@@ -100,10 +105,6 @@
         </section>
 
         <div class="hub-rest" id="hubRest">
-          <div class="section-intro" id="sectionIntro">
-            <p class="section-intro-title" id="sectionIntroTitle">[public gems]</p>
-            <p class="section-intro-body" id="sectionIntroBody">[gems others can find on the map — cyan glow; more likes unlock rarer shine]</p>
-          </div>
           <div class="tab-bar" role="tablist" aria-label="Gem sections" id="tabBar">
             <button type="button" class="tab-button is-active" role="tab" aria-selected="true" data-section="public" id="tabPublic">
               <span class="tab-gem-svg" id="tabPublicIcon" aria-hidden="true"></span>
@@ -113,6 +114,14 @@
               <span class="tab-gem-svg" id="tabHiddenIcon" aria-hidden="true"></span>
               <span>Hidden</span>
             </button>
+            <button type="button" class="tab-button" role="tab" aria-selected="false" data-section="liked" id="tabLiked">
+              <span class="tab-like-icon" aria-hidden="true">♥</span>
+              <span>Liked</span>
+            </button>
+          </div>
+          <div class="section-intro" id="sectionIntro">
+            <p class="section-intro-title" id="sectionIntroTitle">[public gems]</p>
+            <p class="section-intro-body" id="sectionIntroBody">[these are on the map for other people]</p>
           </div>
 
           <div class="gem-grid" id="gemGrid"></div>
@@ -163,7 +172,6 @@
         <div class="detail-media">
           <img class="detail-photo" id="detailPhoto" alt="">
           <div class="detail-media-scrim" aria-hidden="true"></div>
-          <p class="detail-likes" id="detailLikes" hidden></p>
           <span class="detail-rarity" id="detailRarity" hidden></span>
         </div>
         <div class="detail-body">
@@ -172,15 +180,29 @@
           <p class="detail-author" id="detailAuthor" hidden></p>
           <div class="detail-chips" id="detailChips"></div>
           <p class="detail-tagline" id="detailTagline"></p>
-          <button type="button" class="detail-nav" id="detailNav" hidden>[navigate to gem]</button>
-          <button type="button" class="detail-publish" id="detailPublish" hidden>[publish gem]</button>
           <p class="detail-section-label" id="detailSectionLabel">[description]</p>
           <p class="detail-caption" id="detailCaption"></p>
           <div class="detail-entries" id="detailEntries" hidden></div>
+          <div class="detail-write" id="detailWrite" hidden>
+            <p class="side-label" id="detailWriteLabel">[add a few words]</p>
+            <input class="note-input" id="detailNote" type="text" maxlength="60" placeholder="[optional note]" autocomplete="off">
+            <div class="side-actions">
+              <button type="button" class="skippill" id="detailNoteSkip">[skip]</button>
+              <button type="button" class="confirm-pill" id="detailAdd">[confirm]</button>
+            </div>
+          </div>
           <div class="detail-banner" id="detailBanner" hidden>
             <p class="detail-banner-copy" id="detailBannerCopy"></p>
-            <button type="button" class="detail-add" id="detailAdd" hidden>[add more to this gem]</button>
           </div>
+          <div class="read-meta" id="detailMeta">
+            <button type="button" class="like-btn" id="detailLikeBtn" aria-label="Like" hidden>
+              <span class="like-heart" id="detailLikeHeart" aria-hidden="true">♡</span>
+              <span class="like-count" id="detailLikes">0</span>
+            </button>
+            <div class="detail-chips detail-chips-inline" id="detailChipsBottom"></div>
+          </div>
+          <button type="button" class="detail-nav" id="detailNav" hidden>[navigate to gem]</button>
+          <button type="button" class="detail-publish" id="detailPublish" hidden>[publish gem]</button>
         </div>
       </div>
     </div>
@@ -189,8 +211,8 @@
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v7. Gem (not jam). Straight photo tiles for gem display.
+    LOCATION-GEMS-HUB-v8. Challenge-style likes + entry. Accent picker. Fly into section.
   </p>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
