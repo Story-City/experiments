@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v33 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v34 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -195,6 +195,7 @@ const COPY = {
   feedLabel: '[nearby public gems]',
   feedDismiss: '[dismiss all]',
   feedDistance: (minutes) => `${minutes} min away`,
+  feedFresh: '[new]',
 };
 
 const SPOOF_COPY = {
@@ -242,6 +243,7 @@ const SPOOF_COPY = {
   feedLabel: 'Nearby public gems',
   feedDismiss: 'Dismiss all',
   feedDistance: (minutes) => `${minutes} min away`,
+  feedFresh: 'New',
   emptyPublicTitle: 'Nothing public yet',
   emptyPublicBody: 'Publish a find and it’ll show up here.',
   emptyHiddenTitle: 'No hidden gems',
@@ -465,6 +467,13 @@ const FEED_MINUTES_BY_FIND = {
   'find-fox': 6,
 };
 const SPOOF_FEED_MINUTES = 1;
+/** Nearby feed treats finds newer than this as fresh (competitor “just appeared” heat). */
+const FEED_FRESH_MS = 60 * 60 * 1000;
+const FEED_AGE_BY_FIND_MS = {
+  'find-mara': 18 * 60 * 1000,
+  'find-juniper': 3 * 60 * 60 * 1000,
+  'find-fox': 26 * 60 * 60 * 1000,
+};
 
 function createSpoofCollectedGem() {
   return {
@@ -486,6 +495,10 @@ function createSpoofCollectedGem() {
 
 function findToGem(find, opts) {
   gemSeq += 1;
+  const ageMs = FEED_AGE_BY_FIND_MS[find.id];
+  const createdAt =
+    opts.createdAt ||
+    new Date(Date.now() - (ageMs != null ? ageMs : 0)).toISOString();
   return {
     id: opts.id || `gem-${find.id}-${gemSeq}`,
     storyId: 'daily-side-quests',
@@ -499,9 +512,15 @@ function findToGem(find, opts) {
     likes: opts.isPublic ? find.likes || 0 : 0,
     minutesAway:
       opts.minutesAway != null ? opts.minutesAway : FEED_MINUTES_BY_FIND[find.id],
-    createdAt: new Date().toISOString(),
+    createdAt,
     entries: [find.text],
   };
+}
+
+function feedIsFresh(gem) {
+  const t0 = Date.parse(gem.createdAt || '');
+  if (!Number.isFinite(t0)) return false;
+  return Date.now() - t0 <= FEED_FRESH_MS;
 }
 
 function seedGems() {
@@ -753,10 +772,16 @@ function renderFeed() {
     feedDock.hidden = true;
     return;
   }
+  /* Sort: walkable first, then hotter (likes) — effort + heat, not who posted */
   const publicGems = gems
     .filter((g) => g.isPublic)
     .slice()
-    .sort((a, b) => (Number(a.minutesAway) || 9999) - (Number(b.minutesAway) || 9999));
+    .sort((a, b) => {
+      const d =
+        (Number(a.minutesAway) || 9999) - (Number(b.minutesAway) || 9999);
+      if (d !== 0) return d;
+      return publicLikes(b) - publicLikes(a);
+    });
   if (!publicGems.length) {
     feedDock.hidden = true;
     return;
@@ -771,13 +796,31 @@ function renderFeed() {
       Number.isFinite(minutes) && minutes >= 0
         ? t('feedDistance', minutes)
         : t('gemNearby');
+    const likes = publicLikes(g);
+    const fresh = feedIsFresh(g);
     const chip = document.createElement('article');
     chip.className = 'feed-chip';
+    if (fresh) chip.classList.add('is-fresh');
     const gemClass =
       rarity.id !== 'cyan' ? `feed-chip-gem is-${rarity.id}` : 'feed-chip-gem';
-    /* Photo + rarity + how close — username adds nothing for “go find this” */
+    const rarityBadge =
+      rarity.id !== 'cyan'
+        ? `<span class="feed-chip-rarity-badge is-${rarity.id}">${rarity.label}</span>`
+        : '';
+    const likesEl =
+      likes > 0
+        ? `<span class="feed-chip-likes"><span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span></span>`
+        : '';
+    const freshEl = fresh
+      ? `<span class="feed-chip-fresh">${t('feedFresh')}</span>`
+      : '';
     chip.innerHTML = `
-      <img src="${g.imageUri}" alt="">
+      <div class="feed-chip-media">
+        <img src="${g.imageUri}" alt="">
+        ${rarityBadge}
+        ${freshEl}
+        ${likesEl}
+      </div>
       <div class="feed-chip-rarity">
         <span class="${gemClass}" aria-hidden="true">${gemSvg(rarity.fill)}</span>
         <p class="feed-chip-dist">${dist}</p>

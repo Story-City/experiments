@@ -892,22 +892,85 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .feed-chip {
   flex: none;
   display: grid;
-  grid-template-columns: 88px auto;
+  grid-template-columns: 112px auto;
   align-items: center;
-  gap: 14px;
-  width: 200px;
-  padding: 14px;
+  gap: 12px;
+  width: 228px;
+  padding: 12px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
 }
-.feed-chip img {
-  width: 88px;
-  height: 88px;
+.feed-chip.is-fresh {
+  border-color: color-mix(in srgb, var(--brand-accent) 45%, rgba(255, 255, 255, 0.2));
+}
+.feed-chip-media {
+  position: relative;
+  width: 112px;
+  height: 112px;
   border-radius: 14px;
-  object-fit: cover;
+  overflow: hidden;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+.feed-chip-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.feed-chip-rarity-badge {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  z-index: 2;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(7, 5, 18, 0.72);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.feed-chip-rarity-badge.is-silver { color: #dfe6f2; box-shadow: 0 0 10px rgba(200, 210, 230, 0.55); }
+.feed-chip-rarity-badge.is-gold { color: #ffe09a; box-shadow: 0 0 10px rgba(255, 196, 72, 0.55); }
+.feed-chip-rarity-badge.is-platinum { color: #eef2ff; box-shadow: 0 0 12px rgba(220, 230, 255, 0.65); }
+.feed-chip-rarity-badge.is-diamond { color: #d8fbff; box-shadow: 0 0 14px rgba(180, 240, 255, 0.75); }
+.feed-chip-fresh {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  z-index: 2;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand-accent) 55%, rgba(7, 5, 18, 0.55));
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.feed-chip-likes {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgba(7, 5, 18, 0.72);
+  color: var(--like-pink);
+  font-size: 12px;
+  font-weight: 800;
+}
+.feed-chip-likes .like-heart {
+  color: var(--like-pink-hot);
+  font-size: 14px;
+  line-height: 1;
 }
 .feed-chip-rarity {
   display: inline-flex;
