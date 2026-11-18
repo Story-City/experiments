@@ -27,9 +27,9 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=2",
+    "path": "approved-ui/?v=3",
     "title": "Approved UI library",
-    "what": "Playable catalog: day-reached, likes/rarity, step glance, tips, glass, gems, claim pulse, share chrome, end-story stats + GEMS color sliders.",
+    "what": "Playable catalog + live Accent/Radial tint across day-reached embed, gems, likes, glance, chrome, CTAs.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

@@ -1,6 +1,6 @@
-/** Approved UI library — APPROVED-UI-v2
+/** Approved UI library — APPROVED-UI-v3
  * Playable catalog of elements we’re keeping, plus Location Gems color sliders.
- * v2 adds day-reached embed, likes banner, step glance, glass bubble.
+ * Accent/Radial repaint every tintable demo (incl. day-reached iframe).
  */
 
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -143,8 +143,16 @@ function softAccentHex(hex) {
   return `#${to(mix(r))}${to(mix(g))}${to(mix(b))}`;
 }
 
+function accentHex() {
+  return (accentColor && accentColor.value) || '#00c2ff';
+}
+
+function myGemHex() {
+  return (radialColor && radialColor.value) || PURPLE;
+}
+
 function applyAccent() {
-  const hex = accentColor.value || '#00c2ff';
+  const hex = accentHex();
   const alpha = (Number(accentAlpha.value) || 100) / 100;
   const { r, g, b } = hexToRgb(hex);
   const deep = `rgb(${Math.max(0, r - 40)}, ${Math.max(0, g - 50)}, ${Math.max(0, b - 20)})`;
@@ -153,23 +161,50 @@ function applyAccent() {
   const soft = softAccentHex(hex);
   const root = document.documentElement.style;
   root.setProperty('--brand-accent', accent);
+  root.setProperty('--brand-accent-solid', hex);
   root.setProperty('--brand-primary', solid);
   root.setProperty('--brand-primary-deep', deep);
   root.setProperty('--accent-soft', soft);
   root.setProperty('--accent-glow', `rgba(${r}, ${g}, ${b}, ${0.55 * alpha})`);
   applyRadial();
+  repaintTintedElements();
+  syncDayReachedAccent();
 }
 
 function applyRadial() {
-  const hex = (radialColor && radialColor.value) || '#b36bff';
+  const hex = myGemHex();
   const amount = ((radialAmount && Number(radialAmount.value)) || 55) / 100;
   const { r, g, b } = hexToRgb(hex);
-  document.documentElement.style.setProperty('--btn-radial-solid', hex);
-  document.documentElement.style.setProperty('--btn-radial', `rgba(${r}, ${g}, ${b}, ${0.75 * amount})`);
-  document.documentElement.style.setProperty(
+  const root = document.documentElement.style;
+  root.setProperty('--my-gem', hex);
+  root.setProperty('--btn-radial-solid', hex);
+  root.setProperty('--btn-radial', `rgba(${r}, ${g}, ${b}, ${0.75 * amount})`);
+  root.setProperty(
     '--btn-radial-wash',
     `radial-gradient(ellipse 200% 70% at 50% 45%, rgba(${r}, ${g}, ${b}, ${0.75 * amount}), transparent 72%)`,
   );
+}
+
+/** Rebuild SVG gem fills + any inline-tinted bits so the sliders preview live. */
+function repaintTintedElements() {
+  const others = accentHex();
+  const mine = myGemHex();
+  document.querySelectorAll('[data-gem-role="others"]').forEach((el) => {
+    if (el.classList.contains('is-locked')) return;
+    const pulse = el.querySelector('.jam-pulse');
+    const shine = el.querySelector('.jam-shine');
+    const extras = [pulse, shine].filter(Boolean).map((n) => n.outerHTML).join('');
+    el.innerHTML = `${extras}${gemSvg(others)}`;
+  });
+  document.querySelectorAll('[data-gem-role="mine"]').forEach((el) => {
+    const pulse = el.querySelector('.jam-pulse');
+    const shine = el.querySelector('.jam-shine');
+    const extras = [pulse, shine].filter(Boolean).map((n) => n.outerHTML).join('');
+    el.innerHTML = `${extras}${gemSvg(mine)}`;
+  });
+  document.querySelectorAll('[data-gem-role="likes"]').forEach((el) => {
+    el.innerHTML = gemSvg(others);
+  });
 }
 
 function applyBg() {
@@ -239,11 +274,13 @@ function mountDayReached(stage, actions) {
   frame.title = 'Day reached celebration';
   frame.src = `../day-reached-overlay/embed.html?v=36&n=${Date.now()}`;
   frame.allow = 'autoplay';
+  frame.addEventListener('load', () => {
+    frame.contentWindow?.postMessage({ type: 'set-day-reached-accent', accent: accentHex() }, '*');
+  });
   stage.appendChild(frame);
 
   const play = () => {
-    const accent = accentColor.value || '#009EFF';
-    frame.contentWindow?.postMessage({ type: 'play-day-reached', accent }, '*');
+    frame.contentWindow?.postMessage({ type: 'play-day-reached', accent: accentHex() }, '*');
   };
   addPlay(actions, 'Play day reached', play);
   addGhost(actions, 'Open full', () => {
@@ -263,7 +300,7 @@ function mountLikesBanner(stage, actions) {
     </div>
     <article class="demo-likes-card">
       <img src="../location-gems/assets/find-a.jpg" alt="" decoding="async">
-      <div class="demo-likes-gem" aria-hidden="true">${gemSvg(CYAN)}</div>
+      <div class="demo-likes-gem" data-gem-role="likes" aria-hidden="true">${gemSvg(accentHex())}</div>
       <p class="demo-likes-rarity" hidden>Silver</p>
       <div class="demo-likes-body">
         <p class="demo-likes-user">@you</p>
@@ -496,9 +533,9 @@ function mountSpotlightTip(stage, actions) {
 function mountJamBirth(stage, actions) {
   const row = document.createElement('div');
   row.className = 'demo-gems';
-  row.innerHTML = `<div class="demo-gem-row"><button type="button" class="gem-pin" id="jamDemo" aria-label="Your gem">${gemSvg(PURPLE)}</button></div>`;
+  row.innerHTML = `<div class="demo-gem-row"><button type="button" class="gem-pin" data-gem-role="mine" id="jamDemo" aria-label="Your gem"></button></div>`;
   const pin = row.querySelector('.gem-pin');
-  pin.innerHTML = `<span class="jam-pulse" aria-hidden="true"></span><span class="jam-shine" aria-hidden="true"></span>${gemSvg(PURPLE)}`;
+  pin.innerHTML = `<span class="jam-pulse" aria-hidden="true"></span><span class="jam-shine" aria-hidden="true"></span>${gemSvg(myGemHex())}`;
   stage.appendChild(row);
 
   const play = () => {
@@ -520,6 +557,7 @@ function mountGemUnlock(stage, actions) {
     const pin = document.createElement('button');
     pin.type = 'button';
     pin.className = 'gem-pin is-locked';
+    pin.dataset.gemRole = 'others';
     pin.innerHTML = gemSvg(GRAY);
     pin.addEventListener('click', () => {
       if (pin.classList.contains('is-locked')) {
@@ -537,7 +575,7 @@ function mountGemUnlock(stage, actions) {
     for (let i = 0; i < pins.length; i += 1) {
       const pin = pins[i];
       pin.classList.remove('is-locked', 'is-unlock');
-      pin.innerHTML = gemSvg(CYAN);
+      pin.innerHTML = gemSvg(accentHex());
       void pin.offsetWidth;
       pin.classList.add('is-unlock');
       await wait(DOMINO_MS);
@@ -563,7 +601,8 @@ function mountDomino(stage, actions) {
     const pin = document.createElement('button');
     pin.type = 'button';
     pin.className = 'gem-pin is-domino';
-    pin.innerHTML = gemSvg(PURPLE);
+    pin.dataset.gemRole = 'mine';
+    pin.innerHTML = gemSvg(myGemHex());
     inner.appendChild(pin);
     return pin;
   });
@@ -571,7 +610,10 @@ function mountDomino(stage, actions) {
   stage.appendChild(row);
 
   const play = async () => {
-    pins.forEach((p) => p.classList.remove('is-in'));
+    pins.forEach((p) => {
+      p.classList.remove('is-in');
+      p.innerHTML = gemSvg(myGemHex());
+    });
     await wait(40);
     for (const pin of pins) {
       pin.classList.add('is-in');
@@ -705,19 +747,23 @@ function buildLibrary() {
   ELEMENT_DEFS.forEach((def) => library.appendChild(makeCard(def)));
 }
 
+let dayReachedAccentTimer = 0;
 function syncDayReachedAccent() {
-  const accent = accentColor.value || '#009EFF';
-  document.querySelectorAll('.embed-frame').forEach((frame) => {
-    frame.contentWindow?.postMessage({ type: 'set-day-reached-accent', accent }, '*');
-  });
+  window.clearTimeout(dayReachedAccentTimer);
+  dayReachedAccentTimer = window.setTimeout(() => {
+    const accent = accentHex();
+    document.querySelectorAll('.embed-frame').forEach((frame) => {
+      frame.contentWindow?.postMessage({ type: 'set-day-reached-accent', accent }, '*');
+    });
+  }, 120);
 }
 
-accentColor.addEventListener('input', () => {
-  applyAccent();
-  syncDayReachedAccent();
-});
+accentColor.addEventListener('input', applyAccent);
 accentAlpha.addEventListener('input', applyAccent);
-radialColor.addEventListener('input', applyRadial);
+radialColor.addEventListener('input', () => {
+  applyRadial();
+  repaintTintedElements();
+});
 radialAmount.addEventListener('input', applyRadial);
 bgColor.addEventListener('input', applyBg);
 bgDepth.addEventListener('input', applyBg);
@@ -727,8 +773,7 @@ document.querySelectorAll('input[name="motion"]').forEach((input) => {
   });
 });
 
-applyAccent();
-applyRadial();
 applyBg();
 applyMotion('swoosh');
 buildLibrary();
+applyAccent();

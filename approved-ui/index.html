@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=2">
+<link rel="stylesheet" href="app.css?v=3">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -22,12 +22,12 @@
   </header>
 
   <div class="toolbar" id="toolbar">
-    <label class="accent-pick" title="Accent color (keeps gradients)">
+    <label class="accent-pick" title="Accent — day-reached, likes, unlock gems, glance, tips, CTAs">
       <span>Accent</span>
       <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
       <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
     </label>
-    <label class="accent-pick" title="Radial wash on primary buttons">
+    <label class="accent-pick" title="Radial — my gem (jam/domino) + button wash">
       <span>Radial</span>
       <input type="color" id="radialColor" value="#b36bff" aria-label="Button radial color">
       <input type="range" id="radialAmount" min="0" max="100" value="55" aria-label="Radial amount">
@@ -49,7 +49,7 @@
     <!-- cards injected by app.js from ELEMENT_DEFS -->
   </main>
 
-  <p class="meta">APPROVED-UI-v2 — fingerprint for live verify. Day-reached + likes + step glance + glass + claim pulse. Next dig: FTUE ending FX, decrypt reveal, tap-hint, welcome door, goal-reached modal.</p>
-  <script src="app.js?v=2"></script>
+  <p class="meta">APPROVED-UI-v3 — fingerprint for live verify. Day-reached from day-reached-overlay. Accent + Radial repaint all tintable demos (incl. day-reached iframe).</p>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

@@ -457,8 +457,8 @@ h1 {
   padding: 14px 16px;
   border-radius: 18px;
   background: rgba(23, 12, 53, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--brand-accent) 55%, rgba(255, 255, 255, 0.18));
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35), 0 0 24px color-mix(in srgb, var(--brand-accent) 22%, transparent);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   opacity: 0;
@@ -699,13 +699,16 @@ h1 {
   border: 0;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
-  color: #ffb4d4;
+  color: var(--accent-soft);
   font: inherit;
   font-weight: 800;
   font-size: 13px;
   cursor: pointer;
 }
-.like-btn.is-liked { color: #fff; background: rgba(255, 105, 160, 0.28); }
+.like-btn.is-liked {
+  color: #fff;
+  background: color-mix(in srgb, var(--brand-accent) 28%, transparent);
+}
 .share-btn {
   justify-self: end;
   display: inline-flex;
@@ -759,7 +762,7 @@ h1 {
   line-height: 24px;
 }
 .route-stat-value {
-  color: #fff;
+  color: var(--accent-soft);
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -862,7 +865,7 @@ h1 {
   width: min(88%, 260px);
   height: 56px;
   border-radius: 999px;
-  background: radial-gradient(ellipse at center, rgba(255, 214, 90, 0.55), transparent 70%);
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--brand-accent) 55%, transparent), transparent 70%);
   filter: blur(10px);
   animation: claimGlowPulse 2.6s ease-in-out infinite;
   pointer-events: none;
@@ -881,10 +884,10 @@ h1 {
   font: inherit;
   font-weight: 800;
   font-size: 16px;
-  color: #1a1208;
+  color: #fff;
   cursor: pointer;
-  background: linear-gradient(90deg, #ffe08a, #ffc94a);
-  box-shadow: 0 0 22px rgba(255, 201, 74, 0.45);
+  background-image: var(--btn-radial-wash), linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
+  box-shadow: 0 0 22px var(--accent-glow);
   transition: transform 180ms var(--motion);
 }
 .demo-claim-cta.is-press {
