@@ -830,11 +830,15 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 
 .feed-strip {
+  flex: none;
   display: flex;
   gap: 10px;
   overflow-x: auto;
-  padding: 2px 2px 4px;
+  padding: 8px var(--space-l) 16px;
+  margin: 0;
+  background: linear-gradient(180deg, transparent, rgba(23, 12, 53, 0.92) 28%, var(--bg) 100%);
   scrollbar-width: none;
+  z-index: 8;
 }
 .feed-strip::-webkit-scrollbar { display: none; }
 .feed-chip {
