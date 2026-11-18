@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v26 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v27 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -188,6 +188,8 @@ const COPY = {
   anotherEntry: '[another note]',
   gemNearby: '[nearby]',
   feedLive: '[live]',
+  feedLabel: '[nearby public gems]',
+  feedDismiss: '[dismiss all]',
 };
 
 const SPOOF_COPY = {
@@ -232,6 +234,8 @@ const SPOOF_COPY = {
   anotherEntry: 'Another note',
   gemNearby: 'Nearby',
   feedLive: 'Live',
+  feedLabel: 'Nearby public gems',
+  feedDismiss: 'Dismiss all',
   emptyPublicTitle: 'Nothing public yet',
   emptyPublicBody: 'Publish a find and it’ll show up here.',
   emptyHiddenTitle: 'No hidden gems',
@@ -306,7 +310,11 @@ const tabLiked = document.getElementById('tabLiked');
 const sortInlineEl = document.getElementById('sortInline');
 const hint = document.getElementById('hint');
 const resetHub = document.getElementById('resetHub');
+const feedDock = document.getElementById('feedDock');
 const feedStrip = document.getElementById('feedStrip');
+const feedDismiss = document.getElementById('feedDismiss');
+const feedDockLabel = document.getElementById('feedDockLabel');
+let feedDismissed = false;
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
 const sortSub = document.getElementById('sortSub');
@@ -722,18 +730,35 @@ function buildGemCard(gem, opts = {}) {
 
 function renderFeed() {
   feedStrip.replaceChildren();
+  if (feedDockLabel) feedDockLabel.textContent = t('feedLabel');
+  if (feedDismiss) feedDismiss.textContent = t('feedDismiss');
+  if (feedDismissed) {
+    feedDock.hidden = true;
+    return;
+  }
   const publicGems = gems.filter((g) => g.isPublic);
   const items = publicGems.slice(0, 5).map((g) => ({
     photo: g.imageUri,
     title: g.owned ? displayCopy(getGemTitle(g)) : `@${g.authorUsername || 'walker'}`,
     body: displayCopy(getGemTagline(g)) || t('gemNearby'),
   }));
+  if (!items.length) {
+    feedDock.hidden = true;
+    return;
+  }
+  feedDock.hidden = false;
   items.forEach((item) => {
     const chip = document.createElement('article');
     chip.className = 'feed-chip';
     chip.innerHTML = `<img src="${item.photo}" alt=""><p><strong>${item.title}</strong>${item.body}</p>`;
     feedStrip.appendChild(chip);
   });
+}
+
+function dismissFeed() {
+  feedDismissed = true;
+  feedDock.hidden = true;
+  feedStrip.replaceChildren();
 }
 
 function renderGrid(enterId) {
@@ -1492,6 +1517,7 @@ function resetState() {
   favouriteGemIds = [];
   likedByGem = {};
   gemSeq = 0;
+  feedDismissed = false;
   seedGems();
   seedPendingSort();
   closeDetail();
@@ -1563,6 +1589,7 @@ resetHub.addEventListener('click', resetState);
 debugLikes.addEventListener('click', () => playLikesBanner());
 debugRarityUp.addEventListener('click', () => playLikesBanner({ promote: true }));
 debugOnboard.addEventListener('click', () => runOnboardingTips());
+if (feedDismiss) feedDismiss.addEventListener('click', dismissFeed);
 debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
 debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
 bindTipGesture();

@@ -131,7 +131,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .hub-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 20px var(--space-l) 120px;
+  padding: 20px var(--space-l) 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -829,16 +829,48 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.35);
 }
 
-.feed-strip {
+.feed-dock {
   flex: none;
+  margin-top: 16px;
+  padding: 16px var(--space-l) 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg);
+  z-index: 8;
+}
+.feed-dock[hidden] { display: none !important; }
+.feed-dock-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.feed-dock-label {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.feed-dismiss {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.feed-strip {
   display: flex;
   gap: 10px;
   overflow-x: auto;
-  padding: 8px var(--space-l) 16px;
+  padding: 0;
   margin: 0;
-  background: linear-gradient(180deg, transparent, rgba(23, 12, 53, 0.92) 28%, var(--bg) 100%);
   scrollbar-width: none;
-  z-index: 8;
 }
 .feed-strip::-webkit-scrollbar { display: none; }
 .feed-chip {
@@ -848,13 +880,11 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   gap: 10px;
   min-width: 220px;
   max-width: 260px;
-  padding: 12px 14px;
+  padding: 12px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.16);
-  border: 1.5px solid rgba(200, 190, 255, 0.5);
-  box-shadow:
-    0 8px 22px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
 }
 .feed-chip img {
   width: 48px;

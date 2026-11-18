@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=26">
+<link rel="stylesheet" href="app.css?v=27">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -138,7 +138,13 @@
           </div>
         </div>
       </div>
-      <section class="feed-strip" id="feedStrip" aria-label="[gems feed]"></section>
+      <div class="feed-dock" id="feedDock" hidden>
+        <div class="feed-dock-head">
+          <p class="feed-dock-label" id="feedDockLabel">[nearby public gems]</p>
+          <button type="button" class="feed-dismiss" id="feedDismiss" aria-label="Dismiss feed">[dismiss all]</button>
+        </div>
+        <section class="feed-strip" id="feedStrip" aria-label="[gems feed]"></section>
+      </div>
     </div>
 
     <div class="spot" id="spot" hidden>
@@ -233,8 +239,8 @@
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v26. Feed strip docked at bottom of hub.
+    LOCATION-GEMS-HUB-v27. Feed spacing + dismiss all.
   </p>
-  <script src="app.js?v=26"></script>
+  <script src="app.js?v=27"></script>
 </body>
 </html>
