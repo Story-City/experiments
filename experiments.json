@@ -27,9 +27,9 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=4",
+    "path": "approved-ui/?v=5",
     "title": "Approved UI library",
-    "what": "Catalog with source embeds for motion (day-reached, likes, claim). Flat app bg. Accent/Radial tint. Stationary cards stay tappable.",
+    "what": "Isolated elements at 376px (not full pages), UX notes, faithful likes/claim ports, day-reached phone frame, flat app bg.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

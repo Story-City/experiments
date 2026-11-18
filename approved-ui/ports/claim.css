@@ -1,0 +1,118 @@
+﻿/* Faithful extract from claim-pulse/app.css — claim CTA element only. Do not retime. */
+.claim-host {
+  --event-a: #e8ab28;
+  --event-b: #f5d007;
+  --event-glow: #f5d007;
+  --radius: 12px;
+  --half: 1300ms;
+  --label: #2a1f4a;
+  position: relative;
+  width: min(100%, 320px);
+  margin: 0 auto;
+  padding: 24px 12px;
+}
+.cta-wrap {
+  position: relative;
+  margin-top: 28px;
+  isolation: isolate;
+}
+
+.cta-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  pointer-events: none;
+  z-index: 0;
+  box-shadow:
+    0 4px 11px rgba(245, 208, 7, 0.5),
+    0 0 34px rgba(245, 208, 7, 0.5);
+  opacity: 1;
+}
+
+.cta-glow.is-app {
+  animation: pulse-app calc(var(--half) * 2) ease-in-out infinite;
+}
+
+.cta-glow.is-soft {
+  box-shadow:
+    0 2px 18px rgba(245, 208, 7, 0.28),
+    0 0 48px rgba(245, 208, 7, 0.32);
+  animation: pulse-soft 3.2s ease-in-out infinite;
+}
+
+.cta-glow.is-wide {
+  box-shadow:
+    0 0 28px rgba(245, 208, 7, 0.22),
+    0 0 64px rgba(245, 208, 7, 0.34),
+    0 0 96px rgba(245, 208, 7, 0.16);
+  animation: pulse-soft 3.6s ease-in-out infinite;
+}
+
+.cta-glow.is-breathe {
+  box-shadow:
+    0 4px 16px rgba(245, 208, 7, 0.38),
+    0 0 40px rgba(245, 208, 7, 0.42);
+  animation: pulse-breathe 2.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.cta-glow.is-lottie {
+  box-shadow:
+    0 2px 18px rgba(245, 208, 7, 0.28),
+    0 0 48px rgba(245, 208, 7, 0.32);
+  animation: pulse-soft 3.2s ease-in-out infinite;
+}
+
+@keyframes pulse-app {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.82; }
+  50% { opacity: 0.42; }
+}
+
+@keyframes pulse-breathe {
+  0%, 100% { opacity: 0.78; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.035); }
+}
+
+.cta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid #fff;
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  color: var(--label);
+  font: inherit;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  background: linear-gradient(90deg, var(--event-a), var(--event-b));
+  transition: transform 120ms ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cta:active,
+.cta.is-pressed {
+  transform: scale(0.97);
+}
+
+.cta-lottie {
+  position: absolute;
+  inset: -42% -14%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  filter: drop-shadow(0 0 10px rgba(255, 240, 140, 0.55));
+}
+
+.cta-lottie.is-on {
+  opacity: 1;
+}
