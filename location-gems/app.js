@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v39 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v40 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -334,6 +334,7 @@ const feedStrip = document.getElementById('feedStrip');
 const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
+let feedVariant = 'side';
 let feedVariant = 'read';
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
@@ -771,7 +772,25 @@ function buildGemCard(gem, opts = {}) {
   return wrap;
 }
 
-function buildFeedChip(g) {
+function bindFeedChipActions(chip, g) {
+  const go = chip.querySelector('.feed-chip-go');
+  if (go) {
+    go.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hint.textContent = t('navigateSpoof');
+      openDetail(g.id);
+    });
+  }
+  chip.addEventListener('click', () => openDetail(g.id));
+  chip.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openDetail(g.id);
+    }
+  });
+}
+
+function buildFeedChip(g, variant) {
   const rarity = rarityForLikes(g.likes, true);
   const minutes = Number(g.minutesAway);
   const dist =
@@ -784,40 +803,63 @@ function buildFeedChip(g) {
     rarity.id !== 'cyan'
       ? `<span class="feed-chip-rarity-word is-${rarity.id}">${rarity.label}</span>`
       : '';
+  const gemEl = `<span class="${gemClass}" aria-hidden="true">${gemSvg(rarity.fill)}</span>`;
+  const goBtn = `<button type="button" class="feed-chip-go">${t('detailNav')}</button>`;
   const chip = document.createElement('article');
-  chip.className = 'feed-chip';
+  chip.className = `feed-chip is-${variant}`;
   chip.setAttribute('role', 'button');
   chip.tabIndex = 0;
   chip.setAttribute(
     'aria-label',
     `${dist}${rarity.id !== 'cyan' ? `, ${rarity.label}` : ''}`,
   );
-  chip.innerHTML = `
-    <div class="feed-chip-media">
-      <img src="${g.imageUri}" alt="">
-    </div>
-    <div class="feed-chip-body">
-      <p class="feed-chip-dist">${dist}</p>
-      <div class="feed-chip-meta">
-        <span class="${gemClass}" aria-hidden="true">${gemSvg(rarity.fill)}</span>
-        ${rarityWord}
+
+  if (variant === 'banner') {
+    chip.innerHTML = `
+      <div class="feed-chip-media is-banner">
+        <img src="${g.imageUri}" alt="">
       </div>
-      <button type="button" class="feed-chip-go">${t('detailNav')}</button>
-    </div>`;
-  const go = chip.querySelector('.feed-chip-go');
-  go.addEventListener('click', (e) => {
-    e.stopPropagation();
-    hint.textContent = t('navigateSpoof');
-    openDetail(g.id);
-  });
-  chip.addEventListener('click', () => openDetail(g.id));
-  chip.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      openDetail(g.id);
-    }
-  });
+      <div class="feed-chip-body is-row">
+        <div class="feed-chip-copy">
+          <p class="feed-chip-dist">${dist}</p>
+          <div class="feed-chip-meta">${gemEl}${rarityWord}</div>
+        </div>
+        ${goBtn}
+      </div>`;
+  } else if (variant === 'compact') {
+    chip.innerHTML = `
+      <div class="feed-chip-media is-tiny">
+        <img src="${g.imageUri}" alt="">
+      </div>
+      <p class="feed-chip-dist">${dist}</p>
+      <div class="feed-chip-meta">${gemEl}${rarityWord}</div>
+      ${goBtn}`;
+  } else {
+    chip.innerHTML = `
+      <div class="feed-chip-media">
+        <img src="${g.imageUri}" alt="">
+      </div>
+      <div class="feed-chip-body">
+        <p class="feed-chip-dist">${dist}</p>
+        <div class="feed-chip-meta">${gemEl}${rarityWord}</div>
+        ${goBtn}
+      </div>`;
+  }
+  bindFeedChipActions(chip, g);
   return chip;
+}
+
+function setFeedVariant(variant) {
+  const next =
+    variant === 'banner' || variant === 'compact' ? variant : 'side';
+  feedVariant = next;
+  document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
+    const on = btn.getAttribute('data-feed-variant') === next;
+    btn.classList.toggle('is-on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  if (feedStrip) feedStrip.dataset.variant = next;
+  renderFeed();
 }
 
 function renderFeed() {
@@ -839,8 +881,9 @@ function renderFeed() {
   feedDock.hidden = false;
   feedDock.classList.remove('is-dismissing', 'is-swiping');
   feedDock.style.transform = '';
+  feedStrip.dataset.variant = feedVariant;
   publicGems.forEach((g) => {
-    feedStrip.appendChild(buildFeedChip(g));
+    feedStrip.appendChild(buildFeedChip(g, feedVariant));
   });
 }
 
@@ -1738,8 +1781,14 @@ debugOnboard.addEventListener('click', () => runOnboardingTips());
 if (feedDismiss) feedDismiss.addEventListener('click', dismissFeed);
 debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
 debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
+document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    setFeedVariant(btn.getAttribute('data-feed-variant') || 'side');
+  });
+});
 bindTipGesture();
 bindFeedDismissGesture();
+setFeedVariant(feedVariant);
 
 if (new URLSearchParams(location.search).get('embed') === '1') {
   document.body.classList.add('is-embed');
