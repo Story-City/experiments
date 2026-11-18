@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v21 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v22 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -126,7 +126,7 @@ const CARD_IN_MS = 560;
 const CARD_OUT_MS = 360;
 const COPY_LEAD_MS = 160;
 const RARITY_PROMOTE_MS = 720;
-const TEXT_SWIPE_MS = 900;
+const TEXT_SWIPE_MS = 520;
 const FLY_MS = 720;
 const LIKES_DEMO = 12;
 const GLANCE_ARC_CX = 120;
@@ -1379,7 +1379,7 @@ function fillLikesJamCard(gem, likesOverride) {
   likesJamPlace.textContent = gem.title || '';
   const likes = likesOverride != null ? likesOverride : publicLikes(gem) || LIKES_DEMO;
   const rarity = rarityForLikes(likes, true);
-  likesHeadline.innerHTML = `<span class="likes-rich">${likes}</span> ${t('likesWord')}`;
+  likesHeadline.innerHTML = `<span class="likes-rich">${likes} ${t('likesWord')}</span>`;
   likesSubtitle.textContent = t('likesSubtitle');
   setLikesCardRarity(rarity, { pop: false });
   return { likes, rarity };
@@ -1416,7 +1416,7 @@ async function playLikesBanner(opts = {}) {
     await wait(HOLD_AFTER_SHINE_MS);
     const promoted = nextRarity(rarity);
     likes = promoted.minLikes;
-    likesHeadline.innerHTML = `<span class="likes-rich">${likes}</span> ${t('likesWord')}`;
+    likesHeadline.innerHTML = `<span class="likes-rich">${likes} ${t('likesWord')}</span>`;
     setLikesCardRarity(promoted, { pop: true });
     likesJamCard.classList.add('is-rarity-up');
     hint.textContent = `[rarity → ${promoted.label}]`;
