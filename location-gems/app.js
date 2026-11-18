@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v11 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v12 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -804,10 +804,12 @@ function syncDetailFav() {
 }
 
 function renderDetailEntries(gem) {
-  const entries =
+  const caption = (gem.caption || '').trim();
+  const entries = (
     Array.isArray(gem.entries) && gem.entries.length
       ? gem.entries
-      : [gem.caption || gem.tagline || ''].filter(Boolean);
+      : []
+  ).filter((text) => String(text).trim() && String(text).trim() !== caption);
   detailEntries.replaceChildren();
   if (!entries.length) {
     detailEntries.hidden = true;
@@ -869,15 +871,15 @@ function openDetail(id) {
   if (detailOverlay) {
     detailOverlay.style.setProperty('--rarity-glow', rarity.fill);
   }
-  if (gem.isPublic) {
+  /* Rarity is a public-likes tier — not a second “Hidden” chip */
+  if (gem.isPublic && rarity.id !== 'cyan') {
     detailRarityChip.hidden = false;
     detailRarityLabel.textContent = rarity.label;
     detailRarityGem.innerHTML = gemSvg(rarity.fill);
-    detailRarityChip.classList.toggle('is-rare', rarity.id !== 'cyan' && rarity.id !== 'hidden');
+    detailRarityChip.classList.add('is-rare');
   } else {
-    detailRarityChip.hidden = false;
-    detailRarityLabel.textContent = rarity.label;
-    detailRarityGem.innerHTML = gemSvg(rarity.fill);
+    detailRarityChip.hidden = true;
+    detailRarityChip.classList.remove('is-rare');
   }
   if (gem.owned) {
     detailPublish.hidden = false;

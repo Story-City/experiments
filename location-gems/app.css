@@ -500,6 +500,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   overflow: hidden;
 }
 .detail[hidden] { display: none !important; }
+/* Story Overview back / fav chrome */
 .detail-back,
 .detail-fav {
   position: absolute;
@@ -509,16 +510,18 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   height: 32px;
   border: 0;
   border-radius: 8px;
-  background: rgba(7, 5, 18, 0.45);
+  background: rgba(255, 255, 255, 0.28);
   color: #fff;
   font: inherit;
-  font-size: 18px;
   cursor: pointer;
   display: grid;
   place-items: center;
+  padding: 0;
 }
-.detail-back { left: 14px; }
-.detail-fav { right: 14px; }
+.detail-back { left: 16px; }
+.detail-fav { right: 16px; }
+.detail-back svg { display: block; }
+.detail-fav img { display: block; }
 .detail-scroll {
   height: 100%;
   overflow-y: auto;
@@ -594,40 +597,30 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   gap: 8px;
   margin-top: 4px;
 }
+/* App Chip (StoryDetails) — overlay / primary */
 .ov-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 30px;
-  padding: 0 12px;
+  padding: 4px 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: #b9e5ff;
-  font-size: 13px;
-  font-weight: 800;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 .ov-chip[hidden] { display: none !important; }
 .ov-chip-rarity {
-  color: #fff;
-  border-color: color-mix(in srgb, var(--rarity-glow, #00c2ff) 55%, transparent);
-  background: color-mix(in srgb, var(--rarity-glow, #00c2ff) 22%, rgba(7, 5, 18, 0.55));
-  box-shadow: 0 0 14px color-mix(in srgb, var(--rarity-glow, #00c2ff) 45%, transparent);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 12px;
+  color: var(--brand-accent);
+  border-color: color-mix(in srgb, var(--rarity-glow, #00c2ff) 45%, transparent);
+  background: color-mix(in srgb, var(--rarity-glow, #00c2ff) 18%, rgba(7, 5, 18, 0.4));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--rarity-glow, #00c2ff) 35%, transparent);
 }
 .ov-chip-rarity.is-rare {
-  height: 34px;
-  padding: 0 14px;
-  font-size: 13px;
-  box-shadow:
-    0 0 18px color-mix(in srgb, var(--rarity-glow, #00c2ff) 65%, transparent),
-    inset 0 0 12px color-mix(in srgb, var(--rarity-glow, #00c2ff) 25%, transparent);
-}
-.ov-chip-rarity.is-rare .ov-chip-gem {
-  width: 20px;
-  height: 18px;
+  padding: 5px 10px;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--rarity-glow, #00c2ff) 55%, transparent);
 }
 .ov-chip-gem {
   width: 16px;
@@ -661,8 +654,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .detail-section-label {
   margin: 4px 0 0;
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: #fff;
 }
 .read-meta {
   display: flex;
@@ -709,11 +704,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .detail-write[hidden] { display: none !important; }
 .side-label {
   margin: 0;
-  color: var(--brand-accent);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: lowercase;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 .note-input {
   width: 100%;
@@ -766,9 +760,11 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   color: #fff;
   background: linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
 }
+/* App Button Outline / secondary next to primary CTA */
 .detail-publish {
-  background: transparent;
-  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.35);
+  background: var(--bg);
+  color: var(--brand-primary);
+  box-shadow: inset 0 0 0 2px var(--brand-primary);
 }
 .detail-nav[hidden],
 .detail-publish[hidden] { display: none !important; }
