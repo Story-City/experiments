@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v6 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v7 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -132,12 +132,12 @@ const COPY = {
   dropHidden: '[hidden gems]',
   dropPublic: '[public gems]',
   likesSubtitle: '[on this public gem]',
-  detailNav: '[navigate to jam]',
+  detailNav: '[navigate to gem]',
   detailPublish: '[publish gem]',
   detailUnpublish: '[unpublish gem]',
-  detailAdd: '[add more to this jam]',
-  bannerOwn: '[add as many entries as you like on your jam]',
-  bannerOther: '[you have to be at the location to add more to somebody else’s jam]',
+  detailAdd: '[add more to this gem]',
+  bannerOwn: '[add as many entries as you like on your gem]',
+  bannerOther: '[you have to be at the location to add more to somebody else’s gem]',
   holdHint: 'Press + hold the photo — sides light up. Then swipe.',
   holdHintDrag: 'Press + hold — then drag onto Hidden or Public.',
   sortTitle: '[sort finds into gems]',
@@ -159,8 +159,8 @@ const COPY = {
   likesHeart: (n) => `${n} ♥`,
   likesPlain: (n) => `${n} likes`,
   leftBy: (name) => `Left by @${name}`,
-  navigateSpoof: '[navigate spoofed — walk to jam]',
-  anotherEntry: '[another entry on this jam]',
+  navigateSpoof: '[navigate spoofed — walk to gem]',
+  anotherEntry: '[another entry on this gem]',
   gemNearby: '[gem nearby]',
   feedLive: '[your public gem is live]',
 };
@@ -172,10 +172,10 @@ const SPOOF_COPY = {
   dropHidden: 'Hidden gems',
   dropPublic: 'Public gems',
   likesSubtitle: 'on this public gem',
-  detailNav: 'Navigate to jam',
+  detailNav: 'Navigate to gem',
   detailPublish: 'Publish gem',
   detailUnpublish: 'Unpublish gem',
-  detailAdd: 'Add more to this jam',
+  detailAdd: 'Add more to this gem',
   bannerOwn: 'On your gems, add as much as you’d like.',
   bannerOther: 'On somebody else’s gems, be at the location to add more.',
   holdHint: 'Press + hold the photo — sides light up. Then swipe.',
@@ -195,11 +195,11 @@ const SPOOF_COPY = {
   allSortedCount: 'All sorted',
   leftCount: (n) => `${n} left`,
   likesHeart: (n) => `${n} likes`,
-  likesPlain: (n) => `${n} likes on this jam`,
-  likesLine: (n) => `${n} likes on this jam`,
+  likesPlain: (n) => `${n} likes on this gem`,
+  likesLine: (n) => `${n} likes on this gem`,
   leftBy: (name) => `Left by @${name}`,
-  navigateSpoof: 'Navigate spoofed — you’d walk to this jam',
-  anotherEntry: 'Another line on my jam',
+  navigateSpoof: 'Navigate spoofed — you’d walk to this gem',
+  anotherEntry: 'Another line on my gem',
   gemNearby: 'Gem nearby',
   feedLive: 'Your public gem is live',
   emptyPublicTitle: 'No public gems yet',
@@ -394,7 +394,7 @@ function createSpoofCollectedGem() {
     owned: false,
     likes: LIKES_DEMO,
     createdAt: new Date(Date.now() - 172_800_000).toISOString(),
-    entries: [COPY.spoofCollectedReflection, '[another note left at this jam]'],
+    entries: [COPY.spoofCollectedReflection, '[another note left at this gem]'],
   };
 }
 
