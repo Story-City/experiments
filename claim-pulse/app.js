@@ -83,4 +83,17 @@ cta.addEventListener('click', () => {
   playTapBurst();
 });
 
+if (new URLSearchParams(location.search).get('embed') === '1') {
+  document.body.classList.add('is-embed');
+}
+
+window.addEventListener('message', (event) => {
+  if (!event || !event.data) return;
+  if (event.data.type === 'play-claim-tap') {
+    cta.classList.add('is-pressed');
+    playTapBurst();
+    window.setTimeout(() => cta.classList.remove('is-pressed'), 180);
+  }
+});
+
 setMode('app');

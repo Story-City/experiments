@@ -238,3 +238,30 @@ h1 {
   color: #fff8d0;
   font-size: 12px;
 }
+
+/* Approved UI iframe — hide page chrome; keep claim pulse motion untouched */
+body.is-embed {
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+  background: var(--night);
+  display: block;
+  place-items: unset;
+}
+body.is-embed > header,
+body.is-embed > .chips,
+body.is-embed > .meta {
+  display: none !important;
+}
+body.is-embed .phone {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+  border: 0;
+  background: var(--raised);
+  box-shadow: none;
+}
+body.is-embed .note {
+  display: none !important;
+}

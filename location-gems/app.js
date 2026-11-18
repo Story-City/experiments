@@ -1606,4 +1606,23 @@ debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
 debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
 bindTipGesture();
 
+if (new URLSearchParams(location.search).get('embed') === '1') {
+  document.body.classList.add('is-embed');
+}
+
+window.addEventListener('message', (event) => {
+  if (!event || !event.data) return;
+  if (event.data.type === 'set-location-gems-accent') {
+    const hex = event.data.accent;
+    if (typeof hex === 'string' && hex && accentColor) {
+      accentColor.value = hex;
+      applyAccent();
+    }
+    return;
+  }
+  if (event.data.type === 'play-likes') {
+    playLikesBanner({ promote: !!event.data.promote });
+  }
+});
+
 init();

@@ -1,7 +1,17 @@
-/** Approved UI library — APPROVED-UI-v3
- * Playable catalog of elements we’re keeping, plus Location Gems color sliders.
- * Accent/Radial repaint every tintable demo (incl. day-reached iframe).
+/** Approved UI library — APPROVED-UI-v4
+ * Catalog shells only — motion lives in source experiments (do not re-time here).
+ * Accent/Radial tint; flat app --bg stages (no shine wash).
  */
+
+/** Source experiments — bump ?v= when those folders ship motion changes. */
+const SOURCE = {
+  dayReached: '../day-reached-overlay/embed.html?v=36',
+  dayReachedFull: '../day-reached-overlay/?v=36',
+  likes: '../location-gems/?v=31&embed=1',
+  likesFull: '../location-gems/?v=31',
+  claim: '../claim-pulse/?v=2&embed=1',
+  claimFull: '../claim-pulse/?v=2',
+};
 
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
@@ -32,8 +42,9 @@ const ELEMENT_DEFS = [
   {
     id: 'likes-banner',
     title: 'Likes banner + rarity up',
-    behavior: 'Location Gems celebration: haze + shine sweep + jam card slide/impact · optional rarity promote pop. Same rich-text shine family as day-reached.',
+    behavior: 'Unchanged motion from location-gems (embed). Play / Rarity up. Accent syncs into that experiment.',
     mount: mountLikesBanner,
+    wide: true,
   },
   {
     id: 'step-glance',
@@ -104,7 +115,7 @@ const ELEMENT_DEFS = [
   {
     id: 'claim-pulse',
     title: 'Claim CTA pulse',
-    behavior: 'End-of-story / gift claim: soft glow idle pulse (useBannerPulse family) · tap press. From claim-pulse experiment + app event CTA.',
+    behavior: 'Unchanged motion from claim-pulse (embed). Idle pulse + tap. Open full for mode chips.',
     mount: mountClaimPulse,
   },
 ];
@@ -268,100 +279,51 @@ function addGhost(actions, label, onClick) {
   return btn;
 }
 
-function mountDayReached(stage, actions) {
+function mountSourceFrame(stage, { src, title, onLoad }) {
   const frame = document.createElement('iframe');
   frame.className = 'embed-frame';
-  frame.title = 'Day reached celebration';
-  frame.src = `../day-reached-overlay/embed.html?v=36&n=${Date.now()}`;
+  frame.dataset.sourceEmbed = '1';
+  frame.title = title;
+  frame.src = `${src}${src.includes('?') ? '&' : '?'}n=${Date.now()}`;
   frame.allow = 'autoplay';
-  frame.addEventListener('load', () => {
-    frame.contentWindow?.postMessage({ type: 'set-day-reached-accent', accent: accentHex() }, '*');
-  });
+  if (onLoad) frame.addEventListener('load', () => onLoad(frame));
   stage.appendChild(frame);
+  return frame;
+}
 
-  const play = () => {
+function mountDayReached(stage, actions) {
+  const frame = mountSourceFrame(stage, {
+    src: SOURCE.dayReached,
+    title: 'Day reached celebration',
+    onLoad: (f) => {
+      f.contentWindow?.postMessage({ type: 'set-day-reached-accent', accent: accentHex() }, '*');
+    },
+  });
+  addPlay(actions, 'Play day reached', () => {
     frame.contentWindow?.postMessage({ type: 'play-day-reached', accent: accentHex() }, '*');
-  };
-  addPlay(actions, 'Play day reached', play);
+  });
   addGhost(actions, 'Open full', () => {
-    window.open('../day-reached-overlay/?v=36', '_blank', 'noopener');
+    window.open(SOURCE.dayReachedFull, '_blank', 'noopener');
   });
 }
 
 function mountLikesBanner(stage, actions) {
-  const banner = document.createElement('div');
-  banner.className = 'demo-likes';
-  banner.innerHTML = `
-    <div class="demo-likes-haze"></div>
-    <div class="demo-likes-shine"></div>
-    <div class="demo-likes-copy">
-      <p class="demo-likes-headline"><span class="demo-likes-rich">48 likes</span></p>
-      <p class="demo-likes-sub">[likes landed on your gem]</p>
-    </div>
-    <article class="demo-likes-card">
-      <img src="../location-gems/assets/find-a.jpg" alt="" decoding="async">
-      <div class="demo-likes-gem" data-gem-role="likes" aria-hidden="true">${gemSvg(accentHex())}</div>
-      <p class="demo-likes-rarity" hidden>Silver</p>
-      <div class="demo-likes-body">
-        <p class="demo-likes-user">@you</p>
-        <p class="demo-likes-text">[find caption]</p>
-      </div>
-    </article>
-  `;
-  stage.appendChild(banner);
-  const card = banner.querySelector('.demo-likes-card');
-  const rarity = banner.querySelector('.demo-likes-rarity');
-  const rich = banner.querySelector('.demo-likes-rich');
-  const shine = banner.querySelector('.demo-likes-shine');
-  const copy = banner.querySelector('.demo-likes-copy');
-  let busy = false;
-
-  const reset = () => {
-    banner.classList.remove('is-on', 'is-out');
-    card.classList.remove('is-in', 'is-impact', 'is-rarity-up', 'is-out');
-    shine.classList.remove('is-on');
-    copy.classList.remove('is-on', 'is-swipe');
-    rarity.hidden = true;
-    rarity.classList.remove('is-pop');
-    rich.textContent = '48 likes';
-  };
-
-  const play = async ({ promote } = {}) => {
-    if (busy) return;
-    busy = true;
-    reset();
-    banner.classList.add('is-on');
-    await wait(120);
-    shine.classList.add('is-on');
-    card.classList.add('is-in');
-    copy.classList.add('is-on');
-    await wait(560);
-    card.classList.add('is-impact');
-    if (promote) {
-      await wait(720);
-      rich.textContent = '120 likes';
-      rarity.hidden = false;
-      rarity.textContent = 'Gold';
-      rarity.classList.add('is-pop');
-      card.classList.add('is-rarity-up');
-      await wait(720);
-    } else {
-      await wait(1400);
-    }
-    await wait(900);
-    copy.classList.add('is-swipe');
-    await wait(700);
-    card.classList.remove('is-in', 'is-impact', 'is-rarity-up');
-    card.classList.add('is-out');
-    await wait(360);
-    banner.classList.add('is-out');
-    await wait(240);
-    reset();
-    busy = false;
-  };
-
-  addPlay(actions, 'Play likes', () => play({ promote: false }));
-  addGhost(actions, 'Rarity up', () => play({ promote: true }));
+  const frame = mountSourceFrame(stage, {
+    src: SOURCE.likes,
+    title: 'Likes banner from location-gems',
+    onLoad: (f) => {
+      f.contentWindow?.postMessage({ type: 'set-location-gems-accent', accent: accentHex() }, '*');
+    },
+  });
+  addPlay(actions, 'Play likes', () => {
+    frame.contentWindow?.postMessage({ type: 'play-likes', promote: false }, '*');
+  });
+  addGhost(actions, 'Rarity up', () => {
+    frame.contentWindow?.postMessage({ type: 'play-likes', promote: true }, '*');
+  });
+  addGhost(actions, 'Open full', () => {
+    window.open(SOURCE.likesFull, '_blank', 'noopener');
+  });
 }
 
 function mountStepGlance(stage, actions) {
@@ -722,23 +684,15 @@ function mountPrimaryCta(stage, actions) {
 }
 
 function mountClaimPulse(stage, actions) {
-  const wrap = document.createElement('div');
-  wrap.className = 'demo-claim';
-  wrap.innerHTML = `
-    <div class="demo-claim-glow" aria-hidden="true"></div>
-    <button type="button" class="demo-claim-cta">[claim free trial]</button>
-  `;
-  stage.appendChild(wrap);
-  const cta = wrap.querySelector('.demo-claim-cta');
-  const press = () => {
-    cta.classList.remove('is-press');
-    void cta.offsetWidth;
-    cta.classList.add('is-press');
-  };
-  cta.addEventListener('click', press);
-  addPlay(actions, 'Tap claim', press);
+  const frame = mountSourceFrame(stage, {
+    src: SOURCE.claim,
+    title: 'Claim CTA from claim-pulse',
+  });
+  addPlay(actions, 'Tap claim', () => {
+    frame.contentWindow?.postMessage({ type: 'play-claim-tap' }, '*');
+  });
   addGhost(actions, 'Open full', () => {
-    window.open('../claim-pulse/?v=1', '_blank', 'noopener');
+    window.open(SOURCE.claimFull, '_blank', 'noopener');
   });
 }
 
@@ -747,13 +701,14 @@ function buildLibrary() {
   ELEMENT_DEFS.forEach((def) => library.appendChild(makeCard(def)));
 }
 
-let dayReachedAccentTimer = 0;
+let sourceAccentTimer = 0;
 function syncDayReachedAccent() {
-  window.clearTimeout(dayReachedAccentTimer);
-  dayReachedAccentTimer = window.setTimeout(() => {
+  window.clearTimeout(sourceAccentTimer);
+  sourceAccentTimer = window.setTimeout(() => {
     const accent = accentHex();
     document.querySelectorAll('.embed-frame').forEach((frame) => {
       frame.contentWindow?.postMessage({ type: 'set-day-reached-accent', accent }, '*');
+      frame.contentWindow?.postMessage({ type: 'set-location-gems-accent', accent }, '*');
     });
   }, 120);
 }
