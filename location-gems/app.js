@@ -491,13 +491,6 @@ const FEED_MINUTES_BY_FIND = {
   'find-fox': 6,
 };
 const SPOOF_FEED_MINUTES = 1;
-/** Nearby feed treats finds newer than this as fresh (competitor “just appeared” heat). */
-const FEED_FRESH_MS = 60 * 60 * 1000;
-const FEED_AGE_BY_FIND_MS = {
-  'find-mara': 18 * 60 * 1000,
-  'find-juniper': 3 * 60 * 60 * 1000,
-  'find-fox': 26 * 60 * 60 * 1000,
-};
 
 function createSpoofCollectedGem() {
   return {
@@ -519,10 +512,6 @@ function createSpoofCollectedGem() {
 
 function findToGem(find, opts) {
   gemSeq += 1;
-  const ageMs = FEED_AGE_BY_FIND_MS[find.id];
-  const createdAt =
-    opts.createdAt ||
-    new Date(Date.now() - (ageMs != null ? ageMs : 0)).toISOString();
   return {
     id: opts.id || `gem-${find.id}-${gemSeq}`,
     storyId: 'daily-side-quests',
@@ -536,15 +525,9 @@ function findToGem(find, opts) {
     likes: opts.isPublic ? find.likes || 0 : 0,
     minutesAway:
       opts.minutesAway != null ? opts.minutesAway : FEED_MINUTES_BY_FIND[find.id],
-    createdAt,
+    createdAt: opts.createdAt || new Date().toISOString(),
     entries: [find.text],
   };
-}
-
-function feedIsFresh(gem) {
-  const t0 = Date.parse(gem.createdAt || '');
-  if (!Number.isFinite(t0)) return false;
-  return Date.now() - t0 <= FEED_FRESH_MS;
 }
 
 function seedGems() {
@@ -1807,14 +1790,8 @@ debugOnboard.addEventListener('click', () => runOnboardingTips());
 if (feedDismiss) feedDismiss.addEventListener('click', dismissFeed);
 debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
 debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
-document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    setFeedVariant(btn.getAttribute('data-feed-variant') || 'heat');
-  });
-});
 bindTipGesture();
 bindFeedDismissGesture();
-setFeedVariant(feedVariant);
 
 if (new URLSearchParams(location.search).get('embed') === '1') {
   document.body.classList.add('is-embed');
