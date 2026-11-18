@@ -1142,101 +1142,89 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .sort-empty[hidden] { display: none !important; }
 
-/* first-story-flow spotlight + snack — ported */
-.snack {
+/* FTUE map tip (FtueMapElfTip) — bubble + character sibling, not stuffed inside */
+.map-tip {
+  --elf-w: 168px;
+  --elf-h: 151px;
+  --elf-overhang: 14px;
   position: absolute;
   z-index: 55;
-  left: 12px;
-  right: 12px;
-  top: 48px;
-  padding: 16px 18px;
-  padding-right: 132px;
-  border-radius: 24px;
-  background: #fff;
-  border: 2px solid var(--brand-accent);
-  box-shadow:
-    0 10px 28px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.65);
-  color: #170c35;
-  opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 0.25s, transform 0.25s;
-}
-.snack.on { opacity: 1; transform: none; }
-.snack[hidden] { display: none !important; }
-.snack p { margin: 0; font: 800 17px/1.25 var(--font); }
-.snack .elf {
-  position: absolute;
-  right: 4px;
-  bottom: -58px;
-  width: 120px;
-  pointer-events: none;
-}
-.snx {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  z-index: 1;
-  width: 26px;
-  height: 26px;
-  border: 0;
-  border-radius: 99px;
-  display: grid;
-  place-items: center;
-  background: #eee;
-  cursor: pointer;
-}
-.spot {
-  position: absolute;
-  inset: 0;
-  z-index: 48;
-  cursor: pointer;
-  background: radial-gradient(
-    circle at var(--x) var(--y),
-    transparent 0 var(--r, 26px),
-    rgba(7, 8, 15, 0.8) calc(var(--r, 26px) + 4px)
-  );
-}
-.spot[hidden] { display: none !important; }
-.spottip {
-  position: absolute;
   left: 16px;
   right: 16px;
-  top: calc(var(--y) + var(--r, 26px) + 14px);
-  padding: 16px 18px;
-  padding-right: 140px;
+  top: 56px;
+}
+.map-tip[hidden] { display: none !important; }
+.map-tip-hit {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  animation: mapTipIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.map-tip.is-out .map-tip-hit {
+  animation: mapTipOut 280ms cubic-bezier(0.55, 0, 1, 0.45) both;
+}
+@keyframes mapTipIn {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mapTipOut {
+  to { opacity: 0; transform: translateX(40px); }
+}
+.map-tip-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  padding-right: calc(var(--elf-w) - var(--elf-overhang));
   border-radius: 28px;
-  background: var(--surface);
-  border: 2px solid var(--brand-accent);
-  font: 400 15px/21px var(--font);
+  border: 2px solid #3b82f6;
+  background: #13123b;
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+.map-tip-steps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.map-tip-steps[hidden] { display: none !important; }
+.map-tip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.28);
+}
+.map-tip-dot.is-on {
+  width: 16px;
+  background: #3b82f6;
+}
+.map-tip-body {
+  margin: 0;
+  font-family: 'Darker Grotesque', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 21px;
   color: #fff;
 }
-.spot.above .spottip {
-  top: auto;
-  bottom: calc(100% - var(--y) + var(--r, 26px) + 14px);
-}
-.spottip em {
-  display: block;
-  font: 700 12px var(--font);
-  font-style: normal;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #c4b5fd;
-  margin-bottom: 2px;
-}
-.spottip b {
-  display: block;
-  font: 700 18px/22px var(--font);
-  margin-bottom: 2px;
-}
-.spottip p { margin: 0; font-weight: 600; font-size: 16px; }
-.spottip small { display: block; margin-top: 6px; color: #c4b5fd; }
-.spottip .elf {
+.map-tip-elf {
   position: absolute;
-  right: -16px;
-  bottom: -22px;
-  width: 150px;
+  right: calc(-1 * var(--elf-overhang));
+  bottom: 0;
+  width: var(--elf-w);
+  height: var(--elf-h);
   pointer-events: none;
+}
+.map-tip-elf img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .fly-layer {

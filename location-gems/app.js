@@ -1,8 +1,7 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v12 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v13 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
-const ELF_SRC = 'assets/elf.png';
 const MY_USER = '@you';
 
 /** Same faceted gem as daily-side-quests map pins — StoryCity design, not AI */
@@ -92,8 +91,18 @@ const CHALLENGE_FINDS = [
   },
 ];
 
-const TAP_ANYWHERE = 'Tap anywhere to continue';
 const ROTATE_MS = 2200;
+const MAP_TIP_OUT_MS = 280;
+const ONBOARD_TIPS_HOLD = [
+  '[hold the photo to activate sides]',
+  '[swipe left = hidden · right = public]',
+  '[scroll tabs for public and hidden gems]',
+];
+const ONBOARD_TIPS_DRAG = [
+  '[hold the photo to activate sides]',
+  '[drag onto hidden or public]',
+  '[scroll tabs for public and hidden gems]',
+];
 const TIP_KEY = 'location-gems-hub-snapshot-tip-seen';
 const ONBOARD_KEY = 'location-gems-hub-onboard-seen';
 const SWIPE_COMMIT_X = 72;
@@ -293,9 +302,10 @@ const dropHidden = document.getElementById('dropHidden');
 const dropPublic = document.getElementById('dropPublic');
 const dropHiddenIcon = document.getElementById('dropHiddenIcon');
 const dropPublicIcon = document.getElementById('dropPublicIcon');
-const spot = document.getElementById('spot');
-const spotTip = document.getElementById('spotTip');
-const snack = document.getElementById('snack');
+const mapTip = document.getElementById('mapTip');
+const mapTipHit = document.getElementById('mapTipHit');
+const mapTipSteps = document.getElementById('mapTipSteps');
+const mapTipBody = document.getElementById('mapTipBody');
 const likesBanner = document.getElementById('likesBanner');
 const likesShine = document.getElementById('likesShine');
 const likesCopy = document.getElementById('likesCopy');
@@ -330,8 +340,11 @@ let spoofWording = false;
 let dragMode = false;
 /** @type {any} */
 let drag = null;
-/** @type {Array<() => void>} */
-const pendingEnds = [];
+/** @type {(() => void) | null} */
+let mapTipAdvance = null;
+let mapTipIndex = 0;
+/** @type {string[]} */
+let mapTipQueue = [];
 
 function t(key, ...args) {
   const table = spoofWording ? { ...COPY, ...SPOOF_COPY } : COPY;
@@ -974,83 +987,64 @@ function tickPlaces() {
   rotatingWord.textContent = SNAPSHOT_PLACES[placeIndex];
 }
 
-function hideSnack() {
-  snack.classList.remove('on');
-  snack.hidden = true;
+function renderMapTipSteps(index, total) {
+  mapTipSteps.replaceChildren();
+  if (total <= 1) {
+    mapTipSteps.hidden = true;
+    return;
+  }
+  mapTipSteps.hidden = false;
+  for (let i = 0; i < total; i += 1) {
+    const dot = document.createElement('span');
+    dot.className = `map-tip-dot${i === index ? ' is-on' : ''}`;
+    mapTipSteps.appendChild(dot);
+  }
 }
 
-function showSnack(text) {
-  snack.innerHTML = `<p>${text}</p><button type="button" class="snx" aria-label="Dismiss tip">×</button><img class="elf" src="${ELF_SRC}" alt="">`;
-  snack.hidden = false;
-  requestAnimationFrame(() => snack.classList.add('on'));
-  snack.querySelector('.snx').onclick = hideSnack;
+function hideMapTip() {
+  mapTip.hidden = true;
+  mapTip.classList.remove('is-out');
+  mapTipAdvance = null;
 }
 
-function spotlight(target, text, opts = {}) {
-  return new Promise((done) => {
-    const pr = phone.getBoundingClientRect();
-    const r = target.getBoundingClientRect();
-    const z = parseFloat(getComputedStyle(phone).zoom) || 1;
-    const k = Math.abs(pr.width - phone.offsetWidth) < 2 ? 1 : z;
-    const cx = (r.left - pr.left + r.width / 2) / k;
-    const cy = (r.top - pr.top + r.height / 2) / k;
-    const rad = Math.max(26, Math.min(150, Math.max(r.width, r.height) / k / 2 + 8));
-    spot.style.setProperty('--x', `${cx}px`);
-    spot.style.setProperty('--y', `${cy}px`);
-    spot.style.setProperty('--r', `${rad}px`);
-    spot.classList.toggle('above', cy > phone.offsetHeight * 0.55);
-    spotTip.innerHTML = `${opts.step ? `<em>${opts.step}</em>` : ''}${
-      opts.title ? `<b>${opts.title}</b>` : ''
-    }<p>${text}</p><small>${TAP_ANYWHERE}</small><img class="elf" src="${ELF_SRC}" alt="">`;
-    spot.hidden = false;
-    const end = () => {
-      spot.hidden = true;
-      spot.onclick = null;
-      done();
-    };
-    spot.onclick = end;
-    pendingEnds.push(end);
-  });
+function clearMapTips() {
+  mapTipAdvance = null;
+  mapTipQueue = [];
+  mapTipIndex = 0;
+  hideMapTip();
 }
 
-function clearSpotlights() {
-  pendingEnds.splice(0).forEach((fn) => fn());
-  spot.hidden = true;
-  hideSnack();
+function presentMapTip() {
+  const total = mapTipQueue.length;
+  if (!total || mapTipIndex >= total) {
+    hideMapTip();
+    storageSet(ONBOARD_KEY);
+    return;
+  }
+  mapTipBody.textContent = displayCopy(mapTipQueue[mapTipIndex]);
+  renderMapTipSteps(mapTipIndex, total);
+  mapTip.classList.remove('is-out');
+  mapTip.hidden = false;
+  mapTipAdvance = () => {
+    mapTip.classList.add('is-out');
+    window.setTimeout(() => {
+      mapTipIndex += 1;
+      if (mapTipIndex >= total) {
+        hideMapTip();
+        storageSet(ONBOARD_KEY);
+        return;
+      }
+      presentMapTip();
+    }, MAP_TIP_OUT_MS);
+  };
 }
 
-async function runOnboardingTips() {
-  clearSpotlights();
+function runOnboardingTips() {
+  clearMapTips();
   sortInline.scrollIntoView({ block: 'nearest' });
-  await wait(80);
-  if (pendingSort.length) {
-    const card = sortStack.querySelector('.sort-card:not(.is-under)') || sortStack;
-    await spotlight(card, '[press and hold the photo — that activates the sides]', {
-      step: '1 of 3',
-      title: '[sort finds]',
-    });
-  }
-  if (dragMode) {
-    await spotlight(dropHidden, '[drag onto hidden gems to keep it just for you]', {
-      step: '2 of 3',
-      title: t('dropHidden'),
-    });
-    await spotlight(dropPublic, '[drag onto public gems to publish it]', {
-      step: '3 of 3',
-      title: t('dropPublic'),
-    });
-  } else {
-    await spotlight(railPrivate, '[swipe left = hidden purple gem]', {
-      step: '2 of 3',
-      title: t('railPrivate'),
-    });
-    await spotlight(railPublic, '[swipe right = public cyan gem]', {
-      step: '3 of 3',
-      title: t('railPublic'),
-    });
-  }
-  showSnack('[scroll for public / hidden gems]');
-  storageSet(ONBOARD_KEY);
+  mapTipQueue = dragMode ? ONBOARD_TIPS_DRAG.slice() : ONBOARD_TIPS_HOLD.slice();
+  mapTipIndex = 0;
+  presentMapTip();
 }
 
 function railModeFromDelta(dx, dy) {
@@ -1291,7 +1285,7 @@ function setDragMode(on) {
 }
 
 function resetState() {
-  clearSpotlights();
+  clearMapTips();
   gems = [];
   favouriteGemIds = [];
   likedByGem = {};
@@ -1361,5 +1355,8 @@ debugLikes.addEventListener('click', () => playLikesBanner());
 debugOnboard.addEventListener('click', () => runOnboardingTips());
 debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
 debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
+mapTipHit.addEventListener('click', () => {
+  if (mapTipAdvance) mapTipAdvance();
+});
 
 init();
