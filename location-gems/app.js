@@ -1,7 +1,8 @@
-/** Location Gems hub + sort-into-gems — LOCATION-GEMS-HUB-v2 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v3 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
+const ELF_SRC = 'assets/elf.png';
 const MY_USER = '@you';
 const MY_GEM_FILL = '#b36bff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -18,7 +19,6 @@ const SNAPSHOT_PLACES = [
   'a waterfront',
 ];
 
-/** Daily Side Quests finds — collected appearance + sort deck */
 const CHALLENGE_FINDS = [
   {
     id: 'find-mara',
@@ -76,28 +76,14 @@ const CHALLENGE_FINDS = [
   },
 ];
 
-const ONBOARD_SLIDES = [
-  {
-    title: '[why location gems exist]',
-    body: '[explain gems turn places you notice into memories others can find — and why the hub keeps them]',
-  },
-  {
-    title: '[how gems get likes]',
-    body: '[explain public gems can earn likes from walkers who discover them on the map]',
-  },
-  {
-    title: '[sort challenge finds into gems]',
-    body: '[explain swipe: left private hidden gems, right public with place + photo + writing, down delete]',
-  },
-];
-
+const TAP_ANYWHERE = 'Tap anywhere to continue';
 const ROTATE_MS = 2200;
 const TIP_KEY = 'location-gems-hub-snapshot-tip-seen';
 const ONBOARD_KEY = 'location-gems-hub-onboard-seen';
 const GRID_GAP = 16;
 const H_PAD = 24;
-const SWIPE_COMMIT_X = 110;
-const SWIPE_COMMIT_Y = 120;
+const SWIPE_COMMIT_X = 72;
+const SWIPE_COMMIT_Y = 78;
 const HAZE_IN_MS = 160;
 const SHINE_MS = 1400;
 const HOLD_AFTER_SHINE_MS = 500;
@@ -130,6 +116,7 @@ const COPY = {
 };
 
 const phone = document.getElementById('phone');
+const hub = document.getElementById('hub');
 const gemGrid = document.getElementById('gemGrid');
 const emptyState = document.getElementById('emptyState');
 const emptyTitle = document.getElementById('emptyTitle');
@@ -141,6 +128,7 @@ const snapshotTip = document.getElementById('snapshotTip');
 const snapshotTipOk = document.getElementById('snapshotTipOk');
 const snapshotTipScrim = document.getElementById('snapshotTipScrim');
 const tabFavIcon = document.getElementById('tabFavIcon');
+const tabBar = document.getElementById('tabBar');
 const detail = document.getElementById('detail');
 const detailBack = document.getElementById('detailBack');
 const detailFav = document.getElementById('detailFav');
@@ -155,22 +143,16 @@ const detailVisibility = document.getElementById('detailVisibility');
 const hint = document.getElementById('hint');
 const resetHub = document.getElementById('resetHub');
 const feedStrip = document.getElementById('feedStrip');
-const sortCta = document.getElementById('sortCta');
-const sortCtaCount = document.getElementById('sortCtaCount');
-const openSortBtn = document.getElementById('openSort');
-const sortSheet = document.getElementById('sortSheet');
-const sortClose = document.getElementById('sortClose');
 const sortSub = document.getElementById('sortSub');
 const sortStack = document.getElementById('sortStack');
-const hintPrivate = document.getElementById('hintPrivate');
-const hintPublic = document.getElementById('hintPublic');
-const hintDelete = document.getElementById('hintDelete');
-const onboard = document.getElementById('onboard');
-const onboardKicker = document.getElementById('onboardKicker');
-const onboardTitle = document.getElementById('onboardTitle');
-const onboardBody = document.getElementById('onboardBody');
-const onboardSkip = document.getElementById('onboardSkip');
-const onboardNext = document.getElementById('onboardNext');
+const sortEmpty = document.getElementById('sortEmpty');
+const sortInline = document.getElementById('sortInline');
+const railPrivate = document.getElementById('railPrivate');
+const railPublic = document.getElementById('railPublic');
+const railDelete = document.getElementById('railDelete');
+const spot = document.getElementById('spot');
+const spotTip = document.getElementById('spotTip');
+const snack = document.getElementById('snack');
 const likesBanner = document.getElementById('likesBanner');
 const likesShine = document.getElementById('likesShine');
 const likesCopy = document.getElementById('likesCopy');
@@ -190,11 +172,11 @@ let favouriteGemIds = [];
 let pendingSort = [];
 let openGemId = null;
 let placeIndex = 0;
-let rotateTimer = 0;
 let createdSeq = 0;
-let onboardIndex = 0;
 let likesBusy = false;
 let drag = null;
+/** @type {Array<() => void>} */
+const pendingEnds = [];
 
 function gemSvg(fill) {
   return `<svg viewBox="0 0 24 22" aria-hidden="true">
@@ -405,13 +387,6 @@ function renderFeed() {
   });
 }
 
-function syncSortCta() {
-  const n = pendingSort.length;
-  sortCtaCount.textContent = n ? `${n} waiting` : '[all sorted]';
-  sortCta.hidden = false;
-  openSortBtn.disabled = n === 0;
-}
-
 function renderGrid() {
   const gems = activeGems();
   const width = polaroidWidth();
@@ -437,9 +412,54 @@ function renderGrid() {
   });
 }
 
+function setSortingFocus(on) {
+  hub.classList.toggle('is-sorting-focus', on && pendingSort.length > 0);
+}
+
+function setRails(mode) {
+  railPrivate.classList.toggle('is-hot', mode === 'private');
+  railPublic.classList.toggle('is-hot', mode === 'public');
+  railDelete.classList.toggle('is-hot', mode === 'delete');
+  const idle = !mode;
+  railPrivate.classList.toggle('is-flash', idle || mode === 'private');
+  railPublic.classList.toggle('is-flash', idle || mode === 'public');
+  railDelete.classList.toggle('is-flash', idle || mode === 'delete');
+}
+
+function buildSortCard(find, under) {
+  const card = document.createElement('article');
+  card.className = `sort-card${under ? ' is-under' : ''}`;
+  card.dataset.id = find.id;
+  card.innerHTML = `
+    <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
+    <div class="sort-card-body">
+      <p class="sort-card-user">${find.user}</p>
+      <p class="sort-card-text">${find.text}</p>
+      <p class="sort-card-place">📍 ${find.place}</p>
+    </div>
+  `;
+  return card;
+}
+
+function renderSortStack() {
+  sortStack.replaceChildren();
+  const n = pendingSort.length;
+  sortSub.textContent = n ? `${n} left` : '[all sorted]';
+  sortEmpty.hidden = n > 0;
+  setSortingFocus(n > 0);
+  setRails(null);
+  if (!n) return;
+  const top = pendingSort[0];
+  const next = pendingSort[1];
+  if (next) sortStack.appendChild(buildSortCard(next, true));
+  const front = buildSortCard(top, false);
+  sortStack.appendChild(front);
+  bindSortDrag(front);
+}
+
 function refreshHub() {
   renderFeed();
-  syncSortCta();
+  renderSortStack();
   renderGrid();
 }
 
@@ -504,7 +524,7 @@ function openDetail(id) {
   detailTagline.textContent = getGemTagline(gem);
   if (owned) {
     detailVisibility.hidden = false;
-    detailVisibility.textContent = gem.isPublic ? '[public gem]' : '[private · hidden gems]';
+    detailVisibility.textContent = gem.isPublic ? '[public gem]' : '[keep hidden]';
   } else {
     detailVisibility.hidden = true;
   }
@@ -518,14 +538,12 @@ function openDetail(id) {
   syncDetailFav();
   detail.hidden = false;
   detail.setAttribute('aria-hidden', 'false');
-  hint.textContent = 'Gem detail — heart to favourite, back to hub.';
 }
 
 function closeDetail() {
   openGemId = null;
   detail.hidden = true;
   detail.setAttribute('aria-hidden', 'true');
-  hint.textContent = 'Hub ready.';
   if (activeSection === 'favourites') renderGrid();
 }
 
@@ -545,7 +563,6 @@ function addSampleCreatedGem() {
   });
   setSection('created');
   refreshHub();
-  hint.textContent = 'Created a sample public gem.';
 }
 
 function handleSnapshot() {
@@ -558,118 +575,77 @@ function tickPlaces() {
   rotatingWord.textContent = SNAPSHOT_PLACES[placeIndex];
 }
 
-function showOnboardSlide() {
-  const slide = ONBOARD_SLIDES[onboardIndex];
-  onboardKicker.textContent = `${onboardIndex + 1} / ${ONBOARD_SLIDES.length}`;
-  onboardTitle.textContent = slide.title;
-  onboardBody.textContent = slide.body;
-  onboardNext.textContent =
-    onboardIndex === ONBOARD_SLIDES.length - 1 ? '[start sorting]' : '[next]';
+function hideSnack() {
+  snack.classList.remove('on');
+  snack.hidden = true;
 }
 
-function openOnboard() {
-  onboardIndex = 0;
-  showOnboardSlide();
-  onboard.hidden = false;
-  onboard.setAttribute('aria-hidden', 'false');
+function showSnack(text) {
+  snack.innerHTML = `<p>${text}</p><button type="button" class="snx" aria-label="Dismiss tip">×</button><img class="elf" src="${ELF_SRC}" alt="">`;
+  snack.hidden = false;
+  requestAnimationFrame(() => snack.classList.add('on'));
+  snack.querySelector('.snx').onclick = hideSnack;
 }
 
-function closeOnboard({ openSortAfter }) {
-  onboard.hidden = true;
-  onboard.setAttribute('aria-hidden', 'true');
-  storageSet(ONBOARD_KEY);
-  if (openSortAfter) openSortSheet();
-}
-
-function buildSortCard(find, under) {
-  const card = document.createElement('article');
-  card.className = `sort-card${under ? ' is-under' : ''}`;
-  card.dataset.id = find.id;
-  card.innerHTML = `
-    <img class="sort-card-photo" src="${find.photo}" alt="">
-    <div class="sort-card-body">
-      <p class="sort-card-user">${find.user}</p>
-      <p class="sort-card-text">${find.text}</p>
-      <p class="sort-card-place">📍 ${find.place}</p>
-    </div>
-  `;
-  return card;
-}
-
-function renderSortStack() {
-  sortStack.replaceChildren();
-  sortSub.textContent = `${pendingSort.length} left`;
-  if (!pendingSort.length) {
-    sortSub.textContent = '[all sorted]';
-    return;
-  }
-  const top = pendingSort[0];
-  const next = pendingSort[1];
-  if (next) sortStack.appendChild(buildSortCard(next, true));
-  const front = buildSortCard(top, false);
-  sortStack.appendChild(front);
-  bindSortDrag(front);
-}
-
-function setSortHints(dx, dy) {
-  const left = dx < -40;
-  const right = dx > 40;
-  const down = dy > 50 && Math.abs(dx) < 80;
-  hintPrivate.classList.toggle('is-on', left);
-  hintPrivate.classList.toggle('is-flash', left || (!dx && !dy));
-  hintPublic.classList.toggle('is-on', right);
-  hintDelete.classList.toggle('is-on', down);
-}
-
-function bindSortDrag(card) {
-  const onPointerDown = (e) => {
-    if (drag) return;
-    card.setPointerCapture(e.pointerId);
-    drag = {
-      card,
-      id: e.pointerId,
-      x0: e.clientX,
-      y0: e.clientY,
-      dx: 0,
-      dy: 0,
+/** first-story-flow spotlight — hole on target, tip with elf */
+function spotlight(target, text, opts = {}) {
+  return new Promise((done) => {
+    const pr = phone.getBoundingClientRect();
+    const r = target.getBoundingClientRect();
+    const z = parseFloat(getComputedStyle(phone).zoom) || 1;
+    const k = Math.abs(pr.width - phone.offsetWidth) < 2 ? 1 : z;
+    const cx = (r.left - pr.left + r.width / 2) / k;
+    const cy = (r.top - pr.top + r.height / 2) / k;
+    const rad = Math.max(26, Math.min(150, Math.max(r.width, r.height) / k / 2 + 8));
+    spot.style.setProperty('--x', `${cx}px`);
+    spot.style.setProperty('--y', `${cy}px`);
+    spot.style.setProperty('--r', `${rad}px`);
+    spot.classList.toggle('above', cy > phone.offsetHeight * 0.55);
+    spotTip.innerHTML = `${opts.step ? `<em>${opts.step}</em>` : ''}${
+      opts.title ? `<b>${opts.title}</b>` : ''
+    }<p>${text}</p><small>${TAP_ANYWHERE}</small><img class="elf" src="${ELF_SRC}" alt="">`;
+    spot.hidden = false;
+    const end = () => {
+      spot.hidden = true;
+      spot.onclick = null;
+      done();
     };
-  };
-  const onPointerMove = (e) => {
-    if (!drag || drag.id !== e.pointerId) return;
-    drag.dx = e.clientX - drag.x0;
-    drag.dy = e.clientY - drag.y0;
-    const rot = drag.dx * 0.05;
-    card.style.transform = `translate(${drag.dx}px, ${drag.dy}px) rotate(${rot}deg)`;
-    setSortHints(drag.dx, drag.dy);
-  };
-  const onPointerUp = (e) => {
-    if (!drag || drag.id !== e.pointerId) return;
-    const { dx, dy } = drag;
-    drag = null;
-    setSortHints(0, 0);
-    hintPrivate.classList.add('is-flash');
-    if (dx > SWIPE_COMMIT_X) {
-      settleSort(card, 'public');
-      return;
-    }
-    if (dx < -SWIPE_COMMIT_X) {
-      settleSort(card, 'private');
-      return;
-    }
-    if (dy > SWIPE_COMMIT_Y && Math.abs(dx) < SWIPE_COMMIT_X) {
-      settleSort(card, 'delete');
-      return;
-    }
-    card.style.transition = 'transform 220ms var(--ease-out)';
-    card.style.transform = '';
-    window.setTimeout(() => {
-      card.style.transition = '';
-    }, 240);
-  };
-  card.addEventListener('pointerdown', onPointerDown);
-  card.addEventListener('pointermove', onPointerMove);
-  card.addEventListener('pointerup', onPointerUp);
-  card.addEventListener('pointercancel', onPointerUp);
+    spot.onclick = end;
+    pendingEnds.push(end);
+  });
+}
+
+function clearSpotlights() {
+  pendingEnds.splice(0).forEach((fn) => fn());
+  spot.hidden = true;
+  hideSnack();
+}
+
+async function runOnboardingTips() {
+  clearSpotlights();
+  sortInline.scrollIntoView({ block: 'nearest' });
+  await wait(80);
+  if (pendingSort.length) {
+    const card = sortStack.querySelector('.sort-card:not(.is-under)') || sortStack;
+    await spotlight(card, '[these are challenge finds waiting to become location gems]', {
+      step: '1 of 4',
+      title: '[sort finds]',
+    });
+  }
+  await spotlight(railPrivate, '[hold the card and swipe left to keep it hidden]', {
+    step: '2 of 4',
+    title: '[keep hidden]',
+  });
+  await spotlight(railPublic, '[swipe right to make it public on the map]', {
+    step: '3 of 4',
+    title: '[make public]',
+  });
+  await spotlight(railDelete, '[swipe down to delete the find]', {
+    step: '4 of 4',
+    title: '[delete]',
+  });
+  showSnack('[scroll down for collected / created / favourites]');
+  storageSet(ONBOARD_KEY);
 }
 
 function findToCreatedGem(find, isPublic) {
@@ -687,59 +663,106 @@ function findToCreatedGem(find, isPublic) {
   };
 }
 
+function railModeFromDelta(dx, dy) {
+  if (dy > 48 && Math.abs(dx) < 64) return 'delete';
+  if (dx > 36) return 'public';
+  if (dx < -36) return 'private';
+  return null;
+}
+
+function bindSortDrag(card) {
+  const finishDrag = (dx, dy) => {
+    drag = null;
+    const mode = railModeFromDelta(dx, dy);
+    setRails(null);
+    if (dx > SWIPE_COMMIT_X) {
+      settleSort(card, 'public');
+      return;
+    }
+    if (dx < -SWIPE_COMMIT_X) {
+      settleSort(card, 'private');
+      return;
+    }
+    if (dy > SWIPE_COMMIT_Y && Math.abs(dx) < SWIPE_COMMIT_X) {
+      settleSort(card, 'delete');
+      return;
+    }
+    card.style.transition = 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)';
+    card.style.transform = '';
+    window.setTimeout(() => {
+      card.style.transition = '';
+    }, 240);
+  };
+
+  card.addEventListener(
+    'pointerdown',
+    (e) => {
+      if (drag || e.button === 2) return;
+      e.preventDefault();
+      card.setPointerCapture(e.pointerId);
+      hub.classList.add('is-sorting-focus');
+      drag = {
+        card,
+        id: e.pointerId,
+        x0: e.clientX,
+        y0: e.clientY,
+        dx: 0,
+        dy: 0,
+      };
+    },
+    { passive: false },
+  );
+
+  card.addEventListener(
+    'pointermove',
+    (e) => {
+      if (!drag || drag.id !== e.pointerId) return;
+      e.preventDefault();
+      drag.dx = e.clientX - drag.x0;
+      drag.dy = e.clientY - drag.y0;
+      const rot = drag.dx * 0.06;
+      card.style.transform = `translate(${drag.dx}px, ${drag.dy}px) rotate(${rot}deg)`;
+      setRails(railModeFromDelta(drag.dx, drag.dy));
+    },
+    { passive: false },
+  );
+
+  const up = (e) => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const { dx, dy } = drag;
+    finishDrag(dx, dy);
+  };
+  card.addEventListener('pointerup', up);
+  card.addEventListener('pointercancel', up);
+}
+
 function settleSort(card, action) {
   const find = pendingSort[0];
   if (!find) return;
   const fly =
     action === 'public'
-      ? 'translate(140%, -8%) rotate(18deg)'
+      ? 'translate(120%, -6%) rotate(16deg)'
       : action === 'private'
-        ? 'translate(-140%, -8%) rotate(-18deg)'
-        : 'translate(0, 140%) rotate(4deg)';
-  card.style.transition = 'transform 280ms var(--ease-out), opacity 280ms var(--ease-out)';
+        ? 'translate(-120%, -6%) rotate(-16deg)'
+        : 'translate(0, 120%) rotate(3deg)';
+  card.style.transition = 'transform 260ms cubic-bezier(0.22, 1, 0.36, 1), opacity 260ms ease';
   card.style.transform = fly;
   card.style.opacity = '0';
   window.setTimeout(() => {
     pendingSort.shift();
     if (action === 'public') {
       createdGems.unshift(findToCreatedGem(find, true));
-      hint.textContent = '[public gem saved]';
+      hint.textContent = '[make public]';
+      setSection('created');
     } else if (action === 'private') {
       createdGems.unshift(findToCreatedGem(find, false));
-      hint.textContent = '[private · hidden gems]';
-    } else {
-      hint.textContent = '[find deleted]';
-    }
-    if (!pendingSort.length) {
-      closeSortSheet();
+      hint.textContent = '[keep hidden]';
       setSection('created');
-      refreshHub();
-      return;
+    } else {
+      hint.textContent = '[delete]';
     }
-    renderSortStack();
     refreshHub();
-  }, 280);
-}
-
-function openSortSheet() {
-  if (!pendingSort.length) {
-    hint.textContent = '[nothing left to sort]';
-    return;
-  }
-  closeDetail();
-  sortSheet.hidden = false;
-  sortSheet.setAttribute('aria-hidden', 'false');
-  setSortHints(0, 0);
-  hintPrivate.classList.add('is-flash', 'is-on');
-  renderSortStack();
-  hint.textContent = 'Swipe finds: ← private · ↓ delete · public →';
-}
-
-function closeSortSheet() {
-  sortSheet.hidden = true;
-  sortSheet.setAttribute('aria-hidden', 'true');
-  drag = null;
-  refreshHub();
+  }, 260);
 }
 
 async function playLikesBanner() {
@@ -749,12 +772,10 @@ async function playLikesBanner() {
   likesBanner.hidden = false;
   likesBanner.classList.remove('is-out');
   likesBanner.classList.add('is-on');
-  likesBanner.setAttribute('aria-hidden', 'false');
   likesCopy.classList.remove('is-on');
   likesShine.classList.remove('is-on');
   await wait(HAZE_IN_MS);
   likesCopy.classList.add('is-on');
-  likesCopy.setAttribute('aria-hidden', 'false');
   await wait(120);
   likesShine.classList.add('is-on');
   await wait(SHINE_MS + HOLD_AFTER_SHINE_MS);
@@ -765,11 +786,11 @@ async function playLikesBanner() {
   likesBanner.classList.remove('is-on', 'is-out');
   likesShine.classList.remove('is-on');
   likesCopy.classList.remove('is-on');
-  likesBanner.setAttribute('aria-hidden', 'true');
   likesBusy = false;
 }
 
 function resetState() {
+  clearSpotlights();
   createdGems = [];
   collectedGems = [];
   favouriteGemIds = [];
@@ -777,15 +798,13 @@ function resetState() {
   seedCollectedFromChallenges();
   seedPendingSort();
   closeDetail();
-  closeSortSheet();
-  closeOnboard({ openSortAfter: false });
   storageClear(TIP_KEY);
   storageClear(ONBOARD_KEY);
   showTip(true);
   setSection('collected');
   refreshHub();
-  openOnboard();
-  hint.textContent = 'Hub reset — onboarding + finds ready to sort.';
+  hint.textContent = 'Hold a card and swipe.';
+  runOnboardingTips();
 }
 
 function init() {
@@ -795,9 +814,11 @@ function init() {
   setSection('collected');
   refreshHub();
   showTip(!storageGet(TIP_KEY));
-  if (!storageGet(ONBOARD_KEY)) openOnboard();
-  rotateTimer = window.setInterval(tickPlaces, ROTATE_MS);
+  window.setInterval(tickPlaces, ROTATE_MS);
   window.addEventListener('resize', () => renderGrid());
+  if (!storageGet(ONBOARD_KEY)) {
+    window.setTimeout(() => runOnboardingTips(), 400);
+  }
 }
 
 document.querySelectorAll('.tab-button').forEach((btn) => {
@@ -811,21 +832,7 @@ detailFav.addEventListener('click', () => {
   if (openGemId) toggleFavourite(openGemId);
 });
 resetHub.addEventListener('click', resetState);
-sortCta.addEventListener('click', () => openSortSheet());
-openSortBtn.addEventListener('click', () => openSortSheet());
-sortClose.addEventListener('click', closeSortSheet);
-onboardSkip.addEventListener('click', () => closeOnboard({ openSortAfter: false }));
-onboardNext.addEventListener('click', () => {
-  if (onboardIndex >= ONBOARD_SLIDES.length - 1) {
-    closeOnboard({ openSortAfter: true });
-    return;
-  }
-  onboardIndex += 1;
-  showOnboardSlide();
-});
-debugLikes.addEventListener('click', () => {
-  playLikesBanner();
-});
-debugOnboard.addEventListener('click', () => openOnboard());
+debugLikes.addEventListener('click', () => playLikesBanner());
+debugOnboard.addEventListener('click', () => runOnboardingTips());
 
 init();
