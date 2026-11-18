@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v20 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v21 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -837,10 +837,11 @@ function setSection(section) {
   renderGrid();
 }
 
-function showTip(visible) {
-  snapshotTip.hidden = !visible;
-  snapshotTip.setAttribute('aria-hidden', visible ? 'false' : 'true');
-  cameraButton.classList.toggle('is-highlighted', visible);
+function showTip(_visible) {
+  /* Snapshot tip card removed for now */
+  snapshotTip.hidden = true;
+  snapshotTip.setAttribute('aria-hidden', 'true');
+  cameraButton.classList.remove('is-highlighted');
 }
 
 function dismissTip() {
