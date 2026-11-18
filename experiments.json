@@ -27,9 +27,9 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=10",
+    "path": "approved-ui/?v=11",
     "title": "Approved UI library",
-    "what": "Compact tip sprites (Elf+Summons+Knight+Remix). Spotlight from location-gems tip.png tour.",
+    "what": "Spotlight over real hub pieces (card/rails/camera). Gem rarity icon library.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

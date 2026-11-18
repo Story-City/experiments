@@ -1,12 +1,32 @@
-/** Approved UI library — APPROVED-UI-v10
- * Compact: Elf with tip sprites. Spotlight from location-gems hub.
+/** Approved UI library — APPROVED-UI-v11
+ * Spotlight over real hub pieces. Gem rarity icon library from location-gems.
  */
 
+/** Same faceted gem as location-gems — StoryCity design, not AI */
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
-const GEM_SHADE = 'M15 7.5H22.5L12 20.5Z';
-const GEM_FACETS = 'M1.5 7.5H22.5M7 1.5L9 7.5L12 20.5L15 7.5L17 1.5';
-const CYAN = '#00c2ff';
+const GEM_SHADE = 'M9 7.5H15L12 20.5Z';
+const GEM_FACETS = 'M9 7.5L12 20.5L15 7.5M1.5 7.5H22.5';
+const GEM_STROKE = 1.5;
+const GEM_FACET_STROKE = 1;
+const GEM_STROKE_SOFT = 0.7;
+const GEM_FACET_STROKE_SOFT = 0.45;
+const GEM_OUTLINE_OPACITY_SOFT = 0.42;
+const GEM_FACET_OPACITY_SOFT = 0.32;
+const PUBLIC_GEM_FILL = '#00c2ff';
+const HIDDEN_GEM_FILL = '#9370c4';
+const SILVER_GEM_FILL = '#c8d2e6';
+const GOLD_GEM_FILL = '#ffc448';
+const PLATINUM_GEM_FILL = '#e8eef8';
+const DIAMOND_GEM_FILL = '#b4f0ff';
+const RARITY = {
+  cyan: { id: 'cyan', fill: PUBLIC_GEM_FILL, label: 'cyan', minLikes: 0 },
+  silver: { id: 'silver', fill: SILVER_GEM_FILL, label: 'silver', minLikes: 20 },
+  gold: { id: 'gold', fill: GOLD_GEM_FILL, label: 'gold', minLikes: 50 },
+  platinum: { id: 'platinum', fill: PLATINUM_GEM_FILL, label: 'platinum', minLikes: 100 },
+  diamond: { id: 'diamond', fill: DIAMOND_GEM_FILL, label: 'diamond', minLikes: 200 },
+};
+const CYAN = PUBLIC_GEM_FILL;
 const PURPLE = '#b36bff';
 const GRAY = '#8a8a96';
 const DOMINO_MS = 220;
@@ -78,9 +98,17 @@ const ELEMENT_DEFS = [
     id: 'spotlight-tip',
     title: 'Spotlight tip',
     source: 'location-gems hub onboard · tip.png + hole',
-    ux: 'When: gems management onboard. Soft hole on a control + tip.png under it. Tap tip or scrim · swipe right to advance steps. Try: Play tour.',
+    ux: 'When: gems hub first tour. Hole moves across real pieces (photo → hide → publish → camera) with tip.png. Tap tip/scrim · swipe right. Try: Play tour.',
     stage: 'spot',
     mount: mountSpotlightTip,
+  },
+  {
+    id: 'gem-rarity',
+    title: 'Gem rarity icons',
+    source: 'location-gems RARITY + gemSvg',
+    ux: 'When: public gem tier by likes, or hidden (private). Same faceted SVG, fill per tier. Try: glance the library.',
+    stage: 'rarity',
+    mount: mountGemRarityLibrary,
   },
   {
     id: 'glass-bubble',
@@ -197,13 +225,18 @@ const radialAmount = document.getElementById('radialAmount');
 const bgColor = document.getElementById('bgColor');
 const bgDepth = document.getElementById('bgDepth');
 
-function gemSvg(fill) {
+function gemSvg(fill, opts = {}) {
+  const soft = !!opts.softOutline;
+  const outlineW = soft ? GEM_STROKE_SOFT : GEM_STROKE;
+  const facetW = soft ? GEM_FACET_STROKE_SOFT : GEM_FACET_STROKE;
+  const outlineOp = soft ? GEM_OUTLINE_OPACITY_SOFT : 1;
+  const facetOp = soft ? GEM_FACET_OPACITY_SOFT : 0.6;
   return `<svg viewBox="0 0 24 22" aria-hidden="true">
     <path d="${GEM_OUTLINE}" fill="${fill}"/>
     <path d="${GEM_TABLE}" fill="#fff" fill-opacity="0.3"/>
     <path d="${GEM_SHADE}" fill="#000" fill-opacity="0.22"/>
-    <path d="${GEM_FACETS}" fill="none" stroke="#fff" stroke-opacity="0.55" stroke-width="1" stroke-linejoin="round"/>
-    <path d="${GEM_OUTLINE}" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="${GEM_FACETS}" fill="none" stroke="#fff" stroke-opacity="${facetOp}" stroke-width="${facetW}" stroke-linejoin="round"/>
+    <path d="${GEM_OUTLINE}" fill="none" stroke="#fff" stroke-opacity="${outlineOp}" stroke-width="${outlineW}" stroke-linejoin="round"/>
   </svg>`;
 }
 
@@ -541,21 +574,44 @@ function mountGlassBubble(stage, actions) {
 }
 
 function mountSpotlightTip(stage, actions) {
-  /* Faithful to location-gems onboard: hole scrim + tip.png, tap/swipe advances. */
+  /* Real hub pieces under the hole — same targets as location-gems ONBOARD_TIPS_HOLD. */
   const TIP_OUT_MS = 360;
   const TIP_SWIPE_DISMISS_PX = 72;
   const TIP_TAP_SLOP_PX = 8;
   const STEPS = [
-    '[hold the photo to activate sides]',
-    '[swipe left to hide]',
-    '[swipe right to publish]',
-    '[take a snapshot anytime on the camera]',
+    { text: '[hold the photo to activate sides]', target: 'card', sides: true },
+    { text: '[swipe left to hide]', target: 'railPrivate', sides: 'private' },
+    { text: '[swipe right to publish]', target: 'railPublic', sides: 'public' },
+    { text: '[take a snapshot anytime on the camera]', target: 'camera' },
   ];
+  const CAMERA_ICON =
+    'M9 3h6l1.2 2H20a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3.8L9 3zm3 4.5A5.5 5.5 0 1 0 17.5 13 5.5 5.5 0 0 0 12 7.5zm0 2A3.5 3.5 0 1 1 8.5 13 3.5 3.5 0 0 1 12 9.5z';
 
   const host = document.createElement('div');
   host.className = 'gems-spot-host';
   host.innerHTML = `
-    <span class="gems-spot-target" id="gemsSpotTarget" aria-hidden="true"></span>
+    <div class="spot-mini" aria-hidden="true">
+      <div class="spot-camera" id="spotCamera">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="${CAMERA_ICON}"/></svg>
+      </div>
+      <div class="spot-stage">
+        <div class="spot-rail spot-rail-left" id="spotRailPrivate">
+          <span class="spot-rail-gem" id="spotRailPrivateIcon"></span>
+          <span class="spot-rail-chip">[keep hidden]</span>
+        </div>
+        <div class="spot-rail spot-rail-right" id="spotRailPublic">
+          <span class="spot-rail-gem" id="spotRailPublicIcon"></span>
+          <span class="spot-rail-chip">[publish]</span>
+        </div>
+        <article class="spot-card" id="spotCard">
+          <img class="spot-card-photo" src="../location-gems/assets/find-a.jpg" alt="" decoding="async">
+          <div class="spot-card-body">
+            <p class="spot-card-user">@mara</p>
+            <p class="spot-card-text">[challenge find note]</p>
+          </div>
+        </article>
+      </div>
+    </div>
     <div class="gems-spot" id="gemsSpot">
       <div class="gems-spot-tip" id="gemsSpotTip">
         <img class="gems-spot-tip-layer" src="assets/tip.png" alt="" decoding="async">
@@ -565,19 +621,47 @@ function mountSpotlightTip(stage, actions) {
   `;
   stage.appendChild(host);
 
+  host.querySelector('#spotRailPrivateIcon').innerHTML = gemSvg(HIDDEN_GEM_FILL, { softOutline: true });
+  host.querySelector('#spotRailPublicIcon').innerHTML = gemSvg(PUBLIC_GEM_FILL, { softOutline: true });
+
   const spot = host.querySelector('#gemsSpot');
   const tip = host.querySelector('#gemsSpotTip');
   const copy = host.querySelector('#gemsSpotCopy');
-  const target = host.querySelector('#gemsSpotTarget');
+  const railPrivate = host.querySelector('#spotRailPrivate');
+  const railPublic = host.querySelector('#spotRailPublic');
+  const targets = {
+    card: host.querySelector('#spotCard'),
+    railPrivate,
+    railPublic,
+    camera: host.querySelector('#spotCamera'),
+  };
   let step = 0;
   let advanceTimer = 0;
 
-  const placeHole = () => {
+  const syncSides = (sides) => {
+    railPrivate.classList.remove('is-on', 'is-hot');
+    railPublic.classList.remove('is-on', 'is-hot');
+    if (!sides) return;
+    if (sides === true) {
+      railPrivate.classList.add('is-on');
+      railPublic.classList.add('is-on');
+      return;
+    }
+    if (sides === 'private') {
+      railPrivate.classList.add('is-on', 'is-hot');
+      return;
+    }
+    if (sides === 'public') {
+      railPublic.classList.add('is-on', 'is-hot');
+    }
+  };
+
+  const placeHole = (el) => {
     const hr = host.getBoundingClientRect();
-    const tr = target.getBoundingClientRect();
+    const tr = el.getBoundingClientRect();
     const cx = tr.left - hr.left + tr.width / 2;
     const cy = tr.top - hr.top + tr.height / 2;
-    const rad = Math.max(26, Math.max(tr.width, tr.height) / 2 + 8);
+    const rad = Math.max(26, Math.min(120, Math.max(tr.width, tr.height) / 2 + 8));
     spot.style.setProperty('--x', `${cx}px`);
     spot.style.setProperty('--y', `${cy}px`);
     spot.style.setProperty('--r', `${rad}px`);
@@ -588,6 +672,7 @@ function mountSpotlightTip(stage, actions) {
     window.clearTimeout(advanceTimer);
     tip.classList.remove('is-on');
     tip.classList.add('is-out');
+    syncSides(null);
     window.setTimeout(() => {
       tip.classList.remove('is-out');
       tip.style.transform = '';
@@ -597,9 +682,12 @@ function mountSpotlightTip(stage, actions) {
 
   const showStep = (i) => {
     step = i;
+    const current = STEPS[step];
+    const target = targets[current.target];
+    syncSides(current.sides || null);
     spot.hidden = false;
-    placeHole();
-    copy.textContent = STEPS[step];
+    placeHole(target);
+    copy.textContent = current.text;
     copy.classList.remove('is-swap');
     void copy.offsetWidth;
     copy.classList.add('is-swap');
@@ -656,9 +744,43 @@ function mountSpotlightTip(stage, actions) {
   });
 
   showStep(0);
-  window.addEventListener('resize', placeHole);
+  window.addEventListener('resize', () => {
+    if (!spot.hidden) placeHole(targets[STEPS[step].target]);
+  });
   addPlay(actions, 'Play tour', () => showStep(0));
   addGhost(actions, 'Dismiss', hide);
+}
+
+function mountGemRarityLibrary(stage, actions) {
+  const host = document.createElement('div');
+  host.className = 'rarity-host';
+  const grid = document.createElement('div');
+  grid.className = 'rarity-grid';
+  const rows = [
+    { ...RARITY.cyan, meta: 'public · 0+ likes' },
+    { ...RARITY.silver, meta: '20+ likes' },
+    { ...RARITY.gold, meta: '50+ likes' },
+    { ...RARITY.platinum, meta: '100+ likes' },
+    { ...RARITY.diamond, meta: '200+ likes' },
+    { id: 'hidden', fill: HIDDEN_GEM_FILL, label: 'hidden', meta: 'private gem' },
+  ];
+  rows.forEach((row) => {
+    const cell = document.createElement('div');
+    cell.className = `rarity-cell is-${row.id}`;
+    cell.innerHTML = `
+      <span class="rarity-gem">${gemSvg(row.fill)}</span>
+      <span class="rarity-label">${row.label}</span>
+      <span class="rarity-meta">${row.meta}</span>
+    `;
+    grid.appendChild(cell);
+  });
+  host.appendChild(grid);
+  stage.appendChild(host);
+  addPlay(actions, 'Show library', () => {
+    grid.style.animation = 'none';
+    void grid.offsetWidth;
+    grid.style.animation = '';
+  });
 }
 
 function mountJamBirth(stage, actions) {
