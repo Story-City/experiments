@@ -1,5 +1,5 @@
-/** Approved UI library — APPROVED-UI-v11
- * Spotlight over real hub pieces. Gem rarity icon library from location-gems.
+/** Approved UI library — APPROVED-UI-v12
+ * Gem rarity labels = gemstones (not metals). Spotlight hub pieces.
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -17,13 +17,13 @@ const PUBLIC_GEM_FILL = '#00c2ff';
 const HIDDEN_GEM_FILL = '#9370c4';
 const SILVER_GEM_FILL = '#c8d2e6';
 const GOLD_GEM_FILL = '#ffc448';
-const PLATINUM_GEM_FILL = '#e8eef8';
+const PLATINUM_GEM_FILL = '#d2dcff';
 const DIAMOND_GEM_FILL = '#b4f0ff';
 const RARITY = {
   cyan: { id: 'cyan', fill: PUBLIC_GEM_FILL, label: 'cyan', minLikes: 0 },
-  silver: { id: 'silver', fill: SILVER_GEM_FILL, label: 'silver', minLikes: 20 },
-  gold: { id: 'gold', fill: GOLD_GEM_FILL, label: 'gold', minLikes: 50 },
-  platinum: { id: 'platinum', fill: PLATINUM_GEM_FILL, label: 'platinum', minLikes: 100 },
+  silver: { id: 'silver', fill: SILVER_GEM_FILL, label: 'moonstone', minLikes: 20 },
+  gold: { id: 'gold', fill: GOLD_GEM_FILL, label: 'topaz', minLikes: 50 },
+  platinum: { id: 'platinum', fill: PLATINUM_GEM_FILL, label: 'opal', minLikes: 100 },
   diamond: { id: 'diamond', fill: DIAMOND_GEM_FILL, label: 'diamond', minLikes: 200 },
 };
 const CYAN = PUBLIC_GEM_FILL;
@@ -482,7 +482,7 @@ function mountLikesBanner(stage, actions) {
       await wait(LIKES_HOLD_AFTER_SHINE_MS);
       headline.innerHTML = '<span class="likes-rich">48 likes</span>';
       rarity.hidden = false;
-      rarity.textContent = 'Gold';
+      rarity.textContent = 'topaz';
       rarity.classList.add('is-pop');
       card.classList.add('is-rarity-up');
       await wait(LIKES_RARITY_PROMOTE_MS);

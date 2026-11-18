@@ -495,7 +495,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .gem-card-gem.is-silver { filter: drop-shadow(0 0 12px rgba(200, 210, 230, 1)); }
 .gem-card-gem.is-gold { filter: drop-shadow(0 0 14px rgba(255, 196, 72, 1)); }
-.gem-card-gem.is-platinum { filter: drop-shadow(0 0 16px rgba(220, 230, 255, 1)); }
+.gem-card-gem.is-platinum { filter: drop-shadow(0 0 16px rgba(210, 220, 255, 1)); }
 .gem-card-gem.is-diamond {
   width: 30px;
   height: 28px;
@@ -503,7 +503,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .gem-card-rarity.is-silver { color: #dfe6f2; box-shadow: 0 0 10px rgba(200, 210, 230, 0.55); }
 .gem-card-rarity.is-gold { color: #ffe09a; box-shadow: 0 0 10px rgba(255, 196, 72, 0.55); }
-.gem-card-rarity.is-platinum { color: #eef2ff; box-shadow: 0 0 12px rgba(220, 230, 255, 0.65); }
+.gem-card-rarity.is-platinum { color: #dce4ff; box-shadow: 0 0 12px rgba(210, 220, 255, 0.7); }
 .gem-card-rarity.is-diamond { color: #d8fbff; box-shadow: 0 0 14px rgba(180, 240, 255, 0.75); }
 .gem-card-gem svg { width: 100%; height: 100%; display: block; }
 .gem-card-likes {
@@ -1093,7 +1093,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .feed-chip-gem.is-silver { filter: drop-shadow(0 0 8px rgba(200, 210, 230, 0.9)); }
 .feed-chip-gem.is-gold { filter: drop-shadow(0 0 10px rgba(255, 196, 72, 0.95)); }
-.feed-chip-gem.is-platinum { filter: drop-shadow(0 0 10px rgba(220, 230, 255, 0.95)); }
+.feed-chip-gem.is-platinum { filter: drop-shadow(0 0 10px rgba(210, 220, 255, 0.95)); }
 .feed-chip-gem.is-diamond { filter: drop-shadow(0 0 12px rgba(180, 240, 255, 1)); }
 .feed-chip-gem svg { width: 100%; height: 100%; display: block; }
 .feed-chip-rarity-word {
@@ -1106,7 +1106,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .feed-chip-rarity-word.is-silver { color: #dfe6f2; }
 .feed-chip-rarity-word.is-gold { color: #ffe09a; }
-.feed-chip-rarity-word.is-platinum { color: #eef2ff; }
+.feed-chip-rarity-word.is-platinum { color: #dce4ff; }
 .feed-chip-rarity-word.is-diamond { color: #d8fbff; }
 .feed-chip-dist {
   margin: 0;

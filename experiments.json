@@ -27,9 +27,9 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=11",
+    "path": "approved-ui/?v=12",
     "title": "Approved UI library",
-    "what": "Spotlight over real hub pieces (card/rails/camera). Gem rarity icon library.",
+    "what": "Gem rarity = cyan/moonstone/topaz/opal/diamond. Spotlight over hub pieces.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
@@ -51,9 +51,9 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=40",
+    "path": "location-gems/?v=41",
     "title": "Location Gems hub",
-    "what": "Sort on the main hub (hold+swipe). Spotlight tips. Likes banner. Embed mode for Approved UI (?embed=1).",
+    "what": "Rarity gemstones: cyan/moonstone/topaz/opal/diamond. Sort hub, spotlight, likes banner.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

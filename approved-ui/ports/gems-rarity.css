@@ -40,7 +40,7 @@
 }
 .rarity-cell.is-silver .rarity-gem { filter: drop-shadow(0 0 10px rgba(200, 210, 230, 0.55)); }
 .rarity-cell.is-gold .rarity-gem { filter: drop-shadow(0 0 10px rgba(255, 196, 72, 0.55)); }
-.rarity-cell.is-platinum .rarity-gem { filter: drop-shadow(0 0 12px rgba(220, 230, 255, 0.65)); }
+.rarity-cell.is-platinum .rarity-gem { filter: drop-shadow(0 0 12px rgba(210, 220, 255, 0.7)); }
 .rarity-cell.is-diamond .rarity-gem { filter: drop-shadow(0 0 14px rgba(180, 240, 255, 0.75)); }
 .rarity-cell.is-hidden .rarity-gem { filter: drop-shadow(0 0 10px rgba(147, 112, 196, 0.75)); }
 .rarity-cell.is-cyan .rarity-gem { filter: drop-shadow(0 0 10px rgba(0, 194, 255, 0.75)); }
@@ -52,7 +52,7 @@
 }
 .rarity-cell.is-silver .rarity-label { color: #dfe6f2; }
 .rarity-cell.is-gold .rarity-label { color: #ffe09a; }
-.rarity-cell.is-platinum .rarity-label { color: #eef2ff; }
+.rarity-cell.is-platinum .rarity-label { color: #dce4ff; }
 .rarity-cell.is-diamond .rarity-label { color: #d8fbff; }
 .rarity-cell.is-hidden .rarity-label { color: #c9b3e8; }
 .rarity-cell.is-cyan .rarity-label { color: #7adfff; }

@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v40 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v41 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -25,14 +25,14 @@ const PUBLIC_GEM_FILL = '#00c2ff';
 const HIDDEN_GEM_FILL = '#9370c4';
 const SILVER_GEM_FILL = '#c8d2e6';
 const GOLD_GEM_FILL = '#ffc448';
-const PLATINUM_GEM_FILL = '#e8eef8';
+const PLATINUM_GEM_FILL = '#d2dcff';
 const DIAMOND_GEM_FILL = '#b4f0ff';
 
 const RARITY = {
   cyan: { id: 'cyan', fill: PUBLIC_GEM_FILL, label: 'cyan', minLikes: 0 },
-  silver: { id: 'silver', fill: SILVER_GEM_FILL, label: 'silver', minLikes: 20 },
-  gold: { id: 'gold', fill: GOLD_GEM_FILL, label: 'gold', minLikes: 50 },
-  platinum: { id: 'platinum', fill: PLATINUM_GEM_FILL, label: 'platinum', minLikes: 100 },
+  silver: { id: 'silver', fill: SILVER_GEM_FILL, label: 'moonstone', minLikes: 20 },
+  gold: { id: 'gold', fill: GOLD_GEM_FILL, label: 'topaz', minLikes: 50 },
+  platinum: { id: 'platinum', fill: PLATINUM_GEM_FILL, label: 'opal', minLikes: 100 },
   diamond: { id: 'diamond', fill: DIAMOND_GEM_FILL, label: 'diamond', minLikes: 200 },
 };
 
@@ -335,7 +335,6 @@ const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'side';
-let feedVariant = 'read';
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
 const sortSub = document.getElementById('sortSub');
