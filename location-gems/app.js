@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v22 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v23 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -120,13 +120,13 @@ const RAIL_EXIT_Y = 30;
 const HAZE_IN_MS = 120;
 const SHINE_MS = 900;
 const HOLD_AFTER_SHINE_MS = 720;
-const COPY_CELEBRATE_MS = 1100;
+const COPY_CELEBRATE_MS = 2000;
 const HAZE_OUT_MS = 240;
 const CARD_IN_MS = 560;
 const CARD_OUT_MS = 360;
 const COPY_LEAD_MS = 160;
 const RARITY_PROMOTE_MS = 720;
-const TEXT_SWIPE_MS = 520;
+const TEXT_SWIPE_MS = 900;
 const FLY_MS = 720;
 const LIKES_DEMO = 12;
 const GLANCE_ARC_CX = 120;
@@ -615,10 +615,14 @@ function applyAccent() {
   const deep = `rgb(${Math.max(0, r - 40)}, ${Math.max(0, g - 50)}, ${Math.max(0, b - 20)})`;
   const accent = `rgba(${r}, ${g}, ${b}, ${alpha})`;
   const solid = `rgb(${r}, ${g}, ${b})`;
+  const soft = softAccentHex(hex);
   document.documentElement.style.setProperty('--brand-accent', accent);
   document.documentElement.style.setProperty('--brand-primary', solid);
   document.documentElement.style.setProperty('--brand-primary-deep', deep);
-  document.documentElement.style.setProperty('--accent-soft', softAccentHex(hex));
+  document.documentElement.style.setProperty('--accent-soft', soft);
+  /* Likes rich text follows accent hue (not a fixed blue) */
+  document.documentElement.style.setProperty('--likes-hue', solid);
+  document.documentElement.style.setProperty('--likes-hue-soft', soft);
   document.documentElement.style.setProperty(
     '--accent-glow',
     `rgba(${r}, ${g}, ${b}, ${0.55 * alpha})`,

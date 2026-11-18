@@ -1491,13 +1491,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   color: #fff;
   text-shadow: 0 2px 16px rgba(8, 3, 22, 0.9);
 }
-/* Day-reached rich text — blue stays; end only nudges it slightly farther */
+/* Day-reached rich text — accent hue; longer sweep, slight end nudge */
 .likes-rich {
   background: linear-gradient(
     100deg,
     #fff 8%,
-    var(--brand-primary) 42%,
-    var(--accent-soft) 68%,
+    var(--likes-hue, var(--brand-primary)) 42%,
+    var(--likes-hue-soft, var(--accent-soft)) 68%,
     #fff 100%
   );
   background-size: 180% 100%;
@@ -1506,17 +1506,17 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   color: transparent;
 }
 .likes-copy.is-on .likes-rich {
-  animation: richSweep 1100ms ease-out both;
+  animation: richSweep 2000ms ease-out both;
 }
 .likes-copy.is-on.is-swipe .likes-rich {
-  animation: richSwipeOut 520ms var(--ease-out) both;
+  animation: richSwipeOut 900ms var(--ease-out) both;
 }
 .likes-subtitle {
   margin: 4px 0 0;
   font-size: 13px;
   line-height: 1.25;
   font-weight: 600;
-  color: color-mix(in srgb, var(--accent-soft) 95%, white);
+  color: color-mix(in srgb, var(--likes-hue-soft, var(--accent-soft)) 95%, white);
   text-shadow: 0 1px 12px rgba(8, 3, 22, 0.9);
   opacity: 0;
 }
@@ -1530,7 +1530,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 @keyframes richSwipeOut {
   from { background-position: 0 0; filter: brightness(1); }
-  to { background-position: -12% 0; filter: brightness(1.05); }
+  to { background-position: -14% 0; filter: brightness(1.05); }
 }
 @keyframes subtitleIn {
   from { opacity: 0; transform: translateY(4px); }
