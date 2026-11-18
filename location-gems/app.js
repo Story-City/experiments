@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v32 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v33 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -94,6 +94,8 @@ const CHALLENGE_FINDS = [
 const ROTATE_MS = 2200;
 const TIP_OUT_MS = 360;
 const TIP_SWIPE_DISMISS_PX = 72;
+const FEED_SWIPE_DISMISS_PX = 72;
+const FEED_DISMISS_MS = 320;
 const TIP_TAP_SLOP_PX = 8;
 const SWIPE_SETTLE_MS = 420;
 const SWIPE_FADE_MS = 520;
@@ -760,11 +762,10 @@ function renderFeed() {
     return;
   }
   feedDock.hidden = false;
+  feedDock.classList.remove('is-dismissing', 'is-swiping');
+  feedDock.style.transform = '';
   publicGems.forEach((g) => {
     const rarity = rarityForLikes(g.likes, true);
-    const who = g.owned
-      ? displayCopy(getGemTitle(g))
-      : `@${g.authorUsername || 'walker'}`;
     const minutes = Number(g.minutesAway);
     const dist =
       Number.isFinite(minutes) && minutes >= 0
@@ -774,12 +775,9 @@ function renderFeed() {
     chip.className = 'feed-chip';
     const gemClass =
       rarity.id !== 'cyan' ? `feed-chip-gem is-${rarity.id}` : 'feed-chip-gem';
+    /* Photo + rarity + how close — username adds nothing for “go find this” */
     chip.innerHTML = `
       <img src="${g.imageUri}" alt="">
-      <div class="feed-chip-meta">
-        <p class="feed-chip-who">${who}</p>
-        <p class="feed-chip-rarity-label">${rarity.label}</p>
-      </div>
       <div class="feed-chip-rarity">
         <span class="${gemClass}" aria-hidden="true">${gemSvg(rarity.fill)}</span>
         <p class="feed-chip-dist">${dist}</p>
@@ -789,9 +787,53 @@ function renderFeed() {
 }
 
 function dismissFeed() {
+  if (feedDismissed || !feedDock || feedDock.hidden) return;
   feedDismissed = true;
-  feedDock.hidden = true;
-  feedStrip.replaceChildren();
+  feedDock.classList.remove('is-swiping');
+  feedDock.classList.add('is-dismissing');
+  feedDock.style.transform = '';
+  window.setTimeout(() => {
+    feedDock.hidden = true;
+    feedDock.classList.remove('is-dismissing');
+    feedStrip.replaceChildren();
+  }, FEED_DISMISS_MS);
+}
+
+function bindFeedDismissGesture() {
+  if (!feedDock) return;
+  let startX = 0;
+  let dragging = false;
+  const onStart = (x, target) => {
+    if (feedDock.hidden || feedDismissed) return;
+    if (target && target.closest('.feed-strip')) return;
+    startX = x;
+    dragging = true;
+    feedDock.classList.add('is-swiping');
+    feedDock.style.transform = 'translateX(0)';
+  };
+  const onMove = (x) => {
+    if (!dragging) return;
+    const dx = Math.max(0, x - startX);
+    feedDock.style.transform = `translateX(${dx}px)`;
+  };
+  const onEnd = (x) => {
+    if (!dragging) return;
+    dragging = false;
+    feedDock.classList.remove('is-swiping');
+    const dx = x - startX;
+    if (dx >= FEED_SWIPE_DISMISS_PX) {
+      dismissFeed();
+    } else {
+      feedDock.style.transform = '';
+    }
+  };
+  feedDock.addEventListener('pointerdown', (e) => {
+    onStart(e.clientX, e.target);
+    if (dragging) feedDock.setPointerCapture(e.pointerId);
+  });
+  feedDock.addEventListener('pointermove', (e) => onMove(e.clientX));
+  feedDock.addEventListener('pointerup', (e) => onEnd(e.clientX));
+  feedDock.addEventListener('pointercancel', (e) => onEnd(e.clientX));
 }
 
 function renderGrid(enterId) {
@@ -1636,6 +1678,7 @@ if (feedDismiss) feedDismiss.addEventListener('click', dismissFeed);
 debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
 debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
 bindTipGesture();
+bindFeedDismissGesture();
 
 if (new URLSearchParams(location.search).get('embed') === '1') {
   document.body.classList.add('is-embed');
