@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v27 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v28 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -100,14 +100,16 @@ const SWIPE_FADE_MS = 520;
 const EASE_POPULAR = 'cubic-bezier(0.33, 0, 0.2, 1)';
 const EASE_IN = 'cubic-bezier(0.32, 0, 0.67, 0)';
 const ONBOARD_TIPS_HOLD = [
-  { text: '[hold the photo to activate sides]', target: 'card' },
-  { text: '[swipe left = hidden · right = public]', target: 'rails' },
-  { text: '[scroll tabs for public and hidden gems]', target: 'tabs' },
+  { text: '[hold the photo to activate sides]', target: 'card', sides: true },
+  { text: '[swipe left to hide]', target: 'railPrivate', sides: 'private' },
+  { text: '[swipe right to publish]', target: 'railPublic', sides: 'public' },
+  { text: '[take a snapshot anytime on the camera]', target: 'camera' },
 ];
 const ONBOARD_TIPS_DRAG = [
-  { text: '[hold the photo to activate sides]', target: 'card' },
-  { text: '[drag onto hidden or public]', target: 'drops' },
-  { text: '[scroll tabs for public and hidden gems]', target: 'tabs' },
+  { text: '[hold the photo to activate sides]', target: 'card', sides: true },
+  { text: '[drag onto hidden to hide]', target: 'dropHidden', sides: 'private' },
+  { text: '[drag onto public to publish]', target: 'dropPublic', sides: 'public' },
+  { text: '[take a snapshot anytime on the camera]', target: 'camera' },
 ];
 const TIP_KEY = 'location-gems-hub-snapshot-tip-seen';
 const ONBOARD_KEY = 'location-gems-hub-onboard-seen';
@@ -1093,28 +1095,25 @@ function tickPlaces() {
   rotatingWord.textContent = SNAPSHOT_PLACES[placeIndex];
 }
 
-function renderMapTipSteps(index, total) {
-  mapTipSteps.replaceChildren();
-  if (total <= 1) {
-    mapTipSteps.hidden = true;
-    return;
-  }
-  mapTipSteps.hidden = false;
-  for (let i = 0; i < total; i += 1) {
-    const dot = document.createElement('span');
-    dot.className = `spot-tip-dot${i === index ? ' is-on' : ''}`;
-    mapTipSteps.appendChild(dot);
-  }
-}
-
 function tipTargetEl(kind) {
   if (kind === 'card') {
     return sortStack.querySelector('.sort-card:not(.is-under)') || sortStack;
   }
-  if (kind === 'rails') return railPublic;
-  if (kind === 'drops') return dropPublic;
-  if (kind === 'tabs') return tabBar || tabPublic;
+  if (kind === 'railPrivate') return railPrivate;
+  if (kind === 'railPublic') return railPublic;
+  if (kind === 'dropHidden') return dropHidden;
+  if (kind === 'dropPublic') return dropPublic;
+  if (kind === 'camera') return cameraButton || snapshotBtn;
   return sortStack;
+}
+
+function syncOnboardSides(step) {
+  if (!step || !step.sides) {
+    setTargets(null, false);
+    return;
+  }
+  if (step.sides === true) setTargets(null, true);
+  else setTargets(step.sides, true);
 }
 
 function placeSpotlight(target) {
@@ -1136,6 +1135,11 @@ function hideMapTip() {
   mapTip.classList.remove('is-on', 'is-out');
   mapTip.style.transform = '';
   mapTipAdvance = null;
+  setTargets(null, false);
+  if (mapTipSteps) {
+    mapTipSteps.hidden = true;
+    mapTipSteps.replaceChildren();
+  }
 }
 
 function clearMapTips() {
@@ -1159,12 +1163,21 @@ function presentMapTip() {
   }
   const step = mapTipQueue[mapTipIndex];
   const target = tipTargetEl(step.target);
+  if (step.target === 'camera' && snapshotBtn) {
+    snapshotBtn.scrollIntoView({ block: 'nearest' });
+  } else {
+    sortInline.scrollIntoView({ block: 'nearest' });
+  }
+  syncOnboardSides(step);
   placeSpotlight(target);
   mapTipBody.textContent = displayCopy(step.text);
   mapTipBody.classList.remove('is-swap');
   void mapTipBody.offsetWidth;
   mapTipBody.classList.add('is-swap');
-  renderMapTipSteps(mapTipIndex, total);
+  if (mapTipSteps) {
+    mapTipSteps.hidden = true;
+    mapTipSteps.replaceChildren();
+  }
   spot.hidden = false;
   mapTip.classList.remove('is-out');
   mapTip.style.transform = '';
@@ -1188,7 +1201,6 @@ function presentMapTip() {
 
 function runOnboardingTips() {
   clearMapTips();
-  sortInline.scrollIntoView({ block: 'nearest' });
   mapTipQueue = dragMode ? ONBOARD_TIPS_DRAG.slice() : ONBOARD_TIPS_HOLD.slice();
   mapTipIndex = 0;
   window.setTimeout(() => presentMapTip(), 80);

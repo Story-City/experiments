@@ -1190,7 +1190,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .sort-empty[hidden] { display: none !important; }
 
-/* Spotlight + designed tip.png (daily-side-quests) — character baked in, no gray frame */
+/* Spotlight + designed tip.png — light blur on dim, soft hole edge */
 .spot {
   position: absolute;
   inset: 0;
@@ -1198,8 +1198,22 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   cursor: pointer;
   background: radial-gradient(
     circle at var(--x) var(--y),
-    transparent 0 var(--r, 26px),
-    rgba(7, 8, 15, 0.8) calc(var(--r, 26px) + 4px)
+    transparent 0 calc(var(--r, 26px) - 4px),
+    rgba(7, 8, 15, 0.28) var(--r, 26px),
+    rgba(7, 8, 15, 0.55) calc(var(--r, 26px) + 16px),
+    rgba(7, 8, 15, 0.62) 100%
+  );
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  -webkit-mask-image: radial-gradient(
+    circle at var(--x) var(--y),
+    transparent 0 calc(var(--r, 26px) - 2px),
+    #000 var(--r, 26px)
+  );
+  mask-image: radial-gradient(
+    circle at var(--x) var(--y),
+    transparent 0 calc(var(--r, 26px) - 2px),
+    #000 var(--r, 26px)
   );
 }
 .spot[hidden] { display: none !important; }
@@ -1234,27 +1248,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
     transform 360ms var(--ease-in);
   pointer-events: none;
 }
-.spot-tip-steps {
-  position: absolute;
-  left: calc(30 / 752 * 100%);
-  top: calc(210 / 364 * 100%);
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  pointer-events: none;
-}
-.spot-tip-steps[hidden] { display: none !important; }
-.spot-tip-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 99px;
-  background: rgba(255, 255, 255, 0.28);
-}
-.spot-tip-dot.is-on {
-  width: 16px;
-  background: #009eff;
-}
+.spot-tip-steps { display: none !important; }
 .spot-tip-layer {
   position: relative;
   width: 100%;
