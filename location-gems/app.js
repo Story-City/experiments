@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v18 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v19 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -1349,15 +1349,16 @@ async function playLikesBanner() {
   likesBanner.classList.add('is-on');
   likesCopy.classList.remove('is-on');
   likesShine.classList.remove('is-on');
-  likesJamCard.classList.remove('is-in', 'is-out');
+  likesJamCard.classList.remove('is-in', 'is-out', 'is-impact');
   await wait(HAZE_IN_MS);
   likesShine.classList.add('is-on');
   likesJamCard.classList.add('is-in');
-  await wait(COPY_LEAD_MS);
   likesCopy.classList.add('is-on');
+  await wait(CARD_IN_MS);
+  likesJamCard.classList.add('is-impact');
   await wait(SHINE_MS + HOLD_AFTER_SHINE_MS);
   await wait(COPY_CELEBRATE_MS);
-  likesJamCard.classList.remove('is-in');
+  likesJamCard.classList.remove('is-in', 'is-impact');
   likesJamCard.classList.add('is-out');
   likesCopy.classList.remove('is-on');
   await wait(CARD_OUT_MS);
@@ -1367,7 +1368,7 @@ async function playLikesBanner() {
   likesBanner.classList.remove('is-on', 'is-out');
   likesShine.classList.remove('is-on');
   likesCopy.classList.remove('is-on');
-  likesJamCard.classList.remove('is-in', 'is-out');
+  likesJamCard.classList.remove('is-in', 'is-out', 'is-impact');
   likesBusy = false;
 }
 

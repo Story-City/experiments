@@ -1323,7 +1323,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   position: absolute;
   left: 50%;
   right: auto;
-  top: 48px;
+  top: 72px;
   z-index: 2;
   width: calc((100% - 48px) * 0.5);
   border-radius: 16px;
@@ -1342,6 +1342,21 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .likes-jam-card.is-out {
   animation: likesGemOut 360ms var(--ease-in) both;
 }
+.likes-jam-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.95),
+    0 0 24px 2px rgba(255, 255, 255, 0.45),
+    0 0 36px 4px rgba(0, 158, 255, 0.55);
+}
+.likes-jam-card.is-impact::after {
+  animation: likesEdgeFlash 420ms var(--ease-out) both;
+}
 @keyframes likesGemDrop {
   0% { opacity: 0; transform: translateX(-50%) rotate(-4deg) scale(1.04) translateY(-4%); }
   100% { opacity: 1; transform: translateX(-50%) rotate(-2deg) scale(1) translateY(0); }
@@ -1349,6 +1364,11 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 @keyframes likesGemOut {
   0% { opacity: 1; transform: translateX(-50%) rotate(-2deg) scale(1) translate(0, 0); }
   100% { opacity: 0; transform: translateX(-50%) rotate(0deg) scale(0.94) translate(0, -12%); }
+}
+@keyframes likesEdgeFlash {
+  0% { opacity: 0; }
+  35% { opacity: 1; }
+  100% { opacity: 0; }
 }
 .likes-jam-photo {
   display: block;
@@ -1377,12 +1397,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   font-size: 12px;
   font-weight: 700;
 }
-/* Day-reached copy text effect */
+/* Day-reached copy effect — pinned to top, no mid-screen padding gap */
 .likes-copy {
   position: absolute;
-  left: 16%;
-  right: 16%;
-  top: calc(48% - 4px);
+  left: 16px;
+  right: 16px;
+  top: 16px;
   z-index: 7;
   text-align: center;
   opacity: 0;
