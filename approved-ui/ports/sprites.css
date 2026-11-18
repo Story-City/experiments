@@ -1,21 +1,25 @@
-/* Tip sprites — FtueMapElfTip layout. Remix puzzle-sprite is a tip character, not tiles. */
+/* Tip sprites — match FtueMapElfTip / FtueMapStyles exactly */
 .sprite-host {
+  --tip-char-w: 168px;
+  --tip-char-h: 151px;
+  --tip-overhang: 14px;
+  --tip-radius: 28px;
+  --tip-border: 2px;
+  --tip-edge: #009EFF; /* palette.blue[400] */
+  --tip-fill: #170c35; /* palette.purple.background */
   position: relative;
   width: 100%;
   height: 100%;
   background: var(--bg);
-  overflow: hidden;
+  overflow: visible;
 }
 .sprite-tip-wrap {
   position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 18px;
-  display: flex;
-  align-items: flex-end;
-  gap: 0;
+  left: 16px;
+  right: 16px;
+  bottom: 8px;
   opacity: 0;
-  transform: translateX(-18px);
+  transform: translateX(-12px);
   transition: opacity 280ms ease, transform 320ms ease;
   pointer-events: none;
 }
@@ -26,44 +30,48 @@
 }
 .sprite-tip-wrap.is-out {
   opacity: 0;
-  transform: translateX(72px);
+  transform: translateX(64px);
 }
+/* Tip box reserves right padding so text clears the character (ELF_TEXT_CLEARANCE - overhang) */
 .sprite-tip-box {
-  flex: 1;
-  min-height: 64px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: #13123b;
-  border: 2px solid var(--brand-accent);
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 16px calc(var(--tip-char-w) - var(--tip-overhang)) 16px 16px;
+  border-radius: var(--tip-radius);
+  border: var(--tip-border) solid var(--tip-edge);
+  background: var(--tip-fill);
   color: #fff;
-  font-weight: 700;
-  font-size: 14px;
-  line-height: 1.25;
+  font: inherit;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 20px;
+  text-align: left;
   cursor: pointer;
 }
 .sprite-tip-char {
-  flex: 0 0 88px;
-  width: 88px;
-  height: 110px;
-  margin-left: -10px;
-  margin-bottom: -6px;
+  position: absolute;
+  right: calc(-1 * var(--tip-overhang));
+  bottom: 0;
+  width: var(--tip-char-w);
+  height: var(--tip-char-h);
   object-fit: contain;
+  object-position: bottom center;
   pointer-events: none;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45));
 }
 .sprite-chip-row {
   position: absolute;
-  left: 10px;
-  right: 10px;
-  top: 10px;
+  left: 8px;
+  right: 8px;
+  top: 6px;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   z-index: 2;
 }
 .sprite-chip-row button {
-  height: 28px;
-  padding: 0 10px;
+  height: 26px;
+  padding: 0 9px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.08);
@@ -76,15 +84,4 @@
 .sprite-chip-row button[aria-pressed="true"] {
   background: color-mix(in srgb, var(--brand-accent) 32%, transparent);
   border-color: var(--brand-accent);
-}
-.sprite-note {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  top: 48px;
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.3;
 }

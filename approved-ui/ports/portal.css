@@ -9,9 +9,9 @@
 .portal-stage {
   position: absolute;
   left: 50%;
-  top: 46%;
-  width: 220px;
-  height: 220px;
+  top: 42%;
+  width: 200px;
+  height: 200px;
   transform: translate(-50%, -50%);
 }
 .portal-lottie {

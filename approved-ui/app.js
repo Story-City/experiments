@@ -1,6 +1,5 @@
-/** Approved UI library — APPROVED-UI-v7
- * Portal + decrypt reveal haze + tip sprite variations from the app.
- * Remix puzzle-sprite = tip character (FtueMapElfTip), not tiles.
+/** Approved UI library — APPROVED-UI-v8
+ * Tip sprites use FtueMapElfTip layout (168×151 overhang). Stages trimmed.
  */
 
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -160,7 +159,7 @@ const ELEMENT_DEFS = [
     title: 'Welcome portal',
     source: 'WelcomeHook · reveal_first / reveal_fire Lottie',
     ux: 'When: welcome pick-a-story doors. Idle portal loops (frames 0→61 @ 0.85). Tap ring to reveal character. Summons (purple) vs Knight (fire). Try: switch door · tap portal · Play hint.',
-    stage: 'banner',
+    stage: 'portal',
     mount: mountWelcomePortal,
   },
   {
@@ -168,15 +167,15 @@ const ELEMENT_DEFS = [
     title: 'Decrypt reveal haze',
     source: 'DecryptReveal · wash 1200ms + shine 1400ms + decrypt-reveal.json',
     ux: 'When: all decrypt spots found. Pulse spots → expanding wash haze → glow Lottie → shine sweep. Try: Play reveal.',
-    stage: 'banner',
+    stage: 'reveal',
     mount: mountRevealHaze,
   },
   {
     id: 'tip-sprites',
     title: 'Tip sprites',
-    source: 'FtueMapElfTip · FTUE door chars · remix puzzle-sprite.webp',
-    ux: 'When: coach tip on map / remix editor. Character sits beside the tip bubble — remix puzzle-sprite is this tip character, not puzzle tiles. Tap tip to dismiss (outside-touch dismiss in app). Try: switch sprite · Show tip.',
-    stage: 'banner',
+    source: 'FtueMapElfTip · 168×151 tipElf · remix puzzle-sprite.webp',
+    ux: 'When: coach tip on map / remix. Same tip box + character overhang as the app. Remix puzzle-sprite is the tip character only. Tap tip to dismiss. Try: switch sprite.',
+    stage: 'tip',
     mount: mountTipSprites,
   },
   {
@@ -620,7 +619,7 @@ function mountSpotlightTip(stage, actions) {
     <div class="demo-spot-card">
       <p>[spotlight: explain this control]</p>
       <small>[short supporting line]</small>
-      <img class="demo-spot-elf" src="assets/tip-elf.png" alt="" decoding="async">
+      <img class="demo-spot-elf" src="ports/sprites/elf.png" alt="" decoding="async">
     </div>
   `;
   stage.appendChild(wrap);
@@ -1031,37 +1030,37 @@ function mountRevealHaze(stage, actions) {
 }
 
 function mountTipSprites(stage, actions) {
+  /* Character images go in FtueMapElfTip’s 168×151 tipElf slot (contain). */
   const SPRITES = [
     {
       id: 'elf',
-      label: 'Elf tip',
-      src: 'assets/tip-elf.png',
+      label: 'Elf',
+      src: 'ports/sprites/elf.png',
       copy: '[map tip — FTUE elf]',
     },
     {
       id: 'summons',
       label: 'Summons',
       src: 'ports/sprites/summons-character.png',
-      copy: '[map tip — Summons character]',
+      copy: '[map tip — Summons]',
     },
     {
       id: 'knight',
       label: 'Knight',
       src: 'ports/sprites/knight-character.png',
-      copy: '[map tip — Knight character]',
+      copy: '[map tip — Knight]',
     },
     {
       id: 'remix',
-      label: 'Remix tip',
+      label: 'Remix',
       src: 'ports/sprites/puzzle-sprite.webp',
-      copy: '[remix editor tip — puzzle-sprite is the tip character, not a tile]',
+      copy: '[remix tip — puzzle-sprite character]',
     },
   ];
 
   const host = document.createElement('div');
   host.className = 'sprite-host';
   host.innerHTML = `
-    <p class="sprite-note">Remix reality: tools are tap-to-apply (drag only marble/lens). This sprite only coaches via FtueMapElfTip.</p>
     <div class="sprite-chip-row" role="radiogroup" aria-label="Sprite variation"></div>
     <div class="sprite-tip-wrap is-on" id="spriteTip">
       <button type="button" class="sprite-tip-box" id="spriteCopy">[map tip]</button>
