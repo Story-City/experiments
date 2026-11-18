@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=3">
+<link rel="stylesheet" href="app.css?v=4">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -24,7 +24,8 @@
     <button type="button" class="play secondary" id="resetHub">Reset</button>
     <button type="button" class="play secondary" id="debugLikes">Debug: likes banner</button>
     <button type="button" class="play secondary" id="debugOnboard">Debug: tips</button>
-    <span class="hint" id="hint">Hold a card and swipe.</span>
+    <button type="button" class="play secondary" id="debugSpoof" aria-pressed="false">Debug: spoof wording</button>
+    <span class="hint" id="hint">Hold a card — then swipe.</span>
   </div>
 
   <main class="phone" id="phone" aria-label="Location Gems hub">
@@ -61,17 +62,24 @@
             <p class="sort-inline-count" id="sortSub">0 left</p>
           </div>
           <div class="sort-stage" id="sortStage">
-            <div class="sort-rail sort-rail-left is-flash" id="railPrivate" data-rail="private">
-              <span class="sort-rail-arrow" aria-hidden="true">←</span>
-              <span class="sort-rail-label">[keep hidden]</span>
+            <div class="sort-rail sort-rail-left" id="railPrivate" data-rail="private" aria-hidden="true">
+              <img class="sort-rail-icon" src="assets/location_gem.svg" alt="" width="28" height="56">
+              <span class="sort-rail-chip" data-copy="private">[keep hidden]</span>
             </div>
-            <div class="sort-rail sort-rail-right is-flash" id="railPublic" data-rail="public">
-              <span class="sort-rail-arrow" aria-hidden="true">→</span>
-              <span class="sort-rail-label">[make public]</span>
+            <div class="sort-rail sort-rail-right" id="railPublic" data-rail="public" aria-hidden="true">
+              <span class="sort-rail-icon sort-rail-shiny" id="railPublicIcon" aria-hidden="true"></span>
+              <span class="sort-rail-chip" data-copy="public">[make public]</span>
             </div>
-            <div class="sort-rail sort-rail-down is-flash" id="railDelete" data-rail="delete">
-              <span class="sort-rail-arrow" aria-hidden="true">↓</span>
-              <span class="sort-rail-label">[delete]</span>
+            <div class="sort-rail sort-rail-down" id="railDelete" data-rail="delete" aria-hidden="true">
+              <img class="sort-rail-icon" src="assets/trash.svg" alt="" width="28" height="28">
+              <span class="sort-rail-chip" data-copy="delete">[delete]</span>
+            </div>
+            <div class="hold-cue" id="holdCue" aria-hidden="true">
+              <img class="hold-hand" src="assets/stamp-hand.png" alt="" draggable="false">
+              <svg class="hold-ring" viewBox="0 0 64 64" aria-hidden="true">
+                <circle class="hold-ring-track" cx="32" cy="32" r="26" fill="none" stroke-width="4"></circle>
+                <circle class="hold-ring-fill" id="holdRingFill" cx="32" cy="32" r="26" fill="none" stroke-width="4"></circle>
+              </svg>
             </div>
             <div class="sort-stack" id="sortStack"></div>
             <p class="sort-empty" id="sortEmpty" hidden>[all finds sorted — scroll for your gems]</p>
@@ -113,9 +121,17 @@
     <div class="likes-banner" id="likesBanner" hidden aria-hidden="true">
       <div class="likes-haze" aria-hidden="true"></div>
       <div class="likes-shine" id="likesShine" aria-hidden="true"></div>
+      <article class="likes-jam-card" id="likesJamCard" aria-hidden="true">
+        <img class="likes-jam-photo" id="likesJamPhoto" alt="">
+        <div class="likes-jam-body">
+          <p class="likes-jam-user" id="likesJamUser"></p>
+          <p class="likes-jam-text" id="likesJamText"></p>
+          <p class="likes-jam-place" id="likesJamPlace"></p>
+        </div>
+      </article>
       <div class="likes-copy" id="likesCopy" aria-hidden="true">
         <p class="likes-headline" id="likesHeadline"><span class="likes-rich">12 likes</span></p>
-        <p class="likes-subtitle">[on gems you already posted]</p>
+        <p class="likes-subtitle" id="likesSubtitle">[on this public gem]</p>
       </div>
     </div>
 
@@ -140,19 +156,28 @@
             <img id="detailFavIcon" src="assets/fav_unchecked.svg" alt="" width="26" height="24">
           </button>
         </header>
-        <img class="detail-photo" id="detailPhoto" alt="">
+        <div class="detail-photo-wrap">
+          <img class="detail-photo" id="detailPhoto" alt="">
+          <p class="detail-likes" id="detailLikes" hidden></p>
+        </div>
         <p class="detail-visibility" id="detailVisibility" hidden></p>
         <p class="detail-gem-title" id="detailGemTitle"></p>
         <p class="detail-tagline" id="detailTagline"></p>
         <p class="detail-author" id="detailAuthor" hidden></p>
         <p class="detail-caption" id="detailCaption"></p>
+        <button type="button" class="detail-nav" id="detailNav" hidden>[navigate to jam]</button>
+        <div class="detail-entries" id="detailEntries" hidden></div>
+        <div class="detail-banner" id="detailBanner" hidden>
+          <p class="detail-banner-copy" id="detailBannerCopy"></p>
+          <button type="button" class="detail-add" id="detailAdd" hidden>[add more to this jam]</button>
+        </div>
       </div>
     </div>
   </main>
 
   <p class="meta">
-    Sort on-hub. Spotlight tips from <code>first-story-flow</code>. Cards from Daily Side Quests. LOCATION-GEMS-HUB-v3.
+    LOCATION-GEMS-HUB-v4. Hold cue uses challenge stamp-hand + StepGlance ring. Tell me if you meant a different loading file.
   </p>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

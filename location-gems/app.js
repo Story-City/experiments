@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v3 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v4 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -84,12 +84,16 @@ const GRID_GAP = 16;
 const H_PAD = 24;
 const SWIPE_COMMIT_X = 72;
 const SWIPE_COMMIT_Y = 78;
+const HOLD_MS = 420;
 const HAZE_IN_MS = 160;
 const SHINE_MS = 1400;
 const HOLD_AFTER_SHINE_MS = 500;
 const COPY_CELEBRATE_MS = 780;
 const HAZE_OUT_MS = 300;
+const CARD_IN_MS = 980;
+const CARD_OUT_MS = 560;
 const LIKES_DEMO = 12;
+const HOLD_RING_LEN = 163.36;
 
 const GLANCE_ARC_CX = 120;
 const GLANCE_ARC_CY = 96;
@@ -113,6 +117,32 @@ const COPY = {
     'This corner always smells like fresh bread before the city wakes up. I come here when I need to feel grounded.',
   detailOwnSubtitle: 'A memory you marked on the map',
   detailCollectedSubtitle: 'A memory another reader left at this place',
+  railPrivate: '[keep hidden]',
+  railPublic: '[make public]',
+  railDelete: '[delete]',
+  likesSubtitle: '[on this public gem]',
+  detailNav: '[navigate to jam]',
+  detailAdd: '[add more to this jam]',
+  bannerOwn: '[add as many entries as you like on your jam]',
+  bannerOther: '[you have to be at the location to add more to somebody else’s jam]',
+  holdHint: 'Hold a card — then swipe.',
+  privateBadge: '[hidden]',
+  publicBadge: '[public]',
+};
+
+const SPOOF_COPY = {
+  railPrivate: 'Keep as a quiet gem',
+  railPublic: 'Publish this shiny gem',
+  railDelete: 'Toss this find',
+  likesSubtitle: 'on this public gem',
+  detailNav: 'Navigate to jam',
+  detailAdd: 'Add more to this jam',
+  bannerOwn: 'On your gems, add as much as you’d like.',
+  bannerOther: 'On somebody else’s gems, be at the location to add more.',
+  holdHint: 'Hold, then swipe left / right / down.',
+  privateBadge: 'Hidden',
+  publicBadge: 'Public',
+  likesLine: (n) => `${n} likes on this jam`,
 };
 
 const phone = document.getElementById('phone');
@@ -128,7 +158,6 @@ const snapshotTip = document.getElementById('snapshotTip');
 const snapshotTipOk = document.getElementById('snapshotTipOk');
 const snapshotTipScrim = document.getElementById('snapshotTipScrim');
 const tabFavIcon = document.getElementById('tabFavIcon');
-const tabBar = document.getElementById('tabBar');
 const detail = document.getElementById('detail');
 const detailBack = document.getElementById('detailBack');
 const detailFav = document.getElementById('detailFav');
@@ -140,6 +169,12 @@ const detailTagline = document.getElementById('detailTagline');
 const detailAuthor = document.getElementById('detailAuthor');
 const detailCaption = document.getElementById('detailCaption');
 const detailVisibility = document.getElementById('detailVisibility');
+const detailLikes = document.getElementById('detailLikes');
+const detailNav = document.getElementById('detailNav');
+const detailEntries = document.getElementById('detailEntries');
+const detailBanner = document.getElementById('detailBanner');
+const detailBannerCopy = document.getElementById('detailBannerCopy');
+const detailAdd = document.getElementById('detailAdd');
 const hint = document.getElementById('hint');
 const resetHub = document.getElementById('resetHub');
 const feedStrip = document.getElementById('feedStrip');
@@ -150,6 +185,9 @@ const sortInline = document.getElementById('sortInline');
 const railPrivate = document.getElementById('railPrivate');
 const railPublic = document.getElementById('railPublic');
 const railDelete = document.getElementById('railDelete');
+const railPublicIcon = document.getElementById('railPublicIcon');
+const holdCue = document.getElementById('holdCue');
+const holdRingFill = document.getElementById('holdRingFill');
 const spot = document.getElementById('spot');
 const spotTip = document.getElementById('spotTip');
 const snack = document.getElementById('snack');
@@ -157,8 +195,15 @@ const likesBanner = document.getElementById('likesBanner');
 const likesShine = document.getElementById('likesShine');
 const likesCopy = document.getElementById('likesCopy');
 const likesHeadline = document.getElementById('likesHeadline');
+const likesSubtitle = document.getElementById('likesSubtitle');
+const likesJamCard = document.getElementById('likesJamCard');
+const likesJamPhoto = document.getElementById('likesJamPhoto');
+const likesJamUser = document.getElementById('likesJamUser');
+const likesJamText = document.getElementById('likesJamText');
+const likesJamPlace = document.getElementById('likesJamPlace');
 const debugLikes = document.getElementById('debugLikes');
 const debugOnboard = document.getElementById('debugOnboard');
+const debugSpoof = document.getElementById('debugSpoof');
 
 /** @type {'collected'|'created'|'favourites'} */
 let activeSection = 'collected';
@@ -174,9 +219,16 @@ let openGemId = null;
 let placeIndex = 0;
 let createdSeq = 0;
 let likesBusy = false;
+let spoofWording = false;
+/** @type {any} */
 let drag = null;
 /** @type {Array<() => void>} */
 const pendingEnds = [];
+
+function t(key) {
+  if (spoofWording && SPOOF_COPY[key]) return SPOOF_COPY[key];
+  return COPY[key];
+}
 
 function gemSvg(fill) {
   return `<svg viewBox="0 0 24 22" aria-hidden="true">
@@ -226,8 +278,13 @@ function createSpoofCollectedGem() {
     caption: COPY.spoofCollectedReflection,
     authorUsername: SPOOF_COLLECTED_GEM_AUTHOR,
     isPublic: true,
+    likes: LIKES_DEMO,
     gemFill: MY_GEM_FILL,
     createdAt: new Date(Date.now() - 172_800_000).toISOString(),
+    entries: [
+      COPY.spoofCollectedReflection,
+      '[another note left at this jam]',
+    ],
   };
 }
 
@@ -241,9 +298,10 @@ function findToCollectedGem(find) {
     caption: find.text,
     authorUsername: find.user.replace(/^@/, ''),
     isPublic: true,
-    gemFill: MY_GEM_FILL,
     likes: find.likes || 0,
+    gemFill: MY_GEM_FILL,
     createdAt: new Date().toISOString(),
+    entries: [find.text],
   };
 }
 
@@ -270,6 +328,11 @@ function getGemTitle(gem) {
   const title = (gem.title || '').trim();
   if (title) return title;
   return (gem.caption || '').trim();
+}
+
+function publicLikes(gem) {
+  if (gem.isPublic === false) return 0;
+  return Number(gem.likes) || 0;
 }
 
 function activeGems() {
@@ -318,6 +381,22 @@ function setupSnapshotArc() {
   fill.style.strokeDashoffset = '0';
 }
 
+function applyRailCopy() {
+  document.querySelectorAll('[data-copy]').forEach((el) => {
+    const key =
+      el.dataset.copy === 'private'
+        ? 'railPrivate'
+        : el.dataset.copy === 'public'
+          ? 'railPublic'
+          : 'railDelete';
+    el.textContent = t(key);
+  });
+  detailNav.textContent = t('detailNav');
+  detailAdd.textContent = t('detailAdd');
+  likesSubtitle.textContent = t('likesSubtitle');
+  hint.textContent = t('holdHint');
+}
+
 function buildPolaroid(gem, width) {
   const wrap = document.createElement('div');
   wrap.className = 'polaroid';
@@ -344,13 +423,22 @@ function buildPolaroid(gem, width) {
   if (gem.isPublic === false) {
     const vis = document.createElement('span');
     vis.className = 'polaroid-badge';
-    vis.textContent = '[private]';
+    vis.textContent = t('privateBadge');
     photo.appendChild(vis);
   } else if (gem.isPublic === true && createdGems.some((g) => g.id === gem.id)) {
     const vis = document.createElement('span');
     vis.className = 'polaroid-badge';
-    vis.textContent = '[public]';
+    vis.textContent = t('publicBadge');
     photo.appendChild(vis);
+  }
+  const likes = publicLikes(gem);
+  if (gem.isPublic !== false && likes > 0) {
+    const likesEl = document.createElement('span');
+    likesEl.className = 'polaroid-likes';
+    likesEl.textContent = spoofWording
+      ? SPOOF_COPY.likesLine(likes)
+      : `${likes} ♥`;
+    photo.appendChild(likesEl);
   }
   const caption = document.createElement('div');
   caption.className = 'polaroid-caption';
@@ -371,12 +459,12 @@ function renderFeed() {
     ...publicCreated.slice(0, 2).map((g) => ({
       photo: g.imageUri,
       title: getGemTitle(g),
-      body: '[your public gem is live]',
+      body: spoofWording ? 'your public gem is live' : '[your public gem is live]',
     })),
     ...collectedGems.slice(0, 3).map((g) => ({
       photo: g.imageUri,
       title: `@${g.authorUsername || 'walker'}`,
-      body: getGemTagline(g) || '[gem nearby]',
+      body: getGemTagline(g) || (spoofWording ? 'gem nearby' : '[gem nearby]'),
     })),
   ].slice(0, 5);
   items.forEach((item) => {
@@ -416,19 +504,44 @@ function setSortingFocus(on) {
   hub.classList.toggle('is-sorting-focus', on && pendingSort.length > 0);
 }
 
-function setRails(mode) {
-  railPrivate.classList.toggle('is-hot', mode === 'private');
-  railPublic.classList.toggle('is-hot', mode === 'public');
-  railDelete.classList.toggle('is-hot', mode === 'delete');
-  const idle = !mode;
-  railPrivate.classList.toggle('is-flash', idle || mode === 'private');
-  railPublic.classList.toggle('is-flash', idle || mode === 'public');
-  railDelete.classList.toggle('is-flash', idle || mode === 'delete');
+function hideRails() {
+  [railPrivate, railPublic, railDelete].forEach((rail) => {
+    rail.classList.remove('is-on', 'is-flash', 'is-hot');
+  });
 }
 
-function buildSortCard(find, under) {
+function setRails(mode, armed) {
+  if (!armed) {
+    hideRails();
+    return;
+  }
+  [railPrivate, railPublic, railDelete].forEach((rail) => {
+    rail.classList.add('is-on', 'is-flash');
+    rail.classList.remove('is-hot');
+  });
+  if (mode === 'private') {
+    railPrivate.classList.add('is-hot');
+    railPrivate.classList.remove('is-flash');
+  } else if (mode === 'public') {
+    railPublic.classList.add('is-hot');
+    railPublic.classList.remove('is-flash');
+  } else if (mode === 'delete') {
+    railDelete.classList.add('is-hot');
+    railDelete.classList.remove('is-flash');
+  }
+}
+
+function setHoldCue(on, ready) {
+  holdCue.classList.toggle('is-on', on);
+  holdCue.classList.toggle('is-ready', !!ready);
+  if (!on) {
+    holdRingFill.style.strokeDashoffset = String(HOLD_RING_LEN);
+  }
+}
+
+function buildSortCard(find, under, enter) {
   const card = document.createElement('article');
-  card.className = `sort-card${under ? ' is-under' : ''}`;
+  card.className = `sort-card${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
   card.dataset.id = find.id;
   card.innerHTML = `
     <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
@@ -446,18 +559,20 @@ function renderSortStack() {
   const n = pendingSort.length;
   sortSub.textContent = n ? `${n} left` : '[all sorted]';
   sortEmpty.hidden = n > 0;
-  setSortingFocus(n > 0);
-  setRails(null);
+  setSortingFocus(false);
+  hideRails();
+  setHoldCue(false, false);
   if (!n) return;
   const top = pendingSort[0];
   const next = pendingSort[1];
-  if (next) sortStack.appendChild(buildSortCard(next, true));
-  const front = buildSortCard(top, false);
+  if (next) sortStack.appendChild(buildSortCard(next, true, false));
+  const front = buildSortCard(top, false, true);
   sortStack.appendChild(front);
   bindSortDrag(front);
 }
 
 function refreshHub() {
+  applyRailCopy();
   renderFeed();
   renderSortStack();
   renderGrid();
@@ -511,6 +626,27 @@ function syncDetailFav() {
     : 'assets/fav_unchecked.svg';
 }
 
+function renderDetailEntries(gem, owned) {
+  const entries = Array.isArray(gem.entries) && gem.entries.length
+    ? gem.entries
+    : [gem.caption || gem.tagline || ''].filter(Boolean);
+  detailEntries.replaceChildren();
+  if (!entries.length) {
+    detailEntries.hidden = true;
+    return;
+  }
+  entries.forEach((text) => {
+    const p = document.createElement('p');
+    p.className = 'detail-entry';
+    p.textContent = text;
+    detailEntries.appendChild(p);
+  });
+  detailEntries.hidden = false;
+  detailBanner.hidden = false;
+  detailBannerCopy.textContent = owned ? t('bannerOwn') : t('bannerOther');
+  detailAdd.hidden = !owned;
+}
+
 function openDetail(id) {
   const gem = findGem(id);
   if (!gem) return;
@@ -522,9 +658,18 @@ function openDetail(id) {
   detailPhoto.src = gem.imageUri;
   detailGemTitle.textContent = getGemTitle(gem);
   detailTagline.textContent = getGemTagline(gem);
+  const likes = publicLikes(gem);
+  if (gem.isPublic !== false && likes > 0) {
+    detailLikes.hidden = false;
+    detailLikes.textContent = spoofWording
+      ? SPOOF_COPY.likesLine(likes)
+      : `${likes} likes`;
+  } else {
+    detailLikes.hidden = true;
+  }
   if (owned) {
     detailVisibility.hidden = false;
-    detailVisibility.textContent = gem.isPublic ? '[public gem]' : '[keep hidden]';
+    detailVisibility.textContent = gem.isPublic ? t('publicBadge') : t('privateBadge');
   } else {
     detailVisibility.hidden = true;
   }
@@ -535,6 +680,9 @@ function openDetail(id) {
     detailAuthor.hidden = true;
   }
   detailCaption.textContent = gem.caption || '';
+  detailNav.hidden = false;
+  detailNav.textContent = t('detailNav');
+  renderDetailEntries(gem, owned);
   syncDetailFav();
   detail.hidden = false;
   detail.setAttribute('aria-hidden', 'false');
@@ -545,6 +693,15 @@ function closeDetail() {
   detail.hidden = true;
   detail.setAttribute('aria-hidden', 'true');
   if (activeSection === 'favourites') renderGrid();
+}
+
+function addEntryToOpenGem() {
+  if (!openGemId) return;
+  const gem = findGem(openGemId);
+  if (!gem || !createdGems.some((g) => g.id === openGemId)) return;
+  if (!Array.isArray(gem.entries)) gem.entries = [gem.caption || gem.tagline || ''].filter(Boolean);
+  gem.entries.push(spoofWording ? 'Another line on my jam' : '[another entry on this jam]');
+  renderDetailEntries(gem, true);
 }
 
 function addSampleCreatedGem() {
@@ -558,8 +715,10 @@ function addSampleCreatedGem() {
     tagline: SNAPSHOT_PLACES[(createdSeq - 1) % SNAPSHOT_PLACES.length],
     caption: '[snapshot gem from hub camera]',
     isPublic: true,
+    likes: 0,
     gemFill: MY_GEM_FILL,
     createdAt: new Date().toISOString(),
+    entries: ['[snapshot gem from hub camera]'],
   });
   setSection('created');
   refreshHub();
@@ -627,22 +786,22 @@ async function runOnboardingTips() {
   await wait(80);
   if (pendingSort.length) {
     const card = sortStack.querySelector('.sort-card:not(.is-under)') || sortStack;
-    await spotlight(card, '[these are challenge finds waiting to become location gems]', {
+    await spotlight(card, '[hold the card first — then swipe]', {
       step: '1 of 4',
       title: '[sort finds]',
     });
   }
-  await spotlight(railPrivate, '[hold the card and swipe left to keep it hidden]', {
+  await spotlight(railPrivate, '[left = hidden gem]', {
     step: '2 of 4',
-    title: '[keep hidden]',
+    title: t('railPrivate'),
   });
-  await spotlight(railPublic, '[swipe right to make it public on the map]', {
+  await spotlight(railPublic, '[right = shiny public gem]', {
     step: '3 of 4',
-    title: '[make public]',
+    title: t('railPublic'),
   });
-  await spotlight(railDelete, '[swipe down to delete the find]', {
+  await spotlight(railDelete, '[down = lid / delete]', {
     step: '4 of 4',
-    title: '[delete]',
+    title: t('railDelete'),
   });
   showSnack('[scroll down for collected / created / favourites]');
   storageSet(ONBOARD_KEY);
@@ -658,8 +817,10 @@ function findToCreatedGem(find, isPublic) {
     tagline: find.text,
     caption: find.text,
     isPublic,
+    likes: isPublic ? LIKES_DEMO : 0,
     gemFill: MY_GEM_FILL,
     createdAt: new Date().toISOString(),
+    entries: [find.text],
   };
 }
 
@@ -671,10 +832,28 @@ function railModeFromDelta(dx, dy) {
 }
 
 function bindSortDrag(card) {
+  const clearHoldTimer = () => {
+    if (drag && drag.holdTimer) {
+      window.clearTimeout(drag.holdTimer);
+      drag.holdTimer = null;
+    }
+  };
+
   const finishDrag = (dx, dy) => {
+    const armed = !!(drag && drag.armed);
+    clearHoldTimer();
     drag = null;
-    const mode = railModeFromDelta(dx, dy);
-    setRails(null);
+    setHoldCue(false, false);
+    setRails(null, false);
+    setSortingFocus(false);
+    if (!armed) {
+      card.style.transition = 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)';
+      card.style.transform = '';
+      window.setTimeout(() => {
+        card.style.transition = '';
+      }, 240);
+      return;
+    }
     if (dx > SWIPE_COMMIT_X) {
       settleSort(card, 'public');
       return;
@@ -701,6 +880,9 @@ function bindSortDrag(card) {
       e.preventDefault();
       card.setPointerCapture(e.pointerId);
       hub.classList.add('is-sorting-focus');
+      setHoldCue(true, false);
+      holdRingFill.style.transition = `stroke-dashoffset ${HOLD_MS}ms linear`;
+      holdRingFill.style.strokeDashoffset = '0';
       drag = {
         card,
         id: e.pointerId,
@@ -708,6 +890,14 @@ function bindSortDrag(card) {
         y0: e.clientY,
         dx: 0,
         dy: 0,
+        armed: false,
+        holdTimer: window.setTimeout(() => {
+          if (!drag || drag.id !== e.pointerId) return;
+          drag.armed = true;
+          setHoldCue(true, true);
+          setRails(null, true);
+          hint.textContent = t('holdHint');
+        }, HOLD_MS),
       };
     },
     { passive: false },
@@ -720,9 +910,21 @@ function bindSortDrag(card) {
       e.preventDefault();
       drag.dx = e.clientX - drag.x0;
       drag.dy = e.clientY - drag.y0;
-      const rot = drag.dx * 0.06;
+      if (!drag.armed) {
+        if (Math.hypot(drag.dx, drag.dy) > 12) {
+          clearHoldTimer();
+          setHoldCue(false, false);
+          holdRingFill.style.transition = 'none';
+          holdRingFill.style.strokeDashoffset = String(HOLD_RING_LEN);
+          card.style.transform = '';
+          drag = null;
+          setSortingFocus(false);
+        }
+        return;
+      }
+      const rot = -4 + drag.dx * 0.06;
       card.style.transform = `translate(${drag.dx}px, ${drag.dy}px) rotate(${rot}deg)`;
-      setRails(railModeFromDelta(drag.dx, drag.dy));
+      setRails(railModeFromDelta(drag.dx, drag.dy), true);
     },
     { passive: false },
   );
@@ -752,41 +954,78 @@ function settleSort(card, action) {
     pendingSort.shift();
     if (action === 'public') {
       createdGems.unshift(findToCreatedGem(find, true));
-      hint.textContent = '[make public]';
+      hint.textContent = t('railPublic');
       setSection('created');
     } else if (action === 'private') {
       createdGems.unshift(findToCreatedGem(find, false));
-      hint.textContent = '[keep hidden]';
+      hint.textContent = t('railPrivate');
       setSection('created');
     } else {
-      hint.textContent = '[delete]';
+      hint.textContent = t('railDelete');
     }
     refreshHub();
   }, 260);
 }
 
+function pickLikedJam() {
+  const publicCreated = createdGems.filter((g) => g.isPublic && publicLikes(g) > 0);
+  if (publicCreated.length) return publicCreated[0];
+  const publicCollected = collectedGems.filter((g) => g.isPublic !== false && publicLikes(g) > 0);
+  if (publicCollected.length) return publicCollected[0];
+  return createSpoofCollectedGem();
+}
+
+function fillLikesJamCard(gem) {
+  likesJamPhoto.src = gem.imageUri;
+  likesJamUser.textContent = gem.authorUsername
+    ? `@${gem.authorUsername}`
+    : MY_USER;
+  likesJamText.textContent = getGemTagline(gem) || getGemTitle(gem);
+  likesJamPlace.textContent = gem.title || '';
+  const likes = publicLikes(gem) || LIKES_DEMO;
+  likesHeadline.innerHTML = `<span class="likes-rich">${likes} likes</span>`;
+  likesSubtitle.textContent = t('likesSubtitle');
+}
+
 async function playLikesBanner() {
   if (likesBusy) return;
   likesBusy = true;
-  likesHeadline.innerHTML = `<span class="likes-rich">${LIKES_DEMO} likes</span>`;
+  const gem = pickLikedJam();
+  fillLikesJamCard(gem);
   likesBanner.hidden = false;
   likesBanner.classList.remove('is-out');
   likesBanner.classList.add('is-on');
   likesCopy.classList.remove('is-on');
   likesShine.classList.remove('is-on');
+  likesJamCard.classList.remove('is-in', 'is-out');
   await wait(HAZE_IN_MS);
-  likesCopy.classList.add('is-on');
-  await wait(120);
   likesShine.classList.add('is-on');
+  likesJamCard.classList.add('is-in');
+  await wait(CARD_IN_MS * 0.35);
+  likesCopy.classList.add('is-on');
   await wait(SHINE_MS + HOLD_AFTER_SHINE_MS);
   await wait(COPY_CELEBRATE_MS * 0.35);
+  likesJamCard.classList.remove('is-in');
+  likesJamCard.classList.add('is-out');
+  await wait(CARD_OUT_MS);
   likesBanner.classList.add('is-out');
   await wait(HAZE_OUT_MS);
   likesBanner.hidden = true;
   likesBanner.classList.remove('is-on', 'is-out');
   likesShine.classList.remove('is-on');
   likesCopy.classList.remove('is-on');
+  likesJamCard.classList.remove('is-in', 'is-out');
   likesBusy = false;
+}
+
+function setSpoofWording(on) {
+  spoofWording = on;
+  debugSpoof.setAttribute('aria-pressed', on ? 'true' : 'false');
+  debugSpoof.textContent = on ? 'Debug: spoof wording ✓' : 'Debug: spoof wording';
+  applyRailCopy();
+  renderFeed();
+  renderGrid();
+  if (openGemId) openDetail(openGemId);
 }
 
 function resetState() {
@@ -803,14 +1042,18 @@ function resetState() {
   showTip(true);
   setSection('collected');
   refreshHub();
-  hint.textContent = 'Hold a card and swipe.';
+  hint.textContent = t('holdHint');
   runOnboardingTips();
 }
 
 function init() {
+  if (railPublicIcon) railPublicIcon.innerHTML = gemSvg(MY_GEM_FILL);
+  holdRingFill.style.strokeDasharray = String(HOLD_RING_LEN);
+  holdRingFill.style.strokeDashoffset = String(HOLD_RING_LEN);
   seedCollectedFromChallenges();
   seedPendingSort();
   setupSnapshotArc();
+  applyRailCopy();
   setSection('collected');
   refreshHub();
   showTip(!storageGet(TIP_KEY));
@@ -831,8 +1074,15 @@ detailBack.addEventListener('click', closeDetail);
 detailFav.addEventListener('click', () => {
   if (openGemId) toggleFavourite(openGemId);
 });
+detailNav.addEventListener('click', () => {
+  hint.textContent = spoofWording
+    ? 'Navigate spoofed — you’d walk to this jam'
+    : '[navigate spoofed — walk to jam]';
+});
+detailAdd.addEventListener('click', addEntryToOpenGem);
 resetHub.addEventListener('click', resetState);
 debugLikes.addEventListener('click', () => playLikesBanner());
 debugOnboard.addEventListener('click', () => runOnboardingTips());
+debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
 
 init();
