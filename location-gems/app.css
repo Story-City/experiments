@@ -117,15 +117,15 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .hub-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 48px var(--space-l) 120px;
+  padding: 20px var(--space-l) 120px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-l);
+  gap: 12px;
   scrollbar-width: none;
 }
 .hub-scroll::-webkit-scrollbar { display: none; }
 
-.snapshot-section { margin-bottom: var(--space-xs); }
+.snapshot-section { margin-bottom: 0; }
 .snapshot-hero {
   width: 100%;
   border: 0;
@@ -141,14 +141,14 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .arc-stage {
   position: relative;
   width: 240px;
-  height: 132px;
+  height: 100px;
   display: flex;
   justify-content: center;
   overflow: visible;
 }
 .camera-button {
   position: absolute;
-  top: 16px;
+  top: 4px;
   z-index: 2;
   width: 72px;
   height: 72px;
@@ -165,7 +165,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .arc-wrap {
   position: absolute;
-  top: -36px;
+  top: -44px;
   width: 240px;
   height: 106.11px;
   transform: scaleY(-1);
@@ -185,7 +185,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   align-self: stretch;
   text-align: center;
   padding: 0 var(--space-m);
-  margin-top: var(--space-s);
+  margin-top: 0;
 }
 .title-prefix,
 .rotating-line {
@@ -201,7 +201,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .tab-bar {
   display: flex;
   padding: var(--space-xs);
-  margin-bottom: var(--space-m);
+  margin-bottom: 4px;
   border-radius: var(--radius-full);
   background: var(--tab-bar);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -235,8 +235,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .section-intro {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px 2px 8px;
+  gap: 4px;
+  padding: 4px 2px 6px;
 }
 .section-intro-title {
   margin: 0;
@@ -252,9 +252,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .tab-like-icon {
   color: var(--like-pink-hot);
-  font-size: 20px;
+  font-size: 26px;
   line-height: 1;
-  filter: drop-shadow(0 0 6px rgba(255, 122, 171, 0.55));
+  filter: drop-shadow(0 0 8px rgba(255, 122, 171, 0.7));
 }
 .tab-gem-svg {
   display: grid;
@@ -326,12 +326,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   position: absolute;
   left: 8px;
   right: 8px;
-  bottom: 8px;
+  bottom: 6px;
   z-index: 2;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
 }
 .gem-card-caption {
   margin: 0;
@@ -340,7 +340,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   color: #fff;
   font-size: 13px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
   text-align: left;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
   display: -webkit-box;
@@ -815,7 +815,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   display: flex;
   gap: 10px;
   overflow-x: auto;
-  padding: 4px 2px 6px;
+  padding: 2px 2px 4px;
   scrollbar-width: none;
 }
 .feed-strip::-webkit-scrollbar { display: none; }
@@ -823,33 +823,35 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   flex: none;
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 210px;
-  max-width: 250px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(180, 170, 255, 0.35);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  gap: 10px;
+  min-width: 220px;
+  max-width: 260px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1.5px solid rgba(200, 190, 255, 0.5);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 .feed-chip img {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   object-fit: cover;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28);
 }
 .feed-chip p {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1.25;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.92);
 }
 .feed-chip strong {
   display: block;
   color: #fff;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 /* Inline sort on the main hub page */
