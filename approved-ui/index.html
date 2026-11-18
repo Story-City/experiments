@@ -8,9 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=5">
-<link rel="stylesheet" href="ports/likes.css?v=5">
-<link rel="stylesheet" href="ports/claim.css?v=5">
+<link rel="stylesheet" href="app.css?v=6">
+<link rel="stylesheet" href="ports/likes.css?v=6">
+<link rel="stylesheet" href="ports/claim.css?v=6">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -29,8 +29,10 @@
       <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
       <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
     </label>
-    <label class="accent-pick" title="Radial — my gem (jam/domino) + button wash">
+    <label class="accent-pick" title="Radial wash on CTAs — toggle off for flat gradient only">
       <span>Radial</span>
+      <input type="checkbox" id="radialEnabled" checked aria-label="Radial wash on">
+      <span class="toggle-label" id="radialEnabledLabel">On</span>
       <input type="color" id="radialColor" value="#b36bff" aria-label="Button radial color">
       <input type="range" id="radialAmount" min="0" max="100" value="55" aria-label="Radial amount">
     </label>
@@ -47,11 +49,14 @@
     </fieldset>
   </div>
 
+  <nav class="catalog-nav" id="catalogNav" aria-label="Jump to element"></nav>
+
   <main class="library" id="library">
     <!-- cards injected by app.js from ELEMENT_DEFS -->
   </main>
 
-  <p class="meta">APPROVED-UI-v5 — fingerprint for live verify. Isolated elements @376px, UX notes, faithful likes/claim ports, day-reached native phone frame.</p>
-  <script src="app.js?v=5"></script>
+  <p class="meta">APPROVED-UI-v6 — fingerprint. Radial on/off. Jump nav. Tap-hint + choice pulse restored. All v1–v2 cards kept.</p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

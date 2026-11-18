@@ -27,9 +27,9 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=5",
+    "path": "approved-ui/?v=6",
     "title": "Approved UI library",
-    "what": "Isolated elements at 376px (not full pages), UX notes, faithful likes/claim ports, day-reached phone frame, flat app bg.",
+    "what": "Isolated elements @376px, UX notes, Radial on/off, jump nav, v1–v2 set + tap-hint + choice pulse.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

@@ -1,6 +1,6 @@
-/** Approved UI library — APPROVED-UI-v5
- * Isolated elements (not full experiment pages). Faithful ports; native 376px scale.
- * Flat app --bg. UX notes on every card. Play / tap still works.
+/** Approved UI library — APPROVED-UI-v6
+ * Isolated elements @376px. UX notes. Radial wash can toggle off.
+ * Jump nav lists every card (v1–v2 + tap-hint / choice pulse).
  */
 
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -141,11 +141,28 @@ const ELEMENT_DEFS = [
     stage: 'claim',
     mount: mountClaimPulse,
   },
+  {
+    id: 'choice-pulse',
+    title: 'Choice pulse outline',
+    source: 'ftue-choice-hints / ActionPanel pulseEdge',
+    ux: 'When: primary reply is available in FTUE chat. Soft breathing border on the choice. Try: the outline pulses on its own; tap to press.',
+    mount: mountChoicePulse,
+  },
+  {
+    id: 'tap-hint',
+    title: 'Tap-hint hand',
+    source: 'ftue-choice-hints · tap-hint.json',
+    ux: 'When: coaching which choice to tap. Hand Lottie fades onto the primary reply. Try: Play hint · tap choice.',
+    mount: mountTapHint,
+  },
 ];
 
 const library = document.getElementById('library');
+const catalogNav = document.getElementById('catalogNav');
 const accentColor = document.getElementById('accentColor');
 const accentAlpha = document.getElementById('accentAlpha');
+const radialEnabled = document.getElementById('radialEnabled');
+const radialEnabledLabel = document.getElementById('radialEnabledLabel');
 const radialColor = document.getElementById('radialColor');
 const radialAmount = document.getElementById('radialAmount');
 const bgColor = document.getElementById('bgColor');
@@ -204,9 +221,14 @@ function applyAccent() {
   syncDayReachedAccent();
 }
 
+function isRadialOn() {
+  return !radialEnabled || radialEnabled.checked;
+}
+
 function applyRadial() {
   const hex = myGemHex();
-  const amount = ((radialAmount && Number(radialAmount.value)) || 55) / 100;
+  const on = isRadialOn();
+  const amount = on ? ((radialAmount && Number(radialAmount.value)) || 55) / 100 : 0;
   const { r, g, b } = hexToRgb(hex);
   const root = document.documentElement.style;
   root.setProperty('--my-gem', hex);
@@ -214,8 +236,14 @@ function applyRadial() {
   root.setProperty('--btn-radial', `rgba(${r}, ${g}, ${b}, ${0.75 * amount})`);
   root.setProperty(
     '--btn-radial-wash',
-    `radial-gradient(ellipse 200% 70% at 50% 45%, rgba(${r}, ${g}, ${b}, ${0.75 * amount}), transparent 72%)`,
+    amount > 0
+      ? `radial-gradient(ellipse 200% 70% at 50% 45%, rgba(${r}, ${g}, ${b}, ${0.75 * amount}), transparent 72%)`
+      : 'none',
   );
+  document.body.classList.toggle('radial-off', !on);
+  if (radialEnabledLabel) radialEnabledLabel.textContent = on ? 'On' : 'Off';
+  if (radialColor) radialColor.disabled = !on;
+  if (radialAmount) radialAmount.disabled = !on;
 }
 
 function applyBg() {
@@ -261,6 +289,7 @@ function makeCard(def) {
   const card = document.createElement('article');
   card.className = 'card';
   card.dataset.element = def.id;
+  card.id = `el-${def.id}`;
 
   const head = document.createElement('div');
   head.className = 'card-head';
@@ -762,9 +791,91 @@ function mountClaimPulse(stage, actions) {
   });
 }
 
+function mountChoicePulse(stage, actions) {
+  const wrap = document.createElement('div');
+  wrap.className = 'demo-choice-wrap';
+  wrap.innerHTML = `
+    <button type="button" class="demo-choice" aria-label="Primary choice">
+      <span class="pulse" aria-hidden="true"></span>
+      <span class="label">[primary reply]</span>
+    </button>
+  `;
+  stage.appendChild(wrap);
+  const btn = wrap.querySelector('.demo-choice');
+  btn.addEventListener('click', () => {
+    btn.animate([{ transform: 'scale(1)' }, { transform: 'scale(0.97)' }, { transform: 'scale(1)' }], { duration: 180 });
+  });
+  addPlay(actions, 'Pulse visible', () => {
+    const pulse = btn.querySelector('.pulse');
+    pulse.style.animation = 'none';
+    void pulse.offsetWidth;
+    pulse.style.animation = '';
+  });
+}
+
+function mountTapHint(stage, actions) {
+  const wrap = document.createElement('div');
+  wrap.className = 'demo-choice-wrap';
+  wrap.innerHTML = `
+    <button type="button" class="demo-choice" id="tapHintChoice" aria-label="Primary choice">
+      <span class="pulse" aria-hidden="true"></span>
+      <span class="label">[primary reply]</span>
+    </button>
+  `;
+  stage.appendChild(wrap);
+  const btn = wrap.querySelector('.demo-choice');
+  let hintAnim = null;
+  let hintEl = null;
+
+  const clearHint = () => {
+    if (hintAnim) {
+      hintAnim.destroy();
+      hintAnim = null;
+    }
+    if (hintEl) {
+      hintEl.remove();
+      hintEl = null;
+    }
+  };
+
+  const showHint = () => {
+    clearHint();
+    hintEl = document.createElement('div');
+    hintEl.className = 'tap-hint is-in';
+    hintEl.setAttribute('aria-hidden', 'true');
+    btn.append(hintEl);
+    if (window.lottie) {
+      hintAnim = window.lottie.loadAnimation({
+        container: hintEl,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: '../ftue-choice-hints/tap-hint.json',
+      });
+    }
+  };
+
+  showHint();
+  btn.addEventListener('click', clearHint);
+  addPlay(actions, 'Play hint', showHint);
+  addGhost(actions, 'Clear', clearHint);
+}
+
+function buildCatalogNav() {
+  if (!catalogNav) return;
+  catalogNav.replaceChildren();
+  ELEMENT_DEFS.forEach((def) => {
+    const a = document.createElement('a');
+    a.href = `#el-${def.id}`;
+    a.textContent = def.title;
+    catalogNav.appendChild(a);
+  });
+}
+
 function buildLibrary() {
   library.replaceChildren();
   ELEMENT_DEFS.forEach((def) => library.appendChild(makeCard(def)));
+  buildCatalogNav();
 }
 
 let sourceAccentTimer = 0;
@@ -780,6 +891,11 @@ function syncDayReachedAccent() {
 
 accentColor.addEventListener('input', applyAccent);
 accentAlpha.addEventListener('input', applyAccent);
+if (radialEnabled) {
+  radialEnabled.addEventListener('change', () => {
+    applyRadial();
+  });
+}
 radialColor.addEventListener('input', () => {
   applyRadial();
   repaintTintedElements();
