@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=9">
+<link rel="stylesheet" href="app.css?v=10">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -165,15 +165,28 @@
         <div class="detail-media">
           <img class="detail-photo" id="detailPhoto" alt="">
           <div class="detail-media-scrim" aria-hidden="true"></div>
-          <span class="detail-rarity" id="detailRarity" hidden></span>
+          <div class="detail-overlay">
+            <p class="detail-author" id="detailAuthor" hidden></p>
+            <p class="detail-gem-title" id="detailGemTitle"></p>
+            <div class="detail-info-row" id="detailInfoRow">
+              <button type="button" class="like-btn" id="detailLikeBtn" aria-label="Like" hidden>
+                <span class="like-heart" id="detailLikeHeart" aria-hidden="true">♡</span>
+                <span class="like-count" id="detailLikes">0</span>
+              </button>
+              <span class="ov-chip" id="detailVisChip" hidden></span>
+              <span class="ov-chip ov-chip-rarity" id="detailRarityChip" hidden>
+                <span class="ov-chip-gem" id="detailRarityGem" aria-hidden="true"></span>
+                <span id="detailRarityLabel"></span>
+              </span>
+            </div>
+          </div>
         </div>
         <div class="detail-body">
-          <p class="detail-gem-title" id="detailGemTitle"></p>
           <p class="detail-subtitle" id="detailSubtitle"></p>
-          <p class="detail-author" id="detailAuthor" hidden></p>
-          <div class="detail-chips" id="detailChips"></div>
+          <button type="button" class="detail-nav" id="detailNav" hidden>[navigate]</button>
+          <button type="button" class="detail-publish" id="detailPublish" hidden>[publish]</button>
           <p class="detail-tagline" id="detailTagline"></p>
-          <p class="detail-section-label" id="detailSectionLabel">[description]</p>
+          <p class="detail-section-label" id="detailSectionLabel">[notes]</p>
           <p class="detail-caption" id="detailCaption"></p>
           <div class="detail-entries" id="detailEntries" hidden></div>
           <div class="detail-write" id="detailWrite" hidden>
@@ -187,15 +200,6 @@
           <div class="detail-banner" id="detailBanner" hidden>
             <p class="detail-banner-copy" id="detailBannerCopy"></p>
           </div>
-          <div class="read-meta" id="detailMeta">
-            <button type="button" class="like-btn" id="detailLikeBtn" aria-label="Like" hidden>
-              <span class="like-heart" id="detailLikeHeart" aria-hidden="true">♡</span>
-              <span class="like-count" id="detailLikes">0</span>
-            </button>
-            <div class="detail-chips detail-chips-inline" id="detailChipsBottom"></div>
-          </div>
-          <button type="button" class="detail-nav" id="detailNav" hidden>[navigate to gem]</button>
-          <button type="button" class="detail-publish" id="detailPublish" hidden>[publish gem]</button>
         </div>
       </div>
     </div>
@@ -204,8 +208,8 @@
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v9. Gem bottom scrim. No hold palm. Cleaner delete X.
+    LOCATION-GEMS-HUB-v10. Indigo pages. Story-overview gem detail. Bigger liked heart.
   </p>
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

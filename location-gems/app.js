@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v9 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v10 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -252,10 +252,12 @@ const detailCaption = document.getElementById('detailCaption');
 const detailLikes = document.getElementById('detailLikes');
 const detailLikeBtn = document.getElementById('detailLikeBtn');
 const detailLikeHeart = document.getElementById('detailLikeHeart');
-const detailRarity = document.getElementById('detailRarity');
-const detailChips = document.getElementById('detailChips');
-const detailChipsBottom = document.getElementById('detailChipsBottom');
+const detailVisChip = document.getElementById('detailVisChip');
+const detailRarityChip = document.getElementById('detailRarityChip');
+const detailRarityGem = document.getElementById('detailRarityGem');
+const detailRarityLabel = document.getElementById('detailRarityLabel');
 const detailSectionLabel = document.getElementById('detailSectionLabel');
+const detailOverlay = document.querySelector('.detail-overlay');
 const detailNav = document.getElementById('detailNav');
 const detailPublish = document.getElementById('detailPublish');
 const detailEntries = document.getElementById('detailEntries');
@@ -594,7 +596,7 @@ function buildGemCard(gem, opts = {}) {
   wrap.appendChild(scrim);
   if (gem.isPublic && rarity.id !== 'cyan') {
     const rarityEl = document.createElement('span');
-    rarityEl.className = 'gem-card-rarity';
+    rarityEl.className = `gem-card-rarity is-${rarity.id}`;
     rarityEl.textContent = rarity.label;
     wrap.appendChild(rarityEl);
   }
@@ -854,35 +856,34 @@ function openDetail(id) {
   detailPhoto.src = gem.imageUri;
   detailGemTitle.textContent = displayCopy(getGemTitle(gem));
   detailTagline.textContent = displayCopy(getGemTagline(gem));
-  if (gem.isPublic && rarity.id !== 'cyan') {
-    detailRarity.hidden = false;
-    detailRarity.textContent = rarity.label;
+  if (gem.authorUsername || gem.owned) {
+    detailAuthor.hidden = false;
+    detailAuthor.textContent = gem.owned
+      ? MY_USER
+      : t('leftBy', gem.authorUsername);
   } else {
-    detailRarity.hidden = true;
+    detailAuthor.hidden = true;
   }
-  detailChips.replaceChildren();
-  detailChipsBottom.replaceChildren();
-  const visChip = document.createElement('span');
-  visChip.className = 'detail-chip';
-  visChip.textContent = gem.isPublic ? t('publicBadge') : t('privateBadge');
-  detailChipsBottom.appendChild(visChip);
-  if (gem.isPublic && rarity.id !== 'cyan') {
-    const rChip = document.createElement('span');
-    rChip.className = 'detail-chip';
-    rChip.textContent = rarity.label;
-    detailChipsBottom.appendChild(rChip);
+  detailVisChip.hidden = false;
+  detailVisChip.textContent = gem.isPublic ? t('publicBadge') : t('privateBadge');
+  if (detailOverlay) {
+    detailOverlay.style.setProperty('--rarity-glow', rarity.fill);
+  }
+  if (gem.isPublic) {
+    detailRarityChip.hidden = false;
+    detailRarityLabel.textContent = rarity.label;
+    detailRarityGem.innerHTML = gemSvg(rarity.fill);
+    detailRarityChip.classList.toggle('is-rare', rarity.id !== 'cyan' && rarity.id !== 'hidden');
+  } else {
+    detailRarityChip.hidden = false;
+    detailRarityLabel.textContent = rarity.label;
+    detailRarityGem.innerHTML = gemSvg(rarity.fill);
   }
   if (gem.owned) {
     detailPublish.hidden = false;
     detailPublish.textContent = gem.isPublic ? t('detailUnpublish') : t('detailPublish');
   } else {
     detailPublish.hidden = true;
-  }
-  if (gem.authorUsername) {
-    detailAuthor.hidden = false;
-    detailAuthor.textContent = t('leftBy', gem.authorUsername);
-  } else {
-    detailAuthor.hidden = true;
   }
   detailSectionLabel.textContent = t('descriptionLabel');
   detailCaption.textContent = displayCopy(gem.caption || '');
