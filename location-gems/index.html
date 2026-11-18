@@ -8,15 +8,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=4">
+<link rel="stylesheet" href="app.css?v=5">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
   <header>
     <h1>Location Gems hub</h1>
     <p class="lede">
-      Sort lives on the main hub (scroll for the rest). Hold + swipe the find card.
-      Onboarding uses the first-story-flow spotlight tip — not a custom modal.
+      Press and hold a find card — sides light up while you hold. Swipe to sort.
+      Debug: drag-to-sections mode.
     </p>
   </header>
 
@@ -25,7 +25,8 @@
     <button type="button" class="play secondary" id="debugLikes">Debug: likes banner</button>
     <button type="button" class="play secondary" id="debugOnboard">Debug: tips</button>
     <button type="button" class="play secondary" id="debugSpoof" aria-pressed="false">Debug: spoof wording</button>
-    <span class="hint" id="hint">Hold a card — then swipe.</span>
+    <button type="button" class="play secondary" id="debugDragMode" aria-pressed="false">Debug: drag to sections</button>
+    <span class="hint" id="hint">Press + hold a card, then swipe.</span>
   </div>
 
   <main class="phone" id="phone" aria-label="Location Gems hub">
@@ -55,24 +56,36 @@
 
         <section class="feed-strip" id="feedStrip" aria-label="[gems feed]"></section>
 
-        <!-- Sort on the main page — not a separate sheet -->
         <section class="sort-inline" id="sortInline">
           <div class="sort-inline-head">
-            <p class="sort-inline-title" id="sortTitle">[sort finds into gems]</p>
+            <div>
+              <p class="sort-inline-title" id="sortTitle">[sort finds into gems]</p>
+              <p class="sort-inline-intro" id="sortIntro">[press and hold the photo — then swipe left to keep hidden, right to publish, or down to delete]</p>
+            </div>
             <p class="sort-inline-count" id="sortSub">0 left</p>
           </div>
           <div class="sort-stage" id="sortStage">
+            <!-- Swipe rails (default) -->
             <div class="sort-rail sort-rail-left" id="railPrivate" data-rail="private" aria-hidden="true">
-              <img class="sort-rail-icon" src="assets/location_gem.svg" alt="" width="28" height="56">
+              <span class="sort-rail-icon sort-rail-gem" id="railPrivateIcon" aria-hidden="true"></span>
               <span class="sort-rail-chip" data-copy="private">[keep hidden]</span>
             </div>
             <div class="sort-rail sort-rail-right" id="railPublic" data-rail="public" aria-hidden="true">
-              <span class="sort-rail-icon sort-rail-shiny" id="railPublicIcon" aria-hidden="true"></span>
-              <span class="sort-rail-chip" data-copy="public">[make public]</span>
+              <span class="sort-rail-icon sort-rail-gem" id="railPublicIcon" aria-hidden="true"></span>
+              <span class="sort-rail-chip" data-copy="public">[publish]</span>
             </div>
             <div class="sort-rail sort-rail-down" id="railDelete" data-rail="delete" aria-hidden="true">
               <img class="sort-rail-icon" src="assets/trash.svg" alt="" width="28" height="28">
               <span class="sort-rail-chip" data-copy="delete">[delete]</span>
+            </div>
+            <!-- Drag-to-section drop zones (debug mode) -->
+            <div class="drop-zone drop-zone-hidden" id="dropHidden" hidden aria-hidden="true">
+              <span class="drop-zone-gem" id="dropHiddenIcon" aria-hidden="true"></span>
+              <span class="drop-zone-label" data-copy="dropHidden">[hidden gems]</span>
+            </div>
+            <div class="drop-zone drop-zone-public" id="dropPublic" hidden aria-hidden="true">
+              <span class="drop-zone-gem" id="dropPublicIcon" aria-hidden="true"></span>
+              <span class="drop-zone-label" data-copy="dropPublic">[public gems]</span>
             </div>
             <div class="hold-cue" id="holdCue" aria-hidden="true">
               <img class="hold-hand" src="assets/stamp-hand.png" alt="" draggable="false">
@@ -87,26 +100,24 @@
         </section>
 
         <div class="hub-rest" id="hubRest">
+          <div class="section-intro" id="sectionIntro">
+            <p class="section-intro-title" id="sectionIntroTitle">[public gems]</p>
+            <p class="section-intro-body" id="sectionIntroBody">[gems others can find on the map — cyan glow; more likes unlock rarer shine]</p>
+          </div>
           <div class="tab-bar" role="tablist" aria-label="Gem sections" id="tabBar">
-            <button type="button" class="tab-button is-active" role="tab" aria-selected="true" data-section="collected" id="tabCollected">
-              <img class="tab-gem-icon" src="assets/location_gem.svg" alt="" width="10" height="20">
-              <span>Collected</span>
+            <button type="button" class="tab-button is-active" role="tab" aria-selected="true" data-section="public" id="tabPublic">
+              <span class="tab-gem-svg" id="tabPublicIcon" aria-hidden="true"></span>
+              <span>Public</span>
             </button>
-            <button type="button" class="tab-button" role="tab" aria-selected="false" data-section="created" id="tabCreated">
-              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1.2 2H20a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3.8L9 3zm3 4.5A5.5 5.5 0 1 0 17.5 13 5.5 5.5 0 0 0 12 7.5z"/></svg>
-              <span>Created</span>
-            </button>
-            <button type="button" class="tab-button" role="tab" aria-selected="false" data-section="favourites" id="tabFavourites">
-              <img class="tab-fav-icon" id="tabFavIcon" src="assets/fav_unchecked.svg" alt="" width="18" height="18">
-              <span>Favourites</span>
+            <button type="button" class="tab-button" role="tab" aria-selected="false" data-section="hidden" id="tabHidden">
+              <span class="tab-gem-svg" id="tabHiddenIcon" aria-hidden="true"></span>
+              <span>Hidden</span>
             </button>
           </div>
 
           <div class="gem-grid" id="gemGrid"></div>
           <div class="empty-state" id="emptyState" hidden>
-            <div class="empty-icon" aria-hidden="true">
-              <img src="assets/location_gem.svg" alt="" width="20" height="40">
-            </div>
+            <div class="empty-icon" id="emptyIcon" aria-hidden="true"></div>
             <p class="empty-title" id="emptyTitle"></p>
             <p class="empty-body" id="emptyBody"></p>
           </div>
@@ -114,7 +125,6 @@
       </div>
     </div>
 
-    <!-- first-story-flow TutorialSnackbar + spotlight (ported, not reinvented) -->
     <div class="snack" id="snack" role="status" hidden></div>
     <div class="spot" id="spot" hidden><div class="spottip" id="spotTip"></div></div>
 
@@ -159,6 +169,7 @@
         <div class="detail-photo-wrap">
           <img class="detail-photo" id="detailPhoto" alt="">
           <p class="detail-likes" id="detailLikes" hidden></p>
+          <span class="detail-rarity" id="detailRarity" hidden></span>
         </div>
         <p class="detail-visibility" id="detailVisibility" hidden></p>
         <p class="detail-gem-title" id="detailGemTitle"></p>
@@ -166,6 +177,7 @@
         <p class="detail-author" id="detailAuthor" hidden></p>
         <p class="detail-caption" id="detailCaption"></p>
         <button type="button" class="detail-nav" id="detailNav" hidden>[navigate to jam]</button>
+        <button type="button" class="detail-publish" id="detailPublish" hidden>[publish gem]</button>
         <div class="detail-entries" id="detailEntries" hidden></div>
         <div class="detail-banner" id="detailBanner" hidden>
           <p class="detail-banner-copy" id="detailBannerCopy"></p>
@@ -173,11 +185,14 @@
         </div>
       </div>
     </div>
+
+    <div class="fly-layer" id="flyLayer" aria-hidden="true"></div>
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v4. Hold cue uses challenge stamp-hand + StepGlance ring. Tell me if you meant a different loading file.
+    LOCATION-GEMS-HUB-v5. Gem SVG = StoryCity challenge map gem (same as daily-side-quests), not AI.
+    Press-hold activates immediately. Debug drag-to-sections is a second sort UX.
   </p>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

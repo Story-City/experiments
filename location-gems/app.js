@@ -1,14 +1,30 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v4 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v5 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
 const ELF_SRC = 'assets/elf.png';
 const MY_USER = '@you';
-const MY_GEM_FILL = '#b36bff';
+
+/** Same faceted gem as daily-side-quests map pins — StoryCity design, not AI */
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
 const GEM_SHADE = 'M9 7.5H15L12 20.5Z';
 const GEM_FACETS = 'M9 7.5L12 20.5L15 7.5M1.5 7.5H22.5';
+
+const PUBLIC_GEM_FILL = '#00c2ff';
+const HIDDEN_GEM_FILL = '#9370c4';
+const SILVER_GEM_FILL = '#c8d2e6';
+const GOLD_GEM_FILL = '#ffc448';
+const PLATINUM_GEM_FILL = '#e8eef8';
+const DIAMOND_GEM_FILL = '#b4f0ff';
+
+const RARITY = {
+  cyan: { id: 'cyan', fill: PUBLIC_GEM_FILL, label: 'cyan', minLikes: 0 },
+  silver: { id: 'silver', fill: SILVER_GEM_FILL, label: 'silver', minLikes: 20 },
+  gold: { id: 'gold', fill: GOLD_GEM_FILL, label: 'gold', minLikes: 50 },
+  platinum: { id: 'platinum', fill: PLATINUM_GEM_FILL, label: 'platinum', minLikes: 100 },
+  diamond: { id: 'diamond', fill: DIAMOND_GEM_FILL, label: 'diamond', minLikes: 200 },
+};
 
 const SNAPSHOT_PLACES = [
   'a café',
@@ -35,7 +51,7 @@ const CHALLENGE_FINDS = [
     photo: 'assets/find-c.jpg',
     text: 'Bird-shaped cloud above Victoria Trail.',
     place: 'Victoria Trail NW',
-    likes: 7,
+    likes: 24,
     collected: true,
   },
   {
@@ -44,7 +60,7 @@ const CHALLENGE_FINDS = [
     photo: 'assets/find-d.jpg',
     text: 'Fox silhouette in the ivy on the mailbox.',
     place: '28 St NW',
-    likes: 21,
+    likes: 61,
     collected: true,
   },
   {
@@ -80,11 +96,8 @@ const TAP_ANYWHERE = 'Tap anywhere to continue';
 const ROTATE_MS = 2200;
 const TIP_KEY = 'location-gems-hub-snapshot-tip-seen';
 const ONBOARD_KEY = 'location-gems-hub-onboard-seen';
-const GRID_GAP = 16;
-const H_PAD = 24;
 const SWIPE_COMMIT_X = 72;
 const SWIPE_COMMIT_Y = 78;
-const HOLD_MS = 420;
 const HAZE_IN_MS = 160;
 const SHINE_MS = 1400;
 const HOLD_AFTER_SHINE_MS = 500;
@@ -92,6 +105,7 @@ const COPY_CELEBRATE_MS = 780;
 const HAZE_OUT_MS = 300;
 const CARD_IN_MS = 980;
 const CARD_OUT_MS = 560;
+const FLY_MS = 720;
 const LIKES_DEMO = 12;
 const HOLD_RING_LEN = 163.36;
 
@@ -102,15 +116,10 @@ const GLANCE_ARC_START = 190;
 const GLANCE_ARC_END = -10;
 
 const COPY = {
-  emptyCollectedTitle: 'No gems collected yet',
-  emptyCollectedBody:
-    'While you explore an adventure, gems left by others show up here — the bench, the view, the corner that made someone pause.',
-  emptyCreatedTitle: "Nothing you've marked yet",
-  emptyCreatedBody:
-    'When a place catches you mid-adventure, tap the camera to leave a photo and a short note for whoever comes next.',
-  emptyFavouritesTitle: 'No favourites yet',
-  emptyFavouritesBody:
-    'Tap the heart on any gem you love and it will be saved here for easy access.',
+  emptyPublicTitle: '[no public gems yet]',
+  emptyPublicBody: '[publish a find or collect one on a walk — they show here with a cyan glow]',
+  emptyHiddenTitle: '[no hidden gems yet]',
+  emptyHiddenBody: '[keep a find just for you — dull purple, only you can see it]',
   spoofCollectedTitle: 'Morning light on the corner',
   spoofCollectedTagline: 'Fresh bread before the city wakes',
   spoofCollectedReflection:
@@ -118,31 +127,69 @@ const COPY = {
   detailOwnSubtitle: 'A memory you marked on the map',
   detailCollectedSubtitle: 'A memory another reader left at this place',
   railPrivate: '[keep hidden]',
-  railPublic: '[make public]',
+  railPublic: '[publish]',
   railDelete: '[delete]',
+  dropHidden: '[hidden gems]',
+  dropPublic: '[public gems]',
   likesSubtitle: '[on this public gem]',
   detailNav: '[navigate to jam]',
+  detailPublish: '[publish gem]',
+  detailUnpublish: '[unpublish gem]',
   detailAdd: '[add more to this jam]',
   bannerOwn: '[add as many entries as you like on your jam]',
   bannerOther: '[you have to be at the location to add more to somebody else’s jam]',
-  holdHint: 'Hold a card — then swipe.',
+  holdHint: 'Press + hold the photo — sides light up. Then swipe.',
+  holdHintDrag: 'Press + hold — then drag onto Hidden or Public.',
+  sortTitle: '[sort finds into gems]',
+  sortIntro:
+    '[press and hold the photo — swipe left to keep hidden, right to publish, or down to delete]',
+  sortIntroDrag:
+    '[press and hold the photo — drag onto Hidden gems or Public gems]',
+  publicIntroTitle: '[public gems]',
+  publicIntroBody:
+    '[on the map for others — cyan glow; more likes unlock silver → gold → platinum → diamond]',
+  hiddenIntroTitle: '[hidden gems]',
+  hiddenIntroBody: '[only for you — dull purple. publish anytime from the gem]',
   privateBadge: '[hidden]',
   publicBadge: '[public]',
+  cardNav: '[navigate]',
+  cardPublish: '[publish]',
+  cardUnpublish: '[unpublish]',
 };
 
 const SPOOF_COPY = {
   railPrivate: 'Keep as a quiet gem',
-  railPublic: 'Publish this shiny gem',
+  railPublic: 'Publish this gem',
   railDelete: 'Toss this find',
+  dropHidden: 'Hidden gems',
+  dropPublic: 'Public gems',
   likesSubtitle: 'on this public gem',
   detailNav: 'Navigate to jam',
+  detailPublish: 'Publish gem',
+  detailUnpublish: 'Unpublish gem',
   detailAdd: 'Add more to this jam',
   bannerOwn: 'On your gems, add as much as you’d like.',
   bannerOther: 'On somebody else’s gems, be at the location to add more.',
-  holdHint: 'Hold, then swipe left / right / down.',
+  holdHint: 'Press + hold the photo — sides light up. Then swipe.',
+  holdHintDrag: 'Press + hold — drag onto Hidden or Public.',
+  sortTitle: 'Sort finds into gems',
+  sortIntro: 'Press and hold the photo — swipe left hidden, right publish, down delete.',
+  sortIntroDrag: 'Press and hold — drag onto Hidden gems or Public gems.',
+  publicIntroTitle: 'Public gems',
+  publicIntroBody:
+    'On the map for others — cyan glow; more likes unlock silver → gold → platinum → diamond.',
+  hiddenIntroTitle: 'Hidden gems',
+  hiddenIntroBody: 'Only for you — dull purple. Publish anytime from the gem.',
   privateBadge: 'Hidden',
   publicBadge: 'Public',
+  cardNav: 'Navigate',
+  cardPublish: 'Publish',
+  cardUnpublish: 'Unpublish',
   likesLine: (n) => `${n} likes on this jam`,
+  emptyPublicTitle: 'No public gems yet',
+  emptyPublicBody: 'Publish a find or collect one on a walk — cyan glow lives here.',
+  emptyHiddenTitle: 'No hidden gems yet',
+  emptyHiddenBody: 'Keep a find just for you — dull purple, only you see it.',
 };
 
 const phone = document.getElementById('phone');
@@ -151,13 +198,17 @@ const gemGrid = document.getElementById('gemGrid');
 const emptyState = document.getElementById('emptyState');
 const emptyTitle = document.getElementById('emptyTitle');
 const emptyBody = document.getElementById('emptyBody');
+const emptyIcon = document.getElementById('emptyIcon');
 const snapshotBtn = document.getElementById('snapshotBtn');
 const cameraButton = document.getElementById('cameraButton');
 const rotatingWord = document.getElementById('rotatingWord');
 const snapshotTip = document.getElementById('snapshotTip');
 const snapshotTipOk = document.getElementById('snapshotTipOk');
 const snapshotTipScrim = document.getElementById('snapshotTipScrim');
-const tabFavIcon = document.getElementById('tabFavIcon');
+const sectionIntroTitle = document.getElementById('sectionIntroTitle');
+const sectionIntroBody = document.getElementById('sectionIntroBody');
+const tabPublicIcon = document.getElementById('tabPublicIcon');
+const tabHiddenIcon = document.getElementById('tabHiddenIcon');
 const detail = document.getElementById('detail');
 const detailBack = document.getElementById('detailBack');
 const detailFav = document.getElementById('detailFav');
@@ -170,7 +221,9 @@ const detailAuthor = document.getElementById('detailAuthor');
 const detailCaption = document.getElementById('detailCaption');
 const detailVisibility = document.getElementById('detailVisibility');
 const detailLikes = document.getElementById('detailLikes');
+const detailRarity = document.getElementById('detailRarity');
 const detailNav = document.getElementById('detailNav');
+const detailPublish = document.getElementById('detailPublish');
 const detailEntries = document.getElementById('detailEntries');
 const detailBanner = document.getElementById('detailBanner');
 const detailBannerCopy = document.getElementById('detailBannerCopy');
@@ -178,6 +231,8 @@ const detailAdd = document.getElementById('detailAdd');
 const hint = document.getElementById('hint');
 const resetHub = document.getElementById('resetHub');
 const feedStrip = document.getElementById('feedStrip');
+const sortTitle = document.getElementById('sortTitle');
+const sortIntro = document.getElementById('sortIntro');
 const sortSub = document.getElementById('sortSub');
 const sortStack = document.getElementById('sortStack');
 const sortEmpty = document.getElementById('sortEmpty');
@@ -185,7 +240,12 @@ const sortInline = document.getElementById('sortInline');
 const railPrivate = document.getElementById('railPrivate');
 const railPublic = document.getElementById('railPublic');
 const railDelete = document.getElementById('railDelete');
+const railPrivateIcon = document.getElementById('railPrivateIcon');
 const railPublicIcon = document.getElementById('railPublicIcon');
+const dropHidden = document.getElementById('dropHidden');
+const dropPublic = document.getElementById('dropPublic');
+const dropHiddenIcon = document.getElementById('dropHiddenIcon');
+const dropPublicIcon = document.getElementById('dropPublicIcon');
 const holdCue = document.getElementById('holdCue');
 const holdRingFill = document.getElementById('holdRingFill');
 const spot = document.getElementById('spot');
@@ -201,32 +261,35 @@ const likesJamPhoto = document.getElementById('likesJamPhoto');
 const likesJamUser = document.getElementById('likesJamUser');
 const likesJamText = document.getElementById('likesJamText');
 const likesJamPlace = document.getElementById('likesJamPlace');
+const flyLayer = document.getElementById('flyLayer');
 const debugLikes = document.getElementById('debugLikes');
 const debugOnboard = document.getElementById('debugOnboard');
 const debugSpoof = document.getElementById('debugSpoof');
+const debugDragMode = document.getElementById('debugDragMode');
 
-/** @type {'collected'|'created'|'favourites'} */
-let activeSection = 'collected';
+/** @type {'public'|'hidden'} */
+let activeSection = 'public';
 /** @type {any[]} */
-let createdGems = [];
-/** @type {any[]} */
-let collectedGems = [];
+let gems = [];
 /** @type {string[]} */
 let favouriteGemIds = [];
 /** @type {any[]} */
 let pendingSort = [];
 let openGemId = null;
 let placeIndex = 0;
-let createdSeq = 0;
+let gemSeq = 0;
 let likesBusy = false;
 let spoofWording = false;
+let dragMode = false;
 /** @type {any} */
 let drag = null;
 /** @type {Array<() => void>} */
 const pendingEnds = [];
 
 function t(key) {
-  if (spoofWording && SPOOF_COPY[key]) return SPOOF_COPY[key];
+  if (spoofWording && Object.prototype.hasOwnProperty.call(SPOOF_COPY, key)) {
+    return SPOOF_COPY[key];
+  }
   return COPY[key];
 }
 
@@ -268,6 +331,18 @@ function storageClear(key) {
   }
 }
 
+function rarityForLikes(likes, isPublic) {
+  if (!isPublic) {
+    return { id: 'hidden', fill: HIDDEN_GEM_FILL, label: 'hidden', minLikes: 0 };
+  }
+  const n = Number(likes) || 0;
+  if (n >= RARITY.diamond.minLikes) return RARITY.diamond;
+  if (n >= RARITY.platinum.minLikes) return RARITY.platinum;
+  if (n >= RARITY.gold.minLikes) return RARITY.gold;
+  if (n >= RARITY.silver.minLikes) return RARITY.silver;
+  return RARITY.cyan;
+}
+
 function createSpoofCollectedGem() {
   return {
     id: SPOOF_COLLECTED_GEM_ID,
@@ -278,42 +353,43 @@ function createSpoofCollectedGem() {
     caption: COPY.spoofCollectedReflection,
     authorUsername: SPOOF_COLLECTED_GEM_AUTHOR,
     isPublic: true,
+    owned: false,
     likes: LIKES_DEMO,
-    gemFill: MY_GEM_FILL,
     createdAt: new Date(Date.now() - 172_800_000).toISOString(),
-    entries: [
-      COPY.spoofCollectedReflection,
-      '[another note left at this jam]',
-    ],
+    entries: [COPY.spoofCollectedReflection, '[another note left at this jam]'],
   };
 }
 
-function findToCollectedGem(find) {
+function findToGem(find, opts) {
+  gemSeq += 1;
   return {
-    id: `collected-${find.id}`,
+    id: opts.id || `gem-${find.id}-${gemSeq}`,
     storyId: 'daily-side-quests',
     imageUri: find.photo,
     title: find.place,
     tagline: find.text,
     caption: find.text,
     authorUsername: find.user.replace(/^@/, ''),
-    isPublic: true,
-    likes: find.likes || 0,
-    gemFill: MY_GEM_FILL,
+    isPublic: !!opts.isPublic,
+    owned: !!opts.owned,
+    likes: opts.isPublic ? find.likes || 0 : 0,
     createdAt: new Date().toISOString(),
     entries: [find.text],
   };
 }
 
-function seedCollectedFromChallenges() {
+function seedGems() {
+  gems = [];
   CHALLENGE_FINDS.filter((f) => f.collected).forEach((find) => {
-    const id = `collected-${find.id}`;
-    if (collectedGems.some((g) => g.id === id)) return;
-    collectedGems.push(findToCollectedGem(find));
+    gems.push(
+      findToGem(find, {
+        id: `collected-${find.id}`,
+        isPublic: true,
+        owned: false,
+      }),
+    );
   });
-  if (!collectedGems.some((g) => g.id === SPOOF_COLLECTED_GEM_ID)) {
-    collectedGems.unshift(createSpoofCollectedGem());
-  }
+  gems.unshift(createSpoofCollectedGem());
 }
 
 function seedPendingSort() {
@@ -331,29 +407,20 @@ function getGemTitle(gem) {
 }
 
 function publicLikes(gem) {
-  if (gem.isPublic === false) return 0;
+  if (!gem.isPublic) return 0;
   return Number(gem.likes) || 0;
 }
 
 function activeGems() {
-  if (activeSection === 'collected') return collectedGems;
-  if (activeSection === 'created') return createdGems;
-  return [...collectedGems, ...createdGems].filter((g) => favouriteGemIds.includes(g.id));
+  if (activeSection === 'public') return gems.filter((g) => g.isPublic);
+  return gems.filter((g) => !g.isPublic && g.owned);
 }
 
 function emptyCopy() {
-  if (activeSection === 'collected') {
-    return { title: COPY.emptyCollectedTitle, body: COPY.emptyCollectedBody };
+  if (activeSection === 'public') {
+    return { title: t('emptyPublicTitle'), body: t('emptyPublicBody') };
   }
-  if (activeSection === 'created') {
-    return { title: COPY.emptyCreatedTitle, body: COPY.emptyCreatedBody };
-  }
-  return { title: COPY.emptyFavouritesTitle, body: COPY.emptyFavouritesBody };
-}
-
-function polaroidWidth() {
-  const w = phone.getBoundingClientRect().width || 376;
-  return Math.floor((w - H_PAD * 2 - GRID_GAP) / 2);
+  return { title: t('emptyHiddenTitle'), body: t('emptyHiddenBody') };
 }
 
 function glancePolar(cx, cy, r, deg) {
@@ -381,92 +448,78 @@ function setupSnapshotArc() {
   fill.style.strokeDashoffset = '0';
 }
 
-function applyRailCopy() {
+function applyStaticCopy() {
+  sortTitle.textContent = t('sortTitle');
+  sortIntro.textContent = dragMode ? t('sortIntroDrag') : t('sortIntro');
   document.querySelectorAll('[data-copy]').forEach((el) => {
-    const key =
-      el.dataset.copy === 'private'
-        ? 'railPrivate'
-        : el.dataset.copy === 'public'
-          ? 'railPublic'
-          : 'railDelete';
-    el.textContent = t(key);
+    const map = {
+      private: 'railPrivate',
+      public: 'railPublic',
+      delete: 'railDelete',
+      dropHidden: 'dropHidden',
+      dropPublic: 'dropPublic',
+    };
+    const key = map[el.dataset.copy];
+    if (key) el.textContent = t(key);
   });
   detailNav.textContent = t('detailNav');
   detailAdd.textContent = t('detailAdd');
   likesSubtitle.textContent = t('likesSubtitle');
-  hint.textContent = t('holdHint');
+  hint.textContent = dragMode ? t('holdHintDrag') : t('holdHint');
+  syncSectionIntro();
 }
 
-function buildPolaroid(gem, width) {
+function syncSectionIntro() {
+  if (activeSection === 'public') {
+    sectionIntroTitle.textContent = t('publicIntroTitle');
+    sectionIntroBody.textContent = t('publicIntroBody');
+  } else {
+    sectionIntroTitle.textContent = t('hiddenIntroTitle');
+    sectionIntroBody.textContent = t('hiddenIntroBody');
+  }
+}
+
+function buildGemCard(gem, opts = {}) {
+  const rarity = rarityForLikes(gem.likes, gem.isPublic);
   const wrap = document.createElement('div');
-  wrap.className = 'polaroid';
-  wrap.style.setProperty('--pw', `${width}px`);
-  const tape = document.createElement('img');
-  tape.className = 'polaroid-tape';
-  tape.src = 'assets/polaroid_tape.svg';
-  tape.alt = '';
-  const frame = document.createElement('div');
-  frame.className = 'polaroid-frame';
-  const photo = document.createElement('div');
-  photo.className = 'polaroid-photo';
+  wrap.className = 'gem-card';
+  if (opts.enter) wrap.classList.add('is-enter');
   const img = document.createElement('img');
+  img.className = 'gem-card-photo';
   img.src = gem.imageUri;
   img.alt = '';
   img.decoding = 'async';
-  photo.appendChild(img);
-  if (gem.gemFill) {
-    const badge = document.createElement('div');
-    badge.className = 'polaroid-gem-badge';
-    badge.innerHTML = gemSvg(gem.gemFill);
-    photo.appendChild(badge);
-  }
-  if (gem.isPublic === false) {
-    const vis = document.createElement('span');
-    vis.className = 'polaroid-badge';
-    vis.textContent = t('privateBadge');
-    photo.appendChild(vis);
-  } else if (gem.isPublic === true && createdGems.some((g) => g.id === gem.id)) {
-    const vis = document.createElement('span');
-    vis.className = 'polaroid-badge';
-    vis.textContent = t('publicBadge');
-    photo.appendChild(vis);
-  }
+  wrap.appendChild(img);
   const likes = publicLikes(gem);
-  if (gem.isPublic !== false && likes > 0) {
+  if (gem.isPublic && likes > 0) {
     const likesEl = document.createElement('span');
-    likesEl.className = 'polaroid-likes';
-    likesEl.textContent = spoofWording
-      ? SPOOF_COPY.likesLine(likes)
-      : `${likes} ♥`;
-    photo.appendChild(likesEl);
+    likesEl.className = 'gem-card-likes';
+    likesEl.textContent = spoofWording ? SPOOF_COPY.likesLine(likes) : `${likes} ♥`;
+    wrap.appendChild(likesEl);
   }
-  const caption = document.createElement('div');
-  caption.className = 'polaroid-caption';
-  const p = document.createElement('p');
-  p.textContent = getGemTagline(gem) || getGemTitle(gem) || '—';
-  caption.appendChild(p);
-  frame.appendChild(photo);
-  frame.appendChild(caption);
-  wrap.appendChild(tape);
-  wrap.appendChild(frame);
+  if (gem.isPublic && rarity.id !== 'cyan') {
+    const rarityEl = document.createElement('span');
+    rarityEl.className = 'gem-card-rarity';
+    rarityEl.textContent = rarity.label;
+    wrap.appendChild(rarityEl);
+  }
+  const gemEl = document.createElement('span');
+  gemEl.className = 'gem-card-gem';
+  if (!gem.isPublic) gemEl.classList.add('is-hidden-fill');
+  else if (rarity.id !== 'cyan') gemEl.classList.add(`is-${rarity.id}`);
+  gemEl.innerHTML = gemSvg(rarity.fill);
+  wrap.appendChild(gemEl);
   return wrap;
 }
 
 function renderFeed() {
   feedStrip.replaceChildren();
-  const publicCreated = createdGems.filter((g) => g.isPublic);
-  const items = [
-    ...publicCreated.slice(0, 2).map((g) => ({
-      photo: g.imageUri,
-      title: getGemTitle(g),
-      body: spoofWording ? 'your public gem is live' : '[your public gem is live]',
-    })),
-    ...collectedGems.slice(0, 3).map((g) => ({
-      photo: g.imageUri,
-      title: `@${g.authorUsername || 'walker'}`,
-      body: getGemTagline(g) || (spoofWording ? 'gem nearby' : '[gem nearby]'),
-    })),
-  ].slice(0, 5);
+  const publicGems = gems.filter((g) => g.isPublic);
+  const items = publicGems.slice(0, 5).map((g) => ({
+    photo: g.imageUri,
+    title: g.owned ? getGemTitle(g) : `@${g.authorUsername || 'walker'}`,
+    body: getGemTagline(g) || (spoofWording ? 'gem nearby' : '[gem nearby]'),
+  }));
   items.forEach((item) => {
     const chip = document.createElement('article');
     chip.className = 'feed-chip';
@@ -475,27 +528,74 @@ function renderFeed() {
   });
 }
 
-function renderGrid() {
-  const gems = activeGems();
-  const width = polaroidWidth();
+function renderGrid(enterId) {
+  const list = activeGems();
   gemGrid.replaceChildren();
-  if (!gems.length) {
+  if (!list.length) {
     gemGrid.hidden = true;
     const copy = emptyCopy();
     emptyTitle.textContent = copy.title;
     emptyBody.textContent = copy.body;
+    emptyIcon.innerHTML = gemSvg(
+      activeSection === 'public' ? PUBLIC_GEM_FILL : HIDDEN_GEM_FILL,
+    );
     emptyState.hidden = false;
     return;
   }
   emptyState.hidden = true;
   gemGrid.hidden = false;
-  gems.forEach((gem) => {
-    const cell = document.createElement('button');
-    cell.type = 'button';
+  list.forEach((gem) => {
+    const cell = document.createElement('div');
     cell.className = 'gem-cell';
-    cell.setAttribute('aria-label', getGemTitle(gem) || 'Gem');
-    cell.appendChild(buildPolaroid(gem, width));
-    cell.addEventListener('click', () => openDetail(gem.id));
+    cell.dataset.id = gem.id;
+    const card = buildGemCard(gem, { enter: gem.id === enterId });
+    card.setAttribute('role', 'button');
+    card.tabIndex = 0;
+    card.setAttribute('aria-label', getGemTitle(gem) || 'Gem');
+    card.addEventListener('click', () => openDetail(gem.id));
+    cell.appendChild(card);
+    const caption = document.createElement('p');
+    caption.className = 'gem-card-caption';
+    caption.textContent = getGemTagline(gem) || getGemTitle(gem) || '—';
+    cell.appendChild(caption);
+    if (gem.owned) {
+      const actions = document.createElement('div');
+      actions.className = 'gem-card-actions';
+      const nav = document.createElement('button');
+      nav.type = 'button';
+      nav.textContent = t('cardNav');
+      nav.addEventListener('click', (e) => {
+        e.stopPropagation();
+        hint.textContent = spoofWording
+          ? 'Navigate spoofed — you’d walk to this jam'
+          : '[navigate spoofed — walk to jam]';
+      });
+      actions.appendChild(nav);
+      const pub = document.createElement('button');
+      pub.type = 'button';
+      pub.className = 'is-secondary';
+      pub.textContent = gem.isPublic ? t('cardUnpublish') : t('cardPublish');
+      pub.addEventListener('click', (e) => {
+        e.stopPropagation();
+        togglePublish(gem.id);
+      });
+      actions.appendChild(pub);
+      cell.appendChild(actions);
+    } else {
+      const actions = document.createElement('div');
+      actions.className = 'gem-card-actions';
+      const nav = document.createElement('button');
+      nav.type = 'button';
+      nav.textContent = t('cardNav');
+      nav.addEventListener('click', (e) => {
+        e.stopPropagation();
+        hint.textContent = spoofWording
+          ? 'Navigate spoofed — you’d walk to this jam'
+          : '[navigate spoofed — walk to jam]';
+      });
+      actions.appendChild(nav);
+      cell.appendChild(actions);
+    }
     gemGrid.appendChild(cell);
   });
 }
@@ -504,15 +604,29 @@ function setSortingFocus(on) {
   hub.classList.toggle('is-sorting-focus', on && pendingSort.length > 0);
 }
 
-function hideRails() {
+function hideTargets() {
   [railPrivate, railPublic, railDelete].forEach((rail) => {
     rail.classList.remove('is-on', 'is-flash', 'is-hot');
   });
+  [dropHidden, dropPublic].forEach((zone) => {
+    zone.classList.remove('is-on', 'is-hot');
+  });
 }
 
-function setRails(mode, armed) {
+function setTargets(mode, armed) {
   if (!armed) {
-    hideRails();
+    hideTargets();
+    return;
+  }
+  if (dragMode) {
+    dropHidden.hidden = false;
+    dropPublic.hidden = false;
+    dropHidden.setAttribute('aria-hidden', 'false');
+    dropPublic.setAttribute('aria-hidden', 'false');
+    dropHidden.classList.add('is-on');
+    dropPublic.classList.add('is-on');
+    dropHidden.classList.toggle('is-hot', mode === 'private');
+    dropPublic.classList.toggle('is-hot', mode === 'public');
     return;
   }
   [railPrivate, railPublic, railDelete].forEach((rail) => {
@@ -534,7 +648,11 @@ function setRails(mode, armed) {
 function setHoldCue(on, ready) {
   holdCue.classList.toggle('is-on', on);
   holdCue.classList.toggle('is-ready', !!ready);
-  if (!on) {
+  if (on) {
+    holdRingFill.style.transition = 'stroke-dashoffset 280ms linear';
+    holdRingFill.style.strokeDashoffset = '0';
+  } else {
+    holdRingFill.style.transition = 'none';
     holdRingFill.style.strokeDashoffset = String(HOLD_RING_LEN);
   }
 }
@@ -560,7 +678,7 @@ function renderSortStack() {
   sortSub.textContent = n ? `${n} left` : '[all sorted]';
   sortEmpty.hidden = n > 0;
   setSortingFocus(false);
-  hideRails();
+  hideTargets();
   setHoldCue(false, false);
   if (!n) return;
   const top = pendingSort[0];
@@ -571,11 +689,11 @@ function renderSortStack() {
   bindSortDrag(front);
 }
 
-function refreshHub() {
-  applyRailCopy();
+function refreshHub(enterId) {
+  applyStaticCopy();
   renderFeed();
   renderSortStack();
-  renderGrid();
+  renderGrid(enterId);
 }
 
 function setSection(section) {
@@ -585,8 +703,7 @@ function setSection(section) {
     btn.classList.toggle('is-active', on);
     btn.setAttribute('aria-selected', on ? 'true' : 'false');
   });
-  tabFavIcon.src =
-    section === 'favourites' ? 'assets/fav_checked.svg' : 'assets/fav_unchecked.svg';
+  syncSectionIntro();
   renderGrid();
 }
 
@@ -602,7 +719,7 @@ function dismissTip() {
 }
 
 function findGem(id) {
-  return [...collectedGems, ...createdGems].find((g) => g.id === id) || null;
+  return gems.find((g) => g.id === id) || null;
 }
 
 function isFavourite(id) {
@@ -616,7 +733,6 @@ function toggleFavourite(id) {
     favouriteGemIds.push(id);
   }
   syncDetailFav();
-  if (activeSection === 'favourites') renderGrid();
 }
 
 function syncDetailFav() {
@@ -626,10 +742,11 @@ function syncDetailFav() {
     : 'assets/fav_unchecked.svg';
 }
 
-function renderDetailEntries(gem, owned) {
-  const entries = Array.isArray(gem.entries) && gem.entries.length
-    ? gem.entries
-    : [gem.caption || gem.tagline || ''].filter(Boolean);
+function renderDetailEntries(gem) {
+  const entries =
+    Array.isArray(gem.entries) && gem.entries.length
+      ? gem.entries
+      : [gem.caption || gem.tagline || ''].filter(Boolean);
   detailEntries.replaceChildren();
   if (!entries.length) {
     detailEntries.hidden = true;
@@ -643,23 +760,23 @@ function renderDetailEntries(gem, owned) {
   });
   detailEntries.hidden = false;
   detailBanner.hidden = false;
-  detailBannerCopy.textContent = owned ? t('bannerOwn') : t('bannerOther');
-  detailAdd.hidden = !owned;
+  detailBannerCopy.textContent = gem.owned ? t('bannerOwn') : t('bannerOther');
+  detailAdd.hidden = !gem.owned;
 }
 
 function openDetail(id) {
   const gem = findGem(id);
   if (!gem) return;
   openGemId = id;
-  const owned = createdGems.some((g) => g.id === id);
-  detailSubtitle.textContent = owned
+  const rarity = rarityForLikes(gem.likes, gem.isPublic);
+  detailSubtitle.textContent = gem.owned
     ? COPY.detailOwnSubtitle
     : COPY.detailCollectedSubtitle;
   detailPhoto.src = gem.imageUri;
   detailGemTitle.textContent = getGemTitle(gem);
   detailTagline.textContent = getGemTagline(gem);
   const likes = publicLikes(gem);
-  if (gem.isPublic !== false && likes > 0) {
+  if (gem.isPublic && likes > 0) {
     detailLikes.hidden = false;
     detailLikes.textContent = spoofWording
       ? SPOOF_COPY.likesLine(likes)
@@ -667,11 +784,20 @@ function openDetail(id) {
   } else {
     detailLikes.hidden = true;
   }
-  if (owned) {
+  if (gem.isPublic && rarity.id !== 'cyan') {
+    detailRarity.hidden = false;
+    detailRarity.textContent = rarity.label;
+  } else {
+    detailRarity.hidden = true;
+  }
+  if (gem.owned) {
     detailVisibility.hidden = false;
     detailVisibility.textContent = gem.isPublic ? t('publicBadge') : t('privateBadge');
+    detailPublish.hidden = false;
+    detailPublish.textContent = gem.isPublic ? t('detailUnpublish') : t('detailPublish');
   } else {
     detailVisibility.hidden = true;
+    detailPublish.hidden = true;
   }
   if (gem.authorUsername) {
     detailAuthor.hidden = false;
@@ -682,7 +808,7 @@ function openDetail(id) {
   detailCaption.textContent = gem.caption || '';
   detailNav.hidden = false;
   detailNav.textContent = t('detailNav');
-  renderDetailEntries(gem, owned);
+  renderDetailEntries(gem);
   syncDetailFav();
   detail.hidden = false;
   detail.setAttribute('aria-hidden', 'false');
@@ -692,36 +818,49 @@ function closeDetail() {
   openGemId = null;
   detail.hidden = true;
   detail.setAttribute('aria-hidden', 'true');
-  if (activeSection === 'favourites') renderGrid();
 }
 
 function addEntryToOpenGem() {
   if (!openGemId) return;
   const gem = findGem(openGemId);
-  if (!gem || !createdGems.some((g) => g.id === openGemId)) return;
-  if (!Array.isArray(gem.entries)) gem.entries = [gem.caption || gem.tagline || ''].filter(Boolean);
+  if (!gem || !gem.owned) return;
+  if (!Array.isArray(gem.entries)) {
+    gem.entries = [gem.caption || gem.tagline || ''].filter(Boolean);
+  }
   gem.entries.push(spoofWording ? 'Another line on my jam' : '[another entry on this jam]');
-  renderDetailEntries(gem, true);
+  renderDetailEntries(gem);
+}
+
+function togglePublish(id) {
+  const gem = findGem(id);
+  if (!gem || !gem.owned) return;
+  gem.isPublic = !gem.isPublic;
+  if (!gem.isPublic) gem.likes = 0;
+  else if (!gem.likes) gem.likes = LIKES_DEMO;
+  setSection(gem.isPublic ? 'public' : 'hidden');
+  refreshHub(gem.id);
+  if (openGemId === id) openDetail(id);
 }
 
 function addSampleCreatedGem() {
-  createdSeq += 1;
-  const photo = CHALLENGE_FINDS[(createdSeq - 1) % CHALLENGE_FINDS.length].photo;
-  createdGems.unshift({
-    id: `created-${Date.now()}-${createdSeq}`,
+  gemSeq += 1;
+  const photo = CHALLENGE_FINDS[(gemSeq - 1) % CHALLENGE_FINDS.length].photo;
+  const gem = {
+    id: `created-${Date.now()}-${gemSeq}`,
     storyId: 'location-gems-hub',
     imageUri: photo,
     title: 'Corner I marked',
-    tagline: SNAPSHOT_PLACES[(createdSeq - 1) % SNAPSHOT_PLACES.length],
+    tagline: SNAPSHOT_PLACES[(gemSeq - 1) % SNAPSHOT_PLACES.length],
     caption: '[snapshot gem from hub camera]',
-    isPublic: true,
+    isPublic: false,
+    owned: true,
     likes: 0,
-    gemFill: MY_GEM_FILL,
     createdAt: new Date().toISOString(),
     entries: ['[snapshot gem from hub camera]'],
-  });
-  setSection('created');
-  refreshHub();
+  };
+  gems.unshift(gem);
+  setSection('hidden');
+  refreshHub(gem.id);
 }
 
 function handleSnapshot() {
@@ -746,7 +885,6 @@ function showSnack(text) {
   snack.querySelector('.snx').onclick = hideSnack;
 }
 
-/** first-story-flow spotlight — hole on target, tip with elf */
 function spotlight(target, text, opts = {}) {
   return new Promise((done) => {
     const pr = phone.getBoundingClientRect();
@@ -786,45 +924,40 @@ async function runOnboardingTips() {
   await wait(80);
   if (pendingSort.length) {
     const card = sortStack.querySelector('.sort-card:not(.is-under)') || sortStack;
-    await spotlight(card, '[hold the card first — then swipe]', {
-      step: '1 of 4',
+    await spotlight(card, '[press and hold the photo — that activates the sides]', {
+      step: '1 of 3',
       title: '[sort finds]',
     });
   }
-  await spotlight(railPrivate, '[left = hidden gem]', {
-    step: '2 of 4',
-    title: t('railPrivate'),
-  });
-  await spotlight(railPublic, '[right = shiny public gem]', {
-    step: '3 of 4',
-    title: t('railPublic'),
-  });
-  await spotlight(railDelete, '[down = lid / delete]', {
-    step: '4 of 4',
-    title: t('railDelete'),
-  });
-  showSnack('[scroll down for collected / created / favourites]');
+  if (dragMode) {
+    await spotlight(dropHidden, '[drag onto hidden gems to keep it just for you]', {
+      step: '2 of 3',
+      title: t('dropHidden'),
+    });
+    await spotlight(dropPublic, '[drag onto public gems to publish it]', {
+      step: '3 of 3',
+      title: t('dropPublic'),
+    });
+  } else {
+    await spotlight(railPrivate, '[swipe left = hidden purple gem]', {
+      step: '2 of 3',
+      title: t('railPrivate'),
+    });
+    await spotlight(railPublic, '[swipe right = public cyan gem]', {
+      step: '3 of 3',
+      title: t('railPublic'),
+    });
+  }
+  showSnack('[scroll for public / hidden gems]');
   storageSet(ONBOARD_KEY);
 }
 
-function findToCreatedGem(find, isPublic) {
-  createdSeq += 1;
-  return {
-    id: `sorted-${find.id}-${createdSeq}`,
-    storyId: 'daily-side-quests',
-    imageUri: find.photo,
-    title: find.place,
-    tagline: find.text,
-    caption: find.text,
-    isPublic,
-    likes: isPublic ? LIKES_DEMO : 0,
-    gemFill: MY_GEM_FILL,
-    createdAt: new Date().toISOString(),
-    entries: [find.text],
-  };
-}
-
 function railModeFromDelta(dx, dy) {
+  if (dragMode) {
+    if (dx < -36) return 'private';
+    if (dx > 36) return 'public';
+    return null;
+  }
   if (dy > 48 && Math.abs(dx) < 64) return 'delete';
   if (dx > 36) return 'public';
   if (dx < -36) return 'private';
@@ -832,19 +965,11 @@ function railModeFromDelta(dx, dy) {
 }
 
 function bindSortDrag(card) {
-  const clearHoldTimer = () => {
-    if (drag && drag.holdTimer) {
-      window.clearTimeout(drag.holdTimer);
-      drag.holdTimer = null;
-    }
-  };
-
   const finishDrag = (dx, dy) => {
     const armed = !!(drag && drag.armed);
-    clearHoldTimer();
     drag = null;
     setHoldCue(false, false);
-    setRails(null, false);
+    setTargets(null, false);
     setSortingFocus(false);
     if (!armed) {
       card.style.transition = 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)';
@@ -862,7 +987,7 @@ function bindSortDrag(card) {
       settleSort(card, 'private');
       return;
     }
-    if (dy > SWIPE_COMMIT_Y && Math.abs(dx) < SWIPE_COMMIT_X) {
+    if (!dragMode && dy > SWIPE_COMMIT_Y && Math.abs(dx) < SWIPE_COMMIT_X) {
       settleSort(card, 'delete');
       return;
     }
@@ -880,9 +1005,9 @@ function bindSortDrag(card) {
       e.preventDefault();
       card.setPointerCapture(e.pointerId);
       hub.classList.add('is-sorting-focus');
-      setHoldCue(true, false);
-      holdRingFill.style.transition = `stroke-dashoffset ${HOLD_MS}ms linear`;
-      holdRingFill.style.strokeDashoffset = '0';
+      /** Activate immediately on press-hold start */
+      setHoldCue(true, true);
+      setTargets(null, true);
       drag = {
         card,
         id: e.pointerId,
@@ -890,15 +1015,9 @@ function bindSortDrag(card) {
         y0: e.clientY,
         dx: 0,
         dy: 0,
-        armed: false,
-        holdTimer: window.setTimeout(() => {
-          if (!drag || drag.id !== e.pointerId) return;
-          drag.armed = true;
-          setHoldCue(true, true);
-          setRails(null, true);
-          hint.textContent = t('holdHint');
-        }, HOLD_MS),
+        armed: true,
       };
+      hint.textContent = dragMode ? t('holdHintDrag') : t('holdHint');
     },
     { passive: false },
   );
@@ -910,21 +1029,9 @@ function bindSortDrag(card) {
       e.preventDefault();
       drag.dx = e.clientX - drag.x0;
       drag.dy = e.clientY - drag.y0;
-      if (!drag.armed) {
-        if (Math.hypot(drag.dx, drag.dy) > 12) {
-          clearHoldTimer();
-          setHoldCue(false, false);
-          holdRingFill.style.transition = 'none';
-          holdRingFill.style.strokeDashoffset = String(HOLD_RING_LEN);
-          card.style.transform = '';
-          drag = null;
-          setSortingFocus(false);
-        }
-        return;
-      }
       const rot = -4 + drag.dx * 0.06;
       card.style.transform = `translate(${drag.dx}px, ${drag.dy}px) rotate(${rot}deg)`;
-      setRails(railModeFromDelta(drag.dx, drag.dy), true);
+      setTargets(railModeFromDelta(drag.dx, drag.dy), true);
     },
     { passive: false },
   );
@@ -938,7 +1045,26 @@ function bindSortDrag(card) {
   card.addEventListener('pointercancel', up);
 }
 
-function settleSort(card, action) {
+function flyGemIntoSection(photoSrc, toPublic) {
+  return new Promise((resolve) => {
+    const card = document.createElement('div');
+    card.className = 'fly-card is-swing';
+    card.innerHTML = `<img src="${photoSrc}" alt="">`;
+    const stage = document.getElementById('sortStage');
+    const sr = stage.getBoundingClientRect();
+    const pr = phone.getBoundingClientRect();
+    card.style.left = `${sr.left - pr.left + sr.width / 2 - 70}px`;
+    card.style.top = `${sr.top - pr.top + 70}px`;
+    if (!toPublic) card.style.animationName = 'gemSwingIn';
+    flyLayer.appendChild(card);
+    window.setTimeout(() => {
+      card.remove();
+      resolve();
+    }, FLY_MS);
+  });
+}
+
+async function settleSort(card, action) {
   const find = pendingSort[0];
   if (!find) return;
   const fly =
@@ -950,36 +1076,38 @@ function settleSort(card, action) {
   card.style.transition = 'transform 260ms cubic-bezier(0.22, 1, 0.36, 1), opacity 260ms ease';
   card.style.transform = fly;
   card.style.opacity = '0';
-  window.setTimeout(() => {
-    pendingSort.shift();
-    if (action === 'public') {
-      createdGems.unshift(findToCreatedGem(find, true));
-      hint.textContent = t('railPublic');
-      setSection('created');
-    } else if (action === 'private') {
-      createdGems.unshift(findToCreatedGem(find, false));
-      hint.textContent = t('railPrivate');
-      setSection('created');
-    } else {
-      hint.textContent = t('railDelete');
-    }
+  await wait(260);
+  pendingSort.shift();
+  if (action === 'delete') {
+    hint.textContent = t('railDelete');
     refreshHub();
-  }, 260);
+    return;
+  }
+  const gem = findToGem(find, {
+    isPublic: action === 'public',
+    owned: true,
+  });
+  if (action === 'public') gem.likes = LIKES_DEMO;
+  gems.unshift(gem);
+  await flyGemIntoSection(find.photo, action === 'public');
+  setSection(action === 'public' ? 'public' : 'hidden');
+  hint.textContent = action === 'public' ? t('railPublic') : t('railPrivate');
+  refreshHub(gem.id);
+  const cell = gemGrid.querySelector(`[data-id="${gem.id}"]`);
+  if (cell) cell.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 function pickLikedJam() {
-  const publicCreated = createdGems.filter((g) => g.isPublic && publicLikes(g) > 0);
-  if (publicCreated.length) return publicCreated[0];
-  const publicCollected = collectedGems.filter((g) => g.isPublic !== false && publicLikes(g) > 0);
-  if (publicCollected.length) return publicCollected[0];
+  const publicGems = gems.filter((g) => g.isPublic && publicLikes(g) > 0);
+  if (publicGems.length) {
+    return publicGems.slice().sort((a, b) => publicLikes(b) - publicLikes(a))[0];
+  }
   return createSpoofCollectedGem();
 }
 
 function fillLikesJamCard(gem) {
   likesJamPhoto.src = gem.imageUri;
-  likesJamUser.textContent = gem.authorUsername
-    ? `@${gem.authorUsername}`
-    : MY_USER;
+  likesJamUser.textContent = gem.authorUsername ? `@${gem.authorUsername}` : MY_USER;
   likesJamText.textContent = getGemTagline(gem) || getGemTitle(gem);
   likesJamPlace.textContent = gem.title || '';
   const likes = publicLikes(gem) || LIKES_DEMO;
@@ -1022,43 +1150,61 @@ function setSpoofWording(on) {
   spoofWording = on;
   debugSpoof.setAttribute('aria-pressed', on ? 'true' : 'false');
   debugSpoof.textContent = on ? 'Debug: spoof wording ✓' : 'Debug: spoof wording';
-  applyRailCopy();
-  renderFeed();
-  renderGrid();
+  refreshHub();
   if (openGemId) openDetail(openGemId);
+}
+
+function setDragMode(on) {
+  dragMode = on;
+  hub.classList.toggle('is-drag-mode', on);
+  debugDragMode.setAttribute('aria-pressed', on ? 'true' : 'false');
+  debugDragMode.textContent = on ? 'Debug: drag to sections ✓' : 'Debug: drag to sections';
+  dropHidden.hidden = !on;
+  dropPublic.hidden = !on;
+  dropHidden.setAttribute('aria-hidden', on ? 'false' : 'true');
+  dropPublic.setAttribute('aria-hidden', on ? 'false' : 'true');
+  hideTargets();
+  applyStaticCopy();
 }
 
 function resetState() {
   clearSpotlights();
-  createdGems = [];
-  collectedGems = [];
+  gems = [];
   favouriteGemIds = [];
-  createdSeq = 0;
-  seedCollectedFromChallenges();
+  gemSeq = 0;
+  seedGems();
   seedPendingSort();
   closeDetail();
   storageClear(TIP_KEY);
   storageClear(ONBOARD_KEY);
   showTip(true);
-  setSection('collected');
+  setSection('public');
   refreshHub();
-  hint.textContent = t('holdHint');
+  hint.textContent = dragMode ? t('holdHintDrag') : t('holdHint');
   runOnboardingTips();
 }
 
-function init() {
-  if (railPublicIcon) railPublicIcon.innerHTML = gemSvg(MY_GEM_FILL);
+function initIcons() {
+  railPrivateIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL);
+  railPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL);
+  dropHiddenIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL);
+  dropPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL);
+  tabPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL);
+  tabHiddenIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL);
   holdRingFill.style.strokeDasharray = String(HOLD_RING_LEN);
   holdRingFill.style.strokeDashoffset = String(HOLD_RING_LEN);
-  seedCollectedFromChallenges();
+}
+
+function init() {
+  initIcons();
+  seedGems();
   seedPendingSort();
   setupSnapshotArc();
-  applyRailCopy();
-  setSection('collected');
+  applyStaticCopy();
+  setSection('public');
   refreshHub();
   showTip(!storageGet(TIP_KEY));
   window.setInterval(tickPlaces, ROTATE_MS);
-  window.addEventListener('resize', () => renderGrid());
   if (!storageGet(ONBOARD_KEY)) {
     window.setTimeout(() => runOnboardingTips(), 400);
   }
@@ -1079,10 +1225,14 @@ detailNav.addEventListener('click', () => {
     ? 'Navigate spoofed — you’d walk to this jam'
     : '[navigate spoofed — walk to jam]';
 });
+detailPublish.addEventListener('click', () => {
+  if (openGemId) togglePublish(openGemId);
+});
 detailAdd.addEventListener('click', addEntryToOpenGem);
 resetHub.addEventListener('click', resetState);
 debugLikes.addEventListener('click', () => playLikesBanner());
 debugOnboard.addEventListener('click', () => runOnboardingTips());
 debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
+debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
 
 init();
