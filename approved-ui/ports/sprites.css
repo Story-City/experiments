@@ -1,0 +1,90 @@
+/* Tip sprites — FtueMapElfTip layout. Remix puzzle-sprite is a tip character, not tiles. */
+.sprite-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+}
+.sprite-tip-wrap {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 18px;
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  opacity: 0;
+  transform: translateX(-18px);
+  transition: opacity 280ms ease, transform 320ms ease;
+  pointer-events: none;
+}
+.sprite-tip-wrap.is-on {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.sprite-tip-wrap.is-out {
+  opacity: 0;
+  transform: translateX(72px);
+}
+.sprite-tip-box {
+  flex: 1;
+  min-height: 64px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #13123b;
+  border: 2px solid var(--brand-accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.25;
+  cursor: pointer;
+}
+.sprite-tip-char {
+  flex: 0 0 88px;
+  width: 88px;
+  height: 110px;
+  margin-left: -10px;
+  margin-bottom: -6px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45));
+}
+.sprite-chip-row {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  z-index: 2;
+}
+.sprite-chip-row button {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 11px;
+  cursor: pointer;
+}
+.sprite-chip-row button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--brand-accent) 32%, transparent);
+  border-color: var(--brand-accent);
+}
+.sprite-note {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 48px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+}

@@ -27,9 +27,9 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=6",
+    "path": "approved-ui/?v=7",
     "title": "Approved UI library",
-    "what": "Isolated elements @376px, UX notes, Radial on/off, jump nav, v1–v2 set + tap-hint + choice pulse.",
+    "what": "Portal (Summons/Knight), decrypt reveal haze, tip sprite variations (FTUE + remix tip character). Radial on/off + jump nav.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

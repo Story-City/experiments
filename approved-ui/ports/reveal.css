@@ -1,0 +1,133 @@
+/* Decrypt reveal haze — timings from DecryptRevealConstants. Do not retime. */
+.reveal-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+}
+.reveal-board {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: min(78%, 260px);
+  aspect-ratio: 3 / 4;
+  transform: translate(-50%, -50%);
+  border-radius: 14px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, #2a1f4a 0%, #0e0a22 55%, #1a1238 100%);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+.reveal-board-art {
+  position: absolute;
+  inset: -3%;
+  width: 106%;
+  height: 106%;
+  object-fit: cover;
+  filter: blur(0px);
+  opacity: 0.55;
+  transition: filter 300ms ease, opacity 680ms ease;
+}
+.reveal-host.is-washing .reveal-board-art,
+.reveal-host.is-glowing .reveal-board-art,
+.reveal-host.is-done .reveal-board-art {
+  filter: blur(0);
+  opacity: 1;
+}
+.reveal-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 28% 36%, rgba(255, 255, 255, 0.55) 0%, transparent 42%),
+    radial-gradient(circle at 68% 58%, rgba(0, 194, 255, 0.35) 0%, transparent 48%),
+    radial-gradient(circle at 48% 72%, rgba(179, 107, 255, 0.28) 0%, transparent 46%);
+  transform: scale(0.2);
+  transform-origin: 50% 50%;
+}
+.reveal-host.is-washing .reveal-wash {
+  opacity: 1;
+  animation: revealWashGrow 1200ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+@keyframes revealWashGrow {
+  from { transform: scale(0.15); opacity: 0.4; }
+  to { transform: scale(2.4); opacity: 0; }
+}
+.reveal-haze {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(90% 40% at 50% 0%, rgba(8, 3, 22, 0.72), transparent 70%),
+    linear-gradient(180deg, rgba(8, 3, 22, 0.55), transparent 55%);
+  transition: opacity 380ms ease;
+}
+.reveal-host.is-washing .reveal-haze,
+.reveal-host.is-glowing .reveal-haze {
+  opacity: 1;
+}
+.reveal-host.is-done .reveal-haze {
+  opacity: 0.25;
+}
+.reveal-shine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.95) 48%,
+    transparent 66%
+  );
+  background-size: 220% 100%;
+  background-position: 120% 0;
+}
+.reveal-host.is-shine .reveal-shine {
+  opacity: 0.95;
+  animation: revealShineSweep 1400ms ease-out forwards;
+}
+@keyframes revealShineSweep {
+  from { background-position: 120% 0; opacity: 0.95; }
+  to { background-position: -40% 0; opacity: 0; }
+}
+.reveal-lottie {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 160px;
+  height: 160px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+}
+.reveal-host.is-glowing .reveal-lottie,
+.reveal-host.is-shine .reveal-lottie {
+  opacity: 1;
+}
+.reveal-spots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.reveal-spot {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 12px var(--brand-accent);
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0.85;
+}
+.reveal-host.is-pulse .reveal-spot {
+  animation: revealSpotPulse 200ms ease-out;
+}
+@keyframes revealSpotPulse {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.25); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}

@@ -1,6 +1,6 @@
-/** Approved UI library — APPROVED-UI-v6
- * Isolated elements @376px. UX notes. Radial wash can toggle off.
- * Jump nav lists every card (v1–v2 + tap-hint / choice pulse).
+/** Approved UI library — APPROVED-UI-v7
+ * Portal + decrypt reveal haze + tip sprite variations from the app.
+ * Remix puzzle-sprite = tip character (FtueMapElfTip), not tiles.
  */
 
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -25,6 +25,20 @@ const LIKES_RARITY_PROMOTE_MS = 720;
 const LIKES_TEXT_SWIPE_MS = 900;
 const LIKES_HAZE_OUT_MS = 240;
 const LIKES_DEMO = 12;
+
+/* WelcomeHook / DecryptReveal — exact app constants */
+const PORTAL_TAP_HINT_DELAY_MS = 2000;
+const PORTAL_TAP_HINT_FADE_MS = 400;
+const PORTAL_REVEAL_MS = 280;
+const PORTAL_OPEN_SPEED = 0.85;
+const PORTAL_FIRST_OPEN_END_FRAME = 61;
+const REVEAL_PAUSE_MS = 500;
+const REVEAL_PULSE_STEP_MS = 200;
+const REVEAL_WASH_MS = 1200;
+const REVEAL_TINT_FADE_MS = 380;
+const REVEAL_GLOW_IN_MS = 300;
+const REVEAL_SHINE_MS = 1400;
+const REVEAL_SPOT_COUNT = 3;
 
 const MOTION_VARS = {
   swoosh: 'var(--ease-swoosh)',
@@ -140,6 +154,30 @@ const ELEMENT_DEFS = [
     ux: 'When: end-of-story gift / trial claim. Idle opacity pulse (useBannerPulse). Try: tap the button (press scale).',
     stage: 'claim',
     mount: mountClaimPulse,
+  },
+  {
+    id: 'welcome-portal',
+    title: 'Welcome portal',
+    source: 'WelcomeHook · reveal_first / reveal_fire Lottie',
+    ux: 'When: welcome pick-a-story doors. Idle portal loops (frames 0→61 @ 0.85). Tap ring to reveal character. Summons (purple) vs Knight (fire). Try: switch door · tap portal · Play hint.',
+    stage: 'banner',
+    mount: mountWelcomePortal,
+  },
+  {
+    id: 'reveal-haze',
+    title: 'Decrypt reveal haze',
+    source: 'DecryptReveal · wash 1200ms + shine 1400ms + decrypt-reveal.json',
+    ux: 'When: all decrypt spots found. Pulse spots → expanding wash haze → glow Lottie → shine sweep. Try: Play reveal.',
+    stage: 'banner',
+    mount: mountRevealHaze,
+  },
+  {
+    id: 'tip-sprites',
+    title: 'Tip sprites',
+    source: 'FtueMapElfTip · FTUE door chars · remix puzzle-sprite.webp',
+    ux: 'When: coach tip on map / remix editor. Character sits beside the tip bubble — remix puzzle-sprite is this tip character, not puzzle tiles. Tap tip to dismiss (outside-touch dismiss in app). Try: switch sprite · Show tip.',
+    stage: 'banner',
+    mount: mountTipSprites,
   },
   {
     id: 'choice-pulse',
@@ -789,6 +827,286 @@ function mountClaimPulse(stage, actions) {
     cta.classList.add('is-pressed');
     window.setTimeout(() => cta.classList.remove('is-pressed'), 180);
   });
+}
+
+function mountWelcomePortal(stage, actions) {
+  const host = document.createElement('div');
+  host.className = 'portal-host';
+  host.innerHTML = `
+    <div class="portal-stage">
+      <div class="portal-lottie" id="portalLottie" aria-hidden="true"></div>
+      <img class="portal-prop" id="portalProp" alt="" decoding="async">
+      <img class="portal-character" id="portalChar" alt="" decoding="async">
+      <button type="button" class="portal-hit" id="portalHit" aria-label="Reveal portal"></button>
+      <div class="portal-tap-hint" id="portalHint" aria-hidden="true"></div>
+    </div>
+    <div class="portal-chip-row" role="radiogroup" aria-label="Portal variation">
+      <button type="button" data-door="summons" aria-pressed="true">Summons</button>
+      <button type="button" data-door="knight" aria-pressed="false">Knight</button>
+    </div>
+  `;
+  stage.appendChild(host);
+
+  const lottieHost = host.querySelector('#portalLottie');
+  const prop = host.querySelector('#portalProp');
+  const character = host.querySelector('#portalChar');
+  const hit = host.querySelector('#portalHit');
+  const hint = host.querySelector('#portalHint');
+  const chips = [...host.querySelectorAll('[data-door]')];
+
+  const DOORS = {
+    summons: {
+      lottie: 'ports/portal/welcome_hook_reveal_first.json',
+      prop: 'ports/sprites/summons-prop.png',
+      character: 'ports/sprites/summons-character.png',
+      fire: false,
+      tint: '#5A38AE',
+    },
+    knight: {
+      lottie: 'ports/portal/welcome_hook_reveal_fire.json',
+      prop: 'ports/sprites/ftue-door-knight-sword.png',
+      character: 'ports/sprites/knight-character.png',
+      fire: true,
+      tint: null,
+    },
+  };
+
+  let door = 'summons';
+  let anim = null;
+  let hintAnim = null;
+  let hintTimer = 0;
+
+  const clearHint = () => {
+    window.clearTimeout(hintTimer);
+    hintTimer = 0;
+    hint.classList.remove('is-on');
+    if (hintAnim) {
+      hintAnim.destroy();
+      hintAnim = null;
+    }
+    hint.replaceChildren();
+  };
+
+  const scheduleHint = () => {
+    clearHint();
+    if (host.classList.contains('is-revealed')) return;
+    hintTimer = window.setTimeout(() => {
+      if (!window.lottie) return;
+      hintAnim = window.lottie.loadAnimation({
+        container: hint,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: '../ftue-choice-hints/tap-hint.json',
+      });
+      hint.classList.add('is-on');
+    }, PORTAL_TAP_HINT_DELAY_MS);
+  };
+
+  const tintPurple = (animation) => {
+    try {
+      const root = animation.renderer && animation.renderer.svgElement;
+      if (!root) return;
+      root.querySelectorAll('[fill]').forEach((node) => {
+        const f = node.getAttribute('fill');
+        if (f && f !== 'none' && f !== 'transparent') node.setAttribute('fill', DOORS.summons.tint);
+      });
+    } catch (_) { /* best-effort */ }
+  };
+
+  const mountDoor = () => {
+    const cfg = DOORS[door];
+    host.classList.remove('is-revealed');
+    clearHint();
+    if (anim) {
+      anim.destroy();
+      anim = null;
+    }
+    lottieHost.replaceChildren();
+    lottieHost.classList.toggle('is-fire', cfg.fire);
+    prop.src = cfg.prop;
+    character.src = cfg.character;
+    if (!window.lottie) return;
+    anim = window.lottie.loadAnimation({
+      container: lottieHost,
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: cfg.lottie,
+    });
+    anim.setSpeed(PORTAL_OPEN_SPEED);
+    anim.addEventListener('DOMLoaded', () => {
+      if (!cfg.fire) tintPurple(anim);
+      try {
+        anim.playSegments([0, PORTAL_FIRST_OPEN_END_FRAME], true);
+      } catch (_) { /* loop full if segments unavailable */ }
+    });
+    scheduleHint();
+  };
+
+  const reveal = () => {
+    clearHint();
+    host.classList.add('is-revealed');
+  };
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      door = chip.dataset.door;
+      chips.forEach((c) => c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'));
+      mountDoor();
+    });
+  });
+  hit.addEventListener('click', reveal);
+  mountDoor();
+  addPlay(actions, 'Reveal', reveal);
+  addGhost(actions, 'Reset idle', () => {
+    host.classList.remove('is-revealed');
+    scheduleHint();
+  });
+}
+
+function mountRevealHaze(stage, actions) {
+  const host = document.createElement('div');
+  host.className = 'reveal-host';
+  host.innerHTML = `
+    <div class="reveal-board">
+      <img class="reveal-board-art" src="../location-gems/assets/find-a.jpg" alt="" decoding="async">
+      <div class="reveal-spots" aria-hidden="true">
+        <span class="reveal-spot" style="left:28%;top:36%;background:#7c5cff"></span>
+        <span class="reveal-spot" style="left:68%;top:58%;background:#1a1a22"></span>
+        <span class="reveal-spot" style="left:48%;top:72%;background:#2f9e44"></span>
+      </div>
+      <div class="reveal-haze" aria-hidden="true"></div>
+      <div class="reveal-wash" aria-hidden="true"></div>
+      <div class="reveal-shine" aria-hidden="true"></div>
+      <div class="reveal-lottie" id="revealLottie" aria-hidden="true"></div>
+    </div>
+  `;
+  stage.appendChild(host);
+  const lottieHost = host.querySelector('#revealLottie');
+  let busy = false;
+  let glowAnim = null;
+
+  const clearGlow = () => {
+    if (glowAnim) {
+      glowAnim.destroy();
+      glowAnim = null;
+    }
+    lottieHost.replaceChildren();
+  };
+
+  const reset = () => {
+    host.className = 'reveal-host';
+    clearGlow();
+  };
+
+  const play = async () => {
+    if (busy) return;
+    busy = true;
+    reset();
+    await wait(REVEAL_PAUSE_MS);
+    host.classList.add('is-pulse');
+    await wait(REVEAL_SPOT_COUNT * REVEAL_PULSE_STEP_MS);
+    host.classList.remove('is-pulse');
+    host.classList.add('is-washing');
+    await wait(REVEAL_WASH_MS);
+    host.classList.add('is-glowing');
+    if (window.lottie) {
+      glowAnim = window.lottie.loadAnimation({
+        container: lottieHost,
+        renderer: 'svg',
+        loop: false,
+        autoplay: true,
+        path: 'ports/reveal/decrypt-reveal.json',
+      });
+    }
+    await wait(REVEAL_TINT_FADE_MS + REVEAL_GLOW_IN_MS);
+    host.classList.add('is-shine', 'is-done');
+    await wait(REVEAL_SHINE_MS);
+    busy = false;
+  };
+
+  addPlay(actions, 'Play reveal', play);
+  addGhost(actions, 'Reset', reset);
+}
+
+function mountTipSprites(stage, actions) {
+  const SPRITES = [
+    {
+      id: 'elf',
+      label: 'Elf tip',
+      src: 'assets/tip-elf.png',
+      copy: '[map tip — FTUE elf]',
+    },
+    {
+      id: 'summons',
+      label: 'Summons',
+      src: 'ports/sprites/summons-character.png',
+      copy: '[map tip — Summons character]',
+    },
+    {
+      id: 'knight',
+      label: 'Knight',
+      src: 'ports/sprites/knight-character.png',
+      copy: '[map tip — Knight character]',
+    },
+    {
+      id: 'remix',
+      label: 'Remix tip',
+      src: 'ports/sprites/puzzle-sprite.webp',
+      copy: '[remix editor tip — puzzle-sprite is the tip character, not a tile]',
+    },
+  ];
+
+  const host = document.createElement('div');
+  host.className = 'sprite-host';
+  host.innerHTML = `
+    <p class="sprite-note">Remix reality: tools are tap-to-apply (drag only marble/lens). This sprite only coaches via FtueMapElfTip.</p>
+    <div class="sprite-chip-row" role="radiogroup" aria-label="Sprite variation"></div>
+    <div class="sprite-tip-wrap is-on" id="spriteTip">
+      <button type="button" class="sprite-tip-box" id="spriteCopy">[map tip]</button>
+      <img class="sprite-tip-char" id="spriteChar" alt="" decoding="async">
+    </div>
+  `;
+  stage.appendChild(host);
+  const row = host.querySelector('.sprite-chip-row');
+  const tip = host.querySelector('#spriteTip');
+  const copy = host.querySelector('#spriteCopy');
+  const char = host.querySelector('#spriteChar');
+  let active = SPRITES[0];
+
+  SPRITES.forEach((sprite, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = sprite.label;
+    btn.dataset.id = sprite.id;
+    btn.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
+    btn.addEventListener('click', () => {
+      active = sprite;
+      row.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+      char.src = sprite.src;
+      copy.textContent = sprite.copy;
+      tip.classList.remove('is-out');
+      tip.classList.add('is-on');
+    });
+    row.appendChild(btn);
+  });
+
+  char.src = active.src;
+  copy.textContent = active.copy;
+
+  const dismiss = () => {
+    tip.classList.remove('is-on');
+    tip.classList.add('is-out');
+  };
+  const show = () => {
+    tip.classList.remove('is-out');
+    void tip.offsetWidth;
+    tip.classList.add('is-on');
+  };
+  copy.addEventListener('click', dismiss);
+  addPlay(actions, 'Show tip', show);
+  addGhost(actions, 'Dismiss', dismiss);
 }
 
 function mountChoicePulse(stage, actions) {
