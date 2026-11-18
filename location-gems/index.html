@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=19">
+<link rel="stylesheet" href="app.css?v=20">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -23,6 +23,7 @@
   <div class="toolbar">
     <button type="button" class="play secondary" id="resetHub">Reset</button>
     <button type="button" class="play secondary" id="debugLikes">Debug: likes banner</button>
+    <button type="button" class="play secondary" id="debugRarityUp">Debug: rarity up</button>
     <button type="button" class="play secondary" id="debugOnboard">Debug: tips</button>
     <button type="button" class="play secondary" id="debugSpoof" aria-pressed="false">Debug: spoof wording</button>
     <button type="button" class="play secondary" id="debugDragMode" aria-pressed="false">Debug: drag to sections</button>
@@ -30,6 +31,11 @@
       <span>Accent</span>
       <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
       <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
+    </label>
+    <label class="accent-pick" title="Radial fleck on primary buttons">
+      <span>Radial</span>
+      <input type="color" id="radialColor" value="#b36bff" aria-label="Button radial color">
+      <input type="range" id="radialAmount" min="0" max="100" value="55" aria-label="Radial amount">
     </label>
     <span class="hint" id="hint">Press + hold a card, then swipe.</span>
   </div>
@@ -140,6 +146,8 @@
       <div class="likes-shine" id="likesShine" aria-hidden="true"></div>
       <article class="likes-jam-card" id="likesJamCard" aria-hidden="true">
         <img class="likes-jam-photo" id="likesJamPhoto" alt="">
+        <div class="likes-jam-gem" id="likesJamGem" aria-hidden="true"></div>
+        <p class="likes-jam-rarity" id="likesJamRarity" hidden></p>
         <div class="likes-jam-body">
           <p class="likes-jam-user" id="likesJamUser"></p>
           <p class="likes-jam-text" id="likesJamText"></p>
@@ -147,8 +155,8 @@
         </div>
       </article>
       <div class="likes-copy" id="likesCopy" aria-hidden="true">
-        <p class="likes-headline" id="likesHeadline"><span class="likes-rich">12 likes</span></p>
-        <p class="likes-subtitle" id="likesSubtitle">[on this public gem]</p>
+        <p class="likes-headline" id="likesHeadline"><span class="likes-rich">12</span></p>
+        <p class="likes-subtitle" id="likesSubtitle">[on this gem]</p>
       </div>
     </div>
 
@@ -217,8 +225,8 @@
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v19. Likes copy at top; card edge shine on impact.
+    LOCATION-GEMS-HUB-v20. Likes sweep + rarity gem + radial buttons.
   </p>
-  <script src="app.js?v=19"></script>
+  <script src="app.js?v=20"></script>
 </body>
 </html>

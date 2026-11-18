@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v19 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v20 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -119,12 +119,14 @@ const RAIL_ENTER_Y = 52;
 const RAIL_EXIT_Y = 30;
 const HAZE_IN_MS = 120;
 const SHINE_MS = 900;
-const HOLD_AFTER_SHINE_MS = 280;
-const COPY_CELEBRATE_MS = 520;
+const HOLD_AFTER_SHINE_MS = 720;
+const COPY_CELEBRATE_MS = 1100;
 const HAZE_OUT_MS = 240;
 const CARD_IN_MS = 560;
 const CARD_OUT_MS = 360;
 const COPY_LEAD_MS = 160;
+const RARITY_PROMOTE_MS = 720;
+const TEXT_SWIPE_MS = 900;
 const FLY_MS = 720;
 const LIKES_DEMO = 12;
 const GLANCE_ARC_CX = 120;
@@ -151,7 +153,8 @@ const COPY = {
   railDelete: '[delete]',
   dropHidden: '[hidden]',
   dropPublic: '[public]',
-  likesSubtitle: '[likes on this gem]',
+  likesSubtitle: '[on this gem]',
+  likesWord: '[likes]',
   detailNav: '[navigate]',
   detailPublish: '[publish]',
   detailUnpublish: '[unpublish]',
@@ -193,7 +196,8 @@ const SPOOF_COPY = {
   railDelete: 'Delete',
   dropHidden: 'Hidden',
   dropPublic: 'Public',
-  likesSubtitle: 'likes on this gem',
+  likesSubtitle: 'on this gem',
+  likesWord: 'likes',
   detailNav: 'Navigate',
   detailPublish: 'Publish',
   detailUnpublish: 'Unpublish',
@@ -291,6 +295,8 @@ const detailAdd = document.getElementById('detailAdd');
 const hubScroll = document.getElementById('hubScroll');
 const accentColor = document.getElementById('accentColor');
 const accentAlpha = document.getElementById('accentAlpha');
+const radialColor = document.getElementById('radialColor');
+const radialAmount = document.getElementById('radialAmount');
 const tabPublic = document.getElementById('tabPublic');
 const tabHidden = document.getElementById('tabHidden');
 const tabLiked = document.getElementById('tabLiked');
@@ -325,9 +331,12 @@ const likesHeadline = document.getElementById('likesHeadline');
 const likesSubtitle = document.getElementById('likesSubtitle');
 const likesJamCard = document.getElementById('likesJamCard');
 const likesJamPhoto = document.getElementById('likesJamPhoto');
+const likesJamGem = document.getElementById('likesJamGem');
+const likesJamRarity = document.getElementById('likesJamRarity');
 const likesJamUser = document.getElementById('likesJamUser');
 const likesJamText = document.getElementById('likesJamText');
 const likesJamPlace = document.getElementById('likesJamPlace');
+const debugRarityUp = document.getElementById('debugRarityUp');
 const flyLayer = document.getElementById('flyLayer');
 const debugLikes = document.getElementById('debugLikes');
 const debugOnboard = document.getElementById('debugOnboard');
@@ -592,6 +601,13 @@ function hexToRgb(hex) {
   };
 }
 
+function softAccentHex(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  const mix = (c) => Math.min(255, Math.round(c + (255 - c) * 0.55));
+  const to = (n) => n.toString(16).padStart(2, '0');
+  return `#${to(mix(r))}${to(mix(g))}${to(mix(b))}`;
+}
+
 function applyAccent() {
   const hex = accentColor.value || '#00c2ff';
   const alpha = (Number(accentAlpha.value) || 100) / 100;
@@ -602,10 +618,36 @@ function applyAccent() {
   document.documentElement.style.setProperty('--brand-accent', accent);
   document.documentElement.style.setProperty('--brand-primary', solid);
   document.documentElement.style.setProperty('--brand-primary-deep', deep);
+  document.documentElement.style.setProperty('--accent-soft', softAccentHex(hex));
   document.documentElement.style.setProperty(
     '--accent-glow',
     `rgba(${r}, ${g}, ${b}, ${0.55 * alpha})`,
   );
+  applyRadial();
+}
+
+function applyRadial() {
+  const hex = (radialColor && radialColor.value) || '#b36bff';
+  const amount = ((radialAmount && Number(radialAmount.value)) || 55) / 100;
+  const { r, g, b } = hexToRgb(hex);
+  document.documentElement.style.setProperty('--btn-radial-solid', hex);
+  document.documentElement.style.setProperty(
+    '--btn-radial',
+    `rgba(${r}, ${g}, ${b}, ${0.75 * amount})`,
+  );
+}
+
+function nextRarity(rarity) {
+  const order = [RARITY.cyan, RARITY.silver, RARITY.gold, RARITY.platinum, RARITY.diamond];
+  const i = order.findIndex((r) => r.id === rarity.id);
+  return order[Math.min(order.length - 1, Math.max(0, i) + 1)];
+}
+
+function setLikesCardRarity(rarity, { pop = false } = {}) {
+  likesJamGem.innerHTML = gemSvg(rarity.fill);
+  likesJamRarity.hidden = false;
+  likesJamRarity.textContent = rarity.label;
+  likesJamRarity.classList.toggle('is-pop', !!pop);
 }
 
 function buildGemCard(gem, opts = {}) {
@@ -1329,46 +1371,72 @@ function pickLikedJam() {
   return createSpoofCollectedGem();
 }
 
-function fillLikesJamCard(gem) {
+function fillLikesJamCard(gem, likesOverride) {
   likesJamPhoto.src = gem.imageUri;
   likesJamUser.textContent = gem.authorUsername ? `@${gem.authorUsername}` : MY_USER;
   likesJamText.textContent = getGemTagline(gem) || getGemTitle(gem);
   likesJamPlace.textContent = gem.title || '';
-  const likes = publicLikes(gem) || LIKES_DEMO;
-  likesHeadline.innerHTML = `<span class="likes-rich">${likes} likes</span>`;
+  const likes = likesOverride != null ? likesOverride : publicLikes(gem) || LIKES_DEMO;
+  const rarity = rarityForLikes(likes, true);
+  likesHeadline.innerHTML = `<span class="likes-rich">${likes}</span> ${t('likesWord')}`;
   likesSubtitle.textContent = t('likesSubtitle');
+  setLikesCardRarity(rarity, { pop: false });
+  return { likes, rarity };
 }
 
-async function playLikesBanner() {
+async function playLikesBanner(opts = {}) {
   if (likesBusy) return;
   likesBusy = true;
+  const promote = !!opts.promote;
   const gem = pickLikedJam();
-  fillLikesJamCard(gem);
+  let likes = publicLikes(gem) || LIKES_DEMO;
+  let rarity = rarityForLikes(likes, true);
+  if (promote) {
+    /* Start one tier below so the banner can show the rarity change */
+    const order = [RARITY.cyan, RARITY.silver, RARITY.gold, RARITY.platinum, RARITY.diamond];
+    const target = nextRarity(rarity.id === 'diamond' ? RARITY.platinum : rarity);
+    likes = Math.max(0, target.minLikes - 1);
+    rarity = rarityForLikes(likes, true);
+  }
+  fillLikesJamCard({ ...gem, likes, isPublic: true }, likes);
   likesBanner.hidden = false;
   likesBanner.classList.remove('is-out');
   likesBanner.classList.add('is-on');
-  likesCopy.classList.remove('is-on');
+  likesCopy.classList.remove('is-on', 'is-swipe');
   likesShine.classList.remove('is-on');
-  likesJamCard.classList.remove('is-in', 'is-out', 'is-impact');
+  likesJamCard.classList.remove('is-in', 'is-out', 'is-impact', 'is-rarity-up');
   await wait(HAZE_IN_MS);
   likesShine.classList.add('is-on');
   likesJamCard.classList.add('is-in');
   likesCopy.classList.add('is-on');
   await wait(CARD_IN_MS);
   likesJamCard.classList.add('is-impact');
-  await wait(SHINE_MS + HOLD_AFTER_SHINE_MS);
+  if (promote) {
+    await wait(HOLD_AFTER_SHINE_MS);
+    const promoted = nextRarity(rarity);
+    likes = promoted.minLikes;
+    likesHeadline.innerHTML = `<span class="likes-rich">${likes}</span> ${t('likesWord')}`;
+    setLikesCardRarity(promoted, { pop: true });
+    likesJamCard.classList.add('is-rarity-up');
+    hint.textContent = `[rarity → ${promoted.label}]`;
+    await wait(RARITY_PROMOTE_MS);
+  } else {
+    await wait(SHINE_MS + HOLD_AFTER_SHINE_MS);
+  }
   await wait(COPY_CELEBRATE_MS);
-  likesJamCard.classList.remove('is-in', 'is-impact');
+  likesCopy.classList.add('is-swipe');
+  await wait(TEXT_SWIPE_MS);
+  likesJamCard.classList.remove('is-in', 'is-impact', 'is-rarity-up');
   likesJamCard.classList.add('is-out');
-  likesCopy.classList.remove('is-on');
+  likesCopy.classList.remove('is-on', 'is-swipe');
   await wait(CARD_OUT_MS);
   likesBanner.classList.add('is-out');
   await wait(HAZE_OUT_MS);
   likesBanner.hidden = true;
   likesBanner.classList.remove('is-on', 'is-out');
   likesShine.classList.remove('is-on');
-  likesCopy.classList.remove('is-on');
-  likesJamCard.classList.remove('is-in', 'is-out', 'is-impact');
+  likesCopy.classList.remove('is-on', 'is-swipe');
+  likesJamCard.classList.remove('is-in', 'is-out', 'is-impact', 'is-rarity-up');
   likesBusy = false;
 }
 
@@ -1423,6 +1491,7 @@ function initIcons() {
 function init() {
   initIcons();
   applyAccent();
+  applyRadial();
   seedGems();
   seedPendingSort();
   setupSnapshotArc();
@@ -1459,8 +1528,11 @@ detailNoteSkip.addEventListener('click', () => {
 detailLikeBtn.addEventListener('click', toggleDetailLike);
 accentColor.addEventListener('input', applyAccent);
 accentAlpha.addEventListener('input', applyAccent);
+if (radialColor) radialColor.addEventListener('input', applyRadial);
+if (radialAmount) radialAmount.addEventListener('input', applyRadial);
 resetHub.addEventListener('click', resetState);
 debugLikes.addEventListener('click', () => playLikesBanner());
+debugRarityUp.addEventListener('click', () => playLikesBanner({ promote: true }));
 debugOnboard.addEventListener('click', () => runOnboardingTips());
 debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
 debugDragMode.addEventListener('click', () => setDragMode(!dragMode));

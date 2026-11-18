@@ -11,6 +11,8 @@
   --brand-primary: #00c2ff;
   --brand-accent: #00c2ff;
   --brand-primary-deep: #0259a1;
+  --btn-radial: rgba(179, 107, 255, 0.55);
+  --btn-radial-solid: #b36bff;
   --like-pink: #ffb4d4;
   --like-pink-hot: #ff7aab;
   --like-pink-bg: rgba(255, 105, 160, 0.28);
@@ -64,7 +66,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   border: 0;
   border-radius: var(--radius-full);
   padding: 10px 18px;
-  background: linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
+  background:
+    radial-gradient(120% 90% at 18% 20%, var(--btn-radial), transparent 48%),
+    linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
   color: #fff;
   font: inherit;
   font-weight: 800;
@@ -748,7 +752,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .confirm-pill {
   border: 0;
-  background: linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
+  background:
+    radial-gradient(120% 90% at 18% 20%, var(--btn-radial), transparent 48%),
+    linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
   color: #fff;
 }
 .detail-nav,
@@ -762,7 +768,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   font-weight: 800;
   cursor: pointer;
   color: #fff;
-  background: linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
+  background:
+    radial-gradient(120% 90% at 18% 20%, var(--btn-radial), transparent 48%),
+    linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
 }
 /* App Button Outline / secondary next to primary CTA */
 .detail-publish {
@@ -1376,6 +1384,57 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   aspect-ratio: 4 / 3;
   object-fit: cover;
 }
+.likes-jam-gem {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  width: 32px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.55));
+  transition: transform 280ms var(--ease-out), filter 280ms var(--ease-out);
+}
+.likes-jam-gem svg {
+  width: 32px;
+  height: 28px;
+  display: block;
+}
+.likes-jam-card.is-rarity-up .likes-jam-gem {
+  animation: likesGemPromote 720ms var(--ease-out) both;
+}
+@keyframes likesGemPromote {
+  0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.55)); }
+  40% { transform: scale(1.35) rotate(-8deg); filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.85)); }
+  70% { transform: scale(1.12) rotate(4deg); filter: drop-shadow(0 0 22px var(--brand-accent)); }
+  100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.55)); }
+}
+.likes-jam-rarity {
+  position: absolute;
+  top: 40px;
+  right: 8px;
+  z-index: 3;
+  margin: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(12, 10, 28, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.likes-jam-rarity[hidden] { display: none !important; }
+.likes-jam-rarity.is-pop {
+  animation: likesRarityPop 520ms var(--ease-out) both;
+}
+@keyframes likesRarityPop {
+  0% { opacity: 0; transform: translateY(4px) scale(0.9); }
+  55% { opacity: 1; transform: translateY(0) scale(1.06); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
 .likes-jam-body { padding: 8px; }
 .likes-jam-user {
   margin: 0 0 4px;
@@ -1433,14 +1492,23 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   text-shadow: 0 2px 16px rgba(8, 3, 22, 0.9);
 }
 .likes-rich {
-  background: linear-gradient(100deg, #fff 8%, #009eff 42%, var(--accent-soft) 68%, #fff 100%);
-  background-size: 180% 100%;
+  background: linear-gradient(
+    100deg,
+    #fff 6%,
+    var(--brand-primary) 38%,
+    var(--accent-soft) 62%,
+    #fff 88%
+  );
+  background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 .likes-copy.is-on .likes-rich {
-  animation: richSweep 1100ms ease-out both;
+  animation: richSweep 1200ms var(--ease-out) both;
+}
+.likes-copy.is-swipe .likes-rich {
+  animation: richSwipeOut 900ms var(--ease-in) both;
 }
 .likes-subtitle {
   margin: 4px 0 0;
@@ -1456,8 +1524,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   animation-delay: 180ms;
 }
 @keyframes richSweep {
-  from { background-position: 100% 0; filter: brightness(1.2); }
-  to { background-position: 0 0; filter: brightness(1); }
+  from { background-position: 100% 0; filter: brightness(1.25); }
+  to { background-position: 18% 0; filter: brightness(1); }
+}
+@keyframes richSwipeOut {
+  from { background-position: 18% 0; filter: brightness(1); }
+  to { background-position: -55% 0; filter: brightness(1.15); }
 }
 @keyframes subtitleIn {
   from { opacity: 0; transform: translateY(4px); }
