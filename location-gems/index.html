@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=16">
+<link rel="stylesheet" href="app.css?v=17">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -127,16 +127,12 @@
       </div>
     </div>
 
-    <div class="map-tip" id="mapTip" hidden>
-      <button type="button" class="map-tip-hit" id="mapTipHit" aria-label="Next tip">
-        <div class="map-tip-box">
-          <div class="map-tip-steps" id="mapTipSteps" aria-hidden="true"></div>
-          <p class="map-tip-body" id="mapTipBody"></p>
-        </div>
-        <div class="map-tip-elf" aria-hidden="true">
-          <img src="assets/elf-alt.png" alt="">
-        </div>
-      </button>
+    <div class="spot" id="spot" hidden>
+      <div class="spot-tip" id="mapTip">
+        <div class="spot-tip-steps" id="mapTipSteps" aria-hidden="true"></div>
+        <img class="spot-tip-layer" src="assets/tip.png" alt="" decoding="async">
+        <p class="spot-tip-copy" id="mapTipBody"></p>
+      </div>
     </div>
 
     <div class="likes-banner" id="likesBanner" hidden aria-hidden="true">
@@ -221,8 +217,8 @@
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v16. Single gem page uses app indigo #170c35.
+    LOCATION-GEMS-HUB-v17. Spotlight tips + designed tip art; smoother swipe ease.
   </p>
-  <script src="app.js?v=16"></script>
+  <script src="app.js?v=17"></script>
 </body>
 </html>

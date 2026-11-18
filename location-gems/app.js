@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v16 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v17 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -92,16 +92,22 @@ const CHALLENGE_FINDS = [
 ];
 
 const ROTATE_MS = 2200;
-const MAP_TIP_OUT_MS = 280;
+const TIP_OUT_MS = 360;
+const TIP_SWIPE_DISMISS_PX = 72;
+const TIP_TAP_SLOP_PX = 8;
+const SWIPE_SETTLE_MS = 420;
+const SWIPE_FADE_MS = 520;
+const EASE_POPULAR = 'cubic-bezier(0.33, 0, 0.2, 1)';
+const EASE_IN = 'cubic-bezier(0.32, 0, 0.67, 0)';
 const ONBOARD_TIPS_HOLD = [
-  '[hold the photo to activate sides]',
-  '[swipe left = hidden · right = public]',
-  '[scroll tabs for public and hidden gems]',
+  { text: '[hold the photo to activate sides]', target: 'card' },
+  { text: '[swipe left = hidden · right = public]', target: 'rails' },
+  { text: '[scroll tabs for public and hidden gems]', target: 'tabs' },
 ];
 const ONBOARD_TIPS_DRAG = [
-  '[hold the photo to activate sides]',
-  '[drag onto hidden or public]',
-  '[scroll tabs for public and hidden gems]',
+  { text: '[hold the photo to activate sides]', target: 'card' },
+  { text: '[drag onto hidden or public]', target: 'drops' },
+  { text: '[scroll tabs for public and hidden gems]', target: 'tabs' },
 ];
 const TIP_KEY = 'location-gems-hub-snapshot-tip-seen';
 const ONBOARD_KEY = 'location-gems-hub-onboard-seen';
@@ -306,10 +312,11 @@ const dropHidden = document.getElementById('dropHidden');
 const dropPublic = document.getElementById('dropPublic');
 const dropHiddenIcon = document.getElementById('dropHiddenIcon');
 const dropPublicIcon = document.getElementById('dropPublicIcon');
+const spot = document.getElementById('spot');
 const mapTip = document.getElementById('mapTip');
-const mapTipHit = document.getElementById('mapTipHit');
 const mapTipSteps = document.getElementById('mapTipSteps');
 const mapTipBody = document.getElementById('mapTipBody');
+const tabBar = document.getElementById('tabBar') || tabPublic?.parentElement;
 const likesBanner = document.getElementById('likesBanner');
 const likesShine = document.getElementById('likesShine');
 const likesCopy = document.getElementById('likesCopy');
@@ -347,7 +354,7 @@ let drag = null;
 /** @type {(() => void) | null} */
 let mapTipAdvance = null;
 let mapTipIndex = 0;
-/** @type {string[]} */
+/** @type {Array<{ text: string, target: string }>} */
 let mapTipQueue = [];
 /** @type {string | null} */
 let targetsMode = null;
@@ -1002,14 +1009,39 @@ function renderMapTipSteps(index, total) {
   mapTipSteps.hidden = false;
   for (let i = 0; i < total; i += 1) {
     const dot = document.createElement('span');
-    dot.className = `map-tip-dot${i === index ? ' is-on' : ''}`;
+    dot.className = `spot-tip-dot${i === index ? ' is-on' : ''}`;
     mapTipSteps.appendChild(dot);
   }
 }
 
+function tipTargetEl(kind) {
+  if (kind === 'card') {
+    return sortStack.querySelector('.sort-card:not(.is-under)') || sortStack;
+  }
+  if (kind === 'rails') return railPublic;
+  if (kind === 'drops') return dropPublic;
+  if (kind === 'tabs') return tabBar || tabPublic;
+  return sortStack;
+}
+
+function placeSpotlight(target) {
+  const pr = phone.getBoundingClientRect();
+  const r = target.getBoundingClientRect();
+  const z = parseFloat(getComputedStyle(phone).zoom) || 1;
+  const k = Math.abs(pr.width - phone.offsetWidth) < 2 ? 1 : z;
+  const cx = (r.left - pr.left + r.width / 2) / k;
+  const cy = (r.top - pr.top + r.height / 2) / k;
+  const rad = Math.max(26, Math.min(150, Math.max(r.width, r.height) / k / 2 + 8));
+  spot.style.setProperty('--x', `${cx}px`);
+  spot.style.setProperty('--y', `${cy}px`);
+  spot.style.setProperty('--r', `${rad}px`);
+  spot.classList.toggle('above', cy > phone.offsetHeight * 0.55);
+}
+
 function hideMapTip() {
-  mapTip.hidden = true;
-  mapTip.classList.remove('is-out');
+  spot.hidden = true;
+  mapTip.classList.remove('is-on', 'is-out');
+  mapTip.style.transform = '';
   mapTipAdvance = null;
 }
 
@@ -1020,6 +1052,11 @@ function clearMapTips() {
   hideMapTip();
 }
 
+function advanceMapTip() {
+  if (!mapTipAdvance) return;
+  mapTipAdvance();
+}
+
 function presentMapTip() {
   const total = mapTipQueue.length;
   if (!total || mapTipIndex >= total) {
@@ -1027,11 +1064,22 @@ function presentMapTip() {
     storageSet(ONBOARD_KEY);
     return;
   }
-  mapTipBody.textContent = displayCopy(mapTipQueue[mapTipIndex]);
+  const step = mapTipQueue[mapTipIndex];
+  const target = tipTargetEl(step.target);
+  placeSpotlight(target);
+  mapTipBody.textContent = displayCopy(step.text);
+  mapTipBody.classList.remove('is-swap');
+  void mapTipBody.offsetWidth;
+  mapTipBody.classList.add('is-swap');
   renderMapTipSteps(mapTipIndex, total);
+  spot.hidden = false;
   mapTip.classList.remove('is-out');
-  mapTip.hidden = false;
+  mapTip.style.transform = '';
+  void mapTip.offsetWidth;
+  mapTip.classList.add('is-on');
   mapTipAdvance = () => {
+    mapTipAdvance = null;
+    mapTip.classList.remove('is-on');
     mapTip.classList.add('is-out');
     window.setTimeout(() => {
       mapTipIndex += 1;
@@ -1041,7 +1089,7 @@ function presentMapTip() {
         return;
       }
       presentMapTip();
-    }, MAP_TIP_OUT_MS);
+    }, TIP_OUT_MS);
   };
 }
 
@@ -1050,7 +1098,45 @@ function runOnboardingTips() {
   sortInline.scrollIntoView({ block: 'nearest' });
   mapTipQueue = dragMode ? ONBOARD_TIPS_DRAG.slice() : ONBOARD_TIPS_HOLD.slice();
   mapTipIndex = 0;
-  presentMapTip();
+  window.setTimeout(() => presentMapTip(), 80);
+}
+
+function bindTipGesture() {
+  let startX = 0;
+  let dragging = false;
+  const onStart = (x) => {
+    if (spot.hidden || !mapTip.classList.contains('is-on')) return;
+    startX = x;
+    dragging = true;
+    mapTip.style.transition = 'none';
+  };
+  const onMove = (x) => {
+    if (!dragging) return;
+    const dx = Math.max(0, x - startX);
+    mapTip.style.transform = `translateX(${dx}px)`;
+  };
+  const onEnd = (x) => {
+    if (!dragging) return;
+    dragging = false;
+    mapTip.style.transition = '';
+    const dx = x - startX;
+    if (dx >= TIP_SWIPE_DISMISS_PX) {
+      advanceMapTip();
+    } else {
+      mapTip.style.transform = '';
+      if (Math.abs(dx) <= TIP_TAP_SLOP_PX) advanceMapTip();
+    }
+  };
+  mapTip.addEventListener('pointerdown', (e) => {
+    mapTip.setPointerCapture(e.pointerId);
+    onStart(e.clientX);
+  });
+  mapTip.addEventListener('pointermove', (e) => onMove(e.clientX));
+  mapTip.addEventListener('pointerup', (e) => onEnd(e.clientX));
+  mapTip.addEventListener('pointercancel', (e) => onEnd(e.clientX));
+  spot.addEventListener('click', (e) => {
+    if (e.target === spot) advanceMapTip();
+  });
 }
 
 function railModeFromDelta(dx, dy, current) {
@@ -1080,12 +1166,13 @@ function railModeFromDelta(dx, dy, current) {
 function bindSortDrag(card) {
   const snapBack = () => {
     card.classList.remove('is-dragging');
-    card.style.transition = 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)';
+    card.style.transition = `transform ${SWIPE_SETTLE_MS}ms ${EASE_POPULAR}, opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
     card.style.transform = 'rotate(-4deg)';
+    card.style.opacity = '1';
     window.setTimeout(() => {
       card.style.transition = '';
       card.style.transform = '';
-    }, 240);
+    }, SWIPE_FADE_MS);
   };
 
   const finishDrag = (dx, dy) => {
@@ -1188,6 +1275,7 @@ function flyGemIntoSection(photoSrc, toPublic) {
     card.style.top = `${startY}px`;
     card.style.width = '140px';
     flyLayer.appendChild(card);
+    card.style.transition = `transform ${FLY_MS}ms ${EASE_POPULAR}, opacity ${FLY_MS}ms ${EASE_IN}`;
     requestAnimationFrame(() => {
       card.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.28)`;
       card.style.opacity = '0';
@@ -1195,7 +1283,7 @@ function flyGemIntoSection(photoSrc, toPublic) {
     window.setTimeout(() => {
       card.remove();
       resolve();
-    }, 660);
+    }, FLY_MS + 40);
   });
 }
 
@@ -1208,10 +1296,10 @@ async function settleSort(card, action) {
       : action === 'private'
         ? 'translate(-120%, -6%) rotate(-16deg)'
         : 'translate(0, 120%) rotate(3deg)';
-  card.style.transition = 'transform 260ms cubic-bezier(0.22, 1, 0.36, 1), opacity 260ms ease';
+  card.style.transition = `transform ${SWIPE_SETTLE_MS}ms ${EASE_POPULAR}, opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
   card.style.transform = fly;
   card.style.opacity = '0';
-  await wait(260);
+  await wait(SWIPE_FADE_MS);
   pendingSort.shift();
   if (action === 'delete') {
     hint.textContent = t('railDelete');
@@ -1373,8 +1461,6 @@ debugLikes.addEventListener('click', () => playLikesBanner());
 debugOnboard.addEventListener('click', () => runOnboardingTips());
 debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
 debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
-mapTipHit.addEventListener('click', () => {
-  if (mapTipAdvance) mapTipAdvance();
-});
+bindTipGesture();
 
 init();
