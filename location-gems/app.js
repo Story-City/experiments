@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v14 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v15 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -107,6 +107,10 @@ const TIP_KEY = 'location-gems-hub-snapshot-tip-seen';
 const ONBOARD_KEY = 'location-gems-hub-onboard-seen';
 const SWIPE_COMMIT_X = 72;
 const SWIPE_COMMIT_Y = 78;
+const RAIL_ENTER_X = 40;
+const RAIL_EXIT_X = 22;
+const RAIL_ENTER_Y = 52;
+const RAIL_EXIT_Y = 30;
 const HAZE_IN_MS = 160;
 const SHINE_MS = 1400;
 const HOLD_AFTER_SHINE_MS = 500;
@@ -345,6 +349,9 @@ let mapTipAdvance = null;
 let mapTipIndex = 0;
 /** @type {string[]} */
 let mapTipQueue = [];
+/** @type {string | null} */
+let targetsMode = null;
+let targetsArmed = false;
 
 function t(key, ...args) {
   const table = spoofWording ? { ...COPY, ...SPOOF_COPY } : COPY;
@@ -690,8 +697,10 @@ function setSortingFocus(on) {
 }
 
 function hideTargets() {
+  targetsMode = null;
+  targetsArmed = false;
   [railPrivate, railPublic, railDelete].forEach((rail) => {
-    rail.classList.remove('is-on', 'is-flash', 'is-hot');
+    rail.classList.remove('is-on', 'is-hot');
   });
   [dropHidden, dropPublic].forEach((zone) => {
     zone.classList.remove('is-on', 'is-hot');
@@ -700,9 +709,13 @@ function hideTargets() {
 
 function setTargets(mode, armed) {
   if (!armed) {
+    if (!targetsArmed) return;
     hideTargets();
     return;
   }
+  if (targetsArmed && targetsMode === mode) return;
+  targetsArmed = true;
+  targetsMode = mode;
   if (dragMode) {
     dropHidden.hidden = false;
     dropPublic.hidden = false;
@@ -715,19 +728,12 @@ function setTargets(mode, armed) {
     return;
   }
   [railPrivate, railPublic, railDelete].forEach((rail) => {
-    rail.classList.add('is-on', 'is-flash');
+    rail.classList.add('is-on');
     rail.classList.remove('is-hot');
   });
-  if (mode === 'private') {
-    railPrivate.classList.add('is-hot');
-    railPrivate.classList.remove('is-flash');
-  } else if (mode === 'public') {
-    railPublic.classList.add('is-hot');
-    railPublic.classList.remove('is-flash');
-  } else if (mode === 'delete') {
-    railDelete.classList.add('is-hot');
-    railDelete.classList.remove('is-flash');
-  }
+  if (mode === 'private') railPrivate.classList.add('is-hot');
+  else if (mode === 'public') railPublic.classList.add('is-hot');
+  else if (mode === 'delete') railDelete.classList.add('is-hot');
 }
 
 function buildSortCard(find, under, enter) {
@@ -1047,15 +1053,27 @@ function runOnboardingTips() {
   presentMapTip();
 }
 
-function railModeFromDelta(dx, dy) {
+function railModeFromDelta(dx, dy, current) {
+  const enterX = RAIL_ENTER_X;
+  const exitX = RAIL_EXIT_X;
+  const enterY = RAIL_ENTER_Y;
+  const exitY = RAIL_EXIT_Y;
   if (dragMode) {
-    if (dx < -36) return 'private';
-    if (dx > 36) return 'public';
+    if (current === 'private') return dx <= -exitX ? 'private' : dx >= enterX ? 'public' : null;
+    if (current === 'public') return dx >= exitX ? 'public' : dx <= -enterX ? 'private' : null;
+    if (dx <= -enterX) return 'private';
+    if (dx >= enterX) return 'public';
     return null;
   }
-  if (dy > 48 && Math.abs(dx) < 64) return 'delete';
-  if (dx > 36) return 'public';
-  if (dx < -36) return 'private';
+  if (current === 'delete') {
+    if (dy >= exitY && Math.abs(dx) < SWIPE_COMMIT_X) return 'delete';
+  } else if (dy >= enterY && Math.abs(dx) < 56) {
+    return 'delete';
+  }
+  if (current === 'private') return dx <= -exitX ? 'private' : dx >= enterX ? 'public' : null;
+  if (current === 'public') return dx >= exitX ? 'public' : dx <= -enterX ? 'private' : null;
+  if (dx >= enterX) return 'public';
+  if (dx <= -enterX) return 'private';
   return null;
 }
 
@@ -1138,7 +1156,7 @@ function bindSortDrag(card) {
       drag.dx = e.clientX - drag.x0;
       drag.dy = e.clientY - drag.y0;
       moveCard(drag.dx, drag.dy);
-      setTargets(railModeFromDelta(drag.dx, drag.dy), true);
+      setTargets(railModeFromDelta(drag.dx, drag.dy, targetsMode), true);
     },
     { passive: false },
   );

@@ -912,12 +912,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   opacity: 0.85;
   transform: scale(1);
 }
-.sort-rail.is-flash {
-  animation: railFlash 900ms ease-in-out infinite;
-}
 .sort-rail.is-hot {
   opacity: 1;
-  animation: none;
   filter: drop-shadow(0 0 14px rgba(179, 107, 255, 0.9));
   transform: scale(1.12);
 }
@@ -1033,10 +1029,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   transform: translateX(-50%) scale(1);
 }
 .sort-rail-down.is-hot { transform: translateX(-50%) scale(1.12); }
-@keyframes railFlash {
-  0%, 100% { opacity: 0.55; }
-  50% { opacity: 1; }
-}
 .sort-stack {
   position: absolute;
   left: 50%;
