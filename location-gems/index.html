@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=23">
+<link rel="stylesheet" href="app.css?v=24">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -32,10 +32,15 @@
       <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
       <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
     </label>
-    <label class="accent-pick" title="Radial fleck on primary buttons">
+    <label class="accent-pick" title="Radial wash on primary buttons">
       <span>Radial</span>
       <input type="color" id="radialColor" value="#b36bff" aria-label="Button radial color">
       <input type="range" id="radialAmount" min="0" max="100" value="55" aria-label="Radial amount">
+    </label>
+    <label class="accent-pick" title="Page background indigo">
+      <span>Background</span>
+      <input type="color" id="bgColor" value="#170c35" aria-label="Background color">
+      <input type="range" id="bgDepth" min="40" max="100" value="100" aria-label="Background depth">
     </label>
     <span class="hint" id="hint">Press + hold a card, then swipe.</span>
   </div>
@@ -225,8 +230,8 @@
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v23. Longer likes sweep; accent drives text hue.
+    LOCATION-GEMS-HUB-v24. Wider radial wash + background slider.
   </p>
-  <script src="app.js?v=23"></script>
+  <script src="app.js?v=24"></script>
 </body>
 </html>

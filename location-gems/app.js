@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v23 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v24 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -297,6 +297,8 @@ const accentColor = document.getElementById('accentColor');
 const accentAlpha = document.getElementById('accentAlpha');
 const radialColor = document.getElementById('radialColor');
 const radialAmount = document.getElementById('radialAmount');
+const bgColor = document.getElementById('bgColor');
+const bgDepth = document.getElementById('bgDepth');
 const tabPublic = document.getElementById('tabPublic');
 const tabHidden = document.getElementById('tabHidden');
 const tabLiked = document.getElementById('tabLiked');
@@ -639,6 +641,18 @@ function applyRadial() {
     '--btn-radial',
     `rgba(${r}, ${g}, ${b}, ${0.75 * amount})`,
   );
+  document.documentElement.style.setProperty(
+    '--btn-radial-wash',
+    `radial-gradient(ellipse 200% 70% at 50% 45%, rgba(${r}, ${g}, ${b}, ${0.75 * amount}), transparent 72%)`,
+  );
+}
+
+function applyBg() {
+  const hex = (bgColor && bgColor.value) || '#170c35';
+  const depth = ((bgDepth && Number(bgDepth.value)) || 100) / 100;
+  const { r, g, b } = hexToRgb(hex);
+  const out = `rgb(${Math.round(r * depth)}, ${Math.round(g * depth)}, ${Math.round(b * depth)})`;
+  document.documentElement.style.setProperty('--bg', out);
 }
 
 function nextRarity(rarity) {
@@ -1497,6 +1511,7 @@ function init() {
   initIcons();
   applyAccent();
   applyRadial();
+  applyBg();
   seedGems();
   seedPendingSort();
   setupSnapshotArc();
@@ -1535,6 +1550,8 @@ accentColor.addEventListener('input', applyAccent);
 accentAlpha.addEventListener('input', applyAccent);
 if (radialColor) radialColor.addEventListener('input', applyRadial);
 if (radialAmount) radialAmount.addEventListener('input', applyRadial);
+if (bgColor) bgColor.addEventListener('input', applyBg);
+if (bgDepth) bgDepth.addEventListener('input', applyBg);
 resetHub.addEventListener('click', resetState);
 debugLikes.addEventListener('click', () => playLikesBanner());
 debugRarityUp.addEventListener('click', () => playLikesBanner({ promote: true }));

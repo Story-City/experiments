@@ -13,6 +13,12 @@
   --brand-primary-deep: #0259a1;
   --btn-radial: rgba(179, 107, 255, 0.55);
   --btn-radial-solid: #b36bff;
+  /* Wide sideways wash — not a little corner oval */
+  --btn-radial-wash: radial-gradient(
+    ellipse 200% 70% at 50% 45%,
+    var(--btn-radial),
+    transparent 72%
+  );
   --like-pink: #ffb4d4;
   --like-pink-hot: #ff7aab;
   --like-pink-bg: rgba(255, 105, 160, 0.28);
@@ -67,7 +73,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   border-radius: var(--radius-full);
   padding: 10px 18px;
   background:
-    radial-gradient(120% 90% at 18% 20%, var(--btn-radial), transparent 48%),
+    var(--btn-radial-wash),
     linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
   color: #fff;
   font: inherit;
@@ -161,7 +167,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   width: 72px;
   height: 72px;
   border-radius: var(--radius-full);
-  background: linear-gradient(180deg, var(--brand-accent), var(--brand-primary-deep));
+  background:
+    var(--btn-radial-wash),
+    linear-gradient(180deg, var(--brand-accent), var(--brand-primary-deep));
   color: #fff;
   display: grid;
   place-items: center;
@@ -233,8 +241,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   cursor: pointer;
 }
 .tab-button.is-active {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text);
+  background:
+    var(--btn-radial-wash),
+    linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
+  color: #fff;
 }
 .tab-button.is-active .tab-gem-icon { filter: brightness(0) invert(1); }
 .tab-gem-icon { opacity: 0.75; filter: brightness(0) invert(0.72); }
@@ -491,7 +501,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   border: 0;
   border-radius: 12px;
   padding: 14px 18px;
-  background: var(--brand-primary);
+  background:
+    var(--btn-radial-wash),
+    linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
   color: #fff;
   font: inherit;
   font-size: 17px;
@@ -499,12 +511,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   cursor: pointer;
 }
 
-/* Gem detail — Story Overview indigo page (#170c35), not near-black */
+/* Gem detail — page indigo via --bg (Background slider) */
 .detail {
   position: absolute;
   inset: 0;
   z-index: 30;
-  background: #170c35;
+  background: var(--bg);
   overflow: hidden;
 }
 .detail[hidden] { display: none !important; }
@@ -644,7 +656,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: #170c35;
+  background: var(--bg);
 }
 .detail-subtitle {
   margin: 0;
@@ -753,7 +765,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .confirm-pill {
   border: 0;
   background:
-    radial-gradient(120% 90% at 18% 20%, var(--btn-radial), transparent 48%),
+    var(--btn-radial-wash),
     linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
   color: #fff;
 }
@@ -769,12 +781,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   cursor: pointer;
   color: #fff;
   background:
-    radial-gradient(120% 90% at 18% 20%, var(--btn-radial), transparent 48%),
+    var(--btn-radial-wash),
     linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
 }
 /* App Button Outline / secondary next to primary CTA */
 .detail-publish {
-  background: #170c35;
+  background: var(--bg);
   color: var(--brand-primary);
   box-shadow: inset 0 0 0 2px var(--brand-primary);
 }
