@@ -43,7 +43,7 @@
   --out-ms: 240ms;
   --copy-in-ms: 780ms;
   --copy-out-ms: 280ms;
-  --shine-ms: 900ms;
+  --shine-ms: 1400ms;
   --hold-after-shine-ms: 280ms;
   --accent-soft: #b9e5ff;
 }
@@ -831,7 +831,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 
 .feed-dock {
   margin-top: 8px;
-  padding: 4px 0 8px;
+  padding: 4px 0 12px;
 }
 .feed-dock[hidden] { display: none !important; }
 .feed-dock-head {
@@ -839,7 +839,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .feed-dock-label {
   margin: 0;
@@ -862,31 +862,38 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .feed-strip {
   display: flex;
-  gap: 10px;
+  gap: 14px;
   overflow-x: auto;
-  padding: 0;
-  margin: 0;
-  scrollbar-width: none;
+  overflow-y: hidden;
+  padding: 4px 2px 10px;
+  margin: 0 -2px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
 }
-.feed-strip::-webkit-scrollbar { display: none; }
+.feed-strip::-webkit-scrollbar { height: 4px; }
+.feed-strip::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+}
 .feed-chip {
   flex: none;
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) auto;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 10px;
-  min-width: 210px;
-  max-width: 250px;
-  padding: 10px 12px;
-  border-radius: 16px;
+  gap: 12px;
+  width: 292px;
+  padding: 14px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
 }
 .feed-chip img {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
   object-fit: cover;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28);
 }
@@ -894,36 +901,28 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 .feed-chip-who {
   margin: 0;
   color: #fff;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 800;
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.feed-chip-dist {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 18px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
 .feed-chip-rarity {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  min-width: 40px;
+  gap: 4px;
+  min-width: 72px;
 }
 .feed-chip-gem {
-  width: 28px;
-  height: 26px;
+  width: 36px;
+  height: 34px;
   display: block;
 }
 .feed-chip-gem.is-silver { filter: drop-shadow(0 0 8px rgba(200, 210, 230, 0.9)); }
@@ -931,10 +930,19 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .feed-chip-gem.is-platinum { filter: drop-shadow(0 0 10px rgba(220, 230, 255, 0.95)); }
 .feed-chip-gem.is-diamond { filter: drop-shadow(0 0 12px rgba(180, 240, 255, 1)); }
 .feed-chip-gem svg { width: 100%; height: 100%; display: block; }
+.feed-chip-dist {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
+}
 .feed-chip-rarity-label {
   margin: 0;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 9px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1385,8 +1393,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 @keyframes likesTopShine {
   0% { opacity: 0; }
-  12% { opacity: 1; }
-  55% { opacity: 0.5; }
+  10% { opacity: 1; }
+  55% { opacity: 0.55; }
   100% { opacity: 0; }
 }
 .likes-jam-card {
@@ -1420,12 +1428,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   pointer-events: none;
   opacity: 0;
   box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.95),
-    0 0 24px 2px rgba(255, 255, 255, 0.45),
-    0 0 36px 4px rgba(0, 158, 255, 0.55);
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.42),
+    0 0 16px 1px rgba(255, 255, 255, 0.18),
+    0 0 28px 2px rgba(0, 158, 255, 0.22);
 }
 .likes-jam-card.is-impact::after {
-  animation: likesEdgeFlash 420ms var(--ease-out) both;
+  animation: likesEdgeFlash var(--shine-ms) ease-out both;
 }
 @keyframes likesGemDrop {
   0% { opacity: 0; transform: translateX(-50%) rotate(-4deg) scale(1.04) translateY(-4%); }
@@ -1435,9 +1443,11 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   0% { opacity: 1; transform: translateX(-50%) rotate(-2deg) scale(1) translate(0, 0); }
   100% { opacity: 0; transform: translateX(-50%) rotate(0deg) scale(0.94) translate(0, -12%); }
 }
+/* Soft outline wash — same ease / envelope as day-reached topShine */
 @keyframes likesEdgeFlash {
   0% { opacity: 0; }
-  35% { opacity: 1; }
+  10% { opacity: 0.72; }
+  55% { opacity: 0.32; }
   100% { opacity: 0; }
 }
 .likes-jam-photo {

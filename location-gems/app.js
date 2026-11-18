@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v31 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v32 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -120,8 +120,8 @@ const RAIL_EXIT_X = 22;
 const RAIL_ENTER_Y = 52;
 const RAIL_EXIT_Y = 30;
 const HAZE_IN_MS = 120;
-const SHINE_MS = 900;
-const HOLD_AFTER_SHINE_MS = 720;
+const SHINE_MS = 1400;
+const HOLD_AFTER_SHINE_MS = 280;
 const COPY_CELEBRATE_MS = 2000;
 const HAZE_OUT_MS = 240;
 const CARD_IN_MS = 560;
@@ -192,7 +192,7 @@ const COPY = {
   feedLive: '[live]',
   feedLabel: '[nearby public gems]',
   feedDismiss: '[dismiss all]',
-  feedDistance: (m) => `[${m} m]`,
+  feedDistance: (minutes) => `${minutes} min away`,
 };
 
 const SPOOF_COPY = {
@@ -239,7 +239,7 @@ const SPOOF_COPY = {
   feedLive: 'Live',
   feedLabel: 'Nearby public gems',
   feedDismiss: 'Dismiss all',
-  feedDistance: (m) => `${m} m`,
+  feedDistance: (minutes) => `${minutes} min away`,
   emptyPublicTitle: 'Nothing public yet',
   emptyPublicBody: 'Publish a find and it’ll show up here.',
   emptyHiddenTitle: 'No hidden gems',
@@ -456,12 +456,13 @@ function rarityForLikes(likes, isPublic) {
   return RARITY.cyan;
 }
 
-const FEED_DISTANCE_BY_FIND = {
-  'find-mara': 80,
-  'find-juniper': 140,
-  'find-fox': 220,
+/* Prototype walk minutes — same “{{minutes}} min away” string as app TravelTime */
+const FEED_MINUTES_BY_FIND = {
+  'find-mara': 2,
+  'find-juniper': 4,
+  'find-fox': 6,
 };
-const SPOOF_FEED_DISTANCE_M = 35;
+const SPOOF_FEED_MINUTES = 1;
 
 function createSpoofCollectedGem() {
   return {
@@ -475,7 +476,7 @@ function createSpoofCollectedGem() {
     isPublic: true,
     owned: false,
     likes: LIKES_DEMO,
-    distanceM: SPOOF_FEED_DISTANCE_M,
+    minutesAway: SPOOF_FEED_MINUTES,
     createdAt: new Date(Date.now() - 172_800_000).toISOString(),
     entries: [COPY.spoofCollectedReflection, '[another note left at this gem]'],
   };
@@ -494,7 +495,8 @@ function findToGem(find, opts) {
     isPublic: !!opts.isPublic,
     owned: !!opts.owned,
     likes: opts.isPublic ? find.likes || 0 : 0,
-    distanceM: opts.distanceM != null ? opts.distanceM : FEED_DISTANCE_BY_FIND[find.id],
+    minutesAway:
+      opts.minutesAway != null ? opts.minutesAway : FEED_MINUTES_BY_FIND[find.id],
     createdAt: new Date().toISOString(),
     entries: [find.text],
   };
@@ -752,8 +754,7 @@ function renderFeed() {
   const publicGems = gems
     .filter((g) => g.isPublic)
     .slice()
-    .sort((a, b) => (Number(a.distanceM) || 9999) - (Number(b.distanceM) || 9999))
-    .slice(0, 5);
+    .sort((a, b) => (Number(a.minutesAway) || 9999) - (Number(b.minutesAway) || 9999));
   if (!publicGems.length) {
     feedDock.hidden = true;
     return;
@@ -764,9 +765,11 @@ function renderFeed() {
     const who = g.owned
       ? displayCopy(getGemTitle(g))
       : `@${g.authorUsername || 'walker'}`;
-    const meters = Number(g.distanceM);
+    const minutes = Number(g.minutesAway);
     const dist =
-      Number.isFinite(meters) && meters >= 0 ? t('feedDistance', meters) : t('gemNearby');
+      Number.isFinite(minutes) && minutes >= 0
+        ? t('feedDistance', minutes)
+        : t('gemNearby');
     const chip = document.createElement('article');
     chip.className = 'feed-chip';
     const gemClass =
@@ -774,12 +777,12 @@ function renderFeed() {
     chip.innerHTML = `
       <img src="${g.imageUri}" alt="">
       <div class="feed-chip-meta">
-        <p class="feed-chip-dist">${dist}</p>
         <p class="feed-chip-who">${who}</p>
+        <p class="feed-chip-rarity-label">${rarity.label}</p>
       </div>
       <div class="feed-chip-rarity">
         <span class="${gemClass}" aria-hidden="true">${gemSvg(rarity.fill)}</span>
-        <p class="feed-chip-rarity-label">${rarity.label}</p>
+        <p class="feed-chip-dist">${dist}</p>
       </div>`;
     feedStrip.appendChild(chip);
   });
