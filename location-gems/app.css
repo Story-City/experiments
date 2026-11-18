@@ -31,11 +31,13 @@
   --haze-deep: rgba(8, 3, 22, 0.92);
   --haze-mid: rgba(12, 6, 32, 0.82);
   --haze-soft: rgba(18, 10, 42, 0.55);
-  --in-ms: 160ms;
-  --out-ms: 300ms;
+  --in-ms: 120ms;
+  --out-ms: 240ms;
   --copy-in-ms: 780ms;
-  --shine-ms: 1400ms;
-  --hold-after-shine-ms: 500ms;
+  --copy-out-ms: 280ms;
+  --shine-ms: 900ms;
+  --hold-after-shine-ms: 280ms;
+  --accent-soft: #b9e5ff;
 }
 
 * { box-sizing: border-box; }
@@ -1263,7 +1265,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   opacity: 1;
 }
 
-/* Day-reached vibe likes banner — no days, no Lottie */
+/* Likes banner — day-reached copy effect, tighter spacing (÷4) */
 .likes-banner {
   position: absolute;
   inset: 0;
@@ -1276,15 +1278,15 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   inset: 0;
   opacity: 0;
   background:
-    radial-gradient(90% 42% at 50% 12%, rgba(0, 158, 255, 0.18), transparent 70%),
-    radial-gradient(120% 55% at 50% 8%, rgba(8, 3, 22, 0.9), transparent 72%),
+    radial-gradient(90% 36% at 50% 8%, rgba(0, 158, 255, 0.16), transparent 68%),
+    radial-gradient(120% 48% at 50% 4%, rgba(8, 3, 22, 0.88), transparent 70%),
     linear-gradient(
       180deg,
       var(--haze-deep) 0%,
-      var(--haze-mid) 18%,
-      var(--haze-soft) 36%,
-      rgba(0, 158, 255, 0.12) 48%,
-      rgba(11, 5, 28, 0) 68%
+      var(--haze-mid) 16%,
+      var(--haze-soft) 32%,
+      rgba(0, 158, 255, 0.1) 44%,
+      rgba(11, 5, 28, 0) 60%
     );
 }
 .likes-banner.is-on .likes-haze {
@@ -1306,47 +1308,47 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   inset: 0;
   pointer-events: none;
   opacity: 0;
-  background: radial-gradient(70% 36% at 50% 12%, rgba(255, 255, 255, 0.32), transparent 68%);
+  background: radial-gradient(64% 28% at 50% 8%, rgba(255, 255, 255, 0.28), transparent 68%);
 }
 .likes-shine.is-on {
   animation: likesTopShine var(--shine-ms) ease-out forwards;
 }
 @keyframes likesTopShine {
   0% { opacity: 0; }
-  10% { opacity: 1; }
-  55% { opacity: 0.55; }
+  12% { opacity: 1; }
+  55% { opacity: 0.5; }
   100% { opacity: 0; }
 }
 .likes-jam-card {
   position: absolute;
   left: 50%;
   right: auto;
-  top: 72px;
+  top: 48px;
   z-index: 2;
-  width: calc((100% - 56px) * 0.5);
-  border-radius: 20px;
+  width: calc((100% - 48px) * 0.5);
+  border-radius: 16px;
   overflow: hidden;
   background: color-mix(in srgb, var(--raised) 92%, #000);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 28px 64px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
   opacity: 0;
-  transform: translateX(-50%) rotate(-6deg) scale(1.06) translateY(-4%);
+  transform: translateX(-50%) rotate(-4deg) scale(1.04) translateY(-4%);
   transform-origin: 50% 60%;
   pointer-events: none;
 }
 .likes-jam-card.is-in {
-  animation: likesGemDrop 980ms var(--ease-out) both;
+  animation: likesGemDrop 560ms var(--ease-out) both;
 }
 .likes-jam-card.is-out {
-  animation: likesGemOut 560ms var(--ease-out) both;
+  animation: likesGemOut 360ms var(--ease-in) both;
 }
 @keyframes likesGemDrop {
-  0% { opacity: 0; transform: translateX(-50%) rotate(-6deg) scale(1.06) translateY(-4%); }
-  100% { opacity: 1; transform: translateX(-50%) rotate(-4deg) scale(1) translateY(0); }
+  0% { opacity: 0; transform: translateX(-50%) rotate(-4deg) scale(1.04) translateY(-4%); }
+  100% { opacity: 1; transform: translateX(-50%) rotate(-2deg) scale(1) translateY(0); }
 }
 @keyframes likesGemOut {
-  0% { opacity: 1; transform: translateX(-50%) rotate(-4deg) scale(1) translate(0, 0); }
-  100% { opacity: 0; transform: translateX(-50%) rotate(0deg) scale(0.94) translate(0, -18%); }
+  0% { opacity: 1; transform: translateX(-50%) rotate(-2deg) scale(1) translate(0, 0); }
+  100% { opacity: 0; transform: translateX(-50%) rotate(0deg) scale(0.94) translate(0, -12%); }
 }
 .likes-jam-photo {
   display: block;
@@ -1354,20 +1356,20 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   aspect-ratio: 4 / 3;
   object-fit: cover;
 }
-.likes-jam-body { padding: 12px 14px 14px; }
+.likes-jam-body { padding: 8px; }
 .likes-jam-user {
   margin: 0 0 4px;
   font-weight: 800;
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   color: rgba(0, 194, 255, 0.92);
 }
 .likes-jam-text {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 .likes-jam-place {
   margin: 0;
@@ -1375,42 +1377,69 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   font-size: 12px;
   font-weight: 700;
 }
+/* Day-reached copy text effect */
 .likes-copy {
   position: absolute;
-  left: 24px;
-  right: 24px;
-  top: 58%;
+  left: 16%;
+  right: 16%;
+  top: calc(48% - 4px);
+  z-index: 7;
   text-align: center;
   opacity: 0;
+  transform: translateY(8px);
+  filter: blur(2px);
+  transition:
+    opacity var(--copy-out-ms) ease,
+    transform var(--copy-out-ms) ease,
+    filter var(--copy-out-ms) ease;
+  pointer-events: none;
 }
 .likes-copy.is-on {
-  animation: likesCopyIn var(--copy-in-ms) ease-out both;
-}
-@keyframes likesCopyIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  transition:
+    opacity var(--copy-in-ms) ease-out,
+    transform var(--copy-in-ms) ease-out,
+    filter var(--copy-in-ms) ease-out;
 }
 .likes-headline {
   margin: 0;
-  font-size: 34px;
-  font-weight: 900;
+  font-size: 24px;
   line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(8, 3, 22, 0.9);
 }
 .likes-rich {
-  background: linear-gradient(90deg, #fff 20%, #b9e5ff 45%, #fff 70%, #009eff 100%);
-  background-size: 220% 100%;
+  background: linear-gradient(100deg, #fff 8%, #009eff 42%, var(--accent-soft) 68%, #fff 100%);
+  background-size: 180% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: likesRichSweep 900ms ease-out both;
 }
-@keyframes likesRichSweep {
+.likes-copy.is-on .likes-rich {
+  animation: richSweep 1100ms ease-out both;
+}
+.likes-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.25;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--accent-soft) 95%, white);
+  text-shadow: 0 1px 12px rgba(8, 3, 22, 0.9);
+  opacity: 0;
+}
+.likes-copy.is-on .likes-subtitle {
+  animation: subtitleIn 900ms ease-out both;
+  animation-delay: 180ms;
+}
+@keyframes richSweep {
   from { background-position: 100% 0; filter: brightness(1.2); }
   to { background-position: 0 0; filter: brightness(1); }
 }
-.likes-subtitle {
-  margin: 8px 0 0;
-  color: rgba(238, 238, 238, 0.9);
-  font-size: 16px;
-  font-weight: 700;
+@keyframes subtitleIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }

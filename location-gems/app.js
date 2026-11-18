@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v17 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v18 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -117,13 +117,14 @@ const RAIL_ENTER_X = 40;
 const RAIL_EXIT_X = 22;
 const RAIL_ENTER_Y = 52;
 const RAIL_EXIT_Y = 30;
-const HAZE_IN_MS = 160;
-const SHINE_MS = 1400;
-const HOLD_AFTER_SHINE_MS = 500;
-const COPY_CELEBRATE_MS = 780;
-const HAZE_OUT_MS = 300;
-const CARD_IN_MS = 980;
-const CARD_OUT_MS = 560;
+const HAZE_IN_MS = 120;
+const SHINE_MS = 900;
+const HOLD_AFTER_SHINE_MS = 280;
+const COPY_CELEBRATE_MS = 520;
+const HAZE_OUT_MS = 240;
+const CARD_IN_MS = 560;
+const CARD_OUT_MS = 360;
+const COPY_LEAD_MS = 160;
 const FLY_MS = 720;
 const LIKES_DEMO = 12;
 const GLANCE_ARC_CX = 120;
@@ -1352,12 +1353,13 @@ async function playLikesBanner() {
   await wait(HAZE_IN_MS);
   likesShine.classList.add('is-on');
   likesJamCard.classList.add('is-in');
-  await wait(CARD_IN_MS * 0.35);
+  await wait(COPY_LEAD_MS);
   likesCopy.classList.add('is-on');
   await wait(SHINE_MS + HOLD_AFTER_SHINE_MS);
-  await wait(COPY_CELEBRATE_MS * 0.35);
+  await wait(COPY_CELEBRATE_MS);
   likesJamCard.classList.remove('is-in');
   likesJamCard.classList.add('is-out');
+  likesCopy.classList.remove('is-on');
   await wait(CARD_OUT_MS);
   likesBanner.classList.add('is-out');
   await wait(HAZE_OUT_MS);
