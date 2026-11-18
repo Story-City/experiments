@@ -241,10 +241,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   cursor: pointer;
 }
 .tab-button.is-active {
-  background:
-    var(--btn-radial-wash),
-    linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
-  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
 }
 .tab-button.is-active .tab-gem-icon { filter: brightness(0) invert(1); }
 .tab-gem-icon { opacity: 0.75; filter: brightness(0) invert(0.72); }

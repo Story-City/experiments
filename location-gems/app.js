@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v24 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v25 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -297,6 +297,7 @@ const accentColor = document.getElementById('accentColor');
 const accentAlpha = document.getElementById('accentAlpha');
 const radialColor = document.getElementById('radialColor');
 const radialAmount = document.getElementById('radialAmount');
+const radialImpact = document.getElementById('radialImpact');
 const bgColor = document.getElementById('bgColor');
 const bgDepth = document.getElementById('bgDepth');
 const tabPublic = document.getElementById('tabPublic');
@@ -635,15 +636,20 @@ function applyAccent() {
 function applyRadial() {
   const hex = (radialColor && radialColor.value) || '#b36bff';
   const amount = ((radialAmount && Number(radialAmount.value)) || 55) / 100;
+  const impact = ((radialImpact && Number(radialImpact.value)) || 60) / 100;
   const { r, g, b } = hexToRgb(hex);
+  const alpha = 0.35 * amount + 0.65 * amount * impact;
+  const spreadX = 140 + Math.round(120 * impact);
+  const spreadY = 55 + Math.round(35 * impact);
+  const fade = 58 + Math.round(22 * (1 - impact));
   document.documentElement.style.setProperty('--btn-radial-solid', hex);
   document.documentElement.style.setProperty(
     '--btn-radial',
-    `rgba(${r}, ${g}, ${b}, ${0.75 * amount})`,
+    `rgba(${r}, ${g}, ${b}, ${alpha})`,
   );
   document.documentElement.style.setProperty(
     '--btn-radial-wash',
-    `radial-gradient(ellipse 200% 70% at 50% 45%, rgba(${r}, ${g}, ${b}, ${0.75 * amount}), transparent 72%)`,
+    `radial-gradient(ellipse ${spreadX}% ${spreadY}% at 50% 45%, rgba(${r}, ${g}, ${b}, ${alpha}), transparent ${fade}%)`,
   );
 }
 
@@ -1550,6 +1556,7 @@ accentColor.addEventListener('input', applyAccent);
 accentAlpha.addEventListener('input', applyAccent);
 if (radialColor) radialColor.addEventListener('input', applyRadial);
 if (radialAmount) radialAmount.addEventListener('input', applyRadial);
+if (radialImpact) radialImpact.addEventListener('input', applyRadial);
 if (bgColor) bgColor.addEventListener('input', applyBg);
 if (bgDepth) bgDepth.addEventListener('input', applyBg);
 resetHub.addEventListener('click', resetState);
