@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Approved UI library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=1">
+<meta http-equiv="Cache-Control" content="no-cache">
+</head>
+<body>
+  <header class="page-head">
+    <p class="eyebrow">StoryCity · experiments</p>
+    <h1>Approved UI</h1>
+    <p class="lede">
+      Playable catalog of elements we’re keeping — tips, gems, share chrome, stats —
+      with the Location Gems color sliders so we can unify look and motion across experiments and the app.
+    </p>
+  </header>
+
+  <div class="toolbar" id="toolbar">
+    <label class="accent-pick" title="Accent color (keeps gradients)">
+      <span>Accent</span>
+      <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
+      <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
+    </label>
+    <label class="accent-pick" title="Radial wash on primary buttons">
+      <span>Radial</span>
+      <input type="color" id="radialColor" value="#b36bff" aria-label="Button radial color">
+      <input type="range" id="radialAmount" min="0" max="100" value="55" aria-label="Radial amount">
+    </label>
+    <label class="accent-pick" title="Page background indigo">
+      <span>Background</span>
+      <input type="color" id="bgColor" value="#170c35" aria-label="Background color">
+      <input type="range" id="bgDepth" min="40" max="100" value="100" aria-label="Background depth">
+    </label>
+    <fieldset class="motion-pick" aria-label="Motion preset">
+      <legend>Motion</legend>
+      <label><input type="radio" name="motion" value="swoosh" checked> Swoosh</label>
+      <label><input type="radio" name="motion" value="spring"> Spring</label>
+      <label><input type="radio" name="motion" value="out"> Ease-out</label>
+    </fieldset>
+  </div>
+
+  <main class="library" id="library">
+    <!-- cards injected by app.js from ELEMENT_DEFS -->
+  </main>
+
+  <p class="meta">APPROVED-UI-v1 — fingerprint for live verify.</p>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

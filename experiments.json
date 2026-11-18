@@ -26,6 +26,18 @@
     "reviewer": "Melissa"
   },
   {
+    "slug": "approved-ui",
+    "path": "approved-ui/?v=1",
+    "title": "Approved UI library",
+    "what": "Playable catalog of kept elements (tips, gem motion, share chrome, end-story stats) with Location Gems Accent/Radial/Background sliders and motion presets.",
+    "author": "victoria",
+    "authorName": "Victoria",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "daily-side-quests",
     "path": "daily-side-quests/?v=62",
     "title": "Daily Side Quests",
