@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v38 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v39 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -771,98 +771,53 @@ function buildGemCard(gem, opts = {}) {
   return wrap;
 }
 
-function feedChipBits(g) {
+function buildFeedChip(g) {
   const rarity = rarityForLikes(g.likes, true);
   const minutes = Number(g.minutesAway);
   const dist =
     Number.isFinite(minutes) && minutes >= 0
       ? t('feedDistance', minutes)
       : t('gemNearby');
-  const likes = publicLikes(g);
-  const fresh = feedIsFresh(g);
   const gemClass =
     rarity.id !== 'cyan' ? `feed-chip-gem is-${rarity.id}` : 'feed-chip-gem';
-  const rarityBadge =
-    rarity.id !== 'cyan'
-      ? `<span class="feed-chip-rarity-badge is-${rarity.id}">${rarity.label}</span>`
-      : '';
-  const likesEl =
-    likes > 0
-      ? `<span class="feed-chip-likes"><span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span></span>`
-      : '';
-  const freshEl = fresh
-    ? `<span class="feed-chip-fresh">${t('feedFresh')}</span>`
-    : '';
-  const gemEl = `<span class="${gemClass}" aria-hidden="true">${gemSvg(rarity.fill)}</span>`;
-  return { rarity, dist, likes, fresh, rarityBadge, likesEl, freshEl, gemEl };
-}
-
-function buildFeedChip(g, variant) {
-  const { rarity, dist, likes, fresh, rarityBadge, likesEl, freshEl, gemEl } =
-    feedChipBits(g);
-  const chip = document.createElement('article');
-  chip.className = `feed-chip is-${variant}`;
-  if (fresh) chip.classList.add('is-fresh');
   const rarityWord =
     rarity.id !== 'cyan'
       ? `<span class="feed-chip-rarity-word is-${rarity.id}">${rarity.label}</span>`
       : '';
-  const lineBits = [dist];
-  if (likes > 0) lineBits.push(`♥ ${t('likesHeart', likes)}`);
-  if (rarity.id !== 'cyan') lineBits.push(rarity.label);
-  if (fresh) lineBits.push(t('feedFresh'));
-
-  if (variant === 'line') {
-    chip.innerHTML = `
-      <p class="feed-chip-line">${lineBits.join(' · ')}</p>
-      <div class="feed-chip-media is-wide">
-        <img src="${g.imageUri}" alt="">
-      </div>`;
-  } else if (variant === 'pair') {
-    chip.innerHTML = `
-      <div class="feed-chip-pair-top">
-        <p class="feed-chip-dist is-loud">${dist}</p>
-        <div class="feed-chip-pair-rarity">
-          ${gemEl}
-          ${rarityWord}
-        </div>
+  const chip = document.createElement('article');
+  chip.className = 'feed-chip';
+  chip.setAttribute('role', 'button');
+  chip.tabIndex = 0;
+  chip.setAttribute(
+    'aria-label',
+    `${dist}${rarity.id !== 'cyan' ? `, ${rarity.label}` : ''}`,
+  );
+  chip.innerHTML = `
+    <div class="feed-chip-media">
+      <img src="${g.imageUri}" alt="">
+    </div>
+    <div class="feed-chip-body">
+      <p class="feed-chip-dist">${dist}</p>
+      <div class="feed-chip-meta">
+        <span class="${gemClass}" aria-hidden="true">${gemSvg(rarity.fill)}</span>
+        ${rarityWord}
       </div>
-      <div class="feed-chip-pair-mid">
-        ${likesEl}
-        ${freshEl}
-      </div>
-      <div class="feed-chip-media is-band">
-        <img src="${g.imageUri}" alt="">
-      </div>`;
-  } else {
-    /* read — lead with effort + facts; photo confirms */
-    chip.innerHTML = `
-      <div class="feed-chip-lead">
-        <p class="feed-chip-dist is-loud">${dist}</p>
-        <div class="feed-chip-facts">
-          ${likesEl}
-          ${gemEl}
-          ${rarityWord}
-          ${freshEl}
-        </div>
-      </div>
-      <div class="feed-chip-media is-thumb">
-        <img src="${g.imageUri}" alt="">
-      </div>`;
-  }
-  return chip;
-}
-
-function setFeedVariant(variant) {
-  const next = variant === 'line' || variant === 'pair' ? variant : 'read';
-  feedVariant = next;
-  document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
-    const on = btn.getAttribute('data-feed-variant') === next;
-    btn.classList.toggle('is-on', on);
-    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      <button type="button" class="feed-chip-go">${t('detailNav')}</button>
+    </div>`;
+  const go = chip.querySelector('.feed-chip-go');
+  go.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hint.textContent = t('navigateSpoof');
+    openDetail(g.id);
   });
-  if (feedStrip) feedStrip.dataset.variant = next;
-  renderFeed();
+  chip.addEventListener('click', () => openDetail(g.id));
+  chip.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openDetail(g.id);
+    }
+  });
+  return chip;
 }
 
 function renderFeed() {
@@ -873,16 +828,10 @@ function renderFeed() {
     feedDock.hidden = true;
     return;
   }
-  /* Sort: walkable first, then hotter (likes) — effort + heat, not who posted */
   const publicGems = gems
     .filter((g) => g.isPublic)
     .slice()
-    .sort((a, b) => {
-      const d =
-        (Number(a.minutesAway) || 9999) - (Number(b.minutesAway) || 9999);
-      if (d !== 0) return d;
-      return publicLikes(b) - publicLikes(a);
-    });
+    .sort((a, b) => (Number(a.minutesAway) || 9999) - (Number(b.minutesAway) || 9999));
   if (!publicGems.length) {
     feedDock.hidden = true;
     return;
@@ -890,9 +839,8 @@ function renderFeed() {
   feedDock.hidden = false;
   feedDock.classList.remove('is-dismissing', 'is-swiping');
   feedDock.style.transform = '';
-  feedStrip.dataset.variant = feedVariant;
   publicGems.forEach((g) => {
-    feedStrip.appendChild(buildFeedChip(g, feedVariant));
+    feedStrip.appendChild(buildFeedChip(g));
   });
 }
 
