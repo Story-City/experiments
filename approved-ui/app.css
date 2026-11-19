@@ -216,6 +216,10 @@ h1 {
   aspect-ratio: unset;
   overflow: visible;
 }
+.stage.stage-mode-switch {
+  height: 120px;
+  aspect-ratio: unset;
+}
 .stage.stage-spot {
   height: 420px;
   aspect-ratio: unset;

@@ -1,5 +1,5 @@
-/** Approved UI library — APPROVED-UI-v13
- * Rarity stones (aquamarine…). Tip + reply bubble button from FTUE.
+/** Approved UI library — APPROVED-UI-v14
+ * Map mode switch chrome from FtueMap (no map surface).
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -205,6 +205,14 @@ const ELEMENT_DEFS = [
     ux: 'When: map tip asks for a response (share location / steps). Tip stays until the glass reply bubble is tapped. Try: Summons / Knight accent · tap reply.',
     stage: 'tip-reply',
     mount: mountTipWithReply,
+  },
+  {
+    id: 'map-mode-switch',
+    title: 'Map mode switch',
+    source: 'FtueMap ModeSegment · MAP_MODE_COLORS',
+    ux: 'When: chapter map card — pick Walk / Path / Hunt. Selected fill = mode colour (Walk uses dark label on green). Lock others = FTUE lockModes wash. No map tiles. Try: tap a mode · Lock others.',
+    stage: 'mode-switch',
+    mount: mountMapModeSwitch,
   },
   {
     id: 'choice-pulse',
@@ -1351,6 +1359,119 @@ function mountTipWithReply(stage, actions) {
   apply(active);
   addPlay(actions, 'Show tip', show);
   addGhost(actions, 'Dismiss', dismiss);
+}
+
+function mountMapModeSwitch(stage, actions) {
+  /* FtueMap ModeSegment only — icons/colours/labels from app. No map surface. */
+  const MAP_MODE_COLORS = {
+    walkEnd: '#3ddc84',
+    pin: '#2f8bff',
+    hunt: '#b36bff',
+    muted: '#b2b5b4',
+  };
+  const MODE_ORDER = [
+    {
+      id: 'step',
+      label: 'Walk', /* en scriptedFtue.map.modeStep */
+      accent: MAP_MODE_COLORS.walkEnd,
+    },
+    {
+      id: 'pin',
+      label: 'Path', /* en scriptedFtue.map.modePath */
+      accent: MAP_MODE_COLORS.pin,
+    },
+    {
+      id: 'hunt',
+      label: 'Hunt', /* en scriptedFtue.map.modeHunt */
+      accent: MAP_MODE_COLORS.hunt,
+    },
+  ];
+  /* Path / Hunt paths + dots from FtueMap MODE_ICON_PATHS / MODE_ICON_DOTS */
+  const MODE_ICON_PATHS = {
+    pin: 'M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15',
+    hunt: 'M4 8V5h3M20 8V5h-3M4 16v3h3M20 16v3h-3',
+  };
+  const MODE_ICON_DOTS = {
+    pin: [{ cx: 6, cy: 19, r: 3 }, { cx: 18, cy: 5, r: 3 }],
+    hunt: [{ cx: 12, cy: 12, r: 3 }],
+  };
+  /* Ionicons "walk" — same name the app ModeIcon uses (official ionicons walk.svg) */
+  const WALK_ICON = `
+    <svg class="map-mode-icon" viewBox="0 0 512 512" aria-hidden="true">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M312.55 479.9l-56.42-114-44.62-57a72.37 72.37 0 01-10.06-36.9V143.64H217a40 40 0 0140 40v182.21"/>
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M127.38 291.78v-74.07s37-74.07 74.07-74.07"/>
+      <path fill="currentColor" d="M368.09 291.78a18.49 18.49 0 01-10.26-3.11L297.7 250a21.18 21.18 0 01-9.7-17.79v-23.7a5.65 5.65 0 018.69-4.77l81.65 54.11a18.52 18.52 0 01-10.29 33.93zM171.91 493.47a18.5 18.5 0 01-14.83-7.41c-6.14-8.18-4-17.18 3.7-25.92l59.95-74.66a7.41 7.41 0 0110.76 2.06c1.56 2.54 3.38 5.65 5.19 9.09 5.24 9.95 6 16.11-1.68 25.7-8 10-52 67.44-52 67.44-2.62 2.98-7.23 3.7-11.09 3.7z"/>
+      <circle fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" cx="257" cy="69.56" r="37.04"/>
+    </svg>`;
+
+  const drawnIcon = (modeId, color) => {
+    const path = MODE_ICON_PATHS[modeId];
+    const dots = MODE_ICON_DOTS[modeId]
+      .map((d) => `<circle cx="${d.cx}" cy="${d.cy}" r="${d.r}" fill="${color}" stroke="none"/>`)
+      .join('');
+    return `<svg class="map-mode-icon" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${path}"/>${dots}</svg>`;
+  };
+
+  const host = document.createElement('div');
+  host.className = 'map-mode-host';
+  host.innerHTML = `
+    <div class="map-mode-chips">
+      <button type="button" id="mapModeLock" aria-pressed="false">Lock others</button>
+    </div>
+    <div class="map-mode-switch" role="tablist" aria-label="How you walk"></div>
+  `;
+  stage.appendChild(host);
+  const row = host.querySelector('.map-mode-switch');
+  const lockBtn = host.querySelector('#mapModeLock');
+  let selected = 'step';
+  let lockOthers = false;
+
+  const iconHtml = (mode, selectedNow) => {
+    const darkText = selectedNow && mode.id === 'step';
+    const color = selectedNow
+      ? (darkText ? '#170c35' : '#fff')
+      : MAP_MODE_COLORS.muted;
+    if (mode.id === 'step') {
+      return WALK_ICON.split('currentColor').join(color);
+    }
+    return drawnIcon(mode.id, color);
+  };
+
+  const render = () => {
+    row.replaceChildren();
+    MODE_ORDER.forEach((mode) => {
+      const selectedNow = mode.id === selected;
+      const locked = lockOthers && !selectedNow;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `map-mode-segment${locked ? ' is-locked' : ''}`;
+      btn.dataset.mode = mode.id;
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', selectedNow ? 'true' : 'false');
+      btn.innerHTML = `${iconHtml(mode, selectedNow)}<span>${mode.label}</span><span class="map-mode-lock" aria-hidden="true"></span>`;
+      btn.addEventListener('click', () => {
+        if (locked) return;
+        selected = mode.id;
+        render();
+      });
+      row.appendChild(btn);
+    });
+  };
+
+  lockBtn.addEventListener('click', () => {
+    lockOthers = !lockOthers;
+    lockBtn.setAttribute('aria-pressed', lockOthers ? 'true' : 'false');
+    render();
+  });
+  render();
+  addPlay(actions, 'Select Walk', () => {
+    selected = 'step';
+    render();
+  });
+  addGhost(actions, 'Select Hunt', () => {
+    selected = 'hunt';
+    render();
+  });
 }
 
 function mountChoicePulse(stage, actions) {

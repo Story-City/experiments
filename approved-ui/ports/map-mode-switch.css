@@ -1,0 +1,106 @@
+/* FtueMap mode switch — FtueMapStyles switch/segment + MAP_MODE_COLORS. No map. */
+.map-mode-host {
+  --mode-walk: #3ddc84;
+  --mode-path: #2f8bff;
+  --mode-hunt: #b36bff;
+  --mode-muted: #b2b5b4;
+  --mode-dark: #170c35; /* palette.purple.background */
+  --switch-bg: rgba(7, 8, 15, 0.55);
+  --switch-radius: 16px;
+  --segment-radius: 12px;
+  --lock-wash: rgba(255, 255, 255, 0.5); /* palette.alpha.white50 */
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: var(--bg);
+  box-sizing: border-box;
+}
+.map-mode-switch {
+  display: flex;
+  flex-direction: row;
+  gap: 4px; /* theme.spacing.xs */
+  width: 100%;
+  padding: 4px;
+  border-radius: var(--switch-radius);
+  background: var(--switch-bg);
+  box-sizing: border-box;
+}
+.map-mode-segment {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 8px 4px; /* theme.spacing.s */
+  border: 0;
+  border-radius: var(--segment-radius);
+  background: transparent;
+  color: var(--mode-muted);
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px; /* STATUS_SIZE */
+  line-height: 1.2;
+  cursor: pointer;
+  overflow: hidden;
+}
+.map-mode-segment[aria-selected="true"] {
+  color: #fff;
+}
+.map-mode-segment[aria-selected="true"][data-mode="step"] {
+  background: var(--mode-walk);
+  color: var(--mode-dark);
+}
+.map-mode-segment[aria-selected="true"][data-mode="pin"] {
+  background: var(--mode-path);
+}
+.map-mode-segment[aria-selected="true"][data-mode="hunt"] {
+  background: var(--mode-hunt);
+}
+.map-mode-segment.is-locked .map-mode-lock {
+  display: block;
+}
+.map-mode-lock {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: var(--lock-wash);
+  pointer-events: none;
+}
+.map-mode-icon {
+  width: 18px; /* SEGMENT_ICON_SIZE */
+  height: 18px;
+  flex: none;
+  display: block;
+}
+.map-mode-chips {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  z-index: 2;
+}
+.map-mode-chips button {
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 11px;
+  cursor: pointer;
+}
+.map-mode-chips button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--brand-accent) 32%, transparent);
+  border-color: var(--brand-accent);
+}
