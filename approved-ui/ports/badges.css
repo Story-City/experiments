@@ -16,7 +16,7 @@
   box-sizing: border-box;
   overflow: hidden;
 }
-/* PedometerBadge: Large 300×165 — no bounce in app; section fade only */
+/* Large featured achievement — BadgeSize.Large 300×165 + AnimatedBadge bounce */
 .badge-featured {
   width: 300px;
   height: 165px;
@@ -24,6 +24,11 @@
   display: grid;
   place-items: center;
   opacity: 0;
+  transform: scale(0);
+  transform-origin: 50% 50%;
+}
+.badge-featured.is-in {
+  animation: badgeBounce 600ms linear both;
 }
 .badge-featured img {
   width: 100%;

@@ -1,5 +1,5 @@
-/** Approved UI library — APPROVED-UI-v15
- * Badge appear: AnimatedBadge bounce + EndStory fade (pedometer art from app).
+/** Approved UI library — APPROVED-UI-v16
+ * Badge appear uses Tales from the Incident achievement art (GraphQL).
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -217,8 +217,8 @@ const ELEMENT_DEFS = [
   {
     id: 'badge-appear',
     title: 'Badge appear',
-    source: 'AnimatedBadge bounce · EndStoryInlineBadges fade · pedometer_badge.png',
-    ux: 'When: end-story / celebration. Section fades in, then small badges bounce in staggered (300ms, cap 1200). Unearned = grey silhouette mask. Art here is the app pedometer badge (story achievement art is remote). Try: Play appear.',
+    source: 'AnimatedBadge · EndStory fade · Tales achievements',
+    ux: 'When: end-story / celebration. Fade in, then badges bounce staggered. Art = Tales from the Incident rewards (production GraphQL). Unearned = grey mask. Full set: assets/badges/tales/. Try: Play appear.',
     stage: 'badges',
     mount: mountBadgeAppear,
   },
@@ -1484,52 +1484,57 @@ function mountMapModeSwitch(stage, actions) {
 
 function mountBadgeAppear(stage, actions) {
   /* Entrance from useEntranceAnimation Bounce + AnimatedBadge stagger.
-     Art: pedometer_badge.png (app). Story achievement PNGs are GraphQL contentUrl — not invented. */
-  const BADGE_ART = 'assets/badges/pedometer_badge.png';
+     Art: Tales from the Incident storyAchievements (production GraphQL). */
+  const TALES = [
+    { file: 'assets/badges/tales/10-cye-took-farron-s-case.png', name: 'Cye took Farron’s case' },
+    { file: 'assets/badges/tales/01-cye-discovered-a-secret-vault.png', name: 'Cye discovered a secret vault' },
+    { file: 'assets/badges/tales/12-cye-found-a-shard-of-broken-porcelain.png', name: 'Cye found a shard of broken porcelain' },
+    { file: 'assets/badges/tales/27-episode-one-complete.png', name: 'Episode one complete' },
+  ];
   const MODAL_BADGES_FADE_MS = 340;
   const MODAL_BADGES_FADE_DELAY_MS = 380;
   const VIEW_ANIMATION_DELAY_MS = 500;
   const STAGGER_DELAY_MS = 300;
   const MAX_STAGGER_DELAY_MS = 1200;
-  const SMALL_COUNT = 3;
+  const featuredArt = TALES[0].file;
+  const smallArts = TALES.slice(1);
 
   const host = document.createElement('div');
   host.className = 'badge-host';
-  host.style.setProperty('--badge-mask', `url("${BADGE_ART}")`);
+  host.style.setProperty('--badge-mask', `url("${smallArts[smallArts.length - 1].file}")`);
   host.innerHTML = `
     <p class="badge-kicker" id="badgeKicker" hidden>You earned new badges!</p>
-    <div class="badge-featured" id="badgeFeatured">
-      <img src="${BADGE_ART}" alt="" decoding="async">
+    <div class="badge-featured is-achievement" id="badgeFeatured">
+      <img src="${featuredArt}" alt="${TALES[0].name}" decoding="async">
     </div>
     <div class="badge-row" id="badgeRow"></div>
   `;
   stage.appendChild(host);
 
-  /* PedometerBadge has no bounce in the app; featured here only fades with the section. */
   const kicker = host.querySelector('#badgeKicker');
   const featured = host.querySelector('#badgeFeatured');
   const row = host.querySelector('#badgeRow');
   kicker.style.cssText = 'margin:0;font-weight:800;font-size:16px;opacity:0;transition:opacity ' + MODAL_BADGES_FADE_MS + 'ms ease;';
 
-  for (let i = 0; i < SMALL_COUNT; i += 1) {
+  smallArts.forEach((badge, i) => {
     const cell = document.createElement('div');
     cell.className = 'badge-cell';
-    const earned = i < SMALL_COUNT - 1;
+    const earned = i < smallArts.length - 1;
     if (earned) {
-      cell.innerHTML = `<img class="badge-art" src="${BADGE_ART}" alt="" decoding="async">`;
+      cell.innerHTML = `<img class="badge-art" src="${badge.file}" alt="${badge.name}" decoding="async">`;
     } else {
       cell.innerHTML = `<span class="badge-unearned" aria-label="unearned"></span>`;
     }
-    const stagger = Math.min(i * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS);
-    cell.style.setProperty('--badge-delay', `${VIEW_ANIMATION_DELAY_MS + stagger}ms`);
     row.appendChild(cell);
-  }
+  });
 
   const play = () => {
     kicker.hidden = false;
     kicker.style.opacity = '0';
     featured.style.opacity = '0';
     featured.style.transition = 'none';
+    featured.classList.remove('is-in');
+    featured.style.animation = 'none';
     row.querySelectorAll('.badge-cell').forEach((cell) => {
       cell.classList.remove('is-in');
       cell.style.animation = 'none';
@@ -1540,9 +1545,13 @@ function mountBadgeAppear(stage, actions) {
       kicker.style.opacity = '1';
       featured.style.transition = `opacity ${MODAL_BADGES_FADE_MS}ms ease`;
       featured.style.opacity = '1';
+      /* Featured achievement uses AnimatedBadge bounce (index 0) after view delay */
+      featured.style.animation = '';
+      featured.style.animationDelay = `${VIEW_ANIMATION_DELAY_MS}ms`;
+      featured.classList.add('is-in');
     }, MODAL_BADGES_FADE_DELAY_MS);
     row.querySelectorAll('.badge-cell').forEach((cell, i) => {
-      const stagger = Math.min(i * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS);
+      const stagger = Math.min((i + 1) * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS);
       const delay = VIEW_ANIMATION_DELAY_MS + stagger;
       cell.style.animation = 'none';
       void cell.offsetWidth;
