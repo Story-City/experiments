@@ -1718,7 +1718,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .likes-jam-card.is-back {
   z-index: 2;
   opacity: 0.9;
-  transform: rotate(-14deg) scale(0.94) translate(12%, 8%);
+  transform: rotate(14deg) scale(0.94) translate(-12%, 8%);
 }
 .likes-jam-card.is-front {
   z-index: 3;
@@ -1775,7 +1775,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 @keyframes likesCardPeek {
   0% { opacity: 1; transform: rotate(-4deg) scale(1) translate(0, 0); }
-  100% { opacity: 0.9; transform: rotate(-14deg) scale(0.94) translate(12%, 8%); }
+  100% { opacity: 0.9; transform: rotate(14deg) scale(0.94) translate(-12%, 8%); }
 }
 /* Soft outline wash — same ease / envelope as day-reached topShine */
 @keyframes likesEdgeFlash {
