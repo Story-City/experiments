@@ -11,6 +11,20 @@ const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls)
 const LETTERS = 'ABCDEFGH';
 const catOf = (id) => CATS.find((c) => c.id === id);
 
+// If the browser kept an older copy of index.html (Pages caches it ~10 min), add the preset area here
+// so the newer script never stops on a missing element.
+(function ensurePresetArea() {
+  if (!$('presets')) {
+    const wrap = el('div', 'presets-wrap');
+    wrap.append(Object.assign(el('p', 'presets-title'), { id: 'presetsTitle' }), Object.assign(el('div', 'presets'), { id: 'presets' }), Object.assign(el('p', 'preset-what'), { id: 'presetWhat' }));
+    $('opts').before(wrap);
+  }
+  const wrap = $('presets').parentElement;
+  if (!$('tryAt')) wrap.append(Object.assign(el('div', 'try-at'), { id: 'tryAt' }));
+  if (!$('matchup')) { const m = el('button', 'matchup'); m.id = 'matchup'; m.type = 'button'; wrap.append(m); }
+  for (const id of ['catch', 'pop', 'full', 'peek']) if (!$(id)) { const n = el(id === 'catch' ? 'div' : 'section', id); n.id = id; n.hidden = true; $('phone').append(n); }
+})();
+
 /* ---------- options (kept in the link) ---------- */
 const START = Object.fromEntries(OPTIONS.map((o) => [o.id, o.start]));
 let opt = { ...START };
@@ -504,7 +518,7 @@ function drawPresets() {
   });
   const what = $('presetWhat');
   what.replaceChildren();
-  if (on) what.append(el('b', null, COPY.tests + on.tests), el('br'), on.what);
+  if (on) what.append(el('span', 'p-desc', on.desc), el('b', 'p-tests', COPY.tests + on.tests), el('span', 'p-sets', on.what));
   else what.textContent = COPY.custom;
   // run it at 10 / 40 / 100 gems and with the colour-blind view
   const tr = $('tryAt');
