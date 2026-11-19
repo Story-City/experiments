@@ -27,7 +27,7 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=18",
+    "path": "approved-ui/?v=19",
     "title": "Approved UI library",
     "what": "End-story badges popup contained (no CTA scroll). Bounce clocks fixed. Tales cover + 4 badges.",
     "author": "victoria",

@@ -1,27 +1,105 @@
-/* FtueMap mode switch — FtueMapStyles switch/segment + MAP_MODE_COLORS. No map. */
+/* Chapter map card + ModeSegment — map-modes .card + FtueMap Walk/Path/Hunt.
+   No map tiles. END-STORY fingerprint unrelated; MAP-MODE-CARD-v19 */
 .map-mode-host {
   --mode-walk: #3ddc84;
   --mode-path: #2f8bff;
   --mode-hunt: #b36bff;
   --mode-muted: #b2b5b4;
-  --mode-dark: #170c35; /* palette.purple.background */
+  --mode-dark: #170c35;
+  --raised: #241b46;
   --switch-bg: rgba(7, 8, 15, 0.55);
   --switch-radius: 16px;
   --segment-radius: 12px;
-  --lock-wash: rgba(255, 255, 255, 0.5); /* palette.alpha.white50 */
+  --lock-wash: rgba(255, 255, 255, 0.5);
+  --status-area-h: 88px; /* STATUS_AREA_HEIGHT — Hunt shutter tallest */
   position: relative;
   width: 100%;
   height: 100%;
-  display: grid;
-  place-items: center;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12px;
   background: var(--bg);
   box-sizing: border-box;
+}
+.map-mode-chips {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  z-index: 2;
+}
+.map-mode-chips button {
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 11px;
+  cursor: pointer;
+}
+.map-mode-chips button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--brand-accent) 32%, transparent);
+  border-color: var(--brand-accent);
+}
+/* map-modes .card — chapter card with the mode switch */
+.map-mode-card {
+  width: 100%;
+  padding: 16px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: color-mix(in srgb, var(--raised) 94%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+.map-mode-story {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.map-mode-cover {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(150deg, #3a1f6e, #0a0518);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  position: relative;
+}
+.map-mode-cover::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 2px solid #b6ff3b;
+  border-radius: 50%;
+}
+.map-mode-story-name {
+  font-size: 12px;
+  color: var(--mode-muted);
+  letter-spacing: 0.02em;
+}
+.map-mode-next {
+  font: 600 20px/1.05 "Darker Grotesque", system-ui, sans-serif;
+  color: #fff;
+}
+.map-mode-next b {
+  font-weight: 900;
 }
 .map-mode-switch {
   display: flex;
   flex-direction: row;
-  gap: 4px; /* theme.spacing.xs */
+  gap: 4px;
   width: 100%;
   padding: 4px;
   border-radius: var(--switch-radius);
@@ -37,14 +115,14 @@
   justify-content: center;
   gap: 4px;
   margin: 0;
-  padding: 8px 4px; /* theme.spacing.s */
+  padding: 8px 4px;
   border: 0;
   border-radius: var(--segment-radius);
   background: transparent;
   color: var(--mode-muted);
   font: inherit;
   font-weight: 700;
-  font-size: 15px; /* STATUS_SIZE */
+  font-size: 15px;
   line-height: 1.2;
   cursor: pointer;
   overflow: hidden;
@@ -73,34 +151,79 @@
   pointer-events: none;
 }
 .map-mode-icon {
-  width: 18px; /* SEGMENT_ICON_SIZE */
+  width: 18px;
   height: 18px;
   flex: none;
   display: block;
 }
-.map-mode-chips {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  top: 6px;
+.map-mode-status {
+  height: var(--status-area-h);
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  z-index: 2;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
-.map-mode-chips button {
-  height: 26px;
-  padding: 0 9px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
+.map-mode-status[hidden] {
+  display: none !important;
+}
+.map-mode-steps-count {
+  margin: 0;
   color: #fff;
-  font: inherit;
-  font-weight: 800;
-  font-size: 11px;
+  font: 800 28px/1 "Darker Grotesque", system-ui, sans-serif;
+}
+.map-mode-steps-label {
+  margin: 0;
+  color: var(--mode-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+.map-mode-bar {
+  align-self: stretch;
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.map-mode-bar > i {
+  display: block;
+  height: 100%;
+  width: 42%;
+  border-radius: inherit;
+  background: var(--bar-fill, var(--mode-walk));
+}
+.map-mode-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  min-height: var(--status-area-h);
+  align-items: center;
+}
+.map-mode-actions[hidden] {
+  display: none !important;
+}
+.map-mode-shutter {
+  width: 66px;
+  height: 66px;
+  margin: 0;
+  padding: 5px;
+  border-radius: 50%;
+  border: 4px solid var(--mode-hunt);
+  background: none;
+  box-shadow: 0 0 18px var(--mode-hunt);
+  position: relative;
   cursor: pointer;
 }
-.map-mode-chips button[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--brand-accent) 32%, transparent);
-  border-color: var(--brand-accent);
+.map-mode-shutter::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: #fff;
+}
+.map-mode-hint {
+  margin: -4px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--mode-muted);
 }

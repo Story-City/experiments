@@ -1,6 +1,6 @@
-/** Approved UI library — APPROVED-UI-v18
- * EndStoryInlineBadges popup (exact open/close + badges fade + bounce).
- * END-STORY-BADGES-POPUP-v18
+/** Approved UI library — APPROVED-UI-v19
+ * EndStoryInlineBadges WAAPI bounce; map chapter card; likes corner+stack.
+ * END-STORY-BADGES-POPUP-v19 · MAP-MODE-CARD-v19
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -43,6 +43,8 @@ const LIKES_RARITY_PROMOTE_MS = 720;
 const LIKES_TEXT_SWIPE_MS = 900;
 const LIKES_HAZE_OUT_MS = 240;
 const LIKES_DEMO = 12;
+const LIKES_STACK_SECOND = 8;
+const LIKES_STACK_SHUFFLE_MS = 560;
 
 /* WelcomeHook / DecryptReveal — exact app constants */
 const PORTAL_TAP_HINT_DELAY_MS = 2000;
@@ -82,8 +84,8 @@ const ELEMENT_DEFS = [
   {
     id: 'likes-banner',
     title: 'Likes banner',
-    source: 'location-gems (faithful CSS + timing)',
-    ux: 'When: someone liked your public gem (debug in Location Gems). What you see: top haze + shine, jam card drops, “N likes” rich sweep; Rarity up promotes tier. Try: Play / Rarity up. Visible settled until you Play.',
+    source: 'location-gems v53 (corner ribbon + ×2 stack)',
+    ux: 'When: someone liked your public gem. Corner ribbon + gem, likes under caption; ×2 uses weekly-challenge stack shuffle. Try: Play likes · Likes ×2 · Rarity up.',
     stage: 'banner',
     mount: mountLikesBanner,
   },
@@ -210,8 +212,8 @@ const ELEMENT_DEFS = [
   {
     id: 'map-mode-switch',
     title: 'Map mode switch',
-    source: 'FtueMap ModeSegment · MAP_MODE_COLORS',
-    ux: 'When: chapter map card — pick Walk / Path / Hunt. Selected fill = mode colour (Walk uses dark label on green). Lock others = FTUE lockModes wash. No map tiles. Try: tap a mode · Lock others.',
+    source: 'map-modes chapter card · FtueMap ModeSegment',
+    ux: 'When: chapter map — whole bottom card (story, Walk/Path/Hunt, steps bar or Hunt shutter). No map tiles. Try: tap a mode · Lock others · Select Hunt.',
     stage: 'mode-switch',
     mount: mountMapModeSwitch,
   },
@@ -439,22 +441,50 @@ function mountDayReached(stage, actions) {
 }
 
 function mountLikesBanner(stage, actions) {
+  /* location-gems v53: corner ribbon + weekly-challenge ×2 stack shuffle. */
+  const fill = accentHex();
+  const ribbonTpl = typeof window.LOCATION_GEMS_CORNER_RIBBON === 'string'
+    ? window.LOCATION_GEMS_CORNER_RIBBON
+    : '';
+  const ribbonHtml = (uid) => {
+    if (!ribbonTpl) return '';
+    return ribbonTpl
+      .replaceAll('{{GEM}}', fill)
+      .replaceAll('paint0_linear_0_4', `paint0_${uid}`)
+      .replaceAll('paint1_linear_0_4', `paint1_${uid}`);
+  };
+  const jamCard = (slot, img, likes, hidden) => `
+    <article class="likes-jam-card" data-likes-slot="${slot}" id="likesJamCard${slot === 0 ? 'El' : 'B'}" ${hidden ? 'hidden aria-hidden="true"' : 'aria-hidden="false"'}>
+      <div class="likes-jam-media">
+        <img class="likes-jam-photo" src="${img}" alt="" decoding="async">
+        <div class="likes-jam-corner" aria-hidden="true">
+          <div class="likes-jam-corner-art">${ribbonHtml('slot' + slot)}</div>
+          <div class="likes-jam-corner-stack">
+            <span class="likes-jam-gem" data-gem-role="likes">${gemSvg(fill)}</span>
+          </div>
+        </div>
+        <p class="likes-jam-rarity" hidden></p>
+      </div>
+      <div class="likes-jam-body">
+        <p class="likes-jam-text">[find caption]</p>
+        <p class="likes-jam-likes"><span class="like-heart" aria-hidden="true">♥</span><span>${likes}</span></p>
+        <p class="likes-jam-user">@you</p>
+        <p class="likes-jam-place">[place]</p>
+      </div>
+    </article>
+  `;
+
   const host = document.createElement('div');
   host.className = 'likes-host';
+  host.style.setProperty('--gem-line', fill);
   host.innerHTML = `
     <div class="likes-banner is-on" id="likesBannerEl" aria-hidden="false">
       <div class="likes-haze" aria-hidden="true"></div>
       <div class="likes-shine" id="likesShineEl" aria-hidden="true"></div>
-      <article class="likes-jam-card is-in" id="likesJamCardEl">
-        <img class="likes-jam-photo" src="../location-gems/assets/find-a.jpg" alt="" decoding="async">
-        <div class="likes-jam-gem" data-gem-role="likes" aria-hidden="true">${gemSvg(accentHex())}</div>
-        <p class="likes-jam-rarity" id="likesJamRarityEl" hidden></p>
-        <div class="likes-jam-body">
-          <p class="likes-jam-user">@you</p>
-          <p class="likes-jam-text">[find caption]</p>
-          <p class="likes-jam-place">[place]</p>
-        </div>
-      </article>
+      <div class="likes-jam-stack" id="likesJamStack">
+        ${jamCard(0, '../location-gems/assets/find-a.jpg', LIKES_DEMO, false)}
+        ${jamCard(1, '../location-gems/assets/find-b.jpg', LIKES_STACK_SECOND, true)}
+      </div>
       <div class="likes-copy is-on" id="likesCopyEl">
         <p class="likes-headline"><span class="likes-rich">${LIKES_DEMO} likes</span></p>
         <p class="likes-subtitle">[on this gem]</p>
@@ -465,60 +495,109 @@ function mountLikesBanner(stage, actions) {
 
   const banner = host.querySelector('.likes-banner');
   const shine = host.querySelector('#likesShineEl');
+  const stack = host.querySelector('#likesJamStack');
   const card = host.querySelector('#likesJamCardEl');
+  const cardB = host.querySelector('#likesJamCardB');
   const copy = host.querySelector('#likesCopyEl');
-  const rarity = host.querySelector('#likesJamRarityEl');
+  const subtitle = host.querySelector('.likes-subtitle');
   const headline = host.querySelector('.likes-headline');
+  const cards = [card, cardB];
   let busy = false;
+
+  const clearMotion = () => {
+    cards.forEach((c) => {
+      c.classList.remove(
+        'is-in', 'is-out', 'is-impact', 'is-rarity-up',
+        'is-enter', 'is-shuffle', 'is-peek-out', 'is-front', 'is-back',
+      );
+    });
+  };
+
+  const setStack = (on) => {
+    stack.classList.toggle('is-multi', on);
+    cardB.hidden = !on;
+    cardB.setAttribute('aria-hidden', on ? 'false' : 'true');
+  };
 
   const settleVisible = () => {
     banner.hidden = false;
     banner.classList.remove('is-out');
     banner.classList.add('is-on');
     shine.classList.remove('is-on');
-    card.classList.remove('is-out', 'is-impact', 'is-rarity-up');
+    setStack(false);
+    clearMotion();
     card.classList.add('is-in');
     copy.classList.remove('is-swipe');
     copy.classList.add('is-on');
-    rarity.hidden = true;
-    rarity.classList.remove('is-pop');
+    subtitle.textContent = '[on this gem]';
     headline.innerHTML = `<span class="likes-rich">${LIKES_DEMO} likes</span>`;
+    host.querySelectorAll('.likes-jam-rarity').forEach((el) => {
+      el.hidden = true;
+      el.classList.remove('is-pop');
+    });
   };
 
-  const play = async ({ promote } = {}) => {
+  const play = async ({ promote, stackOn } = {}) => {
     if (busy) return;
     busy = true;
+    const multi = !!stackOn && !promote;
     banner.hidden = false;
     banner.classList.remove('is-out');
     banner.classList.add('is-on');
     copy.classList.remove('is-on', 'is-swipe');
     shine.classList.remove('is-on');
-    card.classList.remove('is-in', 'is-out', 'is-impact', 'is-rarity-up');
-    rarity.hidden = true;
-    rarity.classList.remove('is-pop');
-    headline.innerHTML = `<span class="likes-rich">${LIKES_DEMO} likes</span>`;
+    clearMotion();
+    setStack(multi);
+    const total = multi ? LIKES_DEMO + LIKES_STACK_SECOND : LIKES_DEMO;
+    headline.innerHTML = `<span class="likes-rich">${total} likes</span>`;
+    subtitle.textContent = multi ? '[on your gems]' : '[on this gem]';
+    host.querySelectorAll('.likes-jam-rarity').forEach((el) => {
+      el.hidden = true;
+      el.classList.remove('is-pop');
+    });
     await wait(LIKES_HAZE_IN_MS);
     shine.classList.add('is-on');
-    card.classList.add('is-in');
     copy.classList.add('is-on');
-    await wait(LIKES_CARD_IN_MS);
-    card.classList.add('is-impact');
-    if (promote) {
+    if (multi) {
+      cardB.classList.add('is-back');
+      card.classList.add('is-front');
+      void card.offsetWidth;
+      card.classList.add('is-enter');
+      await wait(LIKES_CARD_IN_MS);
+      card.classList.add('is-impact');
       await wait(LIKES_HOLD_AFTER_SHINE_MS);
-      headline.innerHTML = '<span class="likes-rich">48 likes</span>';
-      rarity.hidden = false;
-      rarity.textContent = 'topaz';
-      rarity.classList.add('is-pop');
-      card.classList.add('is-rarity-up');
-      await wait(LIKES_RARITY_PROMOTE_MS);
+      card.classList.remove('is-enter', 'is-front', 'is-impact');
+      cardB.classList.remove('is-back');
+      void card.offsetWidth;
+      card.classList.add('is-peek-out');
+      cardB.classList.add('is-front', 'is-shuffle');
+      await wait(LIKES_STACK_SHUFFLE_MS);
+      cardB.classList.add('is-impact');
+      await wait(LIKES_SHINE_MS);
     } else {
-      await wait(LIKES_SHINE_MS + LIKES_HOLD_AFTER_SHINE_MS);
+      card.classList.add('is-in');
+      await wait(LIKES_CARD_IN_MS);
+      card.classList.add('is-impact');
+      if (promote) {
+        await wait(LIKES_HOLD_AFTER_SHINE_MS);
+        headline.innerHTML = '<span class="likes-rich">48 likes</span>';
+        const rarity = card.querySelector('.likes-jam-rarity');
+        rarity.hidden = false;
+        rarity.textContent = 'topaz';
+        rarity.classList.add('is-pop');
+        card.classList.add('is-rarity-up');
+        await wait(LIKES_RARITY_PROMOTE_MS);
+      } else {
+        await wait(LIKES_SHINE_MS + LIKES_HOLD_AFTER_SHINE_MS);
+      }
     }
     await wait(LIKES_COPY_CELEBRATE_MS);
     copy.classList.add('is-swipe');
     await wait(LIKES_TEXT_SWIPE_MS);
-    card.classList.remove('is-in', 'is-impact', 'is-rarity-up');
-    card.classList.add('is-out');
+    clearMotion();
+    cards.forEach((c) => {
+      if (!c.hidden) c.classList.add('is-out');
+    });
     copy.classList.remove('is-on', 'is-swipe');
     await wait(LIKES_CARD_OUT_MS);
     banner.classList.add('is-out');
@@ -529,6 +608,7 @@ function mountLikesBanner(stage, actions) {
 
   settleVisible();
   addPlay(actions, 'Play likes', () => play({ promote: false }));
+  addGhost(actions, 'Likes ×2', () => play({ stackOn: true }));
   addGhost(actions, 'Rarity up', () => play({ promote: true }));
 }
 
@@ -1371,7 +1451,7 @@ function mountTipWithReply(stage, actions) {
 }
 
 function mountMapModeSwitch(stage, actions) {
-  /* FtueMap ModeSegment only — icons/colours/labels from app. No map surface. */
+  /* Whole chapter card from map-modes + FtueMap ModeSegment (Walk/Path/Hunt). No map tiles. */
   const MAP_MODE_COLORS = {
     walkEnd: '#3ddc84',
     pin: '#2f8bff',
@@ -1379,23 +1459,10 @@ function mountMapModeSwitch(stage, actions) {
     muted: '#b2b5b4',
   };
   const MODE_ORDER = [
-    {
-      id: 'step',
-      label: 'Walk', /* en scriptedFtue.map.modeStep */
-      accent: MAP_MODE_COLORS.walkEnd,
-    },
-    {
-      id: 'pin',
-      label: 'Path', /* en scriptedFtue.map.modePath */
-      accent: MAP_MODE_COLORS.pin,
-    },
-    {
-      id: 'hunt',
-      label: 'Hunt', /* en scriptedFtue.map.modeHunt */
-      accent: MAP_MODE_COLORS.hunt,
-    },
+    { id: 'step', label: 'Walk', accent: MAP_MODE_COLORS.walkEnd },
+    { id: 'pin', label: 'Path', accent: MAP_MODE_COLORS.pin },
+    { id: 'hunt', label: 'Hunt', accent: MAP_MODE_COLORS.hunt },
   ];
-  /* Path / Hunt paths + dots from FtueMap MODE_ICON_PATHS / MODE_ICON_DOTS */
   const MODE_ICON_PATHS = {
     pin: 'M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15',
     hunt: 'M4 8V5h3M20 8V5h-3M4 16v3h3M20 16v3h-3',
@@ -1404,7 +1471,6 @@ function mountMapModeSwitch(stage, actions) {
     pin: [{ cx: 6, cy: 19, r: 3 }, { cx: 18, cy: 5, r: 3 }],
     hunt: [{ cx: 12, cy: 12, r: 3 }],
   };
-  /* Ionicons "walk" — same name the app ModeIcon uses (official ionicons walk.svg) */
   const WALK_ICON = `
     <svg class="map-mode-icon" viewBox="0 0 512 512" aria-hidden="true">
       <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M312.55 479.9l-56.42-114-44.62-57a72.37 72.37 0 01-10.06-36.9V143.64H217a40 40 0 0140 40v182.21"/>
@@ -1414,11 +1480,11 @@ function mountMapModeSwitch(stage, actions) {
     </svg>`;
 
   const drawnIcon = (modeId, color) => {
-    const path = MODE_ICON_PATHS[modeId];
+    const pathD = MODE_ICON_PATHS[modeId];
     const dots = MODE_ICON_DOTS[modeId]
       .map((d) => `<circle cx="${d.cx}" cy="${d.cy}" r="${d.r}" fill="${color}" stroke="none"/>`)
       .join('');
-    return `<svg class="map-mode-icon" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${path}"/>${dots}</svg>`;
+    return `<svg class="map-mode-icon" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${pathD}"/>${dots}</svg>`;
   };
 
   const host = document.createElement('div');
@@ -1427,11 +1493,32 @@ function mountMapModeSwitch(stage, actions) {
     <div class="map-mode-chips">
       <button type="button" id="mapModeLock" aria-pressed="false">Lock others</button>
     </div>
-    <div class="map-mode-switch" role="tablist" aria-label="How you walk"></div>
+    <section class="map-mode-card" id="mapModeCard">
+      <div class="map-mode-story">
+        <div class="map-mode-cover" aria-hidden="true"></div>
+        <div>
+          <div class="map-mode-story-name">[story] · [chapter]</div>
+          <div class="map-mode-next">Next: <b>[objective]</b></div>
+        </div>
+      </div>
+      <div class="map-mode-switch" role="tablist" aria-label="How you walk"></div>
+      <div class="map-mode-status" id="mapModeStatus">
+        <p class="map-mode-steps-count"><span id="mapModeSteps">102</span></p>
+        <p class="map-mode-steps-label" id="mapModeStepsLabel">out of 240 steps</p>
+        <div class="map-mode-bar" id="mapModeBar"><i style="width:42%"></i></div>
+      </div>
+      <div class="map-mode-actions" id="mapModeActions" hidden>
+        <button type="button" class="map-mode-shutter" aria-label="Take photo"></button>
+      </div>
+      <p class="map-mode-hint">[switch any time — steps always count]</p>
+    </section>
   `;
   stage.appendChild(host);
   const row = host.querySelector('.map-mode-switch');
   const lockBtn = host.querySelector('#mapModeLock');
+  const statusEl = host.querySelector('#mapModeStatus');
+  const actionsEl = host.querySelector('#mapModeActions');
+  const barFill = host.querySelector('#mapModeBar > i');
   let selected = 'step';
   let lockOthers = false;
 
@@ -1444,6 +1531,15 @@ function mountMapModeSwitch(stage, actions) {
       return WALK_ICON.split('currentColor').join(color);
     }
     return drawnIcon(mode.id, color);
+  };
+
+  const syncStatus = () => {
+    const isHunt = selected === 'hunt';
+    statusEl.hidden = isHunt;
+    actionsEl.hidden = !isHunt;
+    const accent = MODE_ORDER.find((m) => m.id === selected)?.accent || MAP_MODE_COLORS.walkEnd;
+    barFill.style.background = accent;
+    barFill.parentElement.style.setProperty('--bar-fill', accent);
   };
 
   const render = () => {
@@ -1465,6 +1561,7 @@ function mountMapModeSwitch(stage, actions) {
       });
       row.appendChild(btn);
     });
+    syncStatus();
   };
 
   lockBtn.addEventListener('click', () => {
@@ -1597,6 +1694,7 @@ function mountEndStoryBadgesPopup(stage, actions) {
   });
 
   let openAnims = [];
+  const bounceAnims = [];
   let badgesTimer = null;
   let isOpen = false;
   let isClosing = false;
@@ -1604,31 +1702,57 @@ function mountEndStoryBadgesPopup(stage, actions) {
   const cancelOpenWork = () => {
     openAnims.forEach((a) => a.cancel());
     openAnims = [];
+    bounceAnims.forEach((a) => a.cancel());
+    bounceAnims.length = 0;
     if (badgesTimer != null) {
       clearTimeout(badgesTimer);
       badgesTimer = null;
     }
   };
 
+  /* Reanimated withSequence of withTiming — each step its own duration (not one curve).
+     Default withTiming easing ≈ inOut quad. */
+  const BOUNCE_DURATION_MS = 600;
+  const BOUNCE_EASE = 'cubic-bezier(0.455, 0.03, 0.515, 0.955)';
+  const BOUNCE_STEPS = [
+    { scale: 1.2, duration: BOUNCE_DURATION_MS * 0.55 },
+    { scale: 0.9, duration: BOUNCE_DURATION_MS * 0.15 },
+    { scale: 1.1, duration: BOUNCE_DURATION_MS * 0.15 },
+    { scale: 1, duration: BOUNCE_DURATION_MS * 0.15 },
+  ];
   const armBounce = (el, delayMs) => {
-    el.classList.remove('is-in');
-    el.style.animation = 'none';
-    void el.offsetWidth;
-    el.style.animation = '';
-    el.style.animationDelay = `${delayMs}ms`;
-    el.classList.add('is-in');
+    el.getAnimations().forEach((a) => a.cancel());
+    el.style.transform = 'scale(0)';
+    let from = 0;
+    BOUNCE_STEPS.forEach((step, i) => {
+      const to = step.scale;
+      const anim = el.animate(
+        [
+          { transform: `scale(${from})` },
+          { transform: `scale(${to})` },
+        ],
+        {
+          duration: step.duration,
+          delay: delayMs + BOUNCE_STEPS.slice(0, i).reduce((s, x) => s + x.duration, 0),
+          easing: BOUNCE_EASE,
+          fill: 'forwards',
+        },
+      );
+      bounceAnims.push(anim);
+      from = to;
+    });
   };
 
   const resetBadgeBounces = () => {
     section.style.opacity = '0';
     section.style.transition = 'none';
+    bounceAnims.forEach((a) => a.cancel());
+    bounceAnims.length = 0;
     carousel.querySelectorAll('img').forEach((el) => {
-      el.classList.remove('is-in');
-      el.style.animation = 'none';
+      el.style.transform = 'scale(0)';
     });
     gridEl.querySelectorAll('.badge-cell').forEach((el) => {
-      el.classList.remove('is-in');
-      el.style.animation = 'none';
+      el.style.transform = 'scale(0)';
     });
   };
 
