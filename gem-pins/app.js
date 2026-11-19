@@ -67,12 +67,15 @@ for (let tries = 0; PTS.length < 100 && tries < 20000; tries++) {
 const SPECIAL = [
   { mine: true, private: true }, { mine: true, private: false }, { liked: true }, { mythical: true },
   { mine: true, private: true }, { liked: true }, { mine: true, private: false }, { liked: true },
+  // temporary gems: expiring soon (from a Whimsy Walk or a challenge) and seasonal
+  { expiring: '2h', left: '2 hours', from: 'Whimsy Walk' }, { seasonal: true },
+  { expiring: '1d', left: '1 day', from: 'challenge' }, { seasonal: true },
 ];
 const order = PTS.map((p, i) => i).sort((a, b) => {
   const d = ([x, y]) => Math.hypot(x - 195, (y - 330) * 0.8);
   return d(PTS[a]) - d(PTS[b]);
 });
-const centre = order.filter((i, j) => j % 4 === 0).slice(0, 8); // spaced picks near the middle
+const centre = order.filter((i, j) => j % 4 === 0).slice(0, SPECIAL.length); // spaced picks near the middle
 const rest = PTS.map((p, i) => i).filter((i) => !centre.includes(i));
 // Visited: about a third of others' gems, one liked one, never yours or the mythical one.
 // (Its own random stream, so the layout above doesn't move.)
@@ -96,7 +99,11 @@ const GEMS = [...centre, ...rest].map((pi, i) => {
     owner,
     ownerColour: PALETTE[(i * 3 + 1) % PALETTE.length].colour,
     likes: sp.liked ? 3 + (i % 9) : Math.floor(r() * 12),
-    visited: !sp.mine && !sp.mythical && (i === 2 || (!sp.liked && rv() < 0.33)),
+    visited: !sp.mine && !sp.mythical && (i === 2 || (!sp.liked && rv() < 0.33)) && !sp.expiring && !sp.seasonal,
+    expiring: sp.expiring || null,
+    left: sp.left,
+    from: sp.from,
+    seasonal: !!sp.seasonal,
   };
 });
 
@@ -147,10 +154,10 @@ function glowOf(g) {
   return lv;
 }
 function pinFor(g, overrides = {}) {
-  const fill = colourOf(g);
+  const fill = g.seasonal && opt.seasonal === 'colour' ? D.SEASONS[opt.season].colour : colourOf(g);
   const mineStyle = g.mine ? opt.mine : null;
   return pinSvg({
-    shape: opt.shape === 'category' ? catOf(tagsOf(g)[0])?.shape || 'classic' : opt.shape === 'crystal' ? catOf(tagsOf(g)[0])?.crystal || 'leaf' : 'classic',
+    shape: g.seasonal && opt.seasonal === 'shape' ? opt.season : opt.shape === 'category' ? catOf(tagsOf(g)[0])?.shape || 'classic' : opt.shape === 'crystal' ? catOf(tagsOf(g)[0])?.crystal || 'leaf' : 'classic',
     size: sizeOf(g),
     fill,
     hollow: mineStyle === 'hollow' && g.private,
@@ -162,6 +169,10 @@ function pinFor(g, overrides = {}) {
     double: g.liked && opt.liked === 'ring',
     loveColour: D.LOVE,
     glow: glowOf(g),
+    clock: !!g.expiring && opt.expiring === 'clock',
+    countdown: g.expiring && opt.expiring === 'countdown' ? g.expiring : null,
+    expireRing: !!g.expiring && opt.expiring === 'ring',
+    seasonBadge: g.seasonal && opt.seasonal === 'badge' ? D.SEASONS[opt.season].colour : null,
     sparkle: opt.rarityBy === 'sizeGlowSparkle' ? { common: 0, rare: 2, epic: 3, mythical: 4 }[rarityOf(g)] : 0,
     check: g.visited && opt.visited === 'check',
     // others' gems in "quiet" fade back a little when colour shows something else
@@ -188,7 +199,7 @@ function drawPins() {
     if (quietFade(g)) b.classList.add('quiet');
     if (g.visited && opt.visited === 'fade') b.classList.add('visited');
     b.innerHTML = pinFor(g);
-    b.setAttribute('aria-label', `${g.name}: ${RARITY[rarityOf(g)].label}${g.mine ? `, yours, ${g.private ? 'private' : 'public'}` : `, by ${g.owner}`}${g.liked ? ', liked' : ''}${g.visited ? ', visited' : ''}`);
+    b.setAttribute('aria-label', `${g.name}: ${RARITY[rarityOf(g)].label}${g.mine ? `, yours, ${g.private ? 'private' : 'public'}` : `, by ${g.owner}`}${g.liked ? ', liked' : ''}${g.visited ? ', visited' : ''}${g.expiring ? ', expiring' : ''}${g.seasonal ? ', seasonal' : ''}`);
     b.addEventListener('click', () => openGem(g));
     pinsEl.append(b);
     shown++;
@@ -247,7 +258,9 @@ $('scrim').addEventListener('click', closeSheet);
 
 /* ---------- gem details: four ways (option 18) ---------- */
 const photoOf = (g) => PHOTOS[g.id % PHOTOS.length];
-const whoLine = (g) => (g.mine ? `${COPY.yours} · ${g.private ? COPY.private : COPY.public}` : COPY.by(g.owner));
+const whoLine = (g) => (g.mine ? `${COPY.yours} · ${g.private ? COPY.private : COPY.public}` : COPY.by(g.owner))
+  + (g.expiring ? ` · ${COPY.ends(g.left, g.from)}` : '')
+  + (g.seasonal ? ` · ${COPY.seasonal(D.SEASONS[opt.season].label, D.SEASONS[opt.season].until)}` : '');
 function tagRow(g) {
   const tags = el('div', 'tags');
   const rc = el('span', 'tag rarity', RARITY[rarityOf(g)].label);
@@ -434,6 +447,10 @@ function drawKey() {
   if (opt.shape === 'category') row('Shape', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
   row('Yours', [sample({ ...base, mine: true, private: true }, 'Private'), sample({ ...base, mine: true }, 'Public')]);
   row('Liked', [sample({ ...base, liked: true }, 'Liked', true)]);
+  const tl = [];
+  if (opt.expiring !== 'none') tl.push(sample({ ...base, expiring: '2h' }, 'Expiring soon', true));
+  if (opt.seasonal !== 'none') tl.push(sample({ ...base, seasonal: true }, `${D.SEASONS[opt.season].label} gem`, true));
+  if (tl.length) row('Time', tl);
   if (opt.visited !== 'none' && opt.show !== 'unvisited') row('Visited', [sample({ ...base }, COPY.notVisited), sample({ ...base, visited: true }, COPY.visited, false, opt.visited === 'fade')]);
 }
 $('keyBtn').addEventListener('click', () => {
@@ -539,7 +556,7 @@ function specOf(o) {
   ];
   if (o.rarityBy === 'sizeGlowSparkle') rows.push(['Sparkle', 'Rare and up']);
   rows.push(['Rarity levels', lv], ['Private vs public', optLabel('mine', o.mine)], ['Liked', optLabel('liked', o.liked)],
-    ['Your colour', optLabel('pick', o.pick)], ['Categories', `${optLabel('tagMode', o.tagMode)} · ${optLabel('filter', o.filter)}`]);
+    ['Your colour', optLabel('pick', o.pick)], ['Expiring soon', optLabel('expiring', o.expiring)], ['Seasonal', optLabel('seasonal', o.seasonal)], ['Categories', `${optLabel('tagMode', o.tagMode)} · ${optLabel('filter', o.filter)}`]);
   return rows;
 }
 

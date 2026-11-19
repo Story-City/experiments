@@ -54,6 +54,15 @@ Object.assign(SHAPES, {
   bar: { flat: true, body: 'M2.5 8.5L5.5 5.5H19.5L22 8V15.8L19 18.8H5.5L2.5 15.8Z', dark: 'M19.6 10.3L22 8V15.8L19 18.8H5.5L8.4 16.1H19.6Z', hi: 'M9.6 9.3H15.4' },
 });
 
+// Seasonal shapes (option 22A): one per season.
+Object.assign(SHAPES, {
+  winter: { flat: true, body: 'M12 1.5 L9.7 8.02 L2.91 6.75 L7.4 12 L2.91 17.25 L9.7 15.98 L12 22.5 L14.3 15.98 L21.09 17.25 L16.6 12 L21.09 6.75 L14.3 8.02Z', dark: 'M12 12L12 1.5 16 9.7 21.1 6.75Z', hi: 'M9.5 7.5l1.4 2.3' },
+  autumn: { flat: true, body: 'M12 1.5l2.2 4.3 3.3-1.4-.8 4.6 4.3-.4-2.6 3.6 2.6 2.2-5 .9.9 3.3L13 17v5.5h-2V17l-4.5 1.6.9-3.3-5-.9 2.6-2.2-2.6-3.6 4.3.4-.8-4.6 3.3 1.4Z', dark: 'M12 1.5l2.2 4.3 3.3-1.4-.8 4.6 4.3-.4-2.6 3.6 2.6 2.2-5 .9.9 3.3L13 17v5.5h-1V1.5Z', hi: 'M9 8.5l1.5 2' },
+  spring: { flat: true, body: 'M7.4 6.8a4.6 4.6 0 1 0 9.2 0a4.6 4.6 0 1 0-9.2 0ZM12.35 10.39a4.6 4.6 0 1 0 9.2 0a4.6 4.6 0 1 0-9.2 0ZM10.46 16.21a4.6 4.6 0 1 0 9.2 0a4.6 4.6 0 1 0-9.2 0ZM4.34 16.21a4.6 4.6 0 1 0 9.2 0a4.6 4.6 0 1 0-9.2 0ZM2.45 10.39a4.6 4.6 0 1 0 9.2 0a4.6 4.6 0 1 0-9.2 0Z', dark: 'M12 9.2a2.8 2.8 0 1 0 0 5.6a2.8 2.8 0 1 0 0-5.6Z', hi: 'M10 4.6c.8-.5 1.6-.6 2.4-.5' },
+  summer: { flat: true, body: 'M12 5.6a6.4 6.4 0 1 1 0 12.8a6.4 6.4 0 1 1 0-12.8ZM19.11 9.95L23.2 12L19.11 14.05ZM18.47 15.58L19.92 19.92L15.58 18.47ZM14.05 19.11L12 23.2L9.95 19.11ZM8.42 18.47L4.08 19.92L5.53 15.58ZM4.89 14.05L0.8 12L4.89 9.95ZM5.53 8.42L4.08 4.08L8.42 5.53ZM9.95 4.89L12 0.8L14.05 4.89ZM15.58 5.53L19.92 4.08L18.47 8.42Z', dark: 'M12 5.6a6.4 6.4 0 0 1 0 12.8Z', hi: 'M9.3 9.4c.6-.8 1.4-1.3 2.3-1.5' },
+});
+const CLOCK = 'M0-3.4v3.4l2.2 1.4';
+
 const HEART = 'M0 2.6s-3.4-2.1-4.2-4.2c-.5-1.4.4-2.9 1.9-2.9.9 0 1.6.5 2.3 1.2.7-.7 1.4-1.2 2.3-1.2 1.5 0 2.4 1.5 1.9 2.9C3.4.5 0 2.6 0 2.6Z';
 const CHECK = 'M-3 0l2 2.2L3.2-2.2';
 const LOCK = 'M-2.6-.6v-1.6a2.6 2.6 0 0 1 5.2 0v1.6M-3.6-.6h7.2v4.4h-7.2Z';
@@ -91,6 +100,11 @@ export function pinSvg(o) {
   if (o.heart) parts.push(`<g transform="translate(${bx} ${22 - r * 0.72})"><circle r="6.5" fill="${o.loveColour}" stroke="#170c35" stroke-width="1.5"/><path d="${HEART}" fill="#fff"/></g>`);
   if (o.lock) parts.push(`<g transform="translate(${bx} ${22 + r * 0.72})"><circle r="6.5" fill="#241b46" stroke="#fff" stroke-width="1.3"/><path d="${LOCK}" fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></g>`);
   if (o.check) parts.push(`<g transform="translate(${22 - r * 0.72} ${22 + r * 0.72})"><circle r="6.5" fill="#3ddc84" stroke="#170c35" stroke-width="1.5"/><path d="${CHECK}" fill="none" stroke="#0b0620" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>`);
+  // time-limited: expiring soon (21) and seasonal badge (22B)
+  if (o.clock) parts.push(`<g transform="translate(${22 - r * 0.72} ${22 - r * 0.72})"><circle r="6.5" fill="#ffb020" stroke="#170c35" stroke-width="1.5"/><circle r="4" fill="none" stroke="#2a1600" stroke-width="1.2"/><path d="${CLOCK}" transform="scale(.9)" fill="none" stroke="#2a1600" stroke-width="1.3" stroke-linecap="round"/></g>`);
+  if (o.countdown) { const w = 6 + o.countdown.length * 5.2; parts.push(`<g transform="translate(22 ${22 + r + 5})"><rect x="${-w / 2}" y="-6" width="${w}" height="12" rx="6" fill="#ffb020" stroke="#170c35" stroke-width="1.2"/><text y="3.2" text-anchor="middle" font-size="8.5" font-weight="800" font-family="system-ui, sans-serif" fill="#2a1600">${o.countdown}</text></g>`); }
+  if (o.expireRing) parts.push(`<circle class="expire-ring" cx="22" cy="22" r="${r + 4}" fill="none" stroke="#ffb020" stroke-width="2" stroke-dasharray="4 3"/>`);
+  if (o.seasonBadge) parts.push(`<g transform="translate(${22 - r * 0.72} ${22 - r * 0.72})"><circle r="6.5" fill="${o.seasonBadge}" stroke="#170c35" stroke-width="1.5"/><path d="M0-4v8M-3.5-2l7 4M-3.5 2l7-4" stroke="#170c35" stroke-width="1.3" stroke-linecap="round"/></g>`);
   // sparkle: little stars twinkling round rarer gems (option 3E)
   const SPOTS = [[-1, -1.05], [1.15, -0.35], [-1.2, 0.5], [0.75, 1.05]];
   for (let i = 0; i < (o.sparkle || 0); i++) {

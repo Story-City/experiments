@@ -19,6 +19,13 @@ export const CRYSTALS = [
   { id: 'bar', label: 'Eat & Shop' },
 ];
 
+export const SEASONS = {
+  autumn: { label: 'Autumn', colour: '#ff8a3d', until: 'until the first snow' },
+  winter: { label: 'Winter', colour: '#9fe3ff', until: 'until March' },
+  spring: { label: 'Spring', colour: '#ff9ec7', until: 'until June' },
+  summer: { label: 'Summer', colour: '#ffd23f', until: 'until September' },
+};
+
 export const RARITY = {
   common: { label: 'Common', colour: '#c8d2e6' },
   rare: { label: 'Rare', colour: '#00c2ff' },
@@ -70,6 +77,10 @@ export const OPTIONS = [
   { id: 'visited', n: 16, label: 'Visited shown by', start: 'fade', opts: [['fade', 'Faded'], ['check', 'Check badge'], ['small', 'Smaller'], ['none', 'Not shown']] },
   { id: 'show', n: 17, label: 'Show', start: 'all', opts: [['all', 'All gems'], ['unvisited', 'Only unvisited']] },
   { id: 'details', n: 18, label: 'Gem details on tap', start: 'sheet', opts: [['sheet', 'Bottom sheet'], ['pop', 'Card by the gem'], ['full', 'Full-screen photo'], ['peek', 'Swipe strip']] },
+  // added 19 Nov (Melissa): temporary gems
+  { id: 'expiring', n: 21, label: 'Expiring soon shown by', start: 'clock', opts: [['clock', 'Clock badge'], ['countdown', 'Countdown (“2h”)'], ['ring', 'Pulsing ring'], ['none', 'Not shown']] },
+  { id: 'seasonal', n: 22, label: 'Seasonal shown by', start: 'shape', opts: [['shape', 'Season shape'], ['badge', 'Season badge'], ['colour', 'Season colour'], ['none', 'Not shown']] },
+  { id: 'season', n: 23, label: 'Season', start: 'winter', opts: [['autumn', 'Autumn (maple leaf)'], ['winter', 'Winter (snowflake)'], ['spring', 'Spring (flower)'], ['summer', 'Summer (sun)']] },
   // added 19 Nov for the preset combos
   { id: 'glowOn', n: 19, label: 'Glow on', start: 'rare', opts: [['rare', 'Rare and up'], ['mythical', 'Mythical only']] },
   { id: 'rarityColours', n: 20, label: 'Rarity colours', start: 'victoria', opts: [['victoria', 'Victoria’s set'], ['treasure', 'Treasure set']] }, // moonstone / aquamarine / amethyst / topaz; quartz / sapphire / amethyst / gold
@@ -87,6 +98,7 @@ export const GROUPS = [
   ['Private vs public', [['mine', 'Shown by']]],
   ['Liked', [['liked', 'Shown by']]],
   ['Visited', [['visited', 'Shown by'], ['show', 'Show']]],
+  ['Time-limited', [['expiring', 'Expiring soon'], ['seasonal', 'Seasonal'], ['season', 'Season']]],
   ['Tapping a gem', [['details', 'Details']]],
   ['Map', [['density', 'Gems on screen'], ['cb', 'Colour-blind view']]],
 ];
@@ -155,6 +167,8 @@ export const COPY = {
   visited: 'Visited',
   notVisited: 'Not visited yet',
   markVisited: 'Mark Visited',
+  ends: (left, from) => `Ends in ${left} · part of a ${from}`,
+  seasonal: (season, until) => `${season} gem · ${until}`,
   close: 'Close',
   more: 'More ›',
   nearby: (n) => `${n} gems nearby · swipe`,

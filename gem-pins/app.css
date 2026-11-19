@@ -103,6 +103,9 @@ body.cb-rg .phone { filter: url(#deutan); }
 .pin:active svg { transform: scale(0.92); }
 .glow-rare { filter: drop-shadow(0 0 4px var(--glow)); }
 .glow-epic { filter: drop-shadow(0 0 5px var(--glow)) drop-shadow(0 0 9px var(--glow)); }
+.expire-ring { transform-box: fill-box; transform-origin: center; animation: expire 1.4s ease-in-out infinite; }
+@keyframes expire { 50% { opacity: 0.35; transform: scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { .expire-ring { animation: none; } }
 .spark { transform-box: fill-box; transform-origin: center; animation: twinkle 1.8s ease-in-out infinite; }
 @keyframes twinkle { 0%, 100% { opacity: 0.1; transform: scale(0.4); } 50% { opacity: 1; transform: scale(1.1); } }
 @media (prefers-reduced-motion: reduce) { .spark { animation: none; opacity: 0.8; } }
