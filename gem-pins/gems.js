@@ -46,6 +46,14 @@ const SHAPES = {
   },
 };
 
+// Crystal set: flat two-tone shapes with one highlight stroke and no white edge.
+Object.assign(SHAPES, {
+  leaf: { flat: true, body: 'M12 1.5C17.5 6 19 9.5 19 12s-1.5 6-7 10.5C6.5 18 5 14.5 5 12s1.5-6 7-10.5Z', dark: 'M12 1.5C17.5 6 19 9.5 19 12s-1.5 6-7 10.5Z', hi: 'M9.4 6.6C8.3 8.3 7.9 10 8 12' },
+  pebble: { flat: true, body: 'M2.5 13.5C2.5 9.2 6 6.5 10.5 6.5c3.2 0 5.8 1 8 2.3C20.8 10.2 21.8 12 21.8 14c0 2.8-3.6 4-9.3 4-6.5 0-10-1.4-10-4.5Z', dark: 'M2.6 13.8c1.6 1.8 4.6 2.4 9.6 2.4 4.6 0 8.2-.8 9.6-2.1-.1 2.7-3.7 3.9-9.3 3.9-6.4 0-9.8-1.3-9.9-4.2Z', hi: 'M7.6 9.3c1.1-.6 2.3-.9 3.4-.9' },
+  shard: { flat: true, body: 'M8.6 3.6L13.4 1.5 15.9 4.2 16.6 22.5H8.4L8 8.2Z', dark: 'M13 3.4L15.9 4.2 16.6 22.5H13.4Z', hi: 'M9.7 8.2v9.5' },
+  bar: { flat: true, body: 'M2.5 8.5L5.5 5.5H19.5L22 8V15.8L19 18.8H5.5L2.5 15.8Z', dark: 'M19.6 10.3L22 8V15.8L19 18.8H5.5L8.4 16.1H19.6Z', hi: 'M9.6 9.3H15.4' },
+});
+
 const HEART = 'M0 2.6s-3.4-2.1-4.2-4.2c-.5-1.4.4-2.9 1.9-2.9.9 0 1.6.5 2.3 1.2.7-.7 1.4-1.2 2.3-1.2 1.5 0 2.4 1.5 1.9 2.9C3.4.5 0 2.6 0 2.6Z';
 const CHECK = 'M-3 0l2 2.2L3.2-2.2';
 const LOCK = 'M-2.6-.6v-1.6a2.6 2.6 0 0 1 5.2 0v1.6M-3.6-.6h7.2v4.4h-7.2Z';
@@ -64,6 +72,11 @@ export function pinSvg(o) {
   const g = [`<g transform="translate(${22 - 12 * k} ${22 - 12 * k}) scale(${k})">`];
   if (o.hollow) {
     g.push(`<path d="${s.body}" fill="${o.fill}" fill-opacity=".16" stroke="${o.outline || o.fill}" stroke-width="${(1.4 / k).toFixed(2)}" stroke-linejoin="round"/>`); // same weight as the other gems' edge
+  } else if (s.flat) {
+    g.push(`<path d="${s.body}" fill="${o.fill}"/>`);
+    g.push(`<path d="${s.dark}" fill="#000" fill-opacity=".2"/>`);
+    g.push(`<path d="${s.hi}" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="${(1.3 / k).toFixed(2)}" stroke-linecap="round"/>`);
+    if (o.outline) g.push(`<path d="${s.body}" fill="none" stroke="${o.outline}" stroke-width="${(2.2 / k).toFixed(2)}" stroke-linejoin="round"/>`);
   } else {
     g.push(`<path d="${s.body}" fill="${o.fill}"/>`);
     g.push(`<path d="${s.light}" fill="#fff" fill-opacity=".32"/>`);

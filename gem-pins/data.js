@@ -2,15 +2,23 @@
 // Spec: Melissa's thread, 19 Nov 2026 (15 toggles, real Edmonton map, 44px tap areas, mixed states).
 
 export const CATS = [
-  { id: 'nature', label: 'Nature', colour: '#3ddc84', shape: 'pear' },
-  { id: 'eat', label: 'Eat & Drink', colour: '#ff9f43', shape: 'round' },
-  { id: 'shop', label: 'Shop', colour: '#ff6fae', shape: 'emerald' },
-  { id: 'culture', label: 'Culture', colour: '#b36bff', shape: 'hex' },
-  { id: 'play', label: 'Play', colour: '#ffd23f', shape: 'star' },
-  { id: 'curio', label: 'Curiosities', colour: '#33c7d1', shape: 'trillion' },
+  { id: 'nature', label: 'Nature', colour: '#3ddc84', shape: 'pear', crystal: 'leaf' },
+  { id: 'eat', label: 'Eat & Drink', colour: '#ff9f43', shape: 'round', crystal: 'bar' },
+  { id: 'shop', label: 'Shop', colour: '#ff6fae', shape: 'emerald', crystal: 'bar' },
+  { id: 'culture', label: 'Culture', colour: '#b36bff', shape: 'hex', crystal: 'pebble' },
+  { id: 'play', label: 'Play', colour: '#ffd23f', shape: 'star', crystal: 'pebble' },
+  { id: 'curio', label: 'Curiosities', colour: '#33c7d1', shape: 'trillion', crystal: 'shard' },
 ];
 
 // Rarity colours are Victoria's gem set (approved-ui/assets/gems): moonstone, aquamarine, topaz.
+// Crystal set (option 2C, from Melissa's mockup 19 Nov): four types, each covering one or two categories.
+export const CRYSTALS = [
+  { id: 'leaf', label: 'Nature' },
+  { id: 'pebble', label: 'Art' },
+  { id: 'shard', label: 'Landmarks' },
+  { id: 'bar', label: 'Eat & Shop' },
+];
+
 export const RARITY = {
   common: { label: 'Common', colour: '#c8d2e6' },
   rare: { label: 'Rare', colour: '#00c2ff' },
@@ -43,8 +51,8 @@ export const LOVE = '#e84aa8'; // liked
 
 // The 15 toggles, in the thread's order. `start` is the "Start with" column.
 export const OPTIONS = [
-  { id: 'colour', n: 1, label: 'What colour means', start: 'whose', opts: [['whose', 'Whose it is'], ['rarity', 'Rarity'], ['category', 'Category'], ['picked', 'Your picked colour']] },
-  { id: 'shape', n: 2, label: 'Gem shape', start: 'one', opts: [['one', 'One shape for all'], ['category', 'A shape per category']] },
+  { id: 'colour', n: 1, label: 'What colour means', start: 'whose', opts: [['whose', 'Creator'], ['rarity', 'Rarity'], ['category', 'Category'], ['picked', 'Your picked colour']] },
+  { id: 'shape', n: 2, label: 'Gem shape', start: 'one', opts: [['one', 'One shape for all'], ['category', 'A shape per category'], ['crystal', 'Crystal set']] },
   { id: 'rarityBy', n: 3, label: 'Rarity shown by', start: 'sizeGlow', opts: [['size', 'Size'], ['glow', 'Glow'], ['sizeGlow', 'Size + glow'], ['colour', 'Colour'], ['sizeGlowSparkle', 'Size + glow + sparkle']] },
   { id: 'levels', n: 4, label: 'Rarity levels', start: '3', opts: [['2', '2: Common, Rare'], ['3', '3: Common, Rare, Mythical'], ['4', '4: + Epic']] },
   { id: 'sizes', n: 5, label: 'Rarity sizes', start: '22-28-34', opts: [['22-28-34', '22 / 28 / 34 px'], ['22-26-30', '22 / 26 / 30 px']] },
@@ -70,17 +78,17 @@ export const OPTIONS = [
 // Preset combos (Melissa, 19 Nov): six full setups, one tap each. Density and colour-blind stay as
 // they are, so each preset can be run at 10 / 40 / 100 gems and with the colour-blind view.
 export const PRESETS = [
-  { id: 'explorer', desc: 'Your gems stand out in your colour; everyone else’s are quiet. Rarer gems are bigger and glow. The everyday map.', label: 'Explorer', star: true, tests: 'Can you spot new gems vs your own at a glance?', what: 'Whose it is · one shape · size + glow · hollow / solid · heart badge · tags + chips.',
+  { id: 'explorer', desc: 'Your gems stand out in your colour; everyone else’s are quiet. Rarer gems are bigger and glow. The everyday map.', label: 'Explorer', star: true, tests: 'Can you spot new gems vs your own at a glance?', what: 'Creator · one shape · size + glow · hollow / solid · heart badge · tags + chips.',
     set: { colour: 'whose', shape: 'one', rarityBy: 'sizeGlow', mine: 'hollow', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'quiet' } },
   { id: 'treasure', desc: 'A gem’s colour tells you how rare it is, from plain quartz up to gold. Only gold glows, so the best finds call to you.', label: 'Treasure Hunt', tests: 'Does rarity in colour feel more exciting?', what: 'Rarity in colour (quartz, sapphire, amethyst, gold) · one shape · glow on gold only · dashed / solid frame · heart badge · tags + chips.',
     set: { colour: 'rarity', rarityColours: 'treasure', levels: '4', shape: 'one', rarityBy: 'glow', glowOn: 'mythical', mine: 'dashed', liked: 'heart', tagMode: 'multi', filter: 'chips', others: 'full', pick: 'off' } },
   { id: 'jewel', desc: 'Each kind of place has its own colour and its own gem cut, so you can tell a café from a mural before you tap.', label: 'Jewel Box', tests: 'Is “what is it” at a glance worth the sorting pain?', what: 'Category colour · a shape per category · size + glow · dashed / solid frame · heart badge · one type per gem.',
     set: { colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'dashed', liked: 'heart', tagMode: 'one', filter: 'chips', others: 'full', pick: 'off' } },
-  { id: 'yours', desc: 'Explorer, but you choose the colour of your own gems: two free, the rest locked for Story City+.', label: 'Make It Yours', tests: 'Does picking a colour make people care more? (2 free, rest locked)', what: 'Whose it is, in your picked colour · one shape · size + glow · hollow / solid · heart badge · tags + chips. Tap the colour button, top right.',
+  { id: 'yours', desc: 'Explorer, but you choose the colour of your own gems: two free, the rest locked for Story City+.', label: 'Make It Yours', tests: 'Does picking a colour make people care more? (2 free, rest locked)', what: 'Creator, in your picked colour · one shape · size + glow · hollow / solid · heart badge · tags + chips. Tap the colour button, top right.',
     set: { colour: 'whose', shape: 'one', rarityBy: 'sizeGlow', mine: 'hollow', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'two', others: 'quiet' } },
-  { id: 'calm', desc: 'Just two colours, yours and everyone else’s, and only mythical gems glow. The quietest map we can make.', label: 'Calm', tests: 'How minimal can it get before the map stops being useful?', what: 'Whose it is in 2 colours only · one shape · glow on mythical only · hollow / solid · heart badge · tags + chips.',
+  { id: 'calm', desc: 'Just two colours, yours and everyone else’s, and only mythical gems glow. The quietest map we can make.', label: 'Calm', tests: 'How minimal can it get before the map stops being useful?', what: 'Creator in 2 colours only · one shape · glow on mythical only · hollow / solid · heart badge · tags + chips.',
     set: { colour: 'whose', shape: 'one', rarityBy: 'glow', glowOn: 'mythical', mine: 'hollow', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'quiet' } },
-  { id: 'loud', desc: 'Three colours, size, glow and sparkle all at once. Rarer gems twinkle and liked gems turn pink.', label: 'Loud', tests: 'Where’s the point of too much?', what: 'Whose it is in 3 colours (liked gets its own) · one shape · size + glow + sparkle · dashed / solid frame · tags + chips.',
+  { id: 'loud', desc: 'Three colours, size, glow and sparkle all at once. Rarer gems twinkle and liked gems turn pink.', label: 'Loud', tests: 'Where’s the point of too much?', what: 'Creator in 3 colours (liked gets its own) · one shape · size + glow + sparkle · dashed / solid frame · tags + chips.',
     set: { colour: 'whose', shape: 'one', rarityBy: 'sizeGlowSparkle', mine: 'dashed', liked: 'colour', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
 ];
 export const MATCHUP = ['explorer', 'treasure']; // the most useful head-to-head: does colour show whose, or how rare?

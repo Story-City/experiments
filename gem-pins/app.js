@@ -150,7 +150,7 @@ function pinFor(g, overrides = {}) {
   const fill = colourOf(g);
   const mineStyle = g.mine ? opt.mine : null;
   return pinSvg({
-    shape: opt.shape === 'category' ? catOf(tagsOf(g)[0])?.shape || 'classic' : 'classic',
+    shape: opt.shape === 'category' ? catOf(tagsOf(g)[0])?.shape || 'classic' : opt.shape === 'crystal' ? catOf(tagsOf(g)[0])?.crystal || 'leaf' : 'classic',
     size: sizeOf(g),
     fill,
     hollow: mineStyle === 'hollow' && g.private,
@@ -430,6 +430,7 @@ function drawKey() {
   if (opt.rarityBy !== 'colour' && opt.colour === 'category') row('Colour', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
   const levels = levelsList();
   row('Rarity', levels.map((lv) => sample({ ...base, rarity: lv }, RARITY[lv].label, true)));
+  if (opt.shape === 'crystal') row('Shape', D.CRYSTALS.map((cr) => { const c = CATS.find((x) => x.crystal === cr.id && opt.tags.includes(x.id)); return c && sample({ ...base, tags: [c.id] }, `${cr.label} (${CATS.filter((x) => x.crystal === cr.id).map((x) => x.label).join(', ')})`, true); }).filter(Boolean));
   if (opt.shape === 'category') row('Shape', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
   row('Yours', [sample({ ...base, mine: true, private: true }, 'Private'), sample({ ...base, mine: true }, 'Public')]);
   row('Liked', [sample({ ...base, liked: true }, 'Liked', true)]);
@@ -467,13 +468,15 @@ function drawPanel() {
       sel.id = `opt-${o.id}`;
       head.querySelector('label').htmlFor = sel.id;
       o.opts.forEach(([v, label], i) => {
-        const op = el('option', null, `${LETTERS[i]} · ${label}${v === o.start ? ' (start)' : ''}`);
+        const op = el('option', null, `${LETTERS[i]} · ${label}${v === o.start ? ' •' : ''}`);
         op.value = v;
         op.selected = opt[o.id] === v;
         sel.append(op);
       });
       sel.addEventListener('change', () => { opt[o.id] = sel.value; writeHash(); closeDetails(); drawAll(); });
-      li.append(head, sel);
+      head.append(sel); // dropdown sits to the right of the title
+      li.classList.add('inline');
+      li.append(head);
       if (note) li.append(el('p', 'opt-note', note));
       list.append(li);
       continue;
@@ -529,7 +532,6 @@ function specOf(o) {
   const colourIsRarity = o.colour === 'rarity' || o.rarityBy === 'colour';
   const rows = [
     ['Colour', colourIsRarity ? `Rarity (${o.rarityColours === 'treasure' ? 'quartz, sapphire, amethyst, gold' : 'moonstone, aquamarine, topaz'})` : optLabel('colour', o.colour)],
-    ['Others’ gems', optLabel('others', o.others)],
     ['Shape', optLabel('shape', o.shape)],
     ['Size', sized ? `Rarity (${o.sizes.replace(/-/g, ' / ')} px)` : 'Same for all'],
     ['Glow', glows ? (o.glowOn === 'mythical' ? 'Mythical only' : 'Rare and up') : 'None'],
