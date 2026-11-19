@@ -4,7 +4,7 @@
 const V = window.CACHE_V || '';
 const D = await import(`./data.js${V}`);
 const { pinSvg } = await import(`./gems.js${V}`);
-const { CATS, RARITY, RARITY_SETS, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS, PHOTOS, MATCHUP } = D;
+const { CATS, RARITY, RARITY_SETS, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS, PHOTOS, MATCHUP, GROUPS } = D;
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
@@ -453,59 +453,60 @@ function noteFor(id) {
   if (id === 'sees' && opt.colour !== 'picked') return NOTES.seesNotShown;
   return '';
 }
-function drawPanel() {
-  const list = $('opts');
-  list.replaceChildren();
-  for (const o of OPTIONS) {
-    const li = el('li', 'opt');
-    const note = noteFor(o.id);
-    li.classList.toggle('idle', !!note && o.id !== 'colour');
-    const head = el('div', 'opt-head');
-    head.append(el('span', 'num', String(o.n)), el('label', 'opt-label', o.label));
-    // single-choice options are dropdowns; category tags (several at once) stay as chips
-    if (!o.multi) {
-      const sel = el('select', 'opt-select');
-      sel.id = `opt-${o.id}`;
-      head.querySelector('label').htmlFor = sel.id;
-      o.opts.forEach(([v, label], i) => {
-        const op = el('option', null, `${LETTERS[i]} · ${label}${v === o.start ? ' •' : ''}`);
-        op.value = v;
-        op.selected = opt[o.id] === v;
-        sel.append(op);
-      });
-      sel.addEventListener('change', () => { opt[o.id] = sel.value; writeHash(); closeDetails(); drawAll(); });
-      head.append(sel); // dropdown sits to the right of the title
-      li.classList.add('inline');
-      li.append(head);
-      if (note) li.append(el('p', 'opt-note', note));
-      list.append(li);
-      continue;
-    }
+function optionRow(o, short) {
+  const row = el('div', 'opt');
+  row.dataset.n = o.n;
+  const note = noteFor(o.id);
+  row.classList.toggle('idle', !!note && o.id !== 'colour');
+  const head = el('div', 'opt-head');
+  const lab = el('label', 'opt-label', short);
+  head.append(el('span', 'num', String(o.n)), lab);
+  row.append(head);
+  if (!o.multi) {
+    const sel = el('select', 'opt-select');
+    sel.id = `opt-${o.id}`;
+    lab.htmlFor = sel.id;
+    sel.setAttribute('aria-label', `${o.n}. ${o.label}`);
+    o.opts.forEach(([v, label], i) => {
+      const op = el('option', null, `${LETTERS[i]} · ${label}${v === o.start ? ' •' : ''}`);
+      op.value = v;
+      op.selected = opt[o.id] === v;
+      sel.append(op);
+    });
+    sel.addEventListener('change', () => { opt[o.id] = sel.value; writeHash(); closeDetails(); drawAll(); });
+    row.append(sel);
+  } else {
+    // category tags: several at once, so chips
     const segs = el('div', 'segs');
     segs.setAttribute('role', 'group');
     segs.setAttribute('aria-label', `${o.n}. ${o.label}`);
     o.opts.forEach(([v, label], i) => {
       const b = el('button', 'seg');
       b.type = 'button';
-      const on = o.multi ? opt[o.id].includes(v) : opt[o.id] === v;
-      b.setAttribute('aria-pressed', String(on));
+      b.setAttribute('aria-pressed', String(opt[o.id].includes(v)));
       b.append(el('b', null, LETTERS[i]), label);
-      if (!o.multi && v === o.start) { b.title = 'Start with'; b.classList.add('start'); }
       b.addEventListener('click', () => {
-        if (o.multi) {
-          const set = new Set(opt[o.id]);
-          if (set.has(v)) { if (set.size > 1) set.delete(v); } else set.add(v);
-          opt[o.id] = CATS.map((c) => c.id).filter((x) => set.has(x));
-          if (set.has(v)) filterOn.add(v);
-        } else opt[o.id] = v;
-        writeHash();
-        closeDetails();
-        drawAll();
+        const set = new Set(opt[o.id]);
+        if (set.has(v)) { if (set.size > 1) set.delete(v); } else set.add(v);
+        opt[o.id] = CATS.map((c) => c.id).filter((x) => set.has(x));
+        if (set.has(v)) filterOn.add(v);
+        writeHash(); closeDetails(); drawAll();
       });
       segs.append(b);
     });
-    li.append(head, segs);
-    if (note) li.append(el('p', 'opt-note', note));
+    row.append(segs);
+  }
+  if (note) row.append(el('p', 'opt-note', note));
+  return row;
+}
+function drawPanel() {
+  const list = $('opts');
+  list.replaceChildren();
+  for (const [name, rows] of GROUPS) {
+    const li = el('li', 'group');
+    const body = el('div', 'group-rows');
+    for (const [id, short] of rows) body.append(optionRow(OPTIONS.find((o) => o.id === id), short));
+    li.append(el('h3', 'group-name', name), body);
     list.append(li);
   }
 }

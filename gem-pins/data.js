@@ -51,7 +51,7 @@ export const LOVE = '#e84aa8'; // liked
 
 // The 15 toggles, in the thread's order. `start` is the "Start with" column.
 export const OPTIONS = [
-  { id: 'colour', n: 1, label: 'What colour means', start: 'whose', opts: [['whose', 'Creator'], ['rarity', 'Rarity'], ['category', 'Category'], ['picked', 'Your picked colour']] },
+  { id: 'colour', n: 1, label: 'Colour shows', start: 'whose', opts: [['whose', 'Creator'], ['rarity', 'Rarity'], ['category', 'Category'], ['picked', 'Creator’s picked colour']] },
   { id: 'shape', n: 2, label: 'Gem shape', start: 'one', opts: [['one', 'One shape for all'], ['category', 'A shape per category'], ['crystal', 'Crystal set']] },
   { id: 'rarityBy', n: 3, label: 'Rarity shown by', start: 'sizeGlow', opts: [['size', 'Size'], ['glow', 'Glow'], ['sizeGlow', 'Size + glow'], ['colour', 'Colour'], ['sizeGlowSparkle', 'Size + glow + sparkle']] },
   { id: 'levels', n: 4, label: 'Rarity levels', start: '3', opts: [['2', '2: Common, Rare'], ['3', '3: Common, Rare, Mythical'], ['4', '4: + Epic']] },
@@ -72,11 +72,25 @@ export const OPTIONS = [
   { id: 'details', n: 18, label: 'Gem details on tap', start: 'sheet', opts: [['sheet', 'Bottom sheet'], ['pop', 'Card by the gem'], ['full', 'Full-screen photo'], ['peek', 'Swipe strip']] },
   // added 19 Nov for the preset combos
   { id: 'glowOn', n: 19, label: 'Glow on', start: 'rare', opts: [['rare', 'Rare and up'], ['mythical', 'Mythical only']] },
-  { id: 'rarityColours', n: 20, label: 'Rarity colours', start: 'victoria', opts: [['victoria', 'Victoria’s: moonstone, aquamarine, topaz'], ['treasure', 'Treasure: quartz, sapphire, amethyst, gold']] },
+  { id: 'rarityColours', n: 20, label: 'Rarity colours', start: 'victoria', opts: [['victoria', 'Victoria’s set'], ['treasure', 'Treasure set']] }, // moonstone / aquamarine / amethyst / topaz; quartz / sapphire / amethyst / gold
 ];
 
 // Preset combos (Melissa, 19 Nov): six full setups, one tap each. Density and colour-blind stay as
 // they are, so each preset can be run at 10 / 40 / 100 gems and with the colour-blind view.
+// The options panel, grouped by what a gem has to show (Melissa, 19 Nov): the thing down the left,
+// how it's shown on the right. Colour comes first because Creator, Rarity and Category all compete for it.
+export const GROUPS = [
+  ['Colour', [['colour', 'Colour shows']]],
+  ['Creator', [['others', 'Others’ gems'], ['pick', 'You pick a colour'], ['sees', 'Who sees it']]],
+  ['Rarity', [['rarityBy', 'Shown by'], ['levels', 'Levels'], ['sizes', 'Sizes'], ['glowOn', 'Glow on'], ['rarityColours', 'Colours']]],
+  ['Category', [['shape', 'Shape'], ['tagMode', 'Tags per gem'], ['tags', 'Which tags'], ['filter', 'Filter']]],
+  ['Private vs public', [['mine', 'Shown by']]],
+  ['Liked', [['liked', 'Shown by']]],
+  ['Visited', [['visited', 'Shown by'], ['show', 'Show']]],
+  ['Tapping a gem', [['details', 'Details']]],
+  ['Map', [['density', 'Gems on screen'], ['cb', 'Colour-blind view']]],
+];
+
 export const PRESETS = [
   { id: 'explorer', desc: 'Your gems stand out in your colour; everyone else’s are quiet. Rarer gems are bigger and glow. The everyday map.', label: 'Explorer', star: true, tests: 'Can you spot new gems vs your own at a glance?', what: 'Creator · one shape · size + glow · hollow / solid · heart badge · tags + chips.',
     set: { colour: 'whose', shape: 'one', rarityBy: 'sizeGlow', mine: 'hollow', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'quiet' } },

@@ -61,11 +61,15 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 .p-spec dd { margin: 0; color: var(--text); }
 .preset-what { margin: 7px 0 0; font-size: 12px; color: var(--muted); min-height: 2.6em; text-wrap: pretty; }
 .opts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.opt { padding: 10px; border-radius: 14px; background: var(--surface); }
+/* one card per thing to show: the thing on the left, its options on the right */
+.group { display: grid; grid-template-columns: 86px minmax(0, 1fr); gap: 10px; padding: 10px; border-radius: 14px; background: var(--surface); }
+.group-name { margin: 0; padding-top: 3px; font: 800 17px/1.1 var(--f-app); color: var(--text); text-wrap: balance; }
+.group-rows { display: grid; gap: 9px; }
+.opt { min-width: 0; }
 .opt.idle { opacity: 0.6; }
-.opt-head { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
-.num { flex: none; width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: rgba(196, 155, 255, 0.16); color: var(--glow); }
-.opt-label { font-weight: 700; font-size: 14px; }
+.opt-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.num { flex: none; width: 18px; height: 18px; border-radius: 6px; display: grid; place-items: center; font-size: 10px; font-weight: 700; background: rgba(196, 155, 255, 0.16); color: var(--glow); }
+.opt-label { font-weight: 600; font-size: 12px; color: var(--muted); }
 .segs { display: flex; flex-wrap: wrap; gap: 5px; }
 .seg { min-height: 30px; max-height: 34px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .seg b { font-size: 11px; color: var(--glow); opacity: 0.8; }
@@ -76,9 +80,6 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 .opt-select:hover, .opt-select:focus-visible { border-color: var(--glow); box-shadow: 0 0 10px -3px rgba(196, 155, 255, 0.8); outline: none; }
 .opt-select option { background: #1b1140; color: var(--text); }
 .opt-head .opt-label { cursor: pointer; }
-.opt.inline .opt-head { margin-bottom: 0; }
-.opt.inline .opt-label { flex: 1 1 auto; min-width: 0; line-height: 1.2; }
-.opt.inline .opt-select { flex: 0 0 58%; width: 58%; padding-left: 10px; }
 .opt-note { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
 
 /* phones: the panel is a sheet you open from the map */
