@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v42 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v43 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -768,28 +768,28 @@ function buildGemCard(gem, opts = {}) {
     rarityEl.textContent = rarity.label;
     wrap.appendChild(rarityEl);
   }
-  const footer = document.createElement('div');
-  footer.className = 'gem-card-footer';
-  const caption = document.createElement('p');
-  caption.className = 'gem-card-caption';
-  caption.textContent = displayCopy(getGemTagline(gem) || getGemTitle(gem) || '—');
-  footer.appendChild(caption);
-  const corner = document.createElement('div');
-  corner.className = 'gem-card-corner';
+  const ribbon = document.createElement('div');
+  ribbon.className = 'gem-card-ribbon';
   const likes = publicLikes(gem);
   if (gem.isPublic && likes > 0) {
-    const likesEl = document.createElement('span');
-    likesEl.className = 'gem-card-likes';
-    likesEl.innerHTML = `<span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span>`;
-    corner.appendChild(likesEl);
+    const textEl = document.createElement('span');
+    textEl.className = 'gem-card-ribbon-text';
+    textEl.innerHTML = `<span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span>`;
+    ribbon.appendChild(textEl);
   }
   const gemEl = document.createElement('span');
   gemEl.className = 'gem-card-gem';
   if (!gem.isPublic) gemEl.classList.add('is-hidden-fill');
   else if (rarity.id !== 'cyan') gemEl.classList.add(`is-${rarity.id}`);
   gemEl.innerHTML = gemSvg(rarity.fill);
-  corner.appendChild(gemEl);
-  footer.appendChild(corner);
+  ribbon.appendChild(gemEl);
+  wrap.appendChild(ribbon);
+  const footer = document.createElement('div');
+  footer.className = 'gem-card-footer';
+  const caption = document.createElement('p');
+  caption.className = 'gem-card-caption';
+  caption.textContent = displayCopy(getGemTagline(gem) || getGemTitle(gem) || '—');
+  footer.appendChild(caption);
   wrap.appendChild(footer);
   return wrap;
 }
