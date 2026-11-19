@@ -4,7 +4,7 @@
 const V = window.CACHE_V || '';
 const D = await import(`./data.js${V}`);
 const { pinSvg } = await import(`./gems.js${V}`);
-const { CATS, RARITY, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS, PHOTOS } = D;
+const { CATS, RARITY, RARITY_SETS, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS, PHOTOS, MATCHUP } = D;
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
@@ -86,16 +86,27 @@ const GEMS = [...centre, ...rest].map((pi, i) => {
   };
 });
 
+// Half the rare gems are "epic", which only shows with 4 rarity levels (4C).
+GEMS.forEach((g) => { if (g.rarity === 'rare' && g.id % 2) g.rarity = 'epic'; });
+
 /* ---------- how one gem looks, from the options ---------- */
 const mineColour = () => (opt.pick === 'off' ? D.APP_ACCENT : PALETTE.find((p) => p.id === myColour).colour);
-const rarityOf = (g) => (opt.levels === '2' && g.rarity === 'mythical' ? 'rare' : g.rarity);
+const levelsList = () => ({ 2: ['common', 'rare'], 3: ['common', 'rare', 'mythical'], 4: ['common', 'rare', 'epic', 'mythical'] }[opt.levels]);
+function rarityOf(g) {
+  const lv = levelsList();
+  if (lv.includes(g.rarity)) return g.rarity;
+  return g.rarity === 'mythical' ? lv[lv.length - 1] : 'rare'; // epic folds into rare; mythical into the top level
+}
+const rarityColour = (lv) => RARITY_SETS[opt.rarityColours][lv];
+const SIZE_BY = ['size', 'sizeGlow', 'sizeGlowSparkle'];
+const GLOW_BY = ['glow', 'sizeGlow', 'sizeGlowSparkle'];
 const tagsOf = (g) => {
   const on = g.tags.filter((t) => opt.tags.includes(t));
   return opt.tagMode === 'one' ? on.slice(0, 1) : on;
 };
 function colourOf(g) {
   if (g.liked && !g.mine && opt.liked === 'colour') return D.LOVE;
-  if (opt.rarityBy === 'colour' || opt.colour === 'rarity') return RARITY[rarityOf(g)].colour;
+  if (opt.rarityBy === 'colour' || opt.colour === 'rarity') return rarityColour(rarityOf(g));
   if (opt.colour === 'category') return catOf(tagsOf(g)[0])?.colour || D.BASE;
   if (g.mine) return mineColour();
   // others. 1D: each gem in its owner's picked colour, if owners' colours are shown to everyone (10B).
@@ -109,15 +120,17 @@ function sizeOf(g) {
 }
 function baseSize(g) {
   const [s1, s2, s3] = opt.sizes.split('-').map(Number);
-  if (!['size', 'sizeGlow'].includes(opt.rarityBy)) return s2;
-  const lv = rarityOf(g);
-  if (opt.levels === '2') return lv === 'common' ? s1 : s3;
-  return { common: s1, rare: s2, mythical: s3 }[lv];
+  if (!SIZE_BY.includes(opt.rarityBy)) return s2;
+  const lv = levelsList();
+  const i = lv.indexOf(rarityOf(g));
+  return Math.round(s1 + ((s3 - s1) * i) / (lv.length - 1)); // smallest to largest, evenly
 }
 function glowOf(g) {
-  if (!['glow', 'sizeGlow'].includes(opt.rarityBy)) return null;
+  if (!GLOW_BY.includes(opt.rarityBy)) return null;
   const lv = rarityOf(g);
-  return lv === 'common' ? null : lv === 'rare' ? 'rare' : 'mythical';
+  if (lv === 'common') return null;
+  if (opt.glowOn === 'mythical' && lv !== 'mythical') return null;
+  return lv;
 }
 function pinFor(g, overrides = {}) {
   const fill = colourOf(g);
@@ -135,6 +148,7 @@ function pinFor(g, overrides = {}) {
     double: g.liked && opt.liked === 'ring',
     loveColour: D.LOVE,
     glow: glowOf(g),
+    sparkle: opt.rarityBy === 'sizeGlowSparkle' ? { common: 0, rare: 2, epic: 3, mythical: 4 }[rarityOf(g)] : 0,
     check: g.visited && opt.visited === 'check',
     // others' gems in "quiet" fade back a little when colour shows something else
     ...overrides,
@@ -223,7 +237,7 @@ const whoLine = (g) => (g.mine ? `${COPY.yours} · ${g.private ? COPY.private : 
 function tagRow(g) {
   const tags = el('div', 'tags');
   const rc = el('span', 'tag rarity', RARITY[rarityOf(g)].label);
-  rc.style.setProperty('--c', RARITY[rarityOf(g)].colour);
+  rc.style.setProperty('--c', rarityColour(rarityOf(g)));
   tags.append(rc);
   for (const id of tagsOf(g)) { const c = catOf(id); const x = el('span', 'tag', c.label); x.style.setProperty('--c', c.colour); tags.append(x); }
   return tags;
@@ -400,7 +414,7 @@ function drawKey() {
   if (opt.rarityBy !== 'colour' && opt.colour === 'whose') row('Colour', [sample({ ...base, mine: true }, COPY.yours), sample(base, COPY.others)]);
   if (opt.rarityBy !== 'colour' && opt.colour === 'picked') row('Colour', [sample({ ...base, mine: true }, 'Your colour'), sample(base, opt.sees === 'all' ? 'Their colour' : COPY.others)]);
   if (opt.rarityBy !== 'colour' && opt.colour === 'category') row('Colour', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
-  const levels = opt.levels === '2' ? ['common', 'rare'] : ['common', 'rare', 'mythical'];
+  const levels = levelsList();
   row('Rarity', levels.map((lv) => sample({ ...base, rarity: lv }, RARITY[lv].label, true)));
   if (opt.shape === 'category') row('Shape', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
   row('Yours', [sample({ ...base, mine: true, private: true }, 'Private'), sample({ ...base, mine: true }, 'Public')]);
@@ -417,7 +431,9 @@ function noteFor(id) {
   if (id === 'colour' && opt.rarityBy === 'colour' && opt.colour !== 'rarity') return NOTES.colourTaken;
   if (id === 'colour' && opt.colour === 'picked' && (opt.sees === 'me' || opt.pick === 'off')) return NOTES.pickedSame;
   if (id === 'visited' && opt.show === 'unvisited') return NOTES.visitedHidden;
-  if (id === 'sizes' && !['size', 'sizeGlow'].includes(opt.rarityBy)) return NOTES.sizesUnused;
+  if (id === 'sizes' && !SIZE_BY.includes(opt.rarityBy)) return NOTES.sizesUnused;
+  if (id === 'glowOn' && !GLOW_BY.includes(opt.rarityBy)) return NOTES.glowUnused;
+  if (id === 'rarityColours' && opt.colour !== 'rarity' && opt.rarityBy !== 'colour') return NOTES.coloursUnused;
   if (id === 'sees' && opt.pick === 'off') return NOTES.seesUnused;
   if (id === 'sees' && opt.colour !== 'picked') return NOTES.seesNotShown;
   return '';
@@ -468,23 +484,50 @@ $('panelClose').addEventListener('click', () => document.body.classList.remove('
 
 /* ---------- everything ---------- */
 /* ---------- preset combos ---------- */
-const presetOpts = (p) => ({ ...START, ...p.set });
-const same = (a, b) => OPTIONS.every((o) => JSON.stringify(a[o.id]) === JSON.stringify(b[o.id]));
+// A preset sets everything except density and colour-blind, so you can run it at 10 / 40 / 100 and with CB.
+const KEEP = ['density', 'cb'];
+const presetOpts = (p) => ({ ...START, ...p.set, density: opt.density, cb: opt.cb });
+const same = (a, b) => OPTIONS.every((o) => KEEP.includes(o.id) || JSON.stringify(a[o.id]) === JSON.stringify(b[o.id]));
+const usePreset = (p) => { opt = presetOpts(p); filterOn = new Set(CATS.map((c) => c.id)); closeDetails(); writeHash(); drawAll(); };
 function drawPresets() {
   const box = $('presets');
   box.replaceChildren();
-  let on = null;
+  const on = PRESETS.find((p) => same(opt, presetOpts(p)));
   PRESETS.forEach((p, i) => {
     const b = el('button', 'preset');
     b.type = 'button';
-    const match = same(opt, presetOpts(p));
-    if (match && !on) on = p;
-    b.setAttribute('aria-pressed', String(match && on === p));
+    b.setAttribute('aria-pressed', String(on === p));
     b.append(el('b', null, `P${i + 1}`), p.label);
-    b.addEventListener('click', () => { opt = presetOpts(p); filterOn = new Set(CATS.map((c) => c.id)); writeHash(); drawAll(); });
+    if (p.star) { b.append(el('span', 'star', '★')); b.title = COPY.myPick; }
+    b.addEventListener('click', () => usePreset(p));
     box.append(b);
   });
-  $('presetWhat').textContent = on ? on.what : COPY.custom;
+  const what = $('presetWhat');
+  what.replaceChildren();
+  if (on) what.append(el('b', null, COPY.tests + on.tests), el('br'), on.what);
+  else what.textContent = COPY.custom;
+  // run it at 10 / 40 / 100 gems and with the colour-blind view
+  const tr = $('tryAt');
+  tr.replaceChildren(el('span', 'try-label', COPY.tryAt));
+  for (const n of ['10', '40', '100']) {
+    const b = el('button', 'preset small', n);
+    b.type = 'button';
+    b.setAttribute('aria-pressed', String(opt.density === n));
+    b.addEventListener('click', () => { opt.density = n; writeHash(); drawAll(); });
+    tr.append(b);
+  }
+  const cb = el('button', 'preset small', COPY.cbShort);
+  cb.type = 'button';
+  cb.setAttribute('aria-pressed', String(opt.cb === 'rg'));
+  cb.addEventListener('click', () => { opt.cb = opt.cb === 'rg' ? 'off' : 'rg'; writeHash(); drawAll(); });
+  tr.append(cb);
+  // the head-to-head
+  const m = $('matchup');
+  const [a, b2] = MATCHUP.map((id) => PRESETS.find((p) => p.id === id));
+  m.textContent = COPY.matchup;
+  m.title = COPY.matchupWhat;
+  m.setAttribute('aria-pressed', String(on === a || on === b2));
+  m.onclick = () => usePreset(on === a ? b2 : a);
 }
 
 function drawAll() {

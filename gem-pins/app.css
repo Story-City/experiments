@@ -46,6 +46,13 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 .preset b { font-size: 11px; color: var(--glow); opacity: 0.8; }
 .preset[aria-pressed="true"] { background: linear-gradient(90deg, #6a2fc4, #b36bff); border-color: transparent; color: #fff; box-shadow: 0 0 12px -4px rgba(179, 107, 255, 0.9); }
 .preset[aria-pressed="true"] b { color: #fff; }
+.preset .star { color: #ffc448; font-size: 11px; }
+.preset.small { min-height: 28px; padding: 0 9px; }
+.try-at { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 8px; }
+.try-label { font-size: 12px; font-weight: 700; color: var(--muted); margin-right: 2px; }
+.matchup { margin-top: 8px; width: 100%; min-height: 32px; max-height: 34px; border-radius: 999px; border: 1px dashed #ffc448; background: transparent; color: #ffd98a; font-size: 13px; font-weight: 700; }
+.matchup[aria-pressed="true"] { border-style: solid; background: rgba(255, 196, 72, 0.12); }
+.preset-what b { color: var(--text); font-weight: 600; }
 .preset-what { margin: 7px 0 0; font-size: 12px; color: var(--muted); min-height: 2.6em; text-wrap: pretty; }
 .opts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .opt { padding: 10px; border-radius: 14px; background: var(--surface); }
@@ -81,6 +88,10 @@ body.cb-rg .phone { filter: url(#deutan); }
 .pin.visited svg, .k-art.visited svg { opacity: 0.4; filter: saturate(0.3); }
 .pin:active svg { transform: scale(0.92); }
 .glow-rare { filter: drop-shadow(0 0 4px var(--glow)); }
+.glow-epic { filter: drop-shadow(0 0 5px var(--glow)) drop-shadow(0 0 9px var(--glow)); }
+.spark { transform-box: fill-box; transform-origin: center; animation: twinkle 1.8s ease-in-out infinite; }
+@keyframes twinkle { 0%, 100% { opacity: 0.1; transform: scale(0.4); } 50% { opacity: 1; transform: scale(1.1); } }
+@media (prefers-reduced-motion: reduce) { .spark { animation: none; opacity: 0.8; } }
 .glow-mythical { filter: drop-shadow(0 0 6px var(--glow)) drop-shadow(0 0 12px var(--glow)); animation: myth 2.4s ease-in-out infinite; }
 @keyframes myth { 50% { filter: drop-shadow(0 0 9px var(--glow)) drop-shadow(0 0 20px var(--glow)); } }
 @media (prefers-reduced-motion: reduce) { .glow-mythical { animation: none; } }

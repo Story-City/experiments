@@ -78,6 +78,12 @@ export function pinSvg(o) {
   if (o.heart) parts.push(`<g transform="translate(${bx} ${22 - r * 0.72})"><circle r="6.5" fill="${o.loveColour}" stroke="#170c35" stroke-width="1.5"/><path d="${HEART}" fill="#fff"/></g>`);
   if (o.lock) parts.push(`<g transform="translate(${bx} ${22 + r * 0.72})"><circle r="6.5" fill="#241b46" stroke="#fff" stroke-width="1.3"/><path d="${LOCK}" fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></g>`);
   if (o.check) parts.push(`<g transform="translate(${22 - r * 0.72} ${22 + r * 0.72})"><circle r="6.5" fill="#3ddc84" stroke="#170c35" stroke-width="1.5"/><path d="${CHECK}" fill="none" stroke="#0b0620" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>`);
+  // sparkle: little stars twinkling round rarer gems (option 3E)
+  const SPOTS = [[-1, -1.05], [1.15, -0.35], [-1.2, 0.5], [0.75, 1.05]];
+  for (let i = 0; i < (o.sparkle || 0); i++) {
+    const [sx, sy] = SPOTS[i];
+    parts.push(`<path class="spark" style="animation-delay:${(i * 0.45).toFixed(2)}s" transform="translate(${(22 + sx * (r + 3)).toFixed(1)} ${(22 + sy * (r + 3)).toFixed(1)})" d="M0-3.4L.9-.9 3.4 0 .9.9 0 3.4-.9.9-3.4 0-.9-.9Z" fill="#fff"/>`);
+  }
   const cls = ['pin-svg', o.glow ? `glow-${o.glow}` : ''].join(' ').trim();
   return `<svg class="${cls}" viewBox="0 0 44 44" width="44" height="44" style="--glow:${o.fill}" aria-hidden="true">${parts.join('')}</svg>`;
 }
