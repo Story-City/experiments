@@ -36,6 +36,8 @@ let focusId = null;
 
 document.title = `${entry.title} · Story City`;
 $('title').textContent = entry.title;
+// "frame": "wide" in experiments.json: a wider frame for pages that aren't phone-sized (e.g. a library with a side panel)
+if (entry.frame === 'wide') document.body.classList.add('wide-frame');
 const startPath = params.get('u') || entry.path;
 frame.src = new URL(startPath, root).href;
 $('direct').href = new URL(startPath, root).href;

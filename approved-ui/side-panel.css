@@ -1,0 +1,44 @@
+/* Side panel (Melissa, 19 Nov): on wide screens the title, Accent / Radial / Background / Motion
+   and the jump links sit in a panel left of the cards and stay put while the cards scroll.
+   Narrow screens keep the original stacked layout. */
+.side-panel { display: contents; }
+
+@media (min-width: 700px) {
+  body {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 920px);
+    justify-content: center;
+    align-items: start;
+    column-gap: 28px;
+    row-gap: 12px;
+  }
+  .side-panel {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    scrollbar-width: thin;
+  }
+  .library, .meta { grid-column: 2; }
+  .library { grid-row: 1; }
+  .meta { grid-row: 2; }
+
+  .side-panel h1 { font-size: 36px; }
+  .side-panel .lede { font-size: 15px; }
+  .side-panel .toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+  .side-panel .toolbar > * { width: 100%; max-width: 100%; min-width: 0; min-inline-size: 0; }
+  .side-panel .accent-pick { display: flex; }
+  .side-panel .accent-pick input[type="range"] { flex: 1 1 0; min-width: 0; width: 0; }
+  .side-panel .motion-pick { flex-wrap: wrap; gap: 6px 12px; border-radius: 16px; }
+  .side-panel .catalog-nav { flex-direction: column; flex-wrap: nowrap; gap: 4px; margin: 0; }
+  .side-panel .catalog-nav a { height: 30px; justify-content: flex-start; }
+}

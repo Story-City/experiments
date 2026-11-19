@@ -19,9 +19,12 @@
 <link rel="stylesheet" href="ports/tip-reply.css?v=19">
 <link rel="stylesheet" href="ports/map-mode-switch.css?v=19">
 <link rel="stylesheet" href="ports/badges.css?v=19">
+<link rel="stylesheet" href="side-panel.css?v=1">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
+  <!-- side panel: title, controls and jump links sit left of the cards on wide screens (side-panel.css) -->
+  <aside class="side-panel" aria-label="Library controls">
   <header class="page-head">
     <p class="eyebrow">StoryCity · experiments</p>
     <h1>Approved UI</h1>
@@ -58,6 +61,7 @@
   </div>
 
   <nav class="catalog-nav" id="catalogNav" aria-label="Jump to element"></nav>
+  </aside>
 
   <main class="library" id="library">
     <!-- cards injected by app.js from ELEMENT_DEFS -->
