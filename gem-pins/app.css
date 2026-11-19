@@ -78,6 +78,7 @@ body.cb-rg .phone { filter: url(#deutan); }
 .pin { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; border: 0; background: none; border-radius: 50%; -webkit-tap-highlight-color: transparent; }
 .pin svg, .k-art svg, .gem-art svg { display: block; overflow: visible; }
 .pin.quiet svg, .k-art.quiet svg { opacity: 0.6; filter: saturate(0.35); }
+.pin.visited svg, .k-art.visited svg { opacity: 0.4; filter: saturate(0.3); }
 .pin:active svg { transform: scale(0.92); }
 .glow-rare { filter: drop-shadow(0 0 4px var(--glow)); }
 .glow-mythical { filter: drop-shadow(0 0 6px var(--glow)) drop-shadow(0 0 12px var(--glow)); animation: myth 2.4s ease-in-out infinite; }

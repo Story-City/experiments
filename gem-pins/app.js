@@ -60,6 +60,9 @@ const order = PTS.map((p, i) => i).sort((a, b) => {
 });
 const centre = order.filter((i, j) => j % 4 === 0).slice(0, 8); // spaced picks near the middle
 const rest = PTS.map((p, i) => i).filter((i) => !centre.includes(i));
+// Visited: about a third of others' gems, one liked one, never yours or the mythical one.
+// (Its own random stream, so the layout above doesn't move.)
+const rv = rng(777);
 const GEMS = [...centre, ...rest].map((pi, i) => {
   const sp = SPECIAL[i] || {};
   const tags = [pickOne(CATS).id];
@@ -79,6 +82,7 @@ const GEMS = [...centre, ...rest].map((pi, i) => {
     owner,
     ownerColour: PALETTE[(i * 3 + 1) % PALETTE.length].colour,
     likes: sp.liked ? 3 + (i % 9) : Math.floor(r() * 12),
+    visited: !sp.mine && !sp.mythical && (i === 2 || (!sp.liked && rv() < 0.33)),
   };
 });
 
@@ -100,6 +104,10 @@ function colourOf(g) {
   return opt.others === 'quiet' ? D.BASE : D.OTHERS_FULL;
 }
 function sizeOf(g) {
+  const shrink = g.visited && opt.visited === 'small' ? 0.7 : 1;
+  return Math.round(baseSize(g) * shrink);
+}
+function baseSize(g) {
   const [s1, s2, s3] = opt.sizes.split('-').map(Number);
   if (!['size', 'sizeGlow'].includes(opt.rarityBy)) return s2;
   const lv = rarityOf(g);
@@ -126,6 +134,7 @@ function pinFor(g, overrides = {}) {
     double: g.liked && opt.liked === 'ring',
     loveColour: D.LOVE,
     glow: glowOf(g),
+    check: g.visited && opt.visited === 'check',
     // others' gems in "quiet" fade back a little when colour shows something else
     ...overrides,
   });
@@ -140,7 +149,7 @@ function drawPins() {
   let shown = 0;
   // draw ordinary gems first so yours, liked and mythical sit on top
   const rank = (g) => (g.rarity === 'mythical' ? 3 : g.mine ? 2 : g.liked ? 1 : 0);
-  const list = GEMS.slice(0, n).filter((g) => tagsOf(g).length && tagsOf(g).some((t) => filterOn.has(t)));
+  const list = GEMS.slice(0, n).filter((g) => tagsOf(g).length && tagsOf(g).some((t) => filterOn.has(t)) && !(opt.show === 'unvisited' && g.visited));
   for (const g of [...list].sort((a, b) => rank(a) - rank(b))) {
     const b = el('button', 'pin');
     b.type = 'button';
@@ -148,13 +157,14 @@ function drawPins() {
     b.style.top = `${g.at[1] * 100}%`;
     b.dataset.id = g.id;
     if (quietFade(g)) b.classList.add('quiet');
+    if (g.visited && opt.visited === 'fade') b.classList.add('visited');
     b.innerHTML = pinFor(g);
-    b.setAttribute('aria-label', `${g.name}: ${RARITY[rarityOf(g)].label}${g.mine ? `, yours, ${g.private ? 'private' : 'public'}` : `, by ${g.owner}`}${g.liked ? ', liked' : ''}`);
+    b.setAttribute('aria-label', `${g.name}: ${RARITY[rarityOf(g)].label}${g.mine ? `, yours, ${g.private ? 'private' : 'public'}` : `, by ${g.owner}`}${g.liked ? ', liked' : ''}${g.visited ? ', visited' : ''}`);
     b.addEventListener('click', () => openGem(g));
     pinsEl.append(b);
     shown++;
   }
-  $('count').textContent = COPY.shown(shown);
+  $('count').textContent = opt.show === 'unvisited' ? COPY.shownUnvisited(shown) : COPY.shown(shown);
 }
 
 /* ---------- top of the map: filter chips / filter button / your colour ---------- */
@@ -220,7 +230,12 @@ function openGem(g) {
     tags.append(rc);
     for (const id of tagsOf(g)) { const c = catOf(id); const x = el('span', 'tag', c.label); x.style.setProperty('--c', c.colour); tags.append(x); }
     const row = el('div', 'gem-row');
-    row.append(el('span', 'muted', COPY.likes(g.likes + (g.liked ? 1 : 0))));
+    row.append(el('span', 'muted', `${COPY.likes(g.likes + (g.liked ? 1 : 0))} · ${g.mine || g.visited ? COPY.visited : COPY.notVisited}`));
+    if (!g.mine && !g.visited) {
+      const mv = el('button', 'btn', COPY.markVisited);
+      mv.addEventListener('click', () => { g.visited = true; drawAll(); openGem(g); });
+      row.append(mv);
+    }
     if (!g.mine) {
       const like = el('button', 'btn like', g.liked ? `♥ ${COPY.unlike}` : `♡ ${COPY.like}`);
       like.setAttribute('aria-pressed', String(g.liked));
@@ -276,7 +291,7 @@ function drawKey() {
   const k = $('keyBody');
   k.replaceChildren();
   // samples explaining a colour or shape are shown at full strength, so the key stays readable
-  const sample = (g, label, full = false) => { const s = el('span', 'k'); const a = el('span', 'k-art'); a.innerHTML = pinFor(g); if (!full && quietFade(g)) a.classList.add('quiet'); s.append(a, el('span', null, label)); return s; };
+  const sample = (g, label, full = false, faded = false) => { const s = el('span', 'k'); const a = el('span', 'k-art'); a.innerHTML = pinFor(g); if (!full && quietFade(g)) a.classList.add('quiet'); if (faded) a.classList.add('visited'); s.append(a, el('span', null, label)); return s; };
   const base = { tags: ['nature'], rarity: 'common', mine: false, private: false, liked: false, owner: 'Sam', ownerColour: PALETTE[2].colour };
   const row = (title, items) => { const r1 = el('div', 'k-row'); r1.append(el('b', null, title), ...items); k.append(r1); };
   if (opt.rarityBy !== 'colour' && opt.colour === 'whose') row('Colour', [sample({ ...base, mine: true }, COPY.yours), sample(base, COPY.others)]);
@@ -287,6 +302,7 @@ function drawKey() {
   if (opt.shape === 'category') row('Shape', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
   row('Yours', [sample({ ...base, mine: true, private: true }, 'Private'), sample({ ...base, mine: true }, 'Public')]);
   row('Liked', [sample({ ...base, liked: true }, 'Liked')]);
+  if (opt.visited !== 'none' && opt.show !== 'unvisited') row('Visited', [sample({ ...base }, COPY.notVisited), sample({ ...base, visited: true }, COPY.visited, false, opt.visited === 'fade')]);
 }
 $('keyBtn').addEventListener('click', () => {
   const open = $('key').classList.toggle('open');
@@ -297,6 +313,7 @@ $('keyBtn').addEventListener('click', () => {
 function noteFor(id) {
   if (id === 'colour' && opt.rarityBy === 'colour' && opt.colour !== 'rarity') return NOTES.colourTaken;
   if (id === 'colour' && opt.colour === 'picked' && (opt.sees === 'me' || opt.pick === 'off')) return NOTES.pickedSame;
+  if (id === 'visited' && opt.show === 'unvisited') return NOTES.visitedHidden;
   if (id === 'sizes' && !['size', 'sizeGlow'].includes(opt.rarityBy)) return NOTES.sizesUnused;
   if (id === 'sees' && opt.pick === 'off') return NOTES.seesUnused;
   if (id === 'sees' && opt.colour !== 'picked') return NOTES.seesNotShown;

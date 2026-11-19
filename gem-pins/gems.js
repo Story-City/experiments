@@ -47,6 +47,7 @@ const SHAPES = {
 };
 
 const HEART = 'M0 2.6s-3.4-2.1-4.2-4.2c-.5-1.4.4-2.9 1.9-2.9.9 0 1.6.5 2.3 1.2.7-.7 1.4-1.2 2.3-1.2 1.5 0 2.4 1.5 1.9 2.9C3.4.5 0 2.6 0 2.6Z';
+const CHECK = 'M-3 0l2 2.2L3.2-2.2';
 const LOCK = 'M-2.6-.6v-1.6a2.6 2.6 0 0 1 5.2 0v1.6M-3.6-.6h7.2v4.4h-7.2Z';
 
 // One pin. o: { shape, size, fill, hollow, ring: 'dashed' | 'solid' | null, ringColour, lock, heart, double, glow, pulse }
@@ -62,7 +63,7 @@ export function pinSvg(o) {
   if (o.ring) parts.push(`<circle cx="22" cy="22" r="${r + 4}" fill="rgba(23,12,53,.35)" stroke="${o.ringColour}" stroke-width="2"${o.ring === 'dashed' ? ' stroke-dasharray="3.2 2.6"' : ''}/>`);
   const g = [`<g transform="translate(${22 - 12 * k} ${22 - 12 * k}) scale(${k})">`];
   if (o.hollow) {
-    g.push(`<path d="${s.body}" fill="${o.fill}" fill-opacity=".16" stroke="${o.fill}" stroke-width="${(2.6 / k).toFixed(2)}" stroke-linejoin="round"/>`);
+    g.push(`<path d="${s.body}" fill="${o.fill}" fill-opacity=".16" stroke="${o.fill}" stroke-width="${(1.4 / k).toFixed(2)}" stroke-linejoin="round"/>`); // same weight as the other gems' edge
   } else {
     g.push(`<path d="${s.body}" fill="${o.fill}"/>`);
     g.push(`<path d="${s.light}" fill="#fff" fill-opacity=".32"/>`);
@@ -76,6 +77,7 @@ export function pinSvg(o) {
   const bx = 22 + r * 0.72;
   if (o.heart) parts.push(`<g transform="translate(${bx} ${22 - r * 0.72})"><circle r="6.5" fill="${o.loveColour}" stroke="#170c35" stroke-width="1.5"/><path d="${HEART}" fill="#fff"/></g>`);
   if (o.lock) parts.push(`<g transform="translate(${bx} ${22 + r * 0.72})"><circle r="6.5" fill="#241b46" stroke="#fff" stroke-width="1.3"/><path d="${LOCK}" fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></g>`);
+  if (o.check) parts.push(`<g transform="translate(${22 - r * 0.72} ${22 + r * 0.72})"><circle r="6.5" fill="#3ddc84" stroke="#170c35" stroke-width="1.5"/><path d="${CHECK}" fill="none" stroke="#0b0620" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>`);
   const cls = ['pin-svg', o.glow ? `glow-${o.glow}` : ''].join(' ').trim();
   return `<svg class="${cls}" viewBox="0 0 44 44" width="44" height="44" style="--glow:${o.fill}" aria-hidden="true">${parts.join('')}</svg>`;
 }

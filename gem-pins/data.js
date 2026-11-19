@@ -51,6 +51,9 @@ export const OPTIONS = [
   { id: 'filter', n: 13, label: 'Category filter', start: 'chips', opts: [['chips', 'Chips above map'], ['sheet', 'Filter sheet'], ['none', 'None']] },
   { id: 'density', n: 14, label: 'Map density', start: '40', opts: [['10', '10'], ['40', '40'], ['100', '100']] },
   { id: 'cb', n: 15, label: 'Colour-blind view', start: 'off', opts: [['off', 'Off'], ['rg', 'Red-green simulation']] },
+  // added 19 Nov (Melissa): gems you've already been to
+  { id: 'visited', n: 16, label: 'Visited shown by', start: 'fade', opts: [['fade', 'Faded'], ['check', 'Check badge'], ['small', 'Smaller'], ['none', 'Not shown']] },
+  { id: 'show', n: 17, label: 'Show', start: 'all', opts: [['all', 'All gems'], ['unvisited', 'Only unvisited']] },
 ];
 
 // Preset combos: each sets all 15 options (anything not listed stays on "Start with").
@@ -68,6 +71,7 @@ export const PRESETS = [
 
 // Notes shown under an option when another option makes it do nothing.
 export const NOTES = {
+  visitedHidden: 'Visited gems are hidden right now (17B).',
   colourTaken: 'Colour is showing rarity (3D), so this has no effect right now.',
   sizesUnused: 'Only used when rarity is shown by size (3A or 3C).',
   seesUnused: 'Only matters when you can pick a colour (9B or 9C).',
@@ -102,6 +106,11 @@ export const COPY = {
   public: 'Public: everyone can see it',
   by: (name) => `Found by ${name}`,
   liked: 'You liked this',
+  visited: 'Visited',
+  notVisited: 'Not visited yet',
+  markVisited: 'Mark Visited',
+  unvisitedChip: 'Not visited',
+  shownUnvisited: (n) => `${n} unvisited gems`,
   like: 'Like',
   unlike: 'Liked',
   likes: (n) => `${n} like${n === 1 ? '' : 's'}`,
