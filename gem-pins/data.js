@@ -82,6 +82,7 @@ export const OPTIONS = [
   { id: 'seasonal', n: 22, label: 'Seasonal shown by', start: 'shape', opts: [['shape', 'Season shape'], ['badge', 'Season badge'], ['colour', 'Season colour'], ['none', 'Not shown']] },
   { id: 'season', n: 23, label: 'Season', start: 'winter', opts: [['autumn', 'Autumn (maple leaf)'], ['winter', 'Winter (snowflake)'], ['spring', 'Spring (flower)'], ['summer', 'Summer (sun)']] },
   // added 19 Nov for the preset combos
+  { id: 'cluster', n: 24, label: 'Close gems', start: 'all', opts: [['all', 'Show all'], ['group', 'Group with a number']] },
   { id: 'glowOn', n: 19, label: 'Glow on', start: 'rare', opts: [['rare', 'Rare and up'], ['mythical', 'Mythical only']] },
   { id: 'rarityColours', n: 20, label: 'Rarity colours', start: 'victoria', opts: [['victoria', 'Victoria’s set'], ['treasure', 'Treasure set']] }, // moonstone / aquamarine / amethyst / topaz; quartz / sapphire / amethyst / gold
 ];
@@ -100,7 +101,7 @@ export const GROUPS = [
   ['Visited', [['visited', 'Shown by'], ['show', 'Show']]],
   ['Time-limited', [['expiring', 'Expiring soon'], ['seasonal', 'Seasonal'], ['season', 'Season']]],
   ['Tapping a gem', [['details', 'Details']]],
-  ['Map', [['density', 'Gems on screen'], ['cb', 'Colour-blind view']]],
+  ['Map', [['density', 'Gems on screen'], ['cluster', 'Close gems'], ['cb', 'Colour-blind view']]],
 ];
 
 // Drag & drop settings: what we need to show (left) and the attributes we can play with (the cloud).
@@ -195,6 +196,20 @@ export const COPY = {
   visited: 'Visited',
   notVisited: 'Not visited yet',
   markVisited: 'Mark Visited',
+  savePreset: '+ Save as preset',
+  presetName: 'Name this preset',
+  presetNamePh: 'e.g. Quiet treasure',
+  yourName: 'Your name',
+  save: 'Save',
+  savedBy: (who, when) => `Saved by ${who}${when ? ` · ${when}` : ''}`,
+  savedTeam: 'Saved for the team',
+  savedLocal: 'Saved on this device (team presets save on the experiments site)',
+  deletePreset: (n) => `Delete the preset ${n}`,
+  needPresetName: 'Give the preset a name first',
+  saveFail: 'Couldn’t save. Check your connection and try again.',
+  zoomIn: 'Zoom in',
+  zoomOut: 'Zoom out',
+  cluster: (n) => `${n} gems here. Tap to zoom in`,
   tapForMore: 'Tap for more · tap the map to close',
   modeDropdowns: 'Dropdowns',
   modeDrag: 'Drag & drop',

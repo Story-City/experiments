@@ -192,29 +192,126 @@ const quietFade = (g) => !g.mine && opt.others === 'quiet' && (opt.colour === 'r
 
 /* ---------- map ---------- */
 const pinsEl = $('pins');
+// Zoom and pan (option 24 groups close gems). The map and the gems scale around the phone's middle.
+const view = { z: 1, x: 0, y: 0 };
+const ZMIN = 1, ZMAX = 3.2;
+const CLUSTER_PX = 44; // gems whose 44px tap areas overlap become one group
+function clampView() {
+  view.z = Math.min(ZMAX, Math.max(ZMIN, view.z));
+  const ph = $('phone').getBoundingClientRect();
+  const mx = ((view.z - 1) * ph.width) / 2, my = ((view.z - 1) * ph.height) / 2;
+  view.x = Math.min(mx, Math.max(-mx, view.x));
+  view.y = Math.min(my, Math.max(-my, view.y));
+}
+function applyView() {
+  clampView();
+  document.querySelector('.map').style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.z})`;
+  $('zoomOut').disabled = view.z <= ZMIN + 0.001;
+  $('zoomIn').disabled = view.z >= ZMAX - 0.001;
+}
+// where a gem sits right now, in px inside the pins box
+function placeOf(g, box, phone) {
+  const cx = phone.width / 2 - (box.left - phone.left), cy = phone.height / 2 - (box.top - phone.top);
+  const px = g.at[0] * box.width, py = g.at[1] * box.height;
+  return [cx + (px - cx) * view.z + view.x, cy + (py - cy) * view.z + view.y];
+}
+function zoomTo(z, focus) { // focus: a gem position to bring to the middle
+  const z0 = view.z;
+  view.z = Math.min(ZMAX, Math.max(ZMIN, z));
+  if (focus) {
+    const box = pinsEl.getBoundingClientRect(), ph = $('phone').getBoundingClientRect();
+    const cx = ph.width / 2 - (box.left - ph.left), cy = ph.height / 2 - (box.top - ph.top);
+    view.x = -(focus.at[0] * box.width - cx) * view.z;
+    view.y = -(focus.at[1] * box.height - cy) * view.z;
+  } else { view.x *= view.z / z0; view.y *= view.z / z0; }
+  closeDetails();
+  applyView(); drawPins();
+}
+
 function drawPins() {
   const n = Number(opt.density);
   pinsEl.replaceChildren();
-  let shown = 0;
+  applyView();
+  const box = pinsEl.getBoundingClientRect(), phone = $('phone').getBoundingClientRect();
   // draw ordinary gems first so yours, liked and mythical sit on top
   const rank = (g) => (g.rarity === 'mythical' ? 3 : g.mine ? 2 : g.liked ? 1 : 0);
   const list = GEMS.slice(0, n).filter((g) => tagsOf(g).length && tagsOf(g).some((t) => filterOn.has(t)) && !(opt.show === 'unvisited' && g.visited));
-  for (const g of [...list].sort((a, b) => rank(a) - rank(b))) {
+  const placed = list.map((g) => ({ g, p: placeOf(g, box, phone) }))
+    .filter(({ p }) => p[0] > -22 && p[0] < box.width + 22 && p[1] > -22 && p[1] < box.height + 22);
+  // group gems that sit too close to tap apart (24B); the most important one leads the group
+  let groups = placed.map((x) => [x]);
+  if (opt.cluster === 'group') {
+    groups = [];
+    const left = [...placed].sort((a, b) => rank(b.g) - rank(a.g));
+    while (left.length) {
+      const lead = left.shift();
+      const grp = [lead];
+      for (let i = left.length - 1; i >= 0; i--) if (Math.hypot(left[i].p[0] - lead.p[0], left[i].p[1] - lead.p[1]) < CLUSTER_PX) grp.push(...left.splice(i, 1));
+      groups.push(grp);
+    }
+  }
+  let shown = 0;
+  for (const grp of groups.sort((a, b) => rank(a[0].g) - rank(b[0].g))) {
+    const { g } = grp[0];
+    const p = grp.length > 1 ? [grp.reduce((s, x) => s + x.p[0], 0) / grp.length, grp.reduce((s, x) => s + x.p[1], 0) / grp.length] : grp[0].p;
     const b = el('button', 'pin');
     b.type = 'button';
-    b.style.left = `${g.at[0] * 100}%`;
-    b.style.top = `${g.at[1] * 100}%`;
+    b.style.left = `${p[0]}px`;
+    b.style.top = `${p[1]}px`;
+    shown += grp.length;
+    if (grp.length > 1) {
+      b.classList.add('cluster');
+      b.dataset.count = grp.length;
+      b.innerHTML = pinFor(g) + `<span class="count-badge">${grp.length}</span>`;
+      b.setAttribute('aria-label', COPY.cluster(grp.length));
+      // tapping a group zooms in on it, centred, until its gems separate
+      const centre = { at: [0, 1].map((i) => grp.reduce((sum, x) => sum + x.g.at[i], 0) / grp.length) };
+      b.addEventListener('click', (e) => { e.stopPropagation(); if (!panMoved) zoomTo(view.z * 1.8, centre); });
+      pinsEl.append(b);
+      continue;
+    }
     b.dataset.id = g.id;
     if (quietFade(g)) b.classList.add('quiet');
     if (g.visited && opt.visited === 'fade') b.classList.add('visited');
     b.innerHTML = pinFor(g);
     b.setAttribute('aria-label', `${g.name}: ${RARITY[rarityOf(g)].label}${g.mine ? `, yours, ${g.private ? 'private' : 'public'}` : `, by ${g.owner}`}${g.liked ? ', liked' : ''}${g.visited ? ', visited' : ''}${g.expiring ? ', expiring' : ''}${g.seasonal ? ', seasonal' : ''}`);
-    b.addEventListener('click', () => openGem(g));
+    b.addEventListener('click', (e) => { if (panMoved) { e.stopPropagation(); return; } openGem(g); });
     pinsEl.append(b);
-    shown++;
   }
   $('count').textContent = opt.show === 'unvisited' ? COPY.shownUnvisited(shown) : COPY.shown(shown);
 }
+
+// zoom buttons, wheel, pinch, and drag to pan
+let panMoved = false;
+(function zoomControls() {
+  if (!$('zoomIn')) {
+    const z = el('div', 'zoom'); z.id = 'zoomBox';
+    for (const [id, t, label] of [['zoomIn', '+', COPY.zoomIn], ['zoomOut', '−', COPY.zoomOut]]) { const b = el('button', 'zbtn', t); b.id = id; b.type = 'button'; b.setAttribute('aria-label', label); z.append(b); }
+    $('phone').append(z);
+  }
+  $('zoomIn').addEventListener('click', () => zoomTo(view.z * 1.5));
+  $('zoomOut').addEventListener('click', () => zoomTo(view.z / 1.5));
+  const scr = $('screen');
+  scr.addEventListener('wheel', (e) => { e.preventDefault(); zoomTo(view.z * (e.deltaY < 0 ? 1.12 : 1 / 1.12)); }, { passive: false });
+  const pts = new Map(); let start = null;
+  scr.addEventListener('pointerdown', (e) => {
+    pts.set(e.pointerId, [e.clientX, e.clientY]);
+    const [a, b] = [...pts.values()];
+    start = { x: view.x, y: view.y, z: view.z, a, d: b ? Math.hypot(a[0] - b[0], a[1] - b[1]) : 0 };
+    panMoved = false;
+  });
+  addEventListener('pointermove', (e) => {
+    if (!start || !pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, [e.clientX, e.clientY]);
+    const [a, b] = [...pts.values()];
+    if (b && start.d) { view.z = start.z * (Math.hypot(a[0] - b[0], a[1] - b[1]) / start.d); panMoved = true; }
+    else { const dx = a[0] - start.a[0], dy = a[1] - start.a[1]; if (Math.hypot(dx, dy) > 6) panMoved = true; if (panMoved) { view.x = start.x + dx; view.y = start.y + dy; } }
+    if (panMoved) { closeDetails(); applyView(); drawPins(); }
+  });
+  const end = (e) => { pts.delete(e.pointerId); if (!pts.size) { start = null; setTimeout(() => { panMoved = false; }, 0); } };
+  addEventListener('pointerup', end); addEventListener('pointercancel', end);
+})();
+addEventListener('resize', () => drawPins());
 
 /* ---------- top of the map: filter chips / filter button / your colour ---------- */
 function drawTop() {
@@ -572,7 +669,34 @@ $('panelClose').addEventListener('click', () => document.body.classList.remove('
 const KEEP = ['density', 'cb'];
 const presetOpts = (p) => ({ ...START, ...p.set, density: opt.density, cb: opt.cb });
 const same = (a, b) => OPTIONS.every((o) => KEEP.includes(o.id) || JSON.stringify(a[o.id]) === JSON.stringify(b[o.id]));
-const usePreset = (p) => { opt = presetOpts(p); filterOn = new Set(CATS.map((c) => c.id)); closeDetails(); writeHash(); drawAll(); };
+// Presets people save (team-wide on the experiments site, this device elsewhere)
+let saved = []; // { id, label, set, ideas, by, uid, ts }
+let presetDb = null;
+let savingPreset = false;
+const LOCAL_PRESETS = 'sc-gem-presets';
+const readLocal = () => { try { return JSON.parse(localStorage.getItem(LOCAL_PRESETS) || '[]'); } catch (e) { return []; } };
+const writeLocal = (list) => { try { localStorage.setItem(LOCAL_PRESETS, JSON.stringify(list)); } catch (e) { /* fine */ } };
+function fromDocs(docs) {
+  return docs.map((d) => { try { const v = JSON.parse(d.text); return v.kind === 'preset' && !v.deleted ? { ...v, id: d.id, uid: d.author?.uid } : null; } catch (e) { return null; } })
+    .filter(Boolean).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+}
+saved = readLocal();
+import(`./preset-store.js${V}`).then(({ connect }) => connect('presets:gem-pins', (docs) => { saved = fromDocs(docs); drawPresets(); }, () => {}))
+  .then((db) => { presetDb = db; if (db) drawPresets(); }).catch(() => {});
+function currentSet() { const s = { ...opt }; for (const k of KEEP) delete s[k]; return s; }
+async function savePreset(label, by) {
+  const p = { kind: 'preset', label: label.slice(0, 40), set: currentSet(), ideas: ideas.map((a) => ({ ...a })), by: by.slice(0, 40), ts: Date.now() };
+  if (presetDb) {
+    try { await presetDb.add(JSON.stringify(p), p.by); toast(COPY.savedTeam); } catch (e) { toast(COPY.saveFail); return; }
+  } else { saved = [...saved, { ...p, id: 'l' + p.ts, uid: 'me' }]; writeLocal(saved); toast(COPY.savedLocal); }
+  savingPreset = false; drawPresets();
+}
+async function deletePreset(p) {
+  if (presetDb) { try { await presetDb.update(p.id, JSON.stringify({ ...p, deleted: true, id: undefined, uid: undefined })); } catch (e) { toast(COPY.saveFail); } }
+  else { saved = saved.filter((x) => x.id !== p.id); writeLocal(saved); drawPresets(); }
+}
+const mine = (p) => !presetDb || p.uid === presetDb.uid;
+const usePreset = (p) => { if (p.ideas) ideas = p.ideas.map((a) => ({ ...a })); opt = presetOpts(p); filterOn = new Set(CATS.map((c) => c.id)); closeDetails(); writeHash(); drawAll(); };
 // "Colour = …, Size = …" for a setup, read straight from its options so it can't drift
 const optLabel = (id, v) => OPTIONS.find((o) => o.id === id).opts.find(([k]) => k === v)?.[1] || v;
 function specOf(o) {
@@ -595,7 +719,7 @@ function specOf(o) {
 function drawPresets() {
   const box = $('presets');
   box.replaceChildren();
-  const on = PRESETS.find((p) => same(opt, presetOpts(p)));
+  const on = PRESETS.find((p) => same(opt, presetOpts(p))) || saved.find((p) => same(opt, presetOpts(p)));
   PRESETS.forEach((p, i) => {
     const b = el('button', 'preset');
     b.type = 'button';
@@ -605,12 +729,46 @@ function drawPresets() {
     b.addEventListener('click', () => usePreset(p));
     box.append(b);
   });
+  // saved presets: S1, S2…; your own have × to delete
+  saved.forEach((p, i) => {
+    const b = el('button', 'preset saved');
+    b.type = 'button';
+    b.dataset.saved = p.id;
+    b.setAttribute('aria-pressed', String(on === p));
+    b.append(el('b', null, `S${i + 1}`), p.label);
+    if (mine(p)) { const x = el('i', 'px', '×'); x.title = COPY.deletePreset(p.label); x.addEventListener('click', (e) => { e.stopPropagation(); deletePreset(p); }); b.append(x); }
+    b.addEventListener('click', () => usePreset(p));
+    box.append(b);
+  });
+  if (!savingPreset) {
+    const add = el('button', 'preset add-preset', COPY.savePreset);
+    add.type = 'button'; add.id = 'savePresetBtn';
+    add.addEventListener('click', () => { savingPreset = true; drawPresets(); $('presetNameIn')?.focus(); });
+    box.append(add);
+  } else {
+    const f = el('form', 'save-preset');
+    const n = el('input'); n.id = 'presetNameIn'; n.maxLength = 40; n.placeholder = COPY.presetNamePh; n.setAttribute('aria-label', COPY.presetName);
+    const who = el('input'); who.id = 'presetByIn'; who.maxLength = 40; who.placeholder = COPY.yourName; who.setAttribute('aria-label', COPY.yourName);
+    try { who.value = localStorage.getItem('sc-name') || ''; } catch (e) { /* fine */ }
+    const ok = el('button', 'preset', COPY.save); ok.type = 'submit';
+    const no = el('button', 'preset', COPY.cancel); no.type = 'button';
+    no.addEventListener('click', () => { savingPreset = false; drawPresets(); });
+    f.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!n.value.trim()) { toast(COPY.needPresetName); n.focus(); return; }
+      try { localStorage.setItem('sc-name', who.value.trim()); } catch (err) { /* fine */ }
+      savePreset(n.value.trim(), who.value.trim() || 'Someone');
+    });
+    f.append(n, who, ok, no);
+    box.append(f);
+  }
   const what = $('presetWhat');
   what.replaceChildren();
   if (on) {
     const dl = el('dl', 'p-spec');
     for (const [k, v] of specOf(presetOpts(on))) dl.append(el('dt', null, k), el('dd', null, v));
-    what.append(el('span', 'p-desc', on.desc), el('b', 'p-tests', COPY.tests + on.tests), dl);
+    if (on.kind === 'preset') what.append(el('span', 'p-desc', COPY.savedBy(on.by, on.ts ? new Date(on.ts).toLocaleDateString('en', { month: 'short', day: 'numeric' }) : '')), dl);
+    else what.append(el('span', 'p-desc', on.desc), el('b', 'p-tests', COPY.tests + on.tests), dl);
   }
   else what.textContent = COPY.custom;
   // run it at 10 / 40 / 100 gems and with the colour-blind view

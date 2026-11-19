@@ -46,6 +46,11 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 .preset b { font-size: 11px; color: var(--glow); opacity: 0.8; }
 .preset[aria-pressed="true"] { background: linear-gradient(90deg, #6a2fc4, #b36bff); border-color: transparent; color: #fff; box-shadow: 0 0 12px -4px rgba(179, 107, 255, 0.9); }
 .preset[aria-pressed="true"] b { color: #fff; }
+.preset.saved { border-style: dashed; border-color: rgba(196, 155, 255, 0.6); }
+.preset .px { font-style: normal; font-size: 14px; opacity: 0.75; padding-left: 2px; }
+.preset.add-preset { border-style: dashed; color: var(--glow); }
+.save-preset { display: flex; flex-wrap: wrap; gap: 5px; width: 100%; }
+.save-preset input { flex: 1 1 120px; min-width: 0; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--glow); background: #1b1140; color: var(--text); font: 600 13px var(--f-ui); }
 .preset .star { color: #ffc448; font-size: 11px; }
 .preset.small { min-height: 28px; padding: 0 9px; }
 .try-at { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 8px; }
@@ -254,3 +259,14 @@ body.cb-rg .phone { filter: url(#deutan); }
 .peek-text b { font: 800 19px/1.05 var(--f-app); }
 .peek-text .muted { font-size: 15px; }
 .peek-text .more { margin-top: auto; font: 700 15px/1 var(--f-app); color: var(--accent); }
+
+/* zoom + grouped gems (option 24) */
+.map { transform-origin: 50% 50%; will-change: transform; }
+.screen { touch-action: none; overflow: hidden; }
+.pins { overflow: hidden; }
+.pin { z-index: 1; }
+.zoom { position: absolute; right: 12px; top: 50%; z-index: 8; transform: translateY(-50%); display: grid; gap: 6px; }
+.zbtn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.25); background: #1b1140; font: 600 22px/1 var(--f-ui); display: grid; place-items: center; padding: 0 0 2px; }
+.zbtn:disabled { opacity: 0.35; }
+.pin.cluster svg { filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35)); }
+.count-badge { position: absolute; right: -2px; top: -4px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #fff; color: #170c35; font: 800 13px/22px var(--f-ui); text-align: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); pointer-events: none; }
