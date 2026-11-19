@@ -218,7 +218,7 @@ const ELEMENT_DEFS = [
     id: 'badge-appear',
     title: 'Badge appear',
     source: 'AnimatedBadge · EndStory fade · Tales achievements',
-    ux: 'When: end-story / celebration. Fade in, then badges bounce staggered. Art = Tales from the Incident rewards (production GraphQL). Unearned = grey mask. Full set: assets/badges/tales/. Try: Play appear.',
+    ux: 'When: end-story / celebration. Fade in, then badges bounce staggered. Art = 4 Tales from the Incident rewards (production GraphQL). Unearned = grey mask. Try: Play appear.',
     stage: 'badges',
     mount: mountBadgeAppear,
   },
