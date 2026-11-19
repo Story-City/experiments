@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v54 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v55 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -1784,22 +1784,14 @@ async function playLikesBanner(opts = {}) {
   likesShine.classList.add('is-on');
   likesCopy.classList.add('is-on');
   if (stackOn && likesJamCard && likesJamCardB) {
-    /* daily-side-quests stack: back peeks, front noteDrops, then shuffle */
+    /* one drop: under already peeking gem corner, front noteDrops once */
     likesJamCardB.classList.add('is-back');
     likesJamCard.classList.add('is-front');
     void likesJamCard.offsetWidth;
     likesJamCard.classList.add('is-enter');
     await wait(CARD_IN_MS);
     likesJamCard.classList.add('is-impact');
-    await wait(HOLD_AFTER_SHINE_MS);
-    likesJamCard.classList.remove('is-enter', 'is-front', 'is-impact');
-    likesJamCardB.classList.remove('is-back');
-    void likesJamCard.offsetWidth;
-    likesJamCard.classList.add('is-peek-out');
-    likesJamCardB.classList.add('is-front', 'is-shuffle');
-    await wait(LIKES_STACK_SHUFFLE_MS);
-    likesJamCardB.classList.add('is-impact');
-    await wait(SHINE_MS);
+    await wait(SHINE_MS + HOLD_AFTER_SHINE_MS);
   } else {
     likesJamCard.classList.add('is-in');
     await wait(CARD_IN_MS);
