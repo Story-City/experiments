@@ -84,7 +84,7 @@ export const HOME = {
   chip: 'Your map',
   title: 'Your neighbourhood',
   week: (walks, gems) => `This week: ${walks} walks · ${gems} gem${gems === 1 ? '' : 's'} found`,
-  hint: 'The fog is thinnest by Maple Park. Something amber is glowing there.',
+  hint: 'The fog is thinnest by Maple Park. Something golden is glowing there.',
   nearLabel: 'Stories near you',
   wander: '▶ Go for a Wander',
   pause: 'Pause',
@@ -126,6 +126,10 @@ export const VOTE = {
   by: (names) => `Picked by ${names}`,
   notesTitle: 'Notes from the team',
   back: '‹ Back to the Map',
+  prev: 'Previous look',
+  next: 'Next look',
+  count: (i, n) => `${i} of ${n}`,
+  jumpTo: (letter, name) => `Look ${letter}: ${name}`,
   demo: 'Vote on Looks',
 };
 

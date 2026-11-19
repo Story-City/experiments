@@ -1,5 +1,5 @@
-// Team vote on the fog looks. Each look gets a letter (A–F) and a small preview: the real fog look
-// painted over the mockup's map, with one walk's trail cleared. Tap a favourite, thumbs-down any you'd
+// Team vote on the fog looks. A gallery, one look at a time at full phone size (swipe, arrows or the
+// letters A–F): the real fog look painted over the app-coloured map, with one walk's trail cleared. Tap a favourite, thumbs-down any you'd
 // never want. Votes save as you tap and everyone sees the live tally.
 //
 // Votes are saved by poll-store.js (the experiments hub's database). Opened outside the experiments
@@ -9,12 +9,13 @@ const V = window.CACHE_V || '';
 const { LOOKS } = await import(`./fog-looks.js${V}`);
 const { VOTE } = await import(`./copy.js${V}`);
 const { connect } = await import(`./poll-store.js${V}`);
+const { GEM_COLORS, drawGem } = await import(`./gems.js${V}`); // Victoria's gems
 
 const SLUG = 'poll:fog-looks';
 const KEY = 'sc-fog-vote';
 const W = 390;
 const H = 640;
-const CROP = { y: 60, h: 400 }; // the part of the map each preview shows
+const CROP = { y: 0, h: 640 }; // each preview shows the whole phone-sized map
 const LETTERS = 'ABCDEFGH';
 const KEYS = Object.keys(LOOKS);
 const letterOf = (k) => LETTERS[KEYS.indexOf(k)];
@@ -39,12 +40,12 @@ const XS = [0, 40, 120, 195, 280, 360, 390];
 const YS = [0, 90, 160, 230, 300, 380, 470, 560, 640];
 const TRAIL = [[195, 380], [195, 300], [120, 300], [120, 230], [120, 160], [195, 160], [195, 90], [280, 90]];
 function drawMap(g) {
-  g.fillStyle = '#170c35';
+  g.fillStyle = '#1e2d4c';
   g.fillRect(0, 0, W, H);
   for (let i = 0; i < XS.length - 1; i++) {
     for (let j = 0; j < YS.length - 1; j++) {
       const park = (i === 4 && j === 1) || (i === 1 && j === 5);
-      g.fillStyle = park ? '#1f3a3a' : '#241b46';
+      g.fillStyle = park ? '#073f57' : '#22345a';
       const w = Math.max(0, XS[i + 1] - XS[i] - 16);
       const h = Math.max(0, YS[j + 1] - YS[j] - 16);
       g.beginPath();
@@ -52,11 +53,8 @@ function drawMap(g) {
       g.fill();
     }
   }
-  g.strokeStyle = '#3a2f66';
-  for (const x of XS.slice(1, -1)) { g.lineWidth = x === 195 ? 22 : 14; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
-  for (const y of YS.slice(1, -1)) { g.lineWidth = y === 300 ? 22 : 14; g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
-  g.fillStyle = '#2d6b4a';
-  for (const [x, y] of [[300, 110], [330, 130], [312, 145], [345, 112]]) { g.beginPath(); g.arc(x, y, 9, 0, Math.PI * 2); g.fill(); }
+  for (const x of XS.slice(1, -1)) { g.strokeStyle = x === 195 ? '#2f6673' : '#314c7d'; g.lineWidth = x === 195 ? 22 : 14; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+  for (const y of YS.slice(1, -1)) { g.strokeStyle = y === 300 ? '#2f6673' : '#314c7d'; g.lineWidth = y === 300 ? 22 : 14; g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
 }
 const mapLayer = document.createElement('canvas');
 mapLayer.width = W; mapLayer.height = H;
@@ -97,10 +95,16 @@ function paint(canvas, k, t) {
   g.setTransform(s, 0, 0, s, 0, -CROP.y * s);
   g.drawImage(mapLayer, 0, 0);
   g.drawImage(fog, 0, 0);
-  g.save();
-  g.shadowColor = '#00cd9d'; g.shadowBlur = 14; g.fillStyle = '#00cd9d';
-  g.beginPath(); g.moveTo(282, 191); g.lineTo(290, 198); g.lineTo(282, 209); g.lineTo(274, 198); g.closePath(); g.fill();
+  // Victoria's gems: a topaz in the cleared trail, a hidden gem glowing through the fog
+  g.save(); g.shadowColor = GEM_COLORS.topaz; g.shadowBlur = 16;
+  drawGem(g, 'topaz', 282, 200, 24);
   g.restore();
+  g.save(); g.globalAlpha = 0.5; g.filter = 'blur(3px)'; g.shadowColor = GEM_COLORS.hidden; g.shadowBlur = 18;
+  drawGem(g, 'hidden', 255, 470, 22);
+  g.restore();
+  // you, at the end of the walk (the app's blue dot)
+  g.fillStyle = '#fff'; g.beginPath(); g.arc(280, 90, 11, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#007aff'; g.beginPath(); g.arc(280, 90, 7, 0, Math.PI * 2); g.fill();
 }
 
 /* ---------- page ---------- */
@@ -125,7 +129,9 @@ for (const k of KEYS) {
   thumb.setAttribute('role', 'img');
   thumb.setAttribute('aria-label', `${letterOf(k)}: ${L.name}. ${L.what}`);
   const head = el('div', 'head');
-  head.append(el('span', 'letter', letterOf(k)), el('b', 'name', L.name));
+  head.append(el('span', 'letter', letterOf(k)), el('b', 'name', L.name), el('span', 'count', VOTE.count(KEYS.indexOf(k) + 1, KEYS.length)));
+  li.setAttribute('aria-roledescription', 'slide');
+  li.setAttribute('aria-label', VOTE.jumpTo(letterOf(k), L.name));
   const what = el('p', 'what', L.what);
   const pick = el('button', 'pick', VOTE.pick);
   pick.type = 'button';
@@ -139,18 +145,54 @@ for (const k of KEYS) {
   const tally = el('p', 'tally');
   li.append(thumb, head, what, row, tally, see);
   $('looks').append(li);
-  cards[k] = { li, thumb, pick, down, tally };
+  const jump = el('button', null, letterOf(k));
+  jump.type = 'button';
+  jump.setAttribute('aria-label', VOTE.jumpTo(letterOf(k), L.name));
+  jump.addEventListener('click', () => show(KEYS.indexOf(k)));
+  $('jump').append(jump);
+  cards[k] = { li, thumb, pick, down, tally, jump };
   pick.addEventListener('click', () => vote({ pick: mine.pick === k ? '' : k, down: mine.down.filter((x) => x !== k) }));
   down.addEventListener('click', () => {
     const isDown = mine.down.includes(k);
     vote({ down: isDown ? mine.down.filter((x) => x !== k) : [...mine.down, k], pick: !isDown && mine.pick === k ? '' : mine.pick });
   });
-  thumb.addEventListener('click', () => { active = k; });
 }
 
-// Size the previews to their cards; repaint still frames, and keep one look moving at a time.
+/* ---------- gallery: one look at a time ---------- */
+const track = $('looks');
+let current = Math.max(0, KEYS.indexOf(mine.pick));
+let active = KEYS[current]; // the look on screen is the one that moves
+function show(i, smooth = true) {
+  current = Math.max(0, Math.min(KEYS.length - 1, i));
+  track.scrollTo({ left: current * track.clientWidth, behavior: smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto' });
+  onSlide();
+}
+function onSlide() {
+  active = KEYS[current];
+  KEYS.forEach((k, i) => cards[k].jump.setAttribute('aria-current', String(i === current)));
+  $('prev').disabled = current === 0;
+  $('next').disabled = current === KEYS.length - 1;
+}
+let scrollTimer = 0;
+track.addEventListener('scroll', () => {
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(() => {
+    const i = Math.round(track.scrollLeft / track.clientWidth);
+    if (i !== current) { current = i; onSlide(); }
+  }, 60);
+});
+$('prev').setAttribute('aria-label', VOTE.prev);
+$('next').setAttribute('aria-label', VOTE.next);
+$('prev').addEventListener('click', () => show(current - 1));
+$('next').addEventListener('click', () => show(current + 1));
+$('gallery').addEventListener('keydown', (e) => {
+  if (e.target.matches('input, textarea')) return;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); show(current + 1); }
+});
+
+// Size the previews to the gallery; repaint still frames, and keep the look on screen moving.
 const t0 = performance.now();
-let active = mine.pick || '';
 function sizeThumbs() {
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   for (const k of KEYS) {
@@ -169,8 +211,9 @@ function loop(now) {
   }
   requestAnimationFrame(loop);
 }
-addEventListener('resize', sizeThumbs);
+addEventListener('resize', () => { sizeThumbs(); show(current, false); });
 sizeThumbs();
+show(current, false);
 requestAnimationFrame(loop);
 
 /* ---------- voting ---------- */
@@ -193,7 +236,7 @@ function vote(patch) {
   }
   $('you').classList.remove('need');
   mine = { ...mine, ...patch, name };
-  if (patch.pick) active = patch.pick;
+  if (patch.pick && KEYS.indexOf(patch.pick) !== current) show(KEYS.indexOf(patch.pick));
   keepLocal();
   render();
   save();
@@ -237,6 +280,8 @@ function render() {
     const isDown = mine.down.includes(k);
     c.li.classList.toggle('mine', isPick);
     c.li.classList.toggle('disliked', isDown);
+    c.jump.classList.toggle('mine', isPick);
+    c.jump.classList.toggle('disliked', isDown);
     setText(c.pick, isPick ? VOTE.picked : VOTE.pick);
     c.pick.setAttribute('aria-pressed', String(isPick));
     c.down.setAttribute('aria-pressed', String(isDown));

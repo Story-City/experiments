@@ -38,7 +38,56 @@ document.title = `${entry.title} · Story City`;
 $('title').textContent = entry.title;
 const startPath = params.get('u') || entry.path;
 frame.src = new URL(startPath, root).href;
-$('direct').href = new URL(entry.path, root).href;
+$('direct').href = new URL(startPath, root).href;
+
+// "tabs": [{ label, path }] in experiments.json: an experiment's pages as tabs on the right
+// (top of the comments panel; in the top bar on phones). The tab follows the page, even when
+// the page links to another one.
+const tabs = Array.isArray(entry.tabs) ? entry.tabs.filter(t => t?.label && t?.path) : [];
+const bare = p => norm(p).replace(/[?#].*$/, '');
+function tabFor(url) {
+  const here = bare(url);
+  return tabs.find(t => bare(t.path) === here)
+    || [...tabs].sort((a, b) => bare(b.path).length - bare(a.path).length).find(t => here.startsWith(bare(t.path)))
+    || null;
+}
+function markTab() {
+  const on = tabFor(frameUrl());
+  document.querySelectorAll('[data-tabs] button').forEach(b => {
+    const isOn = !!on && b.dataset.path === on.path;
+    b.setAttribute('aria-selected', String(isOn));
+    b.tabIndex = isOn ? 0 : -1;
+  });
+}
+if (tabs.length > 1) {
+  for (const nav of document.querySelectorAll('[data-tabs]')) {
+    nav.setAttribute('role', 'tablist');
+    for (const t of tabs) {
+      const b = el('button', null, t.label);
+      b.type = 'button';
+      b.setAttribute('role', 'tab');
+      b.dataset.path = t.path;
+      b.addEventListener('click', () => {
+        frame.src = new URL(t.path, root).href;
+        $('direct').href = frame.src;
+        const q = new URLSearchParams(location.search);
+        if (t.path === entry.path) q.delete('u'); else q.set('u', t.path);
+        history.replaceState(null, '', `${location.pathname}?${q}`);
+        document.body.classList.remove('open');
+      });
+      nav.append(b);
+    }
+    nav.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const bs = [...nav.querySelectorAll('button')];
+      const i = bs.findIndex(b => b.getAttribute('aria-selected') === 'true');
+      const n = bs[(i + (e.key === 'ArrowRight' ? 1 : bs.length - 1)) % bs.length];
+      n.click(); n.focus();
+    });
+    nav.hidden = false;
+  }
+  markTab();
+}
 
 if (task?.status) {
   $('status').textContent = task.status;
@@ -371,7 +420,7 @@ $('close').addEventListener('click', () => document.body.classList.remove('open'
 let lastUrl = '';
 const poll = () => {
   const u = frameUrl();
-  if (u !== lastUrl) { lastUrl = u; render(); }
+  if (u !== lastUrl) { lastUrl = u; render(); if (tabs.length > 1) markTab(); }
 };
 frame.addEventListener('load', poll);
 setInterval(poll, 500);

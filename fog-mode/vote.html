@@ -26,9 +26,17 @@ document.write(`<link rel="stylesheet" href="vote.css${CACHE_V}">`);
   </div>
   <p class="status" id="status" role="status"></p>
 
-  <section class="results" id="results" aria-live="polite"></section>
+  <!-- one look at a time, full size: swipe, tap the arrows, or jump with the letters -->
+  <section class="gallery" id="gallery" aria-roledescription="carousel" aria-label="Fog looks">
+    <div class="jump" id="jump" role="group" aria-label="Jump to a look"></div>
+    <div class="stage">
+      <ul class="looks" id="looks"></ul>
+      <button class="arrow prev" id="prev" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="arrow next" id="next" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+  </section>
 
-  <ul class="looks" id="looks"></ul>
+  <section class="results" id="results" aria-live="polite"></section>
 
   <div class="note">
     <label for="note" id="noteLabel"></label>

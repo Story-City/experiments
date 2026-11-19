@@ -8,6 +8,8 @@ Cards are text only (title, one-line description, author and date); there are no
 
 Entry fields: `slug` (unique, used in `view.html?e=<slug>`), `path` (folder URL including any `?v=`), `title`, `what`, `author` (`brett`, `melissa`), `authorName`, `date` (`YYYY-MM`), `category` (optional: `"poll"` puts the card on the Polls tab; `index.html?tab=polls` opens that tab), `archived`, `notionPageId`, `jira`, and for a new experiment `draft: true` plus `reviewer` (the person who asked for it). Drafts show on the Drafts tab (`index.html?tab=drafts`), tagged "Draft · waiting for <reviewer>"; approving means deleting both fields, which moves the card to Experiments. Leave `notionPageId` null for a new experiment; the sync creates its Notion task.
 
+An experiment with more than one page can list them as `tabs`: `[{ "label": "Mockup", "path": "<slug>/" }, { "label": "Vote", "path": "<slug>/vote.html" }]`. The viewer shows them as tabs on the right (top of the comments panel; in the top bar on phones), and the tab follows the page when a link inside it opens another page.
+
 Once a feature ships, add `live`: `{ "since": "YYYY-MM", "shots": ["<slug>/live/1.png", "<slug>/live/2.mp4"], "note": "Shipped: …" }`. The card then shows up to two little phone-shaped snippets of the real app (screenshots, or short muted looping clips as .mp4/.webm, portrait, under ~1 MB each) with a green "Live in the app" badge and the note. Put the files in the experiment's own `live/` folder. Use real app captures only, not the mockup.
 
 The author colour comes from `--author-<key>` in `theme.css`; add a token and a matching CSS rule in `index.html` for a new author. Filter chips build themselves from the entries. Set `archived: true` once something newer replaces it.

@@ -4,6 +4,7 @@
 // Walk / Pin / Hunt reuse the map-modes mockup; every mode clears fog.
 
 const { MODES, COPY } = await import(`./copy.js${window.CACHE_V || ''}`);
+const { GEM_COLORS, gemMarkup, gemGhostMarkup } = await import(`./gems.js${window.CACHE_V || ''}`); // Victoria's gems
 
 const params = new URLSearchParams(location.search + location.hash.replace('#', '&'));
 
@@ -26,13 +27,13 @@ const PINS = [
 ];
 // Things on the map. Gems glow through the fog in their own colour; stories hide under it.
 const HIDDEN = [
-  { at: [120, 250], kind: 'gem', color: '#3ddc84' }, // emerald (nature)
-  { at: [282, 200], kind: 'gem', color: '#ffb347' }, // amber (landmark)
+  { at: [120, 250], kind: 'gem', rarity: 'aquamarine' },
+  { at: [282, 200], kind: 'gem', rarity: 'topaz' },
   { at: [48, 175], kind: 'story' },
   { at: [352, 330], kind: 'story' },
   { at: [110, 540], kind: 'story' },
-  { at: [255, 470], kind: 'gem', color: '#33c7d1' }, // turquoise (art)
-];
+  { at: [255, 470], kind: 'gem', rarity: 'hidden' },
+].map((h) => (h.kind === 'gem' ? { ...h, color: GEM_COLORS[h.rarity] } : h));
 const CLOCK = [195, 90];
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -88,7 +89,7 @@ const poly = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[
 const hiddenEls = HIDDEN.map((h) => {
   const g = el('g', { transform: `translate(${h.at[0]} ${h.at[1]})`, class: h.kind }, svg);
   if (h.kind === 'story') { el('circle', { r: 11 }, g); el('path', { d: 'M-5 -4 h4 a2 2 0 0 1 1 1 v8 a2 2 0 0 0 -1 -1 h-4z M5 -4 h-4 a2 2 0 0 0 -1 1 v8 a2 2 0 0 1 1 -1 h4z' }, g); }
-  else el('path', { d: 'M0 -9 l8 7 -8 11 -8 -11z', style: `fill:${h.color}` }, g);
+  else g.innerHTML = gemMarkup(h.rarity);
   return { ...h, found: false, g };
 });
 
@@ -230,7 +231,7 @@ function drawGlints() {
     // know something's there before you can see what it is
     const g = el('g', { class: 'fog-gem', transform: `translate(${h.at[0]} ${h.at[1]})`, style: `color:${h.color}` }, glints);
     el('circle', { r: 15, class: 'fog-gem-glow' }, g);
-    el('path', { d: 'M0 -9 l8 7 -8 11 -8 -11z', class: 'fog-gem-ghost' }, g);
+    el('g', { class: 'fog-gem-ghost' }, g).innerHTML = gemGhostMarkup();
   });
 }
 
@@ -465,7 +466,7 @@ function checkFinds() {
     h.found = true;
     h.g.classList.add('found');
     toast(h.kind === 'gem' ? COPY.gemFound : COPY.storyFound);
-    sparkle(h.at, h.kind === 'gem' ? css('--gem') : css('--story'));
+    sparkle(h.at, h.kind === 'gem' ? h.color : css('--story'));
   });
   drawGlints();
 }

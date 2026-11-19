@@ -5,6 +5,7 @@
 
 const { COPY, HOME, STORIES } = await import(`./copy.js${window.CACHE_V || ''}`);
 const { LOOKS } = await import(`./fog-looks.js${window.CACHE_V || ''}`);
+const { GEM_COLORS, gemMarkup, gemGhostMarkup } = await import(`./gems.js${window.CACHE_V || ''}`); // Victoria's gems
 
 const params = new URLSearchParams(location.search);
 const W = 390;
@@ -22,10 +23,10 @@ const HISTORY = [
 // Where "Go for a Wander" goes: a loop out east past Maple Park and back.
 const WANDER = [[195, 380], [280, 380], [280, 230], [280, 160], [360, 160], [360, 380], [280, 380], [195, 380]];
 const GEMS = [
-  { at: [120, 250], color: '#00CD9D', found: true }, // emerald, found earlier this week
-  { at: [282, 200], color: '#ED8D00' }, // amber, by Maple Park
-  { at: [255, 470], color: '#35C6D7' }, // turquoise
-];
+  { at: [120, 250], rarity: 'aquamarine', found: true }, // found earlier this week
+  { at: [282, 200], rarity: 'topaz' }, // by Maple Park
+  { at: [255, 470], rarity: 'hidden' },
+].map((g) => ({ ...g, color: GEM_COLORS[g.rarity] }));
 
 const NS = 'http://www.w3.org/2000/svg';
 const $ = (id) => document.getElementById(id);
@@ -69,7 +70,7 @@ function pointAt(pts, d) {
 })();
 const gemEls = GEMS.map((g) => {
   const n = el('g', { transform: `translate(${g.at[0]} ${g.at[1]})`, class: 'gem' }, svg);
-  el('path', { d: 'M0 -9 l8 7 -8 11 -8 -11z', style: `fill:${g.color}` }, n);
+  n.innerHTML = gemMarkup(g.rarity);
   return { ...g, found: !!g.found, n };
 });
 
@@ -200,7 +201,7 @@ function drawGlints() {
   gemEls.filter((g) => !g.found).forEach((g) => {
     const n = el('g', { class: 'fog-gem', transform: `translate(${g.at[0]} ${g.at[1]})`, style: `color:${g.color}` }, glints);
     el('circle', { r: 15, class: 'fog-gem-glow' }, n);
-    el('path', { d: 'M0 -9 l8 7 -8 11 -8 -11z', class: 'fog-gem-ghost' }, n);
+    el('g', { class: 'fog-gem-ghost' }, n).innerHTML = gemGhostMarkup();
   });
 }
 const BOOK = 'M-5 -4 h4 a2 2 0 0 1 1 1 v8 a2 2 0 0 0 -1 -1 h-4z M5 -4 h-4 a2 2 0 0 0 -1 1 v8 a2 2 0 0 1 1 -1 h4z';

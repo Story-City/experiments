@@ -39,7 +39,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .pin-label { fill: var(--text); font-size: 12px; paint-order: stroke; stroke: var(--bg); stroke-width: 4px; }
 .story circle { fill: var(--raised); stroke: var(--story); stroke-width: 2; }
 .story path { fill: none; stroke: var(--story); stroke-width: 1.6; }
-.gem path { fill: var(--gem); opacity: 0.85; }
+/* gems are Victoria's art (gems.js), drawn in their own colours */
 .dest circle { fill: var(--raised); stroke: var(--text); stroke-width: 2; stroke-dasharray: 3 3; }
 .dest path { fill: none; stroke: var(--text); stroke-width: 2; stroke-linecap: round; }
 .me .dot { fill: var(--text); stroke: var(--accent); stroke-width: 4; }

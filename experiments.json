@@ -186,6 +186,10 @@
   {
     "slug": "fog-mode",
     "path": "fog-mode/",
+    "tabs": [
+      { "label": "Mockup", "path": "fog-mode/" },
+      { "label": "Vote", "path": "fog-mode/vote.html" }
+    ],
     "title": "Fog mode: walking clears the map",
     "what": "The map starts in fog and walking clears it. Two views (switch inside): the chapter map as it looks in the app, or your home map filling in over the week. Vote on your favourite fog look inside.",
     "author": "melissa",
