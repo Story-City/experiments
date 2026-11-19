@@ -39,6 +39,14 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 .panel-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .btn { height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-weight: 700; font-size: 14px; white-space: nowrap; }
 .btn.ghost:hover { border-color: var(--glow); }
+.presets-wrap { margin: 0 0 12px; padding: 10px; border-radius: 14px; background: var(--surface); }
+.presets-title { margin: 0 0 7px; font-weight: 700; font-size: 14px; }
+.presets { display: flex; flex-wrap: wrap; gap: 5px; }
+.preset { min-height: 30px; max-height: 34px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.preset b { font-size: 11px; color: var(--glow); opacity: 0.8; }
+.preset[aria-pressed="true"] { background: linear-gradient(90deg, #6a2fc4, #b36bff); border-color: transparent; color: #fff; box-shadow: 0 0 12px -4px rgba(179, 107, 255, 0.9); }
+.preset[aria-pressed="true"] b { color: #fff; }
+.preset-what { margin: 7px 0 0; font-size: 12px; color: var(--muted); min-height: 2.6em; text-wrap: pretty; }
 .opts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .opt { padding: 10px; border-radius: 14px; background: var(--surface); }
 .opt.idle { opacity: 0.6; }

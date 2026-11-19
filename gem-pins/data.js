@@ -53,6 +53,19 @@ export const OPTIONS = [
   { id: 'cb', n: 15, label: 'Colour-blind view', start: 'off', opts: [['off', 'Off'], ['rg', 'Red-green simulation']] },
 ];
 
+// Preset combos: each sets all 15 options (anything not listed stays on "Start with").
+// Numbers in `what` match the options panel, so "P3" + "6B" is easy to say in a meeting.
+export const PRESETS = [
+  { id: 'start', label: 'Thread start', what: 'The thread’s “Start with” column.', set: {} },
+  { id: 'mine', label: 'Mine stands out', what: 'Yours in your colour with a frame (dashed = private), liked gems in pink, everyone else quiet.', set: { colour: 'whose', others: 'quiet', mine: 'dashed', liked: 'colour' } },
+  { id: 'rarity', label: 'Rarity first', what: 'Colour = rarity (Victoria’s moonstone / aquamarine / topaz) plus glow; yours get a lock badge when private.', set: { colour: 'rarity', rarityBy: 'glow', mine: 'lock', liked: 'heart', others: 'full' } },
+  { id: 'category', label: 'Category map', what: 'Colour and shape both show the category; rarity is glow only; yours get a frame.', set: { colour: 'category', shape: 'category', rarityBy: 'glow', mine: 'dashed', liked: 'ring', others: 'full' } },
+  { id: 'collector', label: 'Collector’s colours', what: 'Everyone’s gems in the colour they picked, all colours free, shown to everyone.', set: { colour: 'picked', pick: 'free', sees: 'all', others: 'full', liked: 'ring' } },
+  { id: 'minimal', label: 'Minimal', what: 'Two rarity levels by size only, smaller sizes, lock badge, no filter.', set: { rarityBy: 'size', levels: '2', sizes: '22-26-30', mine: 'lock', filter: 'none' } },
+  { id: 'busy', label: 'Busy downtown', what: 'Category map at 100 gems with the filter sheet: does it still read?', set: { colour: 'category', shape: 'category', rarityBy: 'glow', mine: 'dashed', filter: 'sheet', density: '100', others: 'full' } },
+  { id: 'cb', label: 'Colour-blind check', what: 'Category colours through a red-green simulation.', set: { colour: 'category', rarityBy: 'sizeGlow', cb: 'rg', others: 'full' } },
+];
+
 // Notes shown under an option when another option makes it do nothing.
 export const NOTES = {
   colourTaken: 'Colour is showing rarity (3D), so this has no effect right now.',
@@ -67,6 +80,8 @@ export const COPY = {
   title: 'Gem map pins',
   lead: 'Find the clearest way to show who a gem belongs to, how rare it is, and its categories. Letters let you say which you mean (“3B”).',
   reset: 'Back to Start',
+  presets: 'Preset combos',
+  custom: 'Your own mix: change any option below, or pick a preset.',
   share: 'Copy link to this setup',
   copied: 'Link copied',
   options: 'Options',

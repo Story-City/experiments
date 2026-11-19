@@ -4,7 +4,7 @@
 const V = window.CACHE_V || '';
 const D = await import(`./data.js${V}`);
 const { pinSvg } = await import(`./gems.js${V}`);
-const { CATS, RARITY, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES } = D;
+const { CATS, RARITY, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS } = D;
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
@@ -346,13 +346,34 @@ $('optionsBtn').addEventListener('click', () => document.body.classList.add('pan
 $('panelClose').addEventListener('click', () => document.body.classList.remove('panel-open'));
 
 /* ---------- everything ---------- */
+/* ---------- preset combos ---------- */
+const presetOpts = (p) => ({ ...START, ...p.set });
+const same = (a, b) => OPTIONS.every((o) => JSON.stringify(a[o.id]) === JSON.stringify(b[o.id]));
+function drawPresets() {
+  const box = $('presets');
+  box.replaceChildren();
+  let on = null;
+  PRESETS.forEach((p, i) => {
+    const b = el('button', 'preset');
+    b.type = 'button';
+    const match = same(opt, presetOpts(p));
+    if (match && !on) on = p;
+    b.setAttribute('aria-pressed', String(match && on === p));
+    b.append(el('b', null, `P${i + 1}`), p.label);
+    b.addEventListener('click', () => { opt = presetOpts(p); filterOn = new Set(CATS.map((c) => c.id)); writeHash(); drawAll(); });
+    box.append(b);
+  });
+  $('presetWhat').textContent = on ? on.what : COPY.custom;
+}
+
 function drawAll() {
   document.body.classList.toggle('cb-rg', opt.cb === 'rg');
   drawTop();
   drawPins();
   drawKey();
   drawPanel();
+  drawPresets();
 }
-for (const [id, text] of [['kicker', COPY.kicker], ['title', COPY.title], ['lead', COPY.lead], ['resetBtn', COPY.reset], ['shareBtn', COPY.share], ['optionsBtn', COPY.options], ['panelClose', COPY.close], ['mapTitle', COPY.mapTitle], ['keyLabel', COPY.key]]) $(id).textContent = text;
+for (const [id, text] of [['kicker', COPY.kicker], ['title', COPY.title], ['lead', COPY.lead], ['resetBtn', COPY.reset], ['shareBtn', COPY.share], ['optionsBtn', COPY.options], ['panelClose', COPY.close], ['mapTitle', COPY.mapTitle], ['keyLabel', COPY.key], ['presetsTitle', COPY.presets]]) $(id).textContent = text;
 addEventListener('hashchange', () => { readHash(); drawAll(); });
 drawAll();
