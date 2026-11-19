@@ -4,7 +4,7 @@
 const V = window.CACHE_V || '';
 const D = await import(`./data.js${V}`);
 const { pinSvg } = await import(`./gems.js${V}`);
-const { CATS, RARITY, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS } = D;
+const { CATS, RARITY, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS, PHOTOS } = D;
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
@@ -131,6 +131,7 @@ function pinFor(g, overrides = {}) {
     ringColour: fill,
     lock: mineStyle === 'lock' && g.private,
     heart: g.liked && opt.liked === 'heart',
+    outline: g.liked && opt.liked === 'outline' ? D.LOVE : null,
     double: g.liked && opt.liked === 'ring',
     loveColour: D.LOVE,
     glow: glowOf(g),
@@ -216,33 +217,135 @@ function openSheet(build) {
 function closeSheet() { sheet.hidden = true; $('scrim').hidden = true; }
 $('scrim').addEventListener('click', closeSheet);
 
+/* ---------- gem details: four ways (option 18) ---------- */
+const photoOf = (g) => PHOTOS[g.id % PHOTOS.length];
+const whoLine = (g) => (g.mine ? `${COPY.yours} · ${g.private ? COPY.private : COPY.public}` : COPY.by(g.owner));
+function tagRow(g) {
+  const tags = el('div', 'tags');
+  const rc = el('span', 'tag rarity', RARITY[rarityOf(g)].label);
+  rc.style.setProperty('--c', RARITY[rarityOf(g)].colour);
+  tags.append(rc);
+  for (const id of tagsOf(g)) { const c = catOf(id); const x = el('span', 'tag', c.label); x.style.setProperty('--c', c.colour); tags.append(x); }
+  return tags;
+}
+function actionRow(g, reopen = openGem) {
+  const row = el('div', 'gem-row');
+  row.append(el('span', 'muted', `${COPY.likes(g.likes + (g.liked ? 1 : 0))} · ${g.mine || g.visited ? COPY.visited : COPY.notVisited}`));
+  const btns = el('div', 'gem-btns');
+  if (!g.mine && !g.visited) {
+    const mv = el('button', 'btn', COPY.markVisited);
+    mv.addEventListener('click', () => { g.visited = true; drawAll(); reopen(g); });
+    btns.append(mv);
+  }
+  if (!g.mine) {
+    const like = el('button', 'btn like', g.liked ? `♥ ${COPY.unlike}` : `♡ ${COPY.like}`);
+    like.setAttribute('aria-pressed', String(g.liked));
+    like.addEventListener('click', () => { g.liked = !g.liked; drawAll(); reopen(g); });
+    btns.append(like);
+  }
+  row.append(btns);
+  return row;
+}
+function closeDetails() {
+  for (const id of ['pop', 'full', 'peek', 'catch']) $(id).hidden = true;
+  document.querySelectorAll('.pin.selected').forEach((p) => p.classList.remove('selected'));
+}
+$('catch').addEventListener('click', closeDetails);
+function selectPin(g) {
+  document.querySelectorAll('.pin.selected').forEach((p) => p.classList.remove('selected'));
+  document.querySelector(`.pin[data-id="${g.id}"]`)?.classList.add('selected');
+}
+const closeBtn = (cls = 'x') => { const b = el('button', cls, '×'); b.type = 'button'; b.setAttribute('aria-label', COPY.close); b.addEventListener('click', closeDetails); return b; };
+
 function openGem(g) {
+  closeDetails();
+  if (opt.details === 'pop') return openPop(g);
+  if (opt.details === 'full') return openFull(g);
+  if (opt.details === 'peek') return openPeek(g);
+  openSheetGem(g);
+}
+
+// B: a small card right by the gem, pointing at it
+function openPop(g) {
+  const pop = $('pop');
+  pop.replaceChildren();
+  const head = el('div', 'gem-head');
+  const art = el('span', 'gem-art small'); art.innerHTML = pinFor(g);
+  const t = el('div'); t.append(el('h3', null, g.name), el('p', 'muted', whoLine(g)));
+  head.append(art, t, closeBtn());
+  pop.append(head, tagRow(g), actionRow(g), el('i', 'arrow'));
+  pop.hidden = false; $('catch').hidden = false;
+  selectPin(g);
+  const ph = $('phone').getBoundingClientRect();
+  const pin = document.querySelector(`.pin[data-id="${g.id}"]`).getBoundingClientRect();
+  const cx = pin.left + 22 - ph.left; const cy = pin.top + 22 - ph.top;
+  const w = pop.offsetWidth; const h = pop.offsetHeight;
+  const below = cy - h - 30 < 90; // not enough room above: open under the gem
+  pop.classList.toggle('below', below);
+  pop.style.left = `${Math.max(10, Math.min(ph.width - w - 10, cx - w / 2))}px`;
+  pop.style.top = `${below ? cy + 28 : cy - h - 28}px`;
+  pop.style.setProperty('--ax', `${cx - parseFloat(pop.style.left)}px`);
+}
+
+// C: the photo takes the whole screen
+function openFull(g) {
+  const f = $('full');
+  f.replaceChildren();
+  const hero = el('div', 'hero');
+  hero.style.backgroundImage = `url(${photoOf(g)})`;
+  const art = el('span', 'gem-art'); art.innerHTML = pinFor(g);
+  hero.append(closeBtn('x on-photo'), art);
+  const body = el('div', 'full-body');
+  body.append(el('h2', null, g.name), el('p', 'muted', whoLine(g)), tagRow(g), actionRow(g));
+  f.append(hero, body);
+  f.hidden = false;
+}
+
+// D: a strip of nearby gems along the bottom; swipe and the map follows
+function openPeek(g) {
+  const strip = $('peek');
+  strip.replaceChildren();
+  const shown = [...document.querySelectorAll('.pin')].map((p) => GEMS[Number(p.dataset.id)]);
+  const near = shown.sort((a, b) => Math.hypot(a.at[0] - g.at[0], (a.at[1] - g.at[1]) * 1.6) - Math.hypot(b.at[0] - g.at[0], (b.at[1] - g.at[1]) * 1.6)).slice(0, 12);
+  const top = el('div', 'peek-top');
+  top.append(el('span', 'muted', COPY.nearby(near.length)), closeBtn());
+  const list = el('div', 'peek-list');
+  for (const x of near) {
+    const c = el('button', 'peek-card');
+    c.type = 'button';
+    c.dataset.id = x.id;
+    const ph = el('span', 'peek-photo'); ph.style.backgroundImage = `url(${photoOf(x)})`;
+    const art = el('span', 'gem-art tiny'); art.innerHTML = pinFor(x); ph.append(art);
+    const t = el('span', 'peek-text');
+    t.append(el('b', null, x.name), el('span', 'muted', `${RARITY[rarityOf(x)].label} · ${x.mine ? COPY.yours : x.owner}${x.visited ? ` · ${COPY.visited}` : ''}`), el('span', 'more', COPY.more));
+    c.append(ph, t);
+    c.addEventListener('click', () => { closeDetails(); openSheetGem(x); });
+    list.append(c);
+  }
+  strip.append(top, list);
+  strip.hidden = false;
+  selectPin(g);
+  let tmr = 0;
+  list.addEventListener('scroll', () => {
+    clearTimeout(tmr);
+    tmr = setTimeout(() => {
+      const i = Math.round(list.scrollLeft / (list.firstElementChild.offsetWidth + 10));
+      const x = near[Math.max(0, Math.min(near.length - 1, i))];
+      if (x) selectPin(x);
+    }, 80);
+  });
+}
+
+// A: bottom sheet
+function openSheetGem(g) {
   openSheet((s) => {
     const head = el('div', 'gem-head');
     const art = el('span', 'gem-art');
     art.innerHTML = pinFor(g);
     const t = el('div');
-    t.append(el('h2', null, g.name), el('p', 'muted', g.mine ? `${COPY.yours} · ${g.private ? COPY.private : COPY.public}` : COPY.by(g.owner)));
+    t.append(el('h2', null, g.name), el('p', 'muted', whoLine(g)));
     head.append(art, t);
-    const tags = el('div', 'tags');
-    const rc = el('span', 'tag rarity', RARITY[rarityOf(g)].label);
-    rc.style.setProperty('--c', RARITY[rarityOf(g)].colour);
-    tags.append(rc);
-    for (const id of tagsOf(g)) { const c = catOf(id); const x = el('span', 'tag', c.label); x.style.setProperty('--c', c.colour); tags.append(x); }
-    const row = el('div', 'gem-row');
-    row.append(el('span', 'muted', `${COPY.likes(g.likes + (g.liked ? 1 : 0))} · ${g.mine || g.visited ? COPY.visited : COPY.notVisited}`));
-    if (!g.mine && !g.visited) {
-      const mv = el('button', 'btn', COPY.markVisited);
-      mv.addEventListener('click', () => { g.visited = true; drawAll(); openGem(g); });
-      row.append(mv);
-    }
-    if (!g.mine) {
-      const like = el('button', 'btn like', g.liked ? `♥ ${COPY.unlike}` : `♡ ${COPY.like}`);
-      like.setAttribute('aria-pressed', String(g.liked));
-      like.addEventListener('click', () => { g.liked = !g.liked; drawAll(); openGem(g); });
-      row.append(like);
-    }
-    s.append(head, tags, row);
+    s.append(head, tagRow(g), actionRow(g, openSheetGem));
   });
 }
 
@@ -301,7 +404,7 @@ function drawKey() {
   row('Rarity', levels.map((lv) => sample({ ...base, rarity: lv }, RARITY[lv].label, true)));
   if (opt.shape === 'category') row('Shape', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
   row('Yours', [sample({ ...base, mine: true, private: true }, 'Private'), sample({ ...base, mine: true }, 'Public')]);
-  row('Liked', [sample({ ...base, liked: true }, 'Liked')]);
+  row('Liked', [sample({ ...base, liked: true }, 'Liked', true)]);
   if (opt.visited !== 'none' && opt.show !== 'unvisited') row('Visited', [sample({ ...base }, COPY.notVisited), sample({ ...base, visited: true }, COPY.visited, false, opt.visited === 'fade')]);
 }
 $('keyBtn').addEventListener('click', () => {
@@ -346,6 +449,7 @@ function drawPanel() {
           if (set.has(v)) filterOn.add(v);
         } else opt[o.id] = v;
         writeHash();
+        closeDetails();
         drawAll();
       });
       segs.append(b);

@@ -42,7 +42,7 @@ export const OPTIONS = [
   { id: 'levels', n: 4, label: 'Rarity levels', start: '3', opts: [['2', '2: Common, Rare'], ['3', '3: Common, Rare, Mythical']] },
   { id: 'sizes', n: 5, label: 'Rarity sizes', start: '22-28-34', opts: [['22-28-34', '22 / 28 / 34 px'], ['22-26-30', '22 / 26 / 30 px']] },
   { id: 'mine', n: 6, label: 'Mine: private vs public', start: 'hollow', opts: [['hollow', 'Hollow vs solid'], ['dashed', 'Dashed vs solid frame'], ['lock', 'Lock badge']] },
-  { id: 'liked', n: 7, label: 'Liked', start: 'heart', opts: [['heart', 'Heart badge'], ['colour', 'Its own colour'], ['ring', 'Double ring']] },
+  { id: 'liked', n: 7, label: 'Liked', start: 'heart', opts: [['heart', 'Heart badge'], ['colour', 'Its own colour'], ['ring', 'Double ring'], ['outline', 'Pink outline']] },
   { id: 'others', n: 8, label: 'Others’ gems', start: 'quiet', opts: [['quiet', 'Quiet base colour'], ['full', 'Full colour']] },
   { id: 'pick', n: 9, label: 'Pick your gem colour', start: 'two', opts: [['off', 'Off'], ['free', 'Free choice of all'], ['two', '2 free + rest locked']] },
   { id: 'sees', n: 10, label: 'Who sees your colour', start: 'me', opts: [['me', 'Only you'], ['all', 'Everyone']] },
@@ -54,6 +54,7 @@ export const OPTIONS = [
   // added 19 Nov (Melissa): gems you've already been to
   { id: 'visited', n: 16, label: 'Visited shown by', start: 'fade', opts: [['fade', 'Faded'], ['check', 'Check badge'], ['small', 'Smaller'], ['none', 'Not shown']] },
   { id: 'show', n: 17, label: 'Show', start: 'all', opts: [['all', 'All gems'], ['unvisited', 'Only unvisited']] },
+  { id: 'details', n: 18, label: 'Gem details on tap', start: 'sheet', opts: [['sheet', 'Bottom sheet'], ['pop', 'Card by the gem'], ['full', 'Full-screen photo'], ['peek', 'Swipe strip']] },
 ];
 
 // Preset combos: each sets all 15 options (anything not listed stays on "Start with").
@@ -109,6 +110,9 @@ export const COPY = {
   visited: 'Visited',
   notVisited: 'Not visited yet',
   markVisited: 'Mark Visited',
+  close: 'Close',
+  more: 'More ›',
+  nearby: (n) => `${n} gems nearby · swipe`,
   unvisitedChip: 'Not visited',
   shownUnvisited: (n) => `${n} unvisited gems`,
   like: 'Like',
@@ -116,6 +120,9 @@ export const COPY = {
   likes: (n) => `${n} like${n === 1 ? '' : 's'}`,
   shown: (n) => `${n} gems on the map`,
 };
+
+// Photos of finds (Victoria's, from Location Gems); each gem uses one.
+export const PHOTOS = ['img/find-a.jpg', 'img/find-b.jpg', 'img/find-c.jpg', 'img/find-d.jpg'];
 
 export const OWNERS = ['Priya', 'Sam', 'Jordan', 'Mei', 'Omar', 'Lou', 'Kai', 'Tess', 'Ravi', 'Ana'];
 

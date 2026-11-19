@@ -63,13 +63,13 @@ export function pinSvg(o) {
   if (o.ring) parts.push(`<circle cx="22" cy="22" r="${r + 4}" fill="rgba(23,12,53,.35)" stroke="${o.ringColour}" stroke-width="2"${o.ring === 'dashed' ? ' stroke-dasharray="3.2 2.6"' : ''}/>`);
   const g = [`<g transform="translate(${22 - 12 * k} ${22 - 12 * k}) scale(${k})">`];
   if (o.hollow) {
-    g.push(`<path d="${s.body}" fill="${o.fill}" fill-opacity=".16" stroke="${o.fill}" stroke-width="${(1.4 / k).toFixed(2)}" stroke-linejoin="round"/>`); // same weight as the other gems' edge
+    g.push(`<path d="${s.body}" fill="${o.fill}" fill-opacity=".16" stroke="${o.outline || o.fill}" stroke-width="${(1.4 / k).toFixed(2)}" stroke-linejoin="round"/>`); // same weight as the other gems' edge
   } else {
     g.push(`<path d="${s.body}" fill="${o.fill}"/>`);
     g.push(`<path d="${s.light}" fill="#fff" fill-opacity=".32"/>`);
     g.push(`<path d="${s.dark}" fill="#000" fill-opacity=".22"/>`);
     g.push(`<path d="${s.lines}" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="${(0.9 / k).toFixed(2)}" stroke-linejoin="round"/>`);
-    g.push(`<path d="${s.body}" fill="none" stroke="#fff" stroke-width="${(1.4 / k).toFixed(2)}" stroke-linejoin="round"/>`);
+    g.push(`<path d="${s.body}" fill="none" stroke="${o.outline || '#fff'}" stroke-width="${((o.outline ? 2.2 : 1.4) / k).toFixed(2)}" stroke-linejoin="round"/>`);
   }
   g.push('</g>');
   parts.push(g.join(''));
