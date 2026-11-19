@@ -119,8 +119,9 @@ function rarityOf(g) {
   return g.rarity === 'mythical' ? lv[lv.length - 1] : 'rare'; // epic folds into rare; mythical into the top level
 }
 const rarityColour = (lv) => RARITY_SETS[opt.rarityColours][lv];
-const SIZE_BY = ['size', 'sizeGlow', 'sizeGlowSparkle'];
-const GLOW_BY = ['glow', 'sizeGlow', 'sizeGlowSparkle'];
+const SIZE_BY = ['size', 'sizeGlow', 'sizeGlowSparkle', 'sizeSparkle'];
+const GLOW_BY = ['glow', 'sizeGlow', 'sizeGlowSparkle', 'glowSparkle'];
+const SPARKLE_BY = ['sizeGlowSparkle', 'sparkle', 'sizeSparkle', 'glowSparkle'];
 const tagsOf = (g) => {
   const on = g.tags.filter((t) => opt.tags.includes(t));
   return opt.tagMode === 'one' ? on.slice(0, 1) : on;
@@ -128,6 +129,7 @@ const tagsOf = (g) => {
 function colourOf(g) {
   if (g.liked && !g.mine && opt.liked === 'colour') return D.LOVE;
   if (opt.rarityBy === 'colour' || opt.colour === 'rarity') return rarityColour(rarityOf(g));
+  if (opt.colour === 'none') return D.BASE; // nothing owns colour: every gem the same
   if (opt.colour === 'category') return catOf(tagsOf(g)[0])?.colour || D.BASE;
   if (g.mine) return mineColour();
   // others. 1D: each gem in its owner's picked colour, if owners' colours are shown to everyone (10B).
@@ -173,7 +175,7 @@ function pinFor(g, overrides = {}) {
     countdown: g.expiring && opt.expiring === 'countdown' ? g.expiring : null,
     expireRing: !!g.expiring && opt.expiring === 'ring',
     seasonBadge: g.seasonal && opt.seasonal === 'badge' ? D.SEASONS[opt.season].colour : null,
-    sparkle: opt.rarityBy === 'sizeGlowSparkle' ? { common: 0, rare: 2, epic: 3, mythical: 4 }[rarityOf(g)] : 0,
+    sparkle: SPARKLE_BY.includes(opt.rarityBy) ? { common: 0, rare: 2, epic: 3, mythical: 4 }[rarityOf(g)] : 0,
     check: g.visited && opt.visited === 'check',
     // others' gems in "quiet" fade back a little when colour shows something else
     ...overrides,
@@ -554,7 +556,7 @@ function specOf(o) {
     ['Size', sized ? `Rarity (${o.sizes.replace(/-/g, ' / ')} px)` : 'Same for all'],
     ['Glow', glows ? (o.glowOn === 'mythical' ? 'Mythical only' : 'Rare and up') : 'None'],
   ];
-  if (o.rarityBy === 'sizeGlowSparkle') rows.push(['Sparkle', 'Rare and up']);
+  if (SPARKLE_BY.includes(o.rarityBy)) rows.push(['Sparkle', 'Rare and up']);
   rows.push(['Rarity levels', lv], ['Private vs public', optLabel('mine', o.mine)], ['Liked', optLabel('liked', o.liked)],
     ['Your colour', optLabel('pick', o.pick)], ['Expiring soon', optLabel('expiring', o.expiring)], ['Seasonal', optLabel('seasonal', o.seasonal)], ['Categories', `${optLabel('tagMode', o.tagMode)} · ${optLabel('filter', o.filter)}`]);
   return rows;
@@ -605,6 +607,169 @@ function drawPresets() {
   m.onclick = () => usePreset(on === a ? b2 : a);
 }
 
+/* ---------- drag & drop settings ---------- */
+// Read which qualities each thing uses from the options, and write them back. Both panel modes
+// (dropdowns, drag & drop) share the same options, so presets and links keep working.
+const rarityParts = (v) => ({ size: SIZE_BY.includes(v), glow: GLOW_BY.includes(v), sparkle: SPARKLE_BY.includes(v) });
+function qualitiesOf(o) {
+  const r = rarityParts(o.rarityBy);
+  return {
+    creator: ['whose', 'picked'].includes(o.colour) && o.rarityBy !== 'colour' ? ['colour'] : [],
+    rarity: [...(o.colour === 'rarity' || o.rarityBy === 'colour' ? ['colour'] : []), ...['size', 'glow', 'sparkle'].filter((k) => r[k])],
+    category: [...(o.colour === 'category' && o.rarityBy !== 'colour' ? ['colour'] : []), ...(['category', 'crystal'].includes(o.shape) ? ['shape'] : [])],
+    mine: { hollow: ['hollow'], dashed: ['frame'], lock: ['badge'] }[o.mine] || [],
+    liked: { heart: ['badge'], outline: ['outline'], ring: ['ring'], colour: ['tint'] }[o.liked] || [],
+    visited: { fade: ['fade'], check: ['badge'], small: ['size'] }[o.visited] || [],
+    expiring: { clock: ['badge'], countdown: ['label'], ring: ['ring'] }[o.expiring] || [],
+    seasonal: { shape: ['shape'], badge: ['badge'], colour: ['tint'] }[o.seasonal] || [],
+  };
+}
+function setQualities(thing, qs) {
+  const has = (q) => qs.includes(q);
+  const rarityValue = (r) => (r.size && r.glow && r.sparkle ? 'sizeGlowSparkle' : r.size && r.glow ? 'sizeGlow' : r.size && r.sparkle ? 'sizeSparkle' : r.glow && r.sparkle ? 'glowSparkle' : r.size ? 'size' : r.glow ? 'glow' : r.sparkle ? 'sparkle' : 'none');
+  if (opt.rarityBy === 'colour') { opt.rarityBy = 'none'; if (opt.colour !== 'rarity') opt.colour = 'rarity'; }
+  if (thing === 'creator') { if (has('colour')) opt.colour = opt.colour === 'picked' ? 'picked' : 'whose'; else if (['whose', 'picked'].includes(opt.colour)) opt.colour = 'none'; }
+  if (thing === 'rarity') {
+    if (has('colour')) opt.colour = 'rarity'; else if (opt.colour === 'rarity') opt.colour = 'none';
+    opt.rarityBy = rarityValue({ size: has('size'), glow: has('glow'), sparkle: has('sparkle') });
+  }
+  if (thing === 'category') {
+    if (has('colour')) opt.colour = 'category'; else if (opt.colour === 'category') opt.colour = 'none';
+    opt.shape = has('shape') ? (opt.shape === 'crystal' ? 'crystal' : 'category') : 'one';
+  }
+  if (thing === 'mine') opt.mine = has('hollow') ? 'hollow' : has('frame') ? 'dashed' : has('badge') ? 'lock' : 'none';
+  if (thing === 'liked') opt.liked = has('badge') ? 'heart' : has('outline') ? 'outline' : has('ring') ? 'ring' : has('tint') ? 'colour' : 'none';
+  if (thing === 'visited') opt.visited = has('fade') ? 'fade' : has('badge') ? 'check' : has('size') ? 'small' : 'none';
+  if (thing === 'expiring') opt.expiring = has('badge') ? 'clock' : has('label') ? 'countdown' : has('ring') ? 'ring' : 'none';
+  if (thing === 'seasonal') opt.seasonal = has('shape') ? 'shape' : has('badge') ? 'badge' : has('tint') ? 'colour' : 'none';
+}
+const qLabel = (id) => D.QUALITIES.find((q) => q.id === id).label;
+const tLabel = (id) => D.THINGS.find((t) => t.id === id).label;
+function dropQuality(q, thingId, fromThing) {
+  const t = D.THINGS.find((x) => x.id === thingId);
+  if (!t.uses.includes(q)) { toast(COPY.cantUse(t.label, qLabel(q))); return false; }
+  const now = qualitiesOf(opt);
+  if (fromThing && fromThing !== thingId) setQualities(fromThing, now[fromThing].filter((x) => x !== q));
+  let msg = '';
+  if (q === 'colour') { // colour belongs to one thing: take it from whoever has it
+    const owner = Object.keys(now).find((k) => ['creator', 'rarity', 'category'].includes(k) && now[k].includes('colour') && k !== thingId);
+    if (owner) { setQualities(owner, qualitiesOf(opt)[owner].filter((x) => x !== 'colour')); msg = COPY.colourMoved(tLabel(owner), t.label); }
+  }
+  const cur = qualitiesOf(opt)[thingId];
+  setQualities(thingId, t.many ? [...new Set([...cur, q])] : [q]);
+  writeHash(); closeDetails(); drawAll();
+  if (msg) toast(msg);
+  return true;
+}
+function removeQuality(q, thingId) { setQualities(thingId, qualitiesOf(opt)[thingId].filter((x) => x !== q)); writeHash(); drawAll(); }
+
+let panelMode = 'dropdowns';
+try { panelMode = localStorage.getItem('sc-gem-panel') || 'dropdowns'; } catch (e) { /* fine */ }
+let picked = null; // tap-to-place: { q, from }
+function drawDnd() {
+  const box = $('dnd');
+  box.replaceChildren();
+  box.append(el('p', 'dnd-help', COPY.dndHelp));
+  const q = qualitiesOf(opt);
+  const rows = el('div', 'dnd-rows');
+  for (const t of D.THINGS) {
+    const row = el('div', 'dnd-row');
+    const zone = el('div', 'drop');
+    zone.dataset.thing = t.id;
+    zone.tabIndex = 0;
+    zone.setAttribute('role', 'button');
+    zone.setAttribute('aria-label', `${t.label}: ${q[t.id].map(qLabel).join(', ') || 'nothing'}. ${COPY.dropHere}`);
+    if (picked) zone.classList.toggle('can', t.uses.includes(picked.q));
+    for (const id of q[t.id]) zone.append(chip(id, t.id));
+    if (!q[t.id].length) zone.append(el('span', 'drop-empty', COPY.dropHere));
+    const place = () => { if (picked) { const p = picked; picked = null; dropQuality(p.q, t.id, p.from); } };
+    zone.addEventListener('click', (e) => { if (e.target === zone || e.target.classList.contains('drop-empty')) place(); });
+    zone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); place(); } });
+    row.append(el('span', 'dnd-thing', t.label), zone);
+    rows.append(row);
+  }
+  const cloud = el('div', 'cloud');
+  cloud.dataset.cloud = '1';
+  cloud.append(el('p', 'cloud-title', COPY.cloud));
+  const wrap = el('div', 'cloud-chips');
+  for (const x of D.QUALITIES) wrap.append(chip(x.id, null, x.only && Object.values(q).some((l) => l.includes(x.id))));
+  cloud.append(wrap);
+  box.append(rows, cloud);
+}
+function chip(qid, thing, inUse = false) {
+  const c = el('button', 'qchip');
+  c.type = 'button';
+  c.dataset.q = qid;
+  if (thing) c.dataset.from = thing;
+  c.classList.toggle('in-use', inUse);
+  c.classList.toggle('picked', !!picked && picked.q === qid && (picked.from || null) === (thing || null));
+  c.append(el('span', null, qLabel(qid)));
+  if (thing) {
+    const x = el('i', 'qx', '×');
+    x.setAttribute('aria-hidden', 'true');
+    c.append(x);
+    c.setAttribute('aria-label', COPY.remove(qLabel(qid), tLabel(thing)));
+  }
+  c.addEventListener('pointerdown', (e) => startDrag(e, qid, thing));
+  return c;
+}
+// pointer drag (mouse and touch); a tap without moving = pick up / put down
+function startDrag(e, qid, from) {
+  if (e.button !== undefined && e.button !== 0) return;
+  const src = e.currentTarget;
+  const x0 = e.clientX; const y0 = e.clientY;
+  let ghost = null;
+  const move = (ev) => {
+    if (!ghost && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 6) return;
+    if (!ghost) {
+      ghost = src.cloneNode(true); ghost.classList.add('ghost'); document.body.append(ghost);
+      document.body.classList.add('dragging');
+      document.querySelectorAll('#dnd .drop').forEach((z) => z.classList.toggle('can', D.THINGS.find((t) => t.id === z.dataset.thing).uses.includes(qid)));
+    }
+    ghost.style.left = `${ev.clientX}px`; ghost.style.top = `${ev.clientY}px`;
+    document.querySelectorAll('#dnd .drop.over').forEach((z) => z.classList.remove('over'));
+    document.elementFromPoint(ev.clientX, ev.clientY)?.closest('#dnd .drop')?.classList.add('over');
+    ev.preventDefault();
+  };
+  const up = (ev) => {
+    removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+    document.body.classList.remove('dragging');
+    if (!ghost) { // a tap
+      if (from && ev.target.closest('.qx')) { removeQuality(qid, from); return; }
+      picked = picked && picked.q === qid && picked.from === (from || null) ? null : { q: qid, from: from || null };
+      drawDnd();
+      return;
+    }
+    ghost.remove();
+    const at = document.elementFromPoint(ev.clientX, ev.clientY);
+    const zone = at?.closest('#dnd .drop');
+    picked = null;
+    if (zone) dropQuality(qid, zone.dataset.thing, from);
+    else if (from && at?.closest('#dnd [data-cloud]')) removeQuality(qid, from);
+    else drawDnd();
+  };
+  addEventListener('pointermove', move, { passive: false });
+  addEventListener('pointerup', up);
+  addEventListener('pointercancel', up);
+}
+function drawMode() {
+  $('opts').hidden = panelMode !== 'dropdowns';
+  $('dnd').hidden = panelMode !== 'drag';
+  document.querySelectorAll('#panelMode button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === panelMode)));
+}
+(function ensureDndArea() {
+  if (!$('dnd')) { const d = el('div', 'dnd'); d.id = 'dnd'; d.hidden = true; $('opts').after(d); }
+  if (!$('panelMode')) {
+    const m = el('div', 'panel-mode'); m.id = 'panelMode'; m.setAttribute('role', 'group'); m.setAttribute('aria-label', 'Settings view');
+    for (const [k, label] of [['dropdowns', COPY.modeDropdowns], ['drag', COPY.modeDrag]]) {
+      const b = el('button', null, label); b.type = 'button'; b.dataset.mode = k;
+      b.addEventListener('click', () => { panelMode = k; picked = null; try { localStorage.setItem('sc-gem-panel', k); } catch (e) { /* fine */ } drawMode(); drawDnd(); });
+      m.append(b);
+    }
+    $('opts').before(m);
+  }
+})();
+
 function drawAll() {
   document.body.classList.toggle('cb-rg', opt.cb === 'rg');
   drawTop();
@@ -612,6 +777,8 @@ function drawAll() {
   drawKey();
   drawPanel();
   drawPresets();
+  drawDnd();
+  drawMode();
 }
 for (const [id, text] of [['kicker', COPY.kicker], ['title', COPY.title], ['lead', COPY.lead], ['resetBtn', COPY.reset], ['shareBtn', COPY.share], ['optionsBtn', COPY.options], ['panelClose', COPY.close], ['mapTitle', COPY.mapTitle], ['keyLabel', COPY.key], ['presetsTitle', COPY.presets]]) $(id).textContent = text;
 addEventListener('hashchange', () => { readHash(); drawAll(); });

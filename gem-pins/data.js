@@ -58,13 +58,13 @@ export const LOVE = '#e84aa8'; // liked
 
 // The 15 toggles, in the thread's order. `start` is the "Start with" column.
 export const OPTIONS = [
-  { id: 'colour', n: 1, label: 'Colour shows', start: 'whose', opts: [['whose', 'Creator'], ['rarity', 'Rarity'], ['category', 'Category'], ['picked', 'Creator’s picked colour']] },
+  { id: 'colour', n: 1, label: 'Colour shows', start: 'whose', opts: [['whose', 'Creator'], ['rarity', 'Rarity'], ['category', 'Category'], ['picked', 'Creator’s picked colour'], ['none', 'Nothing (one colour)']] },
   { id: 'shape', n: 2, label: 'Gem shape', start: 'one', opts: [['one', 'One shape for all'], ['category', 'A shape per category'], ['crystal', 'Crystal set']] },
-  { id: 'rarityBy', n: 3, label: 'Rarity shown by', start: 'sizeGlow', opts: [['size', 'Size'], ['glow', 'Glow'], ['sizeGlow', 'Size + glow'], ['colour', 'Colour'], ['sizeGlowSparkle', 'Size + glow + sparkle']] },
+  { id: 'rarityBy', n: 3, label: 'Rarity shown by', start: 'sizeGlow', opts: [['size', 'Size'], ['glow', 'Glow'], ['sizeGlow', 'Size + glow'], ['colour', 'Colour'], ['sizeGlowSparkle', 'Size + glow + sparkle'], ['none', 'Not shown'], ['sparkle', 'Sparkle'], ['sizeSparkle', 'Size + sparkle'], ['glowSparkle', 'Glow + sparkle']] },
   { id: 'levels', n: 4, label: 'Rarity levels', start: '3', opts: [['2', '2: Common, Rare'], ['3', '3: Common, Rare, Mythical'], ['4', '4: + Epic']] },
   { id: 'sizes', n: 5, label: 'Rarity sizes', start: '22-28-34', opts: [['22-28-34', '22 / 28 / 34 px'], ['22-26-30', '22 / 26 / 30 px']] },
-  { id: 'mine', n: 6, label: 'Mine: private vs public', start: 'hollow', opts: [['hollow', 'Hollow vs solid'], ['dashed', 'Dashed vs solid frame'], ['lock', 'Lock badge']] },
-  { id: 'liked', n: 7, label: 'Liked', start: 'heart', opts: [['heart', 'Heart badge'], ['colour', 'Its own colour'], ['ring', 'Double ring'], ['outline', 'Pink outline']] },
+  { id: 'mine', n: 6, label: 'Mine: private vs public', start: 'hollow', opts: [['hollow', 'Hollow vs solid'], ['dashed', 'Dashed vs solid frame'], ['lock', 'Lock badge'], ['none', 'Not shown']] },
+  { id: 'liked', n: 7, label: 'Liked', start: 'heart', opts: [['heart', 'Heart badge'], ['colour', 'Its own colour'], ['ring', 'Double ring'], ['outline', 'Pink outline'], ['none', 'Not shown']] },
   { id: 'others', n: 8, label: 'Others’ gems', start: 'quiet', opts: [['quiet', 'Quiet base colour'], ['full', 'Full colour']] },
   { id: 'pick', n: 9, label: 'Pick your gem colour', start: 'two', opts: [['off', 'Off'], ['free', 'Free choice of all'], ['two', '2 free + rest locked']] },
   { id: 'sees', n: 10, label: 'Who sees your colour', start: 'me', opts: [['me', 'Only you'], ['all', 'Everyone']] },
@@ -101,6 +101,34 @@ export const GROUPS = [
   ['Time-limited', [['expiring', 'Expiring soon'], ['seasonal', 'Seasonal'], ['season', 'Season']]],
   ['Tapping a gem', [['details', 'Details']]],
   ['Map', [['density', 'Gems on screen'], ['cb', 'Colour-blind view']]],
+];
+
+// Drag & drop settings: what we need to show (left) and the qualities we can play with (the cloud).
+// `uses` = which qualities each thing can take, and the option value each one sets.
+export const QUALITIES = [
+  { id: 'colour', label: 'Colour', only: true }, // only one thing can own colour
+  { id: 'shape', label: 'Shape' },
+  { id: 'size', label: 'Size' },
+  { id: 'glow', label: 'Glow' },
+  { id: 'sparkle', label: 'Sparkle' },
+  { id: 'badge', label: 'Badge' },
+  { id: 'outline', label: 'Outline' },
+  { id: 'ring', label: 'Ring' },
+  { id: 'frame', label: 'Frame' },
+  { id: 'hollow', label: 'Hollow' },
+  { id: 'fade', label: 'Fade' },
+  { id: 'label', label: 'Label' },
+  { id: 'tint', label: 'Tint' },
+];
+export const THINGS = [
+  { id: 'creator', label: 'Creator', uses: ['colour'], many: false },
+  { id: 'rarity', label: 'Rarity', uses: ['colour', 'size', 'glow', 'sparkle'], many: true },
+  { id: 'category', label: 'Category', uses: ['colour', 'shape'], many: true },
+  { id: 'mine', label: 'Private vs public', uses: ['hollow', 'frame', 'badge'], many: false },
+  { id: 'liked', label: 'Liked', uses: ['badge', 'outline', 'ring', 'tint'], many: false },
+  { id: 'visited', label: 'Visited', uses: ['fade', 'badge', 'size'], many: false },
+  { id: 'expiring', label: 'Expiring soon', uses: ['badge', 'label', 'ring'], many: false },
+  { id: 'seasonal', label: 'Seasonal', uses: ['shape', 'badge', 'tint'], many: false },
 ];
 
 export const PRESETS = [
@@ -167,6 +195,14 @@ export const COPY = {
   visited: 'Visited',
   notVisited: 'Not visited yet',
   markVisited: 'Mark Visited',
+  modeDropdowns: 'Dropdowns',
+  modeDrag: 'Drag & drop',
+  dndHelp: 'Drag a quality onto something we need to show. Or tap a quality, then tap a row.',
+  cloud: 'Qualities',
+  cantUse: (thing, q) => `${thing} can’t be shown by ${q}`,
+  colourMoved: (from, to) => `Colour moved from ${from} to ${to}`,
+  dropHere: 'Drop a quality here',
+  remove: (q, thing) => `Remove ${q} from ${thing}`,
   ends: (left, from) => `Ends in ${left} · part of a ${from}`,
   seasonal: (season, until) => `${season} gem · ${until}`,
   close: 'Close',
