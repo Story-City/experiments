@@ -75,7 +75,7 @@ const gemEls = GEMS.map((g) => {
 });
 
 // --- the fog (same engine as the story view) -----------------------------------
-let look = LOOKS[params.get('fog')] ? params.get('fog') : 'clouds';
+let look = LOOKS[params.get('fog')] ? params.get('fog') : 'swirl';
 const RES = 2;
 const canvas = $('fog');
 const ctx = canvas.getContext('2d');

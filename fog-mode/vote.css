@@ -67,16 +67,10 @@ h2 { margin: 0 0 4px; font: 600 21px/1.2 var(--f-head); }
 .jump { display: flex; justify-content: center; gap: 6px; margin: 0 0 10px; }
 .jump button { width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--lilac); font: 600 16px/1 var(--f-head); padding: 0; position: relative; }
 .jump button[aria-current="true"] { background: var(--velvet); border-color: var(--glow); color: var(--pearl); box-shadow: 0 0 10px -2px rgba(196, 155, 255, 0.7); }
-.jump button.loved::after { content: '♥'; position: absolute; top: -7px; right: -6px; font: 700 12px/1 var(--f-body); color: var(--love); text-shadow: 0 0 3px var(--night); }
-.jump button.liked::after { content: ''; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--emerald); border: 2px solid var(--night); }
-.jump button.disliked { opacity: 0.45; text-decoration: line-through; }
 .stage { position: relative; max-width: 440px; margin: 0 auto; container-type: inline-size; }
 .looks { list-style: none; margin: 0; padding: 0; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; border-radius: 20px; }
 .looks::-webkit-scrollbar { display: none; }
 .look { flex: 0 0 100%; scroll-snap-align: center; scroll-snap-stop: always; position: relative; display: flex; flex-direction: column; gap: 8px; background: var(--velvet); border: 1px solid var(--line); border-radius: 20px; padding: 10px 10px 14px; transition: border-color 0.15s, box-shadow 0.15s; }
-.look.loved { border-color: var(--love); box-shadow: inset 0 0 0 1px var(--love); }
-.look.liked { border-color: var(--emerald); box-shadow: inset 0 0 0 1px var(--emerald); }
-.look.disliked .thumb { opacity: 0.55; }
 .thumb { display: block; width: 100%; aspect-ratio: 390 / 640; border-radius: 14px; background: #1e2d4c; }
 .arrow { position: absolute; top: calc(11px + (100cqw - 22px) * 0.8205); /* middle of the map preview */ width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(11, 6, 32, 0.7); color: var(--pearl); display: grid; place-items: center; padding: 0; transform: translateY(-50%); }
 .arrow svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }

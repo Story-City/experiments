@@ -100,8 +100,8 @@ function paint(canvas, k, t) {
   g.setTransform(s, 0, 0, s, 0, -CROP.y * s);
   g.drawImage(mapLayer, 0, 0);
   g.drawImage(fog, 0, 0);
-  // Victoria's gems: a topaz in the cleared trail, a hidden gem glowing through the fog
-  g.save(); g.shadowColor = GEM_COLORS.topaz; g.shadowBlur = 16;
+  // Victoria's gems, both still under the fog: soft and blurred, glowing through
+  g.save(); g.globalAlpha = 0.6; g.filter = 'blur(3px)'; g.shadowColor = GEM_COLORS.topaz; g.shadowBlur = 18;
   drawGem(g, 'topaz', 282, 200, 24);
   g.restore();
   g.save(); g.globalAlpha = 0.5; g.filter = 'blur(3px)'; g.shadowColor = GEM_COLORS.hidden; g.shadowBlur = 18;

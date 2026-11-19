@@ -114,7 +114,7 @@ export const VOTE = {
   undown: (name) => `Remove thumbs-down from ${name}`,
   moreLabel: 'I’d like it more if…',
   morePlaceholder: 'it moved slower, it had more colour…',
-  see: 'See It on the Map',
+  see: 'See It in the Mockup',
   noteLabel: 'Anything else? (optional)',
   notePlaceholder: 'A mix of two looks, a change you’d make…',
   saving: 'Saving…',

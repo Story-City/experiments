@@ -38,64 +38,6 @@ function tile(size, n, rmin, rmax, colors, seed) {
   return c;
 }
 
-// A seamless tile of cloud shapes (Melissa, 19 Nov: "more cloud shaped, less round blobs").
-// Each cloud: a flat-ish base with puffy lobes on top, biggest in the middle, a few smaller puffs
-// riding on those. Drawn three times: a soft shadow below-right, the body, then lit tops.
-function cloudTile(size, n, wmin, wmax, { shade, body, top }, seed) {
-  const c = document.createElement('canvas');
-  c.width = c.height = size;
-  const g = c.getContext('2d');
-  const r = rng(seed);
-  const clouds = [];
-  for (let i = 0; i < n; i++) {
-    const w = wmin + r() * (wmax - wmin);
-    const x = r() * size;
-    const y = r() * size;
-    const k = 4 + Math.floor(r() * 4); // lobes along the base
-    const puffs = [];
-    for (let j = 0; j < k; j++) {
-      const f = (j + 0.5) / k;
-      const rad = (w / k) * (0.75 + 0.9 * Math.sin(Math.PI * f)) * (0.85 + r() * 0.3);
-      puffs.push([-w / 2 + w * f + (r() - 0.5) * (w / k) * 0.4, -rad * (0.35 + r() * 0.25), rad]);
-    }
-    for (let j = 0; j < 2 + Math.floor(r() * 2); j++) { // puffs riding on top, near the middle
-      const rad = (w / k) * (0.8 + r() * 0.6);
-      puffs.push([(r() - 0.5) * w * 0.45, -rad * 1.2 - (w / k) * 0.5, rad]);
-    }
-    clouds.push({ x, y, w, puffs });
-  }
-  const shape = (cl, cx, cy, grow = 0) => {
-    g.beginPath();
-    for (const [px, py, pr] of cl.puffs) { g.moveTo(cx + px + pr + grow, cy + py); g.arc(cx + px, cy + py, pr + grow, 0, Math.PI * 2); }
-    // the flat base, with rounded ends
-    const bh = cl.w * 0.16 + grow;
-    g.roundRect(cx - cl.w / 2 - grow, cy - bh, cl.w + grow * 2, bh + grow * 0.6, bh);
-  };
-  const each = (fn) => {
-    for (const cl of clouds) {
-      const reach = cl.w * 0.9;
-      for (const dx of [-size, 0, size]) for (const dy of [-size, 0, size]) {
-        const cx = cl.x + dx; const cy = cl.y + dy;
-        if (cx + reach < 0 || cy + reach < 0 || cx - reach > size || cy - reach > size) continue;
-        fn(cl, cx, cy);
-      }
-    }
-  };
-  g.filter = 'blur(6px)'; g.fillStyle = rgba(shade);
-  each((cl, cx, cy) => { shape(cl, cx + cl.w * 0.06, cy + cl.w * 0.09, 2); g.fill(); });
-  g.filter = 'blur(1.5px)'; g.fillStyle = rgba(body);
-  each((cl, cx, cy) => { shape(cl, cx, cy); g.fill(); });
-  // lit tops: the same lobes, smaller and nudged up-left, so each puff reads as round
-  g.filter = 'blur(3px)'; g.fillStyle = rgba(top);
-  each((cl, cx, cy) => {
-    g.beginPath();
-    for (const [px, py, pr] of cl.puffs) { g.moveTo(cx + px - pr * 0.12 + pr * 0.7, cy + py - pr * 0.18); g.arc(cx + px - pr * 0.12, cy + py - pr * 0.18, pr * 0.7, 0, Math.PI * 2); }
-    g.fill();
-  });
-  g.filter = 'none';
-  return c;
-}
-
 // Fill the map with a tile, shifted, turned (degrees round the map's middle) and scaled.
 function drift(p, t, { ox = 0, oy = 0, rot = 0, scale = 1, alpha = 1 }) {
   t.pat ||= p.createPattern(t, 'repeat');
@@ -241,37 +183,24 @@ export const LOOKS = {
       contours(p, { color: '#9d8cff', width: 0.6, minor: 0.07, major: 0.14 });
     },
   },
-  clouds: {
-    name: 'Cloud sea',
-    what: 'Like looking down from above the clouds. Two layers drift past at different speeds.',
-    animated: true,
-    paint(p, t) {
-      // two layers of cloud shapes (shadow, body, lit tops baked into each)
-      T.cLow ||= cloudTile(512, 11, 120, 200, { shade: [80, 92, 150, 0.55], body: [236, 240, 252, 1], top: [255, 255, 255, 1] }, 13);
-      T.cHigh ||= cloudTile(400, 6, 80, 140, { shade: [90, 100, 160, 0.45], body: [242, 245, 255, 1], top: [255, 255, 255, 1] }, 29);
-      const sky = p.createLinearGradient(0, 0, 0, H);
-      sky.addColorStop(0, '#c9d2ee');
-      sky.addColorStop(1, '#aab6df');
-      p.fillStyle = sky;
-      p.fillRect(0, 0, W, H);
-      drift(p, T.cLow, { ox: t * 8, oy: t * 1.5 });
-      drift(p, T.cHigh, { ox: t * 18, oy: t * 3, scale: 1.3 });
-    },
-  },
   darkClouds: {
     name: 'Dark cloud sea',
     what: 'Cloud sea at night: almost-black clouds with faint purple tops. The map you uncover is the brightest thing on screen.',
     animated: true,
     rim: [120, 105, 190],
     paint(p, t) {
-      T.dLow ||= cloudTile(512, 11, 120, 200, { shade: [0, 0, 0, 0.8], body: [24, 18, 42, 1], top: [52, 42, 88, 1] }, 13);
-      T.dHigh ||= cloudTile(400, 6, 80, 140, { shade: [0, 0, 0, 0.65], body: [34, 27, 58, 1], top: [70, 58, 118, 1] }, 29);
+      T.dLowShade ||= tile(512, 40, 40, 100, [[0, 0, 0, 0.75]], 13);
+      T.dLow ||= tile(512, 40, 40, 100, [[26, 20, 44, 1]], 13);
+      T.dHighShade ||= tile(400, 26, 25, 70, [[0, 0, 0, 0.6]], 29);
+      T.dHigh ||= tile(400, 26, 25, 70, [[40, 32, 66, 1]], 29);
       const sky = p.createLinearGradient(0, 0, 0, H);
       sky.addColorStop(0, '#06040d');
       sky.addColorStop(1, '#030207');
       p.fillStyle = sky;
       p.fillRect(0, 0, W, H);
+      drift(p, T.dLowShade, { ox: t * 8 + 7, oy: t * 1.5 + 9 });
       drift(p, T.dLow, { ox: t * 8, oy: t * 1.5 });
+      drift(p, T.dHighShade, { ox: t * 18 + 6, oy: t * 3 + 8, scale: 1.3 });
       drift(p, T.dHigh, { ox: t * 18, oy: t * 3, scale: 1.3 });
     },
   },

@@ -1,0 +1,130 @@
+/* Gem map pins. The phone uses the app's look (night indigo, Darker Grotesque); the options panel is
+   tester chrome. Compact controls: 34px tall at most. */
+:root {
+  --bg: #170c35;
+  --surface: #241b46;
+  --line: #3d3170;
+  --text: #fbf7ff;
+  --muted: #b9b2d9;
+  --accent: #009eff;
+  --glow: #c49bff;
+  --love: #e84aa8;
+  --f-app: 'Darker Grotesque', system-ui, sans-serif;
+  --f-ui: 'Karla', system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; background: #0b0620; color: var(--text); }
+body { font: 400 15px/1.4 var(--f-ui); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
+
+/* ---------- layout: options panel left of the phone on wide screens ---------- */
+.layout { min-height: 100dvh; }
+.phone { position: relative; height: 100dvh; overflow: hidden; background: var(--bg); font-family: var(--f-app); }
+@media (min-width: 820px) {
+  .layout { display: grid; grid-template-columns: minmax(300px, 380px) 390px; justify-content: center; align-items: start; gap: 28px; padding: 20px; }
+  .phone { height: min(844px, calc(100dvh - 40px)); border-radius: 36px; border: 1px solid var(--line); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8); position: sticky; top: 20px; }
+  .panel { grid-column: 1; grid-row: 1; max-height: calc(100dvh - 40px); overflow-y: auto; position: sticky; top: 20px; }
+  .phone { grid-column: 2; grid-row: 1; }
+  .options-btn, .panel-close { display: none; }
+}
+
+/* ---------- options panel ---------- */
+.panel { background: #140a30; border: 1px solid var(--line); border-radius: 20px; padding: 16px; scrollbar-width: thin; }
+.panel-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.kicker { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--glow); }
+.panel h1 { margin: 4px 0 4px; font: 800 30px/1.05 var(--f-app); }
+.lead { margin: 0 0 10px; color: var(--muted); font-size: 14px; text-wrap: pretty; }
+.panel-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.btn { height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-weight: 700; font-size: 14px; white-space: nowrap; }
+.btn.ghost:hover { border-color: var(--glow); }
+.opts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.opt { padding: 10px; border-radius: 14px; background: var(--surface); }
+.opt.idle { opacity: 0.6; }
+.opt-head { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.num { flex: none; width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: rgba(196, 155, 255, 0.16); color: var(--glow); }
+.opt-label { font-weight: 700; font-size: 14px; }
+.segs { display: flex; flex-wrap: wrap; gap: 5px; }
+.seg { min-height: 30px; max-height: 34px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.seg b { font-size: 11px; color: var(--glow); opacity: 0.8; }
+.seg.start::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.45; }
+.seg[aria-pressed="true"] { background: linear-gradient(90deg, #0259a1, #009eff); border-color: transparent; color: #fff; box-shadow: 0 0 12px -4px rgba(0, 158, 255, 0.8); }
+.seg[aria-pressed="true"] b { color: #fff; }
+.opt-note { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+
+/* phones: the panel is a sheet you open from the map */
+@media (max-width: 819px) {
+  .panel { position: fixed; inset: auto 0 0 0; max-height: 82dvh; overflow-y: auto; z-index: 40; border-radius: 20px 20px 0 0; transform: translateY(105%); transition: transform 0.25s ease; }
+  body.panel-open .panel { transform: none; box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.5); }
+}
+.options-btn { position: absolute; left: 12px; bottom: 14px; z-index: 6; height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(23, 12, 53, 0.85); font: 700 16px/1 var(--f-app); }
+
+/* ---------- the map ---------- */
+.screen { position: absolute; inset: 0; }
+.map { position: absolute; inset: 0; background: #1d1b3d url(img/edmonton-map.jpg) center / cover no-repeat; }
+.pins { position: absolute; top: 96px; bottom: 64px; left: 0; right: 0; }
+body.cb-rg .phone { filter: url(#deutan); }
+
+/* every gem keeps a 44px tap area, whatever size it's drawn at */
+.pin { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; border: 0; background: none; border-radius: 50%; -webkit-tap-highlight-color: transparent; }
+.pin svg, .k-art svg, .gem-art svg { display: block; overflow: visible; }
+.pin.quiet svg, .k-art.quiet svg { opacity: 0.6; filter: saturate(0.35); }
+.pin:active svg { transform: scale(0.92); }
+.glow-rare { filter: drop-shadow(0 0 4px var(--glow)); }
+.glow-mythical { filter: drop-shadow(0 0 6px var(--glow)) drop-shadow(0 0 12px var(--glow)); animation: myth 2.4s ease-in-out infinite; }
+@keyframes myth { 50% { filter: drop-shadow(0 0 9px var(--glow)) drop-shadow(0 0 20px var(--glow)); } }
+@media (prefers-reduced-motion: reduce) { .glow-mythical { animation: none; } }
+
+/* ---------- top of the map ---------- */
+.map-top { position: absolute; top: 0; left: 0; right: 0; z-index: 5; padding: 14px 12px 10px; background: linear-gradient(180deg, rgba(23, 12, 53, 0.95) 55%, rgba(23, 12, 53, 0)); }
+.map-bar { display: flex; align-items: center; gap: 8px; height: 34px; }
+.map-title { flex: 1; font: 800 22px/1 var(--f-app); }
+.filter-btn { height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.25); background: var(--surface); font: 700 16px/1 var(--f-app); }
+.colour-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.3); background: var(--surface); display: grid; place-items: center; padding: 0; }
+.colour-btn i { width: 20px; height: 20px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
+.chips { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(36, 27, 70, 0.9); font: 700 15px/1 var(--f-app); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.chip[aria-pressed="true"] { background: #fff; color: var(--bg); }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+/* ---------- key ---------- */
+.key { position: absolute; right: 12px; bottom: 14px; z-index: 6; max-width: calc(100% - 24px); }
+.key-btn { margin-left: auto; display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(23, 12, 53, 0.85); font: 700 16px/1 var(--f-app); }
+.key-btn .count { font-weight: 500; color: var(--muted); }
+.key-body { display: none; margin-top: 8px; padding: 10px 12px; border-radius: 16px; background: rgba(23, 12, 53, 0.94); border: 1px solid var(--line); max-height: 50dvh; overflow-y: auto; }
+.key.open .key-body { display: grid; gap: 6px; }
+.key.open { left: 12px; }
+.key.open ~ .options-btn { display: none; }
+.k-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 15px; }
+.k-row b { width: 52px; flex: none; font-size: 13px; color: var(--muted); font-weight: 700; }
+.k { display: inline-flex; align-items: center; gap: 2px; font-weight: 600; }
+.k-art { width: 34px; height: 34px; display: grid; place-items: center; }
+.k-art svg { width: 44px; height: 44px; transform: scale(0.8); }
+
+/* ---------- sheets ---------- */
+.scrim { position: absolute; inset: 0; z-index: 20; background: rgba(5, 2, 15, 0.45); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 21; padding: 18px 16px 18px; border-radius: 22px 22px 0 0; background: var(--surface); border-top: 1px solid var(--line); display: grid; gap: 12px; animation: up 0.22s ease; }
+@keyframes up { from { transform: translateY(40px); opacity: 0; } }
+.sheet h2 { margin: 0; font: 800 24px/1.05 var(--f-app); }
+.sheet .muted, .muted { margin: 0; color: var(--muted); font-size: 16px; }
+.sheet > .btn { justify-self: end; font-family: var(--f-app); font-size: 16px; }
+.gem-head { display: flex; align-items: center; gap: 10px; }
+.gem-art { flex: none; width: 56px; height: 56px; display: grid; place-items: center; border-radius: 16px; background: rgba(0, 0, 0, 0.25); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { height: 28px; padding: 0 11px; border-radius: 999px; display: inline-flex; align-items: center; font: 700 15px/1 var(--f-app); background: color-mix(in srgb, var(--c) 22%, transparent); border: 1px solid color-mix(in srgb, var(--c) 60%, transparent); }
+.gem-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.btn.like { font-family: var(--f-app); font-size: 16px; }
+.btn.like[aria-pressed="true"] { background: var(--love); border-color: var(--love); }
+.checks { display: grid; gap: 4px; }
+.check { display: flex; align-items: center; gap: 10px; min-height: 34px; font: 700 18px/1 var(--f-app); }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.swatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.swatch { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: 14px; border: 1px solid var(--line); background: transparent; font: 700 14px/1.1 var(--f-app); }
+.swatch i { width: 26px; height: 26px; border-radius: 50%; background: var(--c); }
+.swatch[aria-pressed="true"] { border-color: var(--c); box-shadow: inset 0 0 0 1px var(--c); }
+.swatch.locked i { opacity: 0.35; }
+.swatch em { font-style: normal; font-size: 11px; color: var(--muted); }
+
+.toast { position: absolute; left: 50%; bottom: 64px; z-index: 30; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); padding: 10px 14px; border-radius: 14px; background: #fff; color: var(--bg); font: 700 16px/1.2 var(--f-app); text-align: center; }
