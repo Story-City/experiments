@@ -208,6 +208,19 @@ body.cb-rg .phone { filter: url(#deutan); }
 .gem-art.tiny { position: absolute; right: -6px; bottom: -6px; width: 34px; height: 34px; border-radius: 10px; background: rgba(23, 12, 53, 0.85); }
 .gem-art.tiny svg { transform: scale(0.75); }
 
+/* A: bottom sheet that peeks, then opens fully */
+.gem-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 19; padding: 8px 16px 16px; border-radius: 22px 22px 0 0; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -14px 34px rgba(0, 0, 0, 0.5); display: grid; gap: 10px; cursor: pointer; animation: up 0.22s ease; }
+.gem-sheet.full { top: 22%; cursor: default; align-content: start; overflow-y: auto; }
+.gem-sheet .grab { display: block; margin: 0 auto; justify-self: center; width: 40px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.3); }
+.gem-sheet h3 { margin: 0; font: 800 21px/1.05 var(--f-app); }
+.gem-sheet h2 { margin: 0; font: 800 26px/1.05 var(--f-app); }
+.gem-sheet .muted { font-size: 15px; }
+.sheet-photo { height: 180px; margin: 0 -16px; background: #241b46 center / cover no-repeat; }
+.sheet-more { margin: 0; font: 700 14px/1 var(--f-app); color: var(--accent); }
+.gem-sheet .btn { font-family: var(--f-app); font-size: 16px; }
+.gem-sheet .gem-row { flex-wrap: wrap; }
+.sheet-x { position: absolute; top: 12px; right: 12px; }
+
 /* B: card by the gem */
 .pop { position: absolute; z-index: 19; width: min(300px, calc(100% - 20px)); padding: 12px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.75); display: grid; gap: 10px; animation: popin 0.18s ease; }
 @keyframes popin { from { transform: scale(0.94); opacity: 0; } }

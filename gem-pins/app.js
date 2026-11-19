@@ -22,7 +22,7 @@ const catOf = (id) => CATS.find((c) => c.id === id);
   const wrap = $('presets').parentElement;
   if (!$('tryAt')) wrap.append(Object.assign(el('div', 'try-at'), { id: 'tryAt' }));
   if (!$('matchup')) { const m = el('button', 'matchup'); m.id = 'matchup'; m.type = 'button'; wrap.append(m); }
-  for (const id of ['catch', 'pop', 'full', 'peek']) if (!$(id)) { const n = el(id === 'catch' ? 'div' : 'section', id); n.id = id; n.hidden = true; $('phone').append(n); }
+  for (const id of ['catch', 'pop', 'full', 'peek', 'gemSheet']) if (!$(id)) { const n = el(id === 'catch' ? 'div' : 'section', id); n.id = id; n.hidden = true; $('phone').append(n); }
 })();
 
 /* ---------- options (kept in the link) ---------- */
@@ -297,7 +297,8 @@ function actionRow(g, reopen = openGem) {
   return row;
 }
 function closeDetails() {
-  for (const id of ['pop', 'full', 'peek', 'catch']) $(id).hidden = true;
+  for (const id of ['pop', 'full', 'peek', 'catch', 'gemSheet']) $(id).hidden = true;
+  sheetGem = null;
   document.querySelectorAll('.pin.selected').forEach((p) => p.classList.remove('selected'));
 }
 $('catch').addEventListener('click', closeDetails);
@@ -369,7 +370,7 @@ function openPeek(g) {
     const t = el('span', 'peek-text');
     t.append(el('b', null, x.name), el('span', 'muted', `${RARITY[rarityOf(x)].label} · ${x.mine ? COPY.yours : x.owner}${x.visited ? ` · ${COPY.visited}` : ''}`), el('span', 'more', COPY.more));
     c.append(ph, t);
-    c.addEventListener('click', () => { closeDetails(); openSheetGem(x); });
+    c.addEventListener('click', () => { closeDetails(); openSheetGem(x, true); });
     list.append(c);
   }
   strip.append(top, list);
@@ -387,17 +388,39 @@ function openPeek(g) {
 }
 
 // A: bottom sheet
-function openSheetGem(g) {
-  openSheet((s) => {
-    const head = el('div', 'gem-head');
-    const art = el('span', 'gem-art');
-    art.innerHTML = pinFor(g);
-    const t = el('div');
-    t.append(el('h2', null, g.name), el('p', 'muted', whoLine(g)));
-    head.append(art, t);
-    s.append(head, tagRow(g), actionRow(g, openSheetGem));
-  });
+// A: bottom sheet that peeks over the map. Tap the sheet to open it fully, tap the map to close it,
+// tap another gem to switch to it. The map stays usable while it peeks.
+let sheetGem = null;
+function openSheetGem(g, full = false) {
+  const sh = $('gemSheet');
+  sheetGem = g;
+  sh.replaceChildren();
+  sh.classList.toggle('full', full);
+  sh.append(el('i', 'grab'));
+  if (full) {
+    const hero = el('div', 'sheet-photo');
+    hero.style.backgroundImage = `url(${photoOf(g)})`;
+    sh.append(hero);
+  }
+  const head = el('div', 'gem-head');
+  const art = el('span', 'gem-art');
+  art.innerHTML = pinFor(g);
+  const t = el('div');
+  t.append(el(full ? 'h2' : 'h3', null, g.name), el('p', 'muted', whoLine(g)));
+  head.append(art, t);
+  sh.append(head, tagRow(g));
+  if (full) { sh.append(actionRow(g, (x) => openSheetGem(x, true))); sh.append(closeBtn('x sheet-x')); }
+  else sh.append(el('p', 'sheet-more', COPY.tapForMore));
+  sh.hidden = false;
+  sh.setAttribute('aria-expanded', String(full));
+  selectPin(g);
 }
+$('gemSheet').addEventListener('click', (e) => {
+  if (!sheetGem || $('gemSheet').classList.contains('full') || e.target.closest('button')) return;
+  openSheetGem(sheetGem, true);
+});
+// tapping the map (not a gem) closes whatever is open
+$('screen').addEventListener('click', (e) => { if (!e.target.closest('.pin')) closeDetails(); });
 
 $('filterBtn').addEventListener('click', () => openSheet((s) => {
   s.append(el('h2', null, COPY.filterTitle));

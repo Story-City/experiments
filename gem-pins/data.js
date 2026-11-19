@@ -195,6 +195,7 @@ export const COPY = {
   visited: 'Visited',
   notVisited: 'Not visited yet',
   markVisited: 'Mark Visited',
+  tapForMore: 'Tap for more · tap the map to close',
   modeDropdowns: 'Dropdowns',
   modeDrag: 'Drag & drop',
   dndHelp: 'Drag an attribute onto something we need to show. Or tap an attribute, then tap a row.',
