@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v47 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v48 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -374,6 +374,7 @@ const likesJamCardB = document.getElementById('likesJamCardB');
 const debugRarityUp = document.getElementById('debugRarityUp');
 const flyLayer = document.getElementById('flyLayer');
 const debugLikes = document.getElementById('debugLikes');
+const debugLikesMulti = document.getElementById('debugLikesMulti');
 const debugOnboard = document.getElementById('debugOnboard');
 const debugSpoof = document.getElementById('debugSpoof');
 const debugDragMode = document.getElementById('debugDragMode');
@@ -1725,7 +1726,7 @@ async function playLikesBanner(opts = {}) {
   if (likesBusy) return;
   likesBusy = true;
   const promote = !!opts.promote;
-  const stackOn = likesStackMode && !promote;
+  const stackOn = (likesStackMode || !!opts.stack) && !promote;
   const cards = [likesJamCard, likesJamCardB].filter(Boolean);
   const gemsForBanner = pickLikedJams(stackOn ? 2 : 1);
   const filled = [];
@@ -1924,6 +1925,12 @@ if (midToneOn) {
 }
 resetHub.addEventListener('click', resetState);
 debugLikes.addEventListener('click', () => playLikesBanner());
+if (debugLikesMulti) {
+  debugLikesMulti.addEventListener('click', () => {
+    setLikesStackMode(true);
+    playLikesBanner({ stack: true });
+  });
+}
 debugRarityUp.addEventListener('click', () => playLikesBanner({ promote: true }));
 debugOnboard.addEventListener('click', () => runOnboardingTips());
 if (feedDismiss) feedDismiss.addEventListener('click', dismissFeed);
