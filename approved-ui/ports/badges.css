@@ -1,4 +1,4 @@
-/* EndStoryInlineBadges popup — END-STORY-BADGES-POPUP-v17
+/* EndStoryInlineBadges popup — END-STORY-BADGES-POPUP-v18
    Styles + motion from EndStoryInlineBadgesStyles / useEntranceAnimation. Do not invent. */
 .badge-host {
   --modal-bg: #151B45;
@@ -11,6 +11,8 @@
   --modal-slide: 48px;
   --ease-modal-out: cubic-bezier(0.215, 0.61, 0.355, 1); /* Easing.out(Easing.cubic) */
   --ease-modal-in: cubic-bezier(0.55, 0.055, 0.675, 0.19); /* Easing.in(Easing.cubic) */
+  /* Reanimated withTiming default ≈ inOut quad */
+  --ease-bounce-step: cubic-bezier(0.45, 0.05, 0.55, 0.95);
   position: relative;
   width: 100%;
   height: 100%;
@@ -29,7 +31,7 @@
   left: 50%;
   top: 50%;
   width: 88%; /* MODAL_WIDTH_RATIO */
-  height: 72%; /* MODAL_MAX_HEIGHT_WITH_BADGES_RATIO of stage */
+  height: 72%; /* MODAL_MAX_HEIGHT_WITH_BADGES_RATIO */
   max-height: 72%;
   transform: translate(-50%, calc(-50% + var(--modal-slide)));
   opacity: 0;
@@ -47,6 +49,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .badge-hero {
   position: absolute;
@@ -132,17 +135,20 @@
   place-items: center;
   cursor: pointer;
 }
-.badge-scroll {
+.badge-body {
   flex: 1;
   min-height: 0;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden; /* no scrollbar — stage sized to contain */
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 16px;
 }
 .badge-stats {
   padding: 0 16px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: none;
 }
 .badge-stats-row {
   display: flex;
@@ -160,9 +166,13 @@
   font-weight: 800;
 }
 .badge-section {
-  min-height: 300px; /* BADGES_PLACEHOLDER_HEIGHT */
+  flex: 1;
+  min-height: 0;
   margin-top: 16px;
   opacity: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 .badge-earned-title {
   margin: 0 16px 16px;
@@ -171,13 +181,16 @@
   font-weight: 800;
   font-size: 18px;
   line-height: 1.2;
+  flex: none;
 }
 .badge-carousel {
   display: flex;
   overflow-x: auto;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  flex: none;
 }
 .badge-carousel::-webkit-scrollbar { display: none; }
 .badge-carousel-page {
@@ -185,7 +198,7 @@
   scroll-snap-align: start;
   display: grid;
   place-items: center;
-  min-height: 165px;
+  height: 165px; /* BadgeSize.Large */
 }
 .badge-carousel-page img {
   width: 300px;
@@ -196,13 +209,14 @@
   transform-origin: 50% 50%;
 }
 .badge-carousel-page img.is-in {
-  animation: badgeBounce 600ms linear both;
+  animation: badgeBounce 600ms var(--ease-bounce-step) both;
 }
 .badge-dots {
   display: flex;
   justify-content: center;
   gap: 4px;
   margin-top: 16px;
+  flex: none;
 }
 .badge-dot {
   width: 6px;
@@ -219,16 +233,18 @@
   color: #fff;
   font-weight: 800;
   font-size: 18px;
+  flex: none;
 }
 .badge-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 16px;
-  padding: 0 16px 8px;
+  padding: 0 16px;
+  flex: none;
 }
 .badge-cell {
-  width: 75px;
+  width: 75px; /* BadgeSize.Small */
   height: 100px;
   display: grid;
   place-items: center;
@@ -236,7 +252,7 @@
   transform-origin: 50% 50%;
 }
 .badge-cell.is-in {
-  animation: badgeBounce 600ms linear both;
+  animation: badgeBounce 600ms var(--ease-bounce-step) both;
 }
 .badge-cell img {
   width: 100%;
@@ -257,26 +273,7 @@
   -webkit-mask-position: center;
   mask-position: center;
 }
-.badge-footer {
-  flex: none;
-  padding: 4px 16px 16px;
-}
-.badge-cta {
-  display: block;
-  width: 100%;
-  min-height: 44px;
-  margin: 0;
-  border: 0;
-  border-radius: 999px;
-  color: #fff;
-  font: inherit;
-  font-weight: 800;
-  font-size: 16px;
-  cursor: pointer;
-  background:
-    var(--btn-radial-wash, radial-gradient(circle at 30% 20%, rgba(179, 107, 255, 0.45), transparent 55%)),
-    linear-gradient(180deg, var(--brand-accent), color-mix(in srgb, var(--brand-accent) 55%, #1a0a40));
-}
+/* Bounce steps match useEntranceAnimation: 0.55 / 0.15 / 0.15 / 0.15 of 600ms */
 @keyframes badgeBounce {
   0% { transform: scale(0); }
   55% { transform: scale(1.2); }

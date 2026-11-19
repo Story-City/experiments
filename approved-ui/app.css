@@ -221,7 +221,8 @@ h1 {
   aspect-ratio: unset;
 }
 .stage.stage-badges {
-  height: 580px;
+  /* Phone-tall so 72% modal fits hero+stats+badges without scroll */
+  height: 760px;
   aspect-ratio: unset;
 }
 .stage.stage-spot {

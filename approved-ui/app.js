@@ -1,6 +1,6 @@
-/** Approved UI library — APPROVED-UI-v17
+/** Approved UI library — APPROVED-UI-v18
  * EndStoryInlineBadges popup (exact open/close + badges fade + bounce).
- * END-STORY-BADGES-POPUP-v17
+ * END-STORY-BADGES-POPUP-v18
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -219,7 +219,7 @@ const ELEMENT_DEFS = [
     id: 'end-story-badges',
     title: 'End-story badges popup',
     source: 'EndStoryInlineBadges · BadgeCollection · Tales',
-    ux: 'When: chapter end celebration. Full popup: hero cover, title, stats, badges fade then bounce, See my rewards. Open 820ms / close 520ms (cubic). Try: Play open · Close.',
+    ux: 'When: chapter end celebration. Full popup contained (no scroll): hero, title, stats, badges fade then bounce. Open 820ms / close 520ms. Try: Play open · Close.',
     stage: 'badges',
     mount: mountEndStoryBadgesPopup,
   },
@@ -1484,21 +1484,24 @@ function mountMapModeSwitch(stage, actions) {
 }
 
 function mountEndStoryBadgesPopup(stage, actions) {
-  /* EndStoryInlineBadgesStyles + EndStoryInlineBadges open/close + BadgeCollection bounce. */
+  /* EndStoryInlineBadges open/close + BadgeCollection bounce clocks (from mount/open). */
   const MODAL_OPEN_MS = 820;
   const MODAL_CLOSE_MS = 520;
   const MODAL_SLIDE_OFFSET = 48;
   const MODAL_BADGES_FADE_MS = 340;
   const MODAL_BADGES_FADE_DELAY_MS = 380;
   const VIEW_ANIMATION_DELAY_MS = 500;
+  const TITLE_FADE_DURATION_MS = 400;
   const STAGGER_DELAY_MS = 300;
   const MAX_STAGGER_DELAY_MS = 1200;
+  /* Grid badges wait for featured title fade: VIEW + TITLE_FADE (BadgeCollection). */
+  const GRID_ANIMATION_DELAY_MS = VIEW_ANIMATION_DELAY_MS + TITLE_FADE_DURATION_MS;
   const EASE_OUT = 'cubic-bezier(0.215, 0.61, 0.355, 1)';
   const EASE_IN = 'cubic-bezier(0.55, 0.055, 0.675, 0.19)';
   const COVER =
     'https://creator.storycity.app/media/6a9079bce0f3c_TALES_COVERARTv4.png';
   const TALES = [
-    { file: 'assets/badges/tales/10-cye-took-farron-s-case.png', name: 'Cye took Farron’s case' },
+    { file: 'assets/badges/tales/10-cye-took-farron-s-case.png', name: 'Cye took Farron\u2019s case' },
     { file: 'assets/badges/tales/01-cye-discovered-a-secret-vault.png', name: 'Cye discovered a secret vault' },
     { file: 'assets/badges/tales/12-cye-found-a-shard-of-broken-porcelain.png', name: 'Cye found a shard of broken porcelain' },
     { file: 'assets/badges/tales/27-episode-one-complete.png', name: 'Episode one complete' },
@@ -1531,7 +1534,7 @@ function mountEndStoryBadgesPopup(stage, actions) {
             </button>
           </div>
         </div>
-        <div class="badge-scroll">
+        <div class="badge-body">
           <div class="badge-stats">
             <div class="badge-stats-row">
               <div class="badge-stats-cell"><b>1/4</b> endings reached</div>
@@ -1550,9 +1553,6 @@ function mountEndStoryBadgesPopup(stage, actions) {
             <div class="badge-grid" id="badgeGrid"></div>
           </div>
         </div>
-        <div class="badge-footer">
-          <button type="button" class="badge-cta" id="badgeCta">See my rewards</button>
-        </div>
       </div>
     </div>
   `;
@@ -1565,7 +1565,6 @@ function mountEndStoryBadgesPopup(stage, actions) {
   const dots = host.querySelector('#badgeDots');
   const gridEl = host.querySelector('#badgeGrid');
   const closeBtn = host.querySelector('#badgeClose');
-  const cta = host.querySelector('#badgeCta');
 
   featured.forEach((badge, i) => {
     const page = document.createElement('div');
@@ -1611,36 +1610,40 @@ function mountEndStoryBadgesPopup(stage, actions) {
     }
   };
 
+  const armBounce = (el, delayMs) => {
+    el.classList.remove('is-in');
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+    el.style.animationDelay = `${delayMs}ms`;
+    el.classList.add('is-in');
+  };
+
   const resetBadgeBounces = () => {
     section.style.opacity = '0';
     section.style.transition = 'none';
-    host.querySelectorAll('[data-bounce]').forEach((el) => {
+    carousel.querySelectorAll('img').forEach((el) => {
       el.classList.remove('is-in');
       el.style.animation = 'none';
     });
-    host.querySelectorAll('.badge-cell').forEach((el) => {
+    gridEl.querySelectorAll('.badge-cell').forEach((el) => {
       el.classList.remove('is-in');
       el.style.animation = 'none';
     });
   };
 
+  /* Featured AnimatedBadge: delay = index * 300 (animationDelayMs defaults 0).
+     Grid: delay = GRID_ANIMATION_DELAY_MS + index * 300.
+     Clocks start at open — not after the badges fade delay. */
   const runBadgeBounces = () => {
-    const featuredImgs = carousel.querySelectorAll('img');
-    featuredImgs.forEach((img, i) => {
-      const delay = VIEW_ANIMATION_DELAY_MS + Math.min(i * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS);
-      img.style.animation = 'none';
-      void img.offsetWidth;
-      img.style.animation = '';
-      img.style.animationDelay = `${delay}ms`;
-      img.classList.add('is-in');
+    carousel.querySelectorAll('img').forEach((img, i) => {
+      armBounce(img, Math.min(i * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS));
     });
     gridEl.querySelectorAll('.badge-cell').forEach((cell, i) => {
-      const delay = VIEW_ANIMATION_DELAY_MS + Math.min(i * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS);
-      cell.style.animation = 'none';
-      void cell.offsetWidth;
-      cell.style.animation = '';
-      cell.style.animationDelay = `${delay}ms`;
-      cell.classList.add('is-in');
+      armBounce(
+        cell,
+        GRID_ANIMATION_DELAY_MS + Math.min(i * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS),
+      );
     });
   };
 
@@ -1675,10 +1678,11 @@ function mountEndStoryBadgesPopup(stage, actions) {
     );
     openAnims = [slide, cardOp, backOp];
 
+    /* Bounce clocks start with entrance (BadgeCollection mounts before fade). */
+    runBadgeBounces();
     badgesTimer = window.setTimeout(() => {
       section.style.transition = `opacity ${MODAL_BADGES_FADE_MS}ms ${EASE_OUT}`;
       section.style.opacity = '1';
-      runBadgeBounces();
     }, MODAL_BADGES_FADE_DELAY_MS);
   };
 
@@ -1711,7 +1715,6 @@ function mountEndStoryBadgesPopup(stage, actions) {
 
   scrim.addEventListener('click', close);
   closeBtn.addEventListener('click', close);
-  cta.addEventListener('click', close);
 
   open();
   addPlay(actions, 'Play open', open);
