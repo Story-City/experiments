@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Story City · Vote on the fog looks</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌫️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400..800;1,400..800&display=swap">
+<script>
+window.CACHE_V = '?v=' + Date.now();
+document.write(`<link rel="stylesheet" href="vote.css${CACHE_V}">`);
+</script>
+</head>
+<body>
+<main class="page" id="page">
+  <a class="back" id="back" href="./"></a>
+  <p class="kicker" id="kicker"></p>
+  <h1 id="title"></h1>
+  <p class="lead" id="lead"></p>
+
+  <div class="you" id="you">
+    <label for="who" id="whoLabel"></label>
+    <input id="who" maxlength="40" autocomplete="name">
+  </div>
+  <p class="status" id="status" role="status"></p>
+
+  <section class="results" id="results" aria-live="polite"></section>
+
+  <ul class="looks" id="looks"></ul>
+
+  <div class="note">
+    <label for="note" id="noteLabel"></label>
+    <textarea id="note" rows="2" maxlength="400"></textarea>
+  </div>
+  <section class="notes" id="notes" hidden></section>
+</main>
+<script type="module">import(`./vote.js${window.CACHE_V}`);</script>
+</body>
+</html>

@@ -79,7 +79,8 @@ body[data-mode="walk"] .chip { background: linear-gradient(90deg, var(--walk-sta
 body[data-mode="pin"] .chip { background: var(--pin); color: var(--text); }
 body[data-mode="hunt"] .chip { background: var(--hunt); color: var(--text); }
 .hud-title { margin-top: 5px; font: 700 22px/1.1 "Darker Grotesque", system-ui, sans-serif; }
-.demo { display: flex; gap: 6px; justify-content: flex-end; }
+.demo { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.demo a.vote { border-style: solid; border-color: #c49bff; color: #fbf7ff; }   /* the team vote on the fog looks (vote.html) */
 .demo button, .demo a.ver { border: 1px dashed rgba(255, 255, 255, 0.3); background: rgba(7, 8, 15, 0.6); border-radius: 999px; padding: 4px 10px; font-size: 11px; color: var(--muted); }
 .demo a.ver { text-decoration: none; display: inline-flex; align-items: center; }   /* both versions live in this one experiment: this swaps between them */
 .demo button[aria-pressed="true"] { border-style: solid; border-color: var(--pin); color: var(--text); }
@@ -234,3 +235,72 @@ body[data-look="darkClouds"] .bubble-from { color: #c9bfff; }
 .near-story.on { border-color: var(--story); }
 .ns-name { font: 700 16px/1.05 "Darker Grotesque", system-ui, sans-serif; }
 .ns-meta { font-size: 11px; color: var(--muted); }
+
+/* ---------- the app's look (19 Nov): mobile-rn's dark map style (design/MapStyle.js) and its chapter map (FtueMap) ---------- */
+:root {
+  --map-ground: #1e2d4c;
+  --map-road: #314c7d;
+  --map-main: #2f6673;
+  --map-park: #073f57;
+  --map-label: #d6d6e0;
+  --map-tint: rgba(23, 12, 53, 0.55);
+  --hud: rgba(36, 27, 70, 0.86);
+  --hud-clear: rgba(36, 27, 70, 0);
+  --bar-track: #3a3163;
+  --steps-label: #b9b2d9;
+  --dot: #007aff;
+  --app-font: 'Barlow', system-ui, sans-serif;
+}
+.ground, .block { fill: var(--map-ground); }   /* the map is streets on plain ground, no building blocks */
+.park { fill: var(--map-park); }
+.road { stroke: var(--map-road); stroke-width: 12; }
+.road.main { stroke: var(--map-main); stroke-width: 18; }
+.tree { display: none; }
+.label { fill: var(--map-label); paint-order: stroke; stroke: var(--map-ground); stroke-width: 3px; }
+.tint { fill: var(--map-tint); pointer-events: none; }
+.me .dot { fill: var(--dot); stroke: #fff; stroke-width: 4; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)); }
+.me .pulse { fill: var(--dot); }
+.ring { stroke-width: 1.5; }
+.route { stroke: var(--pin); opacity: 1; stroke-width: 5; }
+
+/* top: back to the story and the chapter title, fading into the map */
+.app-top { padding: env(safe-area-inset-top) 8px 0; gap: 6px; isolation: isolate; }
+.app-top::before { content: ""; position: absolute; inset: 0 0 -56px; z-index: -1; pointer-events: none; background: linear-gradient(var(--hud), var(--hud) 55%, var(--hud-clear)); }
+.appbar { display: flex; align-items: center; padding-bottom: 4px; }
+.appbar .back { flex: none; width: 56px; height: 40px; display: flex; align-items: center; gap: 4px; padding: 0; border: 0; background: none; color: #fff; }
+.appbar .back svg { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.appbar .back-arrow { width: 12px; height: 24px; margin-bottom: 2px; }
+.appbar .book { width: 24px; height: 24px; }
+.appbar .title { flex: 1; min-width: 0; text-align: center; font: 700 18px/1.2 var(--app-font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fogline { display: flex; justify-content: center; }
+.fogline .uncovered { padding: 3px 10px 4px; border-radius: 12px; background: rgba(255, 255, 255, 0.12); font: 600 12px/1.2 var(--app-font); }
+.app-top .demo { justify-content: center; }
+
+/* the card: where you're heading, the mode switch, that mode's progress, the hint */
+.app-card { left: 8px; right: 8px; bottom: calc(12px + env(safe-area-inset-bottom)); padding: 16px; gap: 16px; border-radius: 24px; background: var(--raised); -webkit-backdrop-filter: none; backdrop-filter: none; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); }
+.objective { font: 700 22px/26px var(--app-font); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-card .seg { font: 700 15px/1.2 var(--app-font); padding: 8px 6px; }
+.app-card .seg-walk[aria-selected="true"] { background: var(--walk-end); color: var(--bg); }   /* Steps: solid green with dark text, as in the app */
+.app-card .status:empty { display: none; }
+.app-card .status { min-height: 66px; display: flex; flex-direction: column; justify-content: center; gap: 8px; font: 400 14px/1.35 var(--app-font); }
+.steps { display: flex; align-items: baseline; justify-content: center; gap: 4px; }
+.steps b { font: 700 32px/36px var(--app-font); color: #fff; }
+.steps span { font: 400 16px/20px var(--app-font); color: var(--steps-label); }
+.app-card .bar { margin-top: 0; height: 14px; border-radius: 7px; background: var(--bar-track); }
+.app-card .bar i { min-width: 14px; border-radius: 7px; }
+.app-card .bar i[style^="width:0%"] { display: none; }
+.app-card .status .done { font: 700 18px/1.2 var(--app-font); text-align: center; }
+.row.center { text-align: center; color: var(--muted); }
+.app-card .hint { margin: 0; font: 400 12px/1.35 var(--app-font); }
+.app-card .btn { font: 700 17px/1.2 var(--app-font); padding: 12px 14px; white-space: nowrap; }
+@media (max-width: 400px) { .app-card .btn { font-size: 15px; padding: 12px 10px; } .app-card .btn.tester { font-size: 14px; } }
+.btn.tester { background: transparent; border: 1px dashed rgba(255, 255, 255, 0.35); color: var(--muted); font-size: 15px; }
+.app-card .btn.shutter { flex: 0 0 auto; }
+.recenter { position: absolute; left: 8px; top: -56px; width: 40px; height: 40px; border-radius: 50%; border: 0; padding: 0; background: var(--raised); display: grid; place-items: center; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5); }
+.recenter svg { width: 18px; height: 18px; fill: #fff; }
+/* the map fades into the dark behind the card */
+.bottom-fade { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--card-h, 280px) + 12px + env(safe-area-inset-bottom) + 56px); pointer-events: none; background: linear-gradient(rgba(23, 12, 53, 0), var(--bg) 56px); }
+.app-card ~ .toast, .toast { bottom: calc(var(--card-h, 280px) + 80px); }
+body:has(.app-card) .viewfinder { inset: 118px 14px calc(var(--card-h, 280px) + 44px); }
+/* the map, fog and markers move together to keep you centred (app.js frameMap) */
+body:has(.app-card) #map, body:has(.app-card) #fog, body:has(.app-card) #overlay { transform: translateY(var(--map-shift, 0px)); }

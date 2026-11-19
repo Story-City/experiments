@@ -1,9 +1,10 @@
 // Every line of text in the fog mode mockup. Edit here; one line = one change.
 
+// Map modes are Steps / Path / Hunt (decided Nov 4). The keys stay walk / pin / hunt in the code.
 export const MODES = {
-  walk: { label: 'Steps', chip: 'Steps to unlock' },
-  pin: { label: 'Pin', chip: 'Pin nearby' },
-  hunt: { label: 'Hunt', chip: 'Scavenger hunt' },
+  walk: { label: 'Steps' },
+  pin: { label: 'Path' },
+  hunt: { label: 'Hunt' },
 };
 
 export const COPY = {
@@ -44,8 +45,11 @@ export const COPY = {
     walk: 'The fog lifts wherever you walk. Your steps always count.',
     indoor: 'Steps from home count. Fog only lifts round the story, not round you.',
   },
-  walkBtn: { start: '▶ Pretend to walk', keep: '▶ Keep walking', pause: 'Pause' },
-  indoorBtn: 'Walking indoors?',
+  walkBtn: { start: 'Pretend to Walk', keep: 'Keep Walking', pause: 'Pause' },   // tester buttons (dashed): the app counts real steps
+  indoorBtn: 'Walking Indoors?',
+  outOf: (goal) => `out of ${goal} steps`,   // the app's step readout under the big count
+  huntObjective: (find) => `Find ${find}`,
+  recentered: 'The map follows you again',
   indoorOn: 'Indoor steps count. The fog lifts around the clock tower while you walk.',
   indoorStatus: (left) => `<b>${left} indoor steps</b> to unlock. The fog is lifting where you're headed.`,
   switchToast: (n) => `You've walked ${n} steps. They still count.`,
@@ -92,6 +96,37 @@ export const HOME = {
   starting: (name) => `(${name} opens here)`,
   close: 'Not Now',
   history: 'Earlier this week',
+};
+
+// Vote page (vote.html): the team picks a favourite fog look. Votes save as you tap; you can change them any time.
+export const VOTE = {
+  kicker: 'Fog mode · Team vote',
+  title: 'Which fog look should we use?',
+  lead: 'Tap your favourite. Give a thumbs-down to any you’d never want. Your vote saves as you tap, and you can change it any time.',
+  nameLabel: 'Your name',
+  namePlaceholder: 'So we know whose vote it is',
+  needName: 'Add your name first, then tap your pick.',
+  pick: 'Pick This One',
+  picked: 'Your Pick',
+  down: (name) => `Thumbs-down ${name}`,
+  undown: (name) => `Remove thumbs-down from ${name}`,
+  see: 'See It on the Map',
+  noteLabel: 'Anything else? (optional)',
+  notePlaceholder: 'A mix of two looks, a change you’d make…',
+  saving: 'Saving…',
+  saved: 'Saved. Change it any time.',
+  offline: 'Couldn’t save. Check your connection and tap again.',
+  previewOnly: 'Preview only: votes save on the experiments site.',
+  resultsTitle: 'Votes so far',
+  noVotes: 'No votes yet. Be the first.',
+  voters: (n) => `${n} ${n === 1 ? 'person has' : 'people have'} voted`,
+  leading: (name) => `Leading: ${name}`,
+  tie: 'It’s a tie at the top',
+  tally: (up, down) => `${up} pick${up === 1 ? '' : 's'} · ${down} thumbs-down`,
+  by: (names) => `Picked by ${names}`,
+  notesTitle: 'Notes from the team',
+  back: '‹ Back to the Map',
+  demo: 'Vote on Looks',
 };
 
 // Stories on the home map: real Story City stories (Edmonton catalogue, public API, Oct 29).

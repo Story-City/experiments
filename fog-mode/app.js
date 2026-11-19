@@ -79,6 +79,7 @@ const poly = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[
   t1.textContent = 'Maple Park';
   const t2 = el('text', { x: 203, y: 294, class: 'label small' }, svg);
   t2.textContent = 'Main St';
+  el('rect', { width: W, height: H, class: 'tint' }, svg); // the app's purple wash over the map (FtueMap mapTint)
   const dest = el('g', { transform: `translate(${CLOCK[0]} ${CLOCK[1]})`, class: 'dest' }, svg);
   el('circle', { r: 13 }, dest);
   el('path', { d: 'M0 -6 v6 l4 3' }, dest);
@@ -220,7 +221,7 @@ const trails = el('g', {}, over);
 const live = el('g', {}, over);
 const me = el('g', { class: 'me' }, over);
 el('circle', { r: 16, class: 'pulse' }, me);
-el('circle', { r: 7, class: 'dot' }, me);
+el('circle', { r: 9, class: 'dot' }, me); // the app's player dot: system blue, thick white edge (22 px across)
 
 function drawGlints() {
   glints.innerHTML = '';
@@ -275,11 +276,11 @@ function drawMode() {
   const { mode } = state;
   document.body.dataset.mode = mode;
   $('viewfinder').hidden = mode !== 'hunt' || state.unlocked;
-  $('chip').textContent = MODES[mode].chip;
   if (!state.unlocked) {
     if (mode === 'walk') {
       ring = el('circle', { class: 'ring', r: 0 }, live);
     } else if (mode === 'pin') {
+      state.pinTotal = stepsToPin(); // Path progress counts down from how far the pin was when it showed up (as in the app)
       routeEl = el('path', { d: poly(pinRoute(state.pos)), class: 'route' }, live);
       const pin = el('g', { class: 'pin', transform: `translate(${PIN().at[0]} ${PIN().at[1]})` }, live);
       el('path', { d: 'M0 0 C-4 -8 -14 -14 -14 -24 A14 14 0 1 1 14 -24 C14 -14 4 -8 0 0Z', class: 'pin-body' }, pin);
@@ -311,15 +312,27 @@ function update() {
   if (routeEl && !state.unlocked) routeEl.setAttribute('d', poly(state.mode === 'pin' && state.path ? [state.pos, ...state.path.filter((p, i) => i > 0 && pathLen(state.path.slice(0, i + 1)) > state.along)] : pinRoute(state.pos)));
 
   $('uncovered').textContent = COPY.uncovered(cleared());
-  let title = '';
-  if (state.unlocked) title = COPY.unlocked;
-  else if (state.mode === 'walk') title = `${left} steps to go`;
-  else if (state.mode === 'pin') title = COPY.pinTitle(PIN().name, stepsToPin());
-  else title = `Find ${day().huntFind}`;
-  $('hudTitle').textContent = title;
   renderSwitch();
   renderCard();
+  document.documentElement.style.setProperty('--card-h', `${$('card').offsetHeight}px`);
+  frameMap();
 }
+
+// Like the app's map, keep you in the middle of the open map between the title and the card,
+// following you as you walk (but never past the map's edges).
+function frameMap() {
+  const ph = $('phone').getBoundingClientRect();
+  const s = Math.max(ph.width / W, ph.height / H);
+  const top = document.querySelector('.fogline').getBoundingClientRect().bottom - ph.top;
+  const cardTop = $('card').getBoundingClientRect().top - ph.top;
+  const shift = Math.min(top, Math.max(cardTop - H * s, (top + cardTop) / 2 - state.pos[1] * s));
+  document.documentElement.style.setProperty('--map-shift', `${shift.toFixed(1)}px`);
+}
+addEventListener('resize', frameMap);
+
+// The app's step readout: the count over a thick rounded bar, in the mode's colour.
+const stepsBar = (walked, goal, color) => `<div class="steps"><b>${Math.round(walked)}</b><span>${COPY.outOf(goal)}</span></div>
+  <div class="bar"><i style="width:${Math.min(100, (walked / goal) * 100)}%;background:${color}"></i></div>`;
 
 let switchKey = '';
 let cardKey = '';
@@ -348,8 +361,8 @@ function renderSwitch() {
 
 function renderCard() {
   const { mode, walked } = state;
-  $('storyName').textContent = `${COPY.storyName} · ${day().chapter}`;
-  $('next').innerHTML = `Next: <b>${day().next}</b>`;
+  $('storyTitle').textContent = `${COPY.storyName} · ${day().chapter}`;
+  $('next').textContent = state.mode === 'hunt' ? COPY.huntObjective(day().huntFind) : day().next.replace(/^./, (c) => c.toUpperCase());
   $('hint').textContent = state.indoor ? COPY.hint.indoor : COPY.hint.walk;
   const st = $('status');
   const act = $('actions');
@@ -370,20 +383,22 @@ function renderCard() {
   const walkLabel = state.walking ? COPY.walkBtn.pause : walked ? COPY.walkBtn.keep : COPY.walkBtn.start;
 
   if (state.unlocked) {
-    st.innerHTML = `<div class="done">✓ ${COPY.unlocked}</div><div class="row">${COPY.unlockedToday(Math.max(0, cleared() - state.todayStart))}</div>`;
+    st.innerHTML = `<div class="done">✓ ${COPY.unlocked}</div><div class="row center">${COPY.unlockedToday(Math.max(0, cleared() - state.todayStart))}</div>`;
     if (state.day === 0) { btn(COPY.read, 'ghost', () => toast('(Chapter 2 plays here)')); btn(COPY.tomorrow, 'primary', dayTwo); }
     else btn(COPY.read, 'primary', showEnd);
     return;
   }
   if (mode === 'walk') {
-    st.innerHTML = `<div class="row">${state.indoor ? COPY.indoorStatus(left) : COPY.walkStatus(left)}</div><div class="bar"><i style="width:${Math.min(100, (walked / GOAL) * 100)}%"></i></div>`;
-    btn(walkLabel, 'primary walk', toggleWalk);
+    st.innerHTML = stepsBar(walked, GOAL, mix(css('--walk-start'), css('--walk-end'), Math.min(1, walked / GOAL)))
+      + (state.indoor ? `<div class="row center">${COPY.indoorStatus(left)}</div>` : '');
+    btn(walkLabel, 'tester', toggleWalk);
     if (!state.indoor && state.day === 0) btn(COPY.indoorBtn, 'ghost', goIndoor);
   } else if (mode === 'pin') {
-    st.innerHTML = `<div class="row">${COPY.pinStatus(PIN().name, stepsToPin())}</div>`;
-    btn(walkLabel, 'primary pin', toggleWalk);
+    const total = Math.max(1, state.pinTotal || stepsToPin());
+    st.innerHTML = stepsBar(Math.max(0, total - stepsToPin()), total, css('--pin'));
+    btn(walkLabel, 'tester', toggleWalk);
   } else {
-    st.innerHTML = `<div class="row">${COPY.huntStatus(day().huntFind)}</div>`;
+    st.innerHTML = ''; // as in the app: Hunt's card shows what to find (above) and the camera button, nothing else
     btn('', 'shutter', snap).setAttribute('aria-label', 'Take photo');
   }
 }
@@ -541,51 +556,6 @@ function closeSheet() {
   document.body.classList.remove('sheet-open');
 }
 
-function showIntro() {
-  document.body.classList.add('asking'); // no dot or ring until location is on
-  sheet(`<div class="kicker">${COPY.intro.kicker}</div><h1>${COPY.intro.title}</h1><p>${COPY.intro.body}</p>
-    ${lookPicker()}
-    <button class="btn primary" id="go">${COPY.intro.start}</button>`, (s) => {
-    s.querySelector('select.look').addEventListener('change', (e) => setLook(e.target.value));
-    s.querySelector('#go').addEventListener('click', () => { closeSheet(); askLocation(); });
-  });
-}
-
-// Opening: the map is all fog while the app asks for location. Allow and it
-// lifts around you; say no and you play from home.
-function askLocation() {
-  document.body.classList.add('asking');
-  const c = $('chat');
-  const A = COPY.ask;
-  c.hidden = false;
-  c.innerHTML = `<div class="bubble-from">${A.from}</div>${A.lines.map((l, i) => `<div class="bubble" style="animation-delay:${0.2 + i * 0.7}s">${l}</div>`).join('')}<button class="bubble me-reply" style="animation-delay:${0.4 + A.lines.length * 0.7}s">${A.reply}</button>`;
-  c.querySelector('.me-reply').addEventListener('click', () => {
-    sheet(`<div class="os"><h2>${A.osTitle}</h2><p>${A.osBody}</p><button class="os-btn" id="allow">${A.allow}</button><button class="os-btn" id="deny">${A.deny}</button></div>`, (s) => {
-      s.querySelector('#allow').addEventListener('click', () => answer(true));
-      s.querySelector('#deny').addEventListener('click', () => answer(false));
-    });
-  });
-}
-function answer(allowed) {
-  closeSheet();
-  $('chat').hidden = true;
-  document.body.classList.remove('asking');
-  if (allowed) {
-    const t0 = performance.now();
-    (function lift(now) {
-      const k = Math.min(1, (now - t0) / 900);
-      clearAt(START[0], START[1], 12 + 50 * (1 - Math.pow(1 - k, 3)));
-      if (k < 1) requestAnimationFrame(lift);
-      else { state.todayStart = cleared(); update(); }
-    })(t0);
-    toast(COPY.ask.allowed);
-    drawMode();
-  } else {
-    goIndoor();
-    toast(COPY.ask.denied);
-  }
-}
-
 function startDay(n) {
   stopWalking();
   Object.assign(state, { day: n, mode: 'walk', pos: START.slice(), walked: 0, unlocked: false, indoor: false, lastDot: 0, chapterStart: START.slice(), lastClear: [-99, -99], todayStart: cleared() });
@@ -608,24 +578,24 @@ function showEnd() {
   sheet(`<div class="kicker">${COPY.end.kicker}</div><h1>${COPY.end.title(cleared())}</h1><p>${COPY.end.body}</p>
     <button class="btn primary" id="remind">${COPY.end.remind}</button><button class="btn ghost" id="again">${COPY.end.again}</button>`, (s) => {
     s.querySelector('#remind').addEventListener('click', () => { closeSheet(); toast('(The reminder picker opens here)'); });
-    s.querySelector('#again').addEventListener('click', () => { closeSheet(); reset(true); });
+    s.querySelector('#again').addEventListener('click', () => { closeSheet(); reset(); });
   });
 }
 
-function reset(intro) {
+// Opens straight on the map (no intro or location ask), in a small clearing around you.
+function reset() {
   grid = new Uint8Array(GX * GY);
   mctx.clearRect(0, 0, mask.width, mask.height);
   hiddenEls.forEach((h) => { h.found = false; h.g.classList.remove('found'); });
-  if (!intro) clearAt(START[0], START[1], 46); // skipping the opening: start in a small clearing
+  clearAt(START[0], START[1], 46);
   drawGlints();
   startDay(0);
-  if (intro) showIntro();
 }
 
-$('resetBtn').addEventListener('click', () => reset(true));
+$('resetBtn').addEventListener('click', () => reset());
+$('card').querySelector('.recenter')?.addEventListener('click', () => toast(COPY.recentered));
 // Esc or a tap outside the card closes a sheet
-// (not the location ask, which needs an answer)
-const closable = () => !$('sheet').hidden && !$('sheet').querySelector('.os');
+const closable = () => !$('sheet').hidden;
 $('sheet').addEventListener('click', (e) => { if (e.target.id === 'sheet' && closable()) $('sheet').querySelector('.btn.primary')?.click(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && closable()) $('sheet').querySelector('.btn.primary')?.click(); });
 
@@ -641,4 +611,4 @@ $('lookSlot').querySelector('select').addEventListener('change', (e) => setLook(
 document.body.dataset.look = look;
 paintLayer();
 sizeFog();
-reset(!params.has('skip'));
+reset();
