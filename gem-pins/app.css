@@ -81,6 +81,13 @@ body.dragging .drop:not(.can) { opacity: 0.45; }
 .qchip.in-use { opacity: 0.55; border-style: dashed; }
 .qchip.picked { background: linear-gradient(90deg, #6a2fc4, #b36bff); border-color: transparent; box-shadow: 0 0 12px -3px rgba(179, 107, 255, 0.9); }
 .drop .qchip { background: linear-gradient(90deg, #0259a1, #009eff); border-color: transparent; }
+.qchip.idea { background: transparent; border: 1.5px dashed #ffc448; color: #ffd98a; }
+.drop .qchip.idea { background: rgba(255, 196, 72, 0.12); border: 1.5px dashed #ffc448; color: #ffd98a; }
+.qchip.new-attr { background: transparent; border: 1.5px dashed var(--glow); color: var(--glow); }
+.new-attr-form { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; width: 100%; }
+.new-attr-form input { flex: 1 1 140px; min-width: 0; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--glow); background: #1b1140; color: var(--text); font: 600 13px var(--f-ui); }
+.qchip.ghosty { background: transparent; border-color: var(--line); color: var(--muted); }
+.idea-note { margin: 8px 0 0; font-size: 11.5px; color: #ffd98a; }
 .qx { font-style: normal; font-size: 15px; line-height: 1; opacity: 0.8; padding-left: 2px; }
 .qchip.ghost { position: fixed; z-index: 100; pointer-events: none; transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5); }
 .opts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }

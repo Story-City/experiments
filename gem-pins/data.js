@@ -103,8 +103,8 @@ export const GROUPS = [
   ['Map', [['density', 'Gems on screen'], ['cb', 'Colour-blind view']]],
 ];
 
-// Drag & drop settings: what we need to show (left) and the qualities we can play with (the cloud).
-// `uses` = which qualities each thing can take, and the option value each one sets.
+// Drag & drop settings: what we need to show (left) and the attributes we can play with (the cloud).
+// `uses` = which attributes each thing can take, and the option value each one sets.
 export const QUALITIES = [
   { id: 'colour', label: 'Colour', only: true }, // only one thing can own colour
   { id: 'shape', label: 'Shape' },
@@ -197,11 +197,18 @@ export const COPY = {
   markVisited: 'Mark Visited',
   modeDropdowns: 'Dropdowns',
   modeDrag: 'Drag & drop',
-  dndHelp: 'Drag a quality onto something we need to show. Or tap a quality, then tap a row.',
-  cloud: 'Qualities',
+  dndHelp: 'Drag an attribute onto something we need to show. Or tap an attribute, then tap a row.',
+  cloud: 'Attributes',
+  newAttr: '+ New attribute',
+  newAttrPlaceholder: 'e.g. Bounce, Halo, Shadow',
+  add: 'Add',
+  cancel: 'Cancel',
+  ideaNote: 'Dashed = a new attribute: it’s saved in the setup and the link, but the mockup can’t draw it yet.',
+  deleteAttr: (a) => `Delete the attribute ${a}`,
+  attrExists: (a) => `There’s already an attribute called ${a}`,
   cantUse: (thing, q) => `${thing} can’t be shown by ${q}`,
   colourMoved: (from, to) => `Colour moved from ${from} to ${to}`,
-  dropHere: 'Drop a quality here',
+  dropHere: 'Drop an attribute here',
   remove: (q, thing) => `Remove ${q} from ${thing}`,
   ends: (left, from) => `Ends in ${left} · part of a ${from}`,
   seasonal: (season, until) => `${season} gem · ${until}`,

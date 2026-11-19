@@ -30,6 +30,7 @@ const START = Object.fromEntries(OPTIONS.map((o) => [o.id, o.start]));
 let opt = { ...START };
 let myColour = PALETTE[0].id;
 let filterOn = new Set(CATS.map((c) => c.id));
+let ideas = []; // new attributes people add: { id, label, on: [thing ids] }
 function readHash() {
   const q = new URLSearchParams(location.hash.slice(1));
   for (const o of OPTIONS) {
@@ -39,6 +40,11 @@ function readHash() {
     else if (o.opts.some(([k]) => k === v)) opt[o.id] = v;
   }
   if (PALETTE.some((p) => p.id === q.get('my'))) myColour = q.get('my');
+  // new attributes: "Bounce:rarity.liked|Halo:" (name, then the rows it's on)
+  ideas = (q.get('na') || '').split('|').filter(Boolean).map((part) => {
+    const [label, on = ''] = part.split(':');
+    return { id: 'c-' + label.toLowerCase().replace(/[^a-z0-9]+/g, '-'), label, on: on.split('.').filter((t) => D.THINGS.some((x) => x.id === t)) };
+  }).filter((a) => a.label);
 }
 function writeHash() {
   const q = new URLSearchParams();
@@ -48,6 +54,7 @@ function writeHash() {
     q.set(o.id, o.multi ? v.join('.') : v);
   }
   if (myColour !== PALETTE[0].id) q.set('my', myColour);
+  if (ideas.length) q.set('na', ideas.map((a) => `${a.label}:${a.on.join('.')}`).join('|'));
   history.replaceState(null, '', q.toString() ? `#${q}` : location.pathname + location.search);
 }
 readHash();
@@ -529,7 +536,7 @@ function drawPanel() {
     list.append(li);
   }
 }
-$('resetBtn').addEventListener('click', () => { opt = { ...START }; myColour = PALETTE[0].id; filterOn = new Set(CATS.map((c) => c.id)); writeHash(); drawAll(); });
+$('resetBtn').addEventListener('click', () => { ideas = []; opt = { ...START }; myColour = PALETTE[0].id; filterOn = new Set(CATS.map((c) => c.id)); writeHash(); drawAll(); });
 $('shareBtn').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(location.href); toast(COPY.copied); } catch (e) { toast(location.href); }
 });
@@ -643,9 +650,17 @@ function setQualities(thing, qs) {
   if (thing === 'expiring') opt.expiring = has('badge') ? 'clock' : has('label') ? 'countdown' : has('ring') ? 'ring' : 'none';
   if (thing === 'seasonal') opt.seasonal = has('shape') ? 'shape' : has('badge') ? 'badge' : has('tint') ? 'colour' : 'none';
 }
-const qLabel = (id) => D.QUALITIES.find((q) => q.id === id).label;
+const isIdea = (id) => id.startsWith('c-');
+const qLabel = (id) => (isIdea(id) ? ideas.find((a) => a.id === id)?.label || id : D.QUALITIES.find((q) => q.id === id).label);
 const tLabel = (id) => D.THINGS.find((t) => t.id === id).label;
+function dropIdea(id, thingId, fromThing) {
+  const a = ideas.find((x) => x.id === id);
+  if (!a) return;
+  a.on = [...new Set([...a.on.filter((t) => t !== fromThing), thingId])];
+  writeHash(); drawDnd();
+}
 function dropQuality(q, thingId, fromThing) {
+  if (isIdea(q)) return dropIdea(q, thingId, fromThing);
   const t = D.THINGS.find((x) => x.id === thingId);
   if (!t.uses.includes(q)) { toast(COPY.cantUse(t.label, qLabel(q))); return false; }
   const now = qualitiesOf(opt);
@@ -661,7 +676,8 @@ function dropQuality(q, thingId, fromThing) {
   if (msg) toast(msg);
   return true;
 }
-function removeQuality(q, thingId) { setQualities(thingId, qualitiesOf(opt)[thingId].filter((x) => x !== q)); writeHash(); drawAll(); }
+function removeQuality(q, thingId) {
+  if (isIdea(q)) { const a = ideas.find((x) => x.id === q); if (a) a.on = a.on.filter((t) => t !== thingId); writeHash(); drawDnd(); return; } setQualities(thingId, qualitiesOf(opt)[thingId].filter((x) => x !== q)); writeHash(); drawAll(); }
 
 let panelMode = 'dropdowns';
 try { panelMode = localStorage.getItem('sc-gem-panel') || 'dropdowns'; } catch (e) { /* fine */ }
@@ -679,9 +695,11 @@ function drawDnd() {
     zone.tabIndex = 0;
     zone.setAttribute('role', 'button');
     zone.setAttribute('aria-label', `${t.label}: ${q[t.id].map(qLabel).join(', ') || 'nothing'}. ${COPY.dropHere}`);
-    if (picked) zone.classList.toggle('can', t.uses.includes(picked.q));
+    if (picked) zone.classList.toggle('can', isIdea(picked.q) || t.uses.includes(picked.q));
     for (const id of q[t.id]) zone.append(chip(id, t.id));
-    if (!q[t.id].length) zone.append(el('span', 'drop-empty', COPY.dropHere));
+    const placedIdeas = ideas.filter((a) => a.on.includes(t.id));
+    for (const a of placedIdeas) zone.append(chip(a.id, t.id));
+    if (!q[t.id].length && !placedIdeas.length) zone.append(el('span', 'drop-empty', COPY.dropHere));
     const place = () => { if (picked) { const p = picked; picked = null; dropQuality(p.q, t.id, p.from); } };
     zone.addEventListener('click', (e) => { if (e.target === zone || e.target.classList.contains('drop-empty')) place(); });
     zone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); place(); } });
@@ -693,8 +711,38 @@ function drawDnd() {
   cloud.append(el('p', 'cloud-title', COPY.cloud));
   const wrap = el('div', 'cloud-chips');
   for (const x of D.QUALITIES) wrap.append(chip(x.id, null, x.only && Object.values(q).some((l) => l.includes(x.id))));
+  for (const a of ideas) wrap.append(chip(a.id, null));
+  wrap.append(newAttrControl());
   cloud.append(wrap);
+  if (ideas.length) cloud.append(el('p', 'idea-note', COPY.ideaNote));
   box.append(rows, cloud);
+}
+let addingAttr = false;
+function newAttrControl() {
+  if (!addingAttr) {
+    const b = el('button', 'qchip new-attr', COPY.newAttr);
+    b.type = 'button';
+    b.id = 'newAttrBtn';
+    b.addEventListener('click', () => { addingAttr = true; drawDnd(); $('newAttrName')?.focus(); });
+    return b;
+  }
+  const f = el('form', 'new-attr-form');
+  const i = el('input');
+  i.id = 'newAttrName'; i.maxLength = 24; i.placeholder = COPY.newAttrPlaceholder; i.setAttribute('aria-label', COPY.newAttr);
+  const ok = el('button', 'qchip', COPY.add); ok.type = 'submit';
+  const no = el('button', 'qchip ghosty', COPY.cancel); no.type = 'button';
+  no.addEventListener('click', () => { addingAttr = false; drawDnd(); });
+  f.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const label = i.value.trim().replace(/[|:.]/g, ' ').replace(/\s+/g, ' ').slice(0, 24);
+    if (!label) return;
+    const id = 'c-' + label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    if (ideas.some((a) => a.id === id) || D.QUALITIES.some((x) => x.label.toLowerCase() === label.toLowerCase())) { toast(COPY.attrExists(label)); return; }
+    ideas.push({ id, label, on: [] });
+    addingAttr = false; writeHash(); drawDnd();
+  });
+  f.append(i, ok, no);
+  return f;
 }
 function chip(qid, thing, inUse = false) {
   const c = el('button', 'qchip');
@@ -702,8 +750,15 @@ function chip(qid, thing, inUse = false) {
   c.dataset.q = qid;
   if (thing) c.dataset.from = thing;
   c.classList.toggle('in-use', inUse);
+  c.classList.toggle('idea', isIdea(qid));
   c.classList.toggle('picked', !!picked && picked.q === qid && (picked.from || null) === (thing || null));
   c.append(el('span', null, qLabel(qid)));
+  if (!thing && isIdea(qid)) {
+    const x = el('i', 'qx', '×');
+    x.setAttribute('aria-hidden', 'true');
+    c.append(x);
+    c.title = COPY.deleteAttr(qLabel(qid));
+  }
   if (thing) {
     const x = el('i', 'qx', '×');
     x.setAttribute('aria-hidden', 'true');
@@ -724,7 +779,7 @@ function startDrag(e, qid, from) {
     if (!ghost) {
       ghost = src.cloneNode(true); ghost.classList.add('ghost'); document.body.append(ghost);
       document.body.classList.add('dragging');
-      document.querySelectorAll('#dnd .drop').forEach((z) => z.classList.toggle('can', D.THINGS.find((t) => t.id === z.dataset.thing).uses.includes(qid)));
+      document.querySelectorAll('#dnd .drop').forEach((z) => z.classList.toggle('can', isIdea(qid) || D.THINGS.find((t) => t.id === z.dataset.thing).uses.includes(qid)));
     }
     ghost.style.left = `${ev.clientX}px`; ghost.style.top = `${ev.clientY}px`;
     document.querySelectorAll('#dnd .drop.over').forEach((z) => z.classList.remove('over'));
@@ -736,6 +791,7 @@ function startDrag(e, qid, from) {
     document.body.classList.remove('dragging');
     if (!ghost) { // a tap
       if (from && ev.target.closest('.qx')) { removeQuality(qid, from); return; }
+      if (!from && isIdea(qid) && ev.target.closest('.qx')) { ideas = ideas.filter((a) => a.id !== qid); writeHash(); drawDnd(); return; }
       picked = picked && picked.q === qid && picked.from === (from || null) ? null : { q: qid, from: from || null };
       drawDnd();
       return;
