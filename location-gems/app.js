@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v48 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v49 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -145,7 +145,7 @@ const TEXT_SWIPE_MS = 900;
 const FLY_MS = 720;
 const LIKES_DEMO = 12;
 const LIKES_STACK_SECOND = 8;
-const LIKES_STACK_SHUFFLE_MS = 520;
+const LIKES_STACK_SHUFFLE_MS = 560;
 const GLANCE_ARC_CX = 120;
 const GLANCE_ARC_CY = 96;
 const GLANCE_ARC_R = 80;
@@ -1712,10 +1712,25 @@ function fillLikesJamCard(card, gem, likesOverride) {
   return { likes, rarity, els };
 }
 
+function clearLikesStackMotion(cards) {
+  cards.forEach((card) => {
+    card.classList.remove(
+      'is-in',
+      'is-out',
+      'is-impact',
+      'is-rarity-up',
+      'is-enter',
+      'is-shuffle',
+      'is-peek-out',
+      'is-front',
+      'is-back',
+    );
+  });
+}
+
 function setLikesStackVisible(on) {
   if (!likesJamStack) return;
   likesJamStack.classList.toggle('is-multi', on);
-  likesJamStack.classList.remove('is-shuffled');
   if (likesJamCardB) {
     likesJamCardB.hidden = !on;
     likesJamCardB.setAttribute('aria-hidden', on ? 'false' : 'true');
@@ -1754,49 +1769,54 @@ async function playLikesBanner(opts = {}) {
   likesBanner.classList.add('is-on');
   likesCopy.classList.remove('is-on', 'is-swipe');
   likesShine.classList.remove('is-on');
-  cards.forEach((card) => {
-    card.classList.remove('is-in', 'is-out', 'is-impact', 'is-rarity-up');
-  });
+  clearLikesStackMotion(cards);
   await wait(HAZE_IN_MS);
   likesShine.classList.add('is-on');
-  cards.forEach((card, i) => {
-    if (!stackOn && i > 0) return;
-    if (card.hidden) return;
-    card.classList.add('is-in');
-  });
   likesCopy.classList.add('is-on');
-  await wait(CARD_IN_MS);
-  cards.forEach((card, i) => {
-    if (!stackOn && i > 0) return;
-    if (card.hidden) return;
-    card.classList.add('is-impact');
-  });
-  if (stackOn) {
+  if (stackOn && likesJamCard && likesJamCardB) {
+    /* daily-side-quests stack: back peeks, front noteDrops, then shuffle */
+    likesJamCardB.classList.add('is-back');
+    likesJamCard.classList.add('is-front');
+    void likesJamCard.offsetWidth;
+    likesJamCard.classList.add('is-enter');
+    await wait(CARD_IN_MS);
+    likesJamCard.classList.add('is-impact');
     await wait(HOLD_AFTER_SHINE_MS);
-    likesJamStack.classList.add('is-shuffled');
+    likesJamCard.classList.remove('is-enter', 'is-front', 'is-impact');
+    likesJamCardB.classList.remove('is-back');
+    void likesJamCard.offsetWidth;
+    likesJamCard.classList.add('is-peek-out');
+    likesJamCardB.classList.add('is-front', 'is-shuffle');
     await wait(LIKES_STACK_SHUFFLE_MS);
+    likesJamCardB.classList.add('is-impact');
     await wait(SHINE_MS);
-  } else if (promote && filled[0]) {
-    await wait(HOLD_AFTER_SHINE_MS);
-    const promoted = nextRarity(filled[0].rarity);
-    const likes = promoted.minLikes;
-    likesHeadline.innerHTML = `<span class="likes-rich">${likes} ${t('likesWord')}</span>`;
-    if (filled[0].els?.count) {
-      filled[0].els.count.innerHTML = `<span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span>`;
-    }
-    setLikesCardRarity(filled[0].els, promoted, { pop: true });
-    likesJamCard.classList.add('is-rarity-up');
-    hint.textContent = `[rarity → ${promoted.label}]`;
-    await wait(RARITY_PROMOTE_MS);
   } else {
-    await wait(SHINE_MS + HOLD_AFTER_SHINE_MS);
+    likesJamCard.classList.add('is-in');
+    await wait(CARD_IN_MS);
+    likesJamCard.classList.add('is-impact');
+    if (promote && filled[0]) {
+      await wait(HOLD_AFTER_SHINE_MS);
+      const promoted = nextRarity(filled[0].rarity);
+      const likes = promoted.minLikes;
+      likesHeadline.innerHTML = `<span class="likes-rich">${likes} ${t('likesWord')}</span>`;
+      if (filled[0].els?.count) {
+        filled[0].els.count.innerHTML = `<span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span>`;
+      }
+      setLikesCardRarity(filled[0].els, promoted, { pop: true });
+      likesJamCard.classList.add('is-rarity-up');
+      hint.textContent = `[rarity → ${promoted.label}]`;
+      await wait(RARITY_PROMOTE_MS);
+    } else {
+      await wait(SHINE_MS + HOLD_AFTER_SHINE_MS);
+    }
   }
   await wait(COPY_CELEBRATE_MS);
   likesCopy.classList.add('is-swipe');
   await wait(TEXT_SWIPE_MS);
   cards.forEach((card) => {
-    card.classList.remove('is-in', 'is-impact', 'is-rarity-up');
-    if (!card.hidden) card.classList.add('is-out');
+    if (card.hidden) return;
+    card.classList.remove('is-enter', 'is-shuffle', 'is-peek-out', 'is-impact', 'is-rarity-up');
+    card.classList.add('is-out');
   });
   likesCopy.classList.remove('is-on', 'is-swipe');
   await wait(CARD_OUT_MS);
@@ -1806,9 +1826,7 @@ async function playLikesBanner(opts = {}) {
   likesBanner.classList.remove('is-on', 'is-out');
   likesShine.classList.remove('is-on');
   likesCopy.classList.remove('is-on', 'is-swipe');
-  cards.forEach((card) => {
-    card.classList.remove('is-in', 'is-out', 'is-impact', 'is-rarity-up');
-  });
+  clearLikesStackMotion(cards);
   setLikesStackVisible(false);
   likesBusy = false;
 }
