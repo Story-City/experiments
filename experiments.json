@@ -1,5 +1,21 @@
 [
   {
+    "slug": "creator-tools",
+    "path": "creator-tools/",
+    "area": "outside",
+    "frame": "wide",
+    "title": "Creator Tools: map + script",
+    "what": "Two ways (switch inside): a cleaned-up story map (one row per stop, readable chapter names, big titles when zoomed out, Today vs Cleaned up) and a Script tab where you paste a script and it finds chapters, choices, chat bubbles, puzzles and image or sound slots, with an EN / FR check. Real stories: Alice Through The Tear, Frightnight Ghost Tours, The Summons.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null,
+    "draft": true,
+    "reviewer": "Melissa"
+  },
+  {
     "slug": "gem-pins",
     "path": "gem-pins/",
     "area": "gems",
