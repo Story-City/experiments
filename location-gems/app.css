@@ -1432,6 +1432,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   0% { opacity: 1; transform: rotate(-4deg) scale(1) translate(0, 0); }
   100% { opacity: 0; transform: rotate(0deg) scale(0.94) translate(0, -18%); }
 }
+.sort-card-media {
+  position: relative;
+  overflow: hidden;
+}
 .sort-card-photo {
   display: block;
   width: 100%;
@@ -1439,6 +1443,43 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   object-fit: cover;
   object-position: center;
   background: #1a1230;
+}
+.sort-card-corner {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.sort-card-corner-art {
+  position: absolute;
+  left: 62.8%;
+  top: -26.8%;
+  width: 88.4%;
+  height: 63.8%;
+  overflow: visible;
+}
+.sort-card-corner-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.sort-card-corner-stack {
+  position: absolute;
+  top: 7%;
+  right: 5%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.sort-card-gem {
+  width: 34px;
+  height: 31px;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
+}
+.sort-card-gem svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 .sort-card-body { padding: 10px 12px 12px; }
 .sort-card-user {
@@ -1761,10 +1802,11 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .likes-jam-corner-art {
   position: absolute;
-  left: 62.8%;
-  top: -26.8%;
-  width: 88.4%;
-  height: 63.8%;
+  /* 4:3 banner photo — keep blotch + gem-tint lines in the top-right */
+  left: 50%;
+  top: -32%;
+  width: 100%;
+  height: 85%;
   overflow: visible;
 }
 .likes-jam-corner-art svg {
