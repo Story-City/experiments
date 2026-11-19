@@ -2,6 +2,7 @@
   {
     "slug": "gem-pins",
     "path": "gem-pins/",
+    "area": "gems",
     "frame": "wide",
     "title": "Gem map pins",
     "what": "Gems on a real Edmonton map with 15 options to flip (switch inside): what colour means, shapes, how rarity shows, private vs public, liked, picking your gem colour, category chips, density and a colour-blind view. Every setup is a shareable link.",
@@ -17,6 +18,7 @@
   {
     "slug": "first-story-flow",
     "path": "first-story-flow/",
+    "area": "first",
     "title": "First story flow",
     "what": "The recommended first-time path in the current app's look: welcome, “How do you walk?”, the real paywall (skippable), Home with a new Start here shelf (the real Summons plus three short stories) and a tour of the tabs, chapter 1, a couch-proof first unlock, “Save your story?”, a second paywall at the cliffhanger, and the finish with a step-goal reminder. Tester panel jumps to any step.",
     "author": "melissa",
@@ -29,6 +31,7 @@
   {
     "slug": "story-progress",
     "path": "story-progress/",
+    "area": "reading",
     "title": "Story progress",
     "what": "Eight ways to show how far you are in a story (switch inside, A–H): dots, fog path, bar with “about X left”, bookmark ribbon, branch map, three acts, chapter ring, passport stamps. Play The Summons in the phone to see how each copes when a choice makes the story shorter.",
     "author": "melissa",
@@ -43,6 +46,7 @@
   {
     "slug": "approved-ui",
     "path": "approved-ui/?v=19",
+    "area": "design",
     "frame": "wide",
     "title": "Approved UI library",
     "what": "End-story badges popup contained (no CTA scroll). Bounce clocks fixed. Tales cover + 4 badges.",
@@ -56,6 +60,7 @@
   {
     "slug": "daily-side-quests",
     "path": "daily-side-quests/?v=62",
+    "area": "gems",
     "title": "Daily Side Quests",
     "what": "Filled-map leave flow: end-batch stats + training-hub step land. Share beside like; next opposite username.",
     "author": "victoria",
@@ -68,6 +73,7 @@
   {
     "slug": "location-gems",
     "path": "location-gems/?v=55",
+    "area": "gems",
     "title": "Location Gems hub",
     "what": "Rarity: aquamarine/moonstone/topaz/opal/diamond. Sort hub, spotlight, likes.",
     "author": "victoria",
@@ -80,6 +86,7 @@
   {
     "slug": "day-reached-overlay",
     "path": "day-reached-overlay/?v=36",
+    "area": "gems",
     "title": "Day reached — streak overlay",
     "what": "Day-reached celebration with colour-wheel accent tester; phone-only embed.html for Approved UI.",
     "author": "victoria",
@@ -92,6 +99,7 @@
   {
     "slug": "golden-path-nov13",
     "path": "golden-path-nov13/",
+    "area": "first",
     "title": "Golden Path Nov 13: pick by letter",
     "what": "Six questions for Friday's Golden Path meeting, each as A / B / C phone mockups side by side with Melissa's pick marked (switch inside): when to force sign-up, asking again after “Not now”, what Start asks in the first real story, the explore browse map, the treadmill map, and the sample story's name.",
     "author": "melissa",
@@ -106,6 +114,7 @@
   {
     "slug": "social-posts",
     "path": "social-posts/",
+    "area": "outside",
     "title": "Social media posts",
     "what": "27 Instagram and TikTok post ideas to get new people walking their first story, each as a clickable mock-up: carousels, stories with poll, quiz and slider stickers, and reels. Includes the Instagram ideas from Help me choose a story, which link across.",
     "author": "melissa",
@@ -118,6 +127,7 @@
   {
     "slug": "lock-screen",
     "path": "lock-screen/",
+    "area": "outside",
     "title": "Lock screen and widgets: the story keeps walking with you",
     "what": "A chapter of The Summons outside the app: a lock-screen Live Activity with distance and a changing story line, the Dynamic Island, a watch face, and home-screen widgets for your next walk (gems nearby, a tiny map, a gentle “Pick a Walk”). Switch surfaces inside; iPhone and Android, with a Tour.",
     "author": "melissa",
@@ -130,6 +140,7 @@
   {
     "slug": "story-tools",
     "path": "story-tools/",
+    "area": "puzzles",
     "title": "Story Tools",
     "what": "Gadgets a story or whimsy walk can hand you, each introduced by Wren. Riddle Lock, Cipher Wheel, Compass Only, Sigil Walk, Field Guide, Sticker Book, Pass the Pen, Sound Catcher, Whisper Drop, Echo Answer, Then and Now (story-specific), Remix Relay (maybe), plus new ideas: Case Card, Silhouette Match, Field Notes, Evidence Board and Clue Courier. Five photo tools Melissa cut are folded at the bottom. Open one directly with ?v=<tool>.",
     "author": "melissa",
@@ -142,6 +153,7 @@
   {
     "slug": "walk-postcard",
     "path": "walk-postcard/",
+    "area": "gems",
     "title": "Walk postcard + tomorrow's walk",
     "what": "Right after a chapter: a postcard builds itself (route, photo, one line, the gem you found) and you pick tomorrow's walk. Two orders (switch inside): postcard first, or plan first. Three postcard styles, the route's start blurred for privacy, and a Sunday weekly recap.",
     "author": "melissa",
@@ -154,6 +166,7 @@
   {
     "slug": "play-together-summons",
     "path": "play-together-summons/",
+    "area": "together",
     "title": "Play together",
     "what": "The Summons with friends, two ways (switch inside): pass one phone around, with roles, group votes and a team postcard; or everyone on their own phone, joining with a 4-letter code, each seeing a different clue, then a team finale.",
     "author": "melissa",
@@ -166,6 +179,7 @@
   {
     "slug": "armchair-preview",
     "path": "armchair-preview/",
+    "area": "first",
     "title": "Armchair preview: try it from your couch",
     "what": "For new players at home: 2 minutes of The Summons indoors, then a clear free-trial explainer, then “walk it for real tomorrow”. Two versions (switch inside): paywall straight after the cliffhanger, or one more taste first (crack the seal code in a casebook keypad).",
     "author": "melissa",
@@ -178,6 +192,7 @@
   {
     "slug": "story-chooser",
     "path": "story-chooser/",
+    "area": "finding",
     "title": "Help me choose a story",
     "what": "Sixteen ways to match a new player to a first story from one start screen. Instagram: rooms, doors and lit-window carousels, first lines, poll-sticker chain, swipe-with-sound, card draw, Door of the Day and blind date. App: fork in the road, swipe deck, story chart and Venn, how long have you got, let a friend choose, a stranger who interviews you in chat, and walk thirty steps to open an envelope. Every result names you (\"The Lamplight Wanderer\") before the story.",
     "author": "melissa",
@@ -190,6 +205,7 @@
   {
     "slug": "whimsy-walk",
     "path": "whimsy-walk/",
+    "area": "finding",
     "title": "Whimsy Walks",
     "what": "22 walks + 12 quests from the Whimsy Walks board. Home picks for you: tonight's walk (changes daily), a 2-minute quest, 3 for right now, then all walks in sideways rows. Every walk ends with a shareable keepsake image and a hand-off into a real Story City story (its real opening lines, chapter 2 already part-walked). Cards remember what you've walked; seven walks open a sealed letter.",
     "author": "melissa",
@@ -202,6 +218,7 @@
   {
     "slug": "fog-mode",
     "path": "fog-mode/",
+    "area": "map",
     "tabs": [
       {
         "label": "Mockup",
@@ -224,6 +241,7 @@
   {
     "slug": "website-concept",
     "path": "website-concept/",
+    "area": "outside",
     "title": "New website concept",
     "what": "storycity.app reimagined in the jewel palette: the page is a walk, a playable first chapter, your street as a story map, 219 real stories, city pages, creators, gifts and teams.",
     "author": "melissa",
@@ -236,6 +254,7 @@
   {
     "slug": "map-mode-names",
     "path": "map-mode-names/",
+    "area": "map",
     "title": "Map mode names poll",
     "what": "Vote on names for the three map modes, then see the results (switch inside). 11 responses: Steps, Path and Hunt lead.",
     "author": "melissa",
@@ -249,6 +268,7 @@
   {
     "slug": "ftue-choice-hints",
     "path": "ftue-choice-hints/?v=15",
+    "area": "first",
     "title": "FTUE sample story choices",
     "what": "Summons 1- then 2-reply beats. Tap-hand mirrored on the phrase start edge; on two replies it fades from one choice onto the other.",
     "author": "victoria",
@@ -261,6 +281,7 @@
   {
     "slug": "claim-pulse",
     "path": "claim-pulse/?v=2",
+    "area": "gems",
     "title": "Claim CTA: pulse + soft glow",
     "what": "End-of-story claim button pulse. Embed mode for Approved UI (?embed=1).",
     "author": "victoria",
@@ -273,6 +294,7 @@
   {
     "slug": "code-entry",
     "path": "code-entry/",
+    "area": "puzzles",
     "title": "Code Entry",
     "what": "The code at the end of The Summons, five ways: Glow (numbers keypad), Word (QWERTY), and ring dials – 5 letters, 7 letters, or whole words (THE GREEN-EYE SHARP-TOOTH FIRE DRAKE). Turn the rings until it lines up in the outline and it sends itself.",
     "author": "melissa",
@@ -285,6 +307,7 @@
   {
     "slug": "audio-paragraph-viewer",
     "path": "audio-paragraph-viewer/?v=1",
+    "area": "reading",
     "title": "Audio matched to paragraphs",
     "what": "Six narrated Story City stories with each paragraph timed to its audio, shown as a chat, a visual novel and a lines-to-audio timeline. Tap a paragraph to play from it; the line being spoken stays lit until the next one starts. The volume slider follows a squared curve, so halfway is a quarter of the gain.",
     "author": "brett",
@@ -297,6 +320,7 @@
   {
     "slug": "audio-paragraph-phone",
     "path": "audio-paragraph-viewer/phone.html?v=1",
+    "area": "reading",
     "title": "Visual novel reader on a phone",
     "what": "The chapter's featured image on top and the paragraph being spoken underneath, sized for a phone. The previous paragraph stays until the next one starts. Same six stories as Audio matched to paragraphs.",
     "author": "brett",
@@ -309,6 +333,7 @@
   {
     "slug": "vn-reader-proto",
     "path": "vn-reader-proto/?v=51",
+    "area": "reading",
     "title": "Graphic novel reader – proto",
     "what": "Victoria's restyle fork of Brett's phone visual-novel reader: place background, character sprite slot, text frame, top-bar speed, and player. Same timed paragraphs and stories; Brett's folder untouched.",
     "author": "victoria",
@@ -321,6 +346,7 @@
   {
     "slug": "audio-preview",
     "path": "audio-preview/?v=23&c=tales&tip=place",
+    "area": "finding",
     "title": "Story overview: audio preview",
     "what": "Side-by-side swipe carousel for Meet the cast. Place tip + solid debug toggle.",
     "author": "victoria",
@@ -333,6 +359,7 @@
   {
     "slug": "onboarding-invite",
     "path": "onboarding-invite/?v=feed&bust=14",
+    "area": "first",
     "title": "Onboarding – guide on Explore",
     "what": "App Explore Netflix layout. Summons portal+sprite on purple card. Explore dismiss slides right; overview slides up. Copy: missed the sample / learn the tools.",
     "author": "victoria",
@@ -345,6 +372,7 @@
   {
     "slug": "oxygen-decrypt",
     "path": "oxygen-decrypt/?v=3",
+    "area": "puzzles",
     "title": "Decrypt the Artwork",
     "what": "Reader chapter with the glowing Decrypt the Artwork ticket. Tap it to open Decrypt the Puzzle, pick a colour, then Select colour.",
     "author": "victoria",
@@ -357,6 +385,7 @@
   {
     "slug": "dragon-name-jumble",
     "path": "dragon-name/?v=1",
+    "area": "puzzles",
     "title": "Dragon's name: word jumble",
     "what": "Three empty slots and a tray of little tags, two of them decoys. Drag (or tap) the right tags into the slots to build sharp-toothed green-eyed fire-eater.",
     "author": "brett",
@@ -369,6 +398,7 @@
   {
     "slug": "dragon-name-text",
     "path": "dragon-name/?v=text",
+    "area": "puzzles",
     "title": "Dragon's name: text entry",
     "what": "The app moment as specced: a text box with the hint \"The dragon's full name\". Close spellings of sharp-toothed-green-eyed-fire-eater are accepted.",
     "author": "brett",
@@ -381,6 +411,7 @@
   {
     "slug": "narrated-reader",
     "path": "narrated-reader/",
+    "area": "reading",
     "title": "Narrated reader",
     "what": "A narrated chapter, three ways (switch inside): synced chat bubbles, a text story, or captions over the art.",
     "author": "melissa",
@@ -393,6 +424,7 @@
   {
     "slug": "victoria-mockup",
     "path": "victoria-mockup/?v=13",
+    "area": "puzzles",
     "title": "Decrypt race",
     "what": "Tap Decrypt the Letter. One glowing dot pops up at a time somewhere on the pixelated picture. Hit 10 of them to clear the letter. You can zoom in.",
     "author": "victoria",
@@ -405,6 +437,7 @@
   {
     "slug": "decryptor",
     "path": "decryptor/",
+    "area": "puzzles",
     "title": "The Decryptor",
     "what": "The Summons letter comes back pixelated. Three colour swatches point into it: photograph something nearby in the same colour family to clear each patch, get an accuracy score for each, and a shareable match card at the end.",
     "author": "melissa",
@@ -417,6 +450,7 @@
   {
     "slug": "map-modes",
     "path": "map-modes/",
+    "area": "map",
     "title": "Map modes",
     "what": "The chapter card's map, two versions (switch inside): Steps, Pin and Hunt; or always a pin, where the place the chapter needs is always on the map nearby.",
     "author": "melissa",
@@ -429,6 +463,7 @@
   {
     "slug": "first-steps-summons",
     "path": "first-steps/",
+    "area": "first",
     "title": "First steps",
     "what": "The first-time tour, with two sample stories (switch inside): The Summons or The Knight.",
     "author": "melissa",
@@ -441,6 +476,7 @@
   {
     "slug": "chat-chapter",
     "path": "chat-chapter/",
+    "area": "reading",
     "title": "Chat chapter",
     "what": "The opening of Operation COPY/WRITE told as a text-message thread, with typing indicators and crisp-E hijacking the chat.",
     "author": "brett",
@@ -453,6 +489,7 @@
   {
     "slug": "glitch-lab",
     "path": "chat-chapter/glitches.html",
+    "area": "reading",
     "title": "Glitch Lab",
     "what": "Seven hack and signal-loss effects for the chat chapter, one button each. Full hack chains them into crisp-E taking over the thread.",
     "author": "brett",
@@ -465,6 +502,7 @@
   {
     "slug": "remixer",
     "path": "remixer/",
+    "area": "puzzles",
     "title": "The Remixer",
     "what": "crisp-E's remix tool at Loc 3i: three tabs of one-tap effects (Mix it, Shape it, Wreck it), colour and contrast grids, and a draggable Lens. Save unlocks after any 2 tools.",
     "author": "melissa",
@@ -477,6 +515,7 @@
   {
     "slug": "image-remix",
     "path": "image-remix/",
+    "area": "puzzles",
     "title": "Remix a masterpiece",
     "what": "Stamp a photo onto a public-domain painting, then pixelate, smear and recolour it. Superseded by The Remixer.",
     "author": "brett",

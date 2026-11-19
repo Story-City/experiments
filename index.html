@@ -137,6 +137,15 @@
   .badge-live { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; font: 600 11px/1 var(--f-body); letter-spacing: .06em; text-transform: uppercase; padding: 6px 9px; border-radius: 999px; background: var(--ink); color: #3ddc84; border: 1px solid color-mix(in srgb, #3ddc84 55%, transparent); }
   .badge-live::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 6px #3ddc84; }
   .live-note { margin: 6px 0 0; font-size: 13px; color: #8fe8b5; }
+  /* Experiments grouped by part of the app ("area" in experiments.json), in the order a player meets them */
+  .area-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 6px; }
+  .area-nav a { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-muted); font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .area-nav a[hidden], .area[hidden] { display: none; }
+  .area-nav a:hover { border-color: var(--glow); color: var(--text); }
+  .area-nav a span, .area-h span { color: var(--lilac); font-weight: 400; }
+  .area { scroll-margin-top: 16px; }
+  .area-h { margin: 36px 0 14px; font: 600 24px/1.1 var(--f-head); text-transform: none; letter-spacing: 0; color: var(--text); }
+  .area-h span { font: 400 14px var(--f-body); margin-left: 6px; }
   .tag {
     font-size: 11px;
     text-transform: uppercase;
@@ -160,7 +169,8 @@
 <div class="filters" role="group" aria-label="Filter by author"></div>
 
 <section id="panel-experiments" role="tabpanel" aria-labelledby="tab-experiments">
-<ul id="live"></ul>
+<nav class="area-nav" id="area-nav" aria-label="Parts of the app"></nav>
+<div id="live"></div>
 
 <h2 id="archived-heading">Archived</h2>
 <ul id="archived"></ul>
@@ -250,6 +260,7 @@
     const li = el('li');
     li.dataset.author = e.author;
     li.dataset.authorName = e.authorName;
+    li.dataset.area = AREAS.some(([id]) => id === e.area) ? e.area : 'other';
     if (e.archived) {
       const d = el('details', 'card');
       const sum = el('summary');
@@ -276,7 +287,38 @@
     return li;
   }
 
-  const live = document.getElementById('live');
+  // Parts of the app, in the order a player meets them. An entry's "area" picks its group; no area = Other.
+  const AREAS = [
+    ['first', 'First-time experience'],
+    ['finding', 'Finding a story'],
+    ['reading', 'Reading a story'],
+    ['puzzles', 'Puzzles & story tools'],
+    ['map', 'Map & walking'],
+    ['gems', 'Gems & rewards'],
+    ['together', 'Playing together'],
+    ['outside', 'Outside the app'],
+    ['design', 'Design system'],
+    ['other', 'Other'],
+  ];
+  const liveWrap = document.getElementById('live');
+  const areaNav = document.getElementById('area-nav');
+  const areaList = {};
+  for (const [id, label] of AREAS) {
+    const sec = el('section', 'area');
+    sec.id = `area-${id}`;
+    sec.dataset.area = id;
+    const h = el('h2', 'area-h', label);
+    h.append(el('span', 'n'));
+    areaList[id] = el('ul');
+    sec.append(h, areaList[id]);
+    liveWrap.append(sec);
+    const a = el('a', null, label);
+    a.href = `#area-${id}`;
+    a.dataset.area = id;
+    a.append(el('span', 'n'));
+    areaNav.append(a);
+  }
+  const live = { append: (li) => (areaList[li.dataset.area] || areaList.other).append(li) };
   const polls = document.getElementById('polls');
   const archived = document.getElementById('archived');
   const drafts = document.getElementById('drafts');
@@ -306,6 +348,15 @@
     document.getElementById('archived-heading').hidden =
       ![...document.querySelectorAll('#archived li')].some(li => !li.hidden);
     document.getElementById('n-experiments').textContent = [...document.querySelectorAll('#live li')].filter(li => !li.hidden).length;
+    // hide parts of the app with nothing to show (for this person)
+    for (const sec of document.querySelectorAll('#live .area')) {
+      const n = [...sec.querySelectorAll('li')].filter(li => !li.hidden).length;
+      sec.hidden = !n;
+      sec.querySelector('.area-h .n').textContent = n;
+      const a = areaNav.querySelector(`a[data-area="${sec.dataset.area}"]`);
+      a.hidden = !n;
+      a.querySelector('.n').textContent = n;
+    }
     const pollCount = [...document.querySelectorAll('#polls li')].filter(li => !li.hidden).length;
     document.getElementById('n-polls').textContent = pollCount;
     document.getElementById('polls-empty').hidden = pollCount > 0;
