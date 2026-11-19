@@ -1,50 +1,232 @@
-/* Badge appear — BadgeStyles sizes + useEntranceAnimation Bounce + AnimatedBadge stagger.
-   Art: pedometer_badge.png from app v2/assets. Story achievement URLs need GraphQL — not invented. */
+/* EndStoryInlineBadges popup — END-STORY-BADGES-POPUP-v17
+   Styles + motion from EndStoryInlineBadgesStyles / useEntranceAnimation. Do not invent. */
 .badge-host {
+  --modal-bg: #151B45;
+  --modal-backdrop: rgba(0, 0, 0, 0.38);
+  --glass-outline: rgba(78, 108, 175, 0.6);
+  --glass-fill: #160D34;
   --badge-grey: #DEDEDE;
-  --badge-gap: 16px; /* theme.spacing.m */
+  --hero-h: 112px;
+  --hero-spacer: 40px;
+  --modal-slide: 48px;
+  --ease-modal-out: cubic-bezier(0.215, 0.61, 0.355, 1); /* Easing.out(Easing.cubic) */
+  --ease-modal-in: cubic-bezier(0.55, 0.055, 0.675, 0.19); /* Easing.in(Easing.cubic) */
   position: relative;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 12px 10px;
   background: var(--bg);
-  box-sizing: border-box;
   overflow: hidden;
 }
-/* Large featured achievement — BadgeSize.Large 300×165 + AnimatedBadge bounce */
-.badge-featured {
-  width: 300px;
-  height: 165px;
-  max-width: 100%;
+.badge-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--modal-backdrop);
+  opacity: 0;
+  cursor: pointer;
+}
+.badge-modal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 88%; /* MODAL_WIDTH_RATIO */
+  height: 72%; /* MODAL_MAX_HEIGHT_WITH_BADGES_RATIO of stage */
+  max-height: 72%;
+  transform: translate(-50%, calc(-50% + var(--modal-slide)));
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--modal-bg);
+  border-radius: 16px;
+  border: 1px solid var(--brand-accent);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.badge-modal-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.badge-hero {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--hero-h);
+  overflow: hidden;
+  z-index: 0;
+  background: var(--modal-bg);
+}
+.badge-hero img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.badge-hero-grad {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    transparent 25%,
+    var(--modal-bg) 60%,
+    var(--modal-bg) 100%
+  );
+}
+.badge-hero-spacer {
+  height: var(--hero-spacer);
+  flex: none;
+}
+.badge-close {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  z-index: 20;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.badge-header {
+  position: relative;
+  z-index: 1;
+  padding-top: 8px;
+  flex: none;
+}
+.badge-title-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  margin-bottom: 2px;
+  padding-left: 16px;
+  padding-right: 0;
+}
+.badge-story-title {
+  flex: 1;
+  margin: 0;
+  color: #fff;
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 24px;
+  text-align: left;
+}
+.badge-share {
+  flex: none;
+  width: 56px;
+  height: 28px;
+  border: 1px solid var(--glass-outline);
+  border-radius: 14px 0 0 14px;
+  background: var(--glass-fill);
+  color: var(--brand-accent);
   display: grid;
   place-items: center;
+  cursor: pointer;
+}
+.badge-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.badge-stats {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.badge-stats-row {
+  display: flex;
+  flex-direction: row;
+}
+.badge-stats-cell {
+  flex: 1;
+  color: #fff;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.badge-stats-cell b {
+  font-size: 20px;
+  font-weight: 800;
+}
+.badge-section {
+  min-height: 300px; /* BADGES_PLACEHOLDER_HEIGHT */
+  margin-top: 16px;
   opacity: 0;
+}
+.badge-earned-title {
+  margin: 0 16px 16px;
+  text-align: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1.2;
+}
+.badge-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.badge-carousel::-webkit-scrollbar { display: none; }
+.badge-carousel-page {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: grid;
+  place-items: center;
+  min-height: 165px;
+}
+.badge-carousel-page img {
+  width: 300px;
+  max-width: 92%;
+  height: 165px;
+  object-fit: contain;
   transform: scale(0);
   transform-origin: 50% 50%;
 }
-.badge-featured.is-in {
+.badge-carousel-page img.is-in {
   animation: badgeBounce 600ms linear both;
 }
-.badge-featured img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-.badge-row {
+.badge-dots {
   display: flex;
-  flex-direction: row;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 16px;
+}
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+}
+.badge-dot.is-on {
+  background: #fff;
+}
+.badge-collected-label {
+  margin: 24px 16px 8px;
+  text-align: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+}
+.badge-grid {
+  display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--badge-gap);
-  width: 100%;
+  gap: 16px;
+  padding: 0 16px 8px;
 }
-/* BadgeSize.Small 75×100 — AnimatedBadge Bounce */
 .badge-cell {
   width: 75px;
   height: 100px;
@@ -56,13 +238,12 @@
 .badge-cell.is-in {
   animation: badgeBounce 600ms linear both;
 }
-.badge-art {
+.badge-cell img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   display: block;
 }
-/* Unearned: MaskedView grey silhouette — Badge.tsx greyOverlay #DEDEDE */
 .badge-unearned {
   width: 100%;
   height: 100%;
@@ -76,7 +257,26 @@
   -webkit-mask-position: center;
   mask-position: center;
 }
-/* useEntranceAnimation Bounce (600ms): scale 0 → 1.2 → 0.9 → 1.1 → 1 */
+.badge-footer {
+  flex: none;
+  padding: 4px 16px 16px;
+}
+.badge-cta {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  background:
+    var(--btn-radial-wash, radial-gradient(circle at 30% 20%, rgba(179, 107, 255, 0.45), transparent 55%)),
+    linear-gradient(180deg, var(--brand-accent), color-mix(in srgb, var(--brand-accent) 55%, #1a0a40));
+}
 @keyframes badgeBounce {
   0% { transform: scale(0); }
   55% { transform: scale(1.2); }

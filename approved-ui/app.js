@@ -1,5 +1,6 @@
-/** Approved UI library — APPROVED-UI-v16
- * Badge appear uses Tales from the Incident achievement art (GraphQL).
+/** Approved UI library — APPROVED-UI-v17
+ * EndStoryInlineBadges popup (exact open/close + badges fade + bounce).
+ * END-STORY-BADGES-POPUP-v17
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -215,12 +216,12 @@ const ELEMENT_DEFS = [
     mount: mountMapModeSwitch,
   },
   {
-    id: 'badge-appear',
-    title: 'Badge appear',
-    source: 'AnimatedBadge · EndStory fade · Tales achievements',
-    ux: 'When: end-story / celebration. Fade in, then badges bounce staggered. Art = 4 Tales from the Incident rewards (production GraphQL). Unearned = grey mask. Try: Play appear.',
+    id: 'end-story-badges',
+    title: 'End-story badges popup',
+    source: 'EndStoryInlineBadges · BadgeCollection · Tales',
+    ux: 'When: chapter end celebration. Full popup: hero cover, title, stats, badges fade then bounce, See my rewards. Open 820ms / close 520ms (cubic). Try: Play open · Close.',
     stage: 'badges',
-    mount: mountBadgeAppear,
+    mount: mountEndStoryBadgesPopup,
   },
   {
     id: 'choice-pulse',
@@ -1482,77 +1483,159 @@ function mountMapModeSwitch(stage, actions) {
   });
 }
 
-function mountBadgeAppear(stage, actions) {
-  /* Entrance from useEntranceAnimation Bounce + AnimatedBadge stagger.
-     Art: Tales from the Incident storyAchievements (production GraphQL). */
+function mountEndStoryBadgesPopup(stage, actions) {
+  /* EndStoryInlineBadgesStyles + EndStoryInlineBadges open/close + BadgeCollection bounce. */
+  const MODAL_OPEN_MS = 820;
+  const MODAL_CLOSE_MS = 520;
+  const MODAL_SLIDE_OFFSET = 48;
+  const MODAL_BADGES_FADE_MS = 340;
+  const MODAL_BADGES_FADE_DELAY_MS = 380;
+  const VIEW_ANIMATION_DELAY_MS = 500;
+  const STAGGER_DELAY_MS = 300;
+  const MAX_STAGGER_DELAY_MS = 1200;
+  const EASE_OUT = 'cubic-bezier(0.215, 0.61, 0.355, 1)';
+  const EASE_IN = 'cubic-bezier(0.55, 0.055, 0.675, 0.19)';
+  const COVER =
+    'https://creator.storycity.app/media/6a9079bce0f3c_TALES_COVERARTv4.png';
   const TALES = [
     { file: 'assets/badges/tales/10-cye-took-farron-s-case.png', name: 'Cye took Farron’s case' },
     { file: 'assets/badges/tales/01-cye-discovered-a-secret-vault.png', name: 'Cye discovered a secret vault' },
     { file: 'assets/badges/tales/12-cye-found-a-shard-of-broken-porcelain.png', name: 'Cye found a shard of broken porcelain' },
     { file: 'assets/badges/tales/27-episode-one-complete.png', name: 'Episode one complete' },
   ];
-  const MODAL_BADGES_FADE_MS = 340;
-  const MODAL_BADGES_FADE_DELAY_MS = 380;
-  const VIEW_ANIMATION_DELAY_MS = 500;
-  const STAGGER_DELAY_MS = 300;
-  const MAX_STAGGER_DELAY_MS = 1200;
-  const featuredArt = TALES[0].file;
-  const smallArts = TALES.slice(1);
+  const featured = TALES.slice(0, 3);
+  const grid = TALES;
+  const earnedCount = 3;
 
   const host = document.createElement('div');
   host.className = 'badge-host';
-  host.style.setProperty('--badge-mask', `url("${smallArts[smallArts.length - 1].file}")`);
+  host.style.setProperty('--badge-mask', `url("${TALES[3].file}")`);
   host.innerHTML = `
-    <p class="badge-kicker" id="badgeKicker" hidden>You earned new badges!</p>
-    <div class="badge-featured is-achievement" id="badgeFeatured">
-      <img src="${featuredArt}" alt="${TALES[0].name}" decoding="async">
+    <div class="badge-scrim" id="badgeScrim" aria-hidden="true"></div>
+    <div class="badge-modal" id="badgeModal" role="dialog" aria-label="End story badges">
+      <div class="badge-modal-body">
+        <div class="badge-hero">
+          <img src="${COVER}" alt="" decoding="async">
+          <div class="badge-hero-grad" aria-hidden="true"></div>
+        </div>
+        <div class="badge-hero-spacer" aria-hidden="true"></div>
+        <button type="button" class="badge-close" id="badgeClose" aria-label="Close">×</button>
+        <div class="badge-header">
+          <div class="badge-title-bar">
+            <h2 class="badge-story-title">Tales from the Incident</h2>
+            <button type="button" class="badge-share" aria-label="Share story">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v10M8.5 6.5 12 3l3.5 3.5M6 12v6.5A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5V12"
+                  fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="badge-scroll">
+          <div class="badge-stats">
+            <div class="badge-stats-row">
+              <div class="badge-stats-cell"><b>1/4</b> endings reached</div>
+              <div class="badge-stats-cell"><b>2,541</b> steps</div>
+            </div>
+            <div class="badge-stats-row">
+              <div class="badge-stats-cell"><b>3/4</b> badges</div>
+              <div class="badge-stats-cell"><b>42</b> min</div>
+            </div>
+          </div>
+          <div class="badge-section" id="badgeSection">
+            <p class="badge-earned-title">You earned new badges!</p>
+            <div class="badge-carousel" id="badgeCarousel"></div>
+            <div class="badge-dots" id="badgeDots"></div>
+            <p class="badge-collected-label">You have collected ${earnedCount} badges!</p>
+            <div class="badge-grid" id="badgeGrid"></div>
+          </div>
+        </div>
+        <div class="badge-footer">
+          <button type="button" class="badge-cta" id="badgeCta">See my rewards</button>
+        </div>
+      </div>
     </div>
-    <div class="badge-row" id="badgeRow"></div>
   `;
   stage.appendChild(host);
 
-  const kicker = host.querySelector('#badgeKicker');
-  const featured = host.querySelector('#badgeFeatured');
-  const row = host.querySelector('#badgeRow');
-  kicker.style.cssText = 'margin:0;font-weight:800;font-size:16px;opacity:0;transition:opacity ' + MODAL_BADGES_FADE_MS + 'ms ease;';
+  const scrim = host.querySelector('#badgeScrim');
+  const modal = host.querySelector('#badgeModal');
+  const section = host.querySelector('#badgeSection');
+  const carousel = host.querySelector('#badgeCarousel');
+  const dots = host.querySelector('#badgeDots');
+  const gridEl = host.querySelector('#badgeGrid');
+  const closeBtn = host.querySelector('#badgeClose');
+  const cta = host.querySelector('#badgeCta');
 
-  smallArts.forEach((badge, i) => {
+  featured.forEach((badge, i) => {
+    const page = document.createElement('div');
+    page.className = 'badge-carousel-page';
+    page.innerHTML = `<img src="${badge.file}" alt="${badge.name}" decoding="async" data-bounce="featured-${i}">`;
+    carousel.appendChild(page);
+    const dot = document.createElement('span');
+    dot.className = 'badge-dot' + (i === 0 ? ' is-on' : '');
+    dots.appendChild(dot);
+  });
+
+  grid.forEach((badge, i) => {
     const cell = document.createElement('div');
     cell.className = 'badge-cell';
-    const earned = i < smallArts.length - 1;
-    if (earned) {
-      cell.innerHTML = `<img class="badge-art" src="${badge.file}" alt="${badge.name}" decoding="async">`;
+    cell.dataset.bounce = `grid-${i}`;
+    if (i < earnedCount) {
+      cell.innerHTML = `<img src="${badge.file}" alt="${badge.name}" decoding="async">`;
     } else {
       cell.innerHTML = `<span class="badge-unearned" aria-label="unearned"></span>`;
     }
-    row.appendChild(cell);
+    gridEl.appendChild(cell);
   });
 
-  const play = () => {
-    kicker.hidden = false;
-    kicker.style.opacity = '0';
-    featured.style.opacity = '0';
-    featured.style.transition = 'none';
-    featured.classList.remove('is-in');
-    featured.style.animation = 'none';
-    row.querySelectorAll('.badge-cell').forEach((cell) => {
-      cell.classList.remove('is-in');
-      cell.style.animation = 'none';
+  carousel.addEventListener('scroll', () => {
+    const pageW = carousel.clientWidth || 1;
+    const idx = Math.round(carousel.scrollLeft / pageW);
+    dots.querySelectorAll('.badge-dot').forEach((d, i) => {
+      d.classList.toggle('is-on', i === idx);
     });
-    void host.offsetWidth;
-    window.setTimeout(() => {
-      kicker.style.transition = `opacity ${MODAL_BADGES_FADE_MS}ms ease`;
-      kicker.style.opacity = '1';
-      featured.style.transition = `opacity ${MODAL_BADGES_FADE_MS}ms ease`;
-      featured.style.opacity = '1';
-      /* Featured achievement uses AnimatedBadge bounce (index 0) after view delay */
-      featured.style.animation = '';
-      featured.style.animationDelay = `${VIEW_ANIMATION_DELAY_MS}ms`;
-      featured.classList.add('is-in');
-    }, MODAL_BADGES_FADE_DELAY_MS);
-    row.querySelectorAll('.badge-cell').forEach((cell, i) => {
-      const stagger = Math.min((i + 1) * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS);
-      const delay = VIEW_ANIMATION_DELAY_MS + stagger;
+  });
+
+  let openAnims = [];
+  let badgesTimer = null;
+  let isOpen = false;
+  let isClosing = false;
+
+  const cancelOpenWork = () => {
+    openAnims.forEach((a) => a.cancel());
+    openAnims = [];
+    if (badgesTimer != null) {
+      clearTimeout(badgesTimer);
+      badgesTimer = null;
+    }
+  };
+
+  const resetBadgeBounces = () => {
+    section.style.opacity = '0';
+    section.style.transition = 'none';
+    host.querySelectorAll('[data-bounce]').forEach((el) => {
+      el.classList.remove('is-in');
+      el.style.animation = 'none';
+    });
+    host.querySelectorAll('.badge-cell').forEach((el) => {
+      el.classList.remove('is-in');
+      el.style.animation = 'none';
+    });
+  };
+
+  const runBadgeBounces = () => {
+    const featuredImgs = carousel.querySelectorAll('img');
+    featuredImgs.forEach((img, i) => {
+      const delay = VIEW_ANIMATION_DELAY_MS + Math.min(i * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS);
+      img.style.animation = 'none';
+      void img.offsetWidth;
+      img.style.animation = '';
+      img.style.animationDelay = `${delay}ms`;
+      img.classList.add('is-in');
+    });
+    gridEl.querySelectorAll('.badge-cell').forEach((cell, i) => {
+      const delay = VIEW_ANIMATION_DELAY_MS + Math.min(i * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS);
       cell.style.animation = 'none';
       void cell.offsetWidth;
       cell.style.animation = '';
@@ -1561,8 +1644,78 @@ function mountBadgeAppear(stage, actions) {
     });
   };
 
-  play();
-  addPlay(actions, 'Play appear', play);
+  const setClosedVisual = () => {
+    modal.style.transform = `translate(-50%, calc(-50% + ${MODAL_SLIDE_OFFSET}px))`;
+    modal.style.opacity = '0';
+    scrim.style.opacity = '0';
+    resetBadgeBounces();
+  };
+
+  const open = () => {
+    if (isClosing) return;
+    cancelOpenWork();
+    setClosedVisual();
+    void host.offsetWidth;
+    isOpen = true;
+
+    const slide = modal.animate(
+      [
+        { transform: `translate(-50%, calc(-50% + ${MODAL_SLIDE_OFFSET}px))` },
+        { transform: 'translate(-50%, -50%)' },
+      ],
+      { duration: MODAL_OPEN_MS, easing: EASE_OUT, fill: 'forwards' },
+    );
+    const cardOp = modal.animate(
+      [{ opacity: 0 }, { opacity: 1 }],
+      { duration: Math.round(MODAL_OPEN_MS * 0.55), easing: EASE_OUT, fill: 'forwards' },
+    );
+    const backOp = scrim.animate(
+      [{ opacity: 0 }, { opacity: 1 }],
+      { duration: Math.round(MODAL_OPEN_MS * 0.7), easing: EASE_OUT, fill: 'forwards' },
+    );
+    openAnims = [slide, cardOp, backOp];
+
+    badgesTimer = window.setTimeout(() => {
+      section.style.transition = `opacity ${MODAL_BADGES_FADE_MS}ms ${EASE_OUT}`;
+      section.style.opacity = '1';
+      runBadgeBounces();
+    }, MODAL_BADGES_FADE_DELAY_MS);
+  };
+
+  const close = () => {
+    if (!isOpen || isClosing) return;
+    isClosing = true;
+    cancelOpenWork();
+    const slide = modal.animate(
+      [
+        { transform: 'translate(-50%, -50%)' },
+        { transform: `translate(-50%, calc(-50% + ${MODAL_SLIDE_OFFSET}px))` },
+      ],
+      { duration: MODAL_CLOSE_MS, easing: EASE_IN, fill: 'forwards' },
+    );
+    const cardOp = modal.animate(
+      [{ opacity: 1 }, { opacity: 0 }],
+      { duration: MODAL_CLOSE_MS, easing: EASE_IN, fill: 'forwards' },
+    );
+    const backOp = scrim.animate(
+      [{ opacity: 1 }, { opacity: 0 }],
+      { duration: MODAL_CLOSE_MS, easing: EASE_IN, fill: 'forwards' },
+    );
+    openAnims = [slide, cardOp, backOp];
+    Promise.all(openAnims.map((a) => a.finished.catch(() => {}))).then(() => {
+      isOpen = false;
+      isClosing = false;
+      setClosedVisual();
+    });
+  };
+
+  scrim.addEventListener('click', close);
+  closeBtn.addEventListener('click', close);
+  cta.addEventListener('click', close);
+
+  open();
+  addPlay(actions, 'Play open', open);
+  addGhost(actions, 'Close', close);
 }
 
 function mountChoicePulse(stage, actions) {
