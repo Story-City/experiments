@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v44 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v45 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -748,10 +748,15 @@ function setLikesCardRarity(rarity, { pop = false } = {}) {
   likesJamRarity.classList.toggle('is-pop', !!pop);
 }
 
-function cornerRibbonHtml(fill) {
+function cornerRibbonHtml(fill, uid) {
   const tpl = window.LOCATION_GEMS_CORNER_RIBBON;
   if (!tpl) return '';
-  return tpl.split('{{GEM}}').join(fill);
+  const safe = String(uid || 'x').replace(/[^a-zA-Z0-9_-]/g, '');
+  return tpl
+    .split('{{GEM}}')
+    .join(fill)
+    .replace(/paint0_linear_0_4/g, `paint0_${safe}`)
+    .replace(/paint1_linear_0_4/g, `paint1_${safe}`);
 }
 
 function buildGemCard(gem, opts = {}) {
@@ -781,7 +786,7 @@ function buildGemCard(gem, opts = {}) {
   const art = document.createElement('div');
   art.className = 'gem-card-corner-art';
   art.setAttribute('aria-hidden', 'true');
-  art.innerHTML = cornerRibbonHtml(rarity.fill);
+  art.innerHTML = cornerRibbonHtml(rarity.fill, gem.id || rarity.id);
   corner.appendChild(art);
   const stack = document.createElement('div');
   stack.className = 'gem-card-corner-stack';
