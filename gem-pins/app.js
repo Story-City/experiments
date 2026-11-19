@@ -460,7 +460,24 @@ function drawPanel() {
     const note = noteFor(o.id);
     li.classList.toggle('idle', !!note && o.id !== 'colour');
     const head = el('div', 'opt-head');
-    head.append(el('span', 'num', String(o.n)), el('span', 'opt-label', o.label));
+    head.append(el('span', 'num', String(o.n)), el('label', 'opt-label', o.label));
+    // single-choice options are dropdowns; category tags (several at once) stay as chips
+    if (!o.multi) {
+      const sel = el('select', 'opt-select');
+      sel.id = `opt-${o.id}`;
+      head.querySelector('label').htmlFor = sel.id;
+      o.opts.forEach(([v, label], i) => {
+        const op = el('option', null, `${LETTERS[i]} · ${label}${v === o.start ? ' (start)' : ''}`);
+        op.value = v;
+        op.selected = opt[o.id] === v;
+        sel.append(op);
+      });
+      sel.addEventListener('change', () => { opt[o.id] = sel.value; writeHash(); closeDetails(); drawAll(); });
+      li.append(head, sel);
+      if (note) li.append(el('p', 'opt-note', note));
+      list.append(li);
+      continue;
+    }
     const segs = el('div', 'segs');
     segs.setAttribute('role', 'group');
     segs.setAttribute('aria-label', `${o.n}. ${o.label}`);
@@ -503,6 +520,26 @@ const KEEP = ['density', 'cb'];
 const presetOpts = (p) => ({ ...START, ...p.set, density: opt.density, cb: opt.cb });
 const same = (a, b) => OPTIONS.every((o) => KEEP.includes(o.id) || JSON.stringify(a[o.id]) === JSON.stringify(b[o.id]));
 const usePreset = (p) => { opt = presetOpts(p); filterOn = new Set(CATS.map((c) => c.id)); closeDetails(); writeHash(); drawAll(); };
+// "Colour = …, Size = …" for a setup, read straight from its options so it can't drift
+const optLabel = (id, v) => OPTIONS.find((o) => o.id === id).opts.find(([k]) => k === v)?.[1] || v;
+function specOf(o) {
+  const lv = { 2: 'Common, Rare', 3: 'Common, Rare, Mythical', 4: 'Common, Rare, Epic, Mythical' }[o.levels];
+  const sized = SIZE_BY.includes(o.rarityBy);
+  const glows = GLOW_BY.includes(o.rarityBy);
+  const colourIsRarity = o.colour === 'rarity' || o.rarityBy === 'colour';
+  const rows = [
+    ['Colour', colourIsRarity ? `Rarity (${o.rarityColours === 'treasure' ? 'quartz, sapphire, amethyst, gold' : 'moonstone, aquamarine, topaz'})` : optLabel('colour', o.colour)],
+    ['Others’ gems', optLabel('others', o.others)],
+    ['Shape', optLabel('shape', o.shape)],
+    ['Size', sized ? `Rarity (${o.sizes.replace(/-/g, ' / ')} px)` : 'Same for all'],
+    ['Glow', glows ? (o.glowOn === 'mythical' ? 'Mythical only' : 'Rare and up') : 'None'],
+  ];
+  if (o.rarityBy === 'sizeGlowSparkle') rows.push(['Sparkle', 'Rare and up']);
+  rows.push(['Rarity levels', lv], ['Private vs public', optLabel('mine', o.mine)], ['Liked', optLabel('liked', o.liked)],
+    ['Your colour', optLabel('pick', o.pick)], ['Categories', `${optLabel('tagMode', o.tagMode)} · ${optLabel('filter', o.filter)}`]);
+  return rows;
+}
+
 function drawPresets() {
   const box = $('presets');
   box.replaceChildren();
@@ -518,7 +555,11 @@ function drawPresets() {
   });
   const what = $('presetWhat');
   what.replaceChildren();
-  if (on) what.append(el('span', 'p-desc', on.desc), el('b', 'p-tests', COPY.tests + on.tests), el('span', 'p-sets', on.what));
+  if (on) {
+    const dl = el('dl', 'p-spec');
+    for (const [k, v] of specOf(presetOpts(on))) dl.append(el('dt', null, k), el('dd', null, v));
+    what.append(el('span', 'p-desc', on.desc), el('b', 'p-tests', COPY.tests + on.tests), dl);
+  }
   else what.textContent = COPY.custom;
   // run it at 10 / 40 / 100 gems and with the colour-blind view
   const tr = $('tryAt');

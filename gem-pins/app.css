@@ -55,7 +55,10 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 .preset-what b { color: var(--text); font-weight: 600; }
 .preset-what .p-desc { display: block; font-size: 14px; line-height: 1.4; color: var(--text); margin-bottom: 6px; text-wrap: pretty; }
 .preset-what .p-tests { display: block; margin-bottom: 3px; }
-.preset-what .p-sets { display: block; }
+.p-spec { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; margin: 6px 0 0; font-size: 12px; }
+.p-spec dt { color: var(--muted); white-space: nowrap; }
+.p-spec dt::after { content: ' ='; }
+.p-spec dd { margin: 0; color: var(--text); }
 .preset-what { margin: 7px 0 0; font-size: 12px; color: var(--muted); min-height: 2.6em; text-wrap: pretty; }
 .opts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .opt { padding: 10px; border-radius: 14px; background: var(--surface); }
@@ -69,6 +72,10 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 .seg.start::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.45; }
 .seg[aria-pressed="true"] { background: linear-gradient(90deg, #0259a1, #009eff); border-color: transparent; color: #fff; box-shadow: 0 0 12px -4px rgba(0, 158, 255, 0.8); }
 .seg[aria-pressed="true"] b { color: #fff; }
+.opt-select { width: 100%; height: 34px; padding: 0 34px 0 12px; border-radius: 999px; border: 1px solid var(--line); background: #1b1140 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23c49bff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 13px center / 11px 8px; color: var(--text); font: 600 13px/1 var(--f-ui); appearance: none; -webkit-appearance: none; cursor: pointer; }
+.opt-select:hover, .opt-select:focus-visible { border-color: var(--glow); box-shadow: 0 0 10px -3px rgba(196, 155, 255, 0.8); outline: none; }
+.opt-select option { background: #1b1140; color: var(--text); }
+.opt-head .opt-label { cursor: pointer; }
 .opt-note { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
 
 /* phones: the panel is a sheet you open from the map */
