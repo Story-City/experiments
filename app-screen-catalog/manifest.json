@@ -1,0 +1,65 @@
+[
+    {
+        "id":  "welcome",
+        "label":  "Welcome",
+        "file":  "shots/welcome_20261119-173733.png",
+        "capturedAt":  "2026-11-19T17:37:33Z",
+        "build":  "5.0.0 / 110000"
+    },
+    {
+        "id":  "sample-ftue",
+        "label":  "Sample adventure (FTUE)",
+        "file":  "shots/sample-ftue_20261119-173738.png",
+        "capturedAt":  "2026-11-19T17:37:38Z",
+        "build":  "5.0.0 / 110000"
+    },
+    {
+        "id":  "home",
+        "label":  "Home",
+        "file":  "shots/home_20261119-173934.png",
+        "capturedAt":  "2026-11-19T17:39:33Z",
+        "build":  "5.0.0 / 110000"
+    },
+    {
+        "id":  "feed",
+        "label":  "Feed / Start Adventure card",
+        "file":  "shots/feed_20261119-173811.png",
+        "capturedAt":  "2026-11-19T17:38:10Z",
+        "build":  "5.0.0 / 110000"
+    },
+    {
+        "id":  "map-explore",
+        "label":  "Map tab (explore)",
+        "file":  "shots/map-explore_20261119-173928.png",
+        "capturedAt":  "2026-11-19T17:39:28Z",
+        "build":  "5.0.0 / 110000"
+    },
+    {
+        "id":  "profile-drawer",
+        "label":  "Profile drawer",
+        "file":  "shots/profile-drawer_20261119-173848.png",
+        "capturedAt":  "2026-11-19T17:38:48Z",
+        "build":  "5.0.0 / 110000"
+    },
+    {
+        "id":  "story-overview",
+        "label":  "Story overview",
+        "file":  "shots/story-overview_20261119-174015.png",
+        "capturedAt":  "2026-11-19T17:40:41Z",
+        "build":  "5.0.0 / 110000"
+    },
+    {
+        "id":  "story-overview-map",
+        "label":  "Story overview (map hero)",
+        "file":  "shots/story-overview-map_20261119-174113.png",
+        "capturedAt":  "2026-11-19T17:41:13Z",
+        "build":  "5.0.0 / 110000"
+    },
+    {
+        "id":  "debug-home",
+        "label":  "Debug home",
+        "file":  "shots/debug-home_20261119-173542.png",
+        "capturedAt":  "2026-11-19T17:35:42Z",
+        "build":  "5.0.0 / 110000"
+    }
+]
