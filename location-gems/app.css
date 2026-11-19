@@ -502,12 +502,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   bottom: 6px;
   z-index: 2;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 .gem-card-caption {
   margin: 0;
-  flex: 1;
-  min-width: 0;
+  max-width: 100%;
   color: #fff;
   font-size: 13px;
   font-weight: 700;
@@ -518,6 +519,21 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+.gem-card-likes {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+.gem-card-likes .like-heart {
+  color: var(--like-pink-hot);
+  font-size: 13px;
+  line-height: 1;
 }
 /* Figma Social Media 2825:457 — organic corner blotch; brush lines = gem colour */
 .gem-card-corner {
@@ -544,26 +560,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   top: 7%;
   right: 5%;
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  gap: 6px;
-}
-.gem-card-corner-text {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
-  white-space: nowrap;
-}
-.gem-card-corner-text .like-heart {
-  color: var(--like-pink-hot);
-  font-size: 13px;
-  line-height: 1;
 }
 .gem-card-gem {
   flex: none;

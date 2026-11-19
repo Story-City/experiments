@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v45 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v46 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -790,13 +790,6 @@ function buildGemCard(gem, opts = {}) {
   corner.appendChild(art);
   const stack = document.createElement('div');
   stack.className = 'gem-card-corner-stack';
-  const likes = publicLikes(gem);
-  if (gem.isPublic && likes > 0) {
-    const textEl = document.createElement('span');
-    textEl.className = 'gem-card-corner-text';
-    textEl.innerHTML = `<span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span>`;
-    stack.appendChild(textEl);
-  }
   const gemEl = document.createElement('span');
   gemEl.className = 'gem-card-gem';
   if (!gem.isPublic) gemEl.classList.add('is-hidden-fill');
@@ -811,6 +804,13 @@ function buildGemCard(gem, opts = {}) {
   caption.className = 'gem-card-caption';
   caption.textContent = displayCopy(getGemTagline(gem) || getGemTitle(gem) || '—');
   footer.appendChild(caption);
+  const likes = publicLikes(gem);
+  if (gem.isPublic && likes > 0) {
+    const likesEl = document.createElement('span');
+    likesEl.className = 'gem-card-likes';
+    likesEl.innerHTML = `<span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span>`;
+    footer.appendChild(likesEl);
+  }
   wrap.appendChild(footer);
   return wrap;
 }
