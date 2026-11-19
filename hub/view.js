@@ -42,8 +42,8 @@ const startPath = params.get('u') || entry.path;
 frame.src = new URL(startPath, root).href;
 $('direct').href = new URL(startPath, root).href;
 
-// "tabs": [{ label, path }] in experiments.json: an experiment's pages as tabs on the right
-// (top of the comments panel; in the top bar on phones). The tab follows the page, even when
+// "tabs": [{ label, path }] in experiments.json: an experiment's pages as tabs at the top of
+// the main column (in the top bar on phones). The tab follows the page, even when
 // the page links to another one.
 const tabs = Array.isArray(entry.tabs) ? entry.tabs.filter(t => t?.label && t?.path) : [];
 const bare = p => norm(p).replace(/[?#].*$/, '');
@@ -62,6 +62,7 @@ function markTab() {
   });
 }
 if (tabs.length > 1) {
+  document.body.classList.add('has-tabs');
   for (const nav of document.querySelectorAll('[data-tabs]')) {
     nav.setAttribute('role', 'tablist');
     for (const t of tabs) {

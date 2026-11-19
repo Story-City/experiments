@@ -10,7 +10,7 @@ Entry fields: `slug` (unique, used in `view.html?e=<slug>`), `path` (folder URL 
 
 A page that isn't phone-sized (like Approved UI's side panel + cards) can set `"frame": "wide"` to get a wider frame in the viewer.
 
-An experiment with more than one page can list them as `tabs`: `[{ "label": "Mockup", "path": "<slug>/" }, { "label": "Vote", "path": "<slug>/vote.html" }]`. The viewer shows them as tabs on the right (top of the comments panel; in the top bar on phones), and the tab follows the page when a link inside it opens another page.
+An experiment with more than one page can list them as `tabs`: `[{ "label": "Mockup", "path": "<slug>/" }, { "label": "Vote", "path": "<slug>/vote.html" }]`. The viewer shows them as tabs at the top of the main column (in the top bar on phones), and the tab follows the page when a link inside it opens another page.
 
 Once a feature ships, add `live`: `{ "since": "YYYY-MM", "shots": ["<slug>/live/1.png", "<slug>/live/2.mp4"], "note": "Shipped: …" }`. The card then shows up to two little phone-shaped snippets of the real app (screenshots, or short muted looping clips as .mp4/.webm, portrait, under ~1 MB each) with a green "Live in the app" badge and the note. Put the files in the experiment's own `live/` folder. Use real app captures only, not the mockup.
 
