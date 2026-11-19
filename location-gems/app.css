@@ -544,10 +544,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .gem-card-corner-art {
   position: absolute;
-  left: 62.8%;
-  top: -26.8%;
-  width: 88.4%;
-  height: 63.8%;
+  top: 0;
+  right: 0;
+  width: 58%;
+  height: 58%;
   overflow: visible;
 }
 .gem-card-corner-art svg {
@@ -1452,10 +1452,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .sort-card-corner-art {
   position: absolute;
-  left: 62.8%;
-  top: -26.8%;
-  width: 88.4%;
-  height: 63.8%;
+  top: 0;
+  right: 0;
+  width: 58%;
+  height: 58%;
   overflow: visible;
 }
 .sort-card-corner-art svg {
@@ -1802,11 +1802,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .likes-jam-corner-art {
   position: absolute;
-  /* 4:3 banner photo — keep blotch + gem-tint lines in the top-right */
-  left: 50%;
-  top: -32%;
-  width: 100%;
-  height: 85%;
+  top: 0;
+  right: 0;
+  width: 48%;
+  height: 62%;
   overflow: visible;
 }
 .likes-jam-corner-art svg {

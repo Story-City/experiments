@@ -27,9 +27,9 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=17",
+    "path": "approved-ui/?v=18",
     "title": "Approved UI library",
-    "what": "End-story badges popup (exact motion). Tales cover + 4 badges. Map mode switch. Gem SVGs.",
+    "what": "End-story badges popup contained (no CTA scroll). Bounce clocks fixed. Tales cover + 4 badges.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
@@ -51,7 +51,7 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=50",
+    "path": "location-gems/?v=51",
     "title": "Location Gems hub",
     "what": "Rarity: aquamarine/moonstone/topaz/opal/diamond. Sort hub, spotlight, likes.",
     "author": "victoria",
