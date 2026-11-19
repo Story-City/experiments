@@ -220,6 +220,10 @@ h1 {
   height: 120px;
   aspect-ratio: unset;
 }
+.stage.stage-badges {
+  height: 320px;
+  aspect-ratio: unset;
+}
 .stage.stage-spot {
   height: 420px;
   aspect-ratio: unset;

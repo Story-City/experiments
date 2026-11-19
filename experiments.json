@@ -27,9 +27,9 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=14",
+    "path": "approved-ui/?v=15",
     "title": "Approved UI library",
-    "what": "FtueMap Walk/Path/Hunt switch chrome (no map). Gem SVGs + tip reply.",
+    "what": "Badge appear bounce/fade from app. Map mode switch. Gem SVGs.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

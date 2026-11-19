@@ -1,0 +1,81 @@
+/* Badge appear — BadgeStyles sizes + useEntranceAnimation Bounce + AnimatedBadge stagger.
+   Art: pedometer_badge.png from app v2/assets. Story achievement URLs need GraphQL — not invented. */
+.badge-host {
+  --badge-grey: #DEDEDE;
+  --badge-gap: 16px; /* theme.spacing.m */
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 10px;
+  background: var(--bg);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+/* PedometerBadge: Large 300×165 — no bounce in app; section fade only */
+.badge-featured {
+  width: 300px;
+  height: 165px;
+  max-width: 100%;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+}
+.badge-featured img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.badge-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--badge-gap);
+  width: 100%;
+}
+/* BadgeSize.Small 75×100 — AnimatedBadge Bounce */
+.badge-cell {
+  width: 75px;
+  height: 100px;
+  display: grid;
+  place-items: center;
+  transform: scale(0);
+  transform-origin: 50% 50%;
+}
+.badge-cell.is-in {
+  animation: badgeBounce 600ms linear both;
+}
+.badge-art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+/* Unearned: MaskedView grey silhouette — Badge.tsx greyOverlay #DEDEDE */
+.badge-unearned {
+  width: 100%;
+  height: 100%;
+  background: var(--badge-grey);
+  -webkit-mask-image: var(--badge-mask);
+  mask-image: var(--badge-mask);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+/* useEntranceAnimation Bounce (600ms): scale 0 → 1.2 → 0.9 → 1.1 → 1 */
+@keyframes badgeBounce {
+  0% { transform: scale(0); }
+  55% { transform: scale(1.2); }
+  70% { transform: scale(0.9); }
+  85% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}

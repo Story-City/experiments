@@ -1,5 +1,5 @@
-/** Approved UI library — APPROVED-UI-v14
- * Map mode switch chrome from FtueMap (no map surface).
+/** Approved UI library — APPROVED-UI-v15
+ * Badge appear: AnimatedBadge bounce + EndStory fade (pedometer art from app).
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -213,6 +213,14 @@ const ELEMENT_DEFS = [
     ux: 'When: chapter map card — pick Walk / Path / Hunt. Selected fill = mode colour (Walk uses dark label on green). Lock others = FTUE lockModes wash. No map tiles. Try: tap a mode · Lock others.',
     stage: 'mode-switch',
     mount: mountMapModeSwitch,
+  },
+  {
+    id: 'badge-appear',
+    title: 'Badge appear',
+    source: 'AnimatedBadge bounce · EndStoryInlineBadges fade · pedometer_badge.png',
+    ux: 'When: end-story / celebration. Section fades in, then small badges bounce in staggered (300ms, cap 1200). Unearned = grey silhouette mask. Art here is the app pedometer badge (story achievement art is remote). Try: Play appear.',
+    stage: 'badges',
+    mount: mountBadgeAppear,
   },
   {
     id: 'choice-pulse',
@@ -1472,6 +1480,80 @@ function mountMapModeSwitch(stage, actions) {
     selected = 'hunt';
     render();
   });
+}
+
+function mountBadgeAppear(stage, actions) {
+  /* Entrance from useEntranceAnimation Bounce + AnimatedBadge stagger.
+     Art: pedometer_badge.png (app). Story achievement PNGs are GraphQL contentUrl — not invented. */
+  const BADGE_ART = 'assets/badges/pedometer_badge.png';
+  const MODAL_BADGES_FADE_MS = 340;
+  const MODAL_BADGES_FADE_DELAY_MS = 380;
+  const VIEW_ANIMATION_DELAY_MS = 500;
+  const STAGGER_DELAY_MS = 300;
+  const MAX_STAGGER_DELAY_MS = 1200;
+  const SMALL_COUNT = 3;
+
+  const host = document.createElement('div');
+  host.className = 'badge-host';
+  host.style.setProperty('--badge-mask', `url("${BADGE_ART}")`);
+  host.innerHTML = `
+    <p class="badge-kicker" id="badgeKicker" hidden>You earned new badges!</p>
+    <div class="badge-featured" id="badgeFeatured">
+      <img src="${BADGE_ART}" alt="" decoding="async">
+    </div>
+    <div class="badge-row" id="badgeRow"></div>
+  `;
+  stage.appendChild(host);
+
+  /* PedometerBadge has no bounce in the app; featured here only fades with the section. */
+  const kicker = host.querySelector('#badgeKicker');
+  const featured = host.querySelector('#badgeFeatured');
+  const row = host.querySelector('#badgeRow');
+  kicker.style.cssText = 'margin:0;font-weight:800;font-size:16px;opacity:0;transition:opacity ' + MODAL_BADGES_FADE_MS + 'ms ease;';
+
+  for (let i = 0; i < SMALL_COUNT; i += 1) {
+    const cell = document.createElement('div');
+    cell.className = 'badge-cell';
+    const earned = i < SMALL_COUNT - 1;
+    if (earned) {
+      cell.innerHTML = `<img class="badge-art" src="${BADGE_ART}" alt="" decoding="async">`;
+    } else {
+      cell.innerHTML = `<span class="badge-unearned" aria-label="unearned"></span>`;
+    }
+    const stagger = Math.min(i * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS);
+    cell.style.setProperty('--badge-delay', `${VIEW_ANIMATION_DELAY_MS + stagger}ms`);
+    row.appendChild(cell);
+  }
+
+  const play = () => {
+    kicker.hidden = false;
+    kicker.style.opacity = '0';
+    featured.style.opacity = '0';
+    featured.style.transition = 'none';
+    row.querySelectorAll('.badge-cell').forEach((cell) => {
+      cell.classList.remove('is-in');
+      cell.style.animation = 'none';
+    });
+    void host.offsetWidth;
+    window.setTimeout(() => {
+      kicker.style.transition = `opacity ${MODAL_BADGES_FADE_MS}ms ease`;
+      kicker.style.opacity = '1';
+      featured.style.transition = `opacity ${MODAL_BADGES_FADE_MS}ms ease`;
+      featured.style.opacity = '1';
+    }, MODAL_BADGES_FADE_DELAY_MS);
+    row.querySelectorAll('.badge-cell').forEach((cell, i) => {
+      const stagger = Math.min(i * STAGGER_DELAY_MS, MAX_STAGGER_DELAY_MS);
+      const delay = VIEW_ANIMATION_DELAY_MS + stagger;
+      cell.style.animation = 'none';
+      void cell.offsetWidth;
+      cell.style.animation = '';
+      cell.style.animationDelay = `${delay}ms`;
+      cell.classList.add('is-in');
+    });
+  };
+
+  play();
+  addPlay(actions, 'Play appear', play);
 }
 
 function mountChoicePulse(stage, actions) {
