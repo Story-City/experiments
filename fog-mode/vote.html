@@ -36,12 +36,13 @@ document.write(`<link rel="stylesheet" href="vote.css${CACHE_V}">`);
     </div>
   </section>
 
-  <section class="results" id="results" aria-live="polite"></section>
-
   <div class="note">
     <label for="note" id="noteLabel"></label>
     <textarea id="note" rows="2" maxlength="400"></textarea>
   </div>
+
+  <section class="results" id="results" aria-live="polite"></section>
+
   <section class="notes" id="notes" hidden></section>
 </main>
 <script type="module">import(`./vote.js${window.CACHE_V}`);</script>

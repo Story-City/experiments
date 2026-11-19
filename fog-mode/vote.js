@@ -31,8 +31,13 @@ function setText(n, text) {
 }
 
 /* ---------- my vote (kept on this phone too) ---------- */
-let mine = { name: '', pick: '', down: [], note: '' };
-try { mine = { ...mine, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch (e) { /* private mode: start fresh */ }
+// A vote: on each look, a heart (love it), thumbs-up or thumbs-down, plus "I'd like it more if…".
+// Older votes had one `pick`; it counts as a thumbs-up.
+const LISTS = ['love', 'up', 'down'];
+const WEIGHT = { love: 2, up: 1, down: -1 }; // how the results rank the looks
+const normVote = (v) => ({ ...v, love: v.love || [], up: v.up || (v.pick ? [v.pick] : []), down: v.down || [], more: v.more || {} });
+let mine = { name: '', love: [], up: [], down: [], more: {}, note: '' };
+try { mine = normVote({ ...mine, ...JSON.parse(localStorage.getItem(KEY) || '{}') }); delete mine.pick; } catch (e) { /* private mode: start fresh */ }
 const keepLocal = () => { try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch (e) { /* not saved on this phone, still sent */ } };
 
 /* ---------- the map under the fog (same streets as the mockup) ---------- */
@@ -133,34 +138,53 @@ for (const k of KEYS) {
   li.setAttribute('aria-roledescription', 'slide');
   li.setAttribute('aria-label', VOTE.jumpTo(letterOf(k), L.name));
   const what = el('p', 'what', L.what);
-  const pick = el('button', 'pick', VOTE.pick);
-  pick.type = 'button';
-  const down = el('button', 'down');
+  const love = el('button', 'vb love');
+  love.type = 'button';
+  love.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.3-9.2C1.6 7.8 3.5 4.5 6.8 4.5c2 0 3.4 1.1 4.2 2.4h2c.8-1.3 2.2-2.4 4.2-2.4 3.3 0 5.2 3.3 4.1 6.3C19.5 15.4 12 20 12 20z"/></svg><span class="n"></span>';
+  const up = el('button', 'vb up');
+  up.type = 'button';
+  up.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" style="transform:rotate(180deg)"><path d="M7 13V5a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2-2l-1-5a2 3 0 0 0-2-2h-7a3 3 0 0 0-3 3"/></svg><span class="n"></span>';
+  const down = el('button', 'vb dn');
   down.type = 'button';
-  down.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 13V5a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2-2l-1-5a2 3 0 0 0-2-2h-7a3 3 0 0 0-3 3"/></svg>';
+  down.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 13V5a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2-2l-1-5a2 3 0 0 0-2-2h-7a3 3 0 0 0-3 3"/></svg><span class="n"></span>';
   const row = el('div', 'row');
-  row.append(pick, down);
+  row.append(love, up, down);
+  const more = el('label', 'more');
+  const moreText = document.createElement('textarea');
+  moreText.rows = 2; moreText.maxLength = 300;
+  moreText.placeholder = VOTE.morePlaceholder;
+  moreText.value = mine.more[k] || '';
+  more.append(el('span', null, VOTE.moreLabel), moreText);
   const see = el('a', 'see', VOTE.see + ' ›');
   see.href = `home.html?fog=${k}`;
   const tally = el('p', 'tally');
-  li.append(thumb, head, what, row, tally, see);
+  li.append(thumb, head, what, row, tally, more, see);
   $('looks').append(li);
   const jump = el('button', null, letterOf(k));
   jump.type = 'button';
   jump.setAttribute('aria-label', VOTE.jumpTo(letterOf(k), L.name));
   jump.addEventListener('click', () => show(KEYS.indexOf(k)));
   $('jump').append(jump);
-  cards[k] = { li, thumb, pick, down, tally, jump };
-  pick.addEventListener('click', () => vote({ pick: mine.pick === k ? '' : k, down: mine.down.filter((x) => x !== k) }));
-  down.addEventListener('click', () => {
-    const isDown = mine.down.includes(k);
-    vote({ down: isDown ? mine.down.filter((x) => x !== k) : [...mine.down, k], pick: !isDown && mine.pick === k ? '' : mine.pick });
+  cards[k] = { li, thumb, love, up, down, tally, jump, moreText };
+  // one of heart / up / down per look; tap again to take it back
+  const toggle = (list) => () => {
+    const on = mine[list].includes(k);
+    const patch = Object.fromEntries(LISTS.map((l) => [l, mine[l].filter((x) => x !== k)]));
+    if (!on) patch[list].push(k);
+    vote(patch);
+  };
+  for (const l of LISTS) cards[k][l].addEventListener('click', toggle(l));
+  moreText.addEventListener('change', () => {
+    const text = moreText.value.trim().slice(0, 300);
+    const next = { ...mine.more };
+    if (text) next[k] = text; else delete next[k];
+    vote({ more: next });
   });
 }
 
 /* ---------- gallery: one look at a time ---------- */
 const track = $('looks');
-let current = Math.max(0, KEYS.indexOf(mine.pick));
+let current = Math.max(0, KEYS.indexOf(mine.love[0] || mine.up[0]));
 let active = KEYS[current]; // the look on screen is the one that moves
 function show(i, smooth = true) {
   current = Math.max(0, Math.min(KEYS.length - 1, i));
@@ -218,7 +242,7 @@ requestAnimationFrame(loop);
 
 /* ---------- voting ---------- */
 let db = null; // { uid, save } once connected to the hub
-let all = []; // everyone's latest vote: { name, pick, down, note, uid }
+let all = []; // everyone's latest vote: { name, love, up, down, more, note, uid }
 
 function status(text, kind = '') {
   const s = $('status');
@@ -236,7 +260,6 @@ function vote(patch) {
   }
   $('you').classList.remove('need');
   mine = { ...mine, ...patch, name };
-  if (patch.pick && KEYS.indexOf(patch.pick) !== current) show(KEYS.indexOf(patch.pick));
   keepLocal();
   render();
   save();
@@ -248,7 +271,7 @@ function save() {
   if (!db) { status(VOTE.previewOnly); return; }
   status(VOTE.saving);
   saveTimer = setTimeout(async () => {
-    const text = JSON.stringify({ name: mine.name, pick: mine.pick, down: mine.down, note: mine.note, ts: Date.now() });
+    const text = JSON.stringify({ name: mine.name, love: mine.love, up: mine.up, down: mine.down, more: mine.more, note: mine.note, ts: Date.now() });
     try {
       await db.save(text, mine.name);
       status(VOTE.saved, 'ok');
@@ -267,7 +290,7 @@ function tallyFrom(docs) {
     const who = (v.name || d.author?.name || d.author?.uid || '').trim();
     const id = who.toLowerCase() || d.author?.uid;
     if (!id) continue;
-    if (!latest.has(id) || (latest.get(id).ts || 0) < (v.ts || 0)) latest.set(id, { ...v, name: who, uid: d.author?.uid });
+    if (!latest.has(id) || (latest.get(id).ts || 0) < (v.ts || 0)) latest.set(id, normVote({ ...v, name: who, uid: d.author?.uid }));
   }
   return [...latest.values()];
 }
@@ -276,39 +299,50 @@ function render() {
   // my buttons
   for (const k of KEYS) {
     const c = cards[k];
-    const isPick = mine.pick === k;
+    const isLove = mine.love.includes(k);
+    const isUp = mine.up.includes(k);
     const isDown = mine.down.includes(k);
-    c.li.classList.toggle('mine', isPick);
+    c.li.classList.toggle('loved', isLove);
+    c.jump.classList.toggle('loved', isLove);
+    c.love.setAttribute('aria-pressed', String(isLove));
+    c.love.setAttribute('aria-label', (isLove ? VOTE.unlove : VOTE.love)(`${letterOf(k)}, ${LOOKS[k].name}`));
+    c.li.classList.toggle('liked', isUp);
     c.li.classList.toggle('disliked', isDown);
-    c.jump.classList.toggle('mine', isPick);
+    c.jump.classList.toggle('liked', isUp);
     c.jump.classList.toggle('disliked', isDown);
-    setText(c.pick, isPick ? VOTE.picked : VOTE.pick);
-    c.pick.setAttribute('aria-pressed', String(isPick));
+    c.up.setAttribute('aria-pressed', String(isUp));
+    c.up.setAttribute('aria-label', (isUp ? VOTE.unup : VOTE.up)(`${letterOf(k)}, ${LOOKS[k].name}`));
     c.down.setAttribute('aria-pressed', String(isDown));
     c.down.setAttribute('aria-label', (isDown ? VOTE.undown : VOTE.down)(`${letterOf(k)}, ${LOOKS[k].name}`));
   }
   // everyone's votes (mine counted as I see it right now, even before it saves)
   const others = all.filter((v) => v.name.toLowerCase() !== mine.name.trim().toLowerCase());
-  const votes = mine.name && (mine.pick || mine.down.length) ? [...others, mine] : others;
-  const score = Object.fromEntries(KEYS.map((k) => [k, {
-    up: votes.filter((v) => v.pick === k).length,
-    down: votes.filter((v) => (v.down || []).includes(k)).length,
-    names: votes.filter((v) => v.pick === k).map((v) => v.name),
-  }]));
+  const hasVote = (v) => v.love.length || v.up.length || v.down.length || Object.keys(v.more).length || (v.note || '').trim();
+  const votes = mine.name && hasVote(mine) ? [...others, mine] : others;
+  const score = Object.fromEntries(KEYS.map((k) => {
+    const loves = votes.filter((v) => v.love.includes(k)).map((v) => v.name);
+    const ups = votes.filter((v) => v.up.includes(k)).map((v) => v.name);
+    const downs = votes.filter((v) => v.down.includes(k)).map((v) => v.name);
+    return [k, { love: loves.length, up: ups.length, down: downs.length, loves, ups, downs, pts: loves.length * WEIGHT.love + ups.length * WEIGHT.up + downs.length * WEIGHT.down }];
+  }));
   for (const k of KEYS) {
     const s = score[k];
-    setText(cards[k].tally, s.up || s.down ? VOTE.tally(s.up, s.down) + (s.names.length ? ' · ' + VOTE.by(s.names.join(', ')) : '') : '');
+    cards[k].love.querySelector('.n').textContent = s.love || '';
+    cards[k].up.querySelector('.n').textContent = s.up || '';
+    cards[k].down.querySelector('.n').textContent = s.down || '';
+    const parts = [s.loves.length && VOTE.loveBy(s.loves.join(', ')), s.ups.length && VOTE.upBy(s.ups.join(', ')), s.downs.length && VOTE.downBy(s.downs.join(', '))].filter(Boolean);
+    setText(cards[k].tally, parts.join(' · '));
   }
   const box = $('results');
   box.innerHTML = '';
   box.append(el('h2', '', VOTE.resultsTitle));
   if (!votes.length) { box.append(el('p', 'muted', VOTE.noVotes)); }
   else {
-    const ranked = [...KEYS].sort((a, b) => (score[b].up - score[b].down) - (score[a].up - score[a].down) || score[b].up - score[a].up);
-    const top = score[ranked[0]].up - score[ranked[0]].down;
-    const tied = ranked.filter((k) => score[k].up - score[k].down === top).length > 1;
+    const ranked = [...KEYS].sort((a, b) => score[b].pts - score[a].pts || score[b].love - score[a].love || score[b].up - score[a].up);
+    const top = score[ranked[0]].pts;
+    const tied = ranked.filter((k) => score[k].pts === top).length > 1;
     box.append(el('p', 'muted', VOTE.voters(votes.length) + ' · ' + (tied ? VOTE.tie : VOTE.leading(`${letterOf(ranked[0])}, ${LOOKS[ranked[0]].name}`))));
-    const max = Math.max(1, ...KEYS.map((k) => score[k].up), ...KEYS.map((k) => score[k].down));
+    const max = Math.max(1, ...KEYS.flatMap((k) => [score[k].love, score[k].up, score[k].down]));
     const list = el('ol', 'bars');
     for (const k of ranked) {
       const s = score[k];
@@ -316,24 +350,33 @@ function render() {
       const lab = el('span', 'lab');
       lab.append(el('span', 'letter', letterOf(k)), el('span', 'nm', LOOKS[k].name));
       const bars = el('span', 'bar');
+      const lv = el('i', 'lv'); lv.style.width = `${(s.love / max) * 100}%`;
       const up = el('i', 'up'); up.style.width = `${(s.up / max) * 100}%`;
       const dn = el('i', 'dn'); dn.style.width = `${(s.down / max) * 100}%`;
-      bars.append(up, dn);
-      li.append(lab, bars, el('span', 'num', `${s.up} · −${s.down}`));
-      li.setAttribute('aria-label', `${letterOf(k)}, ${LOOKS[k].name}: ${VOTE.tally(s.up, s.down)}`);
+      bars.append(lv, up, dn);
+      li.append(lab, bars, el('span', 'num', `♥${s.love} ↑${s.up} ↓${s.down}`));
+      li.setAttribute('aria-label', `${letterOf(k)}, ${LOOKS[k].name}: ${VOTE.tally(s.love, s.up, s.down)}`);
       list.append(li);
     }
     box.append(list);
   }
-  // notes from the team
+  // notes from the team: "I'd like it more if…" per look, then anything else
   const notes = votes.filter((v) => v.note && v.note.trim());
+  const wishes = KEYS.flatMap((k) => votes.filter((v) => (v.more[k] || '').trim()).map((v) => ({ k, name: v.name, text: v.more[k].trim() })));
   const nbox = $('notes');
-  nbox.hidden = !notes.length;
+  nbox.hidden = !notes.length && !wishes.length;
   nbox.innerHTML = '';
+  const line = (who, text) => { const li = el('li'); li.append(el('b', '', who + ': ')); li.append(document.createTextNode(text)); return li; };
+  if (wishes.length) {
+    nbox.append(el('h2', '', VOTE.moreTitle));
+    const ul = el('ul');
+    for (const w of wishes) ul.append(line(`${letterOf(w.k)} ${LOOKS[w.k].name} · ${w.name}`, w.text));
+    nbox.append(ul);
+  }
   if (notes.length) {
     nbox.append(el('h2', '', VOTE.notesTitle));
     const ul = el('ul');
-    for (const v of notes) { const li = el('li'); li.append(el('b', '', v.name + ': ')); li.append(document.createTextNode(v.note.trim())); ul.append(li); }
+    for (const v of notes) ul.append(line(v.name, v.note.trim()));
     nbox.append(ul);
   }
 }
@@ -343,7 +386,7 @@ $('who').addEventListener('input', () => {
   mine.name = $('who').value.trim();
   keepLocal();
 });
-$('who').addEventListener('change', () => { if (mine.pick || mine.down.length) vote({}); });
+$('who').addEventListener('change', () => { if (mine.love.length || mine.up.length || mine.down.length || Object.keys(mine.more).length) vote({}); });
 $('note').addEventListener('change', () => vote({ note: $('note').value.trim().slice(0, 400) }));
 
 render();
