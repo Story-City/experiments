@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=46">
+<link rel="stylesheet" href="app.css?v=47">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -36,6 +36,12 @@
         <div class="tool-toggle">
           <span>Drag to sections</span>
           <button type="button" class="switch" id="debugDragMode" role="switch" aria-checked="false" aria-label="Drag to sections">
+            <span class="switch-knob" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="tool-toggle">
+          <span>Two-gem likes stack</span>
+          <button type="button" class="switch" id="debugLikesStack" role="switch" aria-checked="false" aria-label="Two-gem likes stack">
             <span class="switch-knob" aria-hidden="true"></span>
           </button>
         </div>
@@ -197,16 +203,44 @@
     <div class="likes-banner" id="likesBanner" hidden aria-hidden="true">
       <div class="likes-haze" aria-hidden="true"></div>
       <div class="likes-shine" id="likesShine" aria-hidden="true"></div>
-      <article class="likes-jam-card" id="likesJamCard" aria-hidden="true">
-        <img class="likes-jam-photo" id="likesJamPhoto" alt="">
-        <div class="likes-jam-gem" id="likesJamGem" aria-hidden="true"></div>
-        <p class="likes-jam-rarity" id="likesJamRarity" hidden></p>
-        <div class="likes-jam-body">
-          <p class="likes-jam-user" id="likesJamUser"></p>
-          <p class="likes-jam-text" id="likesJamText"></p>
-          <p class="likes-jam-place" id="likesJamPlace"></p>
-        </div>
-      </article>
+      <div class="likes-jam-stack" id="likesJamStack">
+        <article class="likes-jam-card" data-likes-slot="0" id="likesJamCard" aria-hidden="true">
+          <div class="likes-jam-media">
+            <img class="likes-jam-photo" data-likes-photo alt="">
+            <div class="likes-jam-corner" aria-hidden="true">
+              <div class="likes-jam-corner-art" data-likes-corner-art></div>
+              <div class="likes-jam-corner-stack">
+                <span class="likes-jam-gem" data-likes-gem></span>
+              </div>
+            </div>
+            <p class="likes-jam-rarity" data-likes-rarity hidden></p>
+          </div>
+          <div class="likes-jam-body">
+            <p class="likes-jam-text" data-likes-text></p>
+            <p class="likes-jam-likes" data-likes-count></p>
+            <p class="likes-jam-user" data-likes-user></p>
+            <p class="likes-jam-place" data-likes-place></p>
+          </div>
+        </article>
+        <article class="likes-jam-card" data-likes-slot="1" id="likesJamCardB" hidden aria-hidden="true">
+          <div class="likes-jam-media">
+            <img class="likes-jam-photo" data-likes-photo alt="">
+            <div class="likes-jam-corner" aria-hidden="true">
+              <div class="likes-jam-corner-art" data-likes-corner-art></div>
+              <div class="likes-jam-corner-stack">
+                <span class="likes-jam-gem" data-likes-gem></span>
+              </div>
+            </div>
+            <p class="likes-jam-rarity" data-likes-rarity hidden></p>
+          </div>
+          <div class="likes-jam-body">
+            <p class="likes-jam-text" data-likes-text></p>
+            <p class="likes-jam-likes" data-likes-count></p>
+            <p class="likes-jam-user" data-likes-user></p>
+            <p class="likes-jam-place" data-likes-place></p>
+          </div>
+        </article>
+      </div>
       <div class="likes-copy" id="likesCopy" aria-hidden="true">
         <p class="likes-headline" id="likesHeadline"><span class="likes-rich">12 likes</span></p>
         <p class="likes-subtitle" id="likesSubtitle">[on this gem]</p>
@@ -278,11 +312,11 @@
   </main>
 
   <p class="meta">
-    LOCATION-GEMS-HUB-v46. Rarity = aquamarine/moonstone/topaz/opal/diamond.
+    LOCATION-GEMS-HUB-v47. Rarity = aquamarine/moonstone/topaz/opal/diamond.
   </p>
     </div>
   </div>
-  <script src="corner-ribbon.js?v=46"></script>
-  <script src="app.js?v=46"></script>
+  <script src="corner-ribbon.js?v=47"></script>
+  <script src="app.js?v=47"></script>
 </body>
 </html>

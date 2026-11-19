@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v46 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v47 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -144,6 +144,8 @@ const RARITY_PROMOTE_MS = 720;
 const TEXT_SWIPE_MS = 900;
 const FLY_MS = 720;
 const LIKES_DEMO = 12;
+const LIKES_STACK_SECOND = 8;
+const LIKES_STACK_SHUFFLE_MS = 520;
 const GLANCE_ARC_CX = 120;
 const GLANCE_ARC_CY = 96;
 const GLANCE_ARC_R = 80;
@@ -169,6 +171,7 @@ const COPY = {
   dropHidden: '[hidden]',
   dropPublic: '[public]',
   likesSubtitle: '[on this gem]',
+  likesSubtitleStack: '[on 2 gems]',
   likesWord: '[likes]',
   detailNav: '[navigate]',
   detailPublish: '[publish]',
@@ -216,6 +219,7 @@ const SPOOF_COPY = {
   dropHidden: 'Hidden',
   dropPublic: 'Public',
   likesSubtitle: 'on this gem',
+  likesSubtitleStack: 'on 2 gems',
   likesWord: 'likes',
   detailNav: 'Navigate',
   detailPublish: 'Publish',
@@ -364,19 +368,16 @@ const likesShine = document.getElementById('likesShine');
 const likesCopy = document.getElementById('likesCopy');
 const likesHeadline = document.getElementById('likesHeadline');
 const likesSubtitle = document.getElementById('likesSubtitle');
+const likesJamStack = document.getElementById('likesJamStack');
 const likesJamCard = document.getElementById('likesJamCard');
-const likesJamPhoto = document.getElementById('likesJamPhoto');
-const likesJamGem = document.getElementById('likesJamGem');
-const likesJamRarity = document.getElementById('likesJamRarity');
-const likesJamUser = document.getElementById('likesJamUser');
-const likesJamText = document.getElementById('likesJamText');
-const likesJamPlace = document.getElementById('likesJamPlace');
+const likesJamCardB = document.getElementById('likesJamCardB');
 const debugRarityUp = document.getElementById('debugRarityUp');
 const flyLayer = document.getElementById('flyLayer');
 const debugLikes = document.getElementById('debugLikes');
 const debugOnboard = document.getElementById('debugOnboard');
 const debugSpoof = document.getElementById('debugSpoof');
 const debugDragMode = document.getElementById('debugDragMode');
+const debugLikesStack = document.getElementById('debugLikesStack');
 
 /** @type {'public'|'hidden'|'liked'} */
 let activeSection = 'public';
@@ -393,6 +394,7 @@ let placeIndex = 0;
 let gemSeq = 0;
 let likesBusy = false;
 let spoofWording = false;
+let likesStackMode = false;
 let dragMode = false;
 /** @type {any} */
 let drag = null;
@@ -741,11 +743,35 @@ function nextRarity(rarity) {
   return order[Math.min(order.length - 1, Math.max(0, i) + 1)];
 }
 
-function setLikesCardRarity(rarity, { pop = false } = {}) {
-  likesJamGem.innerHTML = gemSvg(rarity.fill, { softOutline: true });
-  likesJamRarity.hidden = false;
-  likesJamRarity.textContent = rarity.label;
-  likesJamRarity.classList.toggle('is-pop', !!pop);
+function likesSlotEls(card) {
+  return {
+    card,
+    photo: card.querySelector('[data-likes-photo]'),
+    cornerArt: card.querySelector('[data-likes-corner-art]'),
+    gem: card.querySelector('[data-likes-gem]'),
+    rarity: card.querySelector('[data-likes-rarity]'),
+    text: card.querySelector('[data-likes-text]'),
+    count: card.querySelector('[data-likes-count]'),
+    user: card.querySelector('[data-likes-user]'),
+    place: card.querySelector('[data-likes-place]'),
+  };
+}
+
+function setLikesCardRarity(els, rarity, { pop = false } = {}) {
+  if (!els || !els.gem) return;
+  els.card.style.setProperty('--gem-line', rarity.fill);
+  if (els.cornerArt) {
+    els.cornerArt.innerHTML = cornerRibbonHtml(
+      rarity.fill,
+      `likes-${els.card.getAttribute('data-likes-slot') || '0'}-${rarity.id}`,
+    );
+  }
+  els.gem.innerHTML = gemSvg(rarity.fill, { softOutline: true });
+  if (els.rarity) {
+    els.rarity.hidden = rarity.id === 'cyan';
+    els.rarity.textContent = rarity.label;
+    els.rarity.classList.toggle('is-pop', !!pop);
+  }
 }
 
 function cornerRibbonHtml(fill, uid) {
@@ -1643,60 +1669,121 @@ async function settleSort(card, action) {
   if (cell) cell.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
-function pickLikedJam() {
-  const publicGems = gems.filter((g) => g.isPublic && publicLikes(g) > 0);
-  if (publicGems.length) {
-    return publicGems.slice().sort((a, b) => publicLikes(b) - publicLikes(a))[0];
+function pickLikedJams(count) {
+  const publicGems = gems
+    .filter((g) => g.isPublic && publicLikes(g) > 0)
+    .slice()
+    .sort((a, b) => publicLikes(b) - publicLikes(a));
+  const picked = publicGems.slice(0, count);
+  while (picked.length < count) {
+    const find = CHALLENGE_FINDS[picked.length] || CHALLENGE_FINDS[0];
+    const spoof = createSpoofCollectedGem();
+    spoof.id = `${SPOOF_COLLECTED_GEM_ID}-${picked.length}`;
+    if (find) {
+      spoof.imageUri = find.photo;
+      spoof.tagline = find.text;
+      spoof.title = find.place;
+      spoof.authorUsername = String(find.user || '').replace(/^@/, '') || SPOOF_COLLECTED_GEM_AUTHOR;
+      spoof.likes = find.likes || LIKES_STACK_SECOND;
+    }
+    picked.push(spoof);
   }
-  return createSpoofCollectedGem();
+  return picked;
 }
 
-function fillLikesJamCard(gem, likesOverride) {
-  likesJamPhoto.src = gem.imageUri;
-  likesJamUser.textContent = gem.authorUsername ? `@${gem.authorUsername}` : MY_USER;
-  likesJamText.textContent = getGemTagline(gem) || getGemTitle(gem);
-  likesJamPlace.textContent = gem.title || '';
+function fillLikesJamCard(card, gem, likesOverride) {
+  const els = likesSlotEls(card);
+  if (!els.photo) return { likes: 0, rarity: RARITY.cyan };
+  els.photo.src = gem.imageUri;
+  if (els.user) {
+    els.user.textContent = gem.authorUsername ? `@${gem.authorUsername}` : MY_USER;
+  }
+  if (els.text) {
+    els.text.textContent = displayCopy(getGemTagline(gem) || getGemTitle(gem) || '—');
+  }
+  if (els.place) els.place.textContent = gem.title || '';
   const likes = likesOverride != null ? likesOverride : publicLikes(gem) || LIKES_DEMO;
   const rarity = rarityForLikes(likes, true);
-  likesHeadline.innerHTML = `<span class="likes-rich">${likes} ${t('likesWord')}</span>`;
-  likesSubtitle.textContent = t('likesSubtitle');
-  setLikesCardRarity(rarity, { pop: false });
-  return { likes, rarity };
+  if (els.count) {
+    els.count.innerHTML = `<span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span>`;
+  }
+  setLikesCardRarity(els, rarity, { pop: false });
+  return { likes, rarity, els };
+}
+
+function setLikesStackVisible(on) {
+  if (!likesJamStack) return;
+  likesJamStack.classList.toggle('is-multi', on);
+  likesJamStack.classList.remove('is-shuffled');
+  if (likesJamCardB) {
+    likesJamCardB.hidden = !on;
+    likesJamCardB.setAttribute('aria-hidden', on ? 'false' : 'true');
+  }
 }
 
 async function playLikesBanner(opts = {}) {
   if (likesBusy) return;
   likesBusy = true;
   const promote = !!opts.promote;
-  const gem = pickLikedJam();
-  let likes = publicLikes(gem) || LIKES_DEMO;
-  let rarity = rarityForLikes(likes, true);
-  if (promote) {
-    /* Start one tier below so the banner can show the rarity change */
-    const order = [RARITY.cyan, RARITY.silver, RARITY.gold, RARITY.platinum, RARITY.diamond];
-    const target = nextRarity(rarity.id === 'diamond' ? RARITY.platinum : rarity);
-    likes = Math.max(0, target.minLikes - 1);
-    rarity = rarityForLikes(likes, true);
-  }
-  fillLikesJamCard({ ...gem, likes, isPublic: true }, likes);
+  const stackOn = likesStackMode && !promote;
+  const cards = [likesJamCard, likesJamCardB].filter(Boolean);
+  const gemsForBanner = pickLikedJams(stackOn ? 2 : 1);
+  const filled = [];
+  setLikesStackVisible(stackOn);
+  gemsForBanner.forEach((gem, i) => {
+    let likes = publicLikes(gem) || (i === 0 ? LIKES_DEMO : LIKES_STACK_SECOND);
+    let rarity = rarityForLikes(likes, true);
+    if (promote && i === 0) {
+      const target = nextRarity(rarity.id === 'diamond' ? RARITY.platinum : rarity);
+      likes = Math.max(0, target.minLikes - 1);
+      rarity = rarityForLikes(likes, true);
+    }
+    const card = cards[i];
+    if (!card) return;
+    filled.push({
+      ...fillLikesJamCard(card, { ...gem, likes, isPublic: true }, likes),
+      card,
+    });
+  });
+  const totalLikes = filled.reduce((sum, row) => sum + row.likes, 0);
+  likesHeadline.innerHTML = `<span class="likes-rich">${totalLikes} ${t('likesWord')}</span>`;
+  likesSubtitle.textContent = stackOn ? t('likesSubtitleStack') : t('likesSubtitle');
   likesBanner.hidden = false;
   likesBanner.classList.remove('is-out');
   likesBanner.classList.add('is-on');
   likesCopy.classList.remove('is-on', 'is-swipe');
   likesShine.classList.remove('is-on');
-  likesJamCard.classList.remove('is-in', 'is-out', 'is-impact', 'is-rarity-up');
+  cards.forEach((card) => {
+    card.classList.remove('is-in', 'is-out', 'is-impact', 'is-rarity-up');
+  });
   await wait(HAZE_IN_MS);
   likesShine.classList.add('is-on');
-  likesJamCard.classList.add('is-in');
+  cards.forEach((card, i) => {
+    if (!stackOn && i > 0) return;
+    if (card.hidden) return;
+    card.classList.add('is-in');
+  });
   likesCopy.classList.add('is-on');
   await wait(CARD_IN_MS);
-  likesJamCard.classList.add('is-impact');
-  if (promote) {
+  cards.forEach((card, i) => {
+    if (!stackOn && i > 0) return;
+    if (card.hidden) return;
+    card.classList.add('is-impact');
+  });
+  if (stackOn) {
     await wait(HOLD_AFTER_SHINE_MS);
-    const promoted = nextRarity(rarity);
-    likes = promoted.minLikes;
+    likesJamStack.classList.add('is-shuffled');
+    await wait(LIKES_STACK_SHUFFLE_MS);
+    await wait(SHINE_MS);
+  } else if (promote && filled[0]) {
+    await wait(HOLD_AFTER_SHINE_MS);
+    const promoted = nextRarity(filled[0].rarity);
+    const likes = promoted.minLikes;
     likesHeadline.innerHTML = `<span class="likes-rich">${likes} ${t('likesWord')}</span>`;
-    setLikesCardRarity(promoted, { pop: true });
+    if (filled[0].els?.count) {
+      filled[0].els.count.innerHTML = `<span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span>`;
+    }
+    setLikesCardRarity(filled[0].els, promoted, { pop: true });
     likesJamCard.classList.add('is-rarity-up');
     hint.textContent = `[rarity → ${promoted.label}]`;
     await wait(RARITY_PROMOTE_MS);
@@ -1706,8 +1793,10 @@ async function playLikesBanner(opts = {}) {
   await wait(COPY_CELEBRATE_MS);
   likesCopy.classList.add('is-swipe');
   await wait(TEXT_SWIPE_MS);
-  likesJamCard.classList.remove('is-in', 'is-impact', 'is-rarity-up');
-  likesJamCard.classList.add('is-out');
+  cards.forEach((card) => {
+    card.classList.remove('is-in', 'is-impact', 'is-rarity-up');
+    if (!card.hidden) card.classList.add('is-out');
+  });
   likesCopy.classList.remove('is-on', 'is-swipe');
   await wait(CARD_OUT_MS);
   likesBanner.classList.add('is-out');
@@ -1716,8 +1805,16 @@ async function playLikesBanner(opts = {}) {
   likesBanner.classList.remove('is-on', 'is-out');
   likesShine.classList.remove('is-on');
   likesCopy.classList.remove('is-on', 'is-swipe');
-  likesJamCard.classList.remove('is-in', 'is-out', 'is-impact', 'is-rarity-up');
+  cards.forEach((card) => {
+    card.classList.remove('is-in', 'is-out', 'is-impact', 'is-rarity-up');
+  });
+  setLikesStackVisible(false);
   likesBusy = false;
+}
+
+function setLikesStackMode(on) {
+  likesStackMode = on;
+  setSwitch(debugLikesStack, on);
 }
 
 function setSpoofWording(on) {
@@ -1832,6 +1929,9 @@ debugOnboard.addEventListener('click', () => runOnboardingTips());
 if (feedDismiss) feedDismiss.addEventListener('click', dismissFeed);
 debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
 debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
+if (debugLikesStack) {
+  debugLikesStack.addEventListener('click', () => setLikesStackMode(!likesStackMode));
+}
 document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
   btn.addEventListener('click', () => {
     setFeedVariant(btn.getAttribute('data-feed-variant') || 'side');
