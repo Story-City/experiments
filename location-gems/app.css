@@ -519,59 +519,61 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-/* Figma Social Media 2825:457 — top-right indigo corner + text left of gem */
-.gem-card-ribbon {
+/* Figma Social Media 2825:457 — organic corner blotch; brush lines = gem colour */
+.gem-card-corner {
   position: absolute;
-  top: 0;
-  right: 0;
+  inset: 0;
   z-index: 3;
-  width: 42%;
-  aspect-ratio: 1;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-end;
-  gap: 6px;
-  padding: 10px 10px 0 18px;
-  box-sizing: border-box;
-  background: rgba(19, 18, 59, 0.82);
-  border-radius: 0 12px 0 100%;
   pointer-events: none;
 }
-.gem-card-ribbon-text {
+.gem-card-corner-art {
+  position: absolute;
+  left: 62.8%;
+  top: -26.8%;
+  width: 88.4%;
+  height: 63.8%;
+  overflow: visible;
+}
+.gem-card-corner-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.gem-card-corner-stack {
+  position: absolute;
+  top: 7%;
+  right: 5%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.gem-card-corner-text {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  margin-top: 2px;
   color: #fff;
   font-size: 12px;
   font-weight: 800;
   line-height: 1;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
   white-space: nowrap;
 }
-.gem-card-ribbon-text .like-heart {
+.gem-card-corner-text .like-heart {
   color: var(--like-pink-hot);
   font-size: 13px;
   line-height: 1;
 }
 .gem-card-gem {
   flex: none;
-  width: 28px;
-  height: 26px;
-  margin-top: 0;
-  filter: drop-shadow(0 0 8px rgba(0, 194, 255, 0.85));
+  width: 34px;
+  height: 31px;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
 }
-.gem-card-gem.is-hidden-fill {
-  filter: drop-shadow(0 0 8px rgba(147, 112, 196, 0.7));
-}
-.gem-card-gem.is-silver { filter: drop-shadow(0 0 12px rgba(200, 210, 230, 1)); }
-.gem-card-gem.is-gold { filter: drop-shadow(0 0 14px rgba(255, 196, 72, 1)); }
-.gem-card-gem.is-platinum { filter: drop-shadow(0 0 16px rgba(210, 220, 255, 1)); }
 .gem-card-gem.is-diamond {
-  width: 32px;
-  height: 30px;
-  filter: drop-shadow(0 0 18px rgba(180, 240, 255, 1));
+  width: 38px;
+  height: 35px;
 }
 .gem-card-rarity.is-silver { color: #dfe6f2; box-shadow: 0 0 10px rgba(200, 210, 230, 0.55); }
 .gem-card-rarity.is-gold { color: #ffe09a; box-shadow: 0 0 10px rgba(255, 196, 72, 0.55); }

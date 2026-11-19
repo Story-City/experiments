@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v43 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v44 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -748,11 +748,18 @@ function setLikesCardRarity(rarity, { pop = false } = {}) {
   likesJamRarity.classList.toggle('is-pop', !!pop);
 }
 
+function cornerRibbonHtml(fill) {
+  const tpl = window.LOCATION_GEMS_CORNER_RIBBON;
+  if (!tpl) return '';
+  return tpl.split('{{GEM}}').join(fill);
+}
+
 function buildGemCard(gem, opts = {}) {
   const rarity = rarityForLikes(gem.likes, gem.isPublic);
   const wrap = document.createElement('div');
   wrap.className = 'gem-card';
   if (opts.enter) wrap.classList.add('is-enter');
+  wrap.style.setProperty('--gem-line', rarity.fill);
   const img = document.createElement('img');
   img.className = 'gem-card-photo';
   img.src = gem.imageUri;
@@ -768,22 +775,31 @@ function buildGemCard(gem, opts = {}) {
     rarityEl.textContent = rarity.label;
     wrap.appendChild(rarityEl);
   }
-  const ribbon = document.createElement('div');
-  ribbon.className = 'gem-card-ribbon';
+  /* Figma 2825:457 — organic indigo blotch + brush lines tinted to gem */
+  const corner = document.createElement('div');
+  corner.className = 'gem-card-corner';
+  const art = document.createElement('div');
+  art.className = 'gem-card-corner-art';
+  art.setAttribute('aria-hidden', 'true');
+  art.innerHTML = cornerRibbonHtml(rarity.fill);
+  corner.appendChild(art);
+  const stack = document.createElement('div');
+  stack.className = 'gem-card-corner-stack';
   const likes = publicLikes(gem);
   if (gem.isPublic && likes > 0) {
     const textEl = document.createElement('span');
-    textEl.className = 'gem-card-ribbon-text';
+    textEl.className = 'gem-card-corner-text';
     textEl.innerHTML = `<span class="like-heart" aria-hidden="true">♥</span><span>${t('likesHeart', likes)}</span>`;
-    ribbon.appendChild(textEl);
+    stack.appendChild(textEl);
   }
   const gemEl = document.createElement('span');
   gemEl.className = 'gem-card-gem';
   if (!gem.isPublic) gemEl.classList.add('is-hidden-fill');
   else if (rarity.id !== 'cyan') gemEl.classList.add(`is-${rarity.id}`);
   gemEl.innerHTML = gemSvg(rarity.fill);
-  ribbon.appendChild(gemEl);
-  wrap.appendChild(ribbon);
+  stack.appendChild(gemEl);
+  corner.appendChild(stack);
+  wrap.appendChild(corner);
   const footer = document.createElement('div');
   footer.className = 'gem-card-footer';
   const caption = document.createElement('p');
