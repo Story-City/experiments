@@ -130,6 +130,13 @@
   details.card summary .name { font-size: 21px; }
   details.card a { color: var(--who); }
   .status.draft { display: inline-block; white-space: nowrap; border-color: var(--glow); color: var(--glow); }
+  /* "live": once a feature ships, its card shows a little snippet of the real app (screenshot or short looping clip) */
+  .snippet { position: relative; display: flex; justify-content: center; gap: 10px; padding: 48px 16px 0; background: linear-gradient(180deg, color-mix(in srgb, var(--who) 22%, var(--ink)), transparent); }
+  .snippet .shot { width: 96px; aspect-ratio: 9 / 19.5; border-radius: 16px; border: 3px solid #0d0a1c; box-shadow: 0 0 0 1px var(--border), 0 12px 24px -10px rgba(0,0,0,.6); overflow: hidden; background: var(--ink); }
+  .snippet .shot img, .snippet .shot video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .badge-live { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; font: 600 11px/1 var(--f-body); letter-spacing: .06em; text-transform: uppercase; padding: 6px 9px; border-radius: 999px; background: var(--ink); color: #3ddc84; border: 1px solid color-mix(in srgb, #3ddc84 55%, transparent); }
+  .badge-live::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 6px #3ddc84; }
+  .live-note { margin: 6px 0 0; font-size: 13px; color: #8fe8b5; }
   .tag {
     font-size: 11px;
     text-transform: uppercase;
@@ -217,6 +224,28 @@
     return row;
   }
 
+  // live: { since: 'YYYY-MM', shots: ['slug/live/1.png' or '.mp4'], note: 'what shipped' }; up to 2 snippets
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function snippet(live) {
+    const box = el('div', 'snippet');
+    box.append(el('span', 'badge-live', live.since ? `Live in the app · ${month(live.since).split(' ')[0]}` : 'Live in the app'));
+    for (const src of (live.shots || []).slice(0, 2)) {
+      const frame = el('div', 'shot');
+      if (/\.(mp4|webm)$/i.test(src)) {
+        const v = el('video');
+        Object.assign(v, { src, muted: true, loop: true, playsInline: true, autoplay: !reduceMotion, preload: 'metadata' });
+        v.setAttribute('aria-hidden', 'true');
+        frame.append(v);
+      } else {
+        const img = el('img');
+        Object.assign(img, { src, alt: '', loading: 'lazy' });
+        frame.append(img);
+      }
+      box.append(frame);
+    }
+    return box;
+  }
+
   function card(e) {
     const li = el('li');
     li.dataset.author = e.author;
@@ -236,7 +265,10 @@
       const a = el('a', 'cardlink');
       a.href = viewUrl(e);
       const body = el('div', 'body');
-      body.append(el('div', 'name', e.title), el('p', 'what', e.what), meta(e));
+      body.append(el('div', 'name', e.title), el('p', 'what', e.what));
+      if (e.live?.note) body.append(el('p', 'live-note', e.live.note));
+      body.append(meta(e));
+      if (e.live) a.append(snippet(e.live));
       a.append(body);
       wrap.append(a, links(e));
       li.append(wrap);
