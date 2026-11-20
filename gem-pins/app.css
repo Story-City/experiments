@@ -152,6 +152,13 @@ body.cb-rg .phone { filter: url(#deutan); }
 .expire-ring { transform-box: fill-box; transform-origin: center; animation: expire 1.4s ease-in-out infinite; }
 @keyframes expire { 50% { opacity: 0.35; transform: scale(1.12); } }
 @media (prefers-reduced-motion: reduce) { .expire-ring { animation: none; } }
+.glint-dot { animation: glint 3.2s ease-in-out infinite; }
+@keyframes glint { 0%, 70%, 100% { opacity: 0; } 85% { opacity: 1; } }
+.corner-glint { transform-box: fill-box; transform-origin: center; animation: cglint 3.6s ease-in-out infinite; }
+@keyframes cglint { 0%, 75%, 100% { opacity: 0; transform: scale(.4) rotate(0deg); } 87% { opacity: 1; transform: scale(1) rotate(45deg); } }
+.dust { transform-box: view-box; transform-origin: 22px 22px; animation: dust 9s linear infinite; }
+@keyframes dust { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .glint-dot, .corner-glint { animation: none; opacity: .8; } .dust { animation: none; } }
 .spark { transform-box: fill-box; transform-origin: center; animation: twinkle 1.8s ease-in-out infinite; }
 @keyframes twinkle { 0%, 100% { opacity: 0.1; transform: scale(0.4); } 50% { opacity: 1; transform: scale(1.1); } }
 @media (prefers-reduced-motion: reduce) { .spark { animation: none; opacity: 0.8; } }
@@ -164,6 +171,9 @@ body.cb-rg .phone { filter: url(#deutan); }
 .map-bar { display: flex; align-items: center; gap: 8px; height: 34px; }
 .map-title { flex: 1; font: 800 22px/1 var(--f-app); }
 .filter-btn { height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.25); background: var(--surface); font: 700 16px/1 var(--f-app); }
+.filter-btn.icon { position: relative; width: 34px; padding: 0; display: grid; place-items: center; border-radius: 50%; }
+.filter-btn.icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.filter-btn .fcount { position: absolute; top: -4px; right: -4px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--accent); color: #fff; font: 800 10px/16px var(--f-ui); }
 .colour-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.3); background: var(--surface); display: grid; place-items: center; padding: 0; }
 .colour-btn i { width: 20px; height: 20px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
 .chips { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }

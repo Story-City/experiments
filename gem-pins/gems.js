@@ -172,10 +172,25 @@ export function pinSvg(o) {
   if (o.expireRing) parts.push(`<circle class="expire-ring" cx="22" cy="22" r="${r + 4}" fill="none" stroke="#ffb020" stroke-width="2" stroke-dasharray="4 3"/>`);
   if (o.seasonBadge) parts.push(`<g transform="translate(${22 - r * 0.72} ${22 - r * 0.72})"><circle r="6.5" fill="${o.seasonBadge}" stroke="#170c35" stroke-width="1.5"/><path d="M0-4v8M-3.5-2l7 4M-3.5 2l7-4" stroke="#170c35" stroke-width="1.3" stroke-linecap="round"/></g>`);
   // sparkle: little stars twinkling round rarer gems (option 3E)
+  // 29: A stars, B tiny glints, C one corner glint, D orbiting dust (subtler as the letters go on)
   const SPOTS = [[-1, -1.05], [1.15, -0.35], [-1.2, 0.5], [0.75, 1.05]];
-  for (let i = 0; i < (o.sparkle || 0); i++) {
-    const [sx, sy] = SPOTS[i];
-    parts.push(`<path class="spark" style="animation-delay:${(i * 0.45).toFixed(2)}s" transform="translate(${(22 + sx * (r + 3)).toFixed(1)} ${(22 + sy * (r + 3)).toFixed(1)})" d="M0-3.4L.9-.9 3.4 0 .9.9 0 3.4-.9.9-3.4 0-.9-.9Z" fill="#fff"/>`);
+  const n = o.sparkle || 0;
+  if (n && (!o.sparkStyle || o.sparkStyle === 'stars')) {
+    for (let i = 0; i < n; i++) {
+      const [sx, sy] = SPOTS[i];
+      parts.push(`<g transform="translate(${(22 + sx * (r + 3)).toFixed(1)} ${(22 + sy * (r + 3)).toFixed(1)})"><path class="spark" style="animation-delay:${(i * 0.45).toFixed(2)}s" d="M0-3.4L.9-.9 3.4 0 .9.9 0 3.4-.9.9-3.4 0-.9-.9Z" fill="#fff"/></g>`);
+    }
+  } else if (n && o.sparkStyle === 'glints') {
+    for (let i = 0; i < n; i++) {
+      const [sx, sy] = SPOTS[(i * 3) % 4];
+      parts.push(`<circle class="glint-dot" style="animation-delay:${(i * 0.9).toFixed(1)}s" cx="${(22 + sx * (r + 1.5)).toFixed(1)}" cy="${(22 + sy * (r + 1.5)).toFixed(1)}" r="1.1" fill="#fff"/>`);
+    }
+  } else if (n && o.sparkStyle === 'corner') {
+    parts.push(`<g transform="translate(${(22 + r * 0.55).toFixed(1)} ${(22 - r * 0.6).toFixed(1)}) scale(${(0.5 + n * 0.12).toFixed(2)})"><path class="corner-glint" d="M0-4L.7-.7 4 0 .7.7 0 4-.7.7-4 0-.7-.7Z" fill="#fff"/></g>`);
+  } else if (n && o.sparkStyle === 'dust') {
+    const dots = [];
+    for (let i = 0; i < n + 2; i++) { const a = (i / (n + 2)) * Math.PI * 2; dots.push(`<circle cx="${(22 + Math.cos(a) * (r + 4)).toFixed(1)}" cy="${(22 + Math.sin(a) * (r + 4) * 0.8).toFixed(1)}" r="${i % 2 ? 0.8 : 1.1}" fill="#fff" opacity="${i % 2 ? 0.45 : 0.75}"/>`); }
+    parts.push(`<g class="dust">${dots.join('')}</g>`);
   }
   const cls = ['pin-svg', o.glow ? `glow-${o.glow}` : ''].join(' ').trim();
   return `<svg class="${cls}" viewBox="0 0 44 44" width="44" height="44" style="--glow:${o.fill}" aria-hidden="true">${parts.join('')}</svg>`;

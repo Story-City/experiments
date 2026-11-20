@@ -5,11 +5,11 @@ const V = window.CACHE_V || '';
 const D = await import(`./data.js${V}`);
 const { pinSvg, hourglassArt } = await import(`./gems.js${V}`);
 const { ART } = await import(`./gem-art.js${V}`);
-const { CATS, RARITY, RARITY_SETS, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS, PHOTOS, MATCHUP, GROUPS } = D;
+const { CATS, RARITY, RARITY_SETS, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS, PHOTOS, MATCHUP, GROUPS, RULED_OUT } = D;
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
-const LETTERS = 'ABCDEFGH';
+const LETTERS = 'ABCDEFGHIJKLMNOP';
 const catOf = (id) => CATS.find((c) => c.id === id);
 
 // If the browser kept an older copy of index.html (Pages caches it ~10 min), add the preset area here
@@ -38,7 +38,7 @@ function readHash() {
     if (!q.has(o.id)) continue;
     const v = q.get(o.id);
     if (o.multi) opt[o.id] = v ? v.split('.').filter((x) => o.opts.some(([k]) => k === x)) : [];
-    else if (o.opts.some(([k]) => k === v)) opt[o.id] = v;
+    else if (o.opts.some(([k]) => k === v) && !(RULED_OUT[o.id] || []).includes(v)) opt[o.id] = v;
   }
   if (PALETTE.some((p) => p.id === q.get('my'))) myColour = q.get('my');
   // new attributes: "Bounce:rarity.liked|Halo:" (name, then the rows it's on)
@@ -192,6 +192,12 @@ function pinkTones(markup) {
   });
 }
 function artFor(g) {
+  // yours with 6I: the Neon wireframe of its category gem, the hollow one when private
+  if (g.mine && opt.mine === 'wire') {
+    const tag = tagsOf(g)[0];
+    const key = tag === 'curio' ? opt.curio : ART_KEY[tag] || 'nature';
+    return { markup: ART[g.private ? 'hollow' : 'neon'][key], colour: ART_COLOUR[key] };
+  }
   // expiring with 21F/G: the Branding session's Labradorite hourglass or small shard (drawn shapes borrow Victoria's style)
   if (g.expiring && (opt.expiring === 'hourglassLab' || opt.expiring === 'shardLab')) {
     const set = opt.art === 'drawn' ? 'victoria' : opt.art;
@@ -211,6 +217,8 @@ function artFor(g) {
   // liked by you with 7D: the pink double outline (Branding session) around the category gem
   const set = hollow ? 'hollow' : g.liked && !g.mine && opt.liked === 'outline' ? 'pink' : opt.art;
   let markup = ART[set][key];
+  // 6E with gem art: yours are outlines; private ones get a dotted line
+  if (g.mine && opt.mine === 'outline' && g.private) markup = markup.replace(/stroke-width="5"/g, 'stroke-width="5" stroke-dasharray="0.1 9" stroke-linecap="round"').replace(/<g filter=[^>]*>.*?<\/g>/s, '');
   // liked by you with 7B: the same gem, recoloured in pink tones (light facets stay light, dark stay dark)
   if (g.visited && opt.visited === 'mapcolour') return { markup: slateTones(markup), colour: '#6863a0' };
   if (g.liked && !g.mine && opt.liked === 'colour') { markup = pinkTones(markup); return { markup, colour: D.LOVE }; }
@@ -245,6 +253,7 @@ function pinFor(g, overrides = {}) {
     expireRays: !!g.expiring && opt.expiring === 'rays',
     expireGlow: !!g.expiring && opt.expiring === 'warmglow',
     seasonBadge: g.seasonal && opt.seasonal === 'badge' ? D.SEASONS[opt.season].colour : null,
+    sparkStyle: opt.sparkStyle,
     sparkle: SPARKLE_BY.includes(opt.rarityBy) ? { common: 0, rare: 2, epic: 3, mythical: 4 }[rarityOf(g)] : 0,
     check: g.visited && opt.visited === 'check',
     // others' gems in "quiet" fade back a little when colour shows something else
@@ -418,8 +427,14 @@ function drawTop() {
     }
   }
   const fb = $('filterBtn');
-  fb.hidden = opt.filter !== 'sheet';
-  fb.textContent = COPY.filter(cats.filter((c) => filterOn.has(c.id)).length, cats.length);
+  fb.hidden = opt.filter !== 'sheet' && opt.filter !== 'icon';
+  const onCount = cats.filter((c) => filterOn.has(c.id)).length;
+  fb.classList.toggle('icon', opt.filter === 'icon');
+  if (opt.filter === 'icon') {
+    // 13D: a round funnel button; a small count shows when categories are narrowed
+    fb.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/></svg>' + (onCount < cats.length ? `<span class="fcount">${onCount}</span>` : '');
+    fb.setAttribute('aria-label', COPY.filter(onCount, cats.length));
+  } else { fb.textContent = COPY.filter(onCount, cats.length); fb.removeAttribute('aria-label'); }
   const sw = $('colourBtn');
   sw.hidden = opt.pick === 'off';
   sw.style.setProperty('--c', mineColour());
@@ -716,6 +731,7 @@ function noteFor(id) {
   if (id === 'mine' && opt.mine === 'own' && opt.colour !== 'category' && opt.shape === 'one') return NOTES.ownSame;
   if (id === 'sizes' && !SIZE_BY.includes(opt.rarityBy)) return NOTES.sizesUnused;
   if (id === 'glowOn' && !GLOW_BY.includes(opt.rarityBy)) return NOTES.glowUnused;
+  if (id === 'sparkStyle' && !SPARKLE_BY.includes(opt.rarityBy)) return NOTES.sparkUnused;
   if (id === 'rarityColours' && opt.colour !== 'rarity' && opt.rarityBy !== 'colour') return NOTES.coloursUnused;
   if (id === 'sees' && opt.pick === 'off') return NOTES.seesUnused;
   if (id === 'sees' && opt.colour !== 'picked') return NOTES.seesNotShown;
@@ -736,6 +752,7 @@ function optionRow(o, short) {
     lab.htmlFor = sel.id;
     sel.setAttribute('aria-label', `${o.n}. ${o.label}`);
     o.opts.forEach(([v, label], i) => {
+      if ((RULED_OUT[o.id] || []).includes(v)) return; // ruled out; letters of the rest stay put
       const op = el('option', null, `${LETTERS[i]} · ${label}${v === o.start ? ' •' : ''}`);
       op.value = v;
       op.selected = opt[o.id] === v;
@@ -912,6 +929,8 @@ function drawPresets() {
   // the head-to-head
   const m = $('matchup');
   const [a, b2] = MATCHUP.map((id) => PRESETS.find((p) => p.id === id));
+  m.hidden = !(a && b2);
+  if (m.hidden) return;
   m.textContent = COPY.matchup;
   m.title = COPY.matchupWhat;
   m.setAttribute('aria-pressed', String(on === a || on === b2));
