@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v59 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v60 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -345,7 +345,16 @@ const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'banner';
-const FEED_VARIANTS = new Set(['banner', 'overlay', 'prompt', 'wide', 'compact']);
+const FEED_VARIANTS = new Set([
+  'banner',
+  'overlay',
+  'prompt',
+  'wide',
+  'compact',
+  'caption',
+  'peek',
+  'rail',
+]);
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
 const sortSub = document.getElementById('sortSub');
@@ -902,6 +911,9 @@ function buildFeedChip(g, variant) {
   );
 
   const promptLine = g.caption || g.tagline || g.title || '';
+  const promptBlock = `
+    <p class="feed-chip-prompt-kicker">${t('feedPromptKicker')}</p>
+    <p class="feed-chip-prompt">${promptLine}</p>`;
   if (variant === 'compact') {
     chip.innerHTML = `
       <div class="feed-chip-media is-thumb">
@@ -913,8 +925,7 @@ function buildFeedChip(g, variant) {
   } else if (variant === 'prompt') {
     chip.innerHTML = `
       <div class="feed-chip-prompt-panel">
-        <p class="feed-chip-prompt-kicker">${t('feedPromptKicker')}</p>
-        <p class="feed-chip-prompt">${promptLine}</p>
+        ${promptBlock}
         <div class="feed-chip-prompt-foot">
           <div class="feed-chip-media is-thumb is-prompt">
             <img src="${g.imageUri}" alt="">
@@ -922,6 +933,48 @@ function buildFeedChip(g, variant) {
           ${copyBlock}
           ${goBtn}
         </div>
+      </div>
+      ${corner}`;
+  } else if (variant === 'caption') {
+    chip.innerHTML = `
+      <div class="feed-chip-shot">
+        <img src="${g.imageUri}" alt="">
+        <div class="feed-chip-fade" aria-hidden="true"></div>
+      </div>
+      <div class="feed-chip-body is-on-photo is-caption">
+        <div class="feed-chip-caption-copy">
+          ${promptBlock}
+          ${copyBlock}
+        </div>
+        ${goBtn}
+      </div>
+      ${corner}`;
+  } else if (variant === 'peek') {
+    chip.innerHTML = `
+      <div class="feed-chip-shot">
+        <img src="${g.imageUri}" alt="">
+        <div class="feed-chip-fade" aria-hidden="true"></div>
+      </div>
+      <div class="feed-chip-body is-peek">
+        <div class="feed-chip-caption-copy">
+          <p class="feed-chip-prompt">${promptLine}</p>
+          ${copyBlock}
+        </div>
+        ${goBtn}
+      </div>
+      ${corner}`;
+  } else if (variant === 'rail') {
+    chip.innerHTML = `
+      <div class="feed-chip-shot is-rail">
+        <img src="${g.imageUri}" alt="">
+        <div class="feed-chip-fade" aria-hidden="true"></div>
+      </div>
+      <div class="feed-chip-body is-rail">
+        <div class="feed-chip-media is-thumb is-rail">
+          <img src="${g.imageUri}" alt="">
+        </div>
+        ${copyBlock}
+        ${goBtn}
       </div>
       ${corner}`;
   } else if (variant === 'overlay') {
