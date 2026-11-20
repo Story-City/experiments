@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v57 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v58 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -207,7 +207,7 @@ const COPY = {
   gemNearby: '[nearby]',
   feedLive: '[live]',
   feedLabel: '[nearby public gems]',
-  feedDismiss: '[dismiss all]',
+  feedDismiss: '×',
   feedDistance: (minutes) => `${minutes} min away`,
   feedFresh: '[new]',
 };
@@ -256,7 +256,7 @@ const SPOOF_COPY = {
   gemNearby: 'Nearby',
   feedLive: 'Live',
   feedLabel: 'Nearby public gems',
-  feedDismiss: 'Dismiss all',
+  feedDismiss: '×',
   feedDistance: (minutes) => `${minutes} min away`,
   feedFresh: 'New',
   emptyPublicTitle: 'Nothing public yet',
@@ -342,7 +342,8 @@ const feedStrip = document.getElementById('feedStrip');
 const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
-let feedVariant = 'side';
+let feedVariant = 'banner';
+const FEED_VARIANTS = new Set(['banner', 'overlay', 'poster', 'wide', 'compact']);
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
 const sortSub = document.getElementById('sortSub');
@@ -883,6 +884,11 @@ function buildFeedChip(g, variant) {
       : '';
   const goBtn = `<button type="button" class="feed-chip-go">${t('detailNav')}</button>`;
   const corner = feedCornerHtml(rarity, `feed-${g.id || rarity.id}`);
+  const copyBlock = `
+    <div class="feed-chip-copy">
+      <p class="feed-chip-dist">${dist}</p>
+      ${rarityWord}
+    </div>`;
   const chip = document.createElement('article');
   chip.className = `feed-chip is-${variant}`;
   chip.style.setProperty('--gem-line', rarity.fill);
@@ -893,51 +899,43 @@ function buildFeedChip(g, variant) {
     `${dist}${rarity.id !== 'cyan' ? `, ${rarity.label}` : ''}`,
   );
 
-  if (variant === 'banner') {
-    chip.innerHTML = `
-      <div class="feed-chip-media is-banner">
-        <img src="${g.imageUri}" alt="">
-        ${corner}
-      </div>
-      <div class="feed-chip-body is-row">
-        <div class="feed-chip-copy">
-          <p class="feed-chip-dist">${dist}</p>
-          ${rarityWord}
-        </div>
-        ${goBtn}
-      </div>`;
-  } else if (variant === 'compact') {
+  if (variant === 'compact') {
     chip.innerHTML = `
       <div class="feed-chip-media is-thumb">
         <img src="${g.imageUri}" alt="">
         ${corner}
       </div>
-      <div class="feed-chip-copy">
-        <p class="feed-chip-dist">${dist}</p>
-        ${rarityWord}
-      </div>
+      ${copyBlock}
       ${goBtn}`;
+  } else if (variant === 'overlay' || variant === 'poster') {
+    chip.innerHTML = `
+      <div class="feed-chip-shot">
+        <img src="${g.imageUri}" alt="">
+        <div class="feed-chip-fade" aria-hidden="true"></div>
+      </div>
+      <div class="feed-chip-body is-on-photo">
+        ${copyBlock}
+        ${goBtn}
+      </div>
+      ${corner}`;
   } else {
     chip.innerHTML = `
-      <div class="feed-chip-media is-side">
+      <div class="feed-chip-shot">
         <img src="${g.imageUri}" alt="">
-        ${corner}
+        <div class="feed-chip-fade" aria-hidden="true"></div>
       </div>
       <div class="feed-chip-body">
-        <div class="feed-chip-copy">
-          <p class="feed-chip-dist">${dist}</p>
-          ${rarityWord}
-        </div>
+        ${copyBlock}
         ${goBtn}
-      </div>`;
+      </div>
+      ${corner}`;
   }
   bindFeedChipActions(chip, g);
   return chip;
 }
 
 function setFeedVariant(variant) {
-  const next =
-    variant === 'banner' || variant === 'compact' ? variant : 'side';
+  const next = FEED_VARIANTS.has(variant) ? variant : 'banner';
   feedVariant = next;
   document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
     const on = btn.getAttribute('data-feed-variant') === next;
@@ -1969,7 +1967,7 @@ if (debugLikesStack) {
 }
 document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
   btn.addEventListener('click', () => {
-    setFeedVariant(btn.getAttribute('data-feed-variant') || 'side');
+    setFeedVariant(btn.getAttribute('data-feed-variant') || 'banner');
   });
 });
 bindTipGesture();
