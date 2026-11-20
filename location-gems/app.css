@@ -568,13 +568,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .gem-card-gem {
   flex: none;
-  width: 34px;
-  height: 31px;
+  width: 32px;
+  height: 29px;
   filter: drop-shadow(0 0 10px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
 }
 .gem-card-gem.is-diamond {
-  width: 38px;
-  height: 35px;
+  width: 36px;
+  height: 33px;
 }
 .gem-card-rarity.is-silver { color: #dfe6f2; box-shadow: 0 0 10px rgba(200, 210, 230, 0.55); }
 .gem-card-rarity.is-gold { color: #ffe09a; box-shadow: 0 0 10px rgba(255, 196, 72, 0.55); }
@@ -1230,26 +1230,26 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   position: absolute;
   top: 0;
   right: 0;
-  width: 36%;
-  height: 30%;
+  width: 44%;
+  height: 36%;
   overflow: visible;
 }
 .feed-chip.is-overlay .feed-chip-corner-art,
 .feed-chip.is-caption .feed-chip-corner-art {
-  width: 40%;
-  height: 24%;
+  width: 48%;
+  height: 28%;
 }
 .feed-chip.is-prompt .feed-chip-corner-art {
-  width: 44%;
-  height: 40%;
+  width: 52%;
+  height: 48%;
 }
 .feed-chip.is-wide .feed-chip-corner-art {
-  width: 30%;
-  height: 50%;
+  width: 36%;
+  height: 58%;
 }
 .feed-chip.is-peek .feed-chip-corner-art {
-  width: 38%;
-  height: 32%;
+  width: 44%;
+  height: 36%;
 }
 .feed-chip-corner-art svg {
   display: block;
@@ -1258,27 +1258,27 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .feed-chip-corner-stack {
   position: absolute;
-  top: 4%;
-  right: 3.5%;
+  top: 5%;
+  right: 4%;
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
 .feed-chip-corner-gem {
-  width: 18px;
-  height: 17px;
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
+  width: 26px;
+  height: 24px;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
 }
 .feed-chip.is-overlay .feed-chip-corner-gem,
 .feed-chip.is-caption .feed-chip-corner-gem {
-  width: 20px;
-  height: 18px;
+  width: 28px;
+  height: 26px;
 }
 .feed-chip.is-prompt .feed-chip-corner-gem,
 .feed-chip.is-wide .feed-chip-corner-gem,
 .feed-chip.is-peek .feed-chip-corner-gem {
-  width: 17px;
-  height: 16px;
+  width: 24px;
+  height: 22px;
 }
 .feed-chip-corner-gem svg {
   width: 100%;

@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v61 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v62 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
