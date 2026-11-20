@@ -63,7 +63,7 @@ export const OPTIONS = [
   { id: 'rarityBy', n: 3, label: 'Rarity shown by', start: 'sizeGlow', opts: [['size', 'Size'], ['glow', 'Glow'], ['sizeGlow', 'Size + glow'], ['colour', 'Colour'], ['sizeGlowSparkle', 'Size + glow + sparkle'], ['none', 'Not shown'], ['sparkle', 'Sparkle'], ['sizeSparkle', 'Size + sparkle'], ['glowSparkle', 'Glow + sparkle']] },
   { id: 'levels', n: 4, label: 'Rarity levels', start: '3', opts: [['2', '2: Common, Rare'], ['3', '3: Common, Rare, Mythical'], ['4', '4: + Epic']] },
   { id: 'sizes', n: 5, label: 'Rarity sizes', start: '22-28-34', opts: [['22-28-34', '22 / 28 / 34 px'], ['22-26-30', '22 / 26 / 30 px']] },
-  { id: 'mine', n: 6, label: 'Mine: private vs public', start: 'hollow', opts: [['hollow', 'Hollow vs solid'], ['dashed', 'Dashed vs solid frame'], ['lock', 'Lock badge'], ['none', 'Not shown']] },
+  { id: 'mine', n: 6, label: 'Mine: private vs public', start: 'hollow', opts: [['hollow', 'Hollow vs solid'], ['dashed', 'Dashed vs solid frame'], ['lock', 'Lock badge'], ['none', 'Not shown'], ['outline', 'Outline only (dotted = private)'], ['own', 'Own colour + shape']] },
   { id: 'liked', n: 7, label: 'Liked', start: 'heart', opts: [['heart', 'Heart badge'], ['colour', 'Its own colour'], ['ring', 'Double ring'], ['outline', 'Pink outline'], ['none', 'Not shown']] },
   { id: 'others', n: 8, label: 'Others’ gems', start: 'quiet', opts: [['quiet', 'Quiet base colour'], ['full', 'Full colour']] },
   { id: 'pick', n: 9, label: 'Pick your gem colour', start: 'two', opts: [['off', 'Off'], ['free', 'Free choice of all'], ['two', '2 free + rest locked']] },
@@ -125,7 +125,7 @@ export const THINGS = [
   { id: 'creator', label: 'Creator', uses: ['colour'], many: false },
   { id: 'rarity', label: 'Rarity', uses: ['colour', 'size', 'glow', 'sparkle'], many: true },
   { id: 'category', label: 'Category', uses: ['colour', 'shape'], many: true },
-  { id: 'mine', label: 'Private vs public', uses: ['hollow', 'frame', 'badge'], many: false },
+  { id: 'mine', label: 'Private vs public', uses: ['hollow', 'frame', 'badge', 'outline'], many: false },
   { id: 'liked', label: 'Liked', uses: ['badge', 'outline', 'ring', 'tint'], many: false },
   { id: 'visited', label: 'Visited', uses: ['fade', 'badge', 'size'], many: false },
   { id: 'expiring', label: 'Expiring soon', uses: ['badge', 'label', 'ring'], many: false },
@@ -145,12 +145,16 @@ export const PRESETS = [
     set: { colour: 'whose', shape: 'one', rarityBy: 'glow', glowOn: 'mythical', mine: 'hollow', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'quiet' } },
   { id: 'loud', desc: 'Three colours, size, glow and sparkle all at once. Rarer gems twinkle and liked gems turn pink.', label: 'Loud', tests: 'Where’s the point of too much?', what: 'Creator in 3 colours (liked gets its own) · one shape · size + glow + sparkle · dashed / solid frame · tags + chips.',
     set: { colour: 'whose', shape: 'one', rarityBy: 'sizeGlowSparkle', mine: 'dashed', liked: 'colour', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
+  { id: 'brett', label: 'Brett’s pick', desc: 'Every kind of place has its own colour and its own gem cut, drawn in Victoria’s gem style. Rarer gems are bigger and glow.', tests: 'Can you tell what a gem is, and how rare, before you tap?',
+    what: 'Category colour · a cut per category · size + glow · yours as an outline (dotted = private) · heart badge · tags + chips.',
+    set: { colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'outline', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
 ];
 export const MATCHUP = ['explorer', 'treasure']; // the most useful head-to-head: does colour show whose, or how rare?
 
 // Notes shown under an option when another option makes it do nothing.
 export const NOTES = {
   visitedHidden: 'Visited gems are hidden right now (17B).',
+  ownSame: 'Looks like 6A until colour or shape shows the category (1C or 2B).',
   glowUnused: 'Only used when rarity glows (3B, 3C or 3E).',
   coloursUnused: 'Only used when colour shows rarity (1B or 3D).',
   colourTaken: 'Colour is showing rarity (3D), so this has no effect right now.',

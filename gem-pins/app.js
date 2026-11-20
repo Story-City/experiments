@@ -163,13 +163,15 @@ function glowOf(g) {
   return lv;
 }
 function pinFor(g, overrides = {}) {
-  const fill = g.seasonal && opt.seasonal === 'colour' ? D.SEASONS[opt.season].colour : colourOf(g);
+  const fill = g.mine && opt.mine === 'own' ? mineColour() : g.seasonal && opt.seasonal === 'colour' ? D.SEASONS[opt.season].colour : colourOf(g);
   const mineStyle = g.mine ? opt.mine : null;
+  const own = mineStyle === 'own'; // 6F: yours ignore the category: your colour, Victoria's classic cut
   return pinSvg({
-    shape: g.seasonal && opt.seasonal === 'shape' ? opt.season : opt.shape === 'category' ? catOf(tagsOf(g)[0])?.shape || 'classic' : opt.shape === 'crystal' ? catOf(tagsOf(g)[0])?.crystal || 'leaf' : 'classic',
+    shape: own ? 'classic' : g.seasonal && opt.seasonal === 'shape' ? opt.season : opt.shape === 'category' ? catOf(tagsOf(g)[0])?.shape || 'classic' : opt.shape === 'crystal' ? catOf(tagsOf(g)[0])?.crystal || 'leaf' : 'classic',
     size: sizeOf(g),
     fill,
-    hollow: mineStyle === 'hollow' && g.private,
+    hollow: (mineStyle === 'hollow' || own) ? g.private : mineStyle === 'outline', // 6E: every gem of yours is an outline
+    dotted: mineStyle === 'outline' && g.private,
     ring: mineStyle === 'dashed' ? (g.private ? 'dashed' : 'solid') : null,
     ringColour: fill,
     lock: mineStyle === 'lock' && g.private,
@@ -592,6 +594,7 @@ function noteFor(id) {
   if (id === 'colour' && opt.rarityBy === 'colour' && opt.colour !== 'rarity') return NOTES.colourTaken;
   if (id === 'colour' && opt.colour === 'picked' && (opt.sees === 'me' || opt.pick === 'off')) return NOTES.pickedSame;
   if (id === 'visited' && opt.show === 'unvisited') return NOTES.visitedHidden;
+  if (id === 'mine' && opt.mine === 'own' && opt.colour !== 'category' && opt.shape === 'one') return NOTES.ownSame;
   if (id === 'sizes' && !SIZE_BY.includes(opt.rarityBy)) return NOTES.sizesUnused;
   if (id === 'glowOn' && !GLOW_BY.includes(opt.rarityBy)) return NOTES.glowUnused;
   if (id === 'rarityColours' && opt.colour !== 'rarity' && opt.rarityBy !== 'colour') return NOTES.coloursUnused;
@@ -805,7 +808,7 @@ function qualitiesOf(o) {
     creator: ['whose', 'picked'].includes(o.colour) && o.rarityBy !== 'colour' ? ['colour'] : [],
     rarity: [...(o.colour === 'rarity' || o.rarityBy === 'colour' ? ['colour'] : []), ...['size', 'glow', 'sparkle'].filter((k) => r[k])],
     category: [...(o.colour === 'category' && o.rarityBy !== 'colour' ? ['colour'] : []), ...(['category', 'crystal'].includes(o.shape) ? ['shape'] : [])],
-    mine: { hollow: ['hollow'], dashed: ['frame'], lock: ['badge'] }[o.mine] || [],
+    mine: { hollow: ['hollow'], dashed: ['frame'], lock: ['badge'], outline: ['outline'] }[o.mine] || [],
     liked: { heart: ['badge'], outline: ['outline'], ring: ['ring'], colour: ['tint'] }[o.liked] || [],
     visited: { fade: ['fade'], check: ['badge'], small: ['size'] }[o.visited] || [],
     expiring: { clock: ['badge'], countdown: ['label'], ring: ['ring'] }[o.expiring] || [],
@@ -825,7 +828,7 @@ function setQualities(thing, qs) {
     if (has('colour')) opt.colour = 'category'; else if (opt.colour === 'category') opt.colour = 'none';
     opt.shape = has('shape') ? (opt.shape === 'crystal' ? 'crystal' : 'category') : 'one';
   }
-  if (thing === 'mine') opt.mine = has('hollow') ? 'hollow' : has('frame') ? 'dashed' : has('badge') ? 'lock' : 'none';
+  if (thing === 'mine') opt.mine = has('hollow') ? 'hollow' : has('frame') ? 'dashed' : has('badge') ? 'lock' : has('outline') ? 'outline' : 'none';
   if (thing === 'liked') opt.liked = has('badge') ? 'heart' : has('outline') ? 'outline' : has('ring') ? 'ring' : has('tint') ? 'colour' : 'none';
   if (thing === 'visited') opt.visited = has('fade') ? 'fade' : has('badge') ? 'check' : has('size') ? 'small' : 'none';
   if (thing === 'expiring') opt.expiring = has('badge') ? 'clock' : has('label') ? 'countdown' : has('ring') ? 'ring' : 'none';

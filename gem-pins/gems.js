@@ -1,5 +1,7 @@
 // Gem pins drawn as SVG inside a 44 × 44 tap area. Shapes live in a 24 × 24 box centred on (12, 12).
-// "classic" is Victoria's gem cut (approved-ui/assets/gems); the rest are one shape per category.
+// "classic" is Victoria's gem cut (approved-ui/assets/gems). The category cuts (round, emerald, pear,
+// hex, star, trillion) follow her style (19 Nov, for Brett): flat fill, a light table facet on top
+// (white 30%), a dark pavilion facet below (black 22%), white facet lines (60%) and a white outline.
 
 const SHAPES = {
   classic: {
@@ -10,39 +12,39 @@ const SHAPES = {
   },
   round: {
     body: 'M12 2a10 10 0 1 1 0 20a10 10 0 1 1 0-20Z',
-    light: 'M7 4.5h10l3.2 3.8H3.8Z',
-    dark: 'M8.5 16.5h7L12 21.5Z',
-    lines: 'M3.8 8.3h16.4M7 4.5L12 8.3 17 4.5M12 8.3v13',
+    light: 'M8.2 3H15.8L14.4 10H9.6Z',
+    dark: 'M9.6 10H14.4L12 21.9Z',
+    lines: 'M2.2 10H21.8M9.6 10L12 21.9L14.4 10M8.2 3L9.6 10M15.8 3L14.4 10M3.6 15.6L9.6 10M20.4 15.6L14.4 10',
   },
   emerald: {
-    body: 'M6.5 2.5h11l4 4v11l-4 4h-11l-4-4v-11Z',
-    light: 'M6.5 2.5h11l4 4h-19Z',
-    dark: 'M2.5 17.5h19l-4 4h-11Z',
-    lines: 'M7 7h10v10H7Z',
+    body: 'M6.5 3H17.5L21.5 7V17L17.5 21H6.5L2.5 17V7Z',
+    light: 'M6.5 3H17.5L16 7.5H8Z',
+    dark: 'M8 16.5H16L17.5 21H6.5Z',
+    lines: 'M8 7.5H16V16.5H8ZM2.5 7L8 7.5M21.5 7L16 7.5M2.5 17L8 16.5M21.5 17L16 16.5',
   },
   pear: {
-    body: 'M12 2C15.5 6.5 20 10.5 20 14.5a8 8 0 0 1-16 0C4 10.5 8.5 6.5 12 2Z',
-    light: 'M12 2C14 4.6 16 6.6 17.3 8.6H6.7C8 6.6 10 4.6 12 2Z',
-    dark: 'M8 19.5h8L12 22.5Z',
-    lines: 'M6.7 8.6h10.6M12 2v20.5',
+    body: 'M12 1.5C14.5 4.8 19.5 9.6 19.5 14.6C19.5 18.9 16.1 22.3 12 22.3C7.9 22.3 4.5 18.9 4.5 14.6C4.5 9.6 9.5 4.8 12 1.5Z',
+    light: 'M12 1.5L15.2 11.2H8.8Z',
+    dark: 'M8.8 11.2H15.2L12 22.3Z',
+    lines: 'M8.8 11.2H15.2M12 1.5L8.8 11.2L12 22.3L15.2 11.2ZM4.7 13.2L8.8 11.2M19.3 13.2L15.2 11.2',
   },
   hex: {
-    body: 'M12 1.5l9.5 5.5v10L12 22.5 2.5 17V7Z',
-    light: 'M12 1.5l9.5 5.5L12 12.5 2.5 7Z',
-    dark: 'M12 12.5l9.5 4.5L12 22.5Z',
-    lines: 'M2.5 7L12 12.5 21.5 7M12 12.5v10',
+    body: 'M12 1.5L21.5 7V17L12 22.5L2.5 17V7Z',
+    light: 'M12 1.5L16.5 9.5H7.5Z',
+    dark: 'M7.5 9.5H16.5L12 22.5Z',
+    lines: 'M2.5 7L7.5 9.5H16.5L21.5 7M7.5 9.5L12 22.5L16.5 9.5M12 1.5L7.5 9.5M12 1.5L16.5 9.5M2.5 17L7.5 9.5M21.5 17L16.5 9.5',
   },
   star: {
     body: 'M12 1.8l3.1 6.4 7 .9-5.1 4.9 1.3 6.9L12 17.5l-6.3 3.4 1.3-6.9L1.9 9.1l7-.9Z',
-    light: 'M12 1.8l3.1 6.4L12 12 8.9 8.2Z',
-    dark: 'M12 12l6.3 8.9L12 17.5Z',
-    lines: 'M12 12L12 1.8M12 12l10-2.9M12 12l6.3 8.9M12 12l-6.3 8.9M12 12L1.9 9.1',
+    light: 'M12 1.8L14.4 9.2H9.6Z',
+    dark: 'M9.6 9.2H14.4L12 17.5Z',
+    lines: 'M9.6 9.2H14.4M12 1.8L9.6 9.2L12 17.5L14.4 9.2ZM1.9 9.1L9.6 9.2M22.1 9.1L14.4 9.2M5.7 20.9L12 17.5L18.3 20.9',
   },
   trillion: {
     body: 'M12 2.5L22 20.5H2Z',
-    light: 'M12 2.5L17 11.5H7Z',
-    dark: 'M12 14.5L22 20.5H2Z',
-    lines: 'M12 2.5v12M2 20.5l10-6 10 6',
+    light: 'M12 2.5L15.2 10.5H8.8Z',
+    dark: 'M8.8 10.5H15.2L12 20.5Z',
+    lines: 'M8.8 10.5H15.2L12 20.5ZM12 2.5L8.8 10.5M12 2.5L15.2 10.5M2 20.5L8.8 10.5M22 20.5L15.2 10.5',
   },
 };
 
@@ -80,7 +82,9 @@ export function pinSvg(o) {
   if (o.ring) parts.push(`<circle cx="22" cy="22" r="${r + 4}" fill="rgba(23,12,53,.35)" stroke="${o.ringColour}" stroke-width="2"${o.ring === 'dashed' ? ' stroke-dasharray="3.2 2.6"' : ''}/>`);
   const g = [`<g transform="translate(${22 - 12 * k} ${22 - 12 * k}) scale(${k})">`];
   if (o.hollow) {
-    g.push(`<path d="${s.body}" fill="${o.fill}" fill-opacity=".16" stroke="${o.outline || o.fill}" stroke-width="${(1.4 / k).toFixed(2)}" stroke-linejoin="round"/>`); // same weight as the other gems' edge
+    // dotted = private (6E): round dots, a touch heavier so the dots read
+    const dots = o.dotted ? ` stroke-dasharray="${(0.01 / k).toFixed(3)} ${(3 / k).toFixed(2)}" stroke-linecap="round"` : '';
+    g.push(`<path d="${s.body}" fill="${o.fill}" fill-opacity=".16" stroke="${o.outline || o.fill}" stroke-width="${((o.dotted ? 2 : 1.4) / k).toFixed(2)}" stroke-linejoin="round"${dots}/>`); // same weight as the other gems' edge
   } else if (s.flat) {
     g.push(`<path d="${s.body}" fill="${o.fill}"/>`);
     g.push(`<path d="${s.dark}" fill="#000" fill-opacity=".2"/>`);
@@ -88,9 +92,9 @@ export function pinSvg(o) {
     if (o.outline) g.push(`<path d="${s.body}" fill="none" stroke="${o.outline}" stroke-width="${(2.2 / k).toFixed(2)}" stroke-linejoin="round"/>`);
   } else {
     g.push(`<path d="${s.body}" fill="${o.fill}"/>`);
-    g.push(`<path d="${s.light}" fill="#fff" fill-opacity=".32"/>`);
+    g.push(`<path d="${s.light}" fill="#fff" fill-opacity=".3"/>`);
     g.push(`<path d="${s.dark}" fill="#000" fill-opacity=".22"/>`);
-    g.push(`<path d="${s.lines}" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="${(0.9 / k).toFixed(2)}" stroke-linejoin="round"/>`);
+    g.push(`<path d="${s.lines}" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="${(0.9 / k).toFixed(2)}" stroke-linejoin="round"/>`);
     g.push(`<path d="${s.body}" fill="none" stroke="${o.outline || '#fff'}" stroke-width="${((o.outline ? 2.2 : 1.4) / k).toFixed(2)}" stroke-linejoin="round"/>`);
   }
   g.push('</g>');
