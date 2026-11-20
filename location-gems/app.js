@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v60 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v61 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -350,10 +350,8 @@ const FEED_VARIANTS = new Set([
   'overlay',
   'prompt',
   'wide',
-  'compact',
   'caption',
   'peek',
-  'rail',
 ]);
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
@@ -914,15 +912,7 @@ function buildFeedChip(g, variant) {
   const promptBlock = `
     <p class="feed-chip-prompt-kicker">${t('feedPromptKicker')}</p>
     <p class="feed-chip-prompt">${promptLine}</p>`;
-  if (variant === 'compact') {
-    chip.innerHTML = `
-      <div class="feed-chip-media is-thumb">
-        <img src="${g.imageUri}" alt="">
-        ${corner}
-      </div>
-      ${copyBlock}
-      ${goBtn}`;
-  } else if (variant === 'prompt') {
+  if (variant === 'prompt') {
     chip.innerHTML = `
       <div class="feed-chip-prompt-panel">
         ${promptBlock}
@@ -960,20 +950,6 @@ function buildFeedChip(g, variant) {
           <p class="feed-chip-prompt">${promptLine}</p>
           ${copyBlock}
         </div>
-        ${goBtn}
-      </div>
-      ${corner}`;
-  } else if (variant === 'rail') {
-    chip.innerHTML = `
-      <div class="feed-chip-shot is-rail">
-        <img src="${g.imageUri}" alt="">
-        <div class="feed-chip-fade" aria-hidden="true"></div>
-      </div>
-      <div class="feed-chip-body is-rail">
-        <div class="feed-chip-media is-thumb is-rail">
-          <img src="${g.imageUri}" alt="">
-        </div>
-        ${copyBlock}
         ${goBtn}
       </div>
       ${corner}`;

@@ -1092,18 +1092,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .feed-chip.is-prompt,
 .feed-chip.is-wide,
 .feed-chip.is-caption,
-.feed-chip.is-peek,
-.feed-chip.is-rail {
+.feed-chip.is-peek {
   width: 248px;
-}
-.feed-chip.is-compact {
-  grid-template-columns: 64px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  width: 268px;
-  padding: 8px 10px 8px 8px;
-  background: rgba(255, 255, 255, 0.1);
-  overflow: visible;
 }
 .feed-chip-shot {
   position: relative;
@@ -1123,10 +1113,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .feed-chip.is-peek .feed-chip-shot {
   aspect-ratio: 4 / 3;
-}
-.feed-chip.is-rail .feed-chip-shot.is-rail {
-  aspect-ratio: 2.4 / 1;
-  min-height: 88px;
 }
 .feed-chip-prompt-panel {
   position: relative;
@@ -1211,8 +1197,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .feed-chip.is-caption .feed-chip-fade {
   height: 72%;
 }
-.feed-chip.is-wide .feed-chip-fade,
-.feed-chip.is-rail .feed-chip-fade {
+.feed-chip.is-wide .feed-chip-fade {
   height: 72%;
 }
 .feed-chip.is-peek .feed-chip-fade {
@@ -1258,18 +1243,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   width: 44%;
   height: 40%;
 }
-.feed-chip.is-wide .feed-chip-corner-art,
-.feed-chip.is-rail .feed-chip-corner-art {
+.feed-chip.is-wide .feed-chip-corner-art {
   width: 30%;
   height: 50%;
 }
 .feed-chip.is-peek .feed-chip-corner-art {
   width: 38%;
   height: 32%;
-}
-.feed-chip.is-compact .feed-chip-corner-art {
-  width: 70%;
-  height: 70%;
 }
 .feed-chip-corner-art svg {
   display: block;
@@ -1284,10 +1264,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   align-items: center;
   justify-content: flex-end;
 }
-.feed-chip.is-compact .feed-chip-corner-stack {
-  top: 6%;
-  right: 5%;
-}
 .feed-chip-corner-gem {
   width: 18px;
   height: 17px;
@@ -1300,14 +1276,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .feed-chip.is-prompt .feed-chip-corner-gem,
 .feed-chip.is-wide .feed-chip-corner-gem,
-.feed-chip.is-peek .feed-chip-corner-gem,
-.feed-chip.is-rail .feed-chip-corner-gem {
+.feed-chip.is-peek .feed-chip-corner-gem {
   width: 17px;
   height: 16px;
-}
-.feed-chip.is-compact .feed-chip-corner-gem {
-  width: 13px;
-  height: 12px;
 }
 .feed-chip-corner-gem svg {
   width: 100%;
@@ -1355,15 +1326,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   align-items: flex-end;
   gap: 10px;
 }
-.feed-chip-body.is-rail {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  margin-top: -28px;
-  padding: 0 12px 12px;
-  background: transparent;
-}
 .feed-chip-caption-copy {
   min-width: 0;
   display: flex;
@@ -1380,11 +1342,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   font-size: 14px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.92);
-}
-.feed-chip-media.is-rail {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
 }
 .feed-chip-copy {
   min-width: 0;
@@ -1414,11 +1371,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   line-height: 1.1;
   white-space: nowrap;
 }
-.feed-chip.is-compact .feed-chip-dist,
 .feed-chip.is-prompt .feed-chip-dist,
 .feed-chip.is-caption .feed-chip-dist,
-.feed-chip.is-peek .feed-chip-dist,
-.feed-chip.is-rail .feed-chip-dist {
+.feed-chip.is-peek .feed-chip-dist {
   font-size: 14px;
 }
 .feed-chip-go {
@@ -1434,9 +1389,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   font-weight: 800;
   cursor: pointer;
   flex: none;
-  align-self: center;
-}
-.feed-chip.is-compact .feed-chip-go {
   align-self: center;
 }
 
