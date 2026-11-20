@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v55 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v56 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -1086,17 +1086,9 @@ function buildSortCard(find, under, enter) {
   const card = document.createElement('article');
   card.className = `sort-card${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
   card.dataset.id = find.id;
-  const rarity = rarityForLikes(Number(find.likes) || 0, true);
-  card.style.setProperty('--gem-line', rarity.fill);
   card.innerHTML = `
     <div class="sort-card-media">
       <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
-      <div class="sort-card-corner" aria-hidden="true">
-        <div class="sort-card-corner-art">${cornerRibbonHtml(rarity.fill, `sort-${find.id}`)}</div>
-        <div class="sort-card-corner-stack">
-          <span class="sort-card-gem">${gemSvg(rarity.fill)}</span>
-        </div>
-      </div>
     </div>
     <div class="sort-card-body">
       <p class="sort-card-user">${find.user}</p>
