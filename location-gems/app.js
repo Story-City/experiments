@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v58 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v59 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -210,6 +210,7 @@ const COPY = {
   feedDismiss: '×',
   feedDistance: (minutes) => `${minutes} min away`,
   feedFresh: '[new]',
+  feedPromptKicker: '[spot this]',
 };
 
 const SPOOF_COPY = {
@@ -259,6 +260,7 @@ const SPOOF_COPY = {
   feedDismiss: '×',
   feedDistance: (minutes) => `${minutes} min away`,
   feedFresh: 'New',
+  feedPromptKicker: 'Spot this',
   emptyPublicTitle: 'Nothing public yet',
   emptyPublicBody: 'Publish a find and it’ll show up here.',
   emptyHiddenTitle: 'No hidden gems',
@@ -343,7 +345,7 @@ const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'banner';
-const FEED_VARIANTS = new Set(['banner', 'overlay', 'poster', 'wide', 'compact']);
+const FEED_VARIANTS = new Set(['banner', 'overlay', 'prompt', 'wide', 'compact']);
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
 const sortSub = document.getElementById('sortSub');
@@ -899,6 +901,7 @@ function buildFeedChip(g, variant) {
     `${dist}${rarity.id !== 'cyan' ? `, ${rarity.label}` : ''}`,
   );
 
+  const promptLine = g.caption || g.tagline || g.title || '';
   if (variant === 'compact') {
     chip.innerHTML = `
       <div class="feed-chip-media is-thumb">
@@ -907,7 +910,21 @@ function buildFeedChip(g, variant) {
       </div>
       ${copyBlock}
       ${goBtn}`;
-  } else if (variant === 'overlay' || variant === 'poster') {
+  } else if (variant === 'prompt') {
+    chip.innerHTML = `
+      <div class="feed-chip-prompt-panel">
+        <p class="feed-chip-prompt-kicker">${t('feedPromptKicker')}</p>
+        <p class="feed-chip-prompt">${promptLine}</p>
+        <div class="feed-chip-prompt-foot">
+          <div class="feed-chip-media is-thumb is-prompt">
+            <img src="${g.imageUri}" alt="">
+          </div>
+          ${copyBlock}
+          ${goBtn}
+        </div>
+      </div>
+      ${corner}`;
+  } else if (variant === 'overlay') {
     chip.innerHTML = `
       <div class="feed-chip-shot">
         <img src="${g.imageUri}" alt="">
