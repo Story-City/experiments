@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v56 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v57 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -860,6 +860,16 @@ function bindFeedChipActions(chip, g) {
   });
 }
 
+function feedCornerHtml(rarity, uid) {
+  return `
+    <div class="feed-chip-corner" aria-hidden="true">
+      <div class="feed-chip-corner-art">${cornerRibbonHtml(rarity.fill, uid)}</div>
+      <div class="feed-chip-corner-stack">
+        <span class="feed-chip-corner-gem">${gemSvg(rarity.fill)}</span>
+      </div>
+    </div>`;
+}
+
 function buildFeedChip(g, variant) {
   const rarity = rarityForLikes(g.likes, true);
   const minutes = Number(g.minutesAway);
@@ -867,16 +877,15 @@ function buildFeedChip(g, variant) {
     Number.isFinite(minutes) && minutes >= 0
       ? t('feedDistance', minutes)
       : t('gemNearby');
-  const gemClass =
-    rarity.id !== 'cyan' ? `feed-chip-gem is-${rarity.id}` : 'feed-chip-gem';
   const rarityWord =
     rarity.id !== 'cyan'
-      ? `<span class="feed-chip-rarity-word is-${rarity.id}">${rarity.label}</span>`
+      ? `<p class="feed-chip-rarity-word is-${rarity.id}">${rarity.label}</p>`
       : '';
-  const gemEl = `<span class="${gemClass}" aria-hidden="true">${gemSvg(rarity.fill)}</span>`;
   const goBtn = `<button type="button" class="feed-chip-go">${t('detailNav')}</button>`;
+  const corner = feedCornerHtml(rarity, `feed-${g.id || rarity.id}`);
   const chip = document.createElement('article');
   chip.className = `feed-chip is-${variant}`;
+  chip.style.setProperty('--gem-line', rarity.fill);
   chip.setAttribute('role', 'button');
   chip.tabIndex = 0;
   chip.setAttribute(
@@ -888,30 +897,37 @@ function buildFeedChip(g, variant) {
     chip.innerHTML = `
       <div class="feed-chip-media is-banner">
         <img src="${g.imageUri}" alt="">
+        ${corner}
       </div>
       <div class="feed-chip-body is-row">
         <div class="feed-chip-copy">
           <p class="feed-chip-dist">${dist}</p>
-          <div class="feed-chip-meta">${gemEl}${rarityWord}</div>
+          ${rarityWord}
         </div>
         ${goBtn}
       </div>`;
   } else if (variant === 'compact') {
     chip.innerHTML = `
-      <div class="feed-chip-media is-tiny">
+      <div class="feed-chip-media is-thumb">
         <img src="${g.imageUri}" alt="">
+        ${corner}
       </div>
-      <p class="feed-chip-dist">${dist}</p>
-      <div class="feed-chip-meta">${gemEl}${rarityWord}</div>
+      <div class="feed-chip-copy">
+        <p class="feed-chip-dist">${dist}</p>
+        ${rarityWord}
+      </div>
       ${goBtn}`;
   } else {
     chip.innerHTML = `
-      <div class="feed-chip-media">
+      <div class="feed-chip-media is-side">
         <img src="${g.imageUri}" alt="">
+        ${corner}
       </div>
       <div class="feed-chip-body">
-        <p class="feed-chip-dist">${dist}</p>
-        <div class="feed-chip-meta">${gemEl}${rarityWord}</div>
+        <div class="feed-chip-copy">
+          <p class="feed-chip-dist">${dist}</p>
+          ${rarityWord}
+        </div>
         ${goBtn}
       </div>`;
   }
