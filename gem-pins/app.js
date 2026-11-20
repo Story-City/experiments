@@ -4,6 +4,7 @@
 const V = window.CACHE_V || '';
 const D = await import(`./data.js${V}`);
 const { pinSvg } = await import(`./gems.js${V}`);
+const { ART } = await import(`./gem-art.js${V}`);
 const { CATS, RARITY, RARITY_SETS, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS, PHOTOS, MATCHUP, GROUPS } = D;
 
 const $ = (id) => document.getElementById(id);
@@ -162,16 +163,29 @@ function glowOf(g) {
   if (opt.glowOn === 'mythical' && lv !== 'mythical') return null;
   return lv;
 }
+// Gem art (25B/C): category → gem. Yours follow option 6: 6F = the Mine diamond, private gems hollow.
+const ART_KEY = { nature: 'nature', eat: 'eatshop', shop: 'eatshop', culture: 'art', play: 'activities' };
+const chipColour = (c) => (opt.art === 'drawn' ? c.colour : ART_COLOUR[c.id === 'curio' ? opt.curio : ART_KEY[c.id]]);
+const ART_COLOUR = { nature: '#2fd6a2', eatshop: '#ff5c7a', art: '#41c7d8', activities: '#f5c44a', nugget: '#b36bff', fan: '#b36bff', landmarks: '#f29b2e', mine: '#cdd6ea' };
+function artFor(g) {
+  if (opt.art === 'drawn' || (g.seasonal && opt.seasonal === 'shape')) return null;
+  const tag = tagsOf(g)[0];
+  const key = g.mine && opt.mine === 'own' ? 'mine' : tag === 'curio' ? opt.curio : ART_KEY[tag] || 'nature';
+  const hollow = g.mine && (opt.mine === 'outline' || (g.private && ['hollow', 'own'].includes(opt.mine)));
+  return { markup: ART[hollow ? 'hollow' : opt.art][key], colour: ART_COLOUR[key] };
+}
 function pinFor(g, overrides = {}) {
-  const fill = g.mine && opt.mine === 'own' ? mineColour() : g.seasonal && opt.seasonal === 'colour' ? D.SEASONS[opt.season].colour : colourOf(g);
+  const art = artFor(g);
+  const fill = art ? art.colour : g.mine && opt.mine === 'own' ? mineColour() : g.seasonal && opt.seasonal === 'colour' ? D.SEASONS[opt.season].colour : colourOf(g);
   const mineStyle = g.mine ? opt.mine : null;
   const own = mineStyle === 'own'; // 6F: yours ignore the category: your colour, Victoria's classic cut
   return pinSvg({
+    art: art?.markup,
     shape: own ? 'classic' : g.seasonal && opt.seasonal === 'shape' ? opt.season : opt.shape === 'category' ? catOf(tagsOf(g)[0])?.shape || 'classic' : opt.shape === 'crystal' ? catOf(tagsOf(g)[0])?.crystal || 'leaf' : 'classic',
     size: sizeOf(g),
     fill,
-    hollow: (mineStyle === 'hollow' || own) ? g.private : mineStyle === 'outline', // 6E: every gem of yours is an outline
-    dotted: mineStyle === 'outline' && g.private,
+    hollow: !art && ((mineStyle === 'hollow' || own) ? g.private : mineStyle === 'outline'), // 6E: every gem of yours is an outline
+    dotted: !art && mineStyle === 'outline' && g.private,
     ring: mineStyle === 'dashed' ? (g.private ? 'dashed' : 'solid') : null,
     ringColour: fill,
     lock: mineStyle === 'lock' && g.private,
@@ -190,7 +204,7 @@ function pinFor(g, overrides = {}) {
     ...overrides,
   });
 }
-const quietFade = (g) => !g.mine && opt.others === 'quiet' && (opt.colour === 'rarity' || opt.colour === 'category' || opt.rarityBy === 'colour');
+const quietFade = (g) => opt.art === 'drawn' && !g.mine && opt.others === 'quiet' && (opt.colour === 'rarity' || opt.colour === 'category' || opt.rarityBy === 'colour');
 
 /* ---------- map ---------- */
 const pinsEl = $('pins');
@@ -328,7 +342,7 @@ function drawTop() {
     chips.append(all);
     for (const c of cats) {
       const b = el('button', 'chip');
-      b.append(Object.assign(el('i', 'dot'), { style: `background:${c.colour}` }), c.label);
+      b.append(Object.assign(el('i', 'dot'), { style: `background:${chipColour(c)}` }), c.label);
       const allOn = cats.every((x) => filterOn.has(x.id));
       b.setAttribute('aria-pressed', String(!allOn && filterOn.has(c.id)));
       b.addEventListener('click', () => {
@@ -528,7 +542,7 @@ $('filterBtn').addEventListener('click', () => openSheet((s) => {
     const l = el('label', 'check');
     const i = Object.assign(document.createElement('input'), { type: 'checkbox', checked: filterOn.has(c.id) });
     i.addEventListener('change', () => { if (i.checked) filterOn.add(c.id); else filterOn.delete(c.id); drawAll(); });
-    l.append(i, Object.assign(el('i', 'dot'), { style: `background:${c.colour}` }), c.label);
+    l.append(i, Object.assign(el('i', 'dot'), { style: `background:${chipColour(c)}` }), c.label);
     list.append(l);
   }
   s.append(list);
@@ -569,13 +583,14 @@ function drawKey() {
   const sample = (g, label, full = false, faded = false) => { const s = el('span', 'k'); const a = el('span', 'k-art'); a.innerHTML = pinFor(g); if (!full && quietFade(g)) a.classList.add('quiet'); if (faded) a.classList.add('visited'); s.append(a, el('span', null, label)); return s; };
   const base = { tags: ['nature'], rarity: 'common', mine: false, private: false, liked: false, owner: 'Sam', ownerColour: PALETTE[2].colour };
   const row = (title, items) => { const r1 = el('div', 'k-row'); r1.append(el('b', null, title), ...items); k.append(r1); };
-  if (opt.rarityBy !== 'colour' && opt.colour === 'whose') row('Colour', [sample({ ...base, mine: true }, COPY.yours), sample(base, COPY.others)]);
-  if (opt.rarityBy !== 'colour' && opt.colour === 'picked') row('Colour', [sample({ ...base, mine: true }, 'Your colour'), sample(base, opt.sees === 'all' ? 'Their colour' : COPY.others)]);
-  if (opt.rarityBy !== 'colour' && opt.colour === 'category') row('Colour', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
+  if (opt.art === 'drawn' && opt.rarityBy !== 'colour' && opt.colour === 'whose') row('Colour', [sample({ ...base, mine: true }, COPY.yours), sample(base, COPY.others)]);
+  if (opt.art === 'drawn' && opt.rarityBy !== 'colour' && opt.colour === 'picked') row('Colour', [sample({ ...base, mine: true }, 'Your colour'), sample(base, opt.sees === 'all' ? 'Their colour' : COPY.others)]);
+  if (opt.art === 'drawn' && opt.rarityBy !== 'colour' && opt.colour === 'category') row('Colour', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
   const levels = levelsList();
+  if (opt.art !== 'drawn') row('Gems', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
   row('Rarity', levels.map((lv) => sample({ ...base, rarity: lv }, RARITY[lv].label, true)));
-  if (opt.shape === 'crystal') row('Shape', D.CRYSTALS.map((cr) => { const c = CATS.find((x) => x.crystal === cr.id && opt.tags.includes(x.id)); return c && sample({ ...base, tags: [c.id] }, `${cr.label} (${CATS.filter((x) => x.crystal === cr.id).map((x) => x.label).join(', ')})`, true); }).filter(Boolean));
-  if (opt.shape === 'category') row('Shape', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
+  if (opt.art === 'drawn' && opt.shape === 'crystal') row('Shape', D.CRYSTALS.map((cr) => { const c = CATS.find((x) => x.crystal === cr.id && opt.tags.includes(x.id)); return c && sample({ ...base, tags: [c.id] }, `${cr.label} (${CATS.filter((x) => x.crystal === cr.id).map((x) => x.label).join(', ')})`, true); }).filter(Boolean));
+  if (opt.art === 'drawn' && opt.shape === 'category') row('Shape', CATS.filter((c) => opt.tags.includes(c.id)).map((c) => sample({ ...base, tags: [c.id] }, c.label, true)));
   row('Yours', [sample({ ...base, mine: true, private: true }, 'Private'), sample({ ...base, mine: true }, 'Public')]);
   row('Liked', [sample({ ...base, liked: true }, 'Liked', true)]);
   const tl = [];
@@ -594,6 +609,8 @@ function noteFor(id) {
   if (id === 'colour' && opt.rarityBy === 'colour' && opt.colour !== 'rarity') return NOTES.colourTaken;
   if (id === 'colour' && opt.colour === 'picked' && (opt.sees === 'me' || opt.pick === 'off')) return NOTES.pickedSame;
   if (id === 'visited' && opt.show === 'unvisited') return NOTES.visitedHidden;
+  if ((id === 'colour' || id === 'shape') && opt.art !== 'drawn') return NOTES.artSets;
+  if (id === 'curio' && opt.art === 'drawn') return NOTES.curioUnused;
   if (id === 'mine' && opt.mine === 'own' && opt.colour !== 'category' && opt.shape === 'one') return NOTES.ownSame;
   if (id === 'sizes' && !SIZE_BY.includes(opt.rarityBy)) return NOTES.sizesUnused;
   if (id === 'glowOn' && !GLOW_BY.includes(opt.rarityBy)) return NOTES.glowUnused;
@@ -708,6 +725,7 @@ function specOf(o) {
   const glows = GLOW_BY.includes(o.rarityBy);
   const colourIsRarity = o.colour === 'rarity' || o.rarityBy === 'colour';
   const rows = [
+    ['Gem art', optLabel('art', o.art)],
     ['Colour', colourIsRarity ? `Rarity (${o.rarityColours === 'treasure' ? 'quartz, sapphire, amethyst, gold' : 'moonstone, aquamarine, topaz'})` : optLabel('colour', o.colour)],
     ['Shape', optLabel('shape', o.shape)],
     ['Size', sized ? `Rarity (${o.sizes.replace(/-/g, ' / ')} px)` : 'Same for all'],

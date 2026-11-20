@@ -82,6 +82,9 @@ export const OPTIONS = [
   { id: 'seasonal', n: 22, label: 'Seasonal shown by', start: 'shape', opts: [['shape', 'Season shape'], ['badge', 'Season badge'], ['colour', 'Season colour'], ['none', 'Not shown']] },
   { id: 'season', n: 23, label: 'Season', start: 'winter', opts: [['autumn', 'Autumn (maple leaf)'], ['winter', 'Winter (snowflake)'], ['spring', 'Spring (flower)'], ['summer', 'Summer (sun)']] },
   // added 19 Nov for the preset combos
+  // added 20 Nov: the Branding session's gem art (apps/gem-styles), Victoria's style and Neon
+  { id: 'art', n: 25, label: 'Gem art', start: 'drawn', opts: [['drawn', 'Drawn shapes (uses 1 + 2)'], ['victoria', 'Victoria’s style'], ['neon', 'Neon']] },
+  { id: 'curio', n: 26, label: 'Curiosities gem', start: 'nugget', opts: [['nugget', 'Nugget'], ['fan', 'Crystal fan']] },
   { id: 'cluster', n: 24, label: 'Close gems', start: 'all', opts: [['all', 'Show all'], ['group', 'Group with a number']] },
   { id: 'glowOn', n: 19, label: 'Glow on', start: 'rare', opts: [['rare', 'Rare and up'], ['mythical', 'Mythical only']] },
   { id: 'rarityColours', n: 20, label: 'Rarity colours', start: 'victoria', opts: [['victoria', 'Victoria’s set'], ['treasure', 'Treasure set']] }, // moonstone / aquamarine / amethyst / topaz; quartz / sapphire / amethyst / gold
@@ -92,6 +95,7 @@ export const OPTIONS = [
 // The options panel, grouped by what a gem has to show (Melissa, 19 Nov): the thing down the left,
 // how it's shown on the right. Colour comes first because Creator, Rarity and Category all compete for it.
 export const GROUPS = [
+  ['Gem art', [['art', 'Style'], ['curio', 'Curiosities']]],
   ['Colour', [['colour', 'Colour shows']]],
   ['Creator', [['others', 'Others’ gems'], ['pick', 'You pick a colour'], ['sees', 'Who sees it']]],
   ['Rarity', [['rarityBy', 'Shown by'], ['levels', 'Levels'], ['sizes', 'Sizes'], ['glowOn', 'Glow on'], ['rarityColours', 'Colours']]],
@@ -145,15 +149,20 @@ export const PRESETS = [
     set: { colour: 'whose', shape: 'one', rarityBy: 'glow', glowOn: 'mythical', mine: 'hollow', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'quiet' } },
   { id: 'loud', desc: 'Three colours, size, glow and sparkle all at once. Rarer gems twinkle and liked gems turn pink.', label: 'Loud', tests: 'Where’s the point of too much?', what: 'Creator in 3 colours (liked gets its own) · one shape · size + glow + sparkle · dashed / solid frame · tags + chips.',
     set: { colour: 'whose', shape: 'one', rarityBy: 'sizeGlowSparkle', mine: 'dashed', liked: 'colour', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
-  { id: 'brett', label: 'Brett’s pick', desc: 'Every kind of place has its own colour and its own gem cut, drawn in Victoria’s gem style. Rarer gems are bigger and glow.', tests: 'Can you tell what a gem is, and how rare, before you tap?',
-    what: 'Category colour · a cut per category · size + glow · yours as an outline (dotted = private) · heart badge · tags + chips.',
-    set: { colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'outline', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
+  { id: 'brett', label: 'Brett’s pick', desc: 'Every kind of place has its own gem in Victoria’s style. Yours are the white diamond: solid when public, hollow when private. Rarer gems are bigger and glow.', tests: 'Can you tell what a gem is, and how rare, before you tap?',
+    what: 'Victoria’s gem art · category gems · size + glow · yours = the diamond (hollow = private) · heart badge.',
+    set: { art: 'victoria', colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'own', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
+  { id: 'neon', label: 'Neon', desc: 'The same category gems as glowing outlines, like a sign in a dark window. Yours are the white diamond.', tests: 'Is neon the most “sleek mystery”, and does it still read on a busy map?',
+    what: 'Neon gem art · category gems · size + glow · yours = the diamond (hollow = private).',
+    set: { art: 'neon', colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'own', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
 ];
 export const MATCHUP = ['explorer', 'treasure']; // the most useful head-to-head: does colour show whose, or how rare?
 
 // Notes shown under an option when another option makes it do nothing.
 export const NOTES = {
   visitedHidden: 'Visited gems are hidden right now (17B).',
+  artSets: 'Gem art (25B or 25C) sets colour and shape by category.',
+  curioUnused: 'Only used with gem art (25B or 25C).',
   ownSame: 'Looks like 6A until colour or shape shows the category (1C or 2B).',
   glowUnused: 'Only used when rarity glows (3B, 3C or 3E).',
   coloursUnused: 'Only used when colour shows rarity (1B or 3D).',

@@ -70,6 +70,16 @@ const CHECK = 'M-3 0l2 2.2L3.2-2.2';
 const LOCK = 'M-2.6-.6v-1.6a2.6 2.6 0 0 1 5.2 0v1.6M-3.6-.6h7.2v4.4h-7.2Z';
 
 // One pin. o: { shape, size, fill, hollow, ring: 'dashed' | 'solid' | null, ringColour, lock, heart, double, glow, pulse }
+// Gem art (option 25): the Branding session's SVGs, scaled into the pin. Each copy gets its own
+// filter ids so many pins on one map don't clash.
+let artUid = 0;
+function artMarkup(markup, size) {
+  const n = ++artUid;
+  const d = size * 1.25, at = 22 - d / 2;
+  return markup.replace(/id="([^"]+)"/g, (m, id) => `id="${id}-p${n}"`).replace(/url\(#([^)]+)\)/g, (m, id) => `url(#${id}-p${n})`)
+    .replace('<svg ', `<svg x="${at.toFixed(1)}" y="${at.toFixed(1)}" width="${d.toFixed(1)}" height="${d.toFixed(1)}" overflow="visible" `);
+}
+
 export function pinSvg(o) {
   const s = SHAPES[o.shape] || SHAPES.classic;
   const k = o.size / 24;
@@ -80,6 +90,8 @@ export function pinSvg(o) {
     parts.push(`<circle cx="22" cy="22" r="${r + 6.5}" fill="none" stroke="${o.loveColour}" stroke-width="1.6"/>`);
   }
   if (o.ring) parts.push(`<circle cx="22" cy="22" r="${r + 4}" fill="rgba(23,12,53,.35)" stroke="${o.ringColour}" stroke-width="2"${o.ring === 'dashed' ? ' stroke-dasharray="3.2 2.6"' : ''}/>`);
+  if (o.art) parts.push(artMarkup(o.art, o.size));
+  else {
   const g = [`<g transform="translate(${22 - 12 * k} ${22 - 12 * k}) scale(${k})">`];
   if (o.hollow) {
     // dotted = private (6E): round dots, a touch heavier so the dots read
@@ -99,6 +111,7 @@ export function pinSvg(o) {
   }
   g.push('</g>');
   parts.push(g.join(''));
+  }
   // badges sit on the gem's corner, so they move in with smaller gems
   const bx = 22 + r * 0.72;
   if (o.heart) parts.push(`<g transform="translate(${bx} ${22 - r * 0.72})"><circle r="6.5" fill="${o.loveColour}" stroke="#170c35" stroke-width="1.5"/><path d="${HEART}" fill="#fff"/></g>`);
