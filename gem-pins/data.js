@@ -78,7 +78,7 @@ export const OPTIONS = [
   { id: 'show', n: 17, label: 'Show', start: 'all', opts: [['all', 'All gems'], ['unvisited', 'Only unvisited']] },
   { id: 'details', n: 18, label: 'Gem details on tap', start: 'sheet', opts: [['sheet', 'Bottom sheet'], ['pop', 'Card by the gem'], ['full', 'Full-screen photo'], ['peek', 'Swipe strip']] },
   // added 19 Nov (Melissa): temporary gems
-  { id: 'expiring', n: 21, label: 'Expiring soon shown by', start: 'clock', opts: [['clock', 'Clock badge'], ['countdown', 'Countdown (“2h”)'], ['ring', 'Pulsing ring'], ['none', 'Not shown']] },
+  { id: 'expiring', n: 21, label: 'Expiring soon shown by', start: 'clock', opts: [['clock', 'Clock badge'], ['countdown', 'Countdown (“2h”)'], ['ring', 'Pulsing ring'], ['none', 'Not shown'], ['hourglass', 'Hourglass, category colour'], ['hourglassLab', 'Hourglass, Labradorite'], ['shardLab', 'Small shard, Labradorite']] },
   { id: 'seasonal', n: 22, label: 'Seasonal shown by', start: 'shape', opts: [['shape', 'Season shape'], ['badge', 'Season badge'], ['colour', 'Season colour'], ['none', 'Not shown']] },
   { id: 'season', n: 23, label: 'Season', start: 'winter', opts: [['autumn', 'Autumn (maple leaf)'], ['winter', 'Winter (snowflake)'], ['spring', 'Spring (flower)'], ['summer', 'Summer (sun)']] },
   // added 19 Nov for the preset combos
@@ -134,7 +134,7 @@ export const THINGS = [
   { id: 'mine', label: 'Private vs public', uses: ['hollow', 'frame', 'badge', 'outline'], many: false },
   { id: 'liked', label: 'Liked', uses: ['badge', 'outline', 'ring', 'tint'], many: false },
   { id: 'visited', label: 'Visited', uses: ['fade', 'badge', 'size'], many: false },
-  { id: 'expiring', label: 'Expiring soon', uses: ['badge', 'label', 'ring'], many: false },
+  { id: 'expiring', label: 'Expiring soon', uses: ['badge', 'label', 'ring', 'shape'], many: false },
   { id: 'seasonal', label: 'Seasonal', uses: ['shape', 'badge', 'tint'], many: false },
 ];
 

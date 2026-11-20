@@ -3,7 +3,7 @@
 
 const V = window.CACHE_V || '';
 const D = await import(`./data.js${V}`);
-const { pinSvg } = await import(`./gems.js${V}`);
+const { pinSvg, hourglassArt } = await import(`./gems.js${V}`);
 const { ART } = await import(`./gem-art.js${V}`);
 const { CATS, RARITY, RARITY_SETS, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS, PHOTOS, MATCHUP, GROUPS } = D;
 
@@ -180,6 +180,18 @@ function pinkTones(markup) {
   });
 }
 function artFor(g) {
+  // expiring with 21F/G: the Branding session's Labradorite hourglass or small shard (drawn shapes borrow Victoria's style)
+  if (g.expiring && (opt.expiring === 'hourglassLab' || opt.expiring === 'shardLab')) {
+    const set = opt.art === 'drawn' ? 'victoria' : opt.art;
+    return { markup: ART[set][opt.expiring === 'hourglassLab' ? 'expiring' : 'shard'], colour: '#9aaec4', scale: opt.expiring === 'hourglassLab' ? 1.1 : 1 };
+  }
+  // expiring with 21E: the hourglass crystal, in the gem's category colour
+  if (g.expiring && opt.expiring === 'hourglass') {
+    const tag = tagsOf(g)[0];
+    const key = tag === 'curio' ? opt.curio : ART_KEY[tag] || 'nature';
+    const colour = opt.art === 'drawn' ? colourOf(g) : ART_COLOUR[key];
+    return { markup: hourglassArt(colour, opt.art === 'neon'), colour, scale: 1.3 }; // tall and narrow, so drawn a bit bigger
+  }
   if (opt.art === 'drawn' || (g.seasonal && opt.seasonal === 'shape')) return null;
   const tag = tagsOf(g)[0];
   const key = g.mine && opt.mine === 'own' ? 'mine' : tag === 'curio' ? opt.curio : ART_KEY[tag] || 'nature';
@@ -198,6 +210,7 @@ function pinFor(g, overrides = {}) {
   const own = mineStyle === 'own'; // 6F: yours ignore the category: your colour, Victoria's classic cut
   return pinSvg({
     art: art?.markup,
+    artScale: art?.scale,
     shape: own ? 'classic' : g.seasonal && opt.seasonal === 'shape' ? opt.season : opt.shape === 'category' ? catOf(tagsOf(g)[0])?.shape || 'classic' : opt.shape === 'crystal' ? catOf(tagsOf(g)[0])?.crystal || 'leaf' : 'classic',
     size: sizeOf(g),
     fill,
@@ -863,7 +876,7 @@ function qualitiesOf(o) {
     mine: { hollow: ['hollow'], dashed: ['frame'], lock: ['badge'], outline: ['outline'] }[o.mine] || [],
     liked: { heart: ['badge'], outline: ['outline'], ring: ['ring'], colour: ['tint'] }[o.liked] || [],
     visited: { fade: ['fade'], check: ['badge'], small: ['size'] }[o.visited] || [],
-    expiring: { clock: ['badge'], countdown: ['label'], ring: ['ring'] }[o.expiring] || [],
+    expiring: { clock: ['badge'], countdown: ['label'], ring: ['ring'], hourglass: ['shape'], hourglassLab: ['shape'], shardLab: ['shape'] }[o.expiring] || [],
     seasonal: { shape: ['shape'], badge: ['badge'], colour: ['tint'] }[o.seasonal] || [],
   };
 }
@@ -883,7 +896,7 @@ function setQualities(thing, qs) {
   if (thing === 'mine') opt.mine = has('hollow') ? 'hollow' : has('frame') ? 'dashed' : has('badge') ? 'lock' : has('outline') ? 'outline' : 'none';
   if (thing === 'liked') opt.liked = has('badge') ? 'heart' : has('outline') ? 'outline' : has('ring') ? 'ring' : has('tint') ? 'colour' : 'none';
   if (thing === 'visited') opt.visited = has('fade') ? 'fade' : has('badge') ? 'check' : has('size') ? 'small' : 'none';
-  if (thing === 'expiring') opt.expiring = has('badge') ? 'clock' : has('label') ? 'countdown' : has('ring') ? 'ring' : 'none';
+  if (thing === 'expiring') opt.expiring = has('badge') ? 'clock' : has('label') ? 'countdown' : has('ring') ? 'ring' : has('shape') ? 'hourglass' : 'none';
   if (thing === 'seasonal') opt.seasonal = has('shape') ? 'shape' : has('badge') ? 'badge' : has('tint') ? 'colour' : 'none';
 }
 const isIdea = (id) => id.startsWith('c-');

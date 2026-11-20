@@ -70,6 +70,32 @@ const CHECK = 'M-3 0l2 2.2L3.2-2.2';
 const LOCK = 'M-2.6-.6v-1.6a2.6 2.6 0 0 1 5.2 0v1.6M-3.6-.6h7.2v4.4h-7.2Z';
 
 // One pin. o: { shape, size, fill, hollow, ring: 'dashed' | 'solid' | null, ringColour, lock, heart, double, glow, pulse }
+// Hourglass crystal for expiring gems (21E, Melissa 20 Nov): a hexagonal crystal pinched at the waist.
+// Drawn like Victoria's gems (three-tone facets, white facet lines, bold white outline), or as glowing
+// lines for Neon. Returns gem-art markup (100 × 100 box) so it scales into the pin like the other art.
+const mixHex = (hex, to, t) => '#' + [1, 3, 5].map((i) => { const c = parseInt(hex.slice(i, i + 2), 16); return Math.round(c + (to - c) * t).toString(16).padStart(2, '0'); }).join('');
+export function hourglassArt(colour, neon = false) {
+  const P = { A: '28 12', B: '36 17', C: '64 17', D: '72 12', L: '42 50', BW: '46 53', CW: '54 53', R: '58 50', E: '28 88', F: '36 93', G: '64 93', H: '72 88', T1: '36 7', T2: '64 7' };
+  const f = (...k) => 'M' + k.map((x) => P[x]).join(' L') + 'Z';
+  const outline = 'M36 7 L64 7 L72 12 L58 50 L72 88 L64 93 L36 93 L28 88 L42 50 L28 12Z';
+  const edges = `M${P.B} L${P.C} M${P.A} L${P.B} M${P.C} L${P.D} M${P.B} L${P.BW} L${P.F} M${P.C} L${P.CW} L${P.G} M${P.L} L${P.BW} L${P.CW} L${P.R} M${P.E} L${P.F} L${P.G} L${P.H}`;
+  if (neon) {
+    const id = 'hgn';
+    return `<svg viewBox="-8 -8 116 116" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><filter id="${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3"/></filter></defs>`
+      + `<g filter="url(#${id})" opacity=".8"><path d="${outline}" fill="none" stroke="${colour}" stroke-width="6" stroke-linejoin="round"/></g>`
+      + `<path d="${edges}" fill="none" stroke="${mixHex(colour, 255, 0.35)}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`
+      + `<path d="${outline}" fill="none" stroke="${mixHex(colour, 255, 0.45)}" stroke-width="3.6" stroke-linejoin="round"/></svg>`;
+  }
+  const light = mixHex(colour, 255, 0.4), top = mixHex(colour, 255, 0.62), dark = mixHex(colour, 0, 0.32);
+  return `<svg viewBox="-6 -6 112 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
+    + `<path d="${f('A', 'B', 'BW', 'L')}" fill="${colour}"/><path d="${f('B', 'C', 'CW', 'BW')}" fill="${light}"/><path d="${f('C', 'D', 'R', 'CW')}" fill="${dark}"/>`
+    + `<path d="${f('L', 'BW', 'F', 'E')}" fill="${dark}"/><path d="${f('BW', 'CW', 'G', 'F')}" fill="${colour}"/><path d="${f('CW', 'R', 'H', 'G')}" fill="${mixHex(colour, 0, 0.5)}"/>`
+    + `<path d="${f('A', 'T1', 'T2', 'D', 'C', 'B')}" fill="${top}"/>`
+    + `<path d="M41 24 L44 40" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round"/>`
+    + `<path d="${edges}" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>`
+    + `<path d="${outline}" fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round"/></svg>`;
+}
+
 // Gem art (option 25): the Branding session's SVGs, scaled into the pin. Each copy gets its own
 // filter ids so many pins on one map don't clash.
 let artUid = 0;
@@ -97,7 +123,7 @@ export function pinSvg(o) {
     const dash = o.groundRing === 'broken' ? ` stroke-dasharray="${(c * 0.32).toFixed(1)} ${(c * 0.18).toFixed(1)}" stroke-dashoffset="${(c * 0.09).toFixed(1)}"` : '';
     parts.push(`<ellipse cx="22" cy="${foot.toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" fill="${o.groundRing === 'broken' ? 'none' : 'rgba(255,255,255,.12)'}" stroke="#fff" stroke-width="2"${dash}/>`);
   }
-  if (o.art) parts.push(artMarkup(o.art, o.size));
+  if (o.art) parts.push(artMarkup(o.art, o.size * (o.artScale || 1)));
   else {
   const g = [`<g transform="translate(${22 - 12 * k} ${22 - 12 * k}) scale(${k})">`];
   if (o.hollow) {
