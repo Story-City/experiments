@@ -10,6 +10,8 @@ Entry fields: `slug` (unique, used in `view.html?e=<slug>`), `path` (folder URL 
 
 A page that isn't phone-sized (like Approved UI's side panel + cards) can set `"frame": "wide"` to get a wider frame in the viewer.
 
+**Timeline tab** (`index.html?tab=timeline`, code in `timeline.js`): company key dates. `timeline.json` holds dates gathered from Notion (deployments, marketing calendar, decision log, town halls) and PostHog (versions Notion doesn’t list). Dates people add are saved in the hub database under slug `timeline` (only on the live site). It holds key dates only, never KPI numbers: this site and its database are public.
+
 Every entry has an `area`: the part of the app it belongs to. The Experiments tab groups cards by area, in the order a player meets them: `first` (First-time experience), `finding` (Finding a story), `reading` (Reading a story), `puzzles` (Puzzles & story tools), `map` (Map & walking), `gems` (Gems & rewards), `together` (Playing together), `outside` (Outside the app), `design` (Design system). No area, or an unknown one, lands in Other.
 
 An experiment with more than one page can list them as `tabs`: `[{ "label": "Mockup", "path": "<slug>/" }, { "label": "Vote", "path": "<slug>/vote.html" }]`. The viewer shows them as tabs at the top of the main column (in the top bar on phones), and the tab follows the page when a link inside it opens another page.

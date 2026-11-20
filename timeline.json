@@ -1,0 +1,522 @@
+[
+  {
+    "date": "2026-11-19",
+    "type": "milestone",
+    "title": "Q3 Town Hall",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/Q3-Town-Hall-Report-41d66b1071fa80b7b61efd340fbe386a"
+  },
+  {
+    "date": "2026-11-18",
+    "type": "feature",
+    "title": "Skip the Walk button decided for every FTUE walk",
+    "note": "Decided after PostHog showed the first Steps walk was where most people left.",
+    "approx": false,
+    "source": "https://app.notion.com/p/Story-City-Decision-Log-3fb66b1071fa8153ace3eb3d8f852764"
+  },
+  {
+    "date": "2026-11-17",
+    "type": "release",
+    "title": "App 5.0.0 out",
+    "note": "First day it reached real installs (PostHog); not in the Notion deployments list.",
+    "approx": true,
+    "source": "https://us.posthog.com/project/291954"
+  },
+  {
+    "date": "2026-11-15",
+    "type": "milestone",
+    "title": "Decision: premium chapters after ch. 1 need membership",
+    "note": "Based on the Nov 5 test round. Steps still bank for non-members.",
+    "approx": false,
+    "source": "https://app.notion.com/p/Story-City-Decision-Log-3fb66b1071fa8153ace3eb3d8f852764"
+  },
+  {
+    "date": "2026-11-07",
+    "type": "release",
+    "title": "Mobile 4.28.1 released",
+    "note": "Hotfix: FTUE changes, analytics, social link updates.",
+    "approx": false,
+    "source": "https://app.notion.com/p/November-2026-Mobile-Deployment-1-41066b1071fa80bd99c0c8f0e7d9aa65"
+  },
+  {
+    "date": "2026-11-05",
+    "type": "release",
+    "title": "Mobile 4.28.0: new FTUE and new map system",
+    "note": "The Summons sample story and the new map system.",
+    "approx": false,
+    "source": "https://app.notion.com/p/October-2026-Mobile-Deployment-2-40866b1071fa81b582ecf2f7170611a6"
+  },
+  {
+    "date": "2026-11-04",
+    "type": "release",
+    "title": "API 3.42.0 and Web Client 2.22.0 released",
+    "note": "Server and web releases that went with mobile 4.28.0.",
+    "approx": false,
+    "source": "https://app.notion.com/p/October-2026-API-Deployment-2-40866b1071fa81a98505e1c41ac18fae"
+  },
+  {
+    "date": "2026-11-04",
+    "type": "marketing",
+    "title": "French trailer ads go live",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/French-Trailer-Ads-Go-Live-40166b1071fa809885e4d2329c303ea8"
+  },
+  {
+    "date": "2026-11-04",
+    "type": "marketing",
+    "title": "Eventbrite campaign: Dictator’s Laundromat",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Eventbrite-Campaign-Dictator-s-Laundromat-Deploy-4-NOV-44266b1071fa821093f90110dfafec01"
+  },
+  {
+    "date": "2026-11-04",
+    "type": "feature",
+    "title": "Map modes renamed Steps / Path / Hunt",
+    "note": "Walk renamed Steps after the Nov 3 team poll (mockups first).",
+    "approx": false,
+    "source": "https://app.notion.com/p/Story-City-Decision-Log-3fb66b1071fa8153ace3eb3d8f852764"
+  },
+  {
+    "date": "2026-11-03",
+    "type": "milestone",
+    "title": "Decision: account first, paywall after the sample story",
+    "note": "Welcome, create account, sample story, then paywall.",
+    "approx": false,
+    "source": "https://app.notion.com/p/Story-City-Decision-Log-3fb66b1071fa8153ace3eb3d8f852764"
+  },
+  {
+    "date": "2026-10-31",
+    "type": "marketing",
+    "title": "Halloween paywall A/B test ends",
+    "note": "No clear winner; the static header stays.",
+    "approx": false,
+    "source": "https://app.notion.com/p/A-B-test-Halloween-animated-paywall-header-vs-static-header-3f966b1071fa811786ad35cd25af1d35de"
+  },
+  {
+    "date": "2026-10-25",
+    "type": "marketing",
+    "title": "Halloween creator campaign (5 creators)",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Halloween-Campaign-explorewithsab_-ad766b1071fa829d871c01138e135eec"
+  },
+  {
+    "date": "2026-10-24",
+    "type": "release",
+    "title": "Mobile 4.27.2 iOS hotfix",
+    "note": "Fixed crashes on the new iOS version.",
+    "approx": false,
+    "source": "https://app.notion.com/p/October-2026-Mobile-Deployment-iOS-Hotfix-1-40266b1071fa80a3a6ffebcd511384f8"
+  },
+  {
+    "date": "2026-10-23",
+    "type": "release",
+    "title": "Mobile 4.27.1 released on Android",
+    "note": "iOS needed a crash hotfix (4.27.2).",
+    "approx": false,
+    "source": "https://app.notion.com/p/October-2026-Mobile-Deployment-1-3fa66b1071fa80a99f36c39d0643d314"
+  },
+  {
+    "date": "2026-10-22",
+    "type": "release",
+    "title": "API 3.41.0 and new web client released",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/October-2026-API-Deployment-1-3fa66b1071fa80c9acfcc88a4ab8a9e6"
+  },
+  {
+    "date": "2026-10-21",
+    "type": "feature",
+    "title": "Decision: first FTUE ships with The Summons only",
+    "note": "The Knight’s Quest to follow.",
+    "approx": false,
+    "source": "https://app.notion.com/p/Story-City-Decision-Log-3fb66b1071fa8153ace3eb3d8f852764"
+  },
+  {
+    "date": "2026-10-16",
+    "type": "milestone",
+    "title": "Story categories set: Play Anywhere, Passport, Local",
+    "note": "“Universal Adventures” renamed Play Anywhere.",
+    "approx": false,
+    "source": "https://app.notion.com/p/Story-City-Decision-Log-3fb66b1071fa8153ace3eb3d8f852764"
+  },
+  {
+    "date": "2026-10-15",
+    "type": "marketing",
+    "title": "Halloween paywall A/B test starts",
+    "note": "Animated Halloween header vs the static header, new customers only.",
+    "approx": false,
+    "source": "https://app.notion.com/p/A-B-test-Halloween-animated-paywall-header-vs-static-header-3f966b1071fa811786ad35cd25af1d35de"
+  },
+  {
+    "date": "2026-10-15",
+    "type": "marketing",
+    "title": "Meta ad campaign (Oct 15–31)",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Social-Ad-Campaign-Budget-Reporting-OCT-15-29-47266b1071fa83cc9af581fc0b2cd3eb"
+  },
+  {
+    "date": "2026-10-15",
+    "type": "release",
+    "title": "App 4.27.0 out",
+    "note": "First day it reached real installs (PostHog); not in the Notion deployments list.",
+    "approx": true,
+    "source": "https://us.posthog.com/project/291954"
+  },
+  {
+    "date": "2026-10-14",
+    "type": "feature",
+    "title": "Decision: map modes are never locked",
+    "note": "Players can switch modes any time during a story.",
+    "approx": false,
+    "source": "https://app.notion.com/p/Story-City-Decision-Log-3fb66b1071fa8153ace3eb3d8f852764"
+  },
+  {
+    "date": "2026-10-07",
+    "type": "milestone",
+    "title": "Halloween plan drafted",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/Halloween-1-000-plan-3f266b1071fa816aaa21f36b232593b2"
+  },
+  {
+    "date": "2026-10-01",
+    "type": "milestone",
+    "title": "Q4 goal set: third-party IP testing",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Q4-Third-Party-IP-Testing-5-10K-subscribers-2-3-IP-licenses-2f066b1071fa809abb7ecd4871442044"
+  },
+  {
+    "date": "2026-09-30",
+    "type": "release",
+    "title": "Mobile 4.26.1 hotfix",
+    "note": "Fixed French chapters and story descriptions rendering clipped.",
+    "approx": false,
+    "source": "https://app.notion.com/p/September-2026-Mobile-Deployment-4-3e666b1071fa81589c7cdced2ed5f0dc"
+  },
+  {
+    "date": "2026-09-30",
+    "type": "marketing",
+    "title": "Wedding Pre-Game story launch campaign",
+    "note": "Planned Sep 30 – Oct 25.",
+    "approx": true,
+    "source": "https://app.notion.com/p/Wedding-Pre-Game-Release-Campaign-35d66b1071fa807d840aeca883a594fa"
+  },
+  {
+    "date": "2026-09-24",
+    "type": "marketing",
+    "title": "Frightnight Ghost Tours Eventbrite campaign live",
+    "note": "Part of the Spooky Season playable event.",
+    "approx": true,
+    "source": "https://app.notion.com/p/Frightnight-Evenbrite-Campiagn-Live-3d766b1071fa801a84e7cc3ab5a0ab88"
+  },
+  {
+    "date": "2026-09-23",
+    "type": "marketing",
+    "title": "Eventbrite listings uploaded for 50 cities",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/50-City-Eventbrite-API-Upload-3df66b1071fa80658199d4c0abab4b18"
+  },
+  {
+    "date": "2026-09-21",
+    "type": "release",
+    "title": "Mobile 4.26.0 released",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/September-2026-Mobile-Deployment-1-3d166b1071fa806ab74ff54b950a1639"
+  },
+  {
+    "date": "2026-08-27",
+    "type": "release",
+    "title": "Mobile 4.25 released",
+    "note": "API 3.39.0 added auto-placement. A 4.25.1 Android hotfix followed Aug 29.",
+    "approx": false,
+    "source": "https://app.notion.com/p/August-2026-Mobile-Deployment-1-3bb66b1071fa8012b61be7f46b6a4784"
+  },
+  {
+    "date": "2026-08-22",
+    "type": "marketing",
+    "title": "Alice Through the Tear playable event (Aug 22)",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Facebook-Events-Aug-22-a8666b1071fa833f980f815e8aa428b5"
+  },
+  {
+    "date": "2026-08-19",
+    "type": "marketing",
+    "title": "Summer creator campaign (6 creators)",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Creator-Campaign-Ellie-Heath-06166b1071fa82d0aaab013fb36d4fa8"
+  },
+  {
+    "date": "2026-08-03",
+    "type": "marketing",
+    "title": "New TikTok account goes live",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Tik-Tok-New-Account-Go-Live-3a066b1071fa8021a2b9dec3ee0870e1"
+  },
+  {
+    "date": "2026-08-02",
+    "type": "marketing",
+    "title": "Paid performance ads go live",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Paid-Performance-Go-Live-3ac66b1071fa806f859dd90e5ba3f8eb"
+  },
+  {
+    "date": "2026-08-01",
+    "type": "marketing",
+    "title": "Alice Through the Tear playable event (Aug 1)",
+    "note": "Event players got a free-trial subscription.",
+    "approx": true,
+    "source": "https://app.notion.com/p/Aug-1-Event-In-app-Review-Results-3b466b1071fa801d8982c24ccadfd6ba"
+  },
+  {
+    "date": "2026-07-28",
+    "type": "release",
+    "title": "Mobile 4.24.0 released",
+    "note": "4.23.0 was merged in. A 4.24.1 hotfix followed Jul 30.",
+    "approx": false,
+    "source": "https://app.notion.com/p/July-2026-Mobile-Deployment-2-3a766b1071fa80a3b411dc7ac158fea3"
+  },
+  {
+    "date": "2026-07-22",
+    "type": "feature",
+    "title": "Annual subscription live for US users",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Annual-Subscription-Setup-Live-in-App-for-US-Users-3a666b1071fa8010b8fdd4fce7058687"
+  },
+  {
+    "date": "2026-07-22",
+    "type": "release",
+    "title": "App 4.22.1 out",
+    "note": "First day it reached real installs (PostHog); not in the Notion deployments list.",
+    "approx": true,
+    "source": "https://us.posthog.com/project/291954"
+  },
+  {
+    "date": "2026-07-13",
+    "type": "release",
+    "title": "Mobile 4.22.0 released",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/July-2026-Mobile-Deployment-1-39b66b1071fa8096b182f7ff13ba1e49"
+  },
+  {
+    "date": "2026-07-11",
+    "type": "marketing",
+    "title": "Operation Copy // Write launch campaign",
+    "note": "Planned Jul 11 – Aug 6.",
+    "approx": true,
+    "source": "https://app.notion.com/p/Operation-Copy-Write-Release-Campaign-35d66b1071fa808187e0d54b34b21345"
+  },
+  {
+    "date": "2026-07-03",
+    "type": "release",
+    "title": "Mobile 4.21.0 released",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/June-2026-Mobile-Deployment-2-38966b1071fa803f9dd1f95d06b6d9c3"
+  },
+  {
+    "date": "2026-07-02",
+    "type": "release",
+    "title": "App 4.21.3 out",
+    "note": "First day it reached real installs (PostHog); not in the Notion deployments list.",
+    "approx": true,
+    "source": "https://us.posthog.com/project/291954"
+  },
+  {
+    "date": "2026-07-01",
+    "type": "milestone",
+    "title": "Q3 goal set: CMF launch",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Q3-CMF-Launch-3-5K-Subscribers-2f066b1071fa80a59d45ecd46caf1c43"
+  },
+  {
+    "date": "2026-06-23",
+    "type": "milestone",
+    "title": "Q2 2026 Town Hall",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/Q2-2026-Town-Hall-38066b1071fa80a6b2f0e476857c3886"
+  },
+  {
+    "date": "2026-06-15",
+    "type": "marketing",
+    "title": "Tales from the Incident launch campaign",
+    "note": "Planned Jun 15 – Jul 10, with a YEG creator campaign.",
+    "approx": true,
+    "source": "https://app.notion.com/p/Tales-from-the-Incident-Release-Campaign-35d66b1071fa80dfbb69e126ec549e2b"
+  },
+  {
+    "date": "2026-06-08",
+    "type": "release",
+    "title": "Mobile 4.20.0 released",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/June-2026-Mobile-Deployment-1-37266b1071fa807d9016cf70c7412922"
+  },
+  {
+    "date": "2026-06-01",
+    "type": "marketing",
+    "title": "Fright & Squeaky French-language release",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Fright-Squeaky-French-language-Release-31466b1071fa804eba9ec95f4808b747"
+  },
+  {
+    "date": "2026-05-29",
+    "type": "release",
+    "title": "App 4.19.1 out",
+    "note": "First day it reached real installs (PostHog); not in the Notion deployments list.",
+    "approx": true,
+    "source": "https://us.posthog.com/project/291954"
+  },
+  {
+    "date": "2026-05-19",
+    "type": "release",
+    "title": "Mobile 4.19.0 released",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/May-2026-Mobile-Deployment-1-35d66b1071fa80baa5b8d7f2b5ab408e"
+  },
+  {
+    "date": "2026-05-18",
+    "type": "marketing",
+    "title": "Tips from Your Barista campaign",
+    "note": "Step-tracking ads for Atlanta and Calgary ran around May 20.",
+    "approx": true,
+    "source": "https://app.notion.com/p/Tips-from-Your-Barista-Campaign-Universal-Adventures-35d66b1071fa80d6a4ffc054137b3b7b"
+  },
+  {
+    "date": "2026-05-07",
+    "type": "release",
+    "title": "Mobile 4.18.0 released",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/April-2026-Mobile-Deployment-3-35166b1071fa80dd80e5f3be7d11e318"
+  },
+  {
+    "date": "2026-05-04",
+    "type": "release",
+    "title": "App 4.18.1 out",
+    "note": "First day it reached real installs (PostHog); not in the Notion deployments list.",
+    "approx": true,
+    "source": "https://us.posthog.com/project/291954"
+  },
+  {
+    "date": "2026-04-22",
+    "type": "release",
+    "title": "Mobile 4.17.1 released",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/April-2026-Mobile-Deployment-2-34566b1071fa80cd9b59ea1f95260a45"
+  },
+  {
+    "date": "2026-04-16",
+    "type": "release",
+    "title": "App 4.17.0 out",
+    "note": "First day it reached real installs (PostHog); not in the Notion deployments list.",
+    "approx": true,
+    "source": "https://us.posthog.com/project/291954"
+  },
+  {
+    "date": "2026-04-13",
+    "type": "release",
+    "title": "App 4.16.1 out",
+    "note": "First day it reached real installs (PostHog); not in the Notion deployments list.",
+    "approx": true,
+    "source": "https://us.posthog.com/project/291954"
+  },
+  {
+    "date": "2026-04-10",
+    "type": "milestone",
+    "title": "Q1 2026 Town Hall",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/Q1-Town-Hall-Report-38066b1071fa80afad71f427b7e8ce2c"
+  },
+  {
+    "date": "2026-03-20",
+    "type": "release",
+    "title": "Mobile 4.16.0: first Play Loop release",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/March-2026-Mobile-Deployment-1-32866b1071fa80e4b592ffb0d2ed92cf"
+  },
+  {
+    "date": "2026-03-03",
+    "type": "marketing",
+    "title": "Vibrant Spaces Season 2 release (B2B)",
+    "note": "Planned Mar 3 – Apr 17.",
+    "approx": true,
+    "source": "https://app.notion.com/p/Vibrant-Spaces-Season-2-Release-2f066b1071fa8044a41ff3bab996a4cb"
+  },
+  {
+    "date": "2026-02-16",
+    "type": "marketing",
+    "title": "Kindness Week: Kindness Walk launch",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Kindness-Week-Kindness-Walk-Launch-2f066b1071fa809da172f41b35b64778"
+  },
+  {
+    "date": "2026-02-14",
+    "type": "release",
+    "title": "Mobile 4.15.0 (Squeaky sprint)",
+    "note": "With the Have You Seen Squeaky in-app launch.",
+    "approx": false,
+    "source": "https://app.notion.com/p/Feb-2026-Mobile-Deployment-1-30566b1071fa8026a2f5cb6da52a4ad5"
+  },
+  {
+    "date": "2026-01-19",
+    "type": "marketing",
+    "title": "PR pilot sprint starts",
+    "note": "Planned Jan 19 – Mar 20; a second PR sprint ran Mar 30 – Jun 30.",
+    "approx": true,
+    "source": "https://app.notion.com/p/PR-Pilot-Sprint-Carine-Redmond-2f066b1071fa80228267e11bb86f8582"
+  },
+  {
+    "date": "2026-01-15",
+    "type": "release",
+    "title": "Mobile 4.14.1 released",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/Jan-2026-Mobile-Deployment-2-2e766b1071fa80cb87c1e50d1f349280"
+  },
+  {
+    "date": "2026-01-02",
+    "type": "milestone",
+    "title": "Q1 goal set: audience growth",
+    "note": "",
+    "approx": true,
+    "source": "https://app.notion.com/p/Q1-Audience-Growth-Events-1000-Story-Starts-2f066b1071fa801f9340eec09b648107"
+  },
+  {
+    "date": "2025-12-03",
+    "type": "release",
+    "title": "Mobile 4.13 released",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/Nov-2025-Mobile-Deployment-3-2b066b1071fa80e0bf65fe61cc29bfa8"
+  },
+  {
+    "date": "2025-12-02",
+    "type": "milestone",
+    "title": "2H 2025 Town Hall",
+    "note": "",
+    "approx": false,
+    "source": "https://app.notion.com/p/2H-2025-Town-Hall-Report-3b566b1071fa8051b1d7fefc7737233f"
+  }
+]

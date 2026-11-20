@@ -146,6 +146,49 @@
   .area { scroll-margin-top: 16px; }
   .area-h { margin: 36px 0 14px; font: 600 24px/1.1 var(--f-head); text-transform: none; letter-spacing: 0; color: var(--text); }
   .area-h span { font: 400 14px var(--f-body); margin-left: 6px; }
+  .tabs { overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs .tab { flex: none; }
+  .filters[hidden] { display: none; }
+  /* company timeline */
+  #panel-timeline .sub { margin-top: 4px; }
+  .tl-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0; }
+  .tl-add { height: 34px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--glow); background: var(--glow); color: var(--ink); font: 700 14px var(--f-body); cursor: pointer; }
+  .tl-types { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tl-chip { height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font: 600 13px var(--f-body); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .tl-chip i { width: 9px; height: 9px; border-radius: 50%; }
+  .tl-chip .n { color: var(--lilac); font-weight: 400; }
+  .tl-chip[aria-pressed="false"] { opacity: .45; }
+  .tl-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; padding: 14px; margin: 0 0 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+  .tl-field { display: grid; gap: 4px; font-size: 12px; font-weight: 700; color: var(--lilac); text-transform: uppercase; letter-spacing: .06em; }
+  .tl-field input, .tl-field select { height: 34px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: 400 15px var(--f-body); text-transform: none; letter-spacing: 0; }
+  .tl-save { align-self: end; height: 34px; border-radius: 999px; border: 0; background: var(--glow); color: var(--ink); font: 700 14px var(--f-body); cursor: pointer; }
+  .tl-msg { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--mist); }
+  .tl-msg:empty { display: none; }
+  .tl-strip { position: relative; margin: 6px 0 18px; padding: 0 8px; }
+  .tl-lane { position: relative; height: 70px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+  .tl-dot { position: absolute; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; box-shadow: 0 0 0 2px var(--surface); }
+  .tl-dot:hover, .tl-dot:focus-visible { transform: scale(1.5); }
+  .tl-today { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 2px dashed var(--glow); font-size: 11px; color: var(--glow); }
+  .tl-today { font-size: 0; }
+  .tl-today::after { content: 'Today'; position: absolute; top: -16px; right: 4px; font-size: 11px; }
+  .tl-axis { position: relative; height: 20px; }
+  .tl-tick { position: absolute; top: 4px; font-size: 11px; color: var(--lilac); transform: translateX(-2px); border-left: 1px solid var(--border); padding-left: 3px; }
+  .tl-kpi { padding: 14px 16px; margin: 0 0 8px; border: 1px dashed var(--border); border-radius: 14px; }
+  .tl-kpi h3 { margin: 0 0 4px; font: 600 20px var(--f-head); }
+  .tl-kpi p { margin: 0; color: var(--text-muted); font-size: 14px; max-width: 70ch; }
+  .tl-month { margin: 26px 0 8px; font: 600 22px var(--f-head); }
+  .tl-items { display: grid; gap: 8px; grid-template-columns: 1fr !important; }
+  .tl-item { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; padding: 10px 14px; border-radius: 12px; background: var(--surface); border-left: 4px solid var(--c); transition: box-shadow .3s; }
+  .tl-item.flash { box-shadow: 0 0 0 2px var(--c); }
+  .tl-date { font-weight: 700; color: var(--c); font-size: 14px; padding-top: 2px; }
+  .tl-title { font-weight: 700; color: var(--text); text-decoration: none; }
+  a.tl-title:hover { text-decoration: underline; }
+  .tl-note { margin: 2px 0 0; color: var(--text-muted); font-size: 14px; }
+  .tl-meta { margin: 4px 0 0; font-size: 12px; color: var(--lilac); }
+  .tl-meta a { color: var(--lilac); }
+  .tl-type { color: var(--c); font-weight: 600; }
+  .tl-remove { border: 0; background: none; color: var(--lilac); text-decoration: underline; cursor: pointer; font: inherit; padding: 0; }
   .tag {
     font-size: 11px;
     text-transform: uppercase;
@@ -165,6 +208,7 @@
   <button class="tab" type="button" role="tab" id="tab-experiments" data-tab="experiments" aria-controls="panel-experiments" aria-selected="true">Experiments <span class="n" id="n-experiments"></span></button>
   <button class="tab" type="button" role="tab" id="tab-polls" data-tab="polls" aria-controls="panel-polls" aria-selected="false" tabindex="-1">Polls <span class="n" id="n-polls"></span></button>
   <button class="tab" type="button" role="tab" id="tab-drafts" data-tab="drafts" aria-controls="panel-drafts" aria-selected="false" tabindex="-1">Drafts <span class="n" id="n-drafts"></span></button>
+  <button class="tab" type="button" role="tab" id="tab-timeline" data-tab="timeline" aria-controls="panel-timeline" aria-selected="false" tabindex="-1">Timeline</button>
 </div>
 <div class="filters" role="group" aria-label="Filter by author"></div>
 
@@ -181,6 +225,9 @@
 <p class="empty" id="polls-empty" hidden>No polls from this person yet.</p>
 </section>
 
+<!-- Company timeline: key dates (timeline.js). ?tab=timeline opens it. -->
+<section id="panel-timeline" role="tabpanel" aria-labelledby="tab-timeline" hidden></section>
+
 <section id="panel-drafts" role="tabpanel" aria-labelledby="tab-drafts" hidden>
 <p class="sub">New experiments wait here until the person who asked for them approves.</p>
 <ul id="drafts"></ul>
@@ -189,6 +236,7 @@
 
 <script type="module">
   import * as store from './hub/store.js';
+  import(`./timeline.js?v=${Date.now()}`).then((m) => m.initTimeline()).catch(() => {});
 
   const [manifest, notion] = await Promise.all([
     store.loadJson('experiments.json'),
@@ -381,6 +429,7 @@
       document.getElementById(b.getAttribute('aria-controls')).hidden = !on;
       if (on && focus) b.focus();
     }
+    document.querySelector('.filters').hidden = name === 'timeline'; // authors don't apply to the timeline
     const url = new URL(location.href);
     name !== 'experiments' ? url.searchParams.set('tab', name) : url.searchParams.delete('tab');
     history.replaceState(null, '', url);

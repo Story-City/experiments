@@ -76,6 +76,7 @@
   {
     "slug": "app-screen-catalog",
     "path": "app-screen-catalog/?v=1",
+    "area": "design",
     "title": "App screen catalog",
     "what": "Device screenshots of major screen types (welcome, FTUE, home, feed, map, profile, story overview, debug). Capture timestamps + build for light version control; download PNGs.",
     "author": "victoria",
