@@ -83,7 +83,7 @@ export const OPTIONS = [
   { id: 'season', n: 23, label: 'Season', start: 'winter', opts: [['autumn', 'Autumn (maple leaf)'], ['winter', 'Winter (snowflake)'], ['spring', 'Spring (flower)'], ['summer', 'Summer (sun)']] },
   // added 19 Nov for the preset combos
   // added 20 Nov: the Branding session's gem art (apps/gem-styles), Victoria's style and Neon
-  { id: 'art', n: 25, label: 'Gem art', start: 'drawn', opts: [['drawn', 'Drawn shapes (uses 1 + 2)'], ['victoria', 'Victoria’s style'], ['neon', 'Neon']] },
+  { id: 'art', n: 25, label: 'Gem art', start: 'drawn', opts: [['drawn', 'Drawn shapes (uses 1 + 2)'], ['victoria', 'Victoria’s style'], ['hollow', 'Victoria’s hollow'], ['double', 'Victoria’s double outline'], ['neon', 'Neon']] },
   { id: 'curio', n: 26, label: 'Curiosities gem', start: 'nugget', opts: [['nugget', 'Nugget'], ['fan', 'Crystal fan']] },
   { id: 'layer', n: 27, label: 'Mine / Liked / All buttons', start: 'off', opts: [['off', 'Off'], ['on', 'On: dim the rest']] },
   { id: 'cluster', n: 24, label: 'Close gems', start: 'all', opts: [['all', 'Show all'], ['group', 'Group with a number']] },
@@ -163,8 +163,8 @@ export const MATCHUP = ['explorer', 'treasure']; // the most useful head-to-head
 // Notes shown under an option when another option makes it do nothing.
 export const NOTES = {
   visitedHidden: 'Visited gems are hidden right now (17B).',
-  artSets: 'Gem art (25B or 25C) sets colour and shape by category.',
-  curioUnused: 'Only used with gem art (25B or 25C).',
+  artSets: 'Gem art (25B–E) sets colour and shape by category.',
+  curioUnused: 'Only used with gem art (25B–E).',
   ownSame: 'Looks like 6A until colour or shape shows the category (1C or 2B).',
   glowUnused: 'Only used when rarity glows (3B, 3C or 3E).',
   coloursUnused: 'Only used when colour shows rarity (1B or 3D).',

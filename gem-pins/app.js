@@ -167,12 +167,29 @@ function glowOf(g) {
 const ART_KEY = { nature: 'nature', eat: 'eatshop', shop: 'eatshop', culture: 'art', play: 'activities' };
 const chipColour = (c) => (opt.art === 'drawn' ? c.colour : ART_COLOUR[c.id === 'curio' ? opt.curio : ART_KEY[c.id]]);
 const ART_COLOUR = { nature: '#2fd6a2', eatshop: '#ff5c7a', art: '#41c7d8', activities: '#f5c44a', nugget: '#b36bff', fan: '#b36bff', landmarks: '#f29b2e', mine: '#cdd6ea' };
+// Recolour gem art to pink: every coloured fill/stroke keeps its lightness, white and the rock base stay.
+const PINK = [232, 74, 168];
+function pinkTones(markup) {
+  return markup.replace(/#([0-9a-f]{6})\b/gi, (m, h) => {
+    const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    if (max - min < 24) return m; // whites, greys and the rock base stay as they are
+    const l = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    const mixTo = l > 0.55 ? 255 : 0, t = l > 0.55 ? (l - 0.55) / 0.45 * 0.75 : (0.55 - l) / 0.55 * 0.7;
+    return '#' + PINK.map((c) => Math.round(c + (mixTo - c) * t).toString(16).padStart(2, '0')).join('');
+  });
+}
 function artFor(g) {
   if (opt.art === 'drawn' || (g.seasonal && opt.seasonal === 'shape')) return null;
   const tag = tagsOf(g)[0];
   const key = g.mine && opt.mine === 'own' ? 'mine' : tag === 'curio' ? opt.curio : ART_KEY[tag] || 'nature';
   const hollow = g.mine && (opt.mine === 'outline' || (g.private && ['hollow', 'own'].includes(opt.mine)));
-  return { markup: ART[hollow ? 'hollow' : opt.art][key], colour: ART_COLOUR[key] };
+  // liked by you with 7D: the pink double outline (Branding session) around the category gem
+  const set = hollow ? 'hollow' : g.liked && !g.mine && opt.liked === 'outline' ? 'pink' : opt.art;
+  let markup = ART[set][key];
+  // liked by you with 7B: the same gem, recoloured in pink tones (light facets stay light, dark stay dark)
+  if (g.liked && !g.mine && opt.liked === 'colour') { markup = pinkTones(markup); return { markup, colour: D.LOVE }; }
+  return { markup, colour: ART_COLOUR[key] };
 }
 function pinFor(g, overrides = {}) {
   const art = artFor(g);
