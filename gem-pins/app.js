@@ -187,6 +187,8 @@ function pinFor(g, overrides = {}) {
     hollow: !art && ((mineStyle === 'hollow' || own) ? g.private : mineStyle === 'outline'), // 6E: every gem of yours is an outline
     dotted: !art && mineStyle === 'outline' && g.private,
     ring: mineStyle === 'dashed' ? (g.private ? 'dashed' : 'solid') : null,
+    plinth: mineStyle === 'plinth' ? (g.private ? 'hollow' : 'solid') : null,
+    groundRing: mineStyle === 'groundring' ? (g.private ? 'broken' : 'solid') : null,
     ringColour: fill,
     lock: mineStyle === 'lock' && g.private,
     heart: g.liked && opt.liked === 'heart',
@@ -244,6 +246,20 @@ function zoomTo(z, focus) { // focus: a gem position to bring to the middle
   applyView(); drawPins();
 }
 
+// Mine / Liked / All (27B): one layer at a time, the rest dimmed
+let layer = 'all';
+function drawLayer() {
+  let box = $('layerBox');
+  if (!box) { box = el('div', 'layer'); box.id = 'layerBox'; box.setAttribute('role', 'group'); box.setAttribute('aria-label', 'Show'); document.querySelector('.map-top').append(box); }
+  box.hidden = opt.layer !== 'on';
+  box.replaceChildren();
+  for (const [k, label] of [['all', 'All'], ['mine', 'Mine'], ['liked', 'Liked']]) {
+    const b = el('button', null, label); b.type = 'button';
+    b.setAttribute('aria-pressed', String(layer === k));
+    b.addEventListener('click', () => { layer = k; drawLayer(); drawPins(); });
+    box.append(b);
+  }
+}
 function drawPins() {
   const n = Number(opt.density);
   pinsEl.replaceChildren();
@@ -288,6 +304,7 @@ function drawPins() {
     }
     b.dataset.id = g.id;
     if (quietFade(g)) b.classList.add('quiet');
+    if (opt.layer === 'on' && layer !== 'all' && !(layer === 'mine' ? g.mine : g.liked)) b.classList.add('dim');
     if (g.visited && opt.visited === 'fade') b.classList.add('visited');
     b.innerHTML = pinFor(g);
     b.setAttribute('aria-label', `${g.name}: ${RARITY[rarityOf(g)].label}${g.mine ? `, yours, ${g.private ? 'private' : 'public'}` : `, by ${g.owner}`}${g.liked ? ', liked' : ''}${g.visited ? ', visited' : ''}${g.expiring ? ', expiring' : ''}${g.seasonal ? ', seasonal' : ''}`);
@@ -1031,6 +1048,7 @@ function drawMode() {
 function drawAll() {
   document.body.classList.toggle('cb-rg', opt.cb === 'rg');
   drawTop();
+  drawLayer();
   drawPins();
   drawKey();
   drawPanel();

@@ -134,6 +134,12 @@ body.cb-rg .phone { filter: url(#deutan); }
 .pin { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; border: 0; background: none; border-radius: 50%; -webkit-tap-highlight-color: transparent; }
 .pin svg, .k-art svg, .gem-art svg { display: block; overflow: visible; }
 .pin.quiet svg, .k-art.quiet svg { opacity: 0.6; filter: saturate(0.35); }
+/* Mine / Liked / All (option 27): the other gems step back */
+.layer[hidden] { display: none; }
+.layer { display: flex; gap: 4px; margin-top: 8px; padding: 3px; width: max-content; border-radius: 999px; background: rgba(23, 12, 53, 0.9); border: 1px solid rgba(255, 255, 255, 0.18); }
+.layer button { height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; font: 700 15px/1 var(--f-app); color: var(--muted); }
+.layer button[aria-pressed="true"] { background: #fff; color: var(--bg); }
+.pin.dim svg { opacity: 0.22; filter: saturate(0.3); }
 .pin.visited svg, .k-art.visited svg { opacity: 0.4; filter: saturate(0.3); }
 .pin:active svg { transform: scale(0.92); }
 .glow-rare { filter: drop-shadow(0 0 4px var(--glow)); }
@@ -144,7 +150,7 @@ body.cb-rg .phone { filter: url(#deutan); }
 .spark { transform-box: fill-box; transform-origin: center; animation: twinkle 1.8s ease-in-out infinite; }
 @keyframes twinkle { 0%, 100% { opacity: 0.1; transform: scale(0.4); } 50% { opacity: 1; transform: scale(1.1); } }
 @media (prefers-reduced-motion: reduce) { .spark { animation: none; opacity: 0.8; } }
-.glow-mythical { filter: drop-shadow(0 0 6px var(--glow)) drop-shadow(0 0 12px var(--glow)); animation: myth 2.4s ease-in-out infinite; }
+.glow-mythical { filter: drop-shadow(0 0 6px var(--glow)) drop-shadow(0 0 12px var(--glow)); } /* steady, no pulse (Melissa, 20 Nov) */
 @keyframes myth { 50% { filter: drop-shadow(0 0 9px var(--glow)) drop-shadow(0 0 20px var(--glow)); } }
 @media (prefers-reduced-motion: reduce) { .glow-mythical { animation: none; } }
 

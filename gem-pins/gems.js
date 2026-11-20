@@ -90,6 +90,13 @@ export function pinSvg(o) {
     parts.push(`<circle cx="22" cy="22" r="${r + 6.5}" fill="none" stroke="${o.loveColour}" stroke-width="1.6"/>`);
   }
   if (o.ring) parts.push(`<circle cx="22" cy="22" r="${r + 4}" fill="rgba(23,12,53,.35)" stroke="${o.ringColour}" stroke-width="2"${o.ring === 'dashed' ? ' stroke-dasharray="3.2 2.6"' : ''}/>`);
+  // yours (6G plinth / 6H ground ring): marked underneath, so the category gem stays as it is
+  const foot = 22 + (o.art ? o.size * 0.56 : r * 0.92);
+  if (o.groundRing) {
+    const rx = o.size * 0.5, ry = o.size * 0.17, c = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
+    const dash = o.groundRing === 'broken' ? ` stroke-dasharray="${(c * 0.32).toFixed(1)} ${(c * 0.18).toFixed(1)}" stroke-dashoffset="${(c * 0.09).toFixed(1)}"` : '';
+    parts.push(`<ellipse cx="22" cy="${foot.toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" fill="${o.groundRing === 'broken' ? 'none' : 'rgba(255,255,255,.12)'}" stroke="#fff" stroke-width="2"${dash}/>`);
+  }
   if (o.art) parts.push(artMarkup(o.art, o.size));
   else {
   const g = [`<g transform="translate(${22 - 12 * k} ${22 - 12 * k}) scale(${k})">`];
@@ -111,6 +118,12 @@ export function pinSvg(o) {
   }
   g.push('</g>');
   parts.push(g.join(''));
+  }
+  if (o.plinth) {
+    const w = o.size * 0.86, top = foot + 0.5, h = 5;
+    const d = `M${(22 - w / 2 + 1.5).toFixed(1)} ${top.toFixed(1)}H${(22 + w / 2 - 1.5).toFixed(1)}L${(22 + w / 2).toFixed(1)} ${(top + h).toFixed(1)}H${(22 - w / 2).toFixed(1)}Z`;
+    if (o.plinth === 'solid') parts.push(`<path d="${d}" fill="#fff" stroke="#170c35" stroke-width=".8" stroke-linejoin="round"/>`);
+    else parts.push(`<path d="${d}" fill="rgba(23,12,53,.55)" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/><g transform="translate(22 ${(top + h / 2 + 0.2).toFixed(1)}) scale(.42)" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"><path d="M-2.6-.6v-1.6a2.6 2.6 0 0 1 5.2 0v1.6M-3.6-.6h7.2v4.4h-7.2Z"/></g>`);
   }
   // badges sit on the gem's corner, so they move in with smaller gems
   const bx = 22 + r * 0.72;
