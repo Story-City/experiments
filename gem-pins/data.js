@@ -74,11 +74,11 @@ export const OPTIONS = [
   { id: 'density', n: 14, label: 'Map density', start: '40', opts: [['10', '10'], ['40', '40'], ['100', '100']] },
   { id: 'cb', n: 15, label: 'Colour-blind view', start: 'off', opts: [['off', 'Off'], ['rg', 'Red-green simulation']] },
   // added 19 Nov (Melissa): gems you've already been to
-  { id: 'visited', n: 16, label: 'Visited shown by', start: 'fade', opts: [['fade', 'Faded'], ['check', 'Check badge'], ['small', 'Smaller'], ['none', 'Not shown']] },
+  { id: 'visited', n: 16, label: 'Visited shown by', start: 'fade', opts: [['fade', 'Faded'], ['check', 'Check badge'], ['small', 'Smaller'], ['none', 'Not shown'], ['mapcolour', 'Map colour (keeps its shape)']] },
   { id: 'show', n: 17, label: 'Show', start: 'all', opts: [['all', 'All gems'], ['unvisited', 'Only unvisited']] },
   { id: 'details', n: 18, label: 'Gem details on tap', start: 'sheet', opts: [['sheet', 'Bottom sheet'], ['pop', 'Card by the gem'], ['full', 'Full-screen photo'], ['peek', 'Swipe strip']] },
   // added 19 Nov (Melissa): temporary gems
-  { id: 'expiring', n: 21, label: 'Expiring soon shown by', start: 'clock', opts: [['clock', 'Clock badge'], ['countdown', 'Countdown (“2h”)'], ['ring', 'Pulsing ring'], ['none', 'Not shown'], ['hourglass', 'Hourglass, category colour'], ['hourglassLab', 'Hourglass, Labradorite'], ['shardLab', 'Small shard, Labradorite']] },
+  { id: 'expiring', n: 21, label: 'Expiring soon shown by', start: 'clock', opts: [['clock', 'Clock badge'], ['countdown', 'Countdown (“2h”)'], ['ring', 'Pulsing ring'], ['none', 'Not shown'], ['hourglass', 'Hourglass, category colour'], ['hourglassLab', 'Hourglass, Labradorite'], ['shardLab', 'Small shard, Labradorite'], ['rays', 'Pulsing rays'], ['warmglow', 'Warm glow behind']] },
   { id: 'seasonal', n: 22, label: 'Seasonal shown by', start: 'shape', opts: [['shape', 'Season shape'], ['badge', 'Season badge'], ['colour', 'Season colour'], ['none', 'Not shown']] },
   { id: 'season', n: 23, label: 'Season', start: 'winter', opts: [['autumn', 'Autumn (maple leaf)'], ['winter', 'Winter (snowflake)'], ['spring', 'Spring (flower)'], ['summer', 'Summer (sun)']] },
   // added 19 Nov for the preset combos
@@ -86,6 +86,7 @@ export const OPTIONS = [
   { id: 'art', n: 25, label: 'Gem art', start: 'drawn', opts: [['drawn', 'Drawn shapes (uses 1 + 2)'], ['victoria', 'Victoria’s style'], ['hollow', 'Victoria’s hollow'], ['double', 'Victoria’s double outline'], ['neon', 'Neon']] },
   { id: 'curio', n: 26, label: 'Curiosities gem', start: 'nugget', opts: [['nugget', 'Nugget'], ['fan', 'Crystal fan']] },
   { id: 'layer', n: 27, label: 'Mine / Liked / All buttons', start: 'off', opts: [['off', 'Off'], ['on', 'On: dim the rest']] },
+  { id: 'hideStyle', n: 28, label: 'Hide button', start: 'icon', opts: [['icon', 'Eye icon'], ['word', 'Small HIDE text']] },
   { id: 'cluster', n: 24, label: 'Close gems', start: 'all', opts: [['all', 'Show all'], ['group', 'Group with a number']] },
   { id: 'glowOn', n: 19, label: 'Glow on', start: 'rare', opts: [['rare', 'Rare and up'], ['mythical', 'Mythical only']] },
   { id: 'rarityColours', n: 20, label: 'Rarity colours', start: 'victoria', opts: [['victoria', 'Victoria’s set'], ['treasure', 'Treasure set']] }, // moonstone / aquamarine / amethyst / topaz; quartz / sapphire / amethyst / gold
@@ -105,7 +106,7 @@ export const GROUPS = [
   ['Liked', [['liked', 'Shown by']]],
   ['Visited', [['visited', 'Shown by'], ['show', 'Show']]],
   ['Time-limited', [['expiring', 'Expiring soon'], ['seasonal', 'Seasonal'], ['season', 'Season']]],
-  ['Tapping a gem', [['details', 'Details']]],
+  ['Tapping a gem', [['details', 'Details'], ['hideStyle', 'Hide button']]],
   ['Map', [['density', 'Gems on screen'], ['cluster', 'Close gems'], ['cb', 'Colour-blind view']]],
   ['Mine / Liked / All', [['layer', 'Buttons above the map']]],
 ];
@@ -134,7 +135,7 @@ export const THINGS = [
   { id: 'mine', label: 'Private vs public', uses: ['hollow', 'frame', 'badge', 'outline'], many: false },
   { id: 'liked', label: 'Liked', uses: ['badge', 'outline', 'ring', 'tint'], many: false },
   { id: 'visited', label: 'Visited', uses: ['fade', 'badge', 'size'], many: false },
-  { id: 'expiring', label: 'Expiring soon', uses: ['badge', 'label', 'ring', 'shape'], many: false },
+  { id: 'expiring', label: 'Expiring soon', uses: ['badge', 'label', 'ring', 'shape', 'glow'], many: false },
   { id: 'seasonal', label: 'Seasonal', uses: ['shape', 'badge', 'tint'], many: false },
 ];
 
@@ -153,10 +154,10 @@ export const PRESETS = [
     set: { colour: 'whose', shape: 'one', rarityBy: 'sizeGlowSparkle', mine: 'dashed', liked: 'colour', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
   { id: 'brett', label: 'Brett’s pick', desc: 'Every kind of place has its own gem in Victoria’s style. Yours are the white diamond: solid when public, hollow when private. Rarer gems are bigger and glow.', tests: 'Can you tell what a gem is, and how rare, before you tap?',
     what: 'Victoria’s gem art · category gems · size + glow · yours = the diamond (hollow = private) · heart badge.',
-    set: { art: 'victoria', colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'own', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
+    set: { art: 'victoria', visited: 'mapcolour', colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'own', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
   { id: 'neon', label: 'Neon', desc: 'The same category gems as glowing outlines, like a sign in a dark window. Yours are the white diamond.', tests: 'Is neon the most “sleek mystery”, and does it still read on a busy map?',
     what: 'Neon gem art · category gems · size + glow · yours = the diamond (hollow = private).',
-    set: { art: 'neon', colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'own', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
+    set: { art: 'neon', visited: 'mapcolour', colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'own', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
 ];
 export const MATCHUP = ['explorer', 'treasure']; // the most useful head-to-head: does colour show whose, or how rare?
 
@@ -211,6 +212,17 @@ export const COPY = {
   visited: 'Visited',
   notVisited: 'Not visited yet',
   markVisited: 'Mark Visited',
+  visitedOn: '✓ Visited',
+  hide: 'Hide',
+  likeIt: 'Like',
+  unlikeIt: 'Liked: tap to unlike',
+  markIt: 'Mark visited',
+  unmarkIt: 'Visited: tap to undo',
+  hideLong: 'Hide from my map',
+  hiddenToast: 'Hidden from your map',
+  undo: 'Undo',
+  hiddenCount: (n) => `${n} hidden`,
+  showHidden: 'Show them',
   savePreset: '+ Save as preset',
   presetName: 'Name this preset',
   presetNamePh: 'e.g. Quiet treasure',

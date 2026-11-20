@@ -167,6 +167,18 @@ function glowOf(g) {
 const ART_KEY = { nature: 'nature', eat: 'eatshop', shop: 'eatshop', culture: 'art', play: 'activities' };
 const chipColour = (c) => (opt.art === 'drawn' ? c.colour : ART_COLOUR[c.id === 'curio' ? opt.curio : ART_KEY[c.id]]);
 const ART_COLOUR = { nature: '#2fd6a2', eatshop: '#ff5c7a', art: '#41c7d8', activities: '#f5c44a', nugget: '#b36bff', fan: '#b36bff', landmarks: '#f29b2e', mine: '#cdd6ea' };
+// Visited (16E): the same gem in the map's own slate-lavender, so it settles into the background.
+const SLATE = [104, 99, 150];
+function slateTones(markup) {
+  return markup.replace(/#([0-9a-f]{6})\b/gi, (m, h) => {
+    const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+    if (Math.max(r, g, b) - Math.min(r, g, b) < 24 && r > 200) return '#b7b3d6'; // white lines go soft lilac
+    if (Math.max(r, g, b) - Math.min(r, g, b) < 24) return m;
+    const l = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    const mixTo = l > 0.55 ? 255 : 0, t = l > 0.55 ? (l - 0.55) / 0.45 * 0.45 : (0.55 - l) / 0.55 * 0.55;
+    return '#' + SLATE.map((c) => Math.round(c + (mixTo - c) * t).toString(16).padStart(2, '0')).join('');
+  }).replace(/stroke="#fff"/gi, 'stroke="#b7b3d6"').replace(/stroke="#FFFFFF"/g, 'stroke="#b7b3d6"');
+}
 // Recolour gem art to pink: every coloured fill/stroke keeps its lightness, white and the rock base stay.
 const PINK = [232, 74, 168];
 function pinkTones(markup) {
@@ -200,12 +212,13 @@ function artFor(g) {
   const set = hollow ? 'hollow' : g.liked && !g.mine && opt.liked === 'outline' ? 'pink' : opt.art;
   let markup = ART[set][key];
   // liked by you with 7B: the same gem, recoloured in pink tones (light facets stay light, dark stay dark)
+  if (g.visited && opt.visited === 'mapcolour') return { markup: slateTones(markup), colour: '#6863a0' };
   if (g.liked && !g.mine && opt.liked === 'colour') { markup = pinkTones(markup); return { markup, colour: D.LOVE }; }
   return { markup, colour: ART_COLOUR[key] };
 }
 function pinFor(g, overrides = {}) {
   const art = artFor(g);
-  const fill = art ? art.colour : g.mine && opt.mine === 'own' ? mineColour() : g.seasonal && opt.seasonal === 'colour' ? D.SEASONS[opt.season].colour : colourOf(g);
+  const fill = art ? art.colour : g.visited && opt.visited === 'mapcolour' ? '#6863a0' : g.mine && opt.mine === 'own' ? mineColour() : g.seasonal && opt.seasonal === 'colour' ? D.SEASONS[opt.season].colour : colourOf(g);
   const mineStyle = g.mine ? opt.mine : null;
   const own = mineStyle === 'own'; // 6F: yours ignore the category: your colour, Victoria's classic cut
   return pinSvg({
@@ -229,6 +242,8 @@ function pinFor(g, overrides = {}) {
     clock: !!g.expiring && opt.expiring === 'clock',
     countdown: g.expiring && opt.expiring === 'countdown' ? g.expiring : null,
     expireRing: !!g.expiring && opt.expiring === 'ring',
+    expireRays: !!g.expiring && opt.expiring === 'rays',
+    expireGlow: !!g.expiring && opt.expiring === 'warmglow',
     seasonBadge: g.seasonal && opt.seasonal === 'badge' ? D.SEASONS[opt.season].colour : null,
     sparkle: SPARKLE_BY.includes(opt.rarityBy) ? { common: 0, rare: 2, epic: 3, mythical: 4 }[rarityOf(g)] : 0,
     check: g.visited && opt.visited === 'check',
@@ -297,7 +312,7 @@ function drawPins() {
   const box = pinsEl.getBoundingClientRect(), phone = $('phone').getBoundingClientRect();
   // draw ordinary gems first so yours, liked and mythical sit on top
   const rank = (g) => (g.rarity === 'mythical' ? 3 : g.mine ? 2 : g.liked ? 1 : 0);
-  const list = GEMS.slice(0, n).filter((g) => tagsOf(g).length && tagsOf(g).some((t) => filterOn.has(t)) && !(opt.show === 'unvisited' && g.visited));
+  const list = GEMS.slice(0, n).filter((g) => !hiddenIds.has(g.id) && tagsOf(g).length && tagsOf(g).some((t) => filterOn.has(t)) && !(opt.show === 'unvisited' && g.visited));
   const placed = list.map((g) => ({ g, p: placeOf(g, box, phone) }))
     .filter(({ p }) => p[0] > -22 && p[0] < box.width + 22 && p[1] > -22 && p[1] < box.height + 22);
   // group gems that sit too close to tap apart (24B); the most important one leads the group
@@ -442,9 +457,10 @@ function actionRow(g, reopen = openGem) {
   const row = el('div', 'gem-row');
   row.append(el('span', 'muted', `${COPY.likes(g.likes + (g.liked ? 1 : 0))} · ${g.mine || g.visited ? COPY.visited : COPY.notVisited}`));
   const btns = el('div', 'gem-btns');
-  if (!g.mine && !g.visited) {
-    const mv = el('button', 'btn', COPY.markVisited);
-    mv.addEventListener('click', () => { g.visited = true; drawAll(); reopen(g); });
+  if (!g.mine) {
+    const mv = el('button', 'btn visit', g.visited ? COPY.visitedOn : COPY.markVisited);
+    mv.setAttribute('aria-pressed', String(g.visited));
+    mv.addEventListener('click', () => { g.visited = !g.visited; drawAll(); reopen(g); });
     btns.append(mv);
   }
   if (!g.mine) {
@@ -452,9 +468,20 @@ function actionRow(g, reopen = openGem) {
     like.setAttribute('aria-pressed', String(g.liked));
     like.addEventListener('click', () => { g.liked = !g.liked; drawAll(); reopen(g); });
     btns.append(like);
+    const hide = el('button', 'btn hide', COPY.hide);
+    hide.title = COPY.hideLong;
+    hide.addEventListener('click', () => hideGem(g));
+    btns.append(hide);
   }
   row.append(btns);
   return row;
+}
+// Hide from my map: the gem disappears; Undo in the message, and the Key can show them again.
+const hiddenIds = new Set();
+function hideGem(g) {
+  hiddenIds.add(g.id);
+  closeDetails(); drawAll();
+  toast(COPY.hiddenToast, COPY.undo, () => { hiddenIds.delete(g.id); drawAll(); });
 }
 function closeDetails() {
   for (const id of ['pop', 'full', 'peek', 'catch', 'gemSheet']) $(id).hidden = true;
@@ -551,6 +578,23 @@ function openPeek(g) {
 // A: bottom sheet that peeks over the map. Tap the sheet to open it fully, tap the map to close it,
 // tap another gem to switch to it. The map stays usable while it peeks.
 let sheetGem = null;
+// Drawer corner actions (Melissa, 20 Nov): heart = like, hide, visited. Hide is an eye icon or a small HIDE (28).
+const ICON = {
+  heart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.3-9.2C1.6 7.8 3.5 4.5 6.8 4.5c2 0 3.4 1.1 4.2 2.4h2c.8-1.3 2.2-2.4 4.2-2.4 3.3 0 5.2 3.3 4.1 6.3C19.5 15.4 12 20 12 20z"/></svg>',
+  hide: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.6"/><path d="M4 20 20 4"/></svg>',
+  check: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M7.8 12.4l2.8 2.8 5.6-5.8"/></svg>',
+};
+function cornerActions(g, reopen) {
+  const box = el('div', 'corner-acts');
+  if (g.mine) return box;
+  const mk = (cls, html, label, on, fn) => { const b = el('button', 'cact ' + cls); b.type = 'button'; b.innerHTML = html; b.setAttribute('aria-label', label); b.title = label; if (on != null) b.setAttribute('aria-pressed', String(on)); b.addEventListener('click', (e) => { e.stopPropagation(); fn(); }); return b; };
+  box.append(
+    mk('heart', ICON.heart, g.liked ? COPY.unlikeIt : COPY.likeIt, g.liked, () => { g.liked = !g.liked; drawAll(); reopen(g); }),
+    opt.hideStyle === 'word' ? mk('hide word', 'HIDE', COPY.hideLong, null, () => hideGem(g)) : mk('hide', ICON.hide, COPY.hideLong, null, () => hideGem(g)),
+    mk('check', ICON.check, g.visited ? COPY.unmarkIt : COPY.markIt, g.visited, () => { g.visited = !g.visited; drawAll(); reopen(g); }),
+  );
+  return box;
+}
 function openSheetGem(g, full = false) {
   const sh = $('gemSheet');
   sheetGem = g;
@@ -567,9 +611,9 @@ function openSheetGem(g, full = false) {
   art.innerHTML = pinFor(g);
   const t = el('div');
   t.append(el(full ? 'h2' : 'h3', null, g.name), el('p', 'muted', whoLine(g)));
-  head.append(art, t);
+  head.append(art, t, cornerActions(g, (x) => openSheetGem(x, full)));
   sh.append(head, tagRow(g));
-  if (full) { sh.append(actionRow(g, (x) => openSheetGem(x, true))); sh.append(closeBtn('x sheet-x')); }
+  if (full) { sh.append(el('p', 'muted sheet-status', `${COPY.likes(g.likes + (g.liked ? 1 : 0))} · ${g.mine || g.visited ? COPY.visited : COPY.notVisited}`)); sh.append(closeBtn('x sheet-x')); }
   else sh.append(el('p', 'sheet-more', COPY.tapForMore));
   sh.hidden = false;
   sh.setAttribute('aria-expanded', String(full));
@@ -616,10 +660,16 @@ $('colourBtn').addEventListener('click', () => openSheet((s) => {
 }));
 
 let toastTimer = 0;
-function toast(text) {
+function toast(text, actionLabel, action) {
   const t = $('toast');
-  t.textContent = text; t.hidden = false;
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+  t.replaceChildren(text);
+  if (actionLabel) {
+    const b = el('button', 'toast-act', actionLabel); b.type = 'button';
+    b.addEventListener('click', () => { t.hidden = true; action(); });
+    t.append(' ', b);
+  }
+  t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, actionLabel ? 5000 : 2600);
 }
 
 /* ---------- key (what the pins mean right now) ---------- */
@@ -644,6 +694,11 @@ function drawKey() {
   if (opt.expiring !== 'none') tl.push(sample({ ...base, expiring: '2h' }, 'Expiring soon', true));
   if (opt.seasonal !== 'none') tl.push(sample({ ...base, seasonal: true }, `${D.SEASONS[opt.season].label} gem`, true));
   if (tl.length) row('Time', tl);
+  if (hiddenIds.size) {
+    const b = el('button', 'key-link', COPY.showHidden); b.type = 'button';
+    b.addEventListener('click', () => { hiddenIds.clear(); drawAll(); });
+    row('Hidden', [el('span', 'k', COPY.hiddenCount(hiddenIds.size)), b]);
+  }
   if (opt.visited !== 'none' && opt.show !== 'unvisited') row('Visited', [sample({ ...base }, COPY.notVisited), sample({ ...base, visited: true }, COPY.visited, false, opt.visited === 'fade')]);
 }
 $('keyBtn').addEventListener('click', () => {
@@ -876,7 +931,7 @@ function qualitiesOf(o) {
     mine: { hollow: ['hollow'], dashed: ['frame'], lock: ['badge'], outline: ['outline'] }[o.mine] || [],
     liked: { heart: ['badge'], outline: ['outline'], ring: ['ring'], colour: ['tint'] }[o.liked] || [],
     visited: { fade: ['fade'], check: ['badge'], small: ['size'] }[o.visited] || [],
-    expiring: { clock: ['badge'], countdown: ['label'], ring: ['ring'], hourglass: ['shape'], hourglassLab: ['shape'], shardLab: ['shape'] }[o.expiring] || [],
+    expiring: { clock: ['badge'], countdown: ['label'], ring: ['ring'], hourglass: ['shape'], hourglassLab: ['shape'], shardLab: ['shape'], warmglow: ['glow'] }[o.expiring] || [],
     seasonal: { shape: ['shape'], badge: ['badge'], colour: ['tint'] }[o.seasonal] || [],
   };
 }
@@ -896,7 +951,7 @@ function setQualities(thing, qs) {
   if (thing === 'mine') opt.mine = has('hollow') ? 'hollow' : has('frame') ? 'dashed' : has('badge') ? 'lock' : has('outline') ? 'outline' : 'none';
   if (thing === 'liked') opt.liked = has('badge') ? 'heart' : has('outline') ? 'outline' : has('ring') ? 'ring' : has('tint') ? 'colour' : 'none';
   if (thing === 'visited') opt.visited = has('fade') ? 'fade' : has('badge') ? 'check' : has('size') ? 'small' : 'none';
-  if (thing === 'expiring') opt.expiring = has('badge') ? 'clock' : has('label') ? 'countdown' : has('ring') ? 'ring' : has('shape') ? 'hourglass' : 'none';
+  if (thing === 'expiring') opt.expiring = has('badge') ? 'clock' : has('label') ? 'countdown' : has('ring') ? 'ring' : has('shape') ? 'hourglass' : has('glow') ? 'warmglow' : 'none';
   if (thing === 'seasonal') opt.seasonal = has('shape') ? 'shape' : has('badge') ? 'badge' : has('tint') ? 'colour' : 'none';
 }
 const isIdea = (id) => id.startsWith('c-');

@@ -144,6 +144,11 @@ body.cb-rg .phone { filter: url(#deutan); }
 .pin:active svg { transform: scale(0.92); }
 .glow-rare { filter: drop-shadow(0 0 4px var(--glow)); }
 .glow-epic { filter: drop-shadow(0 0 5px var(--glow)) drop-shadow(0 0 9px var(--glow)); }
+.expire-glow { transform-box: fill-box; transform-origin: center; animation: warm 2s ease-in-out infinite; }
+@keyframes warm { 0%, 100% { opacity: 0.35; transform: scale(0.85); } 50% { opacity: 0.85; transform: scale(1.1); } }
+.expire-rays { transform-box: fill-box; transform-origin: center; animation: rays 1.6s ease-in-out infinite; }
+@keyframes rays { 0%, 100% { opacity: 0.25; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { .expire-glow { animation: none; opacity: 0.6; } .expire-rays { animation: none; opacity: 0.8; } }
 .expire-ring { transform-box: fill-box; transform-origin: center; animation: expire 1.4s ease-in-out infinite; }
 @keyframes expire { 50% { opacity: 0.35; transform: scale(1.12); } }
 @media (prefers-reduced-motion: reduce) { .expire-ring { animation: none; } }
@@ -205,6 +210,9 @@ body.cb-rg .phone { filter: url(#deutan); }
 .swatch.locked i { opacity: 0.35; }
 .swatch em { font-style: normal; font-size: 11px; color: var(--muted); }
 
+.toast-act { margin-left: 8px; padding: 0 10px; height: 26px; border-radius: 999px; border: 1px solid var(--bg); background: var(--bg); color: #fff; font: 700 14px/1 var(--f-app); }
+.key-link { border: 0; background: none; color: var(--accent); font: 700 15px var(--f-app); text-decoration: underline; padding: 0; }
+.btn.visit[aria-pressed="true"] { background: rgba(61, 220, 132, 0.18); border-color: #3ddc84; }
 .toast { position: absolute; left: 50%; bottom: 64px; z-index: 30; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); padding: 10px 14px; border-radius: 14px; background: #fff; color: var(--bg); font: 700 16px/1.2 var(--f-app); text-align: center; }
 
 /* ---------- gem details on tap (option 18) ---------- */
@@ -218,6 +226,19 @@ body.cb-rg .phone { filter: url(#deutan); }
 .gem-art.small { width: 44px; height: 44px; border-radius: 12px; }
 .gem-art.tiny { position: absolute; right: -6px; bottom: -6px; width: 34px; height: 34px; border-radius: 10px; background: rgba(23, 12, 53, 0.85); }
 .gem-art.tiny svg { transform: scale(0.75); }
+
+/* drawer corner actions: heart, hide, visited */
+.corner-acts { margin-left: auto; align-self: flex-start; display: flex; gap: 6px; }
+.cact { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: rgba(23, 12, 53, 0.55); display: grid; place-items: center; padding: 0; color: var(--muted); }
+.cact svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cact.heart[aria-pressed="true"] { color: #fff; background: var(--love); border-color: var(--love); }
+.cact.heart[aria-pressed="true"] svg { fill: currentColor; }
+.cact.check[aria-pressed="true"] { color: #0b0620; background: #3ddc84; border-color: #3ddc84; }
+.cact.check[aria-pressed="true"] svg circle { fill: none; stroke: none; }
+.cact.hide.word { width: auto; padding: 0 9px; border-radius: 999px; font: 700 10.5px/1 var(--f-ui); letter-spacing: .1em; }
+.gem-sheet.full .corner-acts { margin-top: 2px; }
+.gem-sheet.full .sheet-x { top: 12px; right: 12px; z-index: 2; }
+.sheet-status { font-size: 15px; }
 
 /* A: bottom sheet that peeks, then opens fully */
 .gem-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 19; padding: 8px 16px 16px; border-radius: 22px 22px 0 0; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -14px 34px rgba(0, 0, 0, 0.5); display: grid; gap: 10px; cursor: pointer; animation: up 0.22s ease; }
