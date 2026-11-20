@@ -90,7 +90,7 @@ const rest = PTS.map((p, i) => i).filter((i) => !centre.includes(i));
 const rv = rng(777);
 const GEMS = [...centre, ...rest].map((pi, i) => {
   const sp = SPECIAL[i] || {};
-  const tags = [pickOne(CATS).id];
+  const tags = [i >= SPECIAL.length && i < SPECIAL.length + CATS.length ? CATS[i - SPECIAL.length].id : pickOne(CATS).id]; // every category shows, even at 10 gems
   const extra = r();
   if (extra > 0.45) tags.push(pickOne(CATS.filter((c) => !tags.includes(c.id))).id);
   if (extra > 0.85) tags.push(pickOne(CATS.filter((c) => !tags.includes(c.id))).id);
@@ -107,7 +107,7 @@ const GEMS = [...centre, ...rest].map((pi, i) => {
     owner,
     ownerColour: PALETTE[(i * 3 + 1) % PALETTE.length].colour,
     likes: sp.liked ? 3 + (i % 9) : Math.floor(r() * 12),
-    visited: !sp.mine && !sp.mythical && (i === 2 || (!sp.liked && rv() < 0.33)) && !sp.expiring && !sp.seasonal,
+    visited: !sp.mine && !sp.mythical && !sp.liked && rv() < 0.33 && !sp.expiring && !sp.seasonal, // a place is visited or liked, not both
     expiring: sp.expiring || null,
     left: sp.left,
     from: sp.from,
@@ -164,7 +164,7 @@ function glowOf(g) {
   return lv;
 }
 // Gem art (25B/C): category → gem. Yours follow option 6: 6F = the Mine diamond, private gems hollow.
-const ART_KEY = { nature: 'nature', eat: 'eatshop', shop: 'eatshop', culture: 'art', play: 'activities' };
+const ART_KEY = { nature: 'nature', eat: 'eatshop', shop: 'eatshop', culture: 'art', play: 'activities', landmark: 'landmarks' };
 const chipColour = (c) => (opt.art === 'drawn' ? c.colour : ART_COLOUR[c.id === 'curio' ? opt.curio : ART_KEY[c.id]]);
 const ART_COLOUR = { nature: '#2fd6a2', eatshop: '#ff5c7a', art: '#41c7d8', activities: '#f5c44a', nugget: '#b36bff', fan: '#b36bff', landmarks: '#f29b2e', mine: '#cdd6ea' };
 // Visited (16E): the same gem in the map's own slate-lavender, so it settles into the background.
@@ -181,7 +181,8 @@ function slateTones(markup) {
 }
 // Recolour gem art to pink: every coloured fill/stroke keeps its lightness, white and the rock base stay.
 const PINK = [232, 74, 168];
-function pinkTones(markup) {
+const pinkTones = (m) => toneTo(m, PINK);
+function toneTo(markup, PINK) {
   return markup.replace(/#([0-9a-f]{6})\b/gi, (m, h) => {
     const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
     const max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -201,7 +202,8 @@ function artFor(g) {
   // expiring with 21F/G: the Branding session's Labradorite hourglass or small shard (drawn shapes borrow Victoria's style)
   if (g.expiring && (opt.expiring === 'hourglassLab' || opt.expiring === 'shardLab')) {
     const set = opt.art === 'drawn' ? 'victoria' : opt.art;
-    return { markup: ART[set][opt.expiring === 'hourglassLab' ? 'expiring' : 'shard'], colour: '#9aaec4', scale: opt.expiring === 'hourglassLab' ? 1.1 : 1 };
+    if (opt.expiring === 'shardLab') return { markup: toneTo(ART[set].shard, [255, 140, 40]), colour: '#ff8c28', glow: 'orange' };
+    return { markup: ART[set].expiring, colour: '#9aaec4', scale: 1.1 };
   }
   // expiring with 21E: the hourglass crystal, in the gem's category colour
   if (g.expiring && opt.expiring === 'hourglass') {
@@ -251,7 +253,9 @@ function pinFor(g, overrides = {}) {
     countdown: g.expiring && opt.expiring === 'countdown' ? g.expiring : null,
     expireRing: !!g.expiring && opt.expiring === 'ring',
     expireRays: !!g.expiring && opt.expiring === 'rays',
-    expireGlow: !!g.expiring && opt.expiring === 'warmglow',
+    expireGlow: !!g.expiring && (opt.expiring === 'warmglow' || opt.expiring === 'shardLab'),
+    glowTint: g.expiring && opt.expiring === 'shardLab' ? '#ff8c28' : null,
+    singleRing: g.liked && !g.mine && opt.liked === 'single',
     seasonBadge: g.seasonal && opt.seasonal === 'badge' ? D.SEASONS[opt.season].colour : null,
     sparkStyle: opt.sparkStyle,
     sparkle: SPARKLE_BY.includes(opt.rarityBy) ? { common: 0, rare: 2, epic: 3, mythical: 4 }[rarityOf(g)] : 0,
@@ -475,13 +479,13 @@ function actionRow(g, reopen = openGem) {
   if (!g.mine) {
     const mv = el('button', 'btn visit', g.visited ? COPY.visitedOn : COPY.markVisited);
     mv.setAttribute('aria-pressed', String(g.visited));
-    mv.addEventListener('click', () => { g.visited = !g.visited; drawAll(); reopen(g); });
+    mv.addEventListener('click', () => { g.visited = !g.visited; if (g.visited) g.liked = false; drawAll(); reopen(g); });
     btns.append(mv);
   }
   if (!g.mine) {
     const like = el('button', 'btn like', g.liked ? `♥ ${COPY.unlike}` : `♡ ${COPY.like}`);
     like.setAttribute('aria-pressed', String(g.liked));
-    like.addEventListener('click', () => { g.liked = !g.liked; drawAll(); reopen(g); });
+    like.addEventListener('click', () => { g.liked = !g.liked; if (g.liked) g.visited = false; drawAll(); reopen(g); });
     btns.append(like);
     const hide = el('button', 'btn hide', COPY.hide);
     hide.title = COPY.hideLong;
@@ -604,9 +608,9 @@ function cornerActions(g, reopen) {
   if (g.mine) return box;
   const mk = (cls, html, label, on, fn) => { const b = el('button', 'cact ' + cls); b.type = 'button'; b.innerHTML = html; b.setAttribute('aria-label', label); b.title = label; if (on != null) b.setAttribute('aria-pressed', String(on)); b.addEventListener('click', (e) => { e.stopPropagation(); fn(); }); return b; };
   box.append(
-    mk('heart', ICON.heart, g.liked ? COPY.unlikeIt : COPY.likeIt, g.liked, () => { g.liked = !g.liked; drawAll(); reopen(g); }),
+    mk('heart', ICON.heart, g.liked ? COPY.unlikeIt : COPY.likeIt, g.liked, () => { g.liked = !g.liked; if (g.liked) g.visited = false; drawAll(); reopen(g); }),
     opt.hideStyle === 'word' ? mk('hide word', 'HIDE', COPY.hideLong, null, () => hideGem(g)) : mk('hide', ICON.hide, COPY.hideLong, null, () => hideGem(g)),
-    mk('check', ICON.check, g.visited ? COPY.unmarkIt : COPY.markIt, g.visited, () => { g.visited = !g.visited; drawAll(); reopen(g); }),
+    mk('check', ICON.check, g.visited ? COPY.unmarkIt : COPY.markIt, g.visited, () => { g.visited = !g.visited; if (g.visited) g.liked = false; drawAll(); reopen(g); }),
   );
   return box;
 }

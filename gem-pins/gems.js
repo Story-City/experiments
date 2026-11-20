@@ -115,9 +115,10 @@ export function pinSvg(o) {
     parts.push(`<circle cx="22" cy="22" r="${r + 3.5}" fill="none" stroke="${o.loveColour}" stroke-width="1.6"/>`);
     parts.push(`<circle cx="22" cy="22" r="${r + 6.5}" fill="none" stroke="${o.loveColour}" stroke-width="1.6"/>`);
   }
+  if (o.singleRing) parts.push(`<circle cx="22" cy="22" r="${r + 4}" fill="none" stroke="${o.loveColour}" stroke-width="1.8"/>`);
   if (o.ring) parts.push(`<circle cx="22" cy="22" r="${r + 4}" fill="rgba(23,12,53,.35)" stroke="${o.ringColour}" stroke-width="2"${o.ring === 'dashed' ? ' stroke-dasharray="3.2 2.6"' : ''}/>`);
   // expiring, behind the gem: a warm yellow glow (21I) or rays (21H), both pulsing
-  if (o.expireGlow) parts.push(`<circle class="expire-glow" cx="22" cy="22" r="${(r + 6).toFixed(1)}" fill="#ffc44a" style="filter: blur(5px)"/>`);
+  if (o.expireGlow) parts.push(`<circle class="expire-glow" cx="22" cy="22" r="${(r + 6).toFixed(1)}" fill="${o.glowTint || '#ffc44a'}" style="filter: blur(5px)"/>`);
   if (o.expireRays) {
     const rays = [];
     for (let i = 0; i < 8; i++) {

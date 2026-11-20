@@ -7,6 +7,7 @@ export const CATS = [
   { id: 'shop', label: 'Shop', colour: '#ff6fae', shape: 'emerald', crystal: 'bar' },
   { id: 'culture', label: 'Culture', colour: '#b36bff', shape: 'hex', crystal: 'pebble' },
   { id: 'play', label: 'Play', colour: '#ffd23f', shape: 'star', crystal: 'pebble' },
+  { id: 'landmark', label: 'Landmarks', colour: '#f29b2e', shape: 'shard', crystal: 'shard' },
   { id: 'curio', label: 'Curiosities', colour: '#33c7d1', shape: 'trillion', crystal: 'shard' },
 ];
 
@@ -67,7 +68,7 @@ export const OPTIONS = [
   { id: 'levels', n: 4, label: 'Rarity levels', start: '3', opts: [['2', '2: Common, Rare'], ['3', '3: Common, Rare, Mythical'], ['4', '4: + Epic']] },
   { id: 'sizes', n: 5, label: 'Rarity sizes', start: '22-28-34', opts: [['22-28-34', '22 / 28 / 34 px'], ['22-26-30', '22 / 26 / 30 px'], ['18-28-40', '18 / 28 / 40 px (widest)']] },
   { id: 'mine', n: 6, label: 'Mine: private vs public', start: 'hollow', opts: [['hollow', 'Hollow vs solid'], ['dashed', 'Dashed vs solid frame'], ['lock', 'Lock badge'], ['none', 'Not shown'], ['outline', 'Outline only (dotted = private)'], ['own', 'Own colour + shape'], ['plinth', 'Plinth under the gem (hollow = private)'], ['groundring', 'Ring on the ground (broken = private)'], ['wire', 'Wireframe (neon), hollow = private']] },
-  { id: 'liked', n: 7, label: 'Liked', start: 'heart', opts: [['heart', 'Heart badge'], ['colour', 'Its own colour'], ['ring', 'Double ring'], ['outline', 'Pink outline'], ['none', 'Not shown']] },
+  { id: 'liked', n: 7, label: 'Liked', start: 'heart', opts: [['heart', 'Heart badge'], ['colour', 'Its own colour'], ['ring', 'Double ring'], ['outline', 'Pink outline'], ['none', 'Not shown'], ['single', 'Single ring']] },
   { id: 'others', n: 8, label: 'Others’ gems', start: 'full', opts: [['quiet', 'Quiet base colour'], ['full', 'Full colour']] },
   { id: 'pick', n: 9, label: 'Pick your gem colour', start: 'off', opts: [['off', 'Off'], ['free', 'Free choice of all'], ['two', '2 free + rest locked']] },
   { id: 'sees', n: 10, label: 'Who sees your colour', start: 'me', opts: [['me', 'Only you'], ['all', 'Everyone']] },
@@ -81,7 +82,7 @@ export const OPTIONS = [
   { id: 'show', n: 17, label: 'Show', start: 'all', opts: [['all', 'All gems'], ['unvisited', 'Only unvisited']] },
   { id: 'details', n: 18, label: 'Gem details on tap', start: 'sheet', opts: [['sheet', 'Bottom sheet'], ['pop', 'Card by the gem'], ['full', 'Full-screen photo'], ['peek', 'Swipe strip']] },
   // added 19 Nov (Melissa): temporary gems
-  { id: 'expiring', n: 21, label: 'Expiring soon shown by', start: 'clock', opts: [['clock', 'Clock badge'], ['countdown', 'Countdown (“2h”)'], ['ring', 'Pulsing ring'], ['none', 'Not shown'], ['hourglass', 'Hourglass, category colour'], ['hourglassLab', 'Hourglass, Labradorite'], ['shardLab', 'Small shard, Labradorite'], ['rays', 'Pulsing rays'], ['warmglow', 'Warm glow behind']] },
+  { id: 'expiring', n: 21, label: 'Expiring soon shown by', start: 'clock', opts: [['clock', 'Clock badge'], ['countdown', 'Countdown (“2h”)'], ['ring', 'Pulsing ring'], ['none', 'Not shown'], ['hourglass', 'Hourglass, category colour'], ['hourglassLab', 'Hourglass, Labradorite'], ['shardLab', 'Small shard, orange glow'], ['rays', 'Pulsing rays'], ['warmglow', 'Warm glow behind']] },
   { id: 'seasonal', n: 22, label: 'Seasonal shown by', start: 'shape', opts: [['shape', 'Season shape'], ['badge', 'Season badge'], ['colour', 'Season colour'], ['none', 'Not shown']] },
   { id: 'season', n: 23, label: 'Season', start: 'winter', opts: [['autumn', 'Autumn (maple leaf)'], ['winter', 'Winter (snowflake)'], ['spring', 'Spring (flower)'], ['summer', 'Summer (sun)']] },
   // added 19 Nov for the preset combos
@@ -272,5 +273,6 @@ export const NAMES = {
   shop: ['Vintage record bin', 'Corner bookshop cat', 'Retro toy window', 'Handmade soap stall', 'Thrift treasure rack'],
   culture: ['Alley mural', 'Old bank façade', 'Poetry on the wall', 'Ukrainian church dome', 'Painted utility box', 'Little free library'],
   play: ['Chalk hopscotch', 'Tire swing', 'Hidden ping-pong table', 'Skate ledge', 'Giant chess set'],
+  landmark: ['High Level Bridge view', 'Old clock tower', 'Legislature dome', 'Railway station arch', 'Historic fire hall'],
   curio: ['Tiny door', 'Ghost sign', 'Bench with a plaque', 'Sidewalk fossil', 'Upside-down street sign', 'Lost-mitten fence'],
 };
