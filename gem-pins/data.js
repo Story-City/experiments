@@ -106,7 +106,8 @@ export const GROUPS = [
   ['Visited', [['visited', 'Shown by'], ['show', 'Show']]],
   ['Time-limited', [['expiring', 'Expiring soon'], ['seasonal', 'Seasonal'], ['season', 'Season']]],
   ['Tapping a gem', [['details', 'Details']]],
-  ['Map', [['density', 'Gems on screen'], ['cluster', 'Close gems'], ['layer', 'Mine / Liked / All'], ['cb', 'Colour-blind view']]],
+  ['Map', [['density', 'Gems on screen'], ['cluster', 'Close gems'], ['cb', 'Colour-blind view']]],
+  ['Mine / Liked / All', [['layer', 'Buttons above the map']]],
 ];
 
 // Drag & drop settings: what we need to show (left) and the attributes we can play with (the cloud).
