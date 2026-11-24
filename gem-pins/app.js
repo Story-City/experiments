@@ -37,7 +37,11 @@ function readHash() {
   for (const o of OPTIONS) {
     if (!q.has(o.id)) continue;
     const v = q.get(o.id);
-    if (o.multi) opt[o.id] = v ? v.split('.').filter((x) => o.opts.some(([k]) => k === x)) : [];
+    if (o.multi) {
+      opt[o.id] = v ? v.split('.').filter((x) => o.opts.some(([k]) => k === x)) : [];
+      // links saved before Landmarks existed list all six old tags: add Landmarks to them
+      if (o.id === 'tags' && ['nature', 'eat', 'shop', 'culture', 'play', 'curio'].every((x) => opt.tags.includes(x)) && !opt.tags.includes('landmark')) opt.tags = CATS.map((c) => c.id);
+    }
     else if (o.opts.some(([k]) => k === v) && !(RULED_OUT[o.id] || []).includes(v)) opt[o.id] = v;
   }
   if (PALETTE.some((p) => p.id === q.get('my'))) myColour = q.get('my');
@@ -90,7 +94,9 @@ const rest = PTS.map((p, i) => i).filter((i) => !centre.includes(i));
 const rv = rng(777);
 const GEMS = [...centre, ...rest].map((pi, i) => {
   const sp = SPECIAL[i] || {};
-  const tags = [i >= SPECIAL.length && i < SPECIAL.length + CATS.length ? CATS[i - SPECIAL.length].id : pickOne(CATS).id]; // every category shows, even at 10 gems
+  // all 7 categories are among the first 10 gems, and none relies only on a private (hollow) gem of yours
+  const FIRST10 = ['eat', 'nature', 'shop', 'culture', 'shop', 'landmark', 'play', 'curio', 'eat', 'nature'];
+  const tags = [i < 10 ? FIRST10[i] : pickOne(CATS).id];
   const extra = r();
   if (extra > 0.45) tags.push(pickOne(CATS.filter((c) => !tags.includes(c.id))).id);
   if (extra > 0.85) tags.push(pickOne(CATS.filter((c) => !tags.includes(c.id))).id);
@@ -330,13 +336,13 @@ function drawPins() {
     .filter(({ p }) => p[0] > -22 && p[0] < box.width + 22 && p[1] > -22 && p[1] < box.height + 22);
   // group gems that sit too close to tap apart (24B); the most important one leads the group
   let groups = placed.map((x) => [x]);
-  if (opt.cluster === 'group') {
+  if (opt.cluster === 'group' || opt.cluster === 'type') {
     groups = [];
     const left = [...placed].sort((a, b) => rank(b.g) - rank(a.g));
     while (left.length) {
       const lead = left.shift();
       const grp = [lead];
-      for (let i = left.length - 1; i >= 0; i--) if (Math.hypot(left[i].p[0] - lead.p[0], left[i].p[1] - lead.p[1]) < CLUSTER_PX) grp.push(...left.splice(i, 1));
+      for (let i = left.length - 1; i >= 0; i--) if ((opt.cluster !== 'type' || tagsOf(left[i].g)[0] === tagsOf(lead.g)[0]) && Math.hypot(left[i].p[0] - lead.p[0], left[i].p[1] - lead.p[1]) < CLUSTER_PX) grp.push(...left.splice(i, 1));
       groups.push(grp);
     }
   }

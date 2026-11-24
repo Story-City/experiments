@@ -62,8 +62,8 @@ export const LOVE = '#e84aa8'; // liked
 export const RULED_OUT = { liked: ['colour', 'outline'], art: ['double'], rarityBy: ['colour'] };
 
 export const OPTIONS = [
-  { id: 'colour', n: 1, label: 'Colour shows', start: 'whose', opts: [['whose', 'Creator'], ['rarity', 'Rarity'], ['category', 'Category'], ['picked', 'Creator’s picked colour'], ['none', 'Nothing (one colour)']] },
-  { id: 'shape', n: 2, label: 'Gem shape', start: 'one', opts: [['one', 'One shape for all'], ['category', 'A shape per category'], ['crystal', 'Crystal set']] },
+  { id: 'colour', n: 1, label: 'Colour shows', start: 'category', opts: [['whose', 'Creator'], ['rarity', 'Rarity'], ['category', 'Category'], ['picked', 'Creator’s picked colour'], ['none', 'Nothing (one colour)']] },
+  { id: 'shape', n: 2, label: 'Gem shape', start: 'category', opts: [['one', 'One shape for all'], ['category', 'A shape per category'], ['crystal', 'Crystal set']] },
   { id: 'rarityBy', n: 3, label: 'Rarity shown by', start: 'sizeGlow', opts: [['size', 'Size'], ['glow', 'Glow'], ['sizeGlow', 'Size + glow'], ['colour', 'Colour'], ['sizeGlowSparkle', 'Size + glow + sparkle'], ['none', 'Not shown'], ['sparkle', 'Sparkle'], ['sizeSparkle', 'Size + sparkle'], ['glowSparkle', 'Glow + sparkle']] },
   { id: 'levels', n: 4, label: 'Rarity levels', start: '3', opts: [['2', '2: Common, Rare'], ['3', '3: Common, Rare, Mythical'], ['4', '4: + Epic']] },
   { id: 'sizes', n: 5, label: 'Rarity sizes', start: '22-28-34', opts: [['22-28-34', '22 / 28 / 34 px'], ['22-26-30', '22 / 26 / 30 px'], ['18-28-40', '18 / 28 / 40 px (widest)']] },
@@ -87,12 +87,12 @@ export const OPTIONS = [
   { id: 'season', n: 23, label: 'Season', start: 'winter', opts: [['autumn', 'Autumn (maple leaf)'], ['winter', 'Winter (snowflake)'], ['spring', 'Spring (flower)'], ['summer', 'Summer (sun)']] },
   // added 19 Nov for the preset combos
   // added 20 Nov: the Branding session's gem art (apps/gem-styles), Victoria's style and Neon
-  { id: 'art', n: 25, label: 'Gem art', start: 'drawn', opts: [['drawn', 'Drawn shapes (uses 1 + 2)'], ['victoria', 'Victoria’s style'], ['hollow', 'Victoria’s hollow'], ['double', 'Victoria’s double outline'], ['neon', 'Neon']] },
+  { id: 'art', n: 25, label: 'Gem art', start: 'victoria', opts: [['drawn', 'Drawn shapes (uses 1 + 2)'], ['victoria', 'Victoria’s style'], ['hollow', 'Victoria’s hollow'], ['double', 'Victoria’s double outline'], ['neon', 'Neon']] },
   { id: 'curio', n: 26, label: 'Curiosities gem', start: 'nugget', opts: [['nugget', 'Nugget'], ['fan', 'Crystal fan']] },
   { id: 'layer', n: 27, label: 'Mine / Liked / All buttons', start: 'off', opts: [['off', 'Off'], ['on', 'On: dim the rest']] },
   { id: 'hideStyle', n: 28, label: 'Hide button', start: 'icon', opts: [['icon', 'Eye icon'], ['word', 'Small HIDE text']] },
   { id: 'sparkStyle', n: 29, label: 'Sparkle style', start: 'stars', opts: [['stars', 'Stars'], ['glints', 'Tiny glints'], ['corner', 'One corner glint'], ['dust', 'Orbiting dust']] },
-  { id: 'cluster', n: 24, label: 'Close gems', start: 'all', opts: [['all', 'Show all'], ['group', 'Group with a number']] },
+  { id: 'cluster', n: 24, label: 'Close gems', start: 'all', opts: [['all', 'Show all'], ['group', 'Group with a number'], ['type', 'Group same type only']] },
   { id: 'glowOn', n: 19, label: 'Glow on', start: 'rare', opts: [['rare', 'Rare and up'], ['mythical', 'Mythical only']] },
   { id: 'rarityColours', n: 20, label: 'Rarity colours', start: 'victoria', opts: [['victoria', 'Victoria’s set'], ['treasure', 'Treasure set']] }, // moonstone / aquamarine / amethyst / topaz; quartz / sapphire / amethyst / gold
 ];
