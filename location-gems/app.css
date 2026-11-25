@@ -595,12 +595,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   height: 38px;
   filter: drop-shadow(0 0 12px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
 }
-.gem-card-gem.is-diamond {
-  width: 40px;
-  height: 40px;
+.gem-card-gem.is-diamond,
+.gem-card-gem.is-hollow {
+  width: 38px;
+  height: 38px;
 }
 .gem-card-gem.is-hollow {
-  filter: drop-shadow(0 0 10px rgba(205, 214, 234, 0.75));
+  filter: drop-shadow(0 0 12px color-mix(in srgb, #9370c4 85%, transparent));
 }
 .gem-card-rarity.is-silver { color: #dfe6f2; box-shadow: 0 0 10px rgba(200, 210, 230, 0.55); }
 .gem-card-rarity.is-gold { color: #ffe09a; box-shadow: 0 0 10px rgba(255, 196, 72, 0.55); }
@@ -1694,7 +1695,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   object-fit: contain;
 }
 .sort-rail-left .sort-rail-gem {
-  filter: drop-shadow(0 0 14px rgba(205, 214, 234, 0.9));
+  filter: drop-shadow(0 0 14px rgba(147, 112, 196, 0.95));
 }
 .sort-rail-right .sort-rail-gem {
   filter: drop-shadow(0 0 16px rgba(0, 194, 255, 1));

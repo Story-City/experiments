@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v79 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v80 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -25,7 +25,7 @@ const PUBLIC_GEM_FILL = '#00c2ff';
 const HIDDEN_GEM_FILL = '#9370c4';
 /** Outline-only hidden gem from gem-pins ART.hollow (map prototype) */
 const HIDDEN_HOLLOW_ART = 'assets/gems/hidden-hollow.svg';
-const HOLLOW_GEM_LINE = '#CDD6EA';
+const HOLLOW_GEM_LINE = HIDDEN_GEM_FILL;
 /** Melissa's jam categories (gem-pins / 19 Nov) — shape + colour */
 /** Melissa’s cats — Figma Component 22 gems (Social Media 2847:469) */
 /* Same as gem-pins: eat + shop combined into one Eat & Drink stop */
@@ -2099,8 +2099,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v79 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v79 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v80 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v80 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
