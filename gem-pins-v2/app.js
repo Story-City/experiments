@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v16 — Inline one line; Disc half-circle tint plate, gems pinned rolling on the disc. */
+/* GEM-PINS-V2-v17 — Disc centred big arc, caption under selected, size falloff, live scroll. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -9,9 +9,12 @@ const DENSITY = 40;
 /** V1 rarityBy none — every pin the same size; keep uploaded category gems */
 const PIN_SIZE = 28;
 const SHEETS = ['original', 'prompt', 'image', 'bar'];
-/** Half-circle disc: gems pinned on the rim; plate centre sits on the stage floor */
-const DISC_RADIUS = 118;
-const DISC_PX_PER_DEG = 2.4;
+/** Half-circle disc: big arc pointing up; plate centre on the stage floor */
+const DISC_RADIUS = 168;
+const DISC_PX_PER_DEG = 1.85;
+const DISC_SCALE_MIN = 0.52;
+const DISC_SCALE_MAX = 1.28;
+const DISC_ANIM_MS = 480;
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
@@ -277,6 +280,9 @@ let sheet = SHEETS.includes(new URLSearchParams(location.search).get('sheet'))
   : 'prompt';
 let toastTimer = 0;
 let lockScroll = false;
+let discAngle = 0;
+let discAnim = 0;
+let discDragAngle = null;
 
 const view = { z: 1, x: 0, y: 0 };
 const ZMIN = 1;
@@ -389,6 +395,10 @@ function setFilterLayout(next) {
   /* Every layout opens on all gems */
   filterOn = true;
   stopId = 'all';
+  discAngle = 0;
+  cancelAnimationFrame(discAnim);
+  discAnim = 0;
+  discDragAngle = null;
   paintBar();
   if (openId != null && !shown(GEMS[openId])) {
     openId = null;
@@ -429,7 +439,8 @@ function paintBar() {
   $('rollerWrap').hidden = !rollerVisible || isDisc;
   const discStage = $('discStage');
   if (discStage) discStage.hidden = !isDisc;
-  const showLegend = filterOn || filterLayout === 'inline' || filterLayout === 'always' || isDisc;
+  /* Disc: no separate legend — title sits under the selected gem on the arc */
+  const showLegend = !isDisc && (filterOn || filterLayout === 'inline' || filterLayout === 'always');
   legend.hidden = !showLegend;
   const list = stops();
   const stop = list.find((x) => x.id === stopId) || list[0];
@@ -452,13 +463,13 @@ function paintBar() {
     const lab = list.find((x) => x.id === b.dataset.stop);
     if (lab) b.setAttribute('aria-label', lab.label);
   }
-  if (isDisc) layoutDiscItems(false);
+  if (isDisc) paintDiscAngle(discAngle);
   $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
 
 function centerStop(id, smooth) {
   if (filterLayout === 'disc') {
-    layoutDiscItems(!!smooth);
+    snapDiscTo(id, !!smooth);
     return;
   }
   const b = $('roller').querySelector(`[data-stop="${id}"]`);
@@ -469,30 +480,110 @@ function centerStop(id, smooth) {
   setTimeout(() => { lockScroll = false; }, smooth ? 480 : 40);
 }
 
-function layoutDiscItems(animate) {
+function discAngleForIndex(index, n) {
+  const count = n || 1;
+  return -index * (360 / count);
+}
+
+function nearestDiscIndex(angle, n) {
+  const count = n || 1;
+  const step = 360 / count;
+  let idx = Math.round(-angle / step);
+  idx %= count;
+  if (idx < 0) idx += count;
+  return idx;
+}
+
+function shortestDelta(from, to) {
+  let d = to - from;
+  d = ((d + 540) % 360) - 180;
+  return d;
+}
+
+function paintDiscAngle(angle) {
   const wheel = $('discWheel');
   const plate = $('discPlate');
+  const caption = $('discCaption');
   if (!wheel) return;
   const list = stops();
   const n = list.length || 1;
   const step = 360 / n;
-  const sel = Math.max(0, list.findIndex((s) => s.id === stopId));
+  const nearest = nearestDiscIndex(angle, n);
   const buttons = [...wheel.querySelectorAll('button[data-stop]')];
-  wheel.classList.toggle('is-animate', !!animate);
   buttons.forEach((b, i) => {
-    const deg = (i - sel) * step;
+    const deg = angle + i * step;
     const rad = (deg * Math.PI) / 180;
     const x = Math.sin(rad) * DISC_RADIUS;
     const y = -Math.cos(rad) * DISC_RADIUS;
-    const on = b.dataset.stop === stopId;
+    let wrap = ((deg % 360) + 540) % 360 - 180;
+    const proximity = Math.max(0, 1 - Math.abs(wrap) / 150);
+    const scale = DISC_SCALE_MIN + (DISC_SCALE_MAX - DISC_SCALE_MIN) * (proximity ** 1.35);
+    const on = i === nearest;
     b.style.left = `calc(50% + ${x}px)`;
     b.style.top = `calc(100% + ${y}px)`;
+    b.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    b.style.opacity = String(0.38 + 0.62 * proximity);
+    b.style.zIndex = String(on ? 5 : 1 + Math.round(proximity * 3));
     b.setAttribute('aria-selected', String(on));
     b.classList.toggle('is-front', on);
     b.style.setProperty('--stop-disc', stopDisc(b.dataset.stop));
-    b.style.opacity = on ? '1' : String(0.42 + 0.35 * Math.max(0, Math.cos(rad)));
   });
-  if (plate) plate.style.setProperty('--disc-tint', stopDisc(stopId));
+  const front = list[nearest];
+  if (caption && front) {
+    caption.textContent = front.label;
+    caption.style.setProperty('--disc-tint', stopDisc(front.id));
+  }
+  if (plate && front) plate.style.setProperty('--disc-tint', stopDisc(front.id));
+}
+
+function snapDiscTo(id, animate) {
+  const list = stops();
+  const n = list.length || 1;
+  const idx = Math.max(0, list.findIndex((s) => s.id === id));
+  const target = discAngleForIndex(idx, n);
+  cancelAnimationFrame(discAnim);
+  discAnim = 0;
+  discDragAngle = null;
+  if (!animate) {
+    discAngle = target;
+    paintDiscAngle(discAngle);
+    return;
+  }
+  const from = discAngle;
+  const delta = shortestDelta(from, target);
+  const t0 = performance.now();
+  const tick = (now) => {
+    const t = Math.min(1, (now - t0) / DISC_ANIM_MS);
+    const eased = 1 - ((1 - t) ** 3);
+    discAngle = from + delta * eased;
+    paintDiscAngle(discAngle);
+    if (t < 1) {
+      discAnim = requestAnimationFrame(tick);
+      return;
+    }
+    discAnim = 0;
+    discAngle = target;
+    paintDiscAngle(discAngle);
+  };
+  discAnim = requestAnimationFrame(tick);
+}
+
+function commitDiscNearest(animate) {
+  const list = stops();
+  const idx = nearestDiscIndex(discAngle, list.length);
+  const next = list[idx];
+  if (!next) return;
+  if (next.id !== stopId) {
+    stopId = next.id;
+    if (openId != null && !shown(GEMS[openId])) {
+      openId = null;
+      $('slide').hidden = true;
+    }
+    drawPins(true);
+    const resetBtn = $('filterReset');
+    if (resetBtn) resetBtn.disabled = stopId === 'all';
+  }
+  snapDiscTo(next.id, animate);
 }
 
 function pickStop(id) {
@@ -546,7 +637,8 @@ function fillDiscWheel() {
     b.innerHTML = pinFor(sampleFor(stop.id));
     wheel.append(b);
   }
-  layoutDiscItems(false);
+  discAngle = discAngleForIndex(Math.max(0, stops().findIndex((s) => s.id === stopId)), stops().length);
+  paintDiscAngle(discAngle);
 }
 
 function bindDiscWheel() {
@@ -555,32 +647,34 @@ function bindDiscWheel() {
   let drag = null;
   stage.addEventListener('pointerdown', (e) => {
     if (filterLayout !== 'disc') return;
+    cancelAnimationFrame(discAnim);
+    discAnim = 0;
     const btn = e.target.closest('button[data-stop]');
     drag = {
       id: e.pointerId,
       x: e.clientX,
-      startIndex: Math.max(0, stops().findIndex((s) => s.id === stopId)),
+      startAngle: discAngle,
       moved: false,
       btn,
     };
+    discDragAngle = discAngle;
     try { stage.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
   });
   stage.addEventListener('pointermove', (e) => {
     if (!drag || drag.id !== e.pointerId || filterLayout !== 'disc') return;
     const dx = e.clientX - drag.x;
-    if (Math.abs(dx) > 6) drag.moved = true;
+    if (Math.abs(dx) > 4) drag.moved = true;
     if (!drag.moved) return;
+    discAngle = drag.startAngle - dx / DISC_PX_PER_DEG;
+    discDragAngle = discAngle;
+    paintDiscAngle(discAngle);
     const list = stops();
-    const n = list.length || 1;
-    const step = 360 / n;
-    const delta = Math.round(-dx / (DISC_PX_PER_DEG * step));
-    let idx = (drag.startIndex + delta) % n;
-    if (idx < 0) idx += n;
+    const idx = nearestDiscIndex(discAngle, list.length);
     const next = list[idx];
     if (next && next.id !== stopId) {
       stopId = next.id;
-      layoutDiscItems(false);
-      paintBar();
+      const resetBtn = $('filterReset');
+      if (resetBtn) resetBtn.disabled = stopId === 'all';
       if (openId != null && !shown(GEMS[openId])) {
         openId = null;
         $('slide').hidden = true;
@@ -592,27 +686,27 @@ function bindDiscWheel() {
     if (!drag || drag.id !== e.pointerId) return;
     const { moved, btn } = drag;
     drag = null;
+    discDragAngle = null;
     if (filterLayout !== 'disc') return;
     if (!moved && btn && btn.dataset.stop) {
       pickStop(btn.dataset.stop);
-      centerStop(btn.dataset.stop, true);
+      snapDiscTo(btn.dataset.stop, true);
       return;
     }
-    if (moved) centerStop(stopId, true);
+    commitDiscNearest(true);
   };
   stage.addEventListener('pointerup', endDrag);
   stage.addEventListener('pointercancel', endDrag);
   stage.addEventListener('wheel', (e) => {
     if (filterLayout !== 'disc') return;
     e.preventDefault();
-    const list = stops();
-    const n = list.length || 1;
-    const cur = Math.max(0, list.findIndex((s) => s.id === stopId));
-    const dir = (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) > 0 ? 1 : -1;
-    let idx = (cur + dir) % n;
-    if (idx < 0) idx += n;
-    pickStop(list[idx].id);
-    centerStop(list[idx].id, true);
+    cancelAnimationFrame(discAnim);
+    discAnim = 0;
+    const delta = (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
+    discAngle -= delta / DISC_PX_PER_DEG;
+    paintDiscAngle(discAngle);
+    clearTimeout(stage._discWheelSnap);
+    stage._discWheelSnap = setTimeout(() => commitDiscNearest(true), 90);
   }, { passive: false });
 }
 
@@ -872,6 +966,10 @@ function closeSlide() {
 function resetFilter() {
   filterOn = true;
   stopId = 'all';
+  discAngle = 0;
+  cancelAnimationFrame(discAnim);
+  discAnim = 0;
+  discDragAngle = null;
   paintBar();
   if (openId != null && !shown(GEMS[openId])) {
     openId = null;
