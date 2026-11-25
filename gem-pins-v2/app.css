@@ -301,7 +301,6 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 72%, transparent 100%);
 }
 
-/* GEM-PINS-V2-v30-DISC-MID-SHINE */
 /* —— Inline: row1 = ico + title + roller; row2 = full-width explain —— */
 .gbox.is-layout-inline .map-bar {
   display: grid;
