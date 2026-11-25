@@ -1049,20 +1049,21 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   width: 100%;
 }
 .detail-actions[hidden] { display: none !important; }
-/* gem-pins-v2 icon-act — small bookmark for save-for-later */
+/* gem-pins bookmark mark — same height as navigate, weekly-style shading */
 .icon-act {
   width: 40px;
   height: 40px;
   flex: none;
   padding: 0;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(23, 12, 53, 0.55);
+  border-radius: 999px;
+  border: 1px solid rgba(0, 158, 255, 0.55);
+  background: rgba(0, 158, 255, 0.16);
   color: #fff;
   display: grid;
   place-items: center;
   cursor: pointer;
   font: inherit;
+  box-shadow: none;
 }
 .icon-act svg {
   width: 18px;
@@ -1074,8 +1075,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   stroke-linejoin: round;
 }
 .icon-act.bookmark-btn[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--brand-accent) 40%, transparent);
-  border-color: var(--brand-accent);
+  background: rgba(0, 194, 255, 0.28);
+  border-color: rgba(0, 194, 255, 0.8);
   color: #fff;
 }
 .icon-act.bookmark-btn[aria-pressed="true"] svg {
@@ -1106,13 +1107,18 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .nav-btn {
   border: 0;
   color: #fff;
-  background: linear-gradient(90deg, #0259a1, var(--brand-accent));
+  background:
+    var(--btn-radial-wash),
+    linear-gradient(90deg, #0259a1, var(--brand-accent));
+  box-shadow: 0 6px 16px rgba(0, 100, 180, 0.28);
 }
 .detail-actions .nav-btn.is-compact {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
   height: 40px;
-  padding: 0 14px;
-  font-size: 13px;
+  padding: 0 16px;
+  font-size: 14px;
 }
 .detail-publish {
   width: 100%;
