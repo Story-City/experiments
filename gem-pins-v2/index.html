@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20">
+<link rel="stylesheet" href="app.css?v=21">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -51,28 +51,26 @@
             </div>
           </div>
           <div class="disc-stage" id="discStage" hidden>
-            <svg class="disc-arc" id="discArc" viewBox="0 0 400 160" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+            <svg class="disc-arc" id="discArc" viewBox="0 0 400 120" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
               <defs>
                 <linearGradient id="discArcFade" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
                   <stop offset="0" stop-color="#fff" stop-opacity="0"/>
-                  <stop offset="0.18" stop-color="#fff" stop-opacity="0.9"/>
+                  <stop offset="0.16" stop-color="#fff" stop-opacity="0.75"/>
                   <stop offset="0.5" stop-color="#fff" stop-opacity="1"/>
-                  <stop offset="0.82" stop-color="#fff" stop-opacity="0.9"/>
+                  <stop offset="0.84" stop-color="#fff" stop-opacity="0.75"/>
                   <stop offset="1" stop-color="#fff" stop-opacity="0"/>
                 </linearGradient>
                 <mask id="discArcMask">
-                  <rect width="400" height="160" fill="url(#discArcFade)"/>
+                  <rect x="0" y="0" width="400" height="120" fill="url(#discArcFade)"/>
                 </mask>
               </defs>
-              <ellipse
+              <!-- Bottom rim only of a large ellipse whose centre sits above the frame (Figma) -->
+              <path
                 class="disc-arc-stroke"
-                cx="200"
-                cy="44"
-                rx="176"
-                ry="52"
+                d="M -100 -178 A 300 260 0 0 1 500 -178"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
+                stroke-width="2.25"
                 mask="url(#discArcMask)"
               />
             </svg>
@@ -171,8 +169,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v20 — Disc flat stretched U; smaller gems; motion unchanged.</p>
-  <script src="../location-gems/corner-ribbon.js?v=20"></script>
-  <script type="module" src="app.js?v=20"></script>
+  <p class="meta">GEM-PINS-V2-v21 — Disc: Figma bottom-arc only (big ellipse clipped), tight gem step.</p>
+  <script src="../location-gems/corner-ribbon.js?v=21"></script>
+  <script type="module" src="app.js?v=21"></script>
 </body>
 </html>

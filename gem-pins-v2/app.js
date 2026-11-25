@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v20 — Disc flat stretched U; smaller gems; motion unchanged. */
+/* GEM-PINS-V2-v21 — Disc: Figma bottom-arc only (big ellipse clipped), tight gem step. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -9,14 +9,18 @@ const DENSITY = 40;
 /** V1 rarityBy none — every pin the same size; keep uploaded category gems */
 const PIN_SIZE = 28;
 const SHEETS = ['original', 'prompt', 'image', 'bar'];
-/** Flat stretched U (wide, shallow); selected at bottom centre */
-const DISC_RX = 176;
-const DISC_RY = 52;
-const DISC_ORIGIN_Y = 44;
-const DISC_PX_PER_DEG = 1.65;
-const DISC_SCALE_MIN = 0.48;
-const DISC_SCALE_MAX = 1.12;
-const DISC_FADE_DEG = 102;
+/*
+ * Figma: huge ellipse mostly above the frame — only the bottom rim shows.
+ * Gems sit on that rim with a tight visual step (not 360/n), so padding matches the frame.
+ */
+const DISC_RX = 300;
+const DISC_RY = 260;
+const DISC_ORIGIN_Y = -178;
+const DISC_STEP = 13;
+const DISC_PX_PER_DEG = 2.4;
+const DISC_SCALE_MIN = 0.42;
+const DISC_SCALE_MAX = 1.18;
+const DISC_FADE_DEG = 48;
 const DISC_ANIM_MS = 520;
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -483,24 +487,32 @@ function centerStop(id, smooth) {
   setTimeout(() => { lockScroll = false; }, smooth ? 480 : 40);
 }
 
+function discPeriod(n) {
+  return (n || 1) * DISC_STEP;
+}
+
 function discAngleForIndex(index, n) {
-  const count = n || 1;
-  return -index * (360 / count);
+  return -index * DISC_STEP;
 }
 
 function nearestDiscIndex(angle, n) {
   const count = n || 1;
-  const step = 360 / count;
-  let idx = Math.round(-angle / step);
+  let idx = Math.round(-angle / DISC_STEP);
   idx %= count;
   if (idx < 0) idx += count;
   return idx;
 }
 
 function shortestDelta(from, to) {
+  const period = discPeriod(stops().length);
   let d = to - from;
-  d = ((d + 540) % 360) - 180;
+  d = ((d % period) + period * 1.5) % period - period / 2;
   return d;
+}
+
+function wrapDiscDeg(deg, n) {
+  const period = discPeriod(n);
+  return ((deg % period) + period * 1.5) % period - period / 2;
 }
 
 function paintDiscAngle(angle) {
@@ -511,24 +523,23 @@ function paintDiscAngle(angle) {
   if (!wheel) return;
   const list = stops();
   const n = list.length || 1;
-  const step = 360 / n;
   const nearest = nearestDiscIndex(angle, n);
   const buttons = [...wheel.querySelectorAll('button[data-stop]')];
   buttons.forEach((b, i) => {
-    const deg = angle + i * step;
+    const deg = angle + i * DISC_STEP;
     const rad = (deg * Math.PI) / 180;
     const x = Math.sin(rad) * DISC_RX;
     const y = Math.cos(rad) * DISC_RY;
-    let wrap = ((deg % 360) + 540) % 360 - 180;
+    const wrap = wrapDiscDeg(deg, n);
     const abs = Math.abs(wrap);
     const proximity = Math.max(0, 1 - abs / DISC_FADE_DEG);
-    const scale = DISC_SCALE_MIN + (DISC_SCALE_MAX - DISC_SCALE_MIN) * (proximity ** 1.25);
+    const scale = DISC_SCALE_MIN + (DISC_SCALE_MAX - DISC_SCALE_MIN) * (proximity ** 1.2);
     const on = i === nearest;
     const visible = abs <= DISC_FADE_DEG;
     b.style.left = `calc(50% + ${x}px)`;
     b.style.top = `${DISC_ORIGIN_Y + y}px`;
     b.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    b.style.opacity = visible ? String(0.28 + 0.72 * proximity) : '0';
+    b.style.opacity = visible ? String(0.22 + 0.78 * proximity) : '0';
     b.style.pointerEvents = visible ? 'auto' : 'none';
     b.style.zIndex = String(on ? 5 : 1 + Math.round(proximity * 3));
     b.setAttribute('aria-selected', String(on));
@@ -570,7 +581,7 @@ function snapDiscTo(id, animate) {
       return;
     }
     discAnim = 0;
-    discAngle = target;
+    discAngle = wrapDiscDeg(target, n);
     paintDiscAngle(discAngle);
   };
   discAnim = requestAnimationFrame(tick);
