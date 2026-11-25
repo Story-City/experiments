@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=18">
+<link rel="stylesheet" href="app.css?v=19">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -51,9 +51,36 @@
             </div>
           </div>
           <div class="disc-stage" id="discStage" hidden>
-            <div class="disc-plate" id="discPlate" aria-hidden="true"></div>
+            <svg class="disc-arc" id="discArc" viewBox="0 0 400 220" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+              <defs>
+                <linearGradient id="discArcFade" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+                  <stop offset="0.2" stop-color="#fff" stop-opacity="0.9"/>
+                  <stop offset="0.5" stop-color="#fff" stop-opacity="1"/>
+                  <stop offset="0.8" stop-color="#fff" stop-opacity="0.9"/>
+                  <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                </linearGradient>
+                <mask id="discArcMask">
+                  <rect width="400" height="220" fill="url(#discArcFade)"/>
+                </mask>
+              </defs>
+              <ellipse
+                class="disc-arc-stroke"
+                cx="200"
+                cy="8"
+                rx="168"
+                ry="132"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.75"
+                mask="url(#discArcMask)"
+              />
+            </svg>
             <div class="disc-wheel" id="discWheel" role="listbox" aria-label="Filter gems on disc"></div>
-            <p class="disc-caption" id="discCaption"></p>
+            <div class="disc-caption" id="discCaption">
+              <p class="disc-title" id="discTitle"></p>
+              <p class="disc-note" id="discNote"></p>
+            </div>
           </div>
           <button type="button" class="filter-btn" id="filterBtn" aria-pressed="false" aria-label="Filter">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/></svg>
@@ -144,8 +171,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v18 — Inline 2-row + big gems; Disc centred big arc, caption under selected.</p>
-  <script src="../location-gems/corner-ribbon.js?v=18"></script>
-  <script type="module" src="app.js?v=18"></script>
+  <p class="meta">GEM-PINS-V2-v19 — Disc U-arc (Figma): selected bottom-centre, title above, tinted rim.</p>
+  <script src="../location-gems/corner-ribbon.js?v=19"></script>
+  <script type="module" src="app.js?v=19"></script>
 </body>
 </html>

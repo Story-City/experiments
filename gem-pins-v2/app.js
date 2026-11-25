@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v18 — Inline 2-row + big gems; Disc centred big arc, caption under selected. */
+/* GEM-PINS-V2-v19 — Disc U-arc (Figma): selected bottom-centre, title above, tinted rim. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -9,12 +9,15 @@ const DENSITY = 40;
 /** V1 rarityBy none — every pin the same size; keep uploaded category gems */
 const PIN_SIZE = 28;
 const SHEETS = ['original', 'prompt', 'image', 'bar'];
-/** Half-circle disc: big arc pointing up; plate centre on the stage floor */
-const DISC_RADIUS = 190;
-const DISC_PX_PER_DEG = 1.85;
-const DISC_SCALE_MIN = 0.72;
-const DISC_SCALE_MAX = 1.32;
-const DISC_ANIM_MS = 480;
+/** Figma U-arc: ellipse centre near top; selected gem at bottom of curve */
+const DISC_RX = 168;
+const DISC_RY = 132;
+const DISC_ORIGIN_Y = 8;
+const DISC_PX_PER_DEG = 1.65;
+const DISC_SCALE_MIN = 0.55;
+const DISC_SCALE_MAX = 1.42;
+const DISC_FADE_DEG = 118;
+const DISC_ANIM_MS = 520;
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
@@ -502,8 +505,9 @@ function shortestDelta(from, to) {
 
 function paintDiscAngle(angle) {
   const wheel = $('discWheel');
-  const plate = $('discPlate');
-  const caption = $('discCaption');
+  const stage = $('discStage');
+  const titleEl = $('discTitle');
+  const noteEl = $('discNote');
   if (!wheel) return;
   const list = stops();
   const n = list.length || 1;
@@ -513,27 +517,31 @@ function paintDiscAngle(angle) {
   buttons.forEach((b, i) => {
     const deg = angle + i * step;
     const rad = (deg * Math.PI) / 180;
-    const x = Math.sin(rad) * DISC_RADIUS;
-    const y = -Math.cos(rad) * DISC_RADIUS;
+    const x = Math.sin(rad) * DISC_RX;
+    const y = Math.cos(rad) * DISC_RY;
     let wrap = ((deg % 360) + 540) % 360 - 180;
-    const proximity = Math.max(0, 1 - Math.abs(wrap) / 150);
-    const scale = DISC_SCALE_MIN + (DISC_SCALE_MAX - DISC_SCALE_MIN) * (proximity ** 1.35);
+    const abs = Math.abs(wrap);
+    const proximity = Math.max(0, 1 - abs / DISC_FADE_DEG);
+    const scale = DISC_SCALE_MIN + (DISC_SCALE_MAX - DISC_SCALE_MIN) * (proximity ** 1.25);
     const on = i === nearest;
+    const visible = abs <= DISC_FADE_DEG;
     b.style.left = `calc(50% + ${x}px)`;
-    b.style.top = `calc(100% + ${y}px)`;
+    b.style.top = `${DISC_ORIGIN_Y + y}px`;
     b.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    b.style.opacity = String(0.38 + 0.62 * proximity);
+    b.style.opacity = visible ? String(0.28 + 0.72 * proximity) : '0';
+    b.style.pointerEvents = visible ? 'auto' : 'none';
     b.style.zIndex = String(on ? 5 : 1 + Math.round(proximity * 3));
     b.setAttribute('aria-selected', String(on));
     b.classList.toggle('is-front', on);
     b.style.setProperty('--stop-disc', stopDisc(b.dataset.stop));
   });
   const front = list[nearest];
-  if (caption && front) {
-    caption.textContent = front.label;
-    caption.style.setProperty('--disc-tint', stopDisc(front.id));
+  if (front) {
+    const tint = stopDisc(front.id);
+    if (stage) stage.style.setProperty('--disc-tint', tint);
+    if (titleEl) titleEl.textContent = front.label;
+    if (noteEl) noteEl.textContent = displayCopy(explainOf(front.id));
   }
-  if (plate && front) plate.style.setProperty('--disc-tint', stopDisc(front.id));
 }
 
 function snapDiscTo(id, animate) {
