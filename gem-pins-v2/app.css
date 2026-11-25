@@ -301,7 +301,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 72%, transparent 100%);
 }
 
-/* GEM-PINS-V2-v25-DISC-PARABOLA-ARC */
+/* GEM-PINS-V2-v24-DISC-TIGHT-ARC */
 /* —— Inline: row1 = ico + title + roller; row2 = full-width explain —— */
 .gbox.is-layout-inline .map-bar {
   display: grid;
@@ -427,7 +427,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .disc-stage {
   position: relative;
   width: 100%;
-  height: 100px;
+  height: 108px;
   overflow: hidden;
   touch-action: none;
   cursor: grab;
@@ -437,14 +437,15 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .disc-stage:active { cursor: grabbing; }
 .disc-arc {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 50%;
   top: 0;
   z-index: 1;
   width: 100%;
-  height: 100px;
+  max-width: 400px;
+  height: 108px;
+  transform: translateX(-50%);
   pointer-events: none;
-  overflow: visible;
+  overflow: hidden;
   color: var(--disc-tint);
   transition: color 420ms var(--ease-out);
 }
