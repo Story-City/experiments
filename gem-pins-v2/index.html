@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=28">
+<link rel="stylesheet" href="app.css?v=29">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -51,25 +51,25 @@
             </div>
           </div>
           <div class="disc-stage" id="discStage" hidden>
-            <svg class="disc-arc" id="discArc" viewBox="0 0 400 100" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
-              <!-- Bottom rim only; currentColor = selected gem tint -->
+            <svg class="disc-arc" id="discArc" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
+              <!-- In-view U only; tint = selected gem. Ears (68,36)/(332,36), centre (200,74) -->
               <path
                 class="disc-arc-glow"
-                d="M -50 -148 A 250 220 0 0 1 450 -148"
+                d="M 68 36 Q 200 112 332 36"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="12"
+                stroke-width="8"
                 stroke-linecap="round"
-                opacity="0.4"
+                opacity="0.28"
               />
               <path
                 class="disc-arc-tint"
-                d="M -50 -148 A 250 220 0 0 1 450 -148"
+                d="M 68 36 Q 200 112 332 36"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="3.75"
+                stroke-width="2.75"
                 stroke-linecap="round"
-                opacity="1"
+                opacity="0.95"
               />
             </svg>
             <div class="disc-wheel" id="discWheel" role="listbox" aria-label="Filter gems on disc"></div>
@@ -167,8 +167,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v28 — Disc: reverted two steps (pre-parabola / pre-extreme).</p>
-  <script src="../location-gems/corner-ribbon.js?v=28"></script>
-  <script type="module" src="app.js?v=28"></script>
+  <p class="meta">GEM-PINS-V2-v29 — Disc: Figma U, subtle tinted glow, ≤5 gems, calm spacing.</p>
+  <script src="../location-gems/corner-ribbon.js?v=29"></script>
+  <script type="module" src="app.js?v=29"></script>
 </body>
 </html>

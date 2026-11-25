@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v28 — Disc: reverted two steps (pre-parabola / pre-extreme). */
+/* GEM-PINS-V2-v29 — Disc: Figma U, subtle tinted glow, ≤5 gems, calm spacing. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -10,17 +10,17 @@ const DENSITY = 40;
 const PIN_SIZE = 28;
 const SHEETS = ['original', 'prompt', 'image', 'bar'];
 /*
- * Figma: huge ellipse mostly above the frame — only the bottom rim shows.
- * Gems sit on that rim with a tight visual step (not 360/n), so padding matches the frame.
+ * Lessons: path must live in-view (no off-screen ellipse); glow stays subtle;
+ * fade = 2×step → centre + 2 each side = 5 gems max.
  */
-const DISC_RX = 250;
-const DISC_RY = 220;
-const DISC_ORIGIN_Y = -148;
-const DISC_STEP = 9;
-const DISC_PX_PER_DEG = 2.8;
-const DISC_SCALE_MIN = 0.5;
-const DISC_SCALE_MAX = 1.2;
-const DISC_FADE_DEG = 40;
+const DISC_SPAN_X = 132;
+const DISC_EAR_Y = 36;
+const DISC_DIP = 38;
+const DISC_STEP = 14;
+const DISC_PX_PER_DEG = 2.6;
+const DISC_SCALE_MIN = 0.48;
+const DISC_SCALE_MAX = 1.26;
+const DISC_FADE_DEG = 28;
 const DISC_ANIM_MS = 520;
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -526,20 +526,20 @@ function paintDiscAngle(angle) {
   const nearest = nearestDiscIndex(angle, n);
   const buttons = [...wheel.querySelectorAll('button[data-stop]')];
   buttons.forEach((b, i) => {
-    /* Wrap onto the visible bottom rim — never place gems on the hidden upper ellipse */
     const deg = wrapDiscDeg(angle + i * DISC_STEP, n);
-    const rad = (deg * Math.PI) / 180;
-    const x = Math.sin(rad) * DISC_RX;
-    const y = Math.cos(rad) * DISC_RY;
+    const t = Math.max(-1, Math.min(1, deg / DISC_FADE_DEG));
+    const x = t * DISC_SPAN_X;
+    const y = DISC_EAR_Y + DISC_DIP * (1 - t * t);
     const abs = Math.abs(deg);
+    const stepsOut = Math.round(abs / DISC_STEP);
     const proximity = Math.max(0, 1 - abs / DISC_FADE_DEG);
     const scale = DISC_SCALE_MIN + (DISC_SCALE_MAX - DISC_SCALE_MIN) * (proximity ** 1.2);
     const on = i === nearest;
-    const visible = abs <= DISC_FADE_DEG;
+    const visible = stepsOut <= 2;
     b.style.left = `calc(50% + ${x}px)`;
-    b.style.top = `${DISC_ORIGIN_Y + y}px`;
+    b.style.top = `${y}px`;
     b.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    b.style.opacity = visible ? String(0.22 + 0.78 * proximity) : '0';
+    b.style.opacity = visible ? String(0.3 + 0.7 * proximity) : '0';
     b.style.pointerEvents = visible ? 'auto' : 'none';
     b.style.zIndex = String(on ? 5 : 1 + Math.round(proximity * 3));
     b.setAttribute('aria-selected', String(on));
@@ -556,7 +556,7 @@ function paintDiscAngle(angle) {
     const arc = $('discArc');
     if (arc) {
       arc.style.color = tint;
-      arc.setAttribute('color', tint);
+      arc.style.setProperty('--disc-tint', tint);
     }
     if (titleEl) titleEl.textContent = front.label;
     if (noteEl) noteEl.textContent = displayCopy(explainOf(front.id));
