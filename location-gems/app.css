@@ -2947,17 +2947,25 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
     0 0 18px color-mix(in srgb, var(--cat-fill, #00c2ff) 40%, transparent),
     inset 0 0 12px color-mix(in srgb, var(--cat-fill, #00c2ff) 16%, transparent);
 }
-.publish-cat-btn:active,
-.publish-cat-btn.is-on {
+.publish-cat-btn:active {
   transform: scale(0.96);
-  border-color: color-mix(in srgb, var(--cat-fill, #00c2ff) 78%, #fff);
+}
+.publish-cat-btn.is-on {
+  border-color: color-mix(in srgb, var(--cat-fill, #00c2ff) 88%, #fff);
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--cat-fill, #00c2ff) 42%, transparent),
+      color-mix(in srgb, var(--cat-fill, #00c2ff) 18%, rgba(14, 10, 34, 0.78))
+    );
   box-shadow:
-    0 0 20px color-mix(in srgb, var(--cat-fill, #00c2ff) 48%, transparent),
-    inset 0 0 14px color-mix(in srgb, var(--cat-fill, #00c2ff) 20%, transparent);
+    0 0 22px color-mix(in srgb, var(--cat-fill, #00c2ff) 55%, transparent),
+    inset 0 0 16px color-mix(in srgb, var(--cat-fill, #00c2ff) 24%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--cat-fill, #00c2ff) 90%, #fff);
+  outline-offset: 1px;
 }
 .publish-cat-btn.is-primary {
-  outline: 2px solid color-mix(in srgb, var(--cat-fill, #00c2ff) 85%, #fff);
-  outline-offset: 1px;
+  outline-width: 3px;
 }
 #publishCatActions {
   margin-top: 4px;
