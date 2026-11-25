@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v15 — Disc colour layout (circular colour disc on selected), inline legend+note, taller slides. */
+/* GEM-PINS-V2-v16 — Inline one line; Disc half-circle tint plate, gems pinned rolling on the disc. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -9,6 +9,9 @@ const DENSITY = 40;
 /** V1 rarityBy none — every pin the same size; keep uploaded category gems */
 const PIN_SIZE = 28;
 const SHEETS = ['original', 'prompt', 'image', 'bar'];
+/** Half-circle disc: gems pinned on the rim; plate centre sits on the stage floor */
+const DISC_RADIUS = 118;
+const DISC_PX_PER_DEG = 2.4;
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
@@ -422,8 +425,11 @@ function paintBar() {
   nearby.textContent = displayCopy(btnCopy('nearby'));
   nearbyRow.hidden = filterOn || !showToggle;
   $('nearbyIco').innerHTML = gemSvg(PUBLIC_GEM_FILL);
-  $('rollerWrap').hidden = !rollerVisible;
-  const showLegend = filterOn || filterLayout === 'inline' || filterLayout === 'always' || filterLayout === 'disc';
+  const isDisc = filterLayout === 'disc';
+  $('rollerWrap').hidden = !rollerVisible || isDisc;
+  const discStage = $('discStage');
+  if (discStage) discStage.hidden = !isDisc;
+  const showLegend = filterOn || filterLayout === 'inline' || filterLayout === 'always' || isDisc;
   legend.hidden = !showLegend;
   const list = stops();
   const stop = list.find((x) => x.id === stopId) || list[0];
@@ -445,19 +451,48 @@ function paintBar() {
     b.setAttribute('aria-selected', String(on));
     const lab = list.find((x) => x.id === b.dataset.stop);
     if (lab) b.setAttribute('aria-label', lab.label);
-    if (on) b.style.setProperty('--stop-disc', stopDisc(b.dataset.stop));
-    else b.style.removeProperty('--stop-disc');
   }
+  if (isDisc) layoutDiscItems(false);
   $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
 
 function centerStop(id, smooth) {
+  if (filterLayout === 'disc') {
+    layoutDiscItems(!!smooth);
+    return;
+  }
   const b = $('roller').querySelector(`[data-stop="${id}"]`);
   if (!b) return;
   lockScroll = true;
   const left = b.offsetLeft - $('roller').clientWidth / 2 + b.offsetWidth / 2;
   $('roller').scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
   setTimeout(() => { lockScroll = false; }, smooth ? 480 : 40);
+}
+
+function layoutDiscItems(animate) {
+  const wheel = $('discWheel');
+  const plate = $('discPlate');
+  if (!wheel) return;
+  const list = stops();
+  const n = list.length || 1;
+  const step = 360 / n;
+  const sel = Math.max(0, list.findIndex((s) => s.id === stopId));
+  const buttons = [...wheel.querySelectorAll('button[data-stop]')];
+  wheel.classList.toggle('is-animate', !!animate);
+  buttons.forEach((b, i) => {
+    const deg = (i - sel) * step;
+    const rad = (deg * Math.PI) / 180;
+    const x = Math.sin(rad) * DISC_RADIUS;
+    const y = -Math.cos(rad) * DISC_RADIUS;
+    const on = b.dataset.stop === stopId;
+    b.style.left = `calc(50% + ${x}px)`;
+    b.style.top = `calc(100% + ${y}px)`;
+    b.setAttribute('aria-selected', String(on));
+    b.classList.toggle('is-front', on);
+    b.style.setProperty('--stop-disc', stopDisc(b.dataset.stop));
+    b.style.opacity = on ? '1' : String(0.42 + 0.35 * Math.max(0, Math.cos(rad)));
+  });
+  if (plate) plate.style.setProperty('--disc-tint', stopDisc(stopId));
 }
 
 function pickStop(id) {
@@ -495,6 +530,90 @@ function fillRoller() {
     b.innerHTML = pinFor(sampleFor(stop.id));
     roller.append(b);
   }
+  fillDiscWheel();
+}
+
+function fillDiscWheel() {
+  const wheel = $('discWheel');
+  if (!wheel) return;
+  wheel.replaceChildren();
+  for (const stop of stops()) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.stop = stop.id;
+    b.setAttribute('role', 'option');
+    b.setAttribute('aria-label', stop.label);
+    b.innerHTML = pinFor(sampleFor(stop.id));
+    wheel.append(b);
+  }
+  layoutDiscItems(false);
+}
+
+function bindDiscWheel() {
+  const stage = $('discStage');
+  if (!stage) return;
+  let drag = null;
+  stage.addEventListener('pointerdown', (e) => {
+    if (filterLayout !== 'disc') return;
+    const btn = e.target.closest('button[data-stop]');
+    drag = {
+      id: e.pointerId,
+      x: e.clientX,
+      startIndex: Math.max(0, stops().findIndex((s) => s.id === stopId)),
+      moved: false,
+      btn,
+    };
+    try { stage.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+  });
+  stage.addEventListener('pointermove', (e) => {
+    if (!drag || drag.id !== e.pointerId || filterLayout !== 'disc') return;
+    const dx = e.clientX - drag.x;
+    if (Math.abs(dx) > 6) drag.moved = true;
+    if (!drag.moved) return;
+    const list = stops();
+    const n = list.length || 1;
+    const step = 360 / n;
+    const delta = Math.round(-dx / (DISC_PX_PER_DEG * step));
+    let idx = (drag.startIndex + delta) % n;
+    if (idx < 0) idx += n;
+    const next = list[idx];
+    if (next && next.id !== stopId) {
+      stopId = next.id;
+      layoutDiscItems(false);
+      paintBar();
+      if (openId != null && !shown(GEMS[openId])) {
+        openId = null;
+        $('slide').hidden = true;
+      }
+      drawPins(true);
+    }
+  });
+  const endDrag = (e) => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const { moved, btn } = drag;
+    drag = null;
+    if (filterLayout !== 'disc') return;
+    if (!moved && btn && btn.dataset.stop) {
+      pickStop(btn.dataset.stop);
+      centerStop(btn.dataset.stop, true);
+      return;
+    }
+    if (moved) centerStop(stopId, true);
+  };
+  stage.addEventListener('pointerup', endDrag);
+  stage.addEventListener('pointercancel', endDrag);
+  stage.addEventListener('wheel', (e) => {
+    if (filterLayout !== 'disc') return;
+    e.preventDefault();
+    const list = stops();
+    const n = list.length || 1;
+    const cur = Math.max(0, list.findIndex((s) => s.id === stopId));
+    const dir = (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) > 0 ? 1 : -1;
+    let idx = (cur + dir) % n;
+    if (idx < 0) idx += n;
+    pickStop(list[idx].id);
+    centerStop(list[idx].id, true);
+  }, { passive: false });
 }
 
 function bindRoller() {
@@ -886,6 +1005,7 @@ $('phone').addEventListener('wheel', (e) => {
 $('phone').dataset.filterLayout = filterLayout;
 fillRoller();
 bindRoller();
+bindDiscWheel();
 setSheet(sheet);
 setFilterLayout(filterLayout);
 drawPins();

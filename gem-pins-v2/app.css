@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v15 — Disc colour layout, inline legend+note, taller slides */
+/* GEM-PINS-V2-v16 — Inline one line; Disc half-circle tint plate, gems pinned on the disc */
 :root {
   --bg: #170c35;
   --surface: #241b46;
@@ -301,50 +301,51 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 72%, transparent 100%);
 }
 
-/* —— Inline: compact roller, legend icon+title+explain aligned under —— */
+/* —— Inline: ONE line — legend + roller side by side —— */
 .gbox.is-layout-inline .map-bar {
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas:
-    "roller"
-    "legend";
-  gap: 6px;
-  align-items: stretch;
-  min-height: 0;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  grid-template-areas: "legend roller";
+  gap: 8px;
+  align-items: center;
+  min-height: 36px;
 }
 .gbox.is-layout-inline .nearby-row { display: none !important; }
 .gbox.is-layout-inline .legend {
   grid-area: legend;
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
-  padding: 0 2px;
+  max-width: 46%;
+  padding: 0;
   background: transparent;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
 .gbox.is-layout-inline .legend-ico {
-  width: 28px;
-  height: 28px;
-  margin-top: 1px;
+  width: 26px;
+  height: 26px;
 }
 .gbox.is-layout-inline .legend-ico img,
 .gbox.is-layout-inline .legend-ico .pin-gem,
 .gbox.is-layout-inline .legend-ico svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 }
 .gbox.is-layout-inline .legend-copy {
-  display: grid;
-  gap: 2px;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
   min-width: 0;
   flex: 1;
 }
 .gbox.is-layout-inline .legend-title {
-  font-size: 17px;
+  flex: none;
+  font-size: 15px;
   font-weight: 900;
   letter-spacing: -0.01em;
-  line-height: 1.1;
+  line-height: 1;
   color: #fff;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.85);
   white-space: nowrap;
@@ -352,13 +353,14 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .gbox.is-layout-inline .legend-note {
   display: block;
   margin: 0;
-  font-size: 13px;
+  min-width: 0;
+  font-size: 12px;
   font-weight: 700;
-  line-height: 1.2;
-  color: rgba(255, 255, 255, 0.82);
-  white-space: normal;
-  overflow: visible;
-  text-overflow: unset;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.78);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .gbox.is-layout-inline .top-roller-slot { grid-area: roller; }
 .gbox.is-layout-inline .roller-wrap { height: 32px; }
@@ -380,20 +382,23 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   height: 20px;
 }
 .gbox.is-layout-inline .filter-btn,
-.gbox.is-layout-inline .filter-reset { display: none !important; }
+.gbox.is-layout-inline .filter-reset,
+.gbox.is-layout-inline .disc-stage { display: none !important; }
 
-/* —— Disc colour: roller + reset; selected gem sits on a circular colour disc; legend under —— */
+/* —— Disc colour: tinted half-circle at top; gems pinned on the rim; roll around the disc —— */
 .gbox.is-layout-disc .map-bar {
   grid-template-columns: minmax(0, 1fr) 40px;
   grid-template-areas:
-    "roller reset"
+    "disc reset"
     "legend legend";
-  gap: 8px;
-  align-items: center;
+  gap: 6px 8px;
+  align-items: start;
 }
-.gbox.is-layout-disc .nearby-row { display: none !important; }
-.gbox.is-layout-disc .top-roller-slot { grid-area: roller; }
-.gbox.is-layout-disc .filter-reset { grid-area: reset; display: grid; }
+.gbox.is-layout-disc .nearby-row,
+.gbox.is-layout-disc .top-roller-slot,
+.gbox.is-layout-disc .filter-btn { display: none !important; }
+.gbox.is-layout-disc .disc-stage { grid-area: disc; display: block; }
+.gbox.is-layout-disc .filter-reset { grid-area: reset; display: grid; margin-top: 8px; }
 .gbox.is-layout-disc .legend {
   grid-area: legend;
   display: flex;
@@ -410,63 +415,85 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   font-size: 13px;
   line-height: 1.25;
 }
-.gbox.is-layout-disc .filter-btn { display: none !important; }
-.gbox.is-layout-disc .roller {
-  padding-inline: calc(50% - 22px);
-  scroll-snap-type: x mandatory;
-  mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
-}
-.gbox.is-layout-disc .roller button {
+.gbox:not(.is-layout-disc) .disc-stage { display: none !important; }
+.disc-stage {
   position: relative;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: transparent;
-  filter: none;
-  transition:
-    opacity 480ms var(--ease-out),
-    transform 480ms var(--ease-out),
-    background 480ms var(--ease-out),
-    box-shadow 480ms var(--ease-out);
+  width: 100%;
+  height: 132px;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
 }
-.gbox.is-layout-disc .roller button::before {
-  content: "";
+.disc-stage:active { cursor: grabbing; }
+.disc-plate {
   position: absolute;
-  inset: 3px;
+  left: 50%;
+  top: 100%;
+  width: 248px;
+  height: 248px;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: transparent;
-  box-shadow: none;
-  z-index: 0;
   pointer-events: none;
-  transition:
-    background 480ms var(--ease-out),
-    box-shadow 480ms var(--ease-out),
-    transform 480ms var(--ease-out);
-}
-.gbox.is-layout-disc .roller button > * {
-  position: relative;
-  z-index: 1;
-}
-.gbox.is-layout-disc .roller button[aria-selected="true"] {
-  opacity: 1;
-  filter: none;
-  background: transparent;
-  transform: scale(1.04);
-}
-/* Colour disc — same language as location-gems publish-cat + circular like map pin select */
-.gbox.is-layout-disc .roller button[aria-selected="true"]::before {
   background:
     radial-gradient(
       circle at 50% 42%,
-      color-mix(in srgb, var(--stop-disc, var(--accent)) 52%, #fff) 0%,
-      color-mix(in srgb, var(--stop-disc, var(--accent)) 28%, transparent) 55%,
-      color-mix(in srgb, var(--stop-disc, var(--accent)) 10%, transparent) 100%
+      color-mix(in srgb, var(--disc-tint, var(--accent)) 42%, #fff) 0%,
+      color-mix(in srgb, var(--disc-tint, var(--accent)) 22%, transparent) 48%,
+      color-mix(in srgb, var(--disc-tint, var(--accent)) 8%, transparent) 72%,
+      transparent 100%
     );
   box-shadow:
-    0 0 0 1.5px color-mix(in srgb, var(--stop-disc, var(--accent)) 72%, #fff),
-    0 0 18px color-mix(in srgb, var(--stop-disc, var(--accent)) 48%, transparent),
-    inset 0 0 12px color-mix(in srgb, var(--stop-disc, var(--accent)) 22%, transparent);
+    0 0 0 1px color-mix(in srgb, var(--disc-tint, var(--accent)) 45%, transparent),
+    0 0 28px color-mix(in srgb, var(--disc-tint, var(--accent)) 35%, transparent),
+    inset 0 0 24px color-mix(in srgb, var(--disc-tint, var(--accent)) 18%, transparent);
+  transition: background 480ms var(--ease-out), box-shadow 480ms var(--ease-out);
+}
+.disc-wheel {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+}
+.disc-wheel button {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  opacity: 0.5;
+  z-index: 1;
+  touch-action: manipulation;
+}
+.disc-wheel.is-animate button {
+  transition:
+    left 480ms var(--ease-out),
+    top 480ms var(--ease-out),
+    opacity 480ms var(--ease-out),
+    box-shadow 480ms var(--ease-out),
+    transform 480ms var(--ease-out);
+}
+.disc-wheel button img,
+.disc-wheel button .pin-gem,
+.disc-wheel button .cat-gem-art,
+.disc-wheel button svg {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.45));
+}
+.disc-wheel button.is-front {
+  z-index: 3;
+  opacity: 1 !important;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--stop-disc, var(--accent)) 80%, #fff),
+    0 0 16px color-mix(in srgb, var(--stop-disc, var(--accent)) 55%, transparent);
+  background: color-mix(in srgb, var(--stop-disc, var(--accent)) 22%, transparent);
 }
 
 .legend {
