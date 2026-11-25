@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v70 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v71 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -230,7 +230,7 @@ const COPY = {
   publishTitlePh: '[name the thing you found]',
   publishWriteLabel: '[add a few words]',
   publishNotePh: '[optional note]',
-  publishNext: '[next]',
+  publishNext: '[confirm]',
   publishCatPrompt: '[what best describes your jam]',
 };
 
@@ -289,7 +289,7 @@ const SPOOF_COPY = {
   publishTitlePh: '[name the thing you found]',
   publishWriteLabel: '[add a few words]',
   publishNotePh: '[optional note]',
-  publishNext: '[next]',
+  publishNext: 'Confirm',
   publishCatPrompt: '[what best describes your jam]',
   emptyPublicTitle: 'Nothing public yet',
   emptyPublicBody: 'Publish a find and it’ll show up here.',
@@ -401,9 +401,11 @@ const publishStepWords = document.getElementById('publishStepWords');
 const publishStepCats = document.getElementById('publishStepCats');
 const publishCatPrompt = document.getElementById('publishCatPrompt');
 const publishCatGrid = document.getElementById('publishCatGrid');
+const publishPhoto = document.getElementById('publishPhoto');
 const hubMeta = document.getElementById('hubMeta');
 let publishKbBound = false;
-let publishDraft = { title: '', note: '' };
+let publishDraft = { title: '', note: '', category: null };
+let publishStep = 'cats';
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
 const sortSub = document.getElementById('sortSub');
@@ -1854,10 +1856,14 @@ function syncPublishKeyboard() {
   const vv = window.visualViewport;
   if (!vv) {
     publishSheet.style.setProperty('--kb', '0px');
+    publishSheet.style.setProperty('--vv-top', '0px');
+    publishSheet.style.setProperty('--vv-h', '100%');
     return;
   }
   const occluded = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
   publishSheet.style.setProperty('--kb', `${occluded}px`);
+  publishSheet.style.setProperty('--vv-top', `${Math.max(0, vv.offsetTop)}px`);
+  publishSheet.style.setProperty('--vv-h', `${Math.max(0, vv.height)}px`);
 }
 
 function bindPublishKeyboard() {
@@ -1892,10 +1898,21 @@ function hidePublishTip() {
 }
 
 function setPublishStep(step) {
-  const words = step === 'words';
+  publishStep = step === 'words' ? 'words' : 'cats';
+  const words = publishStep === 'words';
   if (publishStepWords) publishStepWords.hidden = !words;
   if (publishStepCats) publishStepCats.hidden = words;
-  if (!words) renderPublishCats();
+  if (publishSheet) {
+    publishSheet.classList.toggle('is-words', words);
+    publishSheet.classList.toggle('is-cats', !words);
+  }
+  if (!words) {
+    renderPublishCats();
+    showPublishTip();
+  } else {
+    hidePublishTip();
+  }
+  syncPublishKeyboard();
 }
 
 function renderPublishCats() {
@@ -1911,7 +1928,7 @@ function renderPublishCats() {
     btn.innerHTML = `
       <span class="publish-cat-gem" aria-hidden="true">${categoryGemMark(cat)}</span>
       <span class="publish-cat-label">${cat.label}</span>`;
-    btn.addEventListener('click', () => finishPublishWithCategory(cat.id));
+    btn.addEventListener('click', () => goPublishWordsStep(cat.id));
     publishCatGrid.appendChild(btn);
   });
 }
@@ -1923,21 +1940,22 @@ function openPublishSheet(card) {
     return;
   }
   pendingPublish = { card, find };
-  publishDraft = { title: '', note: '' };
+  publishDraft = { title: '', note: '', category: null };
   phone.classList.add('is-publishing');
   card.classList.add('is-publishing');
   card.style.transition = `opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
   card.style.opacity = '0';
   syncPublishSheetCopy();
+  if (publishPhoto) {
+    publishPhoto.src = find.photo;
+    publishPhoto.alt = '';
+  }
   if (publishTitle) publishTitle.value = '';
   if (publishNote) publishNote.value = '';
-  setPublishStep('words');
   bindPublishKeyboard();
   publishSheet.hidden = false;
   publishSheet.setAttribute('aria-hidden', 'false');
-  syncPublishKeyboard();
-  showPublishTip();
-  window.setTimeout(() => publishTitle?.focus(), 80);
+  setPublishStep('cats');
 }
 
 function closePublishSheet({ restoreCard = true } = {}) {
@@ -1945,12 +1963,16 @@ function closePublishSheet({ restoreCard = true } = {}) {
   if (publishSheet) {
     publishSheet.hidden = true;
     publishSheet.setAttribute('aria-hidden', 'true');
+    publishSheet.classList.remove('is-words', 'is-cats');
     publishSheet.style.setProperty('--kb', '0px');
+    publishSheet.style.setProperty('--vv-top', '0px');
+    publishSheet.style.setProperty('--vv-h', '100%');
   }
   phone.classList.remove('is-publishing');
   const card = pendingPublish?.card;
   pendingPublish = null;
-  publishDraft = { title: '', note: '' };
+  publishDraft = { title: '', note: '', category: null };
+  publishStep = 'cats';
   if (restoreCard && card) {
     card.classList.remove('is-publishing');
     card.style.transition = `transform ${SWIPE_SETTLE_MS}ms ${EASE_POPULAR}, opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
@@ -1963,20 +1985,22 @@ function closePublishSheet({ restoreCard = true } = {}) {
   }
 }
 
-function goPublishCategoryStep() {
+function goPublishWordsStep(categoryId) {
   if (!pendingPublish) return;
-  publishDraft = {
-    title: (publishTitle?.value || '').trim() || t('publishTitlePh'),
-    note: (publishNote?.value || '').trim(),
-  };
-  setPublishStep('cats');
+  publishDraft.category = categoryId;
+  setPublishStep('words');
+  window.setTimeout(() => {
+    syncPublishKeyboard();
+    publishTitle?.focus();
+  }, 80);
 }
 
-async function finishPublishWithCategory(categoryId) {
+async function finishPublishWithWords() {
   const pending = pendingPublish;
-  if (!pending) return;
-  const title = publishDraft.title || t('publishTitlePh');
-  const note = publishDraft.note;
+  if (!pending || !publishDraft.category) return;
+  const title = (publishTitle?.value || '').trim() || t('publishTitlePh');
+  const note = (publishNote?.value || '').trim();
+  const categoryId = publishDraft.category;
   const card = pending.card;
   closePublishSheet({ restoreCard: false });
   card.classList.remove('is-publishing');
@@ -2042,8 +2066,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v70 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v70 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v71 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v71 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2358,7 +2382,7 @@ if (publishSheetScrim) {
   publishSheetScrim.addEventListener('click', () => closePublishSheet({ restoreCard: true }));
 }
 if (publishNext) {
-  publishNext.addEventListener('click', () => goPublishCategoryStep());
+  publishNext.addEventListener('click', () => finishPublishWithWords());
 }
 if (publishTitle) {
   publishTitle.addEventListener('keydown', (e) => {
@@ -2373,7 +2397,7 @@ if (publishNote) {
   publishNote.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      goPublishCategoryStep();
+      finishPublishWithWords();
     }
   });
   publishNote.addEventListener('focus', syncPublishKeyboard);

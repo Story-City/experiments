@@ -2438,14 +2438,23 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 
 .publish-sheet {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: var(--vv-top, 0px);
+  height: var(--vv-h, 100%);
   z-index: 36;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 12px 14px calc(16px + var(--kb, 0px));
+  padding: 10px 14px 14px;
   pointer-events: none;
   background: rgba(8, 3, 22, 0.42);
+  box-sizing: border-box;
+}
+.publish-sheet.is-words {
+  align-items: flex-start;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 .publish-sheet[hidden] { display: none !important; }
 .publish-sheet-scrim {
@@ -2462,15 +2471,20 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   z-index: 1;
   width: 100%;
   max-width: 340px;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   pointer-events: auto;
   animation: publishSheetIn 320ms var(--ease-out) both;
 }
+.publish-sheet.is-words .publish-sheet-stack {
+  max-height: 100%;
+}
 .publish-sheet-card {
   width: 100%;
-  padding: 16px 16px 18px;
+  min-height: 0;
+  padding: 12px 14px 14px;
   border-radius: 18px;
   background: color-mix(in srgb, var(--raised) 82%, transparent);
   -webkit-backdrop-filter: blur(16px);
@@ -2479,12 +2493,39 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
+  overflow: auto;
+}
+.publish-sheet.is-words .publish-sheet-card {
+  gap: 10px;
+}
+.publish-photo {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #1a1230;
+  flex: none;
+  aspect-ratio: 4 / 3;
+  max-height: 180px;
+}
+.publish-sheet.is-words .publish-photo {
+  max-height: 112px;
+  aspect-ratio: 16 / 9;
+}
+.publish-photo-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .publish-step {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
+  flex: none;
+}
+.publish-sheet.is-words .publish-step {
+  gap: 10px;
 }
 @keyframes publishSheetIn {
   from { opacity: 0; transform: translateY(14px); }
