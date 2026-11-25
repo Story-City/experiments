@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v86 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v87 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -44,6 +44,9 @@ const SORT_CARD_TEXT_DEFAULT = '#1a1230';
 /* Figma 2853:555 Variant3 — dark indigo frame + light chin text */
 const SORT_TINTED_FRAME = '#13123b';
 const SORT_TINTED_TEXT = '#f2eef8';
+/* Story.name / Story.summary — server Assert\Length; web-client Title/Tagline */
+const PUBLISH_TITLE_MAX = 40;
+const PUBLISH_NOTE_MAX = 160;
 const SILVER_GEM_FILL = '#c8d2e6';
 const GOLD_GEM_FILL = '#ffc448';
 const PLATINUM_GEM_FILL = '#d2dcff';
@@ -409,8 +412,10 @@ const publishAddress = document.getElementById('publishAddress');
 const publishAddressText = document.getElementById('publishAddressText');
 const publishTitleLabel = document.getElementById('publishTitleLabel');
 const publishTitle = document.getElementById('publishTitle');
+const publishTitleCount = document.getElementById('publishTitleCount');
 const publishWriteLabel = document.getElementById('publishWriteLabel');
 const publishNote = document.getElementById('publishNote');
+const publishNoteCount = document.getElementById('publishNoteCount');
 const publishNext = document.getElementById('publishNext');
 const publishStepWords = document.getElementById('publishStepWords');
 const publishStepCats = document.getElementById('publishStepCats');
@@ -1917,11 +1922,27 @@ function flyGemIntoSection(photoSrc, toPublic) {
 function syncPublishSheetCopy() {
   if (publishTipCopy) publishTipCopy.textContent = t('publishTip');
   if (publishTitleLabel) publishTitleLabel.textContent = t('publishTitleLabel');
-  if (publishTitle) publishTitle.placeholder = t('publishTitlePh');
+  if (publishTitle) {
+    publishTitle.placeholder = t('publishTitlePh');
+    publishTitle.maxLength = PUBLISH_TITLE_MAX;
+  }
   if (publishWriteLabel) publishWriteLabel.textContent = t('publishWriteLabel');
-  if (publishNote) publishNote.placeholder = t('publishNotePh');
+  if (publishNote) {
+    publishNote.placeholder = t('publishNotePh');
+    publishNote.maxLength = PUBLISH_NOTE_MAX;
+  }
   if (publishNext) publishNext.textContent = t('publishNext');
   if (publishCatPrompt) publishCatPrompt.textContent = t('publishCatPrompt');
+  syncPublishCharCounts();
+}
+
+function syncPublishCharCounts() {
+  if (publishTitleCount && publishTitle) {
+    publishTitleCount.textContent = `${publishTitle.value.length}/${PUBLISH_TITLE_MAX}`;
+  }
+  if (publishNoteCount && publishNote) {
+    publishNoteCount.textContent = `${publishNote.value.length}/${PUBLISH_NOTE_MAX}`;
+  }
 }
 
 function syncPublishAddress(find) {
@@ -2037,6 +2058,7 @@ function openPublishSheet(card) {
   syncPublishAddress(find);
   if (publishTitle) publishTitle.value = '';
   if (publishNote) publishNote.value = '';
+  syncPublishCharCounts();
   bindPublishKeyboard();
   publishSheet.hidden = false;
   publishSheet.setAttribute('aria-hidden', 'false');
@@ -2151,8 +2173,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v86 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v86 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v87 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v87 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2483,15 +2505,17 @@ if (publishTitle) {
       publishNote?.focus();
     }
   });
+  publishTitle.addEventListener('input', syncPublishCharCounts);
   publishTitle.addEventListener('focus', syncPublishKeyboard);
 }
 if (publishNote) {
   publishNote.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       finishPublishWithWords();
     }
   });
+  publishNote.addEventListener('input', syncPublishCharCounts);
   publishNote.addEventListener('focus', syncPublishKeyboard);
 }
 bindTipGesture();

@@ -2606,6 +2606,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .publish-sheet.is-words {
   padding-top: 10px;
   padding-bottom: calc(10px + var(--kb, 0px));
+  justify-content: flex-start;
 }
 .publish-sheet[hidden] { display: none !important; }
 .publish-sheet-scrim {
@@ -2630,6 +2631,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   animation: publishSheetIn 320ms var(--ease-out) both;
 }
 .publish-sheet.is-words .publish-sheet-stack {
+  flex: 1 1 auto;
+  min-height: 0;
   max-height: 100%;
   padding-top: 0;
 }
@@ -2650,6 +2653,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .publish-sheet.is-words .publish-sheet-card {
   gap: 10px;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
 }
 .publish-photo {
   position: relative;
@@ -2662,8 +2669,53 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   max-height: 180px;
 }
 .publish-sheet.is-words .publish-photo {
-  max-height: 112px;
+  max-height: 88px;
   aspect-ratio: 16 / 9;
+}
+.publish-step-words {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.publish-fields {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 2px;
+  touch-action: pan-y;
+}
+.publish-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: none;
+}
+.publish-field-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.publish-char {
+  flex: none;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.note-area {
+  min-height: 120px;
+  resize: none;
+  line-height: 1.35;
+  field-sizing: content;
+  max-height: none;
 }
 .publish-photo-img {
   display: block;
@@ -2709,6 +2761,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .publish-sheet.is-words .publish-step {
   gap: 10px;
+}
+.publish-sheet.is-words .side-actions {
+  flex: none;
+  padding-top: 2px;
 }
 @keyframes publishSheetIn {
   from { opacity: 0; transform: translateY(14px); }
