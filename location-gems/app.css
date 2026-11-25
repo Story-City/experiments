@@ -46,6 +46,8 @@
   --shine-ms: 1400ms;
   --hold-after-shine-ms: 280ms;
   --accent-soft: #b9e5ff;
+  --sort-frame: #ffffff;
+  --sort-card-text: #1a1230;
 }
 
 * { box-sizing: border-box; }
@@ -1828,6 +1830,50 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   will-change: transform;
   transform: rotate(-4deg);
   transform-origin: 50% 60%;
+  display: flex;
+  flex-direction: column;
+}
+/* Figma 2850:549 — polaroid frame; caption strip holds words (if any) + address always */
+.sort-card.is-polaroid {
+  background: var(--sort-frame);
+  border: 0;
+  border-radius: 6px;
+  padding: 10px 10px 0;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.38),
+    0 1px 0 rgba(255, 255, 255, 0.35) inset;
+}
+.sort-card.is-polaroid .sort-card-media {
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: 0;
+}
+.sort-card.is-polaroid .sort-card-photo {
+  height: 100%;
+  min-height: 200px;
+}
+.sort-card.is-polaroid .sort-card-body {
+  flex: none;
+  padding: 12px 8px 16px;
+  background: transparent;
+  min-height: 64px;
+}
+.sort-card.is-polaroid.no-words .sort-card-body {
+  min-height: 44px;
+  padding-top: 10px;
+  padding-bottom: 14px;
+}
+.sort-card.is-polaroid .sort-card-user,
+.sort-card.is-polaroid .sort-card-text,
+.sort-card.is-polaroid .sort-card-place {
+  color: var(--sort-card-text);
+  text-shadow: none;
+}
+.sort-card.is-polaroid .sort-card-user {
+  color: color-mix(in srgb, var(--sort-card-text) 72%, var(--brand-primary));
+}
+.sort-card.is-polaroid .sort-card-place {
+  color: color-mix(in srgb, var(--sort-card-text) 78%, transparent);
 }
 .sort-card.is-flush {
   transform: rotate(0deg);
@@ -1835,6 +1881,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .sort-card.is-stack {
   transform: rotate(-2deg);
+}
+.sort-card.is-corner .sort-card-media {
+  position: relative;
 }
 .sort-card:active { cursor: grabbing; }
 .sort-card.is-dragging {

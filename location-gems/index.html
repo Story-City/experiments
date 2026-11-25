@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=80">
+<link rel="stylesheet" href="app.css?v=81">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -67,10 +67,19 @@
         <p class="tool-note">Try looks for the sort stack</p>
         <div class="variant-pick is-rail is-wrap" role="group" aria-label="Unsorted card looks">
           <button type="button" class="variant-btn is-on" data-sort-look="polaroid" aria-pressed="true">Polaroid</button>
+          <button type="button" class="variant-btn" data-sort-look="corner" aria-pressed="false">Corner</button>
           <button type="button" class="variant-btn" data-sort-look="overlay" aria-pressed="false">Overlay</button>
           <button type="button" class="variant-btn" data-sort-look="flush" aria-pressed="false">Flush</button>
           <button type="button" class="variant-btn" data-sort-look="stack" aria-pressed="false">Stack</button>
         </div>
+        <label class="accent-pick is-rail" title="Polaroid / unsorted frame colour">
+          <span>Frame</span>
+          <input type="color" id="sortFrameColor" value="#ffffff" aria-label="Unsorted card frame color">
+        </label>
+        <label class="accent-pick is-rail" title="Text colour on unsorted cards">
+          <span>Card text</span>
+          <input type="color" id="sortCardTextColor" value="#1a1230" aria-label="Unsorted card text color">
+        </label>
       </section>
 
       <section class="tool-block">
@@ -100,8 +109,8 @@
             <span class="switch-knob" aria-hidden="true"></span>
           </button>
         </div>
-        <label class="accent-pick is-rail is-mid-tone" id="midTonePick" title="Raised / card mid tone" hidden>
-          <span>Mid</span>
+        <label class="accent-pick is-rail is-mid-tone" id="midTonePick" title="Raised / polaroid frame mid tone" hidden>
+          <span>Mid / frame</span>
           <input type="color" id="midToneColor" value="#241b46" aria-label="Mid tone color">
         </label>
       </section>
@@ -366,7 +375,7 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v80 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v81 · V1. Figma gems, no rarity.
   </p>
     </div>
 
@@ -381,7 +390,7 @@
       </section>
     </aside>
   </div>
-  <script src="corner-ribbon.js?v=80"></script>
-  <script src="app.js?v=80"></script>
+  <script src="corner-ribbon.js?v=81"></script>
+  <script src="app.js?v=81"></script>
 </body>
 </html>

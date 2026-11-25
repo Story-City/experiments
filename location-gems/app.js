@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v80 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v81 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -38,7 +38,9 @@ const JAM_CATS = [
   { id: 'curio', label: 'Curiosities', colour: '#B36BFF', art: 'assets/gems/curiosities.svg' },
 ];
 const JAM_CAT_ALIASES = { shop: 'eat', entertainment: 'play' };
-const SORT_CARD_LOOKS = new Set(['polaroid', 'overlay', 'flush', 'stack']);
+const SORT_CARD_LOOKS = new Set(['polaroid', 'corner', 'overlay', 'flush', 'stack']);
+const SORT_FRAME_DEFAULT = '#ffffff';
+const SORT_CARD_TEXT_DEFAULT = '#1a1230';
 const SILVER_GEM_FILL = '#c8d2e6';
 const GOLD_GEM_FILL = '#ffc448';
 const PLATINUM_GEM_FILL = '#d2dcff';
@@ -102,7 +104,7 @@ const CHALLENGE_FINDS = [
     id: 'find-you-b',
     user: MY_USER,
     photo: 'assets/find-b.jpg',
-    text: '[find 2]',
+    text: '',
     place: 'Whimsy Walk · near you',
     likes: 0,
     pending: true,
@@ -112,7 +114,7 @@ const CHALLENGE_FINDS = [
     user: MY_USER,
     photo: 'assets/find-c.jpg',
     text: '[find 3]',
-    place: 'Whimsy Walk · near you',
+    place: '28 St NW',
     likes: 0,
     pending: true,
   },
@@ -370,6 +372,8 @@ const bgDepth = document.getElementById('bgDepth');
 const midToneOn = document.getElementById('midToneOn');
 const midToneColor = document.getElementById('midToneColor');
 const midTonePick = document.getElementById('midTonePick');
+const sortFrameColor = document.getElementById('sortFrameColor');
+const sortCardTextColor = document.getElementById('sortCardTextColor');
 const MID_TONE_DEFAULT = '#241b46';
 const tabPublic = document.getElementById('tabPublic');
 const tabHidden = document.getElementById('tabHidden');
@@ -850,6 +854,18 @@ function applyMidTone() {
       ? midToneColor.value
       : MID_TONE_DEFAULT;
   document.documentElement.style.setProperty('--raised', hex);
+  /* Mid tone also drives unsorted polaroid frame when enabled */
+  const frame =
+    on && midToneColor && midToneColor.value
+      ? midToneColor.value
+      : (sortFrameColor && sortFrameColor.value) || SORT_FRAME_DEFAULT;
+  document.documentElement.style.setProperty('--sort-frame', frame);
+  if (sortFrameColor && on) sortFrameColor.value = frame;
+}
+
+function applySortCardText() {
+  const hex = (sortCardTextColor && sortCardTextColor.value) || SORT_CARD_TEXT_DEFAULT;
+  document.documentElement.style.setProperty('--sort-card-text', hex);
 }
 
 function setSwitch(el, on) {
@@ -1275,16 +1291,35 @@ function setTargets(mode, armed) {
   else if (mode === 'delete') railDelete.classList.add('is-hot');
 }
 
+function sortCornerHtml(uid) {
+  const fill = PUBLIC_GEM_FILL;
+  return `
+    <div class="sort-card-corner" aria-hidden="true">
+      <div class="sort-card-corner-art">${cornerRibbonHtml(fill, uid)}</div>
+      <div class="sort-card-corner-stack">
+        <span class="sort-card-gem">${gemSvg(fill)}</span>
+      </div>
+    </div>`;
+}
+
 function buildSortCard(find, under, enter) {
   const look = SORT_CARD_LOOKS.has(sortCardLook) ? sortCardLook : 'polaroid';
+  const words = String(find.text || '').trim();
+  const hasWords = !!words;
   const card = document.createElement('article');
-  card.className = `sort-card is-${look}${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
+  card.className = `sort-card is-${look}${hasWords ? ' has-words' : ' no-words'}${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
   card.dataset.id = find.id;
-  /* Unsorted finds are not gems yet — never show a gem corner */
+  card.style.setProperty('--gem-line', PUBLIC_GEM_FILL);
+  /* Corner look (old location-gems) keeps classic cyan gem; polaroid never does */
+  const corner = look === 'corner' ? sortCornerHtml(find.id || 'sort') : '';
+  const textBlock = hasWords
+    ? `<p class="sort-card-text">${displayCopy(words)}</p>`
+    : '';
+  /* Address always present on unsorted cards */
   const body = `
     <div class="sort-card-body">
       <p class="sort-card-user">${find.user}</p>
-      <p class="sort-card-text">${displayCopy(find.text)}</p>
+      ${textBlock}
       <p class="sort-card-place">📍 ${displayCopy(find.place)}</p>
     </div>`;
   if (look === 'overlay') {
@@ -1292,12 +1327,14 @@ function buildSortCard(find, under, enter) {
       <div class="sort-card-media">
         <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
         <div class="sort-card-fade" aria-hidden="true"></div>
+        ${corner}
         ${body}
       </div>`;
   } else {
     card.innerHTML = `
       <div class="sort-card-media">
         <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
+        ${corner}
       </div>
       ${body}`;
   }
@@ -2099,8 +2136,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v80 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v80 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v81 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v81 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2325,6 +2362,7 @@ function init() {
   applyRadial();
   applyBg();
   applyMidTone();
+  applySortCardText();
   seedGems();
   seedPendingSort();
   setupSnapshotArc();
@@ -2377,6 +2415,12 @@ if (radialImpact) radialImpact.addEventListener('input', applyRadial);
 if (bgColor) bgColor.addEventListener('input', applyBg);
 if (bgDepth) bgDepth.addEventListener('input', applyBg);
 if (midToneColor) midToneColor.addEventListener('input', applyMidTone);
+if (sortFrameColor) {
+  sortFrameColor.addEventListener('input', () => {
+    document.documentElement.style.setProperty('--sort-frame', sortFrameColor.value || SORT_FRAME_DEFAULT);
+  });
+}
+if (sortCardTextColor) sortCardTextColor.addEventListener('input', applySortCardText);
 if (midToneOn) {
   midToneOn.addEventListener('click', () => setMidTone(!midToneEnabled()));
 }
