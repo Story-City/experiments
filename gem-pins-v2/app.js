@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v10 — filter layouts, eat+shop combined, no map tab. */
+/* GEM-PINS-V2-v11 — classic mask, inline legibility, stacked; no bottom roller. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -55,7 +55,7 @@ const FILTER_CATS = [
   { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
   { id: 'curio', label: 'Curiosities', match: ['curio'], art: 'curio' },
 ];
-const FILTER_LAYOUTS = ['always', 'bottom', 'classic', 'inline'];
+const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'stacked'];
 const EXPLAIN_DEFAULT = {
   all: '[every gem nearby]',
   nature: '[explain nature finds]',
@@ -298,7 +298,7 @@ function placeOf(g, box, phone) {
 }
 
 function layoutNeedsToggle() {
-  return filterLayout === 'classic' || filterLayout === 'bottom';
+  return filterLayout === 'classic';
 }
 
 function shown(g) {
@@ -369,27 +369,13 @@ function sampleFor(id) {
   return { tags: [id], liked: false, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
 }
 
-function placeRoller() {
-  const wrap = $('rollerWrap');
-  const bottom = $('mapBottom');
-  if (filterLayout === 'bottom') {
-    $('bottomRollerSlot').appendChild(wrap);
-    bottom.hidden = !filterOn;
-  } else {
-    $('topRollerSlot').appendChild(wrap);
-    bottom.hidden = true;
-  }
-}
-
 function setFilterLayout(next) {
   if (!FILTER_LAYOUTS.includes(next)) return;
   filterLayout = next;
   $('phone').dataset.filterLayout = filterLayout;
-  if (!layoutNeedsToggle()) {
-    filterOn = true;
-    if (!stops().some((s) => s.id === stopId)) stopId = 'all';
-  }
-  placeRoller();
+  /* Every layout opens on all gems */
+  filterOn = true;
+  stopId = 'all';
   paintBar();
   if (openId != null && !shown(GEMS[openId])) {
     openId = null;
@@ -397,7 +383,10 @@ function setFilterLayout(next) {
     $('slide').hidden = true;
   }
   drawPins(true);
-  if (filterOn) requestAnimationFrame(() => centerStop(stopId, false));
+  requestAnimationFrame(() => centerStop(stopId, false));
+  for (const b of document.querySelectorAll('[data-filter-layout]')) {
+    b.setAttribute('aria-pressed', String(b.dataset.filterLayout === filterLayout));
+  }
 }
 
 function paintBar() {
@@ -410,24 +399,23 @@ function paintBar() {
   bar.classList.toggle('is-off', !filterOn);
   $('filterGbox').classList.toggle('is-filter-on', filterOn);
   $('filterGbox').classList.toggle('is-layout-always', filterLayout === 'always');
-  $('filterGbox').classList.toggle('is-layout-bottom', filterLayout === 'bottom');
   $('filterGbox').classList.toggle('is-layout-classic', filterLayout === 'classic');
   $('filterGbox').classList.toggle('is-layout-inline', filterLayout === 'inline');
+  $('filterGbox').classList.toggle('is-layout-stacked', filterLayout === 'stacked');
   $('filterBtn').hidden = !showToggle;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
   nearby.textContent = displayCopy(btnCopy('nearby'));
   nearbyRow.hidden = filterOn || !showToggle;
   $('nearbyIco').innerHTML = gemSvg(PUBLIC_GEM_FILL);
-  placeRoller();
   $('rollerWrap').hidden = !rollerVisible;
-  const showLegend = filterOn || filterLayout === 'inline' || filterLayout === 'always';
+  const showLegend = filterOn || filterLayout === 'inline' || filterLayout === 'always' || filterLayout === 'stacked';
   legend.hidden = !showLegend;
   const list = stops();
   const stop = list.find((x) => x.id === stopId) || list[0];
   if (showLegend) {
     const ico = pinFor(sampleFor(stopId));
     const title = stop.label;
-    const note = filterLayout === 'inline' ? '' : explainOf(stopId);
+    const note = (filterLayout === 'inline' || filterLayout === 'stacked') ? '' : explainOf(stopId);
     const prev = legend.querySelector('.legend-title');
     const changed = !prev || prev.textContent !== title;
     legend.innerHTML = `<span class="legend-ico">${ico}</span><div class="legend-copy"><p class="legend-title">${title}</p>${note ? `<p class="legend-note">${note}</p>` : ''}</div>`;
@@ -739,8 +727,7 @@ function closeSlide() {
 }
 
 function resetFilter() {
-  if (layoutNeedsToggle()) filterOn = true;
-  else filterOn = true;
+  filterOn = true;
   stopId = 'all';
   paintBar();
   if (openId != null && !shown(GEMS[openId])) {
@@ -785,7 +772,7 @@ function toast(text) {
 $('filterBtn').addEventListener('click', () => {
   if (!layoutNeedsToggle()) return;
   filterOn = !filterOn;
-  if (filterOn && !stops().some((s) => s.id === stopId)) stopId = 'all';
+  if (filterOn) stopId = 'all';
   paintBar();
   if (openId != null && !shown(GEMS[openId])) {
     openId = null;
@@ -793,8 +780,11 @@ $('filterBtn').addEventListener('click', () => {
     $('slide').hidden = true;
   }
   drawPins(true);
-  if (filterOn) requestAnimationFrame(() => centerStop(stopId, false));
+  if (filterOn) requestAnimationFrame(() => centerStop(stopId, true));
 });
+for (const b of document.querySelectorAll('#layoutSwitch [data-filter-layout]')) {
+  b.addEventListener('click', () => setFilterLayout(b.dataset.filterLayout));
+}
 $('likeBtn').addEventListener('click', (e) => { e.stopPropagation(); toggleLike(); });
 $('likeBtnOv').addEventListener('click', (e) => { e.stopPropagation(); toggleLike(); });
 $('saveBtn').addEventListener('click', (e) => {
@@ -807,7 +797,6 @@ $('saveBtn').addEventListener('click', (e) => {
 });
 $('navBtn').addEventListener('click', (e) => { e.stopPropagation(); toast(displayCopy('[would open navigate]')); });
 document.querySelector('.map-top').addEventListener('pointerdown', (e) => e.stopPropagation());
-$('mapBottom').addEventListener('pointerdown', (e) => e.stopPropagation());
 $('slide').addEventListener('click', (e) => {
   if (sheet !== 'original' || sheetFull || e.target.closest('button')) return;
   sheetFull = true;

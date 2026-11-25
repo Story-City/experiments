@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=10">
+<link rel="stylesheet" href="app.css?v=11">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -23,6 +23,13 @@
     <button type="button" data-sheet="image">Image</button>
     <button type="button" data-sheet="corner">Corner</button>
   </div>
+  <div class="layout-switch" id="layoutSwitch" role="group" aria-label="Filter layout">
+    <button type="button" data-filter-layout="always" aria-pressed="true">Always on</button>
+    <button type="button" data-filter-layout="classic" aria-pressed="false">Classic top</button>
+    <button type="button" data-filter-layout="inline" aria-pressed="false">Inline legend</button>
+    <button type="button" data-filter-layout="stacked" aria-pressed="false">Stacked</button>
+  </div>
+  <p class="layout-note">[more filter layout patterns]</p>
 
   <main class="phone" id="phone">
     <div class="screen" id="screen">
@@ -49,10 +56,6 @@
         </div>
       </div>
     </header>
-    <div class="map-bottom" id="mapBottom" hidden>
-      <div class="bottom-roller-slot" id="bottomRollerSlot"></div>
-    </div>
-
     <!-- Tab icons pulled from mobile-rn FloatingTabBar + GemIcon (assets/app-icons/*.tsx) -->
     <nav class="tab-bar" id="tabBar" aria-label="Main">
       <button type="button" class="tab" data-tab="explore" aria-pressed="false">
@@ -132,8 +135,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v10 — filter layouts, eat+shop combined, no map tab.</p>
-  <script src="../location-gems/corner-ribbon.js?v=10"></script>
-  <script type="module" src="app.js?v=10"></script>
+  <p class="meta">GEM-PINS-V2-v11 — classic mask, inline legibility, stacked layout.</p>
+  <script src="../location-gems/corner-ribbon.js?v=11"></script>
+  <script type="module" src="app.js?v=11"></script>
 </body>
 </html>
