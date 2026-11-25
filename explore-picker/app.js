@@ -19,18 +19,21 @@ const S = { v: 'a', picked: [], screen: 'pick' };
 const isPicked = id => S.picked.includes(id);
 let cur = null;
 
-const qv = (new URLSearchParams(location.search).get('v') || '').toLowerCase();
-if (VERSIONS.some(v => v.key === qv)) S.v = qv;
+// shown letters follow the order (A, B, C…), so they stay continuous when versions are removed
+const LETTER = Object.fromEntries(VERSIONS.map((v, i) => [v.key, String.fromCharCode(65 + i)]));
+const qv = (new URLSearchParams(location.search).get('v') || '').toUpperCase();
+const fromUrl = VERSIONS.find(v => LETTER[v.key] === qv);
+S.v = (fromUrl || VERSIONS[0]).key;
 
 /* ---------- shell ---------- */
 document.title = 'Explore Picker';
 $('#barTitle').textContent = COPY.pageTitle;
 $('#switcher').innerHTML = VERSIONS.map(v =>
-  `<button class="sw" data-v="${v.key}" title="${esc(v.name)}" aria-label="Version ${v.key.toUpperCase()}: ${esc(v.name)}">${v.key.toUpperCase()}</button>`).join('');
+  `<button class="sw" data-v="${v.key}" title="${esc(v.name)}" aria-label="Version ${LETTER[v.key]}: ${esc(v.name)}">${LETTER[v.key]}</button>`).join('');
 $('#switcher').addEventListener('click', e => {
   const b = e.target.closest('[data-v]'); if (!b) return;
   S.v = b.dataset.v; S.picked = []; S.screen = 'pick';
-  const u = new URL(location.href); u.searchParams.set('v', S.v); history.replaceState(null, '', u);
+  const u = new URL(location.href); u.searchParams.set('v', LETTER[S.v].toLowerCase()); history.replaceState(null, '', u);
   render();
 });
 $('#noteToggle').addEventListener('click', () => {
@@ -41,7 +44,7 @@ $('#noteToggle').addEventListener('click', () => {
 function render() {
   const V = VERSIONS.find(v => v.key === S.v);
   document.querySelectorAll('.sw[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === S.v));
-  $('#note').innerHTML = `<b>${V.key.toUpperCase()} · ${esc(V.name)}.</b> <span class="why">Why it might work:</span> ${nw(V.why)} <span class="dot">·</span> <span class="risk">Risk:</span> ${nw(V.risk)}`;
+  $('#note').innerHTML = `<b>${LETTER[V.key]} · ${esc(V.name)}.</b> <span class="why">Why it might work:</span> ${nw(V.why)} <span class="dot">·</span> <span class="risk">Risk:</span> ${nw(V.risk)}`;
   if (S.screen === 'pick') renderPick(V); else renderUnlock(S.screen === 'skip');
 }
 

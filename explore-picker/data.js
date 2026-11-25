@@ -83,6 +83,7 @@ export const EXPLORER = {
 };
 
 // The 12 versions of the picking mechanic. hint = one line inside the phone; why / risk = the note under the switcher.
+// Ruled out 25 Nov (Melissa): Pack your bag, Bubbles, Trail of lanterns. Letters are re-assigned in order.
 export const VERSIONS = [
   { key: 'a', name: 'Card shuffle',      hint: 'Tap a card to flick it onto your pile.',
     why: 'Physical, tactile and quick; the pile makes choices feel owned.', risk: 'Nine text cards is a lot to read on a couch.' },
@@ -92,14 +93,8 @@ export const VERSIONS = [
     why: 'Previews fog clearing on the map before the first walk.', risk: 'Players may think unpicked tiles stay locked.' },
   { key: 'd', name: 'Constellation',     hint: 'Tap stars to light them and join them up.',
     why: 'Feels like making something personal and mysterious.', risk: 'Short star labels can hide what each pick means.' },
-  { key: 'e', name: 'Pack your bag',     hint: 'Tap things to pack them for tomorrow.',
-    why: 'Packing a bag says tomorrow is a trip worth taking.', risk: 'The objects need their labels to make sense.' },
   { key: 'f', name: 'Swipe deck',        hint: 'Swipe right or tap Yes. Left for not for me.',
     why: 'Familiar, one decision at a time, fast to finish.', risk: 'Nine cards in a row can feel like a survey.' },
-  { key: 'g', name: 'Bubbles',           hint: 'Tap the bubbles that sound like you.',
-    why: 'Known from music apps, playful and scannable at once.', risk: 'Short bubble labels lose nuance.' },
-  { key: 'h', name: 'Trail of lanterns', hint: 'Light lanterns along the trail to tomorrow.',
-    why: 'Every pick moves you toward tomorrow’s walk, literally.', risk: 'A long trail needs scrolling on small phones.' },
   { key: 'i', name: 'Bookerton chat',    hint: '',
     why: 'Meets Bookerton early and feels like a conversation.', risk: 'Chat can feel slow if the reactions lag.' },
   { key: 'j', name: 'Passport stamps',   hint: 'Tap a page to stamp it.',
