@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v2 — Brett’s pick on Melissa’s map, plus the legend roller and three slide-outs. */
+/* GEM-PINS-V2-v3 — Brett’s pick on Melissa’s map, plus the legend roller and three slide-outs. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -361,6 +361,10 @@ $('screen').addEventListener('click', () => {
 for (const b of $('sheetSwitch').querySelectorAll('button')) {
   b.addEventListener('click', () => setSheet(b.dataset.sheet));
 }
+window.addEventListener('message', (e) => {
+  const next = e.data && e.data.type === 'gem-pins-sheet' ? e.data.sheet : '';
+  if (SHEETS.includes(next)) setSheet(next);
+});
 
 let panMoved = false;
 let dragging = false;

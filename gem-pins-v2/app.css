@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v2 — phone chrome from gem-pins + location-gems + daily-side-quests */
+/* GEM-PINS-V2-v3 — phone chrome from gem-pins + location-gems + daily-side-quests */
 :root {
   --bg: #170c35;
   --surface: #241b46;
@@ -38,9 +38,17 @@ button { font: inherit; color: inherit; cursor: pointer; }
 button:focus-visible { outline: 2px solid #c49bff; outline-offset: 2px; }
 
 .page-head { max-width: 640px; text-align: center; }
-body.is-embed { padding-top: 18px; }
+body.is-embed { padding: 0; }
 body.is-embed .page-head,
+body.is-embed .sheet-switch,
 body.is-embed .meta { display: none; }
+body.is-embed .phone {
+  width: 100%;
+  height: 100dvh;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
 .eyebrow {
   margin: 0;
   font-size: 12px;
