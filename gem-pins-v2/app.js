@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v6 — Figma Component 22 gems, no liked/visited on pins, wording spoof. */
+/* GEM-PINS-V2-v7 — V1 sizes, legend under roller, gbox, app tab bar. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -219,8 +219,13 @@ function drawPins(animate) {
       });
       pins.append(b);
     }
+    const size = sizeOf(g);
     b.style.left = `${p[0]}px`;
     b.style.top = `${p[1]}px`;
+    b.style.width = `${size}px`;
+    b.style.height = `${size}px`;
+    b.style.marginLeft = `${-size / 2}px`;
+    b.style.marginTop = `${-size / 2}px`;
     b.classList.toggle('selected', g.id === openId);
     b.classList.remove('is-out');
     const html = pinFor(g);
@@ -247,20 +252,27 @@ function sampleFor(id) {
 function paintBar() {
   const bar = $('mapBar');
   const legend = $('legend');
+  const nearby = $('nearbyTitle');
   bar.classList.toggle('is-off', !filterOn);
+  $('filterGbox').classList.toggle('is-filter-on', filterOn);
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
+  nearby.textContent = wording.nearby;
+  nearby.hidden = filterOn;
+  legend.hidden = !filterOn;
   const list = stops();
   const stop = list.find((x) => x.id === stopId) || list[0];
-  const ico = filterOn ? pinFor(sampleFor(stopId)) : pinFor(sampleFor('wishlist'));
-  const title = filterOn ? stop.label : wording.nearby;
-  const note = filterOn ? `<p class="legend-note">${wording.explain[stopId] || ''}</p>` : '';
-  const prev = legend.querySelector('.legend-title');
-  const changed = !prev || prev.textContent !== title;
-  legend.innerHTML = `<span class="legend-ico">${ico}</span><div class="legend-copy"><p class="legend-title">${title}</p>${note}</div>`;
-  if (changed) {
-    legend.classList.remove('is-swap');
-    void legend.offsetWidth;
-    legend.classList.add('is-swap');
+  if (filterOn) {
+    const ico = pinFor(sampleFor(stopId));
+    const title = stop.label;
+    const note = wording.explain[stopId] || '';
+    const prev = legend.querySelector('.legend-title');
+    const changed = !prev || prev.textContent !== title;
+    legend.innerHTML = `<span class="legend-ico">${ico}</span><div class="legend-copy"><p class="legend-title">${title}</p><p class="legend-note">${note}</p></div>`;
+    if (changed) {
+      legend.classList.remove('is-swap');
+      void legend.offsetWidth;
+      legend.classList.add('is-swap');
+    }
   }
   for (const b of $('roller').querySelectorAll('button')) {
     b.setAttribute('aria-selected', String(b.dataset.stop === stopId));
@@ -661,3 +673,12 @@ setSheet(sheet);
 paintBar();
 drawPins();
 window.addEventListener('resize', drawPins);
+$('tabBar').addEventListener('click', (e) => {
+  const tab = e.target.closest('[data-tab]');
+  if (!tab) return;
+  for (const b of $('tabBar').querySelectorAll('[data-tab]')) {
+    const on = b === tab;
+    b.classList.toggle('is-active', on);
+    b.setAttribute('aria-pressed', String(on));
+  }
+});

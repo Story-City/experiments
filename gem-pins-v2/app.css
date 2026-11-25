@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v6 — Figma Component 22 gems, swipe roller, no liked/visited on pins */
+/* GEM-PINS-V2-v7 — V1 sizes, legend under roller, gbox, app FloatingTabBar */
 :root {
   --bg: #170c35;
   --surface: #241b46;
@@ -103,13 +103,13 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   background: #1d1b3d url(../gem-pins/img/edmonton-map.jpg) center / cover no-repeat;
   transform-origin: center center;
 }
-.pins { position: absolute; inset: 96px 0 0 0; }
+.pins { position: absolute; inset: 96px 0 72px 0; }
 
 .pin {
   position: absolute;
-  width: 44px;
-  height: 44px;
-  margin: -22px 0 0 -22px;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
   padding: 0;
   border: 0;
   background: none;
@@ -127,21 +127,24 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 }
 .legend.is-swap { animation: pinFadeIn 480ms var(--ease-out) both; }
 .pin .pin-gem,
-.pin .pin-gem-wrap {
+.pin .pin-gem-wrap,
+.pin svg {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  overflow: visible;
   pointer-events: none;
 }
-.pin .pin-gem-wrap { width: auto; height: auto; }
-.pin .pin-gem.is-heart { width: 100%; height: 100%; }
 .legend-ico .pin-gem,
 .legend-ico .pin-gem-wrap,
+.legend-ico svg,
 .roller .pin-gem,
-.roller .pin-gem-wrap {
-  width: 34px;
-  height: 34px;
+.roller .pin-gem-wrap,
+.roller button svg {
+  width: 28px;
+  height: 28px;
+  overflow: visible;
 }
 .pin.selected { z-index: 3; }
 .pin.selected::before {
@@ -161,49 +164,78 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   left: 0;
   right: 0;
   z-index: 5;
-  padding: 14px 10px 8px;
-  background: linear-gradient(180deg, rgba(23, 12, 53, 0.96) 62%, rgba(23, 12, 53, 0));
+  padding: 12px 10px 8px;
+  pointer-events: none;
+}
+.gbox {
+  pointer-events: auto;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--raised) 72%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  transition: opacity 480ms var(--ease-out), transform 480ms var(--ease-out);
 }
 .map-bar {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) 40px;
+  grid-template-columns: minmax(0, 1fr) 40px;
   align-items: center;
   gap: 8px;
-  min-height: 56px;
+  min-height: 40px;
   transition: grid-template-columns 480ms var(--ease-out);
 }
-.map-bar.is-off { grid-template-columns: minmax(0, 1fr) 0fr 40px; }
+.gbox.is-filter-on .map-bar {
+  grid-template-columns: minmax(0, 1fr) 40px;
+}
+.nearby-title {
+  margin: 0;
+  font-weight: 800;
+  font-size: 22px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .roller-wrap {
   min-width: 0;
   overflow: hidden;
-  opacity: 1;
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
   transition: opacity 480ms var(--ease-out);
 }
-.map-bar.is-off .roller-wrap { opacity: 0; pointer-events: none; }
+.gbox.is-filter-on .roller-wrap {
+  opacity: 1;
+  pointer-events: auto;
+  height: 40px;
+}
+.gbox:not(.is-filter-on) .roller-wrap { display: none; }
+.gbox.is-filter-on .nearby-title { display: none; }
 
 .legend {
   min-width: 0;
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-top: 2px;
 }
+.legend[hidden] { display: none !important; }
 .legend-ico, .roller button {
   flex: none;
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-}
-.legend-ico svg, .roller button svg {
   width: 36px;
   height: 36px;
-  overflow: visible;
+  display: grid;
+  place-items: center;
 }
 .legend-copy { min-width: 0; }
 .legend-title {
   margin: 0;
   font-weight: 800;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -250,17 +282,17 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   border-color: rgba(0, 194, 255, 0.7);
 }
 
-.roller-wrap { min-width: 0; height: 48px; touch-action: pan-x; }
+.gbox.is-filter-on .roller-wrap { touch-action: pan-x; }
 .roller {
   display: flex;
   align-items: center;
   gap: 2px;
-  height: 48px;
+  height: 40px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   scrollbar-width: none;
-  padding-inline: calc(50% - 20px);
+  padding-inline: calc(50% - 18px);
   touch-action: pan-x;
   cursor: grab;
   mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
@@ -271,8 +303,8 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .roller button {
   scroll-snap-align: center;
   flex: none;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -285,6 +317,53 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   opacity: 1;
   box-shadow: 0 0 14px rgba(0, 194, 255, 0.45);
 }
+
+/* Floating tab bar — from mobile-rn FloatingTabBar; icons from assets/app-icons */
+.tab-bar {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 8;
+  transform: translateX(-50%);
+  display: flex;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(42, 47, 92, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 5px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.62);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 12px;
+}
+.tab.is-active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.tab-ico {
+  width: 23px;
+  height: 23px;
+  display: block;
+}
+.tab-gem {
+  width: 23px;
+  height: 21px;
+  color: #fff;
+}
+.tab:not(.is-active) .tab-gem { color: rgba(255, 255, 255, 0.85); }
 
 .toast {
   position: absolute;

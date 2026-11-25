@@ -14,11 +14,12 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
 </head>
 <body>
-<!-- GEM-PINS-EDITION-v7: Figma gems on V2, wording spoof, swipe filter -->
+<!-- GEM-PINS-EDITION-v8: V1 sizes, legend under roller, gbox, app tab bar, reset outside -->
 <button type="button" class="settings-eye" id="settingsEye" aria-pressed="true" aria-label="Hide settings">
   <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
   <svg class="eye-shut" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M2 12s4-7 10-7c1.7 0 3.2.4 4.5 1.1M22 12s-4 7-10 7c-1.7 0-3.2-.4-4.5-1.1"/><path d="M9.5 9.5a3 3 0 0 0 4.2 4.2"/></svg>
 </button>
+<button type="button" class="reset-filter" id="resetFilter">Reset filter</button>
 <aside class="debug-rail" aria-label="Debug">
   <section class="tool-block">
     <h2 class="edition-title">Versioning</h2>
@@ -34,7 +35,6 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
         <button type="button" data-sheet="image" aria-pressed="false">Image</button>
         <button type="button" data-sheet="corner" aria-pressed="false">Corner</button>
       </div>
-      <button type="button" class="reset-filter" id="resetFilter">Reset filter</button>
       <p class="edition-label">Wording</p>
       <label class="word-pick"><span>Nearby</span><input type="text" id="spoofNearby" value="Gems nearby"></label>
       <label class="word-pick"><span>Navigate</span><input type="text" id="spoofNav" value="[navigate]"></label>
@@ -161,7 +161,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     const v2 = edition === 'v2';
     document.body.classList.toggle('is-v2', v2);
     if (v2 && frame.dataset.ready !== '1') {
-      frame.src = '../gem-pins-v2/?v=6&embed=1&sheet=' + sheet;
+      frame.src = '../gem-pins-v2/?v=7&embed=1&sheet=' + sheet;
       frame.dataset.ready = '1';
     } else if (v2) {
       showFrame();

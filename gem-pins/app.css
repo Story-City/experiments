@@ -310,7 +310,7 @@ body.cb-rg .phone { filter: url(#deutan); }
 .pin.cluster svg { filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35)); }
 .count-badge { position: absolute; right: -2px; top: -4px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #fff; color: #170c35; font: 800 13px/22px var(--f-ui); text-align: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); pointer-events: none; }
 
-/* GEM-PINS-EDITION-v7 — right debug panel; wording spoof; eye hides Melissa + debug */
+/* GEM-PINS-EDITION-v8 — reset outside box; wording; eye hides Melissa + debug */
 .settings-eye {
   position: fixed;
   z-index: 60;
@@ -483,15 +483,25 @@ body.is-v2 .edition-extra { max-height: 1200px; opacity: 1; }
   color: #fff;
 }
 .reset-filter {
+  position: fixed;
+  z-index: 60;
+  top: 64px;
+  right: 16px;
   height: 34px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  background: transparent;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(36, 27, 70, 0.72);
   color: #fff;
   font-weight: 800;
   font-size: 14px;
+  transition: opacity 480ms var(--ease-out), transform 480ms var(--ease-out);
 }
+body.is-v2 .reset-filter { display: inline-flex; align-items: center; }
+body:not(.is-v2) .reset-filter { display: none; }
+.debug-rail { top: 108px; }
 body.is-settings-hidden .debug-rail,
+body.is-settings-hidden .reset-filter,
 body.is-settings-hidden .panel,
 body.is-settings-hidden .options-btn {
   opacity: 0;
