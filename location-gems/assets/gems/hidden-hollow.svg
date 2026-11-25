@@ -1,0 +1,12 @@
+<svg viewBox="-6 -6 112 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <filter id="hiddenHollowGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3.5"/>
+    </filter>
+  </defs>
+  <g filter="url(#hiddenHollowGlow)" opacity=".7">
+    <path d="M8 40L32 20L68 20L92 40L50 94Z" fill="none" stroke="#CDD6EA" stroke-width="7" stroke-linejoin="round"/>
+  </g>
+  <path d="M8 40L32 20L68 20L92 40L50 94Z" fill="#CDD6EA" fill-opacity=".14"/>
+  <path d="M8 40L32 20L68 20L92 40L50 94Z" fill="none" stroke="#CDD6EA" stroke-width="5" stroke-linejoin="round"/>
+</svg>

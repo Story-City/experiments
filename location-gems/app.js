@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v78 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v79 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -23,6 +23,9 @@ const LIKE_PINK_HOT = '#ff7aab';
 
 const PUBLIC_GEM_FILL = '#00c2ff';
 const HIDDEN_GEM_FILL = '#9370c4';
+/** Outline-only hidden gem from gem-pins ART.hollow (map prototype) */
+const HIDDEN_HOLLOW_ART = 'assets/gems/hidden-hollow.svg';
+const HOLLOW_GEM_LINE = '#CDD6EA';
 /** Melissa's jam categories (gem-pins / 19 Nov) — shape + colour */
 /** Melissa’s cats — Figma Component 22 gems (Social Media 2847:469) */
 /* Same as gem-pins: eat + shop combined into one Eat & Drink stop */
@@ -517,6 +520,10 @@ function categoryGemMark(cat) {
   return `<img class="cat-gem-art" src="${cat.art}" alt="" decoding="async">`;
 }
 
+function hollowHiddenGemMark() {
+  return `<img class="cat-gem-art hollow-gem-art" src="${HIDDEN_HOLLOW_ART}" alt="" decoding="async">`;
+}
+
 function gemVisualFill(gem) {
   if (!gem.isPublic) return HIDDEN_GEM_FILL;
   if (gem.category) return jamCatById(gem.category).colour;
@@ -901,10 +908,12 @@ function cornerRibbonHtml(fill, uid) {
 function buildGemCard(gem, opts = {}) {
   const rarity = rarityForLikes(gem.likes, gem.isPublic);
   const cat = ensureGemCategory(gem);
+  const hidden = !gem.isPublic;
+  const line = hidden ? HOLLOW_GEM_LINE : cat.colour;
   const wrap = document.createElement('div');
   wrap.className = 'gem-card';
   if (opts.enter) wrap.classList.add('is-enter');
-  wrap.style.setProperty('--gem-line', cat.colour);
+  wrap.style.setProperty('--gem-line', line);
   const img = document.createElement('img');
   img.className = 'gem-card-photo';
   img.src = gem.imageUri;
@@ -920,22 +929,22 @@ function buildGemCard(gem, opts = {}) {
     rarityEl.textContent = rarity.label;
     wrap.appendChild(rarityEl);
   }
-  /* Every gem has a category — Figma gem on the corner, never the blue general icon */
+  /* Public: category Figma gem. Hidden: map-prototype hollow outline gem. */
   const corner = document.createElement('div');
   corner.className = 'gem-card-corner';
   const art = document.createElement('div');
   art.className = 'gem-card-corner-art';
   art.setAttribute('aria-hidden', 'true');
-  art.innerHTML = cornerRibbonHtml(cat.colour, gem.id || cat.id);
+  art.innerHTML = cornerRibbonHtml(line, gem.id || (hidden ? 'hidden' : cat.id));
   corner.appendChild(art);
   const stack = document.createElement('div');
   stack.className = 'gem-card-corner-stack';
   const gemEl = document.createElement('span');
-  gemEl.className = 'gem-card-gem';
-  if (showRarity() && gem.isPublic && rarity.id !== 'cyan') {
+  gemEl.className = hidden ? 'gem-card-gem is-hollow' : 'gem-card-gem';
+  if (!hidden && showRarity() && rarity.id !== 'cyan') {
     gemEl.classList.add(`is-${rarity.id}`);
   }
-  gemEl.innerHTML = categoryGemMark(cat);
+  gemEl.innerHTML = hidden ? hollowHiddenGemMark() : categoryGemMark(cat);
   stack.appendChild(gemEl);
   corner.appendChild(stack);
   wrap.appendChild(corner);
@@ -1199,10 +1208,10 @@ function renderGrid(enterId) {
     const copy = emptyCopy();
     emptyTitle.textContent = copy.title;
     emptyBody.textContent = copy.body;
-    emptyIcon.innerHTML = gemSvg(
-      activeSection === 'public' ? PUBLIC_GEM_FILL : HIDDEN_GEM_FILL,
-      { softOutline: true },
-    );
+    emptyIcon.innerHTML =
+      activeSection === 'hidden'
+        ? hollowHiddenGemMark()
+        : gemSvg(PUBLIC_GEM_FILL, { softOutline: true });
     emptyState.hidden = false;
     return;
   }
@@ -2090,8 +2099,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v78 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v78 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v79 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v79 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2300,12 +2309,12 @@ function resetState() {
 }
 
 function initIcons() {
-  railPrivateIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL, { softOutline: true });
+  railPrivateIcon.innerHTML = hollowHiddenGemMark();
   railPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL, { softOutline: true });
-  dropHiddenIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL, { softOutline: true });
+  dropHiddenIcon.innerHTML = hollowHiddenGemMark();
   dropPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL, { softOutline: true });
   tabPublicIcon.innerHTML = gemSvg(PUBLIC_GEM_FILL);
-  tabHiddenIcon.innerHTML = gemSvg(HIDDEN_GEM_FILL);
+  tabHiddenIcon.innerHTML = hollowHiddenGemMark();
   const tabLikedIcon = document.querySelector('#tabLiked .tab-like-icon');
   if (tabLikedIcon) tabLikedIcon.innerHTML = heartSvg();
 }

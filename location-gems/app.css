@@ -449,10 +449,18 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   height: 20px;
 }
 .tab-like-icon svg,
-.tab-gem-svg svg {
+.tab-gem-svg svg,
+.tab-gem-svg .cat-gem-art {
   width: 100%;
   height: 100%;
   display: block;
+  object-fit: contain;
+}
+#tabHidden .tab-gem-svg .hollow-gem-art {
+  filter: none;
+}
+#tabHidden.is-active .tab-gem-svg {
+  filter: none;
 }
 
 .gem-grid {
@@ -564,8 +572,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   position: absolute;
   top: 0;
   right: 0;
-  width: 44%;
-  height: 44%;
+  width: 52%;
+  height: 52%;
   overflow: visible;
 }
 .gem-card-corner-art svg {
@@ -583,13 +591,16 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .gem-card-gem {
   flex: none;
-  width: 30px;
-  height: 30px;
-  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
+  width: 38px;
+  height: 38px;
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
 }
 .gem-card-gem.is-diamond {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
+}
+.gem-card-gem.is-hollow {
+  filter: drop-shadow(0 0 10px rgba(205, 214, 234, 0.75));
 }
 .gem-card-rarity.is-silver { color: #dfe6f2; box-shadow: 0 0 10px rgba(200, 210, 230, 0.55); }
 .gem-card-rarity.is-gold { color: #ffe09a; box-shadow: 0 0 10px rgba(255, 196, 72, 0.55); }
@@ -643,7 +654,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   display: grid;
   place-items: center;
 }
-.empty-icon svg { width: 100%; height: 100%; display: block; }
+.empty-icon svg,
+.empty-icon .cat-gem-art {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
 .empty-title {
   margin: 0;
   color: var(--text);
@@ -1669,9 +1686,15 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   place-items: center;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
 }
-.sort-rail-gem svg { width: 40px; height: 36px; display: block; }
+.sort-rail-gem svg,
+.sort-rail-gem .cat-gem-art {
+  width: 40px;
+  height: 36px;
+  display: block;
+  object-fit: contain;
+}
 .sort-rail-left .sort-rail-gem {
-  filter: drop-shadow(0 0 14px rgba(179, 107, 255, 0.95));
+  filter: drop-shadow(0 0 14px rgba(205, 214, 234, 0.9));
 }
 .sort-rail-right .sort-rail-gem {
   filter: drop-shadow(0 0 16px rgba(0, 194, 255, 1));
@@ -1751,7 +1774,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   display: grid;
   place-items: center;
 }
-.drop-zone-gem svg { width: 40px; height: 36px; display: block; }
+.drop-zone-gem svg,
+.drop-zone-gem .cat-gem-art {
+  width: 40px;
+  height: 36px;
+  display: block;
+  object-fit: contain;
+}
 .drop-zone-label {
   font-size: 11px;
   font-weight: 800;
