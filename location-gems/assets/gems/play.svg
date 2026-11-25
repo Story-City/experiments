@@ -1,0 +1,29 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Component 22">
+<path id="Vector" d="M63.04 35.6L72.22 13.43L86.82 23.18L96.57 37.78L74.4 46.96L63.04 35.6Z" fill="#F7C85C"/>
+<path id="Vector_2" d="M74.4 46.96L96.57 37.78L100 55L96.57 72.22L74.4 63.04V46.96Z" fill="#C96800"/>
+<path id="Vector_3" d="M74.4 63.04L96.57 72.22L86.82 86.82L72.22 96.57L63.04 74.4L74.4 63.04Z" fill="#D46D05"/>
+<path id="Vector_4" d="M63.04 74.4L72.22 96.57L55 100L37.78 96.57L46.96 74.4H63.04Z" fill="#EDA114"/>
+<path id="Vector_5" d="M46.96 74.4L37.78 96.57L23.18 86.82L13.43 72.22L35.6 63.04L46.96 74.4Z" fill="#F5D42E"/>
+<path id="Vector_6" d="M35.6 63.04L13.43 72.22L10 55L13.43 37.78L35.6 46.96V63.04Z" fill="#FFE100"/>
+<path id="Vector_7" d="M35.6 46.96L13.43 37.78L23.18 23.18L37.78 13.43L46.96 35.6L35.6 46.96Z" fill="#FFEF77"/>
+<path id="Vector_8" d="M46.96 35.6L37.78 13.43L55 10L72.22 13.43L63.04 35.6H46.96Z" fill="#FFC23C"/>
+<path id="Vector_9" d="M63.04 35.6L74.4 46.96V63.04L63.04 74.4H46.96L35.6 63.04V46.96L46.96 35.6H63.04Z" fill="url(#paint0_linear_0_126)"/>
+<path id="Vector_10" d="M63.04 35.6L72.22 13.43" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_11" d="M74.4 46.96L96.57 37.78" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_12" d="M74.4 63.04L96.57 72.22" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_13" d="M63.04 74.4L72.22 96.57" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_14" d="M46.96 74.4L37.78 96.57" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_15" d="M35.6 63.04L13.43 72.22" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_16" d="M35.6 46.96L13.43 37.78" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_17" d="M46.96 35.6L37.78 13.43" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_18" d="M63.04 35.6L74.4 46.96V63.04L63.04 74.4H46.96L35.6 63.04V46.96L46.96 35.6H63.04Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_19" d="M55 10L72.22 13.43L86.82 23.18L96.57 37.78L100 55L96.57 72.22L86.82 86.82L72.22 96.57L55 100L37.78 96.57L23.18 86.82L13.43 72.22L10 55L13.43 37.78L23.18 23.18L37.78 13.43L55 10Z" stroke-width="4.2" stroke-linejoin="round" stroke="white"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_126" x1="55" y1="35.6" x2="55" y2="74.4" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FFE565"/>
+<stop offset="1" stop-color="#DA9217"/>
+</linearGradient>
+</defs>
+</svg>

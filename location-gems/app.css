@@ -595,7 +595,22 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .gem-card-rarity.is-gold { color: #ffe09a; box-shadow: 0 0 10px rgba(255, 196, 72, 0.55); }
 .gem-card-rarity.is-platinum { color: #dce4ff; box-shadow: 0 0 12px rgba(210, 220, 255, 0.7); }
 .gem-card-rarity.is-diamond { color: #d8fbff; box-shadow: 0 0 14px rgba(180, 240, 255, 0.75); }
-.gem-card-gem svg { width: 100%; height: 100%; display: block; }
+.gem-card-gem svg,
+.gem-card-gem .cat-gem-art,
+.feed-chip-corner-gem .cat-gem-art,
+.sort-card-gem .cat-gem-art,
+.publish-cat-gem .cat-gem-art {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+.cat-gem-art {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
 .gem-card-rarity {
   position: absolute;
   left: 8px;
