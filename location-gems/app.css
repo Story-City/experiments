@@ -2439,9 +2439,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .publish-sheet {
   position: absolute;
   inset: 0;
-  z-index: 36;
+  z-index: 60;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: center;
   padding: 10px 14px calc(14px + var(--kb, 0px));
   pointer-events: none;
@@ -2449,7 +2449,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   box-sizing: border-box;
 }
 .publish-sheet.is-words {
-  align-items: flex-start;
   padding-top: 10px;
   padding-bottom: calc(10px + var(--kb, 0px));
 }
