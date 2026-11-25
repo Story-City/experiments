@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v66 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v67 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -233,6 +233,8 @@ const COPY = {
   likesSubtitleStack: '[on 2 gems]',
   likesWord: '[likes]',
   detailNav: '[navigate]',
+  saveLater: '[save for later]',
+  savedLater: '[saved for later]',
   detailPublish: '[publish]',
   detailUnpublish: '[unpublish]',
   detailAdd: '[confirm]',
@@ -289,6 +291,8 @@ const SPOOF_COPY = {
   likesSubtitleStack: 'on 2 gems',
   likesWord: 'likes',
   detailNav: 'Navigate',
+  saveLater: 'Save for later',
+  savedLater: 'Saved for later',
   detailPublish: 'Publish',
   detailUnpublish: 'Unpublish',
   detailAdd: 'Confirm',
@@ -384,7 +388,9 @@ const detailRarityGem = document.getElementById('detailRarityGem');
 const detailRarityLabel = document.getElementById('detailRarityLabel');
 const detailSectionLabel = document.getElementById('detailSectionLabel');
 const detailOverlay = document.querySelector('.detail-overlay');
+const detailActions = document.getElementById('detailActions');
 const detailNav = document.getElementById('detailNav');
+const detailSave = document.getElementById('detailSave');
 const detailPublish = document.getElementById('detailPublish');
 const detailEntries = document.getElementById('detailEntries');
 const detailBanner = document.getElementById('detailBanner');
@@ -772,6 +778,7 @@ function applyStaticCopy() {
     if (key) el.textContent = t(key);
   });
   detailNav.textContent = t('detailNav');
+  if (detailSave) detailSave.textContent = t('saveLater');
   detailAdd.textContent = t('detailAdd');
   detailWriteLabel.textContent = t('detailWriteLabel');
   detailNote.placeholder = t('detailNotePh');
@@ -993,13 +1000,30 @@ function buildGemCard(gem, opts = {}) {
   return wrap;
 }
 
+function syncSaveBtn(btn, gemId) {
+  if (!btn) return;
+  const on = isFavourite(gemId);
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  btn.textContent = on ? t('savedLater') : t('saveLater');
+}
+
 function bindFeedChipActions(chip, g) {
-  const go = chip.querySelector('.feed-chip-go');
+  const go = chip.querySelector('.feed-chip-go, .nav-btn');
   if (go) {
     go.addEventListener('click', (e) => {
       e.stopPropagation();
       hint.textContent = t('navigateSpoof');
       openDetail(g.id);
+    });
+  }
+  const save = chip.querySelector('.save-btn');
+  if (save) {
+    syncSaveBtn(save, g.id);
+    save.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFavourite(g.id);
+      syncSaveBtn(save, g.id);
+      if (openGemId === g.id) syncDetailSave();
     });
   }
   chip.addEventListener('click', () => openDetail(g.id));
@@ -1038,7 +1062,11 @@ function buildFeedChip(g, variant) {
     showRarity() && rarity.id !== 'cyan'
       ? `<p class="feed-chip-rarity-word is-${rarity.id}">${rarity.label}</p>`
       : '';
-  const goBtn = `<button type="button" class="feed-chip-go">${t('detailNav')}</button>`;
+  const actions = `
+    <div class="feed-chip-actions">
+      <button type="button" class="save-btn">${t('saveLater')}</button>
+      <button type="button" class="nav-btn">${t('detailNav')}</button>
+    </div>`;
   const corner = feedCornerHtml(g, rarity, `feed-${g.id || rarity.id}`);
   const copyBlock = `
     <div class="feed-chip-copy">
@@ -1066,8 +1094,8 @@ function buildFeedChip(g, variant) {
         <p class="feed-chip-prompt">${promptLine}</p>
         <div class="feed-chip-prompt-foot">
           ${rarityWord}
-          ${goBtn}
         </div>
+        ${actions}
       </div>
       ${corner}`;
   } else if (variant === 'caption') {
@@ -1081,7 +1109,7 @@ function buildFeedChip(g, variant) {
           ${captionPromptBlock}
           ${copyBlock}
         </div>
-        ${goBtn}
+        ${actions}
       </div>
       ${corner}`;
   } else if (variant === 'peek') {
@@ -1095,7 +1123,7 @@ function buildFeedChip(g, variant) {
           <p class="feed-chip-prompt">${promptLine}</p>
           ${copyBlock}
         </div>
-        ${goBtn}
+        ${actions}
       </div>
       ${corner}`;
   } else if (variant === 'overlay') {
@@ -1106,7 +1134,7 @@ function buildFeedChip(g, variant) {
       </div>
       <div class="feed-chip-body is-on-photo">
         ${copyBlock}
-        ${goBtn}
+        ${actions}
       </div>
       ${corner}`;
   } else {
@@ -1117,7 +1145,7 @@ function buildFeedChip(g, variant) {
       </div>
       <div class="feed-chip-body">
         ${copyBlock}
-        ${goBtn}
+        ${actions}
       </div>
       ${corner}`;
   }
@@ -1374,6 +1402,12 @@ function syncDetailFav() {
   detailFavIcon.src = isFavourite(openGemId)
     ? 'assets/fav_checked.svg'
     : 'assets/fav_unchecked.svg';
+  syncDetailSave();
+}
+
+function syncDetailSave() {
+  if (!detailSave || !openGemId) return;
+  syncSaveBtn(detailSave, openGemId);
 }
 
 function renderDetailEntries(gem) {
@@ -1462,8 +1496,8 @@ function openDetail(id) {
   }
   detailSectionLabel.textContent = t('descriptionLabel');
   detailCaption.textContent = displayCopy(gem.caption || '');
-  detailNav.hidden = false;
-  detailNav.textContent = t('detailNav');
+  if (detailActions) detailActions.hidden = false;
+  if (detailNav) detailNav.textContent = t('detailNav');
   syncDetailLike(gem);
   renderDetailEntries(gem);
   syncDetailFav();
@@ -2047,8 +2081,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v66 · V1. No rarity.'
-        : 'LOCATION-GEMS-HUB-v66 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v67 · V1. No rarity.'
+        : 'LOCATION-GEMS-HUB-v67 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2299,6 +2333,14 @@ detailFav.addEventListener('click', () => {
 detailNav.addEventListener('click', () => {
   hint.textContent = t('navigateSpoof');
 });
+if (detailSave) {
+  detailSave.addEventListener('click', () => {
+    if (!openGemId) return;
+    toggleFavourite(openGemId);
+    syncDetailSave();
+    renderFeed();
+  });
+}
 detailPublish.addEventListener('click', () => {
   if (openGemId) togglePublish(openGemId);
 });
