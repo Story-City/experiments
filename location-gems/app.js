@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v69 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v70 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -34,7 +34,7 @@ const JAM_CATS = [
   { id: 'landmark', label: 'Landmarks', colour: '#F1A638', art: 'assets/gems/landmarks.svg' },
   { id: 'curio', label: 'Curiosities', colour: '#B36BFF', art: 'assets/gems/curiosities.svg' },
 ];
-const SORT_CARD_LOOKS = new Set(['polaroid', 'corner', 'overlay', 'flush']);
+const SORT_CARD_LOOKS = new Set(['polaroid', 'overlay', 'flush', 'stack']);
 const SILVER_GEM_FILL = '#c8d2e6';
 const GOLD_GEM_FILL = '#ffc448';
 const PLATINUM_GEM_FILL = '#d2dcff';
@@ -378,7 +378,7 @@ const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'banner';
 let hubEdition = 'v1';
-let sortCardLook = 'corner';
+let sortCardLook = 'polaroid';
 let pendingPublish = null;
 const FEED_VARIANTS = new Set([
   'banner',
@@ -495,10 +495,8 @@ function jamCatById(id) {
 }
 
 function categoryGemMark(cat) {
-  if (cat?.art) {
-    return `<img class="cat-gem-art" src="${cat.art}" alt="" decoding="async">`;
-  }
-  return gemSvg(cat?.colour || PUBLIC_GEM_FILL);
+  if (!cat?.art) return '';
+  return `<img class="cat-gem-art" src="${cat.art}" alt="" decoding="async">`;
 }
 
 function gemVisualFill(gem) {
@@ -889,7 +887,7 @@ function buildGemCard(gem, opts = {}) {
   const wrap = document.createElement('div');
   wrap.className = 'gem-card';
   if (opts.enter) wrap.classList.add('is-enter');
-  wrap.style.setProperty('--gem-line', cornerFill);
+  wrap.style.setProperty('--gem-line', cat ? cat.colour : cornerFill);
   const img = document.createElement('img');
   img.className = 'gem-card-photo';
   img.src = gem.imageUri;
@@ -905,25 +903,27 @@ function buildGemCard(gem, opts = {}) {
     rarityEl.textContent = rarity.label;
     wrap.appendChild(rarityEl);
   }
-  /* Figma 2825:457 — organic indigo blotch + brush lines tinted to gem */
-  const corner = document.createElement('div');
-  corner.className = 'gem-card-corner';
-  const art = document.createElement('div');
-  art.className = 'gem-card-corner-art';
-  art.setAttribute('aria-hidden', 'true');
-  art.innerHTML = cornerRibbonHtml(cornerFill, gem.id || rarity.id);
-  corner.appendChild(art);
-  const stack = document.createElement('div');
-  stack.className = 'gem-card-corner-stack';
-  const gemEl = document.createElement('span');
-  gemEl.className = 'gem-card-gem';
-  if (!gem.isPublic) gemEl.classList.add('is-hidden-fill');
-  else if (showRarity() && rarity.id !== 'cyan') gemEl.classList.add(`is-${rarity.id}`);
-  gemEl.innerHTML =
-    gem.isPublic && cat ? categoryGemMark(cat) : gemSvg(cornerFill);
-  stack.appendChild(gemEl);
-  corner.appendChild(stack);
-  wrap.appendChild(corner);
+  /* Category gems only — blue classic gem is a general icon, never on cards */
+  if (cat) {
+    const corner = document.createElement('div');
+    corner.className = 'gem-card-corner';
+    const art = document.createElement('div');
+    art.className = 'gem-card-corner-art';
+    art.setAttribute('aria-hidden', 'true');
+    art.innerHTML = cornerRibbonHtml(cat.colour, gem.id || cat.id);
+    corner.appendChild(art);
+    const stack = document.createElement('div');
+    stack.className = 'gem-card-corner-stack';
+    const gemEl = document.createElement('span');
+    gemEl.className = 'gem-card-gem';
+    if (showRarity() && gem.isPublic && rarity.id !== 'cyan') {
+      gemEl.classList.add(`is-${rarity.id}`);
+    }
+    gemEl.innerHTML = categoryGemMark(cat);
+    stack.appendChild(gemEl);
+    corner.appendChild(stack);
+    wrap.appendChild(corner);
+  }
   const footer = document.createElement('div');
   footer.className = 'gem-card-footer';
   const caption = document.createElement('p');
@@ -977,15 +977,14 @@ function bindFeedChipActions(chip, g) {
 }
 
 function feedCornerHtml(gem, rarity, uid) {
-  const fill = gemVisualFill(gem);
   const cat = gem.category ? jamCatById(gem.category) : null;
-  const gemMark =
-    gem.isPublic && cat ? categoryGemMark(cat) : gemSvg(fill);
+  if (!cat) return '';
+  const fill = cat.colour;
   return `
     <div class="feed-chip-corner" aria-hidden="true">
       <div class="feed-chip-corner-art">${cornerRibbonHtml(fill, uid)}</div>
       <div class="feed-chip-corner-stack">
-        <span class="feed-chip-corner-gem">${gemMark}</span>
+        <span class="feed-chip-corner-gem">${categoryGemMark(cat)}</span>
       </div>
     </div>`;
 }
@@ -1254,24 +1253,12 @@ function setTargets(mode, armed) {
   else if (mode === 'delete') railDelete.classList.add('is-hot');
 }
 
-function sortCornerHtml(uid) {
-  const fill = PUBLIC_GEM_FILL;
-  return `
-    <div class="sort-card-corner" aria-hidden="true">
-      <div class="sort-card-corner-art">${cornerRibbonHtml(fill, uid)}</div>
-      <div class="sort-card-corner-stack">
-        <span class="sort-card-gem">${gemSvg(fill)}</span>
-      </div>
-    </div>`;
-}
-
 function buildSortCard(find, under, enter) {
-  const look = SORT_CARD_LOOKS.has(sortCardLook) ? sortCardLook : 'corner';
+  const look = SORT_CARD_LOOKS.has(sortCardLook) ? sortCardLook : 'polaroid';
   const card = document.createElement('article');
   card.className = `sort-card is-${look}${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
   card.dataset.id = find.id;
-  card.style.setProperty('--gem-line', PUBLIC_GEM_FILL);
-  const corner = look === 'polaroid' ? '' : sortCornerHtml(find.id || 'sort');
+  /* Unsorted finds are not gems yet — never show a gem corner */
   const body = `
     <div class="sort-card-body">
       <p class="sort-card-user">${find.user}</p>
@@ -1283,14 +1270,12 @@ function buildSortCard(find, under, enter) {
       <div class="sort-card-media">
         <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
         <div class="sort-card-fade" aria-hidden="true"></div>
-        ${corner}
         ${body}
       </div>`;
   } else {
     card.innerHTML = `
       <div class="sort-card-media">
         <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
-        ${corner}
       </div>
       ${body}`;
   }
@@ -1298,7 +1283,7 @@ function buildSortCard(find, under, enter) {
 }
 
 function setSortCardLook(look) {
-  const next = SORT_CARD_LOOKS.has(look) ? look : 'corner';
+  const next = SORT_CARD_LOOKS.has(look) ? look : 'polaroid';
   sortCardLook = next;
   document.querySelectorAll('[data-sort-look]').forEach((btn) => {
     const on = btn.getAttribute('data-sort-look') === next;
@@ -2057,8 +2042,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v69 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v69 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v70 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v70 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
