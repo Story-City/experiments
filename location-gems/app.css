@@ -743,7 +743,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .detail[hidden] { display: none !important; }
 /* Story Overview back / fav chrome */
 .detail-back,
-.detail-fav,
 .detail-menu {
   position: absolute;
   top: 14px;
@@ -761,7 +760,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   padding: 0;
 }
 .detail-back { left: 16px; }
-.detail-fav { right: 56px; }
 .detail-menu-wrap {
   position: absolute;
   top: 14px;
@@ -807,7 +805,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   background: rgba(255, 255, 255, 0.1);
 }
 .detail-back svg { display: block; }
-.detail-fav img { display: block; }
 .ov-chip-cat {
   gap: 5px;
   border-color: color-mix(in srgb, var(--cat-fill, #00c2ff) 45%, rgba(255, 255, 255, 0.22));
@@ -982,7 +979,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   width: 18px;
   font-size: 16px;
   line-height: 1;
-  color: var(--like-pink-hot);
+  color: rgba(255, 255, 255, 0.72);
+}
+.like-btn:not(.is-liked) {
+  color: rgba(255, 255, 255, 0.78);
+}
+.like-btn:not(.is-liked) .like-heart {
+  color: rgba(255, 122, 171, 0.55);
 }
 .like-btn.is-liked {
   color: #fff;
