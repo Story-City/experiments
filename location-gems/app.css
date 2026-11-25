@@ -743,7 +743,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .detail[hidden] { display: none !important; }
 /* Story Overview back / fav chrome */
 .detail-back,
-.detail-fav {
+.detail-fav,
+.detail-menu {
   position: absolute;
   top: 14px;
   z-index: 4;
@@ -760,9 +761,68 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   padding: 0;
 }
 .detail-back { left: 16px; }
-.detail-fav { right: 16px; }
+.detail-fav { right: 56px; }
+.detail-menu-wrap {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 5;
+}
+.detail-menu {
+  position: relative;
+  top: 0;
+  right: 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.detail-menu-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 140px;
+  padding: 6px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--raised) 92%, #000);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+.detail-menu-pop[hidden] { display: none !important; }
+.detail-menu-item {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.detail-menu-item:hover,
+.detail-menu-item:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+}
 .detail-back svg { display: block; }
 .detail-fav img { display: block; }
+.ov-chip-cat {
+  gap: 5px;
+  border-color: color-mix(in srgb, var(--cat-fill, #00c2ff) 45%, rgba(255, 255, 255, 0.22));
+  background: color-mix(in srgb, var(--cat-fill, #00c2ff) 18%, rgba(7, 5, 18, 0.4));
+}
+.ov-chip-cat .ov-chip-gem {
+  width: 18px;
+  height: 16px;
+}
+.ov-chip-cat .ov-chip-gem .cat-gem-art,
+.ov-chip-cat .ov-chip-gem svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 .detail-scroll {
   height: 100%;
   overflow-y: auto;
@@ -878,12 +938,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   flex-direction: column;
   gap: 12px;
   background: var(--bg);
-}
-.detail-subtitle {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 600;
 }
 .detail-tagline,
 .detail-caption {

@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v88 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v89 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -187,8 +187,6 @@ const COPY = {
   spoofCollectedTagline: 'Fresh bread before the city wakes',
   spoofCollectedReflection:
     'This corner always smells like fresh bread before the city wakes up. I come here when I need to feel grounded.',
-  detailOwnSubtitle: 'Yours',
-  detailCollectedSubtitle: 'Left by someone else',
   railPrivate: '[keep hidden]',
   railPublic: '[publish]',
   railDelete: '[delete]',
@@ -205,7 +203,8 @@ const COPY = {
   detailAdd: '[confirm]',
   detailWriteLabel: '[add a few words]',
   detailNotePh: '[optional note]',
-  detailSkip: '[skip]',
+  detailReport: '[report]',
+  detailReported: '[thanks — we’ll take a look]',
   bannerOwn: '[you can add more anytime]',
   bannerOther: '[you need to be there to add to theirs]',
   holdHint: 'Press + hold, then swipe.',
@@ -264,7 +263,8 @@ const SPOOF_COPY = {
   detailAdd: 'Confirm',
   detailWriteLabel: 'Add a few words',
   detailNotePh: 'Optional note',
-  detailSkip: 'Skip',
+  detailReport: 'Report',
+  detailReported: 'Thanks — we’ll take a look',
   bannerOwn: 'You can add more anytime.',
   bannerOther: 'You need to be there to add to theirs.',
   holdHint: 'Press + hold, then swipe.',
@@ -311,8 +311,6 @@ const SPOOF_COPY = {
   emptyHiddenBody: 'Keep one just for yourself — it’ll land here.',
   emptyLikedTitle: 'No liked gems yet',
   emptyLikedBody: 'Heart a gem and it’ll show up in Liked.',
-  detailOwnSubtitle: 'Yours',
-  detailCollectedSubtitle: 'Left by someone else',
   spoofCollectedTitle: 'Morning light on the corner',
   spoofCollectedTagline: 'Fresh bread before the city wakes',
   spoofCollectedReflection:
@@ -340,7 +338,6 @@ const detail = document.getElementById('detail');
 const detailBack = document.getElementById('detailBack');
 const detailFav = document.getElementById('detailFav');
 const detailFavIcon = document.getElementById('detailFavIcon');
-const detailSubtitle = document.getElementById('detailSubtitle');
 const detailPhoto = document.getElementById('detailPhoto');
 const detailGemTitle = document.getElementById('detailGemTitle');
 const detailTagline = document.getElementById('detailTagline');
@@ -349,6 +346,9 @@ const detailCaption = document.getElementById('detailCaption');
 const detailLikes = document.getElementById('detailLikes');
 const detailLikeBtn = document.getElementById('detailLikeBtn');
 const detailLikeHeart = document.getElementById('detailLikeHeart');
+const detailCatChip = document.getElementById('detailCatChip');
+const detailCatGem = document.getElementById('detailCatGem');
+const detailCatLabel = document.getElementById('detailCatLabel');
 const detailVisChip = document.getElementById('detailVisChip');
 const detailRarityChip = document.getElementById('detailRarityChip');
 const detailRarityGem = document.getElementById('detailRarityGem');
@@ -365,8 +365,11 @@ const detailBannerCopy = document.getElementById('detailBannerCopy');
 const detailWrite = document.getElementById('detailWrite');
 const detailWriteLabel = document.getElementById('detailWriteLabel');
 const detailNote = document.getElementById('detailNote');
-const detailNoteSkip = document.getElementById('detailNoteSkip');
+const detailNoteCount = document.getElementById('detailNoteCount');
 const detailAdd = document.getElementById('detailAdd');
+const detailMenu = document.getElementById('detailMenu');
+const detailMenuPop = document.getElementById('detailMenuPop');
+const detailReport = document.getElementById('detailReport');
 const hubScroll = document.getElementById('hubScroll');
 const accentColor = document.getElementById('accentColor');
 const accentAlpha = document.getElementById('accentAlpha');
@@ -759,13 +762,29 @@ function applyStaticCopy() {
   if (detailSave) detailSave.textContent = t('saveLater');
   detailAdd.textContent = t('detailAdd');
   detailWriteLabel.textContent = t('detailWriteLabel');
-  detailNote.placeholder = t('detailNotePh');
-  detailNoteSkip.textContent = t('detailSkip');
+  if (detailNote) {
+    detailNote.placeholder = t('detailNotePh');
+    detailNote.maxLength = PUBLISH_NOTE_MAX;
+  }
+  if (detailReport) detailReport.textContent = t('detailReport');
   detailSectionLabel.textContent = t('descriptionLabel');
   likesSubtitle.textContent = t('likesSubtitle');
   sortEmpty.textContent = t('sortEmpty');
   hint.textContent = dragMode ? t('holdHintDrag') : t('holdHint');
+  syncDetailNoteCount();
   syncSectionIntro();
+}
+
+function syncDetailNoteCount() {
+  if (detailNoteCount && detailNote) {
+    detailNoteCount.textContent = `${detailNote.value.length}/${PUBLISH_NOTE_MAX}`;
+  }
+}
+
+function setDetailMenuOpen(on) {
+  if (!detailMenuPop || !detailMenu) return;
+  detailMenuPop.hidden = !on;
+  detailMenu.setAttribute('aria-expanded', on ? 'true' : 'false');
 }
 
 function syncSectionIntro() {
@@ -1474,10 +1493,13 @@ function renderDetailEntries(gem) {
   detailWrite.hidden = !gem.owned;
   if (gem.owned) {
     detailWriteLabel.textContent = t('detailWriteLabel');
-    detailNote.placeholder = t('detailNotePh');
-    detailNoteSkip.textContent = t('detailSkip');
+    if (detailNote) {
+      detailNote.placeholder = t('detailNotePh');
+      detailNote.maxLength = PUBLISH_NOTE_MAX;
+      detailNote.value = '';
+    }
     detailAdd.textContent = t('detailAdd');
-    detailNote.value = '';
+    syncDetailNoteCount();
   }
 }
 
@@ -1499,9 +1521,7 @@ function openDetail(id) {
   if (!gem) return;
   openGemId = id;
   const rarity = rarityForLikes(gem.likes, gem.isPublic);
-  detailSubtitle.textContent = gem.owned
-    ? t('detailOwnSubtitle')
-    : t('detailCollectedSubtitle');
+  const cat = ensureGemCategory(gem);
   detailPhoto.src = gem.imageUri;
   detailGemTitle.textContent = displayCopy(getGemTitle(gem));
   detailTagline.textContent = displayCopy(getGemTagline(gem));
@@ -1512,6 +1532,12 @@ function openDetail(id) {
       : t('leftBy', gem.authorUsername);
   } else {
     detailAuthor.hidden = true;
+  }
+  if (detailCatChip && detailCatGem && detailCatLabel) {
+    detailCatChip.hidden = false;
+    detailCatChip.style.setProperty('--cat-fill', cat.colour);
+    detailCatGem.innerHTML = categoryGemMark(cat);
+    detailCatLabel.textContent = cat.label;
   }
   detailVisChip.hidden = false;
   detailVisChip.textContent = gem.isPublic ? t('publicBadge') : t('privateBadge');
@@ -1538,6 +1564,7 @@ function openDetail(id) {
   detailCaption.textContent = displayCopy(gem.caption || '');
   if (detailActions) detailActions.hidden = false;
   if (detailNav) detailNav.textContent = t('detailNav');
+  setDetailMenuOpen(false);
   syncDetailLike(gem);
   renderDetailEntries(gem);
   syncDetailFav();
@@ -1547,6 +1574,7 @@ function openDetail(id) {
 
 function closeDetail() {
   openGemId = null;
+  setDetailMenuOpen(false);
   detail.hidden = true;
   detail.setAttribute('aria-hidden', 'true');
 }
@@ -1558,9 +1586,11 @@ function addEntryToOpenGem() {
   if (!Array.isArray(gem.entries)) {
     gem.entries = [gem.caption || gem.tagline || ''].filter(Boolean);
   }
-  const note = (detailNote.value || '').trim();
-  gem.entries.push(note || t('anotherEntry'));
-  detailNote.value = '';
+  const note = (detailNote?.value || '').trim().slice(0, PUBLISH_NOTE_MAX);
+  if (!note) return;
+  gem.entries.push(note);
+  if (detailNote) detailNote.value = '';
+  syncDetailNoteCount();
   renderDetailEntries(gem);
 }
 
@@ -2051,29 +2081,18 @@ function renderPublishCats() {
   });
 }
 
-function openPublishSheet(card) {
-  const find = pendingSort[0];
-  if (!find || !publishSheet) {
-    settleSort(card, 'public');
-    return;
-  }
-  pendingPublish = { card, find };
+function beginPublishSheet({ photo, place, card = null, find = null, gemId = null, source = 'sort' }) {
+  if (!publishSheet) return;
+  pendingPublish = { card, find, gemId, source };
   publishDraft = { title: '', note: '', category: null };
   clearMapTips();
   phone.classList.add('is-publishing');
-  card.classList.remove('is-dragging');
-  card.classList.add('is-publishing');
-  card.style.transition = `opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
-  card.style.transform = 'rotate(-4deg)';
-  card.style.opacity = '0';
-  setTargets(null, false);
-  setSortingFocus(false);
   syncPublishSheetCopy();
   if (publishPhoto) {
-    publishPhoto.src = find.photo;
+    publishPhoto.src = photo || '';
     publishPhoto.alt = '';
   }
-  syncPublishAddress(find);
+  syncPublishAddress({ place: place || '' });
   if (publishTitle) publishTitle.value = '';
   if (publishNote) publishNote.value = '';
   syncPublishCharCounts();
@@ -2082,6 +2101,39 @@ function openPublishSheet(card) {
   publishSheet.setAttribute('aria-hidden', 'false');
   setPublishStep('cats');
   syncPublishKeyboard();
+}
+
+function openPublishSheet(card) {
+  const find = pendingSort[0];
+  if (!find || !publishSheet) {
+    settleSort(card, 'public');
+    return;
+  }
+  card.classList.remove('is-dragging');
+  card.classList.add('is-publishing');
+  card.style.transition = `opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
+  card.style.transform = 'rotate(-4deg)';
+  card.style.opacity = '0';
+  setTargets(null, false);
+  setSortingFocus(false);
+  beginPublishSheet({
+    photo: find.photo,
+    place: find.place,
+    card,
+    find,
+    source: 'sort',
+  });
+}
+
+function openPublishSheetFromDetail(gem) {
+  if (!gem || !gem.owned || gem.isPublic) return;
+  setDetailMenuOpen(false);
+  beginPublishSheet({
+    photo: gem.imageUri,
+    place: getGemTagline(gem) || gem.title || '',
+    gemId: gem.id,
+    source: 'detail',
+  });
 }
 
 function closePublishSheet({ restoreCard = true } = {}) {
@@ -2122,18 +2174,37 @@ function goPublishWordsStep(categoryId) {
 async function finishPublishWithWords() {
   const pending = pendingPublish;
   if (!pending || !publishDraft.category) return;
-  const title = (publishTitle?.value || '').trim() || t('publishTitlePh');
-  const note = (publishNote?.value || '').trim();
+  const title = (publishTitle?.value || '').trim().slice(0, PUBLISH_TITLE_MAX) || t('publishTitlePh');
+  const note = (publishNote?.value || '').trim().slice(0, PUBLISH_NOTE_MAX);
   const categoryId = publishDraft.category;
+  if (pending.source === 'detail' && pending.gemId) {
+    const gem = findGem(pending.gemId);
+    closePublishSheet({ restoreCard: false });
+    if (!gem) return;
+    gem.isPublic = true;
+    gem.title = title;
+    gem.tagline = note || title;
+    gem.caption = note || title;
+    gem.category = jamCatById(categoryId).id;
+    if (!gem.likes) gem.likes = LIKES_DEMO;
+    if (!Array.isArray(gem.entries)) gem.entries = [];
+    if (note && !gem.entries.includes(note)) gem.entries.unshift(note);
+    setSection('public');
+    refreshHub(gem.id);
+    openDetail(gem.id);
+    return;
+  }
   const card = pending.card;
   closePublishSheet({ restoreCard: false });
-  card.classList.remove('is-publishing');
-  card.style.opacity = '1';
-  await settleSort(card, 'public', {
-    title,
-    caption: note || title,
-    category: categoryId,
-  });
+  if (card) {
+    card.classList.remove('is-publishing');
+    card.style.opacity = '1';
+    await settleSort(card, 'public', {
+      title,
+      caption: note || title,
+      category: categoryId,
+    });
+  }
 }
 
 async function settleSort(card, action, opts = {}) {
@@ -2191,8 +2262,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v88 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v88 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v89 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v89 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2455,11 +2526,41 @@ if (detailSave) {
   });
 }
 detailPublish.addEventListener('click', () => {
-  if (openGemId) togglePublish(openGemId);
+  if (!openGemId) return;
+  const gem = findGem(openGemId);
+  if (!gem || !gem.owned) return;
+  if (gem.isPublic) {
+    togglePublish(openGemId);
+    return;
+  }
+  openPublishSheetFromDetail(gem);
 });
 detailAdd.addEventListener('click', addEntryToOpenGem);
-detailNoteSkip.addEventListener('click', () => {
-  detailNote.value = '';
+if (detailNote) {
+  detailNote.addEventListener('input', syncDetailNoteCount);
+}
+if (detailMenu) {
+  detailMenu.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setDetailMenuOpen(!!(detailMenuPop && detailMenuPop.hidden));
+  });
+}
+if (detailMenuPop) {
+  detailMenuPop.addEventListener('click', (e) => e.stopPropagation());
+}
+if (detailReport) {
+  detailReport.addEventListener('click', () => {
+    setDetailMenuOpen(false);
+    hint.textContent = t('detailReported');
+    if (detailBanner && detailBannerCopy) {
+      detailBanner.hidden = false;
+      detailBannerCopy.textContent = t('detailReported');
+    }
+  });
+}
+detail.addEventListener('click', (e) => {
+  if (e.target.closest('.detail-menu-wrap')) return;
+  setDetailMenuOpen(false);
 });
 detailLikeBtn.addEventListener('click', toggleDetailLike);
 accentColor.addEventListener('input', applyAccent);

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=88">
+<link rel="stylesheet" href="app.css?v=89">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -296,6 +296,12 @@
       <button type="button" class="detail-fav" id="detailFav" aria-label="Favourite">
         <img id="detailFavIcon" src="assets/fav_unchecked.svg" alt="" width="20" height="18">
       </button>
+      <div class="detail-menu-wrap">
+        <button type="button" class="detail-menu" id="detailMenu" aria-label="More" aria-haspopup="menu" aria-expanded="false">⋯</button>
+        <div class="detail-menu-pop" id="detailMenuPop" hidden role="menu">
+          <button type="button" class="detail-menu-item" id="detailReport" role="menuitem">[report]</button>
+        </div>
+      </div>
       <div class="detail-scroll">
         <div class="detail-media">
           <img class="detail-photo" id="detailPhoto" alt="">
@@ -308,6 +314,10 @@
                 <span class="like-heart" id="detailLikeHeart" aria-hidden="true">♡</span>
                 <span class="like-count" id="detailLikes">0</span>
               </button>
+              <span class="ov-chip ov-chip-cat" id="detailCatChip" hidden>
+                <span class="ov-chip-gem" id="detailCatGem" aria-hidden="true"></span>
+                <span id="detailCatLabel"></span>
+              </span>
               <span class="ov-chip" id="detailVisChip" hidden></span>
               <span class="ov-chip ov-chip-rarity" id="detailRarityChip" hidden>
                 <span class="ov-chip-gem" id="detailRarityGem" aria-hidden="true"></span>
@@ -317,7 +327,6 @@
           </div>
         </div>
         <div class="detail-body">
-          <p class="detail-subtitle" id="detailSubtitle"></p>
           <div class="detail-actions" id="detailActions" hidden>
             <button type="button" class="save-btn" id="detailSave" aria-pressed="false">[save for later]</button>
             <button type="button" class="nav-btn" id="detailNav">[navigate]</button>
@@ -328,10 +337,14 @@
           <p class="detail-caption" id="detailCaption"></p>
           <div class="detail-entries" id="detailEntries" hidden></div>
           <div class="detail-write" id="detailWrite" hidden>
-            <p class="side-label" id="detailWriteLabel">[add a few words]</p>
-            <input class="note-input" id="detailNote" type="text" maxlength="60" placeholder="[optional note]" autocomplete="off">
+            <div class="publish-field">
+              <div class="publish-field-head">
+                <p class="side-label" id="detailWriteLabel">[add a few words]</p>
+                <span class="publish-char" id="detailNoteCount" aria-live="polite"></span>
+              </div>
+              <textarea class="note-input note-area" id="detailNote" maxlength="160" rows="4" placeholder="[optional note]" autocomplete="off" aria-label="A few words"></textarea>
+            </div>
             <div class="side-actions">
-              <button type="button" class="skippill" id="detailNoteSkip">[skip]</button>
               <button type="button" class="confirm-pill" id="detailAdd">[confirm]</button>
             </div>
           </div>
@@ -390,7 +403,7 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v88 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v89 · V1. Figma gems, no rarity.
   </p>
     </div>
 
@@ -405,7 +418,7 @@
       </section>
     </aside>
   </div>
-  <script src="corner-ribbon.js?v=88"></script>
-  <script src="app.js?v=88"></script>
+  <script src="corner-ribbon.js?v=89"></script>
+  <script src="app.js?v=89"></script>
 </body>
 </html>
