@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=67">
+<link rel="stylesheet" href="app.css?v=68">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -59,6 +59,17 @@
           <button type="button" class="variant-btn" data-feed-variant="wide" aria-pressed="false">Wide</button>
           <button type="button" class="variant-btn" data-feed-variant="caption" aria-pressed="false">Caption</button>
           <button type="button" class="variant-btn" data-feed-variant="peek" aria-pressed="false">Peek</button>
+        </div>
+      </section>
+
+      <section class="tool-block">
+        <h2 class="tool-title">Unsorted cards</h2>
+        <p class="tool-note">Try looks for the sort stack</p>
+        <div class="variant-pick is-rail is-wrap" role="group" aria-label="Unsorted card looks">
+          <button type="button" class="variant-btn is-on" data-sort-look="corner" aria-pressed="true">Corner</button>
+          <button type="button" class="variant-btn" data-sort-look="polaroid" aria-pressed="false">Polaroid</button>
+          <button type="button" class="variant-btn" data-sort-look="overlay" aria-pressed="false">Overlay</button>
+          <button type="button" class="variant-btn" data-sort-look="flush" aria-pressed="false">Flush</button>
         </div>
       </section>
 
@@ -350,22 +361,22 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v67 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.
+    LOCATION-GEMS-HUB-v68 · V1. Crystal set, no rarity.
   </p>
     </div>
 
     <aside class="edition-rail" aria-label="Edition">
       <section class="tool-block">
         <h2 class="tool-title">Edition</h2>
-        <p class="tool-note">V1 drops rarity. V2 keeps it.</p>
+        <p class="tool-note">V1 = crystals, no rarity. V2 keeps rarity.</p>
         <div class="variant-pick is-rail" role="group" aria-label="Hub edition">
-          <button type="button" class="variant-btn" data-hub-edition="v1" aria-pressed="false">V1</button>
-          <button type="button" class="variant-btn is-on" data-hub-edition="v2" aria-pressed="true">V2</button>
+          <button type="button" class="variant-btn is-on" data-hub-edition="v1" aria-pressed="true">V1</button>
+          <button type="button" class="variant-btn" data-hub-edition="v2" aria-pressed="false">V2</button>
         </div>
       </section>
     </aside>
   </div>
-  <script src="corner-ribbon.js?v=67"></script>
-  <script src="app.js?v=67"></script>
+  <script src="corner-ribbon.js?v=68"></script>
+  <script src="app.js?v=68"></script>
 </body>
 </html>

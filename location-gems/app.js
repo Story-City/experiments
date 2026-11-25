@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v67 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v68 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -24,15 +24,18 @@ const LIKE_PINK_HOT = '#ff7aab';
 const PUBLIC_GEM_FILL = '#00c2ff';
 const HIDDEN_GEM_FILL = '#9370c4';
 /** Melissa's jam categories (gem-pins / 19 Nov) — shape + colour */
+/** Melissa’s cats — V1 uses crystal set; V2 keeps cut-per-category */
 const JAM_CATS = [
-  { id: 'nature', label: 'Nature', colour: '#3ddc84', shape: 'pear' },
-  { id: 'eat', label: 'Eat & Drink', colour: '#ff9f43', shape: 'round' },
-  { id: 'shop', label: 'Shop', colour: '#ff6fae', shape: 'emerald' },
-  { id: 'culture', label: 'Culture', colour: '#b36bff', shape: 'hex' },
-  { id: 'play', label: 'Play', colour: '#ffd23f', shape: 'star' },
-  { id: 'landmark', label: 'Landmarks', colour: '#f29b2e', shape: 'shard' },
-  { id: 'curio', label: 'Curiosities', colour: '#33c7d1', shape: 'trillion' },
+  { id: 'nature', label: 'Nature', colour: '#3ddc84', shape: 'pear', crystal: 'leaf' },
+  { id: 'eat', label: 'Eat & Drink', colour: '#ff9f43', shape: 'round', crystal: 'bar' },
+  { id: 'shop', label: 'Shop', colour: '#ff6fae', shape: 'emerald', crystal: 'bar' },
+  { id: 'culture', label: 'Culture', colour: '#b36bff', shape: 'hex', crystal: 'pebble' },
+  { id: 'play', label: 'Play', colour: '#ffd23f', shape: 'star', crystal: 'pebble' },
+  { id: 'landmark', label: 'Landmarks', colour: '#f29b2e', shape: 'shard', crystal: 'shard' },
+  { id: 'curio', label: 'Curiosities', colour: '#33c7d1', shape: 'trillion', crystal: 'shard' },
 ];
+const SORT_CARD_LOOKS = new Set(['polaroid', 'corner', 'overlay', 'flush']);
+/** Same cuts as gem-pins/gems.js (Victoria’s style, 19 Nov) — full facet lines */
 const CAT_SHAPES = {
   classic: {
     body: 'M7 2.5H17L22.5 8.5L12 21.5L1.5 8.5Z',
@@ -44,42 +47,61 @@ const CAT_SHAPES = {
     body: 'M12 2a10 10 0 1 1 0 20a10 10 0 1 1 0-20Z',
     light: 'M8.2 3H15.8L14.4 10H9.6Z',
     dark: 'M9.6 10H14.4L12 21.9Z',
-    lines: 'M2.2 10H21.8M9.6 10L12 21.9L14.4 10',
+    lines: 'M2.2 10H21.8M9.6 10L12 21.9L14.4 10M8.2 3L9.6 10M15.8 3L14.4 10M3.6 15.6L9.6 10M20.4 15.6L14.4 10',
   },
   emerald: {
     body: 'M6.5 3H17.5L21.5 7V17L17.5 21H6.5L2.5 17V7Z',
     light: 'M6.5 3H17.5L16 7.5H8Z',
     dark: 'M8 16.5H16L17.5 21H6.5Z',
-    lines: 'M8 7.5H16V16.5H8Z',
+    lines: 'M8 7.5H16V16.5H8ZM2.5 7L8 7.5M21.5 7L16 7.5M2.5 17L8 16.5M21.5 17L16 16.5',
   },
   pear: {
     body: 'M12 1.5C14.5 4.8 19.5 9.6 19.5 14.6C19.5 18.9 16.1 22.3 12 22.3C7.9 22.3 4.5 18.9 4.5 14.6C4.5 9.6 9.5 4.8 12 1.5Z',
     light: 'M12 1.5L15.2 11.2H8.8Z',
     dark: 'M8.8 11.2H15.2L12 22.3Z',
-    lines: 'M8.8 11.2H15.2M12 1.5L8.8 11.2L12 22.3L15.2 11.2Z',
+    lines: 'M8.8 11.2H15.2M12 1.5L8.8 11.2L12 22.3L15.2 11.2ZM4.7 13.2L8.8 11.2M19.3 13.2L15.2 11.2',
   },
   hex: {
     body: 'M12 1.5L21.5 7V17L12 22.5L2.5 17V7Z',
     light: 'M12 1.5L16.5 9.5H7.5Z',
     dark: 'M7.5 9.5H16.5L12 22.5Z',
-    lines: 'M7.5 9.5H16.5M12 1.5L7.5 9.5L12 22.5L16.5 9.5Z',
+    lines: 'M2.5 7L7.5 9.5H16.5L21.5 7M7.5 9.5L12 22.5L16.5 9.5M12 1.5L7.5 9.5M12 1.5L16.5 9.5M2.5 17L7.5 9.5M21.5 17L16.5 9.5',
   },
   star: {
     body: 'M12 1.8l3.1 6.4 7 .9-5.1 4.9 1.3 6.9L12 17.5l-6.3 3.4 1.3-6.9L1.9 9.1l7-.9Z',
     light: 'M12 1.8L14.4 9.2H9.6Z',
     dark: 'M9.6 9.2H14.4L12 17.5Z',
-    lines: 'M9.6 9.2H14.4M12 1.8L9.6 9.2L12 17.5L14.4 9.2Z',
+    lines: 'M9.6 9.2H14.4M12 1.8L9.6 9.2L12 17.5L14.4 9.2ZM1.9 9.1L9.6 9.2M22.1 9.1L14.4 9.2M5.7 20.9L12 17.5L18.3 20.9',
   },
   trillion: {
     body: 'M12 2.5L22 20.5H2Z',
     light: 'M12 2.5L15.2 10.5H8.8Z',
     dark: 'M8.8 10.5H15.2L12 20.5Z',
-    lines: 'M8.8 10.5H15.2L12 20.5Z',
+    lines: 'M8.8 10.5H15.2L12 20.5ZM12 2.5L8.8 10.5M12 2.5L15.2 10.5M2 20.5L8.8 10.5M22 20.5L15.2 10.5',
+  },
+  leaf: {
+    flat: true,
+    body: 'M12 1.5C17.5 6 19 9.5 19 12s-1.5 6-7 10.5C6.5 18 5 14.5 5 12s1.5-6 7-10.5Z',
+    dark: 'M12 1.5C17.5 6 19 9.5 19 12s-1.5 6-7 10.5Z',
+    hi: 'M9.4 6.6C8.3 8.3 7.9 10 8 12',
+  },
+  pebble: {
+    flat: true,
+    body: 'M2.5 13.5C2.5 9.2 6 6.5 10.5 6.5c3.2 0 5.8 1 8 2.3C20.8 10.2 21.8 12 21.8 14c0 2.8-3.6 4-9.3 4-6.5 0-10-1.4-10-4.5Z',
+    dark: 'M2.6 13.8c1.6 1.8 4.6 2.4 9.6 2.4 4.6 0 8.2-.8 9.6-2.1-.1 2.7-3.7 3.9-9.3 3.9-6.4 0-9.8-1.3-9.9-4.2Z',
+    hi: 'M7.6 9.3c1.1-.6 2.3-.9 3.4-.9',
   },
   shard: {
     flat: true,
     body: 'M8.6 3.6L13.4 1.5 15.9 4.2 16.6 22.5H8.4L8 8.2Z',
     dark: 'M13 3.4L15.9 4.2 16.6 22.5H13.4Z',
+    hi: 'M9.7 8.2v9.5',
+  },
+  bar: {
+    flat: true,
+    body: 'M2.5 8.5L5.5 5.5H19.5L22 8V15.8L19 18.8H5.5L2.5 15.8Z',
+    dark: 'M19.6 10.3L22 8V15.8L19 18.8H5.5L8.4 16.1H19.6Z',
+    hi: 'M9.6 9.3H15.4',
   },
 };
 const SILVER_GEM_FILL = '#c8d2e6';
@@ -424,7 +446,8 @@ const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'banner';
-let hubEdition = 'v2';
+let hubEdition = 'v1';
+let sortCardLook = 'corner';
 let pendingPublish = null;
 const FEED_VARIANTS = new Set([
   'banner',
@@ -540,12 +563,22 @@ function jamCatById(id) {
   return JAM_CATS.find((c) => c.id === id) || JAM_CATS[0];
 }
 
+function jamCatShapeId(cat) {
+  if (!cat) return 'classic';
+  if (hubEdition === 'v1' && cat.crystal) return cat.crystal;
+  return cat.shape || 'classic';
+}
+
 function categoryGemSvg(shapeId, fill) {
   const s = CAT_SHAPES[shapeId] || CAT_SHAPES.classic;
   if (s.flat) {
+    const hi = s.hi
+      ? `<path d="${s.hi}" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1.3" stroke-linecap="round"/>`
+      : '';
     return `<svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="${s.body}" fill="${fill}"/>
-      <path d="${s.dark || s.body}" fill="#000" fill-opacity="0.28"/>
+      <path d="${s.dark || s.body}" fill="#000" fill-opacity="0.2"/>
+      ${hi}
       <path d="${s.body}" fill="none" stroke="#fff" stroke-opacity="0.85" stroke-width="1.4" stroke-linejoin="round"/>
     </svg>`;
   }
@@ -553,8 +586,8 @@ function categoryGemSvg(shapeId, fill) {
     <path d="${s.body}" fill="${fill}"/>
     <path d="${s.light}" fill="#fff" fill-opacity="0.3"/>
     <path d="${s.dark}" fill="#000" fill-opacity="0.22"/>
-    <path d="${s.lines}" fill="none" stroke="#fff" stroke-opacity="0.55" stroke-width="1" stroke-linejoin="round"/>
-    <path d="${s.body}" fill="none" stroke="#fff" stroke-opacity="0.9" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="${s.lines}" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="0.9" stroke-linejoin="round"/>
+    <path d="${s.body}" fill="none" stroke="#fff" stroke-opacity="0.9" stroke-width="1.4" stroke-linejoin="round"/>
   </svg>`;
 }
 
@@ -978,7 +1011,7 @@ function buildGemCard(gem, opts = {}) {
   else if (showRarity() && rarity.id !== 'cyan') gemEl.classList.add(`is-${rarity.id}`);
   gemEl.innerHTML =
     gem.isPublic && cat
-      ? categoryGemSvg(cat.shape, cornerFill)
+      ? categoryGemSvg(jamCatShapeId(cat), cornerFill)
       : gemSvg(cornerFill);
   stack.appendChild(gemEl);
   corner.appendChild(stack);
@@ -1040,7 +1073,7 @@ function feedCornerHtml(gem, rarity, uid) {
   const cat = gem.category ? jamCatById(gem.category) : null;
   const gemMark =
     gem.isPublic && cat
-      ? categoryGemSvg(cat.shape, fill)
+      ? categoryGemSvg(jamCatShapeId(cat), fill)
       : gemSvg(fill);
   return `
     <div class="feed-chip-corner" aria-hidden="true">
@@ -1315,21 +1348,58 @@ function setTargets(mode, armed) {
   else if (mode === 'delete') railDelete.classList.add('is-hot');
 }
 
+function sortCornerHtml(uid) {
+  const fill = PUBLIC_GEM_FILL;
+  return `
+    <div class="sort-card-corner" aria-hidden="true">
+      <div class="sort-card-corner-art">${cornerRibbonHtml(fill, uid)}</div>
+      <div class="sort-card-corner-stack">
+        <span class="sort-card-gem">${gemSvg(fill)}</span>
+      </div>
+    </div>`;
+}
+
 function buildSortCard(find, under, enter) {
+  const look = SORT_CARD_LOOKS.has(sortCardLook) ? sortCardLook : 'corner';
   const card = document.createElement('article');
-  card.className = `sort-card${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
+  card.className = `sort-card is-${look}${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
   card.dataset.id = find.id;
-  card.innerHTML = `
-    <div class="sort-card-media">
-      <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
-    </div>
+  card.style.setProperty('--gem-line', PUBLIC_GEM_FILL);
+  const corner = look === 'polaroid' ? '' : sortCornerHtml(find.id || 'sort');
+  const body = `
     <div class="sort-card-body">
       <p class="sort-card-user">${find.user}</p>
       <p class="sort-card-text">${displayCopy(find.text)}</p>
       <p class="sort-card-place">📍 ${displayCopy(find.place)}</p>
-    </div>
-  `;
+    </div>`;
+  if (look === 'overlay') {
+    card.innerHTML = `
+      <div class="sort-card-media">
+        <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
+        <div class="sort-card-fade" aria-hidden="true"></div>
+        ${corner}
+        ${body}
+      </div>`;
+  } else {
+    card.innerHTML = `
+      <div class="sort-card-media">
+        <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
+        ${corner}
+      </div>
+      ${body}`;
+  }
   return card;
+}
+
+function setSortCardLook(look) {
+  const next = SORT_CARD_LOOKS.has(look) ? look : 'corner';
+  sortCardLook = next;
+  document.querySelectorAll('[data-sort-look]').forEach((btn) => {
+    const on = btn.getAttribute('data-sort-look') === next;
+    btn.classList.toggle('is-on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  renderSortStack();
 }
 
 function renderSortStack() {
@@ -1948,7 +2018,7 @@ function renderPublishCats() {
     btn.setAttribute('role', 'option');
     btn.setAttribute('aria-label', cat.label);
     btn.innerHTML = `
-      <span class="publish-cat-gem" aria-hidden="true">${categoryGemSvg(cat.shape, cat.colour)}</span>
+      <span class="publish-cat-gem" aria-hidden="true">${categoryGemSvg(jamCatShapeId(cat), cat.colour)}</span>
       <span class="publish-cat-label">${cat.label}</span>`;
     btn.addEventListener('click', () => finishPublishWithCategory(cat.id));
     publishCatGrid.appendChild(btn);
@@ -2081,11 +2151,12 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v67 · V1. No rarity.'
-        : 'LOCATION-GEMS-HUB-v67 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v68 · V1. Crystal set, no rarity.'
+        : 'LOCATION-GEMS-HUB-v68 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
+  renderPublishCats();
 }
 
 function pickLikedJams(count) {
@@ -2311,6 +2382,7 @@ function init() {
   setupSnapshotArc();
   applyStaticCopy();
   setHubEdition(hubEdition);
+  setSortCardLook(sortCardLook);
   setSection('public');
   refreshHub();
   showTip(!storageGet(TIP_KEY));
@@ -2383,7 +2455,12 @@ document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
 });
 document.querySelectorAll('[data-hub-edition]').forEach((btn) => {
   btn.addEventListener('click', () => {
-    setHubEdition(btn.getAttribute('data-hub-edition') || 'v2');
+    setHubEdition(btn.getAttribute('data-hub-edition') || 'v1');
+  });
+});
+document.querySelectorAll('[data-sort-look]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    setSortCardLook(btn.getAttribute('data-sort-look') || 'corner');
   });
 });
 if (publishSheetScrim) {

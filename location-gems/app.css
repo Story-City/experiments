@@ -904,8 +904,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .detail-write {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 14px;
+  margin-top: 8px;
 }
 .detail-write[hidden] { display: none !important; }
 .side-label {
@@ -959,33 +959,32 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   width: 100%;
 }
 .detail-actions[hidden] { display: none !important; }
+/* Same pill language as weekly challenges (skippill / confirm-pill) */
 .save-btn,
 .nav-btn {
-  height: 48px;
-  border-radius: 12px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
   font: inherit;
   font-weight: 800;
-  font-size: 17px;
+  font-size: 14px;
   cursor: pointer;
+  flex: 1;
 }
 .save-btn {
-  flex: none;
-  padding: 0 14px;
-  border: 0;
-  background: var(--bg);
-  color: var(--brand-accent);
-  box-shadow: inset 0 0 0 2px var(--brand-accent);
+  border: 1px solid rgba(0, 158, 255, 0.55);
+  background: rgba(0, 158, 255, 0.16);
+  color: #fff;
+  box-shadow: none;
 }
 .save-btn[aria-pressed="true"] {
-  background: rgba(0, 194, 255, 0.16);
+  background: rgba(0, 194, 255, 0.28);
+  border-color: rgba(0, 194, 255, 0.8);
 }
 .nav-btn {
-  flex: 1;
   border: 0;
   color: #fff;
-  background:
-    var(--btn-radial-wash),
-    linear-gradient(90deg, var(--brand-primary-deep), var(--brand-accent));
+  background: linear-gradient(90deg, #0259a1, var(--brand-accent));
 }
 .detail-publish {
   width: 100%;
@@ -1422,19 +1421,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .feed-chip-actions .save-btn,
 .feed-chip-actions .nav-btn {
-  height: 36px;
+  height: 32px;
   font-size: 12px;
-  border-radius: 10px;
+  border-radius: 999px;
   white-space: nowrap;
-}
-.feed-chip-actions .save-btn {
-  flex: 1 1 auto;
   min-width: 0;
-  padding: 0 8px;
-}
-.feed-chip-actions .nav-btn {
-  flex: 1 1 auto;
-  min-width: 0;
+  padding: 0 10px;
 }
 .feed-chip-go {
   border: 0;
@@ -1786,9 +1778,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   user-select: none;
   cursor: grab;
   will-change: transform;
-  /* challenge find-card tilt */
   transform: rotate(-4deg);
   transform-origin: 50% 60%;
+}
+.sort-card.is-flush {
+  transform: rotate(0deg);
+  border-radius: 18px;
 }
 .sort-card:active { cursor: grabbing; }
 .sort-card.is-dragging {
@@ -1802,8 +1797,18 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   opacity: 0.7;
   pointer-events: none;
 }
+.sort-card.is-flush.is-under {
+  transform: rotate(0deg) scale(0.94) translate(4%, 4%);
+}
 .sort-card.is-enter {
   animation: noteDrop 980ms var(--ease-out) both;
+}
+.sort-card.is-flush.is-enter {
+  animation: noteDropFlush 980ms var(--ease-out) both;
+}
+@keyframes noteDropFlush {
+  0% { opacity: 0; transform: scale(1.04) translateY(-4%); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 .hub.is-sorting-focus .hub-scroll {
   overflow: hidden;
@@ -1867,6 +1872,39 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   display: block;
 }
 .sort-card-body { padding: 10px 12px 12px; }
+.sort-card.is-overlay .sort-card-media {
+  height: 100%;
+}
+.sort-card.is-overlay .sort-card-photo {
+  height: 100%;
+}
+.sort-card-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 35%,
+    rgba(10, 6, 28, 0.55) 62%,
+    rgba(10, 6, 28, 0.92) 100%
+  );
+}
+.sort-card.is-overlay .sort-card-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 14px 14px 16px;
+  background: transparent;
+}
+.sort-card.is-overlay .sort-card-user,
+.sort-card.is-overlay .sort-card-text,
+.sort-card.is-overlay .sort-card-place {
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
 .sort-card-user {
   margin: 0 0 2px;
   font-weight: 800;
@@ -2412,7 +2450,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .publish-sheet-card {
   width: 100%;
-  padding: 14px 14px 16px;
+  padding: 16px 16px 18px;
   border-radius: 18px;
   background: color-mix(in srgb, var(--raised) 82%, transparent);
   -webkit-backdrop-filter: blur(16px);
@@ -2421,7 +2459,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
+}
+.publish-step {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 @keyframes publishSheetIn {
   from { opacity: 0; transform: translateY(14px); }
