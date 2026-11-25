@@ -12,6 +12,7 @@
   const COMPANY = [
     { id: 'me', label: 'Just me', icon: '<circle cx="12" cy="7" r="3.5"/><path d="M5 21c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/>' },
     { id: 'friend', label: 'With a friend', icon: '<circle cx="8.5" cy="7.5" r="3"/><circle cx="16" cy="7.5" r="3"/><path d="M2.5 20c0-3.4 2.6-5.5 6-5.5s6 2.1 6 5.5M13.5 14.6c.8-.1 1.6-.1 2.5-.1 3.4 0 5.5 2.1 5.5 5.5"/>' },
+    { id: 'partner', label: 'With my partner', icon: '<path d="M12 20.5s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.8a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10-7.5 10z"/>' },
     { id: 'kids', label: 'With kids', icon: '<circle cx="9" cy="6" r="3"/><circle cx="17.5" cy="11" r="2.2"/><path d="M3 21c0-4 2.7-6.8 6-6.8s6 2.8 6 6.8M14.3 21c0-2.6 1.4-4.4 3.2-4.4s3.2 1.8 3.2 4.4"/>' },
     { id: 'group', label: 'A group', icon: '<circle cx="12" cy="6.5" r="2.8"/><circle cx="5" cy="9" r="2.3"/><circle cx="19" cy="9" r="2.3"/><path d="M7 20c0-3.3 2.2-5.6 5-5.6s5 2.3 5 5.6M1.5 19c0-2.5 1.5-4.3 3.5-4.3M22.5 19c0-2.5-1.5-4.3-3.5-4.3"/>' }
   ];
@@ -45,7 +46,18 @@
     Inspiring: 'for a walk that clears your head', Lively: 'great on a busy street', Gritty: 'for back lanes and brick walls',
     Wild: 'for parks and open paths', Grand: 'for the big buildings downtown', Breathtaking: 'for the best view you know'
   };
-  const COMPANY_MOMENT = { kids: 'easy for little legs', friend: 'better with two', group: 'made for a group' };
+  const PARTNER_VIBES = ['Romantic','Dreamy','Cozy','Charming','Whimsical'];
+  const COMPANY_MOMENT = { kids: 'easy for little legs', friend: 'better with two', group: 'made for a group', partner: 'a good date night' };
+  const slugify = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const cityName = c => String(c || '').replace(/\s*\([A-Z]{2}\)\s*$/, '');
+  const isKidsRated = s => /^(G|PG)$/.test(String(s.ageRating || ''));
+  /* The hero city picker (select#cityPick). Returns { slug, name } or null. */
+  const pickedCity = () => {
+    const sel = document.getElementById('cityPick');
+    if (!sel || !sel.value) return null;
+    const label = sel.selectedOptions[0]?.textContent || '';
+    return { slug: sel.value, name: cityName(label.split(',')[0].trim()) };
+  };
 
   const FALLBACK = [
     { id: 'alice', name: 'Alice Through The Tear', summary: 'Wonderland is bleeding into your streets.', genre: 'Fantasy', minutes: null, type: 'anywhere', cover: 'img/alice.jpg' },
@@ -98,6 +110,7 @@
       ${chapnum ? `<span class="chapnum">Chapter ${chapnum}</span>` : '<p class="eyebrow">Story matchmaker</p>'}
       <h2 id="mm-title">Got 5 minutes? Start a story.</h2>
       <p class="mm-lede">Three quick questions. We'll deal you a hand of stories that fit your walk.</p>
+      <button type="button" class="btn sec mm-justone">Just Pick One for Me</button>
     </header>
 
     <div class="mm-stage card" id="mm-stage">
@@ -154,6 +167,7 @@
         <button type="button" class="btn txt mm-change">Change Answers</button>
       </div>
       <p class="mm-reason" id="mm-reason" aria-live="polite"></p>
+      <p class="mm-note" id="mm-note" role="status"></p>
       <div class="mm-deck" id="mm-deck" role="list" aria-label="Your matched stories"></div>
       <p class="mm-tip">Tap a card to turn it over.</p>
       <div class="mm-actions">
@@ -259,70 +273,105 @@
   });
 
   /* ---------- matching ---------- */
-  function rank() {
-    const want = state.minutes, picks = state.vibes;
-    return stories.filter(s => !s.language || s.language === 'en').map(s => { // the page is in English; French editions stay in the library
+  function rank(opt = {}) {
+    const want = state.minutes, picks = opt.one ? [] : state.vibes, city = pickedCity();
+    const timeOn = !opt.one, comp = opt.one ? null : state.company;
+    let pool = stories.filter(s => !s.language || s.language === 'en'); // the page is in English; French editions stay in the library
+    /* Place: a chosen city gets its own Local stories plus Play Anywhere; never another city's Local story. */
+    if (city) pool = pool.filter(s => s.type !== 'local' || slugify(s.city) === city.slug);
+    if (comp === 'kids') pool = pool.filter(s => !s.ageRating || isKidsRated(s));
+    const scored = pool.map(s => {
       const mins = minutesOf(s), vibes = vibesOf(s);
       let score = 0;
       const hits = picks.filter(v => vibes.includes(v));
       score += hits.length * 4;
-      if (mins != null) {
-        if (mins <= want) score += 3 - Math.min(2.5, (want - mins) / 30);
-        else score += Math.max(-2, 1.5 - (mins - want) / 30); // longer stories still start; you play a chapter or two
-      } else score += 1;
-      if (state.company === 'kids') { score += vibes.filter(v => KID_FRIENDLY.includes(v)).length; if (/horror|ghost|paranorm|crime|thrill|halloween/i.test(s.genre) ) score -= 4; if (s.ageRating && !/^(G|PG)$/.test(s.ageRating)) score -= 100; if (/death|dead|kill|murder|blood|corpse|unlove|exorcis|launder/i.test(`${s.name} ${s.summary}`)) score -= 5; }
-      if (state.company === 'group') score += vibes.filter(v => GROUP_FRIENDLY.includes(v)).length * 0.7;
+      if (timeOn && mins != null) score += mins <= want ? 3 - Math.min(2.5, (want - mins) / 30) : 0;
+      else if (timeOn) score += 1;
+      if (comp === 'kids') { score += vibes.filter(v => KID_FRIENDLY.includes(v)).length; if (/horror|ghost|paranorm|crime|thrill|halloween/i.test(s.genre) ) score -= 4; if (/death|dead|kill|murder|blood|corpse|unlove|exorcis|launder/i.test(`${s.name} ${s.summary}`)) score -= 5; }
+      if (comp === 'group') score += vibes.filter(v => GROUP_FRIENDLY.includes(v)).length * 0.7;
+      if (comp === 'partner') { score += vibes.filter(v => PARTNER_VIBES.includes(v)).length * 1.2; if (s.ageRating === 'G') score -= 1; }
       if (s.type === 'anywhere') score += 1.5; // playable on your own street
-      if (Number.isFinite(+s.rating)) score += (+s.rating - 4) * 0.4;
-      if (seasonal && SEASON_GENRE.test(s.genre || '') && state.company !== 'kids') score += 1;
+      /* Local stories only travel with one person on their own streets; with company or no city, Play Anywhere leads. */
+      if (s.type === 'local') { if (comp === 'friend' || comp === 'group') score -= 4; if (!city) score -= 8; }
+      if (Number.isFinite(+s.rating)) score += (+s.rating - 4) * (opt.one ? 2 : 0.4);
+      if (opt.one) score += Math.log10(1 + (+s.reviews || 0)) + (mins != null && mins >= 20 && mins <= 45 ? 1 : 0);
+      if (seasonal && SEASON_GENRE.test(s.genre || '') && comp !== 'kids') score += 1;
       return { s, mins, vibes, hits, score };
     }).sort((a, b) => b.score - a.score)
       .filter((r, i, all) => { // one card per story family: "Covert Cadets (Austin)" = "Covert Cadets (Brisbane)"
         const base = String(r.s.name).replace(/\s*\(.*\)\s*$/, '').toLowerCase();
         return all.findIndex(o => String(o.s.name).replace(/\s*\(.*\)\s*$/, '').toLowerCase() === base) === i;
-      }).slice(0, 5);
+      });
+    if (opt.one) return { list: scored.slice(0, 1), fits: 1, city };
+    /* Time: only stories within ~25% of the answer (or shorter) count as a fit. */
+    const fitsList = scored.filter(r => r.mins == null || r.mins <= want * 1.25);
+    const list = fitsList.slice(0, 5);
+    const fits = fitsList.length;
+    if (fits < 3) { // say so honestly and add the closest longer story
+      const longer = scored.filter(r => !fitsList.includes(r)).sort((a, b) => (a.mins - b.mins) || (b.score - a.score))[0];
+      if (longer) { longer.longer = true; list.push(longer); }
+    }
+    return { list, fits, city };
   }
   function reasonFor(r) {
     const lead = r.hits[0] || r.vibes[0];
-    const moment = COMPANY_MOMENT[state.company] && !r.hits.length ? COMPANY_MOMENT[state.company] : (MOMENTS[lead] || 'right for your walk');
+    const moment = !state.one && COMPANY_MOMENT[state.company] && !r.hits.length ? COMPANY_MOMENT[state.company] : (MOMENTS[lead] || 'right for your walk');
     if (r.mins == null) return `${lead}, ${moment}`;
-    if (r.mins <= state.minutes) return `${lead}, ${r.mins} minutes, ${moment}`;
+    if (r.mins <= state.minutes * 1.25 || state.one) return `${lead}, ${r.mins} minutes, ${moment}`;
     return `${lead}, ${r.mins} minutes, one for a longer walk`;
   }
 
   /* ---------- deck ---------- */
   let cards = [], flipped = null;
+  const ageBadge = s => s.ageRating ? `<span class="mm-age" aria-label="Age rating ${esc(s.ageRating)}">${esc(s.ageRating)}</span>` : '';
+  const placeLine = s => s.type === 'local' && s.city ? `Only in ${cityName(s.city)}` : (TYPE_LABEL[s.type] || 'Story');
   const coverHTML = s => s.cover
     ? `<img src="${esc(s.cover)}" alt="" decoding="async">`
     : `<div class="mm-noimg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg><span>${esc(titleCase(s.name))}</span></div>`;
 
-  function showResults(fromUser) {
+  let headline = '';
+  function showResults(fromUser, one = false) {
     if (!stories.length) return;
+    state.one = one;
     stage.hidden = true; results.hidden = false;
     const who = COMPANY.find(c => c.id === state.company);
-    $('#mm-answers').innerHTML = `<b>${esc($('#mm-min').textContent)}</b> · ${esc(who ? who.label : 'Anyone')}${state.vibes.length ? ' · ' + esc(state.vibes.join(', ')) : ''}`;
+    const { list: ranked, fits, city } = rank({ one });
+    $('#mm-answers').innerHTML = one
+      ? `<b>Just one pick</b>${city ? ' · ' + esc(city.name) : ''}`
+      : `<b>${esc($('#mm-min').textContent)}</b> · ${esc(who ? who.label : 'Anyone')}${state.vibes.length ? ' · ' + esc(state.vibes.join(', ')) : ''}${city ? ' · ' + esc(city.name) : ''}`;
     $('.mm-sample').hidden = !usingFallback;
-    const ranked = rank();
+    const label = $('#mm-min').textContent;
+    let note = '';
+    if (!one && fits < 3 && ranked.length) {
+      const n = ranked.filter(r => !r.longer).length;
+      note = n === 0 ? `No stories fit ${label}. Here's the closest longer one.` : `Only ${n} ${n === 1 ? 'story fits' : 'stories fit'} ${label}. Here's the closest longer one.`;
+    }
+    if (!city && ranked.some(r => r.s.type === 'local')) note += `${note ? ' ' : ''}Choose your city at the top of the page to see stories written for it.`;
+    $('#mm-note').textContent = note;
+    /* The top pick sits at the centre of the fan, which is the card at the front of the deck. */
+    const n = ranked.length, centre = Math.floor(n / 2);
+    const slots = [...Array(n).keys()].sort((a, b) => Math.abs(a - centre) - Math.abs(b - centre) || b - a);
+    const order = []; ranked.forEach((r, j) => { order[slots[j]] = { r, rank: j }; });
     flipped = null;
-    deck.innerHTML = ranked.map((r, i) => {
+    deck.innerHTML = order.map(({ r, rank }, i) => {
       const s = r.s, t = esc(titleCase(s.name));
-      const type = TYPE_LABEL[s.type] || 'Story';
-      const typeLine = s.type === 'local' && s.city ? `${type} · ${esc(s.city)}` : type;
-      return `<div class="mm-card" role="listitem" data-i="${i}">
+      const typeLine = esc(placeLine(s));
+      return `<div class="mm-card" role="listitem" data-i="${i}" data-rank="${rank}">
         <div class="mm-card-in">
-          <button type="button" class="mm-face mm-front" aria-label="${t}. Turn over for details">
+          <button type="button" class="mm-face mm-front" aria-label="${t}${rank === 0 ? ', top pick' : ''}${s.ageRating ? `, rated ${esc(s.ageRating)}` : ''}. Turn over for details">
             ${coverHTML(s)}
-            <span class="mm-front-label"><span class="mm-front-genre">${esc(s.genre || '')}</span><span class="mm-front-title">${t}</span></span>
+            ${rank === 0 ? '<span class="mm-top">Top pick</span>' : ''}${ageBadge(s)}
+            <span class="mm-front-label"><span class="mm-front-genre">${esc(s.genre || '')}</span><span class="mm-front-title">${t}</span>${s.type === 'local' ? `<span class="mm-front-only">${typeLine}</span>` : ''}</span>
           </button>
           <div class="mm-face mm-backf" inert>
             <button type="button" class="ibtn mm-unflip" aria-label="Turn ${t} back over"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
             <p class="eyebrow">${esc(s.genre || 'Story')}</p>
             <h3>${t}</h3>
-            <p class="mm-meta">${r.mins != null ? `<span>${r.mins} min</span>` : ''}<span>${typeLine}</span></p>
+            <p class="mm-meta">${ageBadge(s)}${r.mins != null ? `<span>${r.mins} min</span>` : ''}<span>${typeLine}</span></p>
             <p class="mm-sum">${esc(s.summary || '')}</p>
             <p class="mm-why">${esc(reasonFor(r))}</p>
             <div class="mm-ctas">
-              <a class="btn" href="#demo">Read the First Chapter</a>
+              <a class="btn" href="#demo">Try a Sample Chapter</a>
               <a class="btn sec" href="#get-app">Get the App</a>
             </div>
           </div>
@@ -335,12 +384,14 @@
       c.querySelector('.mm-unflip').addEventListener('click', () => unflip(true));
       c.querySelectorAll('.mm-ctas a').forEach(a => a.addEventListener('click', () => unflip(false)));
     });
-    $('#mm-reason').textContent = ranked[0] ? `Top pick: ${titleCase(ranked[0].s.name)}. ${reasonFor(ranked[0])}.` : '';
+    const top = ranked[0];
+    headline = top ? `Top pick: ${titleCase(top.s.name)}. ${reasonFor(top)}.` : '';
+    $('#mm-reason').textContent = headline;
     layout(true);
-    writeHash();
+    if (!one) writeHash();
     if (fromUser) {
       results.scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth', block: 'start' });
-      setTimeout(() => cards[0]?.querySelector('.mm-front').focus({ preventScroll: true }), reduce.matches ? 0 : 500);
+      setTimeout(() => cards[centre]?.querySelector('.mm-front').focus({ preventScroll: true }), reduce.matches ? 0 : 500);
     }
   }
 
@@ -360,7 +411,7 @@
       c.style.setProperty('--y', `${y}px`);
       c.style.setProperty('--r', `${rot}deg`);
       c.style.setProperty('--s', isF ? (W < 520 ? 1.04 : 1.12) : 1);
-      c.style.zIndex = isF ? 50 : (10 + n - Math.round(Math.abs(k) * 2 * n)) ;
+      c.style.zIndex = isF ? 50 : 30 - (+c.dataset.rank);
       c.classList.toggle('is-flipped', isF);
       c.classList.toggle('is-dim', flipped != null && !isF);
       if (deal) {
@@ -389,6 +440,7 @@
     const i = flipped; flipped = null;
     cards.forEach(c => { c.querySelector('.mm-front').inert = false; c.querySelector('.mm-backf').inert = true; });
     layout(false);
+    $('#mm-reason').textContent = headline;
     if (returnFocus) cards[i]?.querySelector('.mm-front').focus({ preventScroll: true });
   }
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && flipped != null) unflip(true); });
@@ -442,7 +494,15 @@
       requestAnimationFrame(() => root.scrollIntoView({ block: 'start' }));
     }
   });
+  $('.mm-justone').addEventListener('click', () => showResults(true, true));
+  /* Re-deal when the hero city picker changes (or fills in after load). */
+  const cityPickEl = document.getElementById('cityPick');
+  if (cityPickEl) {
+    const redeal = () => { if (!results.hidden) { const one = state.one; showResults(false, one); } };
+    cityPickEl.addEventListener('change', redeal);
+    new MutationObserver(redeal).observe(cityPickEl, { childList: true, subtree: true });
+  }
   addEventListener('hashchange', () => { if (readHash()) showResults(false); });
 
-  window.SC_MATCHMAKER = { state, rank: () => rank().map(r => r.s.name) };
+  window.SC_MATCHMAKER = { state, rank: () => rank().list.map(r => r.s.name) };
 })();

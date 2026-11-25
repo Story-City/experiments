@@ -63,14 +63,15 @@ const GEMS = [
 const gemSVG = (g, cls = '') => `<svg class="demo-gem ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${g.d}" style="fill:var(${g.c})"/><path class="demo-gem-f" d="${g.f}"/></svg>`;
 
 // Decrypt puzzle: three colours hidden in the letter, one per band of tiles.
+// Four swatches only, picked to be far apart (no gold/amber or blue/green pairs), each with a plain name.
 const TARGETS = [
-  { c: '--citrine', name: 'Citrine', what: 'the star', x: 76, y: 15, rows: [0, 1, 2] },
-  { c: '--turquoise', name: 'Turquoise', what: 'the ink', x: 30, y: 56, rows: [3, 4, 5] },
-  { c: '--ruby', name: 'Ruby', what: 'the seal', x: 72, y: 84, rows: [6, 7] },
+  { c: '--citrine', name: 'Gold', what: 'the star', look: 'a warm, sunny yellow', x: 76, y: 15, rows: [0, 1, 2] },
+  { c: '--turquoise', name: 'Blue', what: 'the ink', look: 'a cool, watery blue', x: 30, y: 56, rows: [3, 4, 5] },
+  { c: '--ruby', name: 'Pink', what: 'the seal', look: 'a bright, hot pink', x: 72, y: 84, rows: [6, 7] },
 ];
 const PALETTE = [
-  { c: '--amber', name: 'Amber' }, { c: '--turquoise', name: 'Turquoise' }, { c: '--rhodolite', name: 'Rhodolite' },
-  { c: '--citrine', name: 'Citrine' }, { c: '--emerald', name: 'Emerald' }, { c: '--ruby', name: 'Ruby' },
+  { c: '--citrine', name: 'Gold' }, { c: '--turquoise', name: 'Blue' },
+  { c: '--ruby', name: 'Pink' }, { c: '--amethyst', name: 'Purple' },
 ];
 const COLS = 6, ROWS = 8;
 
@@ -79,8 +80,8 @@ const RAIL = [
   { id: 'choice', t: 'Your replies are choices', d: 'Tap a reply. What you choose changes what happens next.' },
   { id: 'walk', t: 'Steps mode', d: 'This is Steps mode — steps unlock the next chapter. In the app your real steps fill the trail; here one tap walks you there. Path and Hunt sit right beside it.' },
   { id: 'decrypt', t: 'Puzzles in the story', d: 'Some puzzles hide a message under colours. Tap the matching colour to clear the letter. Puzzles never need steps.' },
-  { id: 'gem', t: 'Location gems', d: 'Save the spots you love. Five types, each with its own shape and colour.' },
   { id: 'end', t: 'What happens next', d: 'Chapter 2 picks up in the app, out on your own streets.' },
+  { id: 'gem', t: 'Location gems', d: 'Save the spots you love. Five types, each with its own shape and colour. Try it from the end card.' },
 ];
 
 // Spoiler-free share line: one emoji per choice actually made; the locked chapter is a dark square.
@@ -143,7 +144,7 @@ function tilesHTML(solved = []) {
     const target = tok(TARGETS[ti].c);
     for (let c = 0; c < COLS; c++) {
       const base = bases[Math.floor(rnd() * bases.length)];
-      const col = mix(base, target, 0.3 + rnd() * 0.6);
+      const col = mix(base, target, 0.6 + rnd() * 0.35); // mostly the target colour, so each band reads clearly
       h += `<i data-band="${ti}" class="${solved.includes(ti) ? 'gone' : ''}" style="background:${col};transition-delay:${Math.round(rnd() * 260)}ms"></i>`;
     }
   }
@@ -264,7 +265,8 @@ function shell() {
               <div class="demo-gems" role="radiogroup" aria-label="Gem type">
                 ${GEMS.map((g) => `<button class="demo-gempick" role="radio" aria-checked="false" data-gem="${g.id}">${gemSVG(g)}<b>${g.name}</b><span>${g.shape}</span></button>`).join('')}
               </div>
-              <button class="btn demo-savegem" data-act="savegem" disabled>Save Gem</button>
+              <button class="btn demo-savegem" data-act="savegem" aria-describedby="demo-sheet-hint" disabled>Save Gem</button>
+              <p class="demo-sheet-hint" id="demo-sheet-hint" data-ref="sheethint">Pick a type to save your gem.</p>
             </div>
 
             <div class="demo-toast" data-ref="toast" role="status" hidden></div>
@@ -411,21 +413,31 @@ function mount(root) {
         <a class="btn demo-end-go" href="#get-app">Keep Playing in the App</a>
         <p class="demo-end-note">Every story free for 7 days.</p>
         ${qr}
+        <button class="btn sec demo-gemchip" data-act="gem" aria-haspopup="dialog"></button>
         <div class="demo-share">
           <p class="demo-share-line" aria-label="Your path so far"><span></span> <span></span></p>
           <button class="btn sec demo-share-btn" data-act="share">${icon('share')}<span>Share My Path</span></button>
+          <button class="btn sec demo-share-btn" data-act="shareimg">${icon('get')}<span>Save Share Image</span></button>
           <p class="demo-share-status" role="status"></p>
           <textarea class="demo-share-text" readonly rows="3" aria-label="Your path, ready to copy" hidden></textarea>
         </div>
         <button class="btn txt demo-again" data-act="restart">Play Again</button>
       </div>`;
-      const parts = row.querySelectorAll('.demo-share-line span');
-      parts[0].textContent = `The Summons · Chapter 1 ${pathEmoji()}`;
-      parts[1].textContent = '· Chapter 2 ⬛';
+      refreshEnd(row);
     }
     if (animate && !RM.matches) row.classList.add('pop');
     R.log.append(row);
     return row;
+  }
+  // Keep the end card's gem chip and share line in step with what was picked.
+  function refreshEnd(row) {
+    const card = row || R.log.querySelector('.demo-end'); if (!card) return;
+    const parts = card.querySelectorAll('.demo-share-line span');
+    parts[0].textContent = `The Summons · Chapter 1 ${pathEmoji()}`;
+    parts[1].textContent = '· Chapter 2 ⬛';
+    const chip = card.querySelector('.demo-gemchip'), g = GEMS.find((x) => x.id === S.gem);
+    chip.innerHTML = g ? `${gemSVG(g)}<span>Gem saved · ${g.name}</span>` : `${icon('path')}<span>Save a Gem From Tonight</span>`;
+    chip.classList.toggle('saved', !!g);
   }
   function pathEmoji() {
     const p = S.picks || {}, out = [];
@@ -470,6 +482,65 @@ function mount(root) {
     } catch (e) {
       showText('Select this and copy it to share.');
     }
+  }
+
+  async function shareImage(btn) {
+    const card = btn.closest('.demo-end');
+    const status = card.querySelector('.demo-share-status'), label = btn.querySelector('span');
+    label.textContent = 'Drawing…'; btn.disabled = true;
+    try {
+      const blob = await drawCard();
+      const name = 'the-summons-chapter-1.png';
+      const file = new File([blob], name, { type: 'image/png' });
+      // Phones: the share sheet has "Save Image". Everywhere else: download the PNG straight away.
+      if (COARSE.matches && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: 'The Summons' }); status.textContent = 'Shared.'; return; }
+        catch (e) { if (e && e.name === 'AbortError') return; }
+      }
+      const url = URL.createObjectURL(blob);
+      let a = card.querySelector('.demo-dl');
+      if (a) URL.revokeObjectURL(a.href); else { a = document.createElement('a'); a.className = 'demo-dl btn txt'; btn.after(a); }
+      a.href = url; a.download = name; a.textContent = 'Download Again';
+      a.click();
+      status.textContent = `Saved ${name} (1080 × 1920) to your downloads.`;
+    } catch (e) {
+      status.textContent = 'Could not draw the image here. Try Share My Path instead.';
+    } finally { label.textContent = 'Save Share Image'; btn.disabled = false; }
+  }
+  // 1080x1920 story card: night sky, title, the path, the hook, the address.
+  async function drawCard() {
+    try { await Promise.all([document.fonts.load('600 110px Erode'), document.fonts.load('600 44px Karla'), document.fonts.load('400 44px Karla')]); } catch (e) { /* fall back to system fonts */ }
+    const W = 1080, H = 1920, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const x = cv.getContext('2d');
+    const head = `'Erode', Georgia, serif`, body = `'Karla', system-ui, sans-serif`;
+    const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, tok('--ink')); g.addColorStop(0.55, tok('--midnight')); g.addColorStop(1, tok('--velvet'));
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    const rnd = seeded(11);
+    for (let i = 0; i < 70; i++) { x.globalAlpha = 0.25 + rnd() * 0.5; x.fillStyle = tok('--mist'); x.beginPath(); x.arc(rnd() * W, rnd() * H * 0.7, 1.5 + rnd() * 3, 0, 7); x.fill(); }
+    x.globalAlpha = 1;
+    // brand sparkle
+    x.save(); x.translate(W / 2 - 60, 330); x.scale(5, 5); x.fillStyle = tok('--citrine'); x.fill(new Path2D(SPARK)); x.restore();
+    x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+    x.fillStyle = tok('--glow'); x.font = `600 40px ${body}`; x.letterSpacing = '8px'; x.fillText('STORY CITY', W / 2, 560); x.letterSpacing = '0px';
+    // Erode runs large (size-adjust 120%), so headline sizes shrink until they fit inside 900 px.
+    const fit = (text, weight, px, fam, max = 900) => { do { x.font = `${weight} ${px}px ${fam}`; px -= 4; } while (x.measureText(text).width > max && px > 20); };
+    x.fillStyle = tok('--starlight'); fit('The Summons', 600, 150, head); x.fillText('The Summons', W / 2, 740);
+    x.fillStyle = tok('--mist'); x.font = `400 52px ${body}`; x.fillText('Chapter 1, finished', W / 2, 830);
+    // path card
+    x.fillStyle = tok('--velvet'); x.strokeStyle = tok('--line'); x.lineWidth = 3;
+    x.beginPath(); if (x.roundRect) x.roundRect(90, 960, 900, 340, 36); else x.rect(90, 960, 900, 340); x.fill(); x.stroke();
+    const em = (pathEmoji() + '⬛').match(/\p{Extended_Pictographic}\uFE0F?|⬛/gu) || ['⬛'];
+    const size = Math.min(110, Math.floor(780 / em.length)); x.font = `${size}px ${body}`; x.fillStyle = tok('--starlight');
+    const gap = size * 1.15, x0 = W / 2 - (gap * (em.length - 1)) / 2;
+    em.forEach((c, i) => x.fillText(c, x0 + i * gap, 1150));
+    x.fillStyle = tok('--lilac'); x.font = `400 38px ${body}`; x.fillText('My path so far. The last square is still locked.', W / 2, 1250);
+    x.fillStyle = tok('--starlight'); fit('Chapter 2 is waiting', 600, 96, head, 880); x.fillText('Chapter 2 is waiting', W / 2, 1520);
+    x.fillStyle = tok('--glow'); x.font = `600 46px ${body}`;
+    // The page address, so friends can play too (skipped on local test servers).
+    const addr = /^(localhost|127\.|\[::1\]|$)/.test(location.host) ? '' : (location.host + location.pathname.replace(/index\.html$/, '')).replace(/\/$/, '');
+    if (addr) { fit(addr, 600, 46, body, 880); x.fillText(addr, W / 2, 1700); }
+    x.fillStyle = tok('--lilac'); x.font = `400 36px ${body}`; x.fillText('Walk further. Find out what happens next.', W / 2, 1780);
+    return new Promise((res, rej) => cv.toBlob((b) => (b ? res(b) : rej(new Error('blob'))), 'image/png'));
   }
 
   function add(item, animate = true) { S.log.push(item); save(); const r = render(item, animate); scrollLog(); return r; }
@@ -662,9 +733,13 @@ function mount(root) {
     R.pletter.innerHTML = letterBlock(true, S.solved) +
       TARGETS.map((t, i) => `<span class="demo-target${S.solved.includes(i) ? ' got' : ''}" data-t="${i}" style="left:${t.x}%;top:${t.y}%;--tc:var(${t.c})" aria-hidden="true"><b>${i + 1}</b>${icon('check')}</span>`).join('');
     R.palette.innerHTML = PALETTE.map((p) => `<button class="demo-swatch" data-c="${p.c}" aria-label="${p.name}"><i style="background:var(${p.c})"></i><span>${p.name}</span></button>`).join('');
-    R.pfoot.innerHTML = '<button class="btn txt demo-solve">Solve This for Me</button>';
+    R.pfoot.innerHTML = '<button class="btn txt demo-hintbtn">Give Me a Hint</button><button class="btn sec demo-solve">Solve This for Me</button>';
     R.palette.querySelectorAll('.demo-swatch').forEach((b) => b.addEventListener('click', () => pick(b)));
     R.pfoot.querySelector('.demo-solve').addEventListener('click', solveAll);
+    R.pfoot.querySelector('.demo-hintbtn').addEventListener('click', () => {
+      const i = current(); if (i < 0) return;
+      R.pmsg.textContent = `Hint: square ${i + 1}, on ${TARGETS[i].what}, is ${TARGETS[i].look}. Try ${TARGETS[i].name}.`;
+    });
     nextTarget();
   }
   const current = () => TARGETS.findIndex((_, i) => !S.solved.includes(i));
@@ -688,11 +763,12 @@ function mount(root) {
     } else {
       sound.bad(); buzz(20);
       if (!RM.matches && b.animate) b.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-5px)' }, { transform: 'translateX(5px)' }, { transform: 'translateX(-3px)' }, { transform: 'none' }], { duration: 300 });
-      R.pmsg.textContent = `Not quite. Look again at square ${i + 1}, on ${TARGETS[i].what}.`;
+      const said = PALETTE.find((p) => p.c === b.dataset.c);
+      R.pmsg.textContent = `That's ${said ? said.name : 'another colour'}. Square ${i + 1}, on ${TARGETS[i].what}, is ${TARGETS[i].look}.`;
     }
   }
   async function solveAll() {
-    R.pfoot.innerHTML = '';
+    R.pfoot.innerHTML = ''; // focus lands on Continue when the letter clears (finishPuzzle)
     S.helped = true; save();
     for (let i = current(); i > -1; i = current()) { clearBand(i); sound.good(); await new Promise((r) => setTimeout(r, RM.matches ? 50 : 380)); }
     nextTarget();
@@ -707,29 +783,28 @@ function mount(root) {
     softFocus(b);
   }
 
-  /* --- gem sheet (closes on Esc / outside tap; a chip brings it back) --- */
-  let gemResolve = null, gemPick = null;
+  /* --- gem sheet (optional, after the end card; closes on Esc / outside tap) --- */
+  let gemPick = null;
   function openSheet() {
-    R.dock.innerHTML = ''; R.dock.classList.remove('open');
+    setRail('gem');
+    const g = GEMS.find((x) => x.id === gemPick);
+    R.sheet.querySelector('.demo-sheet-hint').textContent = g ? `${g.name} picked. Tap Save Gem.` : 'Pick a type to save your gem.';
     R.sheet.hidden = false;
     if (!RM.matches) R.sheet.classList.add('rise');
+    root.querySelectorAll('.demo-gempick').forEach((x) => x.setAttribute('aria-checked', String(x.dataset.gem === gemPick)));
+    root.querySelector('[data-act="savegem"]').disabled = !gemPick;
     softFocus(R.sheet.querySelector(gemPick ? `[data-gem="${gemPick}"]` : '.demo-gempick'));
   }
   function closeSheet() {
     if (R.sheet.hidden) return;
     R.sheet.hidden = true; R.sheet.classList.remove('rise');
-    if (gemResolve) {
-      R.dock.innerHTML = '<button class="btn demo-act">Choose a Gem</button>';
-      R.dock.classList.add('open');
-      const b = R.dock.querySelector('button');
-      b.addEventListener('click', openSheet);
-      softFocus(b);
-    }
+    const chip = R.log.querySelector('.demo-gemchip'); if (chip) softFocus(chip);
   }
   root.querySelectorAll('.demo-gempick').forEach((b) => b.addEventListener('click', () => {
     gemPick = b.dataset.gem;
     root.querySelectorAll('.demo-gempick').forEach((x) => x.setAttribute('aria-checked', String(x === b)));
     root.querySelector('[data-act="savegem"]').disabled = false;
+    R.sheet.querySelector('.demo-sheet-hint').textContent = `${GEMS.find((x) => x.id === gemPick).name} picked. Tap Save Gem.`;
     sound.send(); buzz(6);
     if (!RM.matches && b.animate) b.querySelector('svg').animate([{ transform: 'scale(.8) rotate(-8deg)' }, { transform: 'scale(1.12)' }, { transform: 'none' }], { duration: 320, easing: 'ease-out' });
   }));
@@ -744,6 +819,7 @@ function mount(root) {
   });
 
   /* --- the story --- */
+  if (S.stage === 'gem') { S.stage = 'cta'; S.ended = false; }
   const go = (stage) => { S.stage = stage; S.mark = S.log.length; save(); };
   const STAGES = {
     async hello() {
@@ -813,19 +889,6 @@ function mount(root) {
       await say(i ? "Because you walked when I asked. Most people don't." : "Nobody I've asked has come back to say.");
       await say('Hang on. Something just came through on my end.');
       await say('Someone on the other side of that door just knocked back.');
-      await say("Before anything else, mark this spot. You'll want to find it again.");
-      go('gem');
-    },
-    async gem() {
-      setRail('gem');
-      gemPick = S.gem;
-      const picked = guard(new Promise((res) => { gemResolve = res; }));
-      openSheet();
-      await picked;
-      add({ k: 'gem', gem: S.gem });
-      sound.good();
-      await sleep(RM.matches ? 100 : 500);
-      await say('Saved. Now it is yours.');
       await say('Wait. The knocking stopped.');
       await say("Something's on the stairs. Whatever you hear tonight, don't open the");
       go('cta');
@@ -847,6 +910,7 @@ function mount(root) {
         await sleep(RM.matches ? 200 : 1100);
         S.ended = true; save();
       }
+      S.ended = true; save();
       R.sub.textContent = 'Signal lost';
       const row = render({ k: 'cta' }, true);
       showEnd(row);
@@ -855,10 +919,9 @@ function mount(root) {
     },
   };
   root.querySelector('[data-act="savegem"]').addEventListener('click', () => {
-    if (!gemPick || !gemResolve) return;
-    S.gem = gemPick; save();
-    R.sheet.hidden = true; R.sheet.classList.remove('rise');
-    const r = gemResolve; gemResolve = null; r();
+    if (!gemPick) return;
+    S.gem = gemPick; save(); sound.good();
+    refreshEnd(); closeSheet();
   });
 
   async function run() {
@@ -878,7 +941,7 @@ function mount(root) {
     stopMotion(); hideToast();
     if (walking) cancelAnimationFrame(walking);
     walking = 0;
-    walkResolve = puzzleResolve = gemResolve = unlockResolve = null;
+    walkResolve = puzzleResolve = unlockResolve = null;
     gemPick = null;
     R.log.innerHTML = ''; R.dock.innerHTML = ''; R.dock.classList.remove('open');
     R.unlock.hidden = true; R.sheet.hidden = true; R.peek.hidden = true;
@@ -888,7 +951,16 @@ function mount(root) {
     root.querySelector('[data-act="savegem"]').disabled = true;
   }
   // Lock screen: a fresh start, or (when progress is saved) pick up / start over.
+  const finished = () => S.stage === 'cta' && S.ended;
   function introFoot(saved) {
+    if (saved && finished()) {
+      R.notifmsg.textContent = 'You finished chapter 1. Chapter 2 is waiting in the app.';
+      R.introfoot.innerHTML = `<a class="btn demo-start" href="#get-app">Keep Playing in the App</a>
+         <button class="btn sec demo-over" data-act="restart">Play Again</button>
+         <button class="btn txt demo-over" data-act="resume">See the Ending Again</button>
+         <p class="demo-intro-note">Every story free for 7 days.</p>`;
+      return;
+    }
     R.notifmsg.textContent = saved ? 'Still there? I kept your place.' : 'Hello? Is this thing on?';
     R.introfoot.innerHTML = saved
       ? `<button class="btn demo-start" data-act="resume">Pick Up Where You Left Off</button>
@@ -926,6 +998,8 @@ function mount(root) {
     else if (act === 'restart') restart();
     else if (act === 'resume') resume();
     else if (act === 'share') shareMyPath(a);
+    else if (act === 'shareimg') shareImage(a);
+    else if (act === 'gem') openSheet();
     else if (act === 'start') {
       sound.ensure && sound.on && sound.ensure();
       epoch++; clearUI();

@@ -86,4 +86,12 @@ em, .accent { font-family: var(--f-accent); font-style: normal; font-weight: 400
 
 /* Draft label: this is a concept for the team, not the live storycity.app */
 .draft-flag { position: fixed; z-index: 70; left: 12px; bottom: 12px; padding: 6px 12px; border-radius: 999px; background: var(--midnight); box-shadow: inset 0 0 0 1px var(--line); font: 700 11px/1.2 var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--glow); pointer-events: none; }
-@media (max-width: 640px) { .draft-flag { left: 50%; transform: translateX(-50%); bottom: auto; top: 72px; } }
+@media (max-width: 640px) { .draft-flag { left: 50%; transform: translateX(-50%); bottom: auto; top: 72px; white-space: nowrap; letter-spacing: .06em; } }
+
+/* Team notes: by default visitors never see [Confirm with team] placeholders.
+   html.notes (set by js/notes.js via ?notes=1 or the Draft label button) shows them all. Shared by every page. */
+html:not(.notes) .placeholder, html:not(.notes) .notes-only { display: none !important; }
+html.notes .notes-off { display: none !important; }
+button.draft-flag { border: 0; cursor: pointer; pointer-events: auto; }
+button.draft-flag::before { content: ''; position: absolute; inset: -12px -6px; }
+html.notes .draft-flag { color: var(--citrine); }

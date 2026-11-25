@@ -219,13 +219,14 @@
 @media (prefers-reduced-motion: no-preference) {
   .demo-target.active { animation: demo-pulse 1.4s ease-in-out infinite; }
 }
-.demo-palette { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: 100%; max-width: 320px; }
+.demo-palette { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; width: 100%; max-width: 320px; }
 .demo-swatch { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 4px 8px 4px 5px; min-width: 0; border: 0; border-radius: 999px; background: var(--ink); box-shadow: inset 0 0 0 1px var(--line);
   cursor: pointer; font: 600 12.5px/1 var(--f-body); color: var(--mist); }
 .demo-swatch i { flex: none; width: 28px; height: 28px; border-radius: 50%; }
 .demo-swatch span { overflow: hidden; text-overflow: ellipsis; }
 .demo-swatch:hover { box-shadow: inset 0 0 0 1.5px var(--sapphire); color: var(--starlight); }
-.demo-pfoot { margin-top: auto; width: 100%; display: grid; justify-items: center; }
+.demo-pfoot { margin-top: auto; width: 100%; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 8px; }
+.demo-hintbtn { font-size: 15px; color: var(--mist); }
 .demo-pdone { width: 100%; }
 
 /* Gem sheet */
@@ -247,6 +248,7 @@
 .demo-gem { width: 30px; height: 30px; }
 .demo-gem-f { fill: none; stroke: var(--starlight); stroke-width: 1; opacity: .55; stroke-linejoin: round; }
 .demo-savegem:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+.demo-sheet-hint { color: var(--lilac); font-size: 14px; text-align: center; margin-top: -2px; }
 
 /* Toast */
 .demo-toast { position: absolute; left: 14px; right: 14px; top: calc(var(--demo-sb) + 112px); z-index: 7; padding: 12px 14px; border-radius: var(--r-card);
@@ -301,7 +303,6 @@
   .demo-peek { top: 104px; }
   .demo-gems { gap: 4px; }
   .demo-pletter { width: min(210px, 62%); }
-  .demo-palette { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 260px; }
 }
 @media (max-height: 640px) and (max-width: 480px) {
   .demo-pletter { width: min(170px, 52%); }
@@ -323,8 +324,20 @@
 }
 
 /* Swatches: circle above the name so names never get cut off on shorter phones */
-.demo-swatch { flex-direction: column; justify-content: center; gap: 4px; padding: 6px 4px; border-radius: 14px; font-size: 12px; }
+.demo-swatch { flex-direction: column; justify-content: center; gap: 4px; padding: 6px 4px; border-radius: 14px; font-size: 14px; }
 .demo-swatch span { overflow: visible; text-overflow: clip; white-space: nowrap; }
 /* Once a square is solved, its tick steps aside so the letter can be read */
 .demo-target.got { animation: demo-tick-out .5s ease 1.2s forwards; }
 @keyframes demo-tick-out { to { opacity: 0; transform: scale(.6); visibility: hidden; } }
+
+/* Solve This for Me: a real secondary button */
+.demo-solve { min-height: 44px; height: 48px; padding: 0 22px; font-size: 15px; }
+/* Four swatches in one row: circle plus a plain colour name */
+.demo-swatch i { width: 32px; height: 32px; }
+/* End card: optional gem chip + share image */
+.demo-gemchip { height: 48px; min-height: 44px; padding: 0 18px; font-size: 15px; width: 100%; }
+.demo-gemchip .demo-gem { width: 22px; height: 22px; }
+.demo-gemchip .demo-ic { width: 20px; height: 20px; color: var(--sapphire); }
+.demo-gemchip.saved { box-shadow: inset 0 0 0 1.5px var(--emerald); }
+.demo-dl { height: 44px; padding: 0 14px; font-size: 15px; }
+.demo-share-btn:disabled { opacity: .6; cursor: progress; }

@@ -41,7 +41,7 @@
 @media (max-width: 1340px) { .trail { display: none; } }
 
 /* ---------- Unlock toast (chapter reached) ---------- */
-.unlock { position: fixed; z-index: 60; left: 50%; top: 12px; max-width: calc(100vw - 24px); transform: translate(-50%, -24px); opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 12px; padding: 10px 18px 10px 12px; border-radius: 999px; background: var(--midnight); box-shadow: inset 0 0 0 1px var(--line), 0 18px 40px rgba(11,6,32,.45); transition: transform .5s var(--ease), opacity .5s; }
+.unlock { position: fixed; z-index: 60; left: 50%; top: calc(80px + env(safe-area-inset-top, 0px)); max-width: calc(100vw - 24px); transform: translate(-50%, -24px); opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 12px; padding: 10px 18px 10px 12px; border-radius: 999px; background: var(--midnight); box-shadow: inset 0 0 0 1px var(--line), 0 18px 40px rgba(11,6,32,.45); transition: transform .5s var(--ease), opacity .5s; }
 .unlock.show { transform: translate(-50%, 0); opacity: 1; }
 .unlock svg { width: 26px; height: 26px; fill: var(--citrine); filter: drop-shadow(0 0 8px rgba(245,184,46,.7)); }
 .unlock > div { min-width: 0; }
@@ -49,7 +49,8 @@
 .unlock > div b { display: block; font: 600 16px/1.2 var(--f-head); color: var(--starlight); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .unlock small { white-space: nowrap; }
 @media (max-width: 640px) {
-  .unlock { top: 10px; gap: 10px; padding: 7px 14px 7px 10px; }
+  /* phones: the toast rises from the bottom edge, so it never covers the nav, its menu or the Get the App button */
+  .unlock { top: auto; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 24px); gap: 10px; padding: 7px 14px 7px 10px; }
   .unlock svg { width: 20px; height: 20px; }
   .unlock small { font-size: 12px; letter-spacing: .08em; }
   .unlock > div b { font-size: 15px; }
@@ -166,7 +167,13 @@ main > section { position: relative; padding-block: clamp(40px, 8vw, 110px); scr
 .modestage .hud small { display: block; color: var(--lilac); font-size: 13px; }
 .modestage .hud .bar { flex: 1; height: 8px; border-radius: 999px; background: var(--ink); overflow: hidden; min-width: 60px; }
 .modestage .hud .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--citrine), var(--emerald)); }
-@media (max-width: 860px) { .modes { grid-template-columns: 1fr; } .modecopy { gap: 12px; } .modecopy .what { min-height: 0; gap: 6px; } .modecopy h3, .modenote { display: none; } }
+.modeswitch { justify-self: start; } /* hug its three buttons instead of stretching across the column */
+@media (max-width: 420px) {
+  /* narrow phones / large text: the Steps · Path · Hunt switch shares the width instead of pushing the page sideways */
+  .modeswitch { display: flex; width: 100%; justify-self: stretch; }
+  .modeswitch button { flex: 1 1 0; justify-content: center; min-width: 0; padding: 0 8px; gap: 6px; }
+}
+@media (max-width: 860px) { .modes { grid-template-columns: minmax(0, 1fr); } .modecopy { gap: 12px; } .modecopy .what { min-height: 0; gap: 6px; } .modecopy h3, .modenote { display: none; } }
 
 /* ---------- Gems ---------- */
 .gemsec .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 70px); align-items: center; }
@@ -188,8 +195,8 @@ main > section { position: relative; padding-block: clamp(40px, 8vw, 110px); scr
 .vault .label span { font-size: 13px; color: var(--lilac); }
 .vault .saved { position: absolute; top: 12%; display: flex; gap: 6px; }
 .vault .saved svg { width: 22px; height: 22px; }
-.vault .burst { position: absolute; inset: 0; pointer-events: none; }
-@media (max-width: 860px) { .gemsec .wrap { grid-template-columns: 1fr; } .vault { width: min(100%, 360px); } }
+.vault .burst { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; } /* a canvas doesn't stretch to inset:0 by itself (it stays 300px wide and pushed narrow phones sideways) */
+@media (max-width: 860px) { .gemsec .wrap { grid-template-columns: minmax(0, 1fr); } .vault { width: min(100%, 360px); } }
 @media (max-width: 640px) {
   .gembuild { gap: 16px; }
   .gemrow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
@@ -261,6 +268,7 @@ main > section { position: relative; padding-block: clamp(40px, 8vw, 110px); scr
 .convo .b.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--lilac); animation: dot 1s infinite; }
 .convo .b.typing i:nth-child(2) { animation-delay: .15s; } .convo .b.typing i:nth-child(3) { animation-delay: .3s; }
 .convo .b.ph { background: none; border: 1.5px dashed var(--line); color: var(--lilac); }
+html:not(.notes) .convo .b.ph { display: none; }
 @keyframes bub { from { opacity: 0; transform: translateY(10px) scale(.96); } }
 @keyframes dot { 50% { transform: translateY(-4px); opacity: .5; } }
 @media (max-width: 860px) { .faq { grid-template-columns: 1fr; } .faq .convo { min-height: 170px; max-height: 420px; } }
@@ -296,6 +304,10 @@ footer a { color: var(--mist); text-decoration: none; }
 footer a:hover { color: var(--starlight); }
 @media (max-width: 760px) { footer { padding-block: 32px 48px; } footer .wrap { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 12px; } footer .wrap > div:first-child { grid-column: 1 / -1; } footer .wrap > div:first-child p { margin-top: 8px !important; } footer ul a { line-height: 1.2; } }
 
+/* Notes off: the News / Contact / Privacy / Terms column (links not confirmed yet) is hidden, so close up its column */
+html:not(.notes) footer .wrap { grid-template-columns: 1.4fr repeat(2, 1fr); }
+@media (max-width: 760px) { html:not(.notes) footer .wrap { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
 /* Modules mount inside a chapter section; the section owns the spacing */
 .mount { padding-block: 0 !important; background: none !important; }
 section > .wrap + .mount { margin-top: 0; }
@@ -322,4 +334,26 @@ section > .wrap + .mount { margin-top: 0; }
 @media (max-width: 640px) {
   .draft-flag { position: absolute; top: 70px; white-space: nowrap; letter-spacing: .06em; padding: 4px 10px; }
   .hero { padding-top: 104px !important; }
+}
+
+/* Phones: the scroll count is dropped from the toast to keep it brief (it still shows in the final chapter) */
+@media (max-width: 520px) { .unlock .stepcount { display: none; } }
+
+/* Team notes label is a real button now: sits under the nav, below the open menu */
+.draft-flag { z-index: 40; }
+.draft-flag { appearance: none; }
+
+/* Large text / very narrow screens: the nav never overflows */
+@media (max-width: 360px) {
+  .nav .wrap { gap: 8px; }
+  .nav .btn { padding: 0 12px; font-size: 14px; margin-left: 0; }
+  .nav .btn .the { display: none; }
+  .logo { font-size: 19px; gap: 6px; }
+  .logo svg { width: 15px; height: 15px; }
+}
+@media (max-width: 330px) {
+  .nav .wrap { gap: 4px; }
+  .nav .btn { padding: 0 10px; }
+  .logo { font-size: 17px; }
+  .draft-flag { font-size: 11px; letter-spacing: .02em; padding: 4px 8px; }
 }

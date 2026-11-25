@@ -46,7 +46,9 @@
 .radar-zoom { position: absolute; top: 12px; right: 12px; display: grid; gap: 8px; }
 .radar-status { position: absolute; left: 50%; top: 70px; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; max-width: calc(100% - 24px); padding: 6px 6px 6px 16px; min-height: 36px; border-radius: 999px; background: var(--velvet); box-shadow: inset 0 0 0 1px var(--line); font: 600 14px/1.3 var(--f-body); color: var(--mist); }
 .radar-status[hidden] { display: none; }
-.radar-retry { height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: none; color: var(--sapphire); font: 700 14px/1 var(--f-body); cursor: pointer; white-space: nowrap; }
+.radar-status { width: calc(100% - 24px); max-width: 560px; justify-content: space-between; gap: 8px; border-radius: 18px; flex-wrap: wrap; }
+.radar-status-t { flex: 1 1 200px; min-width: 0; }
+.radar-retry { height: 44px; margin-block: -6px; padding: 0 14px; border: 0; border-radius: 999px; background: none; color: var(--sapphire); font: 700 14px/1 var(--f-body); cursor: pointer; white-space: nowrap; }
 .radar-retry[hidden] { display: none; }
 
 .radar-caption { position: absolute; left: 12px; bottom: 12px; max-width: calc(100% - 24px); display: flex; align-items: center; gap: 10px; padding: 10px 16px 10px 10px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 86%, transparent); box-shadow: inset 0 0 0 1px var(--line); color: var(--starlight); font: 600 15px/1.25 var(--f-body); pointer-events: none; }
@@ -83,7 +85,8 @@
 .radar-empty { color: var(--lilac); }
 
 /* legend */
-.radar-legend { display: flex; flex-wrap: wrap; gap: 8px; }
+.radar-legend { display: flex; flex-wrap: wrap; gap: 8px; max-width: 100%; }
+@media (max-width: 520px) { .radar-legend { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; } .radar-legend::-webkit-scrollbar { display: none; } .radar-legend > * { flex: none; } }
 .radar-gemchip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px 0 8px; border: 0; border-radius: 999px; background: none; box-shadow: inset 0 0 0 1px var(--line); color: var(--mist); font: 500 14px/1 var(--f-body); cursor: pointer; transition: opacity .2s; }
 .radar-gemchip svg { width: 26px; height: 26px; }
 .radar-gemchip b { color: var(--starlight); font-weight: 700; }
@@ -95,6 +98,8 @@
 .radar-fine b { color: var(--mist); }
 .radar-fine svg { margin-top: 1px; color: var(--lilac); }
 
+/* tablets: keep the status clear of the zoom buttons on the right */
+@media (max-width: 959px) { .radar-status { left: 12px; right: 68px; width: auto; max-width: none; transform: none; } }
 @media (max-width: 520px) {
   .radar-city { flex-basis: 100%; }
   .radar-locate { flex: 1 1 100%; }
@@ -103,6 +108,10 @@
   .radar-zoom { top: 8px; right: 8px; }
   .radar-caption { left: 8px; bottom: 8px; max-width: calc(100% - 16px); font-size: 14px; }
   .radar-cap-t { white-space: normal; }
-  .radar-status { top: 66px; font-size: 13px; }
+  /* phones: the status (e.g. "map service is busy") is a full-width bar along the bottom of the map,
+     clear of the mode switch and the zoom buttons; the caption it replaces steps aside while it shows */
+  .radar-status { top: auto; bottom: 8px; left: 8px; right: 8px; width: auto; max-width: none; transform: none; padding: 8px 6px 8px 14px; font-size: 14px; flex-wrap: nowrap; }
+  .radar-status-t { flex: 1 1 auto; }
+  .radar-stage:has(.radar-status:not([hidden])) .radar-caption { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .radar-mode, .radar-gemchip { transition: none; } }

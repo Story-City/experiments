@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Featured Adventures Fix</title>
+<style>
+  /* Colours sampled from the current storycity.app screenshot, so the fix drops into the old site as-is. */
+  :root { --bg: #0d0a24; --card: #141238; --edge: #2d3a7a; --pill: #cdd4ef; --pill-ink: #1c1f4a; --ink: #f3f2fa; --soft: #b8b9d8; --flag: #ff6b7a; --ok: #6fd6a8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; padding: 40px max(16px, env(safe-area-inset-left, 0px)) 64px max(16px, env(safe-area-inset-right, 0px)); }
+  .wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 40px; }
+  h1 { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--soft); margin: 0; }
+  .label { font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 12px; }
+  .label.before { color: var(--flag); } .label.after { color: var(--ok); }
+  .before img { width: 100%; border-radius: 12px; display: block; }
+  .sec-title { text-align: center; font: 700 clamp(26px, 4vw, 40px)/1.1 system-ui, sans-serif; letter-spacing: .02em; margin: 0 0 28px; }
+  .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--edge); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .card img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; object-position: top; border-radius: 10px; display: block; }
+  .card h3 { margin: 4px 0 0; font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; text-align: center; }
+  .card .hook { margin: 0; color: var(--soft); font-size: 15px; text-align: center; flex: 1; }
+  .card .meta { margin: 0; color: var(--soft); font-size: 13px; text-align: center; }
+  .card a { display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 999px; background: var(--pill); color: var(--pill-ink); font-weight: 700; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; text-decoration: none; margin-top: 4px; }
+  .card a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--edge); vertical-align: top; }
+  th { color: var(--soft); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+  .tw { overflow-x: auto; }
+  .note { color: var(--soft); font-size: 14px; margin: 0; }
+</style>
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="wrap">
+  <h1>storycity.app · Featured Adventures · before and after</h1>
+
+  <section class="before">
+    <p class="label before">Before (live site, 9 Nov 2026)</p>
+    <img src="img/old-site-featured-adventures-nov9.webp" alt="Current Featured Adventures: two French stories with French buttons, three different button labels and sizes, uneven covers, empty space under each card">
+  </section>
+
+  <section>
+    <p class="label after">After</p>
+    <h2 class="sec-title">FEATURED ADVENTURES</h2>
+    <div class="grid">
+      <article class="card">
+        <img src="img/covers/019f70ed-249a-7c1f-8711-cc11cec44cb6.jpg" alt="">
+        <h3>Alice Through the Tear</h3>
+        <p class="hook">Wonderland is invading your city, and only you can stop it.</p>
+        <p class="meta">45 min · PG</p>
+        <a href="#">Play Free</a>
+      </article>
+      <article class="card">
+        <img src="img/covers/1f076fc7-b371-696a-a758-67f8f40a226a.jpg" alt="">
+        <h3>Frightnight Ghost Tours</h3>
+        <p class="hook">Will you survive your first tour as a rookie exorcist?</p>
+        <p class="meta">60 min · PG</p>
+        <a href="#">Play Free</a>
+      </article>
+      <article class="card">
+        <img src="img/covers/1f02f48e-e3ef-6258-b59f-a77f82de01c0.jpg" alt="">
+        <h3>Have You Seen Squeaky?</h3>
+        <p class="hook">Your pet is home from a day of adventuring, but their favourite toy is missing.</p>
+        <p class="meta">45 min · G</p>
+        <a href="#">Play Free</a>
+      </article>
+      <article class="card">
+        <img src="img/covers/1f031073-1392-6b5e-a5f6-5f040735fbea.jpg" alt="">
+        <h3>Tales from the Incident</h3>
+        <p class="hook">A seer, a detective, a fae. Murder connects them all.</p>
+        <p class="meta">45 min · 13+</p>
+        <a href="#">Play Free</a>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <p class="label after">What changed (for whoever updates the site)</p>
+    <div class="tw"><table>
+      <tr><th>Problem</th><th>Fix</th></tr>
+      <tr><td>Two French stories with French buttons on the English page</td><td>Swapped for their English editions: <i>As-tu vu Ticouic?</i> → <i>Have You Seen Squeaky?</i>, <i>Les Promenades Fantômes de Frisson</i> → <i>Frightnight Ghost Tours</i>. French editions belong on a French page.</td></tr>
+      <tr><td>Three button labels ("Jouer gratuitement", "Play Now", "Free")</td><td>One label on every card: "Play Free". [Confirm with team: exact wording, and where the button goes]</td></tr>
+      <tr><td>Buttons different sizes and heights; first has a stray outline</td><td>Full-width button, same height, pinned to the bottom of every card (card is a flex column; the hook line takes the spare space). Outline only on keyboard focus.</td></tr>
+      <tr><td>Covers different sizes and crops</td><td>Every cover the same shape and full card width, cropped to fill (<code>aspect-ratio: 1/1; object-fit: cover</code>; use 16/9 if the site keeps its wide banner images).</td></tr>
+      <tr><td>Empty space; nothing says what each story is</td><td>One-line hook from each story's own catalogue summary, plus length and age rating.</td></tr>
+    </table></div>
+    <p class="note">Hooks, lengths and age ratings are from Story City's public catalogue. Which four stories to feature is the team's call.</p>
+  </section>
+</div>
+</body>
+</html>

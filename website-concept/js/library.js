@@ -26,17 +26,18 @@
     const m = String(s.duration || '').match(/(\d+)\s*(h|hr|hour)?/i);
     return m ? (m[2] ? +m[1] * 60 : +m[1]) : null;
   };
-  const typeLine = s => {
-    const t = TYPE_LABEL[s.type] || 'Story';
-    return s.type === 'local' && s.city ? `${t} · ${s.city}` : t;
-  };
+  const cityName = c => String(c || '').replace(/\s*\([A-Z]{2}\)\s*$/, '');
+  const typeLine = s => s.type === 'local' && s.city ? `Only in ${cityName(s.city)}` : (TYPE_LABEL[s.type] || 'Story');
+  const isKids = s => /^(G|PG)$/.test(String(s.ageRating || ''));
+  const ageBadge = s => s.ageRating ? `<span class="lib-age" aria-label="Age rating ${esc(s.ageRating)}">${esc(s.ageRating)}</span>` : '';
+  const LENGTHS = [['u20', 'Under 20 min', m => m < 20], ['mid', '20–45 min', m => m >= 20 && m <= 45], ['over', 'Over 45 min', m => m > 45]];
   const SPARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.9 6.6 4.9 10.8 12 12-7.1 1.2-11.1 5.4-12 12-.9-6.6-4.9-10.8-12-12C7.1 10.8 11.1 6.6 12 0z"/></svg>';
   const coverHTML = (s, cls) => s.cover
     ? `<img class="${cls}" src="${esc(s.cover)}" alt="" loading="lazy" decoding="async">`
     : `<span class="${cls} lib-noimg">${SPARK}<span>${esc(titleCase(s.name))}</span></span>`;
 
   let stories = [], usingFallback = false;
-  const state = { genre: 'All', q: '' };
+  const state = { genre: 'All', q: '', len: null, kids: false, any: false, fr: false }; // fr: French editions live behind their own chip, not mixed into the English shelf
 
   /* Season: 1 Nov – 6 Jan in the northern hemisphere, gently move mysteries and ghost stories up the shelf
      (long dark evenings). Uses only the real genre field; there are no winter or cozy tags in the catalogue. */
@@ -64,7 +65,7 @@
         <label class="sr-only" for="lib-q">Search stories</label>
         <input id="lib-q" type="search" placeholder="Search stories" autocomplete="off">
       </div>
-      <div class="lib-chips" role="group" aria-label="Filter by genre"></div>
+      <div class="lib-chips" role="group" aria-label="Filter stories"></div>
     </div>
 
     <p class="sr-only" id="lib-count" aria-live="polite"></p>
@@ -73,7 +74,7 @@
       <ul class="lib-shelf" id="lib-shelf" aria-label="Stories"></ul>
       <button type="button" class="ibtn lib-nav lib-next" aria-label="Scroll stories right"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>
-    <p class="lib-empty" hidden>No stories match that yet. Try another word or genre.</p>
+    <p class="lib-empty" hidden>No stories match that yet. Try another word, or turn a filter off.</p>
     <p class="lib-sample placeholder" hidden>Sample covers shown — the full catalogue loads from <code>data/stories.json</code>.</p>
   </div>
 
@@ -88,7 +89,7 @@
           <h3 id="lib-s-title"></h3>
           <p class="lib-s-meta" id="lib-s-meta"></p>
           <p class="lib-s-sum" id="lib-s-sum"></p>
-          <a class="btn lib-s-cta" href="#demo">Read the First Chapter</a>
+          <a class="btn lib-s-cta" href="#demo">Try a Sample Chapter</a>
         </div>
       </div>
     </div>
@@ -102,10 +103,21 @@
     const count = {};
     stories.forEach(s => { const g = titleCase(s.genre); if (g) count[g] = (count[g] || 0) + 1; });
     const genres = ['All', ...Object.keys(count).sort((a, b) => count[b] - count[a] || a.localeCompare(b))];
-    chipsEl.innerHTML = genres.map(g => `<button type="button" class="chip lib-chip" aria-pressed="${g === state.genre}">${esc(g)}</button>`).join('');
+    const chip = (kind, val, label, on) => `<button type="button" class="chip lib-chip" data-kind="${kind}" data-val="${esc(val)}" aria-pressed="${on}">${esc(label)}</button>`;
+    chipsEl.innerHTML =
+      LENGTHS.map(([id, label]) => chip('len', id, label, state.len === id)).join('') +
+      chip('kids', '', 'Kids (G/PG)', state.kids) + chip('any', '', 'Play Anywhere', state.any) + `<button type="button" class="chip lib-chip" data-kind="fr" data-val="" aria-pressed="${state.fr}" lang="fr">En français</button>` +
+      '<span class="lib-sep" aria-hidden="true"></span>' +
+      genres.map(g => chip('genre', g, g, g === state.genre)).join('');
     chipsEl.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-      state.genre = b.textContent;
-      chipsEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      const k = b.dataset.kind, v = b.dataset.val;
+      if (k === 'genre') state.genre = v;
+      else if (k === 'len') state.len = state.len === v ? null : v;
+      else state[k] = !state[k];
+      chipsEl.querySelectorAll('button').forEach(x => {
+        const xk = x.dataset.kind, xv = x.dataset.val;
+        x.setAttribute('aria-pressed', String(xk === 'genre' ? state.genre === xv : xk === 'len' ? state.len === xv : state[xk]));
+      });
       filter();
     }));
   }
@@ -147,8 +159,10 @@
     shelf.querySelectorAll('li').forEach(li => {
       const s = stories[+li.dataset.i];
       const okG = state.genre === 'All' || titleCase(s.genre) === state.genre;
+      const mins = minutesOf(s), L = LENGTHS.find(x => x[0] === state.len);
+      const okF = (!L || (mins != null && L[2](mins))) && (!state.kids || isKids(s)) && (!state.any || s.type === 'anywhere') && (state.fr ? s.language === 'fr' : s.language !== 'fr');
       const hay = `${s.name} ${s.summary} ${s.genre} ${s.city || ''} ${typeLine(s)}`.toLowerCase();
-      const ok = okG && (!q || q.split(/\s+/).every(w => hay.includes(w)));
+      const ok = okG && okF && (!q || q.split(/\s+/).every(w => hay.includes(w)));
       li.hidden = !ok; if (ok) n++;
     });
     $('.lib-empty').hidden = n > 0;
@@ -185,7 +199,7 @@
       const rv = +s.reviews;
       meta.push(`Rated ${rating.toFixed(1)} of 5${Number.isFinite(rv) && rv > 0 ? ` (${fmt(rv)} review${rv === 1 ? "" : "s"})` : ''}`);
     }
-    $('#lib-s-meta').innerHTML = meta.map(m => `<span>${esc(m)}</span>`).join('');
+    $('#lib-s-meta').innerHTML = (s.ageRating ? ageBadge(s) : '') + meta.map(m => `<span>${esc(m)}</span>`).join('');
     $('#lib-s-sum').textContent = s.summary || '';
     document.documentElement.classList.add('lib-locked');
     sheet.classList.remove('is-closing');

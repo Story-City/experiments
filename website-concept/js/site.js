@@ -147,7 +147,7 @@
     const el = sec.querySelector('.chapnum');
     if (el && !last) el.textContent = `Chapter ${i}`;
   });
-  let maxSteps = 0, shown = 0, unlocked = new Set([0]), stops = [];
+  let maxSteps = 0, shown = 0, maxPct = 0, unlocked = new Set([0]), stops = [];
   chapters.forEach((sec, i) => {
     const s = document.createElement('button'); s.className = 'stop'; s.tabIndex = -1;
     s.innerHTML = `<span>${sec.dataset.chapter}</span>`;
@@ -168,6 +168,8 @@
     const y = scrollY, doc = document.documentElement.scrollHeight - innerHeight, p = Math.min(1, y / Math.max(1, doc));
     nav.classList.toggle('solid', y > 30);
     maxSteps = Math.max(maxSteps, Math.round(y / PX_PER_STEP));
+    // the toast shows page progress, not "steps": scrolling isn't walking (testers read a scroll step count as fake)
+    const pct = Math.round(p * 100); if (pct > maxPct) { maxPct = pct; stepsEl.textContent = pct + '%'; }
     const h = trail.clientHeight;
     fill.setAttribute('y2', p * h); walker.style.top = p * 100 + '%';
     let here = 0;
@@ -178,7 +180,7 @@
   }
   // count the number up smoothly rather than jumping
   (function tick() {
-    if (shown !== maxSteps) { shown += Math.ceil((maxSteps - shown) * .18); if (Math.abs(maxSteps - shown) < 2) shown = maxSteps; stepsEl.textContent = shown.toLocaleString(); $('#walkedN').textContent = shown.toLocaleString(); }
+    if (shown !== maxSteps) { shown += Math.ceil((maxSteps - shown) * .18); if (Math.abs(maxSteps - shown) < 2) shown = maxSteps; $('#walkedN').textContent = (Math.round(shown / 10) * 10).toLocaleString(); }
     requestAnimationFrame(tick);
   })();
   addEventListener('scroll', onScroll, { passive: true });
@@ -362,23 +364,33 @@
 
   /* ---------- FAQ as a conversation with the guide ---------- */
   const FAQ = [
+    // Answers use only decided facts (BRIEF.md). Anything still open is a { ph } line, shown only in team notes.
+    ['Do my steps count?', ['Your steps unlock the next chapter. They only count for moving somewhere new in the story.', 'Choices and puzzles never need steps, so you can stop, think and decide whenever you like.', 'A treadmill and indoor step mode is coming soon.', { ph: '[Confirm with team: do steps from Apple Health / Google Fit or a watch count?]' }]],
+    ['Can I play after dark?', ['You can. Use the same sense you would on any evening walk: stick to busy, well-lit streets, go with someone if you can, and keep your eyes up.', 'Choices and puzzles never need steps, so stop somewhere bright to read.', { ph: '[Confirm with team: does the app do anything different after dark, e.g. avoid parks or suggest lit routes?]' }]],
+    ['Can I play from the sofa?', ['You can play the first chapter on this page right where you are.', 'In the app, steps unlock new chapters, so full stories need you on your feet for now. A treadmill and indoor step mode is coming soon.', { ph: '[Confirm with team: can any stories be played as a virtual walk from home today?]' }]],
     ['How far do I have to walk?', ['You choose. Every story shows how long it takes before you start, from a quick coffee-run story to a long Sunday wander.', 'And you can stop whenever you like.', { ph: '[Confirm with team: is your place saved if you stop mid-story?]' }]],
     ['Do I have to go somewhere special?', ['Nope. Play Anywhere stories place themselves on the streets around you, wherever you are.', 'Some stories were written for one city, so you can play them right where they happen.']],
     ['Is it safe to read while walking?', ['Choices and puzzles never need steps, so you can stop, read and decide. The story waits for you.', 'Keep your eyes up when you\'re moving, and only cross where it\'s safe. No story is worth a stubbed toe.']],
     ['What do you do with my location?', ['Your location shows you where the story is happening around you.', 'If you\'d rather not share it, you can still play by counting steps instead.', { ph: '[Confirm with team: link to the privacy policy]' }]],
     ['What if I get stuck on a puzzle?', ['There are hints, one at a time, so you only take as much help as you want.', 'And if you just want to know what happens next, tap Solve This for Me. No judgement.']],
     ['How much does it cost?', ['Every story is free for 7 days.', { ph: '[Confirm with team: price after the trial, and what\'s free forever]' }]],
-    ['Can I play indoors?', ['Indoor mode is coming soon: treadmill, rainy day laps, walking on the spot.', 'Until then, some stories can be played as a virtual walk.']],
+    ['Is there a treadmill mode?', ['It\'s coming soon: a step mode for treadmills and indoor walking.', { ph: '[Confirm with team: a "tell me when" sign-up, and which stories will work indoors]' }]],
     ['Can kids play?', ['Every story has an age rating, so you can pick ones that suit the whole family.', { ph: '[Confirm with team: minimum age and family sharing]' }]],
     ['Can I play with friends?', [{ ph: '[Confirm with team: playing together, sharing a story]' }]],
+    ['Does it use a lot of data, and does it work offline?', [{ ph: '[Confirm with team: mobile data use and offline play]' }]],
+    ['Can I listen instead of reading?', [{ ph: '[Confirm with team: audio and listening options]' }]],
+    ['Will it drain my battery?', [{ ph: '[Confirm with team: battery use while the map is open]' }]],
+    ['Does it sync with Apple Health or Google Fit?', [{ ph: '[Confirm with team: Health sync]' }]],
     ['Can I write my own story?', ['Yes. Writers build stories in our creator tools: chapters, choices and the places they happen.', 'Have a look at the Creators page.']]
   ];
+  const root = document.documentElement;
   const qsEl = $('#faqQs'), convo = $('#convo'); let busy = false;
   function bubble(cls, html) { const b = document.createElement('div'); b.className = 'b ' + cls; b.innerHTML = html; convo.appendChild(b); convo.scrollTop = convo.scrollHeight; return b; }
   async function ask(i, chip) {
     if (busy) return; busy = true; chip.classList.add('asked');
     const [q, a] = FAQ[i]; bubble('me', q);
     for (const line of a) {
+      if (typeof line !== 'string' && !root.classList.contains('notes')) continue;   // team-only line: no empty "typing…" pause for visitors
       const ty = bubble('them typing', '<i></i><i></i><i></i>');
       await new Promise(r => setTimeout(r, reduce ? 0 : 520 + (typeof line === 'string' ? line.length * 9 : 400)));
       ty.remove();
@@ -386,9 +398,14 @@
     }
     busy = false;
   }
-  FAQ.forEach(([q], i) => { const c = document.createElement('button'); c.className = 'chip'; c.textContent = q; c.addEventListener('click', () => ask(i, c)); qsEl.appendChild(c); });
+  FAQ.forEach(([q, a], i) => { const c = document.createElement('button'); c.className = 'chip' + (a.every(l => typeof l !== 'string') ? ' notes-only' : ''); c.textContent = q; c.addEventListener('click', () => ask(i, c)); qsEl.appendChild(c); });
   const who = document.createElement('div'); who.className = 'who'; who.textContent = 'Wren'; convo.appendChild(who);
   bubble('them', 'Hello. I\'m Wren, your guide. Ask me anything, I don\'t bite.');
+
+  /* ---------- Team notes: store badges point to #get-app until the real links are confirmed ---------- */
+  $$('.store').forEach(a => { const real = a.getAttribute('href'); a.dataset.real = real; });
+  const syncStores = () => $$('.store').forEach(a => a.setAttribute('href', root.classList.contains('notes') ? a.dataset.real : '#get-app'));
+  syncStores(); document.addEventListener('sc:notes', syncStores);
 
   /* ---------- Stories in your city (hero picker) ---------- */
   // Real counts from data/cities.json. Preselects a city only when the browser's time zone names it
