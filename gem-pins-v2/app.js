@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v13 — Image+Bar couple: 52% corner, flush small photo, bookmark+hide in row; Prompt least words. */
+/* GEM-PINS-V2-v14 — Tint colour layout, inline legend+note, taller slides. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -56,7 +56,7 @@ const FILTER_CATS = [
   { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
   { id: 'curio', label: 'Curiosities', match: ['curio'], art: 'curio' },
 ];
-const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'stacked'];
+const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'tint'];
 const EXPLAIN_DEFAULT = {
   all: '[every gem nearby]',
   nature: '[explain nature finds]',
@@ -302,6 +302,15 @@ function layoutNeedsToggle() {
   return filterLayout === 'classic';
 }
 
+function stopTint(id) {
+  if (id === 'all') return PUBLIC_GEM_FILL;
+  if (id === 'liked') return LIKE_PINK_HOT;
+  if (id === 'wishlist') return '#e8e4ff';
+  const cat = filterCat(id);
+  if (cat) return GEM_COLOUR[cat.art] || GEM_COLOUR[cat.match[0]] || PUBLIC_GEM_FILL;
+  return GEM_COLOUR[id] || PUBLIC_GEM_FILL;
+}
+
 function shown(g) {
   if (g.hidden) return false;
   if (!filterOn || stopId === 'all') return true;
@@ -402,21 +411,26 @@ function paintBar() {
   $('filterGbox').classList.toggle('is-layout-always', filterLayout === 'always');
   $('filterGbox').classList.toggle('is-layout-classic', filterLayout === 'classic');
   $('filterGbox').classList.toggle('is-layout-inline', filterLayout === 'inline');
-  $('filterGbox').classList.toggle('is-layout-stacked', filterLayout === 'stacked');
+  $('filterGbox').classList.toggle('is-layout-tint', filterLayout === 'tint');
   $('filterBtn').hidden = !showToggle;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
+  const resetBtn = $('filterReset');
+  if (resetBtn) {
+    resetBtn.hidden = filterLayout !== 'tint';
+    resetBtn.disabled = stopId === 'all';
+  }
   nearby.textContent = displayCopy(btnCopy('nearby'));
   nearbyRow.hidden = filterOn || !showToggle;
   $('nearbyIco').innerHTML = gemSvg(PUBLIC_GEM_FILL);
   $('rollerWrap').hidden = !rollerVisible;
-  const showLegend = filterOn || filterLayout === 'inline' || filterLayout === 'always' || filterLayout === 'stacked';
+  const showLegend = filterOn || filterLayout === 'inline' || filterLayout === 'always' || filterLayout === 'tint';
   legend.hidden = !showLegend;
   const list = stops();
   const stop = list.find((x) => x.id === stopId) || list[0];
   if (showLegend) {
     const ico = pinFor(sampleFor(stopId));
     const title = stop.label;
-    const note = (filterLayout === 'inline' || filterLayout === 'stacked') ? '' : explainOf(stopId);
+    const note = explainOf(stopId);
     const prev = legend.querySelector('.legend-title');
     const changed = !prev || prev.textContent !== title;
     legend.innerHTML = `<span class="legend-ico">${ico}</span><div class="legend-copy"><p class="legend-title">${title}</p>${note ? `<p class="legend-note">${note}</p>` : ''}</div>`;
@@ -427,9 +441,12 @@ function paintBar() {
     }
   }
   for (const b of $('roller').querySelectorAll('button')) {
-    b.setAttribute('aria-selected', String(b.dataset.stop === stopId));
+    const on = b.dataset.stop === stopId;
+    b.setAttribute('aria-selected', String(on));
     const lab = list.find((x) => x.id === b.dataset.stop);
     if (lab) b.setAttribute('aria-label', lab.label);
+    if (on) b.style.setProperty('--stop-tint', stopTint(b.dataset.stop));
+    else b.style.removeProperty('--stop-tint');
   }
   $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
@@ -788,6 +805,10 @@ $('filterBtn').addEventListener('click', () => {
   }
   drawPins(true);
   if (filterOn) requestAnimationFrame(() => centerStop(stopId, true));
+});
+$('filterReset').addEventListener('click', () => {
+  if (filterLayout !== 'tint') return;
+  resetFilter();
 });
 for (const b of document.querySelectorAll('#layoutSwitch [data-filter-layout]')) {
   b.addEventListener('click', () => setFilterLayout(b.dataset.filterLayout));
