@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v93 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v94 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -1035,7 +1035,7 @@ function bindFeedChipActions(chip, g) {
       openDetail(g.id);
     });
   }
-  const save = chip.querySelector('.save-btn');
+  const save = chip.querySelector('.bookmark-btn, .save-btn');
   if (save) {
     syncSaveBtn(save, g.id);
     save.addEventListener('click', (e) => {
@@ -1078,8 +1078,8 @@ function buildFeedChip(g, variant) {
       : '';
   const actions = `
     <div class="feed-chip-actions">
-      <button type="button" class="save-btn">${t('saveLater')}</button>
-      <button type="button" class="nav-btn">${t('detailNav')}</button>
+      <button type="button" class="icon-act bookmark-btn" aria-pressed="false" aria-label="${t('saveLater')}"></button>
+      <button type="button" class="nav-btn is-compact">${t('detailNav')}</button>
     </div>`;
   const corner = feedCornerHtml(g, rarity, `feed-${g.id || rarity.id}`);
   const copyBlock = `
@@ -2265,8 +2265,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v93 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v93 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v94 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v94 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();

@@ -1554,9 +1554,18 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .feed-chip-actions {
   display: flex;
+  align-items: center;
   gap: 6px;
   width: 100%;
   flex: none;
+}
+.feed-chip-actions .icon-act {
+  width: 32px;
+  height: 32px;
+}
+.feed-chip-actions .icon-act svg {
+  width: 15px;
+  height: 15px;
 }
 .feed-chip-actions .save-btn,
 .feed-chip-actions .nav-btn {
@@ -1566,6 +1575,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   white-space: nowrap;
   min-width: 0;
   padding: 0 10px;
+}
+.feed-chip-actions .nav-btn.is-compact {
+  flex: 1 1 auto;
+  width: auto;
 }
 .feed-chip-go {
   border: 0;
