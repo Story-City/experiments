@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v11 — classic mask, inline legibility, stacked; no bottom roller */
+/* GEM-PINS-V2-v12 — small image+corner, bookmark/hide, compact inline */
 :root {
   --bg: #170c35;
   --surface: #241b46;
@@ -301,43 +301,63 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
 }
 
-/* —— Inline: selected gem + title, then roller; readable type —— */
+/* —— Inline: compact roller + light legend (no dark top chrome) —— */
 .gbox.is-layout-inline .map-bar {
-  grid-template-columns: minmax(112px, 34%) minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   grid-template-areas: "legend roller";
-  gap: 10px;
+  gap: 6px;
   align-items: center;
+  min-height: 32px;
 }
 .gbox.is-layout-inline .nearby-row { display: none !important; }
 .gbox.is-layout-inline .legend {
   grid-area: legend;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   min-width: 0;
-  padding: 6px 8px;
-  border-radius: 14px;
-  background: rgba(7, 5, 18, 0.42);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  padding: 0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .gbox.is-layout-inline .legend-ico {
-  width: 36px;
-  height: 36px;
+  width: 26px;
+  height: 26px;
+}
+.gbox.is-layout-inline .legend-ico img,
+.gbox.is-layout-inline .legend-ico .pin-gem,
+.gbox.is-layout-inline .legend-ico svg {
+  width: 22px;
+  height: 22px;
 }
 .gbox.is-layout-inline .legend-title {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: -0.01em;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.65);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
 }
 .gbox.is-layout-inline .legend-note { display: none; }
 .gbox.is-layout-inline .top-roller-slot { grid-area: roller; }
-.gbox.is-layout-inline .filter-btn { display: none !important; }
+.gbox.is-layout-inline .roller-wrap { height: 32px; }
 .gbox.is-layout-inline .roller {
-  mask-image: linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  height: 32px;
+  gap: 2px;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
 }
+.gbox.is-layout-inline .roller button {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+.gbox.is-layout-inline .roller button img,
+.gbox.is-layout-inline .roller button .pin-gem,
+.gbox.is-layout-inline .roller button svg {
+  width: 20px;
+  height: 20px;
+}
+.gbox.is-layout-inline .filter-btn { display: none !important; }
 
 /* —— Stacked: full-width masked roller, legend title under —— */
 .gbox.is-layout-stacked .map-bar {
@@ -568,14 +588,28 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   background: var(--raised);
   flex: none;
 }
-/* location-gems detail-media proportions */
-.slide.is-image .slide-media {
-  height: min(52vh, 420px);
-  min-height: 300px;
+/* Image + Bar: smaller photo, flush under grab — no dark top strip */
+.slide.is-image,
+.slide.is-bar {
+  padding-top: 0;
+  gap: 8px;
 }
-.slide.is-corner .slide-media {
-  height: min(48vh, 380px);
-  min-height: 280px;
+.slide.is-image .grab,
+.slide.is-bar .grab {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 5;
+  transform: translateX(-50%);
+  margin: 0;
+  pointer-events: none;
+}
+.slide.is-image .slide-media,
+.slide.is-bar .slide-media {
+  height: 168px;
+  min-height: 0;
+  margin-top: 0;
+  border-radius: 22px 22px 0 0;
 }
 .slide.is-original.is-full .slide-media { height: 180px; min-height: 0; }
 .slide-photo {
@@ -735,7 +769,42 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .cact svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .cact.heart[aria-pressed="true"] { color: #fff; background: var(--like-hot); border-color: var(--like-hot); }
 .cact.heart[aria-pressed="true"] svg { fill: currentColor; }
+.cact.bookmark[aria-pressed="true"] { color: #fff; background: color-mix(in srgb, var(--accent) 55%, transparent); border-color: var(--accent); }
+.cact.bookmark[aria-pressed="true"] svg { fill: currentColor; stroke: currentColor; }
 .cact.check[aria-pressed="true"] { color: #0b0620; background: #3ddc84; border-color: #3ddc84; }
+
+.slide-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.icon-act {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(23, 12, 53, 0.55);
+  color: #fff;
+  display: grid;
+  place-items: center;
+}
+.icon-act svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icon-act.bookmark-btn[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+  border-color: var(--accent);
+}
+.icon-act.bookmark-btn[aria-pressed="true"] svg { fill: currentColor; }
 .roller .pin-gem.is-heart,
 .legend-ico .pin-gem.is-heart { width: 26px; height: 24px; }
 .roller .pin-gem.is-bookmark,
@@ -797,27 +866,14 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .like-btn.is-liked { color: #fff; background: rgba(255, 105, 160, 0.28); }
 .like-btn.is-liked .like-heart { color: var(--like-hot); }
 
-.slide-actions { display: flex; gap: 8px; width: 100%; }
-.save-btn, .nav-btn {
-  height: 34px;
-  padding: 0 12px;
+.nav-btn {
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
   border-radius: 999px;
   font-weight: 800;
   font-size: 14px;
   flex: 1;
-}
-.save-btn {
-  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
-  background: color-mix(in srgb, var(--accent) 16%, transparent);
-  color: #fff;
-  box-shadow: none;
-}
-.save-btn[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--accent) 28%, transparent);
-  border-color: color-mix(in srgb, var(--accent) 80%, transparent);
-}
-.nav-btn {
-  border: 0;
   color: #fff;
   background: var(--btn-radial-wash), linear-gradient(90deg, var(--accent-deep), var(--accent));
 }

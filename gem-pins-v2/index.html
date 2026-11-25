@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=11">
+<link rel="stylesheet" href="app.css?v=12">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -21,7 +21,7 @@
     <button type="button" data-sheet="original">Original</button>
     <button type="button" data-sheet="prompt">Prompt</button>
     <button type="button" data-sheet="image">Image</button>
-    <button type="button" data-sheet="corner">Corner</button>
+    <button type="button" data-sheet="bar">Bar</button>
   </div>
   <div class="layout-switch" id="layoutSwitch" role="group" aria-label="Filter layout">
     <button type="button" data-filter-layout="always" aria-pressed="true">Always on</button>
@@ -92,7 +92,7 @@
     <div class="toast" id="toast" role="status" hidden></div>
 
     <section class="slide" id="slide" hidden aria-label="Gem">
-      <i class="grab"></i>
+      <i class="grab" id="slideGrab"></i>
       <div class="slide-media" id="slideMedia" hidden>
         <div class="slide-photo" id="slidePhoto"></div>
         <div class="slide-scrim" aria-hidden="true"></div>
@@ -129,14 +129,15 @@
       <p class="sheet-more" id="slideMore" hidden>[tap for more]</p>
       <p class="sheet-status" id="slideStatus" hidden></p>
       <div class="slide-actions" id="slideActions">
-        <button type="button" class="save-btn" id="saveBtn">[save for later]</button>
+        <button type="button" class="icon-act bookmark-btn" id="saveBtn" aria-pressed="false" aria-label="[save for later]"></button>
+        <button type="button" class="icon-act hide-btn" id="hideBtn" aria-label="Hide from my map"></button>
         <button type="button" class="nav-btn" id="navBtn">[navigate]</button>
       </div>
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v11 — classic mask, inline legibility, stacked layout.</p>
-  <script src="../location-gems/corner-ribbon.js?v=11"></script>
-  <script type="module" src="app.js?v=11"></script>
+  <p class="meta">GEM-PINS-V2-v12 — small image+corner, bookmark/hide, compact inline.</p>
+  <script src="../location-gems/corner-ribbon.js?v=12"></script>
+  <script type="module" src="app.js?v=12"></script>
 </body>
 </html>

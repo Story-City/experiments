@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v11 — classic mask, inline legibility, stacked; no bottom roller. */
+/* GEM-PINS-V2-v12 — small image+corner, bookmark/hide, compact inline. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -8,7 +8,7 @@ const $ = (id) => document.getElementById(id);
 const DENSITY = 40;
 /** V1 rarityBy none — every pin the same size; keep uploaded category gems */
 const PIN_SIZE = 28;
-const SHEETS = ['original', 'prompt', 'image', 'corner'];
+const SHEETS = ['original', 'prompt', 'image', 'bar'];
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
@@ -24,6 +24,7 @@ const BOOKMARK_PATH = 'M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z';
 const ICON = {
   heart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.3-9.2C1.6 7.8 3.5 4.5 6.8 4.5c2 0 3.4 1.1 4.2 2.4h2c.8-1.3 2.2-2.4 4.2-2.4 3.3 0 5.2 3.3 4.1 6.3C19.5 15.4 12 20 12 20z"/></svg>',
   hide: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.6"/><path d="M4 20 20 4"/></svg>',
+  bookmark: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${BOOKMARK_PATH}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   check: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M7.8 12.4l2.8 2.8 5.6-5.8"/></svg>',
 };
 const TOAST_MS = 1600;
@@ -584,20 +585,6 @@ function hideGem(g) {
 function paintActs(g) {
   const box = $('slideActs');
   box.replaceChildren();
-  if (g.mine) {
-    box.append(
-      (() => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'cact hide';
-        b.innerHTML = ICON.hide;
-        b.setAttribute('aria-label', COPY.hideLong || 'Hide');
-        b.addEventListener('click', (e) => { e.stopPropagation(); hideGem(g); });
-        return b;
-      })(),
-    );
-    return;
-  }
   const mk = (cls, html, label, on, fn) => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -608,6 +595,26 @@ function paintActs(g) {
     b.addEventListener('click', (e) => { e.stopPropagation(); fn(); });
     return b;
   };
+  /* Image float: bookmark + hide only — no visit, no second like */
+  if (sheet === 'image') {
+    const on = saved.has(g.id);
+    box.append(
+      mk('bookmark', ICON.bookmark, displayCopy(btnCopy(on ? 'saved' : 'save')), on, () => {
+        if (saved.has(g.id)) saved.delete(g.id);
+        else saved.add(g.id);
+        paintSlide();
+        if (filterOn && stopId === 'wishlist') drawPins(true);
+      }),
+      mk('hide', ICON.hide, COPY.hideLong || 'Hide', null, () => hideGem(g)),
+    );
+    return;
+  }
+  /* Melissa original keeps heart / hide / visited */
+  if (sheet !== 'original') return;
+  if (g.mine) {
+    box.append(mk('hide', ICON.hide, COPY.hideLong || 'Hide', null, () => hideGem(g)));
+    return;
+  }
   box.append(
     mk('heart', ICON.heart, g.liked ? COPY.unlikeIt || 'Unlike' : COPY.likeIt || 'Like', g.liked, () => {
       g.liked = !g.liked;
@@ -623,6 +630,17 @@ function paintActs(g) {
       drawPins();
     }),
   );
+}
+
+function paintActionIcons(g) {
+  const save = $('saveBtn');
+  const hide = $('hideBtn');
+  const on = saved.has(g.id);
+  save.innerHTML = ICON.bookmark;
+  save.setAttribute('aria-pressed', String(on));
+  save.setAttribute('aria-label', displayCopy(btnCopy(on ? 'saved' : 'save')));
+  hide.innerHTML = ICON.hide;
+  hide.setAttribute('aria-label', COPY.hideLong || 'Hide');
 }
 
 function paintTags(g) {
@@ -651,31 +669,33 @@ function paintSlide() {
   const isOriginal = sheet === 'original';
   const isPrompt = sheet === 'prompt';
   const isImage = sheet === 'image';
-  const isCorner = sheet === 'corner';
+  const isBar = sheet === 'bar';
+  const hasMedia = isImage || isBar || (isOriginal && sheetFull);
   slide.classList.toggle('is-original', isOriginal);
   slide.classList.toggle('is-prompt', isPrompt);
   slide.classList.toggle('is-image', isImage);
-  slide.classList.toggle('is-corner', isCorner);
+  slide.classList.toggle('is-bar', isBar);
   slide.classList.toggle('is-full', isOriginal && sheetFull);
 
   const media = $('slideMedia');
-  const showMedia = isImage || isCorner || (isOriginal && sheetFull);
-  media.hidden = !showMedia;
-  $('slidePhoto').style.backgroundImage = showMedia ? `url("${g.photo}")` : '';
+  media.hidden = !hasMedia;
+  $('slidePhoto').style.backgroundImage = hasMedia ? `url("${g.photo}")` : '';
   const corner = $('slideCorner');
-  corner.hidden = !isCorner;
-  corner.innerHTML = isCorner ? cornerHtml(g) : '';
-  $('slideOverlay').hidden = !(isImage || isCorner);
+  /* Corner always on photo sheets */
+  corner.hidden = !(isImage || isBar);
+  corner.innerHTML = (isImage || isBar) ? cornerHtml(g) : '';
+  $('slideOverlay').hidden = !(isImage || isBar);
 
   $('slideHead').hidden = !isOriginal;
   $('slideTags').hidden = !isOriginal;
-  $('slideGlass').hidden = isOriginal || isImage || isCorner;
+  $('slideGlass').hidden = isOriginal || isImage || isBar;
   $('slideMore').hidden = !(isOriginal && !sheetFull);
   $('slideStatus').hidden = !(isOriginal && sheetFull);
-  $('slideActions').hidden = isOriginal && !sheetFull;
-  $('slideActs').hidden = false;
-  $('slideActs').classList.toggle('is-on-media', isImage || isCorner);
-  $('slideActs').classList.toggle('is-on-prompt', isPrompt);
+  /* Image: acts float on media; Bar/Prompt: bookmark+hide in action row */
+  $('slideActions').hidden = isOriginal ? !sheetFull : isImage;
+  $('slideActs').hidden = !(isImage || isOriginal);
+  $('slideActs').classList.toggle('is-on-media', isImage);
+  $('slideActs').classList.toggle('is-on-prompt', false);
   $('slideActs').classList.toggle('is-on-head', isOriginal);
 
   if (isOriginal) {
@@ -686,6 +706,7 @@ function paintSlide() {
     $('slideStatus').textContent = `${COPY.likes(g.likes + (g.liked ? 1 : 0))} · ${g.mine || g.visited ? COPY.visited : COPY.notVisited}`;
   }
   paintActs(g);
+  paintActionIcons(g);
 
   const user = g.mine ? '' : `@${String(g.owner || '').toLowerCase()}`;
   const line = g.mine ? COPY.yours : COPY.by(g.owner);
@@ -696,11 +717,6 @@ function paintSlide() {
   $('slideNameOv').textContent = g.name;
   paintLike('likeBtn', 'likeHeart', 'likeCount', g);
   paintLike('likeBtnOv', 'likeHeartOv', 'likeCountOv', g);
-
-  const save = $('saveBtn');
-  const on = saved.has(g.id);
-  save.setAttribute('aria-pressed', String(on));
-  save.textContent = displayCopy(btnCopy(on ? 'saved' : 'save'));
   $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
 
@@ -794,6 +810,11 @@ $('saveBtn').addEventListener('click', (e) => {
   else saved.add(openId);
   paintSlide();
   if (filterOn && stopId === 'wishlist') drawPins(true);
+});
+$('hideBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (openId == null) return;
+  hideGem(GEMS[openId]);
 });
 $('navBtn').addEventListener('click', (e) => { e.stopPropagation(); toast(displayCopy('[would open navigate]')); });
 document.querySelector('.map-top').addEventListener('pointerdown', (e) => e.stopPropagation());
