@@ -12,7 +12,9 @@
     "notionPageId": null,
     "jira": null,
     "draft": true,
-    "reviewer": "Melissa"
+    "reviewer": "Melissa",
+    "stage": "review",
+    "spec": "explore-picker/spec.json"
   },
   {
     "slug": "creator-tools",

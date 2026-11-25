@@ -129,6 +129,11 @@
   details.card summary { cursor: pointer; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   details.card summary .name { font-size: 21px; }
   details.card a { color: var(--who); }
+  .status.stage { display: inline-block; white-space: nowrap; }
+  .status.stage[data-stage="review"] { border-color: var(--glow); color: var(--glow); }
+  .status.stage[data-stage="ready"] { border-color: #00CD9D; background: #00CD9D; color: var(--ink); font-weight: 700; }
+  .status.stage[data-stage="built"] { border-color: #3ddc84; color: #3ddc84; }
+  .status.stage[data-blocked="true"] { background: none; border-color: #ff8fb1; color: #ff8fb1; }
   .status.draft { display: inline-block; white-space: nowrap; border-color: var(--glow); color: var(--glow); }
   /* "live": once a feature ships, its card shows a little snippet of the real app (screenshot or short looping clip) */
   .snippet { position: relative; display: flex; justify-content: center; gap: 10px; padding: 48px 16px 0; background: linear-gradient(180deg, color-mix(in srgb, var(--who) 22%, var(--ink)), transparent); }
@@ -207,6 +212,7 @@
 <div class="tabs" role="tablist" aria-label="Section">
   <button class="tab" type="button" role="tab" id="tab-experiments" data-tab="experiments" aria-controls="panel-experiments" aria-selected="true">Experiments <span class="n" id="n-experiments"></span></button>
   <button class="tab" type="button" role="tab" id="tab-polls" data-tab="polls" aria-controls="panel-polls" aria-selected="false" tabindex="-1">Polls <span class="n" id="n-polls"></span></button>
+  <button class="tab" type="button" role="tab" id="tab-ready" data-tab="ready" aria-controls="panel-ready" aria-selected="false" tabindex="-1">Ready for Dev <span class="n" id="n-ready"></span></button>
   <button class="tab" type="button" role="tab" id="tab-drafts" data-tab="drafts" aria-controls="panel-drafts" aria-selected="false" tabindex="-1">Drafts <span class="n" id="n-drafts"></span></button>
   <button class="tab" type="button" role="tab" id="tab-timeline" data-tab="timeline" aria-controls="panel-timeline" aria-selected="false" tabindex="-1">Timeline</button>
 </div>
@@ -228,6 +234,12 @@
 <!-- Company timeline: key dates (timeline.js). ?tab=timeline opens it. -->
 <section id="panel-timeline" role="tabpanel" aria-labelledby="tab-timeline" hidden></section>
 
+<section id="panel-ready" role="tabpanel" aria-labelledby="tab-ready" hidden>
+<p class="sub">Final designs devs can build from. Each opens with its spec, assets and questions for design, and links to its Notion task.</p>
+<ul id="ready"></ul>
+<p class="empty" id="ready-empty" hidden>Nothing is Ready for Dev yet.</p>
+</section>
+
 <section id="panel-drafts" role="tabpanel" aria-labelledby="tab-drafts" hidden>
 <p class="sub">New experiments wait here until the person who asked for them approves.</p>
 <ul id="drafts"></ul>
@@ -236,6 +248,7 @@
 
 <script type="module">
   import * as store from './hub/store.js';
+  import { stageOf, notionUrl } from './hub/handoff.js';
   import(`./timeline.js?v=${Date.now()}`).then((m) => m.initTimeline()).catch(() => {});
 
   const [manifest, notion] = await Promise.all([
@@ -269,6 +282,13 @@
       p.append(' · ', s);
     }
     if (e.draft) p.append(' · ', el('span', 'status draft', `Draft · waiting for ${e.reviewer || 'review'}`));
+    const st = stageOf(e);
+    if (st && st.key !== 'draft') {
+      const b = el('span', 'status stage', st.label);
+      b.dataset.stage = st.key;
+      if (st.blocked) b.dataset.blocked = 'true';
+      p.append(' · ', b);
+    }
     const count = el('span', 'count');
     count.dataset.slug = e.slug;
     p.append(count);
@@ -277,7 +297,12 @@
 
   function links(e) {
     const row = el('p', 'links');
-    if (e.notionPageId) row.append(link(`https://app.notion.com/p/storycity/${e.notionPageId.replace(/-/g, '')}`, 'Notion'));
+    if (e.notionPageId) row.append(link(notionUrl(e), 'Notion'));
+    if (e.spec) {
+      const a = el('a', 'ext', 'Spec');
+      a.href = `${viewUrl(e)}&panel=spec`;
+      row.append(a);
+    }
     if (e.jira) row.append(link(`https://storycity.atlassian.net/browse/${e.jira}`, e.jira));
     return row;
   }
@@ -372,6 +397,9 @@
   const drafts = document.getElementById('drafts');
   // "draft": true keeps a new experiment in the Drafts tab until its reviewer approves (then delete draft + reviewer)
   for (const e of entries) (e.archived ? archived : e.draft ? drafts : e.category === 'poll' ? polls : live).append(card(e));
+  // "stage": "ready" also lists the experiment on the Ready for Dev tab (it stays in its own group too)
+  const ready = document.getElementById('ready');
+  for (const e of entries) if (!e.archived && e.stage === 'ready') ready.append(card(e));
 
   const items = [...document.querySelectorAll('li[data-author]')];
   const authors = new Map();
@@ -408,6 +436,9 @@
     const pollCount = [...document.querySelectorAll('#polls li')].filter(li => !li.hidden).length;
     document.getElementById('n-polls').textContent = pollCount;
     document.getElementById('polls-empty').hidden = pollCount > 0;
+    const readyCount = [...document.querySelectorAll('#ready li')].filter(li => !li.hidden).length;
+    document.getElementById('n-ready').textContent = readyCount;
+    document.getElementById('ready-empty').hidden = readyCount > 0;
     const draftCount = [...document.querySelectorAll('#drafts li')].filter(li => !li.hidden).length;
     document.getElementById('n-drafts').textContent = draftCount;
     document.getElementById('drafts-empty').hidden = draftCount > 0;

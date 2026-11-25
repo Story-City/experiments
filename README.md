@@ -23,3 +23,18 @@ The author colour comes from `--author-<key>` in `theme.css`; add a token and a 
 Cards open `view.html`, which wraps the experiment in an iframe with comments (pins, screenshots, replies), the Notion status and the Notion task's comments. Direct experiment URLs still work. See `hub/PLAN.md` for the design and `hub/firebase-config.js` for the Firebase connection.
 
 `image-remix/` and `chat-chapter/` were imported with `git subtree`, so their history is in this repo's log. Their old repos redirect here.
+
+## Design-to-dev handoff
+
+Experiments are the design handoff: no separate UX doc or Figma. The Notion task links to its experiment.
+
+- **`stage`** in an entry: `review` (In review), `ready` (Ready for Dev), `built` (Built). It shows as a badge on the card and in the viewer. `ready` entries also list on the **Ready for Dev** tab (`index.html?tab=ready`). An experiment is Ready for Dev only once its design is final **and** it has `notionPageId`; without one the badge reads "Needs Notion task" (in red) instead.
+- **`spec`**: path to the experiment's spec file, e.g. `"explore-picker/spec.json"`. The viewer then shows a **Spec** tab beside **Questions for design** (the comments). `view.html?e=<slug>&panel=questions` opens the questions instead. Spec fields:
+  - `final`: which version is final; `summary`: one short paragraph
+  - `flows`: `[{ "title", "show": "<page to open with Show me>", "rows": [{ "when", "then", "event" }] }]`
+  - `back`: `[{ "from", "then" }]`: what Back does on each screen
+  - `events`: `[{ "name" (snake_case), "status": "new" | "existing", "when", "props" }]`
+  - `edgeCases`, `notes`: lists of strings
+  - `assets`: `[{ "label", "file", "note" }]`: real files devs download (never screenshots)
+- **Copy spec** in the Spec tab copies it as Markdown for a ticket.
+- Run `node hub/check-handoff.mjs` before pushing: it fails on an unknown stage, Ready for Dev without a Notion task or spec, a missing spec, page or asset file, or a non-snake_case event.

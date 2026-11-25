@@ -1,9 +1,13 @@
 import * as store from './store.js';
+import { stageOf, normalizeSpec, specMarkdown, notionUrl } from './handoff.js';
 
 const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const slug = params.get('e');
 const root = new URL('../', import.meta.url);
+const PHONE_MQ = '(max-width: 820px)';
+const COPIED_MS = 1800;
+const STAGE_KEYS_WITH_TABS = { review: true, ready: true, built: true };
 
 const el = (tag, cls, text) => {
   const n = document.createElement(tag);
@@ -97,10 +101,168 @@ if (task?.status) {
   $('status').hidden = false;
 }
 
+const stage = stageOf(entry);
+if (stage) {
+  $('stage').textContent = stage.label;
+  $('stage').dataset.stage = stage.key;
+  if (stage.blocked) $('stage').dataset.blocked = 'true';
+  $('stage').hidden = false;
+}
+
+// "spec": "<folder>/spec.json" in experiments.json: the UX spec devs build from, in a Spec tab beside the questions.
+const spec = entry.spec ? normalizeSpec(await store.loadJson(new URL(entry.spec, root))) : null;
+const inHandoff = !!spec || !!STAGE_KEYS_WITH_TABS[stage?.key];
+const panelTabs = [...document.querySelectorAll('#panel-tabs [role="tab"]')];
+function showPane(name, focus) {
+  for (const b of panelTabs) {
+    const on = b.dataset.pane === name;
+    b.setAttribute('aria-selected', String(on));
+    b.tabIndex = on ? 0 : -1;
+    $(b.getAttribute('aria-controls')).hidden = !on;
+    if (on && focus) b.focus();
+  }
+  document.body.dataset.pane = name;
+}
+const ADD_LABEL = inHandoff ? 'Ask a question' : 'Add a comment';
+$('pin-mode').textContent = ADD_LABEL;
+if (inHandoff) {
+  $('compose-title').textContent = 'Question for design';
+  $('text').previousSibling.textContent = 'Question ';
+}
+if (inHandoff) {
+  $('panel-title').hidden = true;
+  $('panel-tabs').hidden = false;
+  $('panel').setAttribute('aria-label', 'Spec and questions for design');
+  $('fab').setAttribute('aria-label', 'Open spec and questions');
+  for (const b of panelTabs) b.addEventListener('click', () => showPane(b.dataset.pane));
+  $('panel-tabs').addEventListener('keydown', e => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const i = panelTabs.findIndex(b => b.getAttribute('aria-selected') === 'true');
+    showPane(panelTabs[(i + 1) % panelTabs.length].dataset.pane, true);
+  });
+  renderSpec();
+  showPane(params.get('c') || params.get('panel') === 'questions' || !spec ? 'questions' : 'spec');
+}
+
+function renderSpec() {
+  const box = $('pane-spec');
+  box.replaceChildren();
+  if (!spec) {
+    box.append(el('p', 'spec-empty', 'No spec yet. Design adds one before this is Ready for Dev.'));
+    return;
+  }
+  const top = el('div', 'spec-top');
+  const copy = el('button', 'spec-copy', 'Copy spec');
+  copy.type = 'button';
+  copy.addEventListener('click', async () => {
+    const md = specMarkdown(entry, spec, root);
+    try {
+      await navigator.clipboard.writeText(md);
+      copy.textContent = 'Copied';
+    } catch {
+      copy.textContent = 'Could not copy';
+    }
+    setTimeout(() => { copy.textContent = 'Copy spec'; }, COPIED_MS);
+  });
+  top.append(copy);
+  if (stage?.blocked) top.append(el('p', 'spec-warn', 'Ready for Dev needs its Notion task linked first.'));
+  box.append(top);
+  if (spec.final) {
+    const p = el('p', 'spec-final');
+    p.append(el('strong', null, 'Final version: '), spec.final);
+    box.append(p);
+  }
+  if (spec.summary) box.append(el('p', 'spec-summary', spec.summary));
+
+  for (const f of spec.flows) {
+    const sec = section(f.title);
+    if (f.show) {
+      const go = el('button', 'spec-show', 'Show me');
+      go.type = 'button';
+      go.addEventListener('click', () => {
+        frame.src = new URL(f.show, root).href;
+        $('direct').href = frame.src;
+        if (matchMedia(PHONE_MQ).matches) document.body.classList.remove('open');
+      });
+      sec.querySelector('h3').append(go);
+    }
+    const ol = el('ol', 'spec-rows');
+    for (const r of f.rows) {
+      const li = el('li');
+      li.append(el('div', 'spec-when', r.when), el('div', 'spec-then', r.then));
+      if (r.event) li.append(el('code', 'spec-event', r.event));
+      ol.append(li);
+    }
+    sec.append(ol);
+    box.append(sec);
+  }
+
+  if (spec.back.length) {
+    const sec = section('Back');
+    const ol = el('ol', 'spec-rows');
+    for (const b of spec.back) {
+      const li = el('li');
+      li.append(el('div', 'spec-when', b.from), el('div', 'spec-then', b.then));
+      ol.append(li);
+    }
+    sec.append(ol);
+    box.append(sec);
+  }
+
+  if (spec.events.length) {
+    const sec = section('Analytics events');
+    const ol = el('ol', 'spec-rows');
+    for (const ev of spec.events) {
+      const li = el('li');
+      const h = el('div', 'spec-when');
+      h.append(el('code', 'spec-event', ev.name), ' ', el('span', 'spec-tag', ev.status === 'existing' ? 'exists in app' : 'new'));
+      li.append(h);
+      if (ev.when) li.append(el('div', 'spec-then', ev.when));
+      if (ev.props) li.append(el('div', 'spec-props', ev.props));
+      ol.append(li);
+    }
+    sec.append(ol);
+    box.append(sec);
+  }
+
+  if (spec.edgeCases.length) box.append(bullets('Edge cases', spec.edgeCases));
+  if (spec.notes.length) box.append(bullets('Notes', spec.notes));
+
+  if (spec.assets.length) {
+    const sec = section('Download assets');
+    const ul = el('ul', 'spec-assets');
+    for (const a of spec.assets) {
+      const li = el('li');
+      const link = el('a', null, a.label);
+      link.href = new URL(a.file, root).href;
+      link.download = a.file.split('/').pop();
+      li.append(link);
+      if (a.note) li.append(el('span', 'spec-note', a.note));
+      ul.append(li);
+    }
+    sec.append(ul);
+    box.append(sec);
+  }
+}
+
+function section(title) {
+  const sec = el('section', 'spec-sec');
+  sec.append(el('h3', null, title));
+  return sec;
+}
+
+function bullets(title, items) {
+  const sec = section(title);
+  const ul = el('ul', 'spec-list');
+  for (const x of items) ul.append(el('li', null, x));
+  sec.append(ul);
+  return sec;
+}
+
 const links = $('links');
 if (entry.notionPageId) {
   const a = el('a', null, 'Notion task');
-  a.href = task?.url || `https://app.notion.com/p/storycity/${entry.notionPageId.replace(/-/g, '')}`;
+  a.href = task?.url || notionUrl(entry);
   a.target = '_blank';
   a.rel = 'noopener';
   links.append(a);
@@ -159,6 +321,7 @@ function render() {
   const open = roots.filter(c => c.status !== 'resolved').length;
   $('open-count').textContent = open ? `(${open})` : '';
   $('fab-count').textContent = open || '';
+  $('q-count').textContent = open ? `(${open})` : '';
 
   overlay.replaceChildren();
   visible.forEach((c, i) => {
@@ -171,6 +334,7 @@ function render() {
     b.setAttribute('aria-label', `Comment ${roots.indexOf(c) + 1} by ${c.author?.name}`);
     b.addEventListener('click', () => {
       document.body.classList.add('open');
+      if (inHandoff) showPane('questions');
       focusId = c.id;
       renderList();
       $('list').querySelector(`[data-id="${c.id}"]`)?.scrollIntoView({ block: 'center' });
@@ -188,7 +352,7 @@ function renderList() {
   list.replaceChildren();
   const visible = roots.filter(c => showResolved || c.status !== 'resolved');
   if (!visible.length) {
-    const li = el('li', null, store.user() ? 'No comments yet.' : '');
+    const li = el('li', null, store.user() ? (inHandoff ? 'No questions yet.' : 'No comments yet.') : '');
     list.append(li);
   }
   for (const c of visible) list.append(commentNode(c, roots.indexOf(c) + 1, here));
@@ -230,7 +394,7 @@ function commentNode(c, n, here) {
     go.addEventListener('click', () => {
       frame.src = new URL(c.url, root).href;
       focusId = c.id;
-      if (matchMedia('(max-width: 820px)').matches) document.body.classList.remove('open');
+      if (matchMedia(PHONE_MQ).matches) document.body.classList.remove('open');
     });
     acts.append(go);
   }
@@ -383,7 +547,7 @@ function setArmed(on) {
   armed = on;
   overlay.classList.toggle('armed', on);
   $('pin-mode').setAttribute('aria-pressed', String(on));
-  $('pin-mode').textContent = on ? 'Tap the spot…' : 'Add a comment';
+  $('pin-mode').textContent = on ? 'Tap the spot…' : ADD_LABEL;
   overlay.hidden = !on && !overlay.children.length;
 }
 
@@ -395,7 +559,7 @@ overlay.addEventListener('click', e => {
 });
 
 $('pin-mode').addEventListener('click', () => {
-  if (matchMedia('(max-width: 820px)').matches) document.body.classList.remove('open');
+  if (matchMedia(PHONE_MQ).matches) document.body.classList.remove('open');
   setArmed(!armed);
 });
 $('cancel').addEventListener('click', () => { draft = null; dialog.close(); });
@@ -450,6 +614,6 @@ try {
 const focus = params.get('c');
 if (focus) {
   focusId = focus;
-  if (matchMedia('(max-width: 820px)').matches) document.body.classList.add('open');
+  if (matchMedia(PHONE_MQ).matches) document.body.classList.add('open');
 }
 render();

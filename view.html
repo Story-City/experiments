@@ -16,7 +16,7 @@ document.write(`<link rel="stylesheet" href="hub/view.css${CACHE_V}">`);
 <body>
 <header class="bar">
   <a class="back" href="./" aria-label="Back to all experiments">‹ All</a>
-  <div class="title"><span id="title"></span> <span id="status" class="status" hidden></span></div>
+  <div class="title"><span id="title"></span> <span id="stage" class="stage-badge" hidden></span> <span id="status" class="status" hidden></span></div>
   <nav class="page-tabs bar-tabs" data-tabs aria-label="Pages" hidden></nav>
   <a id="direct" class="direct" href="#" target="_blank" rel="noopener">Open alone</a>
 </header>
@@ -29,10 +29,16 @@ document.write(`<link rel="stylesheet" href="hub/view.css${CACHE_V}">`);
   </div>
   <aside id="panel" class="panel" aria-label="Comments">
     <div class="panel-head">
-      <h2>Comments <span id="open-count"></span></h2>
-      <button id="close" class="icon" type="button" aria-label="Close comments">×</button>
+      <h2 id="panel-title"><span id="comments-label">Comments</span> <span id="open-count"></span></h2>
+      <nav id="panel-tabs" class="panel-tabs" role="tablist" aria-label="Panel" hidden>
+        <button type="button" role="tab" id="tab-spec" data-pane="spec" aria-controls="pane-spec" aria-selected="true">Spec</button>
+        <button type="button" role="tab" id="tab-questions" data-pane="questions" aria-controls="pane-questions" aria-selected="false" tabindex="-1">Questions for design <span id="q-count"></span></button>
+      </nav>
+      <button id="close" class="icon" type="button" aria-label="Close panel">×</button>
     </div>
     <div id="links" class="links"></div>
+    <section id="pane-spec" class="spec" role="tabpanel" aria-labelledby="tab-spec" hidden></section>
+    <section id="pane-questions" role="tabpanel" aria-labelledby="tab-questions">
     <div id="notion" class="notion"></div>
     <div id="me" class="me"></div>
     <div class="actions">
@@ -41,6 +47,7 @@ document.write(`<link rel="stylesheet" href="hub/view.css${CACHE_V}">`);
     </div>
     <p id="notice" class="notice" hidden></p>
     <ol id="list" class="list"></ol>
+    </section>
   </aside>
 </main>
 <button id="fab" class="fab" type="button" aria-label="Open comments">💬 <span id="fab-count"></span></button>

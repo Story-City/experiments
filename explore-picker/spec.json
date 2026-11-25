@@ -1,0 +1,70 @@
+{
+  "final": "Not chosen yet. Melissa picks one of A–I; everything below is shared by all nine.",
+  "summary": "Step 2 of 3 after sign-up. The player picks every way they like to explore (9 options, pick any number). Continue shows what their picks unlocked; Skip shows a plain default Explore. Picks tune what they see first.",
+  "flows": [
+    {
+      "title": "Pick screen",
+      "show": "explore-picker/?v=a",
+      "rows": [
+        { "when": "Screen opens", "then": "No options picked. Continue is disabled and reads “Pick one or more to continue”." },
+        { "when": "Tap an option", "then": "It turns on and joins the picks, in the order tapped. Continue shows the count (“Continue 3”)." },
+        { "when": "Tap a picked option again", "then": "It turns off and leaves the picks. At zero picks, Continue is disabled again." },
+        { "when": "Tap Continue", "then": "Saves the picks and opens What your picks unlocked.", "event": "ftue_explore_styles_submitted" },
+        { "when": "Tap Skip", "then": "Saves no picks and opens the default Explore.", "event": "ftue_explore_styles_skipped" }
+      ]
+    },
+    {
+      "title": "Swipe deck only (E)",
+      "show": "explore-picker/?v=e",
+      "rows": [
+        { "when": "Swipe a card right past 80px, or tap ✓ Yes", "then": "Picks that option and shows the next card." },
+        { "when": "Swipe left past 80px, or tap ✕ Not for me", "then": "Skips that option and shows the next card." },
+        { "when": "Let go before 80px", "then": "The card springs back. Nothing is picked." },
+        { "when": "After the 9th card", "then": "“That's the whole deck” with Go through again, which restarts at card 1 and keeps the picks." },
+        { "when": "Tap ✕ on a chip under Your yeses", "then": "Removes that pick." }
+      ]
+    },
+    {
+      "title": "What your picks unlocked",
+      "rows": [
+        { "when": "Screen opens", "then": "One card per pick, in the order picked: icon, what it unlocks, one line about it." },
+        { "when": "Tap an unlock card", "then": "Opens that feature (to confirm per card: Today, gem pin, step goal, map, Whimsy Walk, invite, Passport, Treadmill, puzzles).", "event": "ftue_explore_unlock_tapped" },
+        { "when": "Tap Start exploring", "then": "Ends the first-time flow and opens Explore, tuned to the picks." },
+        { "when": "Tap Change my picks", "then": "Back to the pick screen with every pick still on." }
+      ]
+    },
+    {
+      "title": "Default Explore (after Skip)",
+      "rows": [
+        { "when": "Screen opens", "then": "Three cards: Stories near you, Your map in Steps mode, Mini Missions. Subtitle says it can be tuned in Settings." },
+        { "when": "Tap Start exploring", "then": "Ends the first-time flow and opens Explore with defaults." },
+        { "when": "Tap Change my picks", "then": "Back to the pick screen." }
+      ]
+    }
+  ],
+  "back": [
+    { "from": "Pick screen", "then": "Back to Step 1 of 3. Picks are kept if they come back (to confirm)." },
+    { "from": "What your picks unlocked", "then": "Same as Change my picks: pick screen, picks kept." },
+    { "from": "Default Explore", "then": "Same as Change my picks: back to the pick screen." }
+  ],
+  "events": [
+    { "name": "ftue_explore_styles_submitted", "status": "new", "when": "Tap Continue on the pick screen.", "props": "styles (picked ids, sorted, comma-joined, like ftue_interests_submitted), style_count, version (the chosen letter)" },
+    { "name": "ftue_explore_styles_skipped", "status": "new", "when": "Tap Skip on the pick screen.", "props": "style_count (picks on screen when skipped)" },
+    { "name": "ftue_explore_unlock_tapped", "status": "new", "when": "Tap a card on What your picks unlocked.", "props": "style (the card's id), position (1-based)" },
+    { "name": "ftue_interests_submitted", "status": "existing", "when": "Today's genre Interests screen (ScriptedFtue/Interests). The new events follow its naming and list format.", "props": "script_id, interests, interest_count, kept_defaults" }
+  ],
+  "edgeCases": [
+    "All nine picked: nine unlock cards, the list scrolls, Start exploring stays pinned at the bottom.",
+    "Bookerton chat (F): at 6 or more picks he says “You like a bit of everything”; unpicking says “No problem, crossed that one off”.",
+    "Reduced motion on: no flying cards, pulses or typing dots; states change instantly.",
+    "No line ends with one word alone, on any screen size.",
+    "Option ids are fixed (stories, gems, steps, fog, daily, together, city, treadmill, puzzles); labels can change without breaking analytics."
+  ],
+  "notes": [
+    "Icons: flat vector icons are being drawn (icons.js in the source folder); add them to Download assets once they reach the site. Emoji until then.",
+    "Open: does this replace or follow the genre Interests screen in today's first-time flow? Decide before Ready for Dev."
+  ],
+  "assets": [
+    { "label": "All copy, options and colours (data.js)", "file": "explore-picker/data.js", "note": "Every string on every screen, the 9 option ids, unlock text and each option's colour." }
+  ]
+}
