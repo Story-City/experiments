@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=94">
+<link rel="stylesheet" href="app.css?v=95">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -43,6 +43,12 @@
         <div class="tool-toggle">
           <span>Drag to sections</span>
           <button type="button" class="switch" id="debugDragMode" role="switch" aria-checked="false" aria-label="Drag to sections">
+            <span class="switch-knob" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="tool-toggle">
+          <span>Subcategories</span>
+          <button type="button" class="switch" id="debugSubcats" role="switch" aria-checked="false" aria-label="Subcategories">
             <span class="switch-knob" aria-hidden="true"></span>
           </button>
         </div>
@@ -369,7 +375,10 @@
           </div>
           <div class="publish-step" id="publishStepCats">
             <p class="publish-cat-prompt" id="publishCatPrompt">[what best describes your jam]</p>
-            <div class="publish-cat-grid" id="publishCatGrid" role="listbox" aria-label="Jam categories"></div>
+            <div class="publish-cat-grid" id="publishCatGrid" role="listbox" aria-label="Jam categories" aria-multiselectable="false"></div>
+            <div class="side-actions" id="publishCatActions" hidden>
+              <button type="button" class="confirm-pill" id="publishCatNext">[confirm]</button>
+            </div>
           </div>
           <div class="publish-step publish-step-words" id="publishStepWords" hidden>
             <div class="publish-fields">
@@ -400,7 +409,7 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v94 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v95 · V1. Figma gems, no rarity.
   </p>
     </div>
 
@@ -415,7 +424,7 @@
       </section>
     </aside>
   </div>
-  <script src="corner-ribbon.js?v=94"></script>
-  <script src="app.js?v=94"></script>
+  <script src="corner-ribbon.js?v=95"></script>
+  <script src="app.js?v=95"></script>
 </body>
 </html>

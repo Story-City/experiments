@@ -2955,6 +2955,14 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
     0 0 20px color-mix(in srgb, var(--cat-fill, #00c2ff) 48%, transparent),
     inset 0 0 14px color-mix(in srgb, var(--cat-fill, #00c2ff) 20%, transparent);
 }
+.publish-cat-btn.is-primary {
+  outline: 2px solid color-mix(in srgb, var(--cat-fill, #00c2ff) 85%, #fff);
+  outline-offset: 1px;
+}
+#publishCatActions {
+  margin-top: 4px;
+}
+#publishCatActions[hidden] { display: none !important; }
 .publish-cat-gem {
   width: 36px;
   height: 36px;

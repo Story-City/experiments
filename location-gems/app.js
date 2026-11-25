@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v94 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v95 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -47,6 +47,8 @@ const SORT_TINTED_TEXT = '#f2eef8';
 /* Story.name / Story.summary — server Assert\Length; web-client Title/Tagline */
 const PUBLISH_TITLE_MAX = 40;
 const PUBLISH_NOTE_MAX = 160;
+/** Extra jam cats after the primary pick (debug Subcategories toggle). */
+const PUBLISH_EXTRA_CATS_MAX = 2;
 /* Feather bookmark — same mark as gem-pins-v2 save-for-later */
 const BOOKMARK_PATH = 'M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z';
 const BOOKMARK_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${BOOKMARK_PATH}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -247,6 +249,7 @@ const COPY = {
   publishAddressLabel: '[address]',
   publishNext: '[confirm]',
   publishCatPrompt: '[what best describes your jam]',
+  publishCatMorePrompt: '[any other categories that apply]',
 };
 
 const SPOOF_COPY = {
@@ -308,6 +311,7 @@ const SPOOF_COPY = {
   publishAddressLabel: '[address]',
   publishNext: 'Confirm',
   publishCatPrompt: '[what best describes your jam]',
+  publishCatMorePrompt: '[any other categories that apply]',
   emptyPublicTitle: 'Nothing public yet',
   emptyPublicBody: 'Publish a find and it’ll show up here.',
   emptyHiddenTitle: 'No hidden gems',
@@ -425,11 +429,14 @@ const publishStepWords = document.getElementById('publishStepWords');
 const publishStepCats = document.getElementById('publishStepCats');
 const publishCatPrompt = document.getElementById('publishCatPrompt');
 const publishCatGrid = document.getElementById('publishCatGrid');
+const publishCatActions = document.getElementById('publishCatActions');
+const publishCatNext = document.getElementById('publishCatNext');
 const publishPhoto = document.getElementById('publishPhoto');
 const hubMeta = document.getElementById('hubMeta');
 let publishKbBound = false;
-let publishDraft = { title: '', note: '', category: null };
+let publishDraft = { title: '', note: '', category: null, extras: [] };
 let publishStep = 'cats';
+let publishCatPhase = 'primary';
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
 const sortSub = document.getElementById('sortSub');
@@ -466,6 +473,7 @@ const debugOnboard = document.getElementById('debugOnboard');
 const debugSpoof = document.getElementById('debugSpoof');
 const debugDragMode = document.getElementById('debugDragMode');
 const debugLikesStack = document.getElementById('debugLikesStack');
+const debugSubcats = document.getElementById('debugSubcats');
 
 /** @type {'public'|'hidden'|'liked'} */
 let activeSection = 'public';
@@ -484,6 +492,7 @@ let likesBusy = false;
 let spoofWording = false;
 let likesStackMode = false;
 let dragMode = false;
+let subcatsMode = false;
 /** @type {any} */
 let drag = null;
 /** @type {(() => void) | null} */
@@ -1983,8 +1992,59 @@ function syncPublishSheetCopy() {
     publishNote.maxLength = PUBLISH_NOTE_MAX;
   }
   if (publishNext) publishNext.textContent = t('publishNext');
-  if (publishCatPrompt) publishCatPrompt.textContent = t('publishCatPrompt');
+  if (publishCatNext) publishCatNext.textContent = t('publishNext');
+  syncPublishCatPrompt();
   syncPublishCharCounts();
+}
+
+function syncPublishCatPrompt() {
+  if (!publishCatPrompt) return;
+  const more = subcatsMode && publishCatPhase === 'extras';
+  publishCatPrompt.textContent = more ? t('publishCatMorePrompt') : t('publishCatPrompt');
+}
+
+function syncPublishCatSelection() {
+  if (!publishCatGrid) return;
+  const primary = publishDraft.category;
+  const extras = publishDraft.extras || [];
+  publishCatGrid.querySelectorAll('.publish-cat-btn').forEach((btn) => {
+    const id = btn.dataset.catId;
+    const isPrimary = id === primary;
+    const isExtra = extras.includes(id);
+    btn.classList.toggle('is-on', isPrimary || isExtra);
+    btn.classList.toggle('is-primary', isPrimary);
+    btn.setAttribute('aria-selected', isPrimary || isExtra ? 'true' : 'false');
+  });
+  if (publishCatActions) {
+    const show = subcatsMode && publishCatPhase === 'extras' && !!primary;
+    publishCatActions.hidden = !show;
+  }
+  syncPublishCatPrompt();
+}
+
+function handlePublishCatPick(catId) {
+  if (!pendingPublish) return;
+  if (!subcatsMode) {
+    goPublishWordsStep(catId);
+    return;
+  }
+  if (publishCatPhase === 'primary' || !publishDraft.category) {
+    publishDraft.category = catId;
+    publishDraft.extras = [];
+    publishCatPhase = 'extras';
+    syncPublishCatSelection();
+    return;
+  }
+  if (catId === publishDraft.category) return;
+  const extras = publishDraft.extras || [];
+  const idx = extras.indexOf(catId);
+  if (idx >= 0) {
+    extras.splice(idx, 1);
+  } else if (extras.length < PUBLISH_EXTRA_CATS_MAX) {
+    extras.push(catId);
+  }
+  publishDraft.extras = extras;
+  syncPublishCatSelection();
 }
 
 function syncPublishCharCounts() {
@@ -2068,6 +2128,7 @@ function setPublishStep(step) {
 function renderPublishCats() {
   if (!publishCatGrid) return;
   publishCatGrid.replaceChildren();
+  publishCatGrid.setAttribute('aria-multiselectable', subcatsMode ? 'true' : 'false');
   JAM_CATS.forEach((cat) => {
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -2075,19 +2136,22 @@ function renderPublishCats() {
     btn.dataset.catId = cat.id;
     btn.style.setProperty('--cat-fill', cat.colour);
     btn.setAttribute('role', 'option');
+    btn.setAttribute('aria-selected', 'false');
     btn.setAttribute('aria-label', cat.label);
     btn.innerHTML = `
       <span class="publish-cat-gem" aria-hidden="true">${categoryGemMark(cat)}</span>
       <span class="publish-cat-label">${cat.label}</span>`;
-    btn.addEventListener('click', () => goPublishWordsStep(cat.id));
+    btn.addEventListener('click', () => handlePublishCatPick(cat.id));
     publishCatGrid.appendChild(btn);
   });
+  syncPublishCatSelection();
 }
 
 function beginPublishSheet({ photo, place, card = null, find = null, gemId = null, source = 'sort' }) {
   if (!publishSheet) return;
   pendingPublish = { card, find, gemId, source };
-  publishDraft = { title: '', note: '', category: null };
+  publishDraft = { title: '', note: '', category: null, extras: [] };
+  publishCatPhase = 'primary';
   clearMapTips();
   phone.classList.add('is-publishing');
   syncPublishSheetCopy();
@@ -2150,8 +2214,10 @@ function closePublishSheet({ restoreCard = true } = {}) {
   phone.classList.remove('is-publishing');
   const card = pendingPublish?.card;
   pendingPublish = null;
-  publishDraft = { title: '', note: '', category: null };
+  publishDraft = { title: '', note: '', category: null, extras: [] };
+  publishCatPhase = 'primary';
   publishStep = 'cats';
+  if (publishCatActions) publishCatActions.hidden = true;
   if (restoreCard && card) {
     card.classList.remove('is-publishing');
     card.style.transition = `transform ${SWIPE_SETTLE_MS}ms ${EASE_POPULAR}, opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
@@ -2166,12 +2232,26 @@ function closePublishSheet({ restoreCard = true } = {}) {
 
 function goPublishWordsStep(categoryId) {
   if (!pendingPublish) return;
-  publishDraft.category = categoryId;
+  if (categoryId) {
+    publishDraft.category = categoryId;
+    if (!Array.isArray(publishDraft.extras)) publishDraft.extras = [];
+  }
+  if (!publishDraft.category) return;
+  if (publishCatActions) publishCatActions.hidden = true;
   setPublishStep('words');
   window.setTimeout(() => {
     syncPublishKeyboard();
     publishTitle?.focus();
   }, 80);
+}
+
+function applyPublishCategories(gem, categoryId, extras) {
+  const primary = jamCatById(categoryId).id;
+  gem.category = primary;
+  const extraIds = (extras || [])
+    .map((id) => jamCatById(id).id)
+    .filter((id) => id !== primary);
+  gem.categories = [primary, ...extraIds];
 }
 
 async function finishPublishWithWords() {
@@ -2180,6 +2260,7 @@ async function finishPublishWithWords() {
   const title = (publishTitle?.value || '').trim().slice(0, PUBLISH_TITLE_MAX) || t('publishTitlePh');
   const note = (publishNote?.value || '').trim().slice(0, PUBLISH_NOTE_MAX);
   const categoryId = publishDraft.category;
+  const extras = publishDraft.extras || [];
   if (pending.source === 'detail' && pending.gemId) {
     const gem = findGem(pending.gemId);
     closePublishSheet({ restoreCard: false });
@@ -2188,7 +2269,7 @@ async function finishPublishWithWords() {
     gem.title = title;
     gem.tagline = note || title;
     gem.caption = note || title;
-    gem.category = jamCatById(categoryId).id;
+    applyPublishCategories(gem, categoryId, extras);
     if (!gem.likes) gem.likes = LIKES_DEMO;
     if (!Array.isArray(gem.entries)) gem.entries = [];
     if (note && !gem.entries.includes(note)) gem.entries.unshift(note);
@@ -2206,6 +2287,7 @@ async function finishPublishWithWords() {
       title,
       caption: note || title,
       category: categoryId,
+      categories: [categoryId, ...extras],
     });
   }
 }
@@ -2242,6 +2324,9 @@ async function settleSort(card, action, opts = {}) {
       gem.caption = opts.caption || opts.title;
       gem.entries = [opts.caption || opts.title];
     }
+    if (opts.categories && opts.categories.length) {
+      applyPublishCategories(gem, opts.categories[0], opts.categories.slice(1));
+    }
   }
   ensureGemCategory(gem);
   gems.unshift(gem);
@@ -2265,8 +2350,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v94 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v94 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v95 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v95 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2450,6 +2535,17 @@ function setDragMode(on) {
   applyStaticCopy();
 }
 
+function setSubcatsMode(on) {
+  subcatsMode = on;
+  setSwitch(debugSubcats, on);
+  if (publishSheet && !publishSheet.hidden && publishStep === 'cats') {
+    publishDraft.category = null;
+    publishDraft.extras = [];
+    publishCatPhase = 'primary';
+    renderPublishCats();
+  }
+}
+
 function setMidTone(on) {
   setSwitch(midToneOn, on);
   applyMidTone();
@@ -2593,8 +2689,17 @@ debugOnboard.addEventListener('click', () => runOnboardingTips());
 if (feedDismiss) feedDismiss.addEventListener('click', dismissFeed);
 debugSpoof.addEventListener('click', () => setSpoofWording(!spoofWording));
 debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
+if (debugSubcats) {
+  debugSubcats.addEventListener('click', () => setSubcatsMode(!subcatsMode));
+}
 if (debugLikesStack) {
   debugLikesStack.addEventListener('click', () => setLikesStackMode(!likesStackMode));
+}
+if (publishCatNext) {
+  publishCatNext.addEventListener('click', () => {
+    if (!publishDraft.category) return;
+    goPublishWordsStep();
+  });
 }
 document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
   btn.addEventListener('click', () => {
