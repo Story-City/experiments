@@ -14,11 +14,14 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
 </head>
 <body>
-<!-- GEM-PINS-EDITION-v2: V1 is this page, V2 is the legend build -->
-<div class="edition-bar" role="group" aria-label="Version">
-  <button type="button" data-edition="v1" aria-pressed="true">V1</button>
-  <button type="button" data-edition="v2" aria-pressed="false">V2</button>
-</div>
+<!-- GEM-PINS-EDITION-v3: Versioning sits on the right -->
+<aside class="edition-rail" aria-label="Versioning">
+  <h2 class="edition-title">Versioning</h2>
+  <div class="edition-bar" role="group" aria-label="Version">
+    <button type="button" data-edition="v1" aria-pressed="true">V1</button>
+    <button type="button" data-edition="v2" aria-pressed="false">V2</button>
+  </div>
+</aside>
 <iframe class="edition-frame" id="editionFrame" hidden title="Gem map pins V2"></iframe>
 <!-- red-green colour-blind simulation (option 15) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
