@@ -164,7 +164,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     const v2 = edition === 'v2';
     document.body.classList.toggle('is-v2', v2);
     if (v2 && frame.dataset.ready !== '1') {
-      frame.src = '../gem-pins-v2/?v=30&embed=1&sheet=' + sheet;
+      frame.src = '../gem-pins-v2/?v=31&embed=1&sheet=' + sheet;
       frame.dataset.ready = '1';
     } else if (v2) {
       showFrame();

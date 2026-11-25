@@ -498,8 +498,8 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .disc-wheel button .pin-gem,
 .disc-wheel button .cat-gem-art,
 .disc-wheel button svg {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   display: block;
   pointer-events: none;

@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v30 — Disc: mid shine arc, spread gems, bigger title, no reset. */
+/* GEM-PINS-V2-v31 — Disc: gems on SVG U curve, readable unselected size. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -10,16 +10,17 @@ const DENSITY = 40;
 const PIN_SIZE = 28;
 const SHEETS = ['original', 'prompt', 'image', 'bar'];
 /*
- * Lessons: path must live in-view (no off-screen ellipse); glow stays mid-arc;
- * fade = 2×step → centre + 2 each side = 5 gems max; span/step keep gems spread.
+ * Lessons: gems must sample the same Q path as the SVG (not a free parabola);
+ * unselected scale stays readable; fade = 2×step → 5 gems max.
  */
-const DISC_SPAN_X = 158;
-const DISC_EAR_Y = 36;
-const DISC_DIP = 40;
+const DISC_PATH = { x0: 68, y0: 36, cx: 200, cy: 112, x1: 332, y1: 36 };
+const DISC_VB_W = 400;
+const DISC_VB_H = 100;
+const DISC_STAGE_H = 104;
 const DISC_STEP = 18;
 const DISC_PX_PER_DEG = 2.6;
-const DISC_SCALE_MIN = 0.48;
-const DISC_SCALE_MAX = 1.26;
+const DISC_SCALE_MIN = 0.82;
+const DISC_SCALE_MAX = 1.12;
 const DISC_FADE_DEG = 36;
 const DISC_ANIM_MS = 520;
 const PUBLIC_GEM_FILL = '#00c2ff';
@@ -510,6 +511,21 @@ function wrapDiscDeg(deg, n) {
   return ((deg % period) + period * 1.5) % period - period / 2;
 }
 
+/** Same quadratic as SVG `M 68 36 Q 200 112 332 36`; t −1…1 = ears → centre → ears. */
+function discPointOnArc(t) {
+  const u = (t + 1) / 2;
+  const omu = 1 - u;
+  const a = omu * omu;
+  const b = 2 * omu * u;
+  const c = u * u;
+  const xSvg = a * DISC_PATH.x0 + b * DISC_PATH.cx + c * DISC_PATH.x1;
+  const ySvg = a * DISC_PATH.y0 + b * DISC_PATH.cy + c * DISC_PATH.y1;
+  return {
+    leftPct: (xSvg / DISC_VB_W) * 100,
+    topPx: (ySvg / DISC_VB_H) * DISC_STAGE_H,
+  };
+}
+
 function paintDiscAngle(angle) {
   const wheel = $('discWheel');
   const stage = $('discStage');
@@ -523,18 +539,17 @@ function paintDiscAngle(angle) {
   buttons.forEach((b, i) => {
     const deg = wrapDiscDeg(angle + i * DISC_STEP, n);
     const t = Math.max(-1, Math.min(1, deg / DISC_FADE_DEG));
-    const x = t * DISC_SPAN_X;
-    const y = DISC_EAR_Y + DISC_DIP * (1 - t * t);
+    const { leftPct, topPx } = discPointOnArc(t);
     const abs = Math.abs(deg);
     const stepsOut = Math.round(abs / DISC_STEP);
     const proximity = Math.max(0, 1 - abs / DISC_FADE_DEG);
-    const scale = DISC_SCALE_MIN + (DISC_SCALE_MAX - DISC_SCALE_MIN) * (proximity ** 1.2);
+    const scale = DISC_SCALE_MIN + (DISC_SCALE_MAX - DISC_SCALE_MIN) * proximity;
     const on = i === nearest;
     const visible = stepsOut <= 2;
-    b.style.left = `calc(50% + ${x}px)`;
-    b.style.top = `${y}px`;
+    b.style.left = `${leftPct}%`;
+    b.style.top = `${topPx}px`;
     b.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    b.style.opacity = visible ? String(0.3 + 0.7 * proximity) : '0';
+    b.style.opacity = visible ? String(0.45 + 0.55 * proximity) : '0';
     b.style.pointerEvents = visible ? 'auto' : 'none';
     b.style.zIndex = String(on ? 5 : 1 + Math.round(proximity * 3));
     b.setAttribute('aria-selected', String(on));
