@@ -1833,20 +1833,40 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   display: flex;
   flex-direction: column;
 }
-/* Figma 2850:549 — polaroid frame; caption strip holds words (if any) + address always */
+/* Figma 2850:549 Default — plain white polaroid; words optional, address always */
 .sort-card.is-polaroid {
   background: var(--sort-frame);
   border: 0;
   border-radius: 6px;
   padding: 10px 10px 0;
+  overflow: visible;
   box-shadow:
     0 12px 28px rgba(0, 0, 0, 0.38),
     0 1px 0 rgba(255, 255, 255, 0.35) inset;
+}
+/* Figma 2850:550 Variant2 — same frame + wall tape (feature/location-gems polaroid_tape) */
+.sort-card.is-tape {
+  /* overhang = tapeHeight * 0.42; tapeWidth ≈ card * 79.13/641 */
+  --sort-tape-w: calc(100% * 79.1262 / 641);
+  --sort-tape-h: calc(var(--sort-tape-w) * 104.335 / 79.1262);
+  --sort-tape-overhang: calc(var(--sort-tape-h) * 0.42);
+}
+.sort-card-tape {
+  position: absolute;
+  top: calc(var(--sort-tape-overhang) * -1);
+  left: 50%;
+  z-index: 4;
+  width: var(--sort-tape-w);
+  height: auto;
+  transform: translateX(-50%);
+  pointer-events: none;
+  user-select: none;
 }
 .sort-card.is-polaroid .sort-card-media {
   flex: 1 1 auto;
   min-height: 0;
   border-radius: 0;
+  overflow: hidden;
 }
 .sort-card.is-polaroid .sort-card-photo {
   height: 100%;
@@ -1881,9 +1901,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .sort-card.is-stack {
   transform: rotate(-2deg);
-}
-.sort-card.is-corner .sort-card-media {
-  position: relative;
 }
 .sort-card:active { cursor: grabbing; }
 .sort-card.is-dragging {

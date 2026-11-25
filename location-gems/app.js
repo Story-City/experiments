@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v81 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v82 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -38,7 +38,7 @@ const JAM_CATS = [
   { id: 'curio', label: 'Curiosities', colour: '#B36BFF', art: 'assets/gems/curiosities.svg' },
 ];
 const JAM_CAT_ALIASES = { shop: 'eat', entertainment: 'play' };
-const SORT_CARD_LOOKS = new Set(['polaroid', 'corner', 'overlay', 'flush', 'stack']);
+const SORT_CARD_LOOKS = new Set(['polaroid', 'tape', 'overlay', 'flush', 'stack']);
 const SORT_FRAME_DEFAULT = '#ffffff';
 const SORT_CARD_TEXT_DEFAULT = '#1a1230';
 const SILVER_GEM_FILL = '#c8d2e6';
@@ -1291,27 +1291,19 @@ function setTargets(mode, armed) {
   else if (mode === 'delete') railDelete.classList.add('is-hot');
 }
 
-function sortCornerHtml(uid) {
-  const fill = PUBLIC_GEM_FILL;
-  return `
-    <div class="sort-card-corner" aria-hidden="true">
-      <div class="sort-card-corner-art">${cornerRibbonHtml(fill, uid)}</div>
-      <div class="sort-card-corner-stack">
-        <span class="sort-card-gem">${gemSvg(fill)}</span>
-      </div>
-    </div>`;
-}
-
 function buildSortCard(find, under, enter) {
   const look = SORT_CARD_LOOKS.has(sortCardLook) ? sortCardLook : 'polaroid';
   const words = String(find.text || '').trim();
   const hasWords = !!words;
+  const isPolaroidFrame = look === 'polaroid' || look === 'tape';
   const card = document.createElement('article');
-  card.className = `sort-card is-${look}${hasWords ? ' has-words' : ' no-words'}${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
+  card.className = `sort-card is-${look}${isPolaroidFrame ? ' is-polaroid' : ''}${hasWords ? ' has-words' : ' no-words'}${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
   card.dataset.id = find.id;
   card.style.setProperty('--gem-line', PUBLIC_GEM_FILL);
-  /* Corner look (old location-gems) keeps classic cyan gem; polaroid never does */
-  const corner = look === 'corner' ? sortCornerHtml(find.id || 'sort') : '';
+  /* Figma 2850:550 — transparent white tape, stuck-on-wall (feature/location-gems) */
+  const tape = look === 'tape'
+    ? `<img class="sort-card-tape" src="assets/polaroid_tape.svg" alt="" draggable="false" aria-hidden="true">`
+    : '';
   const textBlock = hasWords
     ? `<p class="sort-card-text">${displayCopy(words)}</p>`
     : '';
@@ -1327,14 +1319,13 @@ function buildSortCard(find, under, enter) {
       <div class="sort-card-media">
         <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
         <div class="sort-card-fade" aria-hidden="true"></div>
-        ${corner}
         ${body}
       </div>`;
   } else {
     card.innerHTML = `
+      ${tape}
       <div class="sort-card-media">
         <img class="sort-card-photo" src="${find.photo}" alt="" draggable="false">
-        ${corner}
       </div>
       ${body}`;
   }
@@ -2136,8 +2127,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v81 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v81 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v82 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v82 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2452,7 +2443,7 @@ document.querySelectorAll('[data-hub-edition]').forEach((btn) => {
 });
 document.querySelectorAll('[data-sort-look]').forEach((btn) => {
   btn.addEventListener('click', () => {
-    setSortCardLook(btn.getAttribute('data-sort-look') || 'corner');
+    setSortCardLook(btn.getAttribute('data-sort-look') || 'polaroid');
   });
 });
 if (publishSheetScrim) {
