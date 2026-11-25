@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v25 — Disc: parabolic U path + gems; tinted stroke visible. */
+/* GEM-PINS-V2-v26 — Disc: ridiculous glow bloom + extreme tight hug + size falloff. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -9,17 +9,15 @@ const DENSITY = 40;
 /** V1 rarityBy none — every pin the same size; keep uploaded category gems */
 const PIN_SIZE = 28;
 const SHEETS = ['original', 'prompt', 'image', 'bar'];
-/*
- * Stretched U: gems + tinted stroke share one parabola (tight hug, arc always visible).
- */
-const DISC_SPAN_X = 148;
-const DISC_EAR_Y = 30;
-const DISC_DIP = 40;
-const DISC_STEP = 8;
-const DISC_PX_PER_DEG = 3.2;
-const DISC_SCALE_MIN = 0.52;
-const DISC_SCALE_MAX = 1.22;
-const DISC_FADE_DEG = 34;
+/* Extreme: packed gems, huge selected, tiny sides, fat glowing tinted U */
+const DISC_SPAN_X = 108;
+const DISC_EAR_Y = 34;
+const DISC_DIP = 46;
+const DISC_STEP = 5;
+const DISC_PX_PER_DEG = 4.2;
+const DISC_SCALE_MIN = 0.28;
+const DISC_SCALE_MAX = 1.65;
+const DISC_FADE_DEG = 26;
 const DISC_ANIM_MS = 520;
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';

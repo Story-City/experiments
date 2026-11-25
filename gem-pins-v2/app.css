@@ -301,7 +301,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 72%, transparent 100%);
 }
 
-/* GEM-PINS-V2-v25-DISC-PARABOLA-ARC */
+/* GEM-PINS-V2-v26-DISC-EXTREME-GLOW */
 /* —— Inline: row1 = ico + title + roller; row2 = full-width explain —— */
 .gbox.is-layout-inline .map-bar {
   display: grid;
@@ -427,8 +427,8 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .disc-stage {
   position: relative;
   width: 100%;
-  height: 100px;
-  overflow: hidden;
+  height: 112px;
+  overflow: visible;
   touch-action: none;
   cursor: grab;
   --disc-tint: var(--accent);
@@ -442,29 +442,28 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   top: 0;
   z-index: 1;
   width: 100%;
-  height: 100px;
+  height: 112px;
   pointer-events: none;
   overflow: visible;
   color: var(--disc-tint);
-  transition: color 420ms var(--ease-out);
+  transition: color 380ms var(--ease-out);
 }
+.disc-arc-bloom,
 .disc-arc-glow,
 .disc-arc-tint {
-  transition: stroke 420ms var(--ease-out), color 420ms var(--ease-out), opacity 420ms var(--ease-out);
-}
-.disc-arc-tint {
-  filter: drop-shadow(0 0 14px var(--disc-tint));
+  transition: stroke 380ms var(--ease-out), color 380ms var(--ease-out), opacity 380ms var(--ease-out);
 }
 .disc-wheel {
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: auto;
+  overflow: visible;
 }
 .disc-wheel button {
   position: absolute;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -484,19 +483,23 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .disc-wheel button .pin-gem,
 .disc-wheel button .cat-gem-art,
 .disc-wheel button svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
   display: block;
   pointer-events: none;
-  filter: drop-shadow(0 1px 5px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55));
 }
 .disc-wheel button.is-front img,
 .disc-wheel button.is-front .pin-gem,
 .disc-wheel button.is-front .cat-gem-art,
 .disc-wheel button.is-front svg {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
+  filter:
+    drop-shadow(0 0 10px var(--disc-tint))
+    drop-shadow(0 0 22px var(--disc-tint))
+    drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55));
 }
 .disc-wheel button.is-front {
   background: transparent;

@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=25">
+<link rel="stylesheet" href="app.css?v=26">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -51,25 +51,48 @@
             </div>
           </div>
           <div class="disc-stage" id="discStage" hidden>
-            <svg class="disc-arc" id="discArc" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
-              <!-- Same parabola as gems: ears (52,30)/(348,30), centre (200,70); Q control at 110 -->
+            <svg class="disc-arc" id="discArc" viewBox="0 0 400 110" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <filter id="discBloom" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="b1"/>
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="22" result="b2"/>
+                  <feMerge>
+                    <feMergeNode in="b2"/>
+                    <feMergeNode in="b1"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <!-- Packed U: ears ~92/308 at y=34, centre (200,80); Q control 126 -->
               <path
-                class="disc-arc-glow"
-                d="M 52 30 Q 200 110 348 30"
+                class="disc-arc-bloom"
+                d="M 92 34 Q 200 126 308 34"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="14"
+                stroke-width="28"
                 stroke-linecap="round"
-                opacity="0.45"
+                opacity="0.55"
+                filter="url(#discBloom)"
+              />
+              <path
+                class="disc-arc-glow"
+                d="M 92 34 Q 200 126 308 34"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="16"
+                stroke-linecap="round"
+                opacity="0.75"
+                filter="url(#discBloom)"
               />
               <path
                 class="disc-arc-tint"
-                d="M 52 30 Q 200 110 348 30"
+                d="M 92 34 Q 200 126 308 34"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="4"
+                stroke-width="7"
                 stroke-linecap="round"
                 opacity="1"
+                filter="url(#discBloom)"
               />
             </svg>
             <div class="disc-wheel" id="discWheel" role="listbox" aria-label="Filter gems on disc"></div>
@@ -167,8 +190,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v25 — Disc: parabolic U path + gems; tinted stroke visible.</p>
-  <script src="../location-gems/corner-ribbon.js?v=25"></script>
-  <script type="module" src="app.js?v=25"></script>
+  <p class="meta">GEM-PINS-V2-v26 — Disc: ridiculous glow bloom + extreme tight hug + size falloff.</p>
+  <script src="../location-gems/corner-ribbon.js?v=26"></script>
+  <script type="module" src="app.js?v=26"></script>
 </body>
 </html>
