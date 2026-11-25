@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v29 — Disc: Figma U, subtle tinted glow, ≤5 gems, calm spacing. */
+/* GEM-PINS-V2-v30 — Disc: mid shine arc, spread gems, bigger title, no reset. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -10,17 +10,17 @@ const DENSITY = 40;
 const PIN_SIZE = 28;
 const SHEETS = ['original', 'prompt', 'image', 'bar'];
 /*
- * Lessons: path must live in-view (no off-screen ellipse); glow stays subtle;
- * fade = 2×step → centre + 2 each side = 5 gems max.
+ * Lessons: path must live in-view (no off-screen ellipse); glow stays mid-arc;
+ * fade = 2×step → centre + 2 each side = 5 gems max; span/step keep gems spread.
  */
-const DISC_SPAN_X = 132;
+const DISC_SPAN_X = 158;
 const DISC_EAR_Y = 36;
-const DISC_DIP = 38;
-const DISC_STEP = 14;
+const DISC_DIP = 40;
+const DISC_STEP = 18;
 const DISC_PX_PER_DEG = 2.6;
 const DISC_SCALE_MIN = 0.48;
 const DISC_SCALE_MAX = 1.26;
-const DISC_FADE_DEG = 28;
+const DISC_FADE_DEG = 36;
 const DISC_ANIM_MS = 520;
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -434,11 +434,6 @@ function paintBar() {
   $('filterGbox').classList.toggle('is-layout-disc', filterLayout === 'disc');
   $('filterBtn').hidden = !showToggle;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
-  const resetBtn = $('filterReset');
-  if (resetBtn) {
-    resetBtn.hidden = filterLayout !== 'disc';
-    resetBtn.disabled = stopId === 'all';
-  }
   nearby.textContent = displayCopy(btnCopy('nearby'));
   nearbyRow.hidden = filterOn || !showToggle;
   $('nearbyIco').innerHTML = gemSvg(PUBLIC_GEM_FILL);
@@ -607,8 +602,6 @@ function commitDiscNearest(animate) {
       $('slide').hidden = true;
     }
     drawPins(true);
-    const resetBtn = $('filterReset');
-    if (resetBtn) resetBtn.disabled = stopId === 'all';
   }
   snapDiscTo(next.id, animate);
 }
@@ -700,8 +693,6 @@ function bindDiscWheel() {
     const next = list[idx];
     if (next && next.id !== stopId) {
       stopId = next.id;
-      const resetBtn = $('filterReset');
-      if (resetBtn) resetBtn.disabled = stopId === 'all';
       if (openId != null && !shown(GEMS[openId])) {
         openId = null;
         $('slide').hidden = true;
@@ -1049,10 +1040,6 @@ $('filterBtn').addEventListener('click', () => {
   }
   drawPins(true);
   if (filterOn) requestAnimationFrame(() => centerStop(stopId, true));
-});
-$('filterReset').addEventListener('click', () => {
-  if (filterLayout !== 'disc') return;
-  resetFilter();
 });
 for (const b of document.querySelectorAll('#layoutSwitch [data-filter-layout]')) {
   b.addEventListener('click', () => setFilterLayout(b.dataset.filterLayout));
