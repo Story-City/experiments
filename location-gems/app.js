@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v71 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v72 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -1854,16 +1854,15 @@ function syncPublishSheetCopy() {
 function syncPublishKeyboard() {
   if (!publishSheet || publishSheet.hidden) return;
   const vv = window.visualViewport;
-  if (!vv) {
+  if (!vv || !phone) {
     publishSheet.style.setProperty('--kb', '0px');
-    publishSheet.style.setProperty('--vv-top', '0px');
-    publishSheet.style.setProperty('--vv-h', '100%');
     return;
   }
-  const occluded = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+  /* Sheet lives inside .phone — measure how much of the phone bottom the keyboard covers */
+  const phoneBottom = phone.getBoundingClientRect().bottom;
+  const visibleBottom = vv.offsetTop + vv.height;
+  const occluded = Math.max(0, Math.round(phoneBottom - visibleBottom));
   publishSheet.style.setProperty('--kb', `${occluded}px`);
-  publishSheet.style.setProperty('--vv-top', `${Math.max(0, vv.offsetTop)}px`);
-  publishSheet.style.setProperty('--vv-h', `${Math.max(0, vv.height)}px`);
 }
 
 function bindPublishKeyboard() {
@@ -1942,9 +1941,13 @@ function openPublishSheet(card) {
   pendingPublish = { card, find };
   publishDraft = { title: '', note: '', category: null };
   phone.classList.add('is-publishing');
+  card.classList.remove('is-dragging');
   card.classList.add('is-publishing');
   card.style.transition = `opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
+  card.style.transform = 'rotate(-4deg)';
   card.style.opacity = '0';
+  setTargets(null, false);
+  setSortingFocus(false);
   syncPublishSheetCopy();
   if (publishPhoto) {
     publishPhoto.src = find.photo;
@@ -1956,6 +1959,7 @@ function openPublishSheet(card) {
   publishSheet.hidden = false;
   publishSheet.setAttribute('aria-hidden', 'false');
   setPublishStep('cats');
+  syncPublishKeyboard();
 }
 
 function closePublishSheet({ restoreCard = true } = {}) {
@@ -1965,8 +1969,6 @@ function closePublishSheet({ restoreCard = true } = {}) {
     publishSheet.setAttribute('aria-hidden', 'true');
     publishSheet.classList.remove('is-words', 'is-cats');
     publishSheet.style.setProperty('--kb', '0px');
-    publishSheet.style.setProperty('--vv-top', '0px');
-    publishSheet.style.setProperty('--vv-h', '100%');
   }
   phone.classList.remove('is-publishing');
   const card = pendingPublish?.card;
@@ -2066,8 +2068,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v71 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v71 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v72 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v72 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();

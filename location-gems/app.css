@@ -2438,23 +2438,20 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 
 .publish-sheet {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: var(--vv-top, 0px);
-  height: var(--vv-h, 100%);
+  inset: 0;
   z-index: 36;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 10px 14px 14px;
+  padding: 10px 14px calc(14px + var(--kb, 0px));
   pointer-events: none;
   background: rgba(8, 3, 22, 0.42);
   box-sizing: border-box;
 }
 .publish-sheet.is-words {
   align-items: flex-start;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: 10px;
+  padding-bottom: calc(10px + var(--kb, 0px));
 }
 .publish-sheet[hidden] { display: none !important; }
 .publish-sheet-scrim {
