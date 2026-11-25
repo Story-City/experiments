@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v12 — small image+corner, bookmark/hide, compact inline. */
+/* GEM-PINS-V2-v13 — Image+Bar couple: 52% corner, flush small photo, bookmark+hide in row; Prompt least words. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -595,22 +595,9 @@ function paintActs(g) {
     b.addEventListener('click', (e) => { e.stopPropagation(); fn(); });
     return b;
   };
-  /* Image float: bookmark + hide only — no visit, no second like */
-  if (sheet === 'image') {
-    const on = saved.has(g.id);
-    box.append(
-      mk('bookmark', ICON.bookmark, displayCopy(btnCopy(on ? 'saved' : 'save')), on, () => {
-        if (saved.has(g.id)) saved.delete(g.id);
-        else saved.add(g.id);
-        paintSlide();
-        if (filterOn && stopId === 'wishlist') drawPins(true);
-      }),
-      mk('hide', ICON.hide, COPY.hideLong || 'Hide', null, () => hideGem(g)),
-    );
-    return;
-  }
-  /* Melissa original keeps heart / hide / visited */
+  /* Image/Bar/Prompt: bookmark+hide live in the action row — never over the corner */
   if (sheet !== 'original') return;
+  /* Melissa original keeps heart / hide / visited */
   if (g.mine) {
     box.append(mk('hide', ICON.hide, COPY.hideLong || 'Hide', null, () => hideGem(g)));
     return;
@@ -670,6 +657,7 @@ function paintSlide() {
   const isPrompt = sheet === 'prompt';
   const isImage = sheet === 'image';
   const isBar = sheet === 'bar';
+  /* Image + Bar hold together: same small photo + corner; Image texts on photo, Bar texts under */
   const hasMedia = isImage || isBar || (isOriginal && sheetFull);
   slide.classList.toggle('is-original', isOriginal);
   slide.classList.toggle('is-prompt', isPrompt);
@@ -681,20 +669,20 @@ function paintSlide() {
   media.hidden = !hasMedia;
   $('slidePhoto').style.backgroundImage = hasMedia ? `url("${g.photo}")` : '';
   const corner = $('slideCorner');
-  /* Corner always on photo sheets */
   corner.hidden = !(isImage || isBar);
   corner.innerHTML = (isImage || isBar) ? cornerHtml(g) : '';
-  $('slideOverlay').hidden = !(isImage || isBar);
+  /* Overlay only on Image — Bar keeps text in the glass bar under the photo */
+  $('slideOverlay').hidden = !isImage;
 
   $('slideHead').hidden = !isOriginal;
   $('slideTags').hidden = !isOriginal;
-  $('slideGlass').hidden = isOriginal || isImage || isBar;
+  $('slideGlass').hidden = !(isPrompt || isBar);
   $('slideMore').hidden = !(isOriginal && !sheetFull);
   $('slideStatus').hidden = !(isOriginal && sheetFull);
-  /* Image: acts float on media; Bar/Prompt: bookmark+hide in action row */
-  $('slideActions').hidden = isOriginal ? !sheetFull : isImage;
-  $('slideActs').hidden = !(isImage || isOriginal);
-  $('slideActs').classList.toggle('is-on-media', isImage);
+  /* Bookmark + hide stay in the action row (beside navigate) — never over the corner */
+  $('slideActions').hidden = isOriginal ? !sheetFull : false;
+  $('slideActs').hidden = !isOriginal;
+  $('slideActs').classList.toggle('is-on-media', false);
   $('slideActs').classList.toggle('is-on-prompt', false);
   $('slideActs').classList.toggle('is-on-head', isOriginal);
 
@@ -710,6 +698,9 @@ function paintSlide() {
 
   const user = g.mine ? '' : `@${String(g.owner || '').toLowerCase()}`;
   const line = g.mine ? COPY.yours : COPY.by(g.owner);
+  /* Prompt = least language: name + like only */
+  $('slideUser').hidden = isPrompt || !user;
+  $('slideLine').hidden = isPrompt || isBar;
   $('slideUser').textContent = user;
   $('slideName').textContent = g.name;
   $('slideLine').textContent = line;
