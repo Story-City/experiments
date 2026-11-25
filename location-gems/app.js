@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v72 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v73 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -225,11 +225,12 @@ const COPY = {
   feedDistance: (minutes) => `${minutes} min away`,
   feedFresh: '[new]',
   feedPromptKicker: '[spot this]',
-  publishTip: '[encourage public share — don’t dox]',
+  publishTip: '[warn address will be shared on publish]',
   publishTitleLabel: '[title]',
   publishTitlePh: '[name the thing you found]',
   publishWriteLabel: '[add a few words]',
   publishNotePh: '[optional note]',
+  publishAddressLabel: '[address]',
   publishNext: '[confirm]',
   publishCatPrompt: '[what best describes your jam]',
 };
@@ -284,11 +285,12 @@ const SPOOF_COPY = {
   feedDistance: (minutes) => `${minutes} min away`,
   feedFresh: 'New',
   feedPromptKicker: 'Spot this',
-  publishTip: '[encourage public share — don’t dox]',
+  publishTip: '[warn address will be shared on publish]',
   publishTitleLabel: '[title]',
   publishTitlePh: '[name the thing you found]',
   publishWriteLabel: '[add a few words]',
   publishNotePh: '[optional note]',
+  publishAddressLabel: '[address]',
   publishNext: 'Confirm',
   publishCatPrompt: '[what best describes your jam]',
   emptyPublicTitle: 'Nothing public yet',
@@ -392,6 +394,8 @@ const publishSheet = document.getElementById('publishSheet');
 const publishSheetScrim = document.getElementById('publishSheetScrim');
 const publishTipWrap = document.getElementById('publishTipWrap');
 const publishTipCopy = document.getElementById('publishTipCopy');
+const publishAddress = document.getElementById('publishAddress');
+const publishAddressLabel = document.getElementById('publishAddressLabel');
 const publishTitleLabel = document.getElementById('publishTitleLabel');
 const publishTitle = document.getElementById('publishTitle');
 const publishWriteLabel = document.getElementById('publishWriteLabel');
@@ -1847,8 +1851,14 @@ function syncPublishSheetCopy() {
   if (publishTitle) publishTitle.placeholder = t('publishTitlePh');
   if (publishWriteLabel) publishWriteLabel.textContent = t('publishWriteLabel');
   if (publishNote) publishNote.placeholder = t('publishNotePh');
+  if (publishAddressLabel) publishAddressLabel.textContent = t('publishAddressLabel');
   if (publishNext) publishNext.textContent = t('publishNext');
   if (publishCatPrompt) publishCatPrompt.textContent = t('publishCatPrompt');
+}
+
+function syncPublishAddress(find) {
+  if (!publishAddress) return;
+  publishAddress.value = find?.place || '';
 }
 
 function syncPublishKeyboard() {
@@ -1907,9 +1917,9 @@ function setPublishStep(step) {
   }
   if (!words) {
     renderPublishCats();
-    showPublishTip();
-  } else {
     hidePublishTip();
+  } else {
+    showPublishTip();
   }
   syncPublishKeyboard();
 }
@@ -1921,6 +1931,7 @@ function renderPublishCats() {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'publish-cat-btn';
+    btn.dataset.catId = cat.id;
     btn.style.setProperty('--cat-fill', cat.colour);
     btn.setAttribute('role', 'option');
     btn.setAttribute('aria-label', cat.label);
@@ -1953,6 +1964,7 @@ function openPublishSheet(card) {
     publishPhoto.src = find.photo;
     publishPhoto.alt = '';
   }
+  syncPublishAddress(find);
   if (publishTitle) publishTitle.value = '';
   if (publishNote) publishNote.value = '';
   bindPublishKeyboard();
@@ -2068,8 +2080,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v72 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v72 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v73 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v73 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();

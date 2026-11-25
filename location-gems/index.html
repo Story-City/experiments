@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=72">
+<link rel="stylesheet" href="app.css?v=73">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -334,11 +334,11 @@
 
     <div class="publish-sheet" id="publishSheet" hidden aria-hidden="true">
       <button type="button" class="publish-sheet-scrim" id="publishSheetScrim" aria-label="Back to sorting"></button>
+      <div class="tip-wrap publish-tip-overlay" id="publishTipWrap" hidden>
+        <img class="tip-layer" src="assets/tip.png" alt="" decoding="async">
+        <p class="tip-copy" id="publishTipCopy">[warn address will be shared on publish]</p>
+      </div>
       <div class="publish-sheet-stack">
-        <div class="tip-wrap" id="publishTipWrap" hidden>
-          <img class="tip-layer" src="assets/tip.png" alt="" decoding="async">
-          <p class="tip-copy" id="publishTipCopy">[encourage public share — don’t dox]</p>
-        </div>
         <div class="publish-sheet-card" role="dialog" aria-labelledby="publishCatPrompt" aria-modal="true">
           <div class="publish-photo" id="publishPhotoWrap">
             <img class="publish-photo-img" id="publishPhoto" src="" alt="" decoding="async">
@@ -352,6 +352,8 @@
             <input class="note-input" id="publishTitle" type="text" maxlength="40" placeholder="[name the thing you found]" autocomplete="off" aria-label="Title">
             <p class="side-label" id="publishWriteLabel">[add a few words]</p>
             <input class="note-input" id="publishNote" type="text" maxlength="80" placeholder="[optional note]" autocomplete="off" aria-label="A few words">
+            <p class="side-label" id="publishAddressLabel">[address]</p>
+            <input class="note-input publish-address" id="publishAddress" type="text" readonly tabindex="-1" aria-readonly="true" aria-label="Address">
             <div class="side-actions">
               <button type="button" class="confirm-pill" id="publishNext">[confirm]</button>
             </div>
@@ -364,7 +366,7 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v72 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v73 · V1. Figma gems, no rarity.
   </p>
     </div>
 
@@ -379,7 +381,7 @@
       </section>
     </aside>
   </div>
-  <script src="corner-ribbon.js?v=72"></script>
-  <script src="app.js?v=72"></script>
+  <script src="corner-ribbon.js?v=73"></script>
+  <script src="app.js?v=73"></script>
 </body>
 </html>
