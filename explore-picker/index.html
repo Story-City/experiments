@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Explore Picker</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<script>window.CACHE_V='?v='+Date.now();document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);</script>
+</head>
+<body>
+<header class="bar" id="bar">
+  <div class="bar-title" id="barTitle"></div>
+  <div class="bar-row">
+    <nav class="switcher" id="switcher" aria-label="Versions"></nav>
+    <button class="sw sw-info" id="noteToggle" aria-expanded="false" aria-controls="note">?</button>
+  </div>
+  <p class="note" id="note"></p>
+</header>
+<main class="stage">
+  <div class="phone" id="phone">
+    <div class="status" aria-hidden="true"><span>9:41</span><span class="status-r">●●● ▮</span></div>
+    <div class="scr" id="scr"></div>
+  </div>
+</main>
+<script type="module">import(`./app.js${window.CACHE_V}`);</script>
+</body>
+</html>
