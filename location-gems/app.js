@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v82 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v83 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -38,9 +38,12 @@ const JAM_CATS = [
   { id: 'curio', label: 'Curiosities', colour: '#B36BFF', art: 'assets/gems/curiosities.svg' },
 ];
 const JAM_CAT_ALIASES = { shop: 'eat', entertainment: 'play' };
-const SORT_CARD_LOOKS = new Set(['polaroid', 'tape', 'overlay', 'flush', 'stack']);
+const SORT_CARD_LOOKS = new Set(['polaroid', 'tape', 'tinted', 'overlay', 'flush', 'stack']);
 const SORT_FRAME_DEFAULT = '#ffffff';
 const SORT_CARD_TEXT_DEFAULT = '#1a1230';
+/* Figma 2853:555 Variant3 — dark indigo frame + light chin text */
+const SORT_TINTED_FRAME = '#13123b';
+const SORT_TINTED_TEXT = '#f2eef8';
 const SILVER_GEM_FILL = '#c8d2e6';
 const GOLD_GEM_FILL = '#ffc448';
 const PLATINUM_GEM_FILL = '#d2dcff';
@@ -1295,15 +1298,18 @@ function buildSortCard(find, under, enter) {
   const look = SORT_CARD_LOOKS.has(sortCardLook) ? sortCardLook : 'polaroid';
   const words = String(find.text || '').trim();
   const hasWords = !!words;
-  const isPolaroidFrame = look === 'polaroid' || look === 'tape';
+  const isPolaroidFrame = look === 'polaroid' || look === 'tape' || look === 'tinted';
   const card = document.createElement('article');
   card.className = `sort-card is-${look}${isPolaroidFrame ? ' is-polaroid' : ''}${hasWords ? ' has-words' : ' no-words'}${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
   card.dataset.id = find.id;
   card.style.setProperty('--gem-line', PUBLIC_GEM_FILL);
-  /* Figma 2850:550 — transparent white tape, stuck-on-wall (feature/location-gems) */
-  const tape = look === 'tape'
-    ? `<img class="sort-card-tape" src="assets/polaroid_tape.svg" alt="" draggable="false" aria-hidden="true">`
-    : '';
+  /* Figma 2850:550 — asset tape; 2853:555 — rotated translucent strip */
+  let tape = '';
+  if (look === 'tape') {
+    tape = `<img class="sort-card-tape" src="assets/polaroid_tape.svg" alt="" draggable="false" aria-hidden="true">`;
+  } else if (look === 'tinted') {
+    tape = `<span class="sort-card-tape-strip" aria-hidden="true"></span>`;
+  }
   const textBlock = hasWords
     ? `<p class="sort-card-text">${displayCopy(words)}</p>`
     : '';
@@ -1332,6 +1338,24 @@ function buildSortCard(find, under, enter) {
   return card;
 }
 
+function applySortLookFrameDefaults(look) {
+  if (!sortFrameColor || !sortCardTextColor) return;
+  if (look === 'tinted') {
+    sortFrameColor.value = SORT_TINTED_FRAME;
+    sortCardTextColor.value = SORT_TINTED_TEXT;
+  } else if (look === 'polaroid' || look === 'tape') {
+    sortFrameColor.value = SORT_FRAME_DEFAULT;
+    sortCardTextColor.value = SORT_CARD_TEXT_DEFAULT;
+  } else {
+    return;
+  }
+  if (!midToneEnabled()) {
+    document.documentElement.style.setProperty('--sort-frame', sortFrameColor.value);
+  }
+  applySortCardText();
+  applyMidTone();
+}
+
 function setSortCardLook(look) {
   const next = SORT_CARD_LOOKS.has(look) ? look : 'polaroid';
   sortCardLook = next;
@@ -1340,6 +1364,7 @@ function setSortCardLook(look) {
     btn.classList.toggle('is-on', on);
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
+  applySortLookFrameDefaults(next);
   renderSortStack();
 }
 
@@ -2127,8 +2152,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v82 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v82 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v83 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v83 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
