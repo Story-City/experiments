@@ -2077,6 +2077,18 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   color: rgba(255, 255, 255, 0.7);
   font-size: 12px;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* Figma 2854:561 — location pin (replaces emoji) */
+.sort-card-place-icon {
+  flex: none;
+  width: 11px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url('assets/location-pin.svg') center / contain no-repeat;
+  mask: url('assets/location-pin.svg') center / contain no-repeat;
 }
 .sort-empty {
   position: absolute;

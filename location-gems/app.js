@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v83 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v84 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -1318,7 +1318,7 @@ function buildSortCard(find, under, enter) {
     <div class="sort-card-body">
       <p class="sort-card-user">${find.user}</p>
       ${textBlock}
-      <p class="sort-card-place">📍 ${displayCopy(find.place)}</p>
+      <p class="sort-card-place"><span class="sort-card-place-icon" aria-hidden="true"></span>${displayCopy(find.place)}</p>
     </div>`;
   if (look === 'overlay') {
     card.innerHTML = `
@@ -2152,8 +2152,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v83 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v83 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v84 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v84 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
