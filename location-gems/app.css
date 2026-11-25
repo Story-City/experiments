@@ -1078,11 +1078,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   stroke-linejoin: round;
 }
 .icon-act.bookmark-btn[aria-pressed="true"] {
-  background: rgba(0, 194, 255, 0.28);
-  border-color: rgba(0, 194, 255, 0.8);
+  background: color-mix(in srgb, var(--brand-accent) 42%, transparent);
+  border-color: var(--brand-accent);
   color: #fff;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--brand-accent) 45%, transparent);
 }
-.icon-act.bookmark-btn[aria-pressed="true"] svg {
+.icon-act.bookmark-btn[aria-pressed="true"] svg,
+.icon-act.bookmark-btn[aria-pressed="true"] path {
   fill: currentColor;
   stroke: currentColor;
 }
