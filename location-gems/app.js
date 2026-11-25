@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v77 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v78 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -502,6 +502,16 @@ function jamCatById(id) {
   return JAM_CATS.find((c) => c.id === resolved) || JAM_CATS[0];
 }
 
+function nextJamCatId() {
+  return JAM_CATS[Math.max(0, gemSeq - 1) % JAM_CATS.length].id;
+}
+
+function ensureGemCategory(gem) {
+  if (!gem) return JAM_CATS[0];
+  gem.category = jamCatById(gem.category || nextJamCatId()).id;
+  return jamCatById(gem.category);
+}
+
 function categoryGemMark(cat) {
   if (!cat?.art) return '';
   return `<img class="cat-gem-art" src="${cat.art}" alt="" decoding="async">`;
@@ -597,6 +607,7 @@ const FEED_MINUTES_BY_FIND = {
 const SPOOF_FEED_MINUTES = 1;
 
 function createSpoofCollectedGem() {
+  gemSeq += 1;
   return {
     id: SPOOF_COLLECTED_GEM_ID,
     storyId: 'location-gems-prototype',
@@ -608,6 +619,7 @@ function createSpoofCollectedGem() {
     isPublic: true,
     owned: false,
     likes: LIKES_DEMO,
+    category: nextJamCatId(),
     minutesAway: SPOOF_FEED_MINUTES,
     createdAt: new Date(Date.now() - 172_800_000).toISOString(),
     entries: [COPY.spoofCollectedReflection, '[another note left at this gem]'],
@@ -616,9 +628,7 @@ function createSpoofCollectedGem() {
 
 function findToGem(find, opts) {
   gemSeq += 1;
-  const cat =
-    opts.category ||
-    (opts.isPublic ? JAM_CATS[(gemSeq - 1) % JAM_CATS.length].id : null);
+  const cat = jamCatById(opts.category || nextJamCatId()).id;
   return {
     id: opts.id || `gem-${find.id}-${gemSeq}`,
     storyId: 'daily-side-quests',
@@ -890,12 +900,11 @@ function cornerRibbonHtml(fill, uid) {
 
 function buildGemCard(gem, opts = {}) {
   const rarity = rarityForLikes(gem.likes, gem.isPublic);
-  const cornerFill = gemVisualFill(gem);
-  const cat = gem.category ? jamCatById(gem.category) : null;
+  const cat = ensureGemCategory(gem);
   const wrap = document.createElement('div');
   wrap.className = 'gem-card';
   if (opts.enter) wrap.classList.add('is-enter');
-  wrap.style.setProperty('--gem-line', cat ? cat.colour : cornerFill);
+  wrap.style.setProperty('--gem-line', cat.colour);
   const img = document.createElement('img');
   img.className = 'gem-card-photo';
   img.src = gem.imageUri;
@@ -911,27 +920,25 @@ function buildGemCard(gem, opts = {}) {
     rarityEl.textContent = rarity.label;
     wrap.appendChild(rarityEl);
   }
-  /* Category gems only — blue classic gem is a general icon, never on cards */
-  if (cat) {
-    const corner = document.createElement('div');
-    corner.className = 'gem-card-corner';
-    const art = document.createElement('div');
-    art.className = 'gem-card-corner-art';
-    art.setAttribute('aria-hidden', 'true');
-    art.innerHTML = cornerRibbonHtml(cat.colour, gem.id || cat.id);
-    corner.appendChild(art);
-    const stack = document.createElement('div');
-    stack.className = 'gem-card-corner-stack';
-    const gemEl = document.createElement('span');
-    gemEl.className = 'gem-card-gem';
-    if (showRarity() && gem.isPublic && rarity.id !== 'cyan') {
-      gemEl.classList.add(`is-${rarity.id}`);
-    }
-    gemEl.innerHTML = categoryGemMark(cat);
-    stack.appendChild(gemEl);
-    corner.appendChild(stack);
-    wrap.appendChild(corner);
+  /* Every gem has a category — Figma gem on the corner, never the blue general icon */
+  const corner = document.createElement('div');
+  corner.className = 'gem-card-corner';
+  const art = document.createElement('div');
+  art.className = 'gem-card-corner-art';
+  art.setAttribute('aria-hidden', 'true');
+  art.innerHTML = cornerRibbonHtml(cat.colour, gem.id || cat.id);
+  corner.appendChild(art);
+  const stack = document.createElement('div');
+  stack.className = 'gem-card-corner-stack';
+  const gemEl = document.createElement('span');
+  gemEl.className = 'gem-card-gem';
+  if (showRarity() && gem.isPublic && rarity.id !== 'cyan') {
+    gemEl.classList.add(`is-${rarity.id}`);
   }
+  gemEl.innerHTML = categoryGemMark(cat);
+  stack.appendChild(gemEl);
+  corner.appendChild(stack);
+  wrap.appendChild(corner);
   const footer = document.createElement('div');
   footer.className = 'gem-card-footer';
   const caption = document.createElement('p');
@@ -985,12 +992,10 @@ function bindFeedChipActions(chip, g) {
 }
 
 function feedCornerHtml(gem, rarity, uid) {
-  const cat = gem.category ? jamCatById(gem.category) : null;
-  if (!cat) return '';
-  const fill = cat.colour;
+  const cat = ensureGemCategory(gem);
   return `
     <div class="feed-chip-corner" aria-hidden="true">
-      <div class="feed-chip-corner-art">${cornerRibbonHtml(fill, uid)}</div>
+      <div class="feed-chip-corner-art">${cornerRibbonHtml(cat.colour, uid)}</div>
       <div class="feed-chip-corner-stack">
         <span class="feed-chip-corner-gem">${categoryGemMark(cat)}</span>
       </div>
@@ -1532,6 +1537,7 @@ function addSampleCreatedGem() {
     isPublic: false,
     owned: true,
     likes: 0,
+    category: nextJamCatId(),
     createdAt: new Date().toISOString(),
     entries: ['[snapshot gem from hub camera]'],
   };
@@ -2051,10 +2057,10 @@ async function settleSort(card, action, opts = {}) {
   const gem = findToGem(find, {
     isPublic: action === 'public',
     owned: true,
+    category: opts.category,
   });
   if (action === 'public') {
     gem.likes = LIKES_DEMO;
-    if (opts.category) gem.category = opts.category;
     if (opts.title) {
       gem.title = opts.title;
       gem.tagline = opts.caption || opts.title;
@@ -2062,6 +2068,7 @@ async function settleSort(card, action, opts = {}) {
       gem.entries = [opts.caption || opts.title];
     }
   }
+  ensureGemCategory(gem);
   gems.unshift(gem);
   await flyGemIntoSection(find.photo, action === 'public');
   setSection(action === 'public' ? 'public' : 'hidden');
@@ -2083,8 +2090,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v77 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v77 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v78 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v78 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
