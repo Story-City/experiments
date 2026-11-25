@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=8">
+<link rel="stylesheet" href="app.css?v=9">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -33,7 +33,10 @@
     <header class="map-top">
       <div class="gbox" id="filterGbox">
         <div class="map-bar" id="mapBar">
-          <p class="nearby-title" id="nearbyTitle">Gems nearby</p>
+          <div class="nearby-row" id="nearbyRow">
+            <span class="nearby-ico" id="nearbyIco" aria-hidden="true"></span>
+            <p class="nearby-title" id="nearbyTitle">Gems nearby</p>
+          </div>
           <div class="roller-wrap" id="rollerWrap">
             <div class="roller" id="roller" role="listbox" aria-label="Filter gems"></div>
           </div>
@@ -60,12 +63,9 @@
         <span>Feed</span>
       </button>
       <button type="button" class="tab is-active" data-tab="gems" aria-pressed="true">
-        <svg class="tab-ico tab-gem" viewBox="0 0 24 22" aria-hidden="true">
-          <path d="M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z" fill="currentColor"/>
-          <path d="M7 1.5H17L15 7.5H9Z" fill="#fff" fill-opacity="0.3"/>
-          <path d="M15 7.5H22.5L12 20.5Z" fill="#000" fill-opacity="0.22"/>
-          <path d="M1.5 7.5H22.5M7 1.5L9 7.5L12 20.5L15 7.5L17 1.5" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1" stroke-linejoin="round"/>
-          <path d="M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+        <svg class="tab-ico tab-gem" viewBox="0 0 24 22" fill="none" aria-hidden="true">
+          <path d="M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M1.5 7.5H22.5M7 1.5L9 7.5L12 20.5L15 7.5L17 1.5" stroke="currentColor" stroke-width="1" stroke-linejoin="round" opacity="0.55"/>
         </svg>
         <span>Gems</span>
       </button>
@@ -133,8 +133,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v8 — spoof toggle, all-gems, location-gems heart/corner/hide.</p>
-  <script src="../location-gems/corner-ribbon.js?v=8"></script>
-  <script type="module" src="app.js?v=8"></script>
+  <p class="meta">GEM-PINS-V2-v9 — no filter chrome, full roller, same-size pins, oval gems.</p>
+  <script src="../location-gems/corner-ribbon.js?v=9"></script>
+  <script type="module" src="app.js?v=9"></script>
 </body>
 </html>

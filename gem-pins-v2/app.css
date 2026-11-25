@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v8 — spoof, all-gems, location-gems corner/heart, image media */
+/* GEM-PINS-V2-v9 — no filter chrome, full roller, same-size pins, oval gems */
 :root {
   --bg: #170c35;
   --surface: #241b46;
@@ -127,7 +127,10 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 }
 .legend.is-swap { animation: pinFadeIn 480ms var(--ease-out) both; }
 .pin .pin-gem,
+.pin .pin-gem,
 .pin .pin-gem-wrap,
+.pin .cat-gem-art,
+.pin img,
 .pin svg {
   display: block;
   width: 100%;
@@ -138,12 +141,17 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 }
 .legend-ico .pin-gem,
 .legend-ico .pin-gem-wrap,
+.legend-ico .cat-gem-art,
+.legend-ico img,
 .legend-ico svg,
 .roller .pin-gem,
 .roller .pin-gem-wrap,
+.roller .cat-gem-art,
+.roller button img,
 .roller button svg {
   width: 28px;
   height: 28px;
+  object-fit: contain;
   overflow: visible;
 }
 .pin.selected { z-index: 3; }
@@ -164,32 +172,48 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   left: 0;
   right: 0;
   z-index: 5;
-  padding: 12px 10px 8px;
+  padding: 12px 8px 8px;
   pointer-events: none;
 }
 .gbox {
   pointer-events: auto;
   display: grid;
-  gap: 8px;
-  padding: 10px;
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--raised) 72%, transparent);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
-  transition: opacity 480ms var(--ease-out), transform 480ms var(--ease-out);
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .map-bar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 40px;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   min-height: 40px;
-  transition: grid-template-columns 480ms var(--ease-out);
+  width: 100%;
 }
-.gbox.is-filter-on .map-bar {
-  grid-template-columns: minmax(0, 1fr) 40px;
+.nearby-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.nearby-ico {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.45));
+}
+.nearby-ico svg,
+.nearby-ico .pin-gem {
+  width: 28px;
+  height: 26px;
+  display: block;
 }
 .nearby-title {
   margin: 0;
@@ -199,14 +223,15 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
 }
 .roller-wrap {
   min-width: 0;
+  width: 100%;
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
   height: 0;
-  transition: opacity 480ms var(--ease-out);
 }
 .gbox.is-filter-on .roller-wrap {
   opacity: 1;
@@ -214,20 +239,21 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   height: 40px;
 }
 .gbox:not(.is-filter-on) .roller-wrap { display: none; }
-.gbox.is-filter-on .nearby-title { display: none; }
+.gbox.is-filter-on .nearby-row { display: none; }
 
 .legend {
   min-width: 0;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-top: 2px;
+  padding: 0 2px;
+  filter: drop-shadow(0 1px 8px rgba(0, 0, 0, 0.55));
 }
 .legend[hidden] { display: none !important; }
 .legend-ico, .roller button {
   flex: none;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: grid;
   place-items: center;
 }
@@ -243,7 +269,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 }
 .legend-note {
   margin: 2px 0 0;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.15;
@@ -286,36 +312,46 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .roller {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
+  width: 100%;
   height: 40px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   scroll-behavior: smooth;
   scrollbar-width: none;
-  padding-inline: calc(50% - 18px);
+  padding-inline: 0;
   touch-action: pan-x;
   cursor: grab;
-  mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
 }
 .roller:active { cursor: grabbing; }
 .roller::-webkit-scrollbar { display: none; }
 .roller button {
   scroll-snap-align: center;
   flex: none;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   border: 0;
-  border-radius: 50%;
+  border-radius: 10px;
   background: transparent;
-  opacity: 0.45;
-  touch-action: pan-x;
-  transition: opacity 480ms var(--ease-out), box-shadow 480ms var(--ease-out);
+  opacity: 0.5;
+  touch-action: manipulation;
+  transition: opacity 480ms var(--ease-out), filter 480ms var(--ease-out);
 }
 .roller button[aria-selected="true"] {
   opacity: 1;
-  box-shadow: 0 0 14px rgba(0, 194, 255, 0.45);
+  filter: drop-shadow(0 0 10px rgba(0, 194, 255, 0.55));
+}
+.roller button img,
+.roller button .pin-gem,
+.roller button .cat-gem-art,
+.legend-ico img,
+.legend-ico .pin-gem,
+.legend-ico .cat-gem-art {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
 }
 
 /* Floating tab bar — from mobile-rn FloatingTabBar; icons from assets/app-icons */
@@ -361,9 +397,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .tab-gem {
   width: 23px;
   height: 21px;
-  color: #fff;
 }
-.tab:not(.is-active) .tab-gem { color: rgba(255, 255, 255, 0.85); }
 
 .toast {
   position: absolute;
@@ -471,11 +505,14 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   line-height: 1.2;
 }
 .slide-info-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
-/* location-gems gem-card-corner — 58% ribbon + stack */
+/* Corner blotch sized like a gem card corner — not 58% of a tall photo */
 .slide-corner {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
   z-index: 1;
+  width: 132px;
+  height: 132px;
   pointer-events: none;
 }
 .slide-corner .gem-card-corner,
@@ -485,27 +522,23 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   pointer-events: none;
 }
 .slide-corner .gem-card-corner-art {
-  top: 0;
-  right: 0;
-  left: auto;
-  bottom: auto;
-  width: 58%;
-  height: 58%;
+  width: 100%;
+  height: 100%;
   overflow: visible;
 }
 .slide-corner .gem-card-corner-art svg { width: 100%; height: 100%; display: block; }
 .slide-corner .gem-card-corner-stack {
   position: absolute;
-  top: 3%;
-  right: 2%;
+  top: 4%;
+  right: 4%;
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
 .slide-corner .gem-card-gem {
   flex: none;
-  width: 46px;
-  height: 46px;
+  width: 40px;
+  height: 40px;
   display: block;
   filter: drop-shadow(0 0 12px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
 }

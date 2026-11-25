@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v8 — spoof toggle, all-gems, location-gems heart/corner/hide. */
+/* GEM-PINS-V2-v9 — no filter chrome, full roller, same-size pins, oval gems. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -6,7 +6,8 @@ import { ART } from '../gem-pins/gem-art.js';
 
 const $ = (id) => document.getElementById(id);
 const DENSITY = 40;
-const SIZES = [22, 28, 34];
+/** V1 rarityBy none — every pin the same size; keep uploaded category gems */
+const PIN_SIZE = 28;
 const SHEETS = ['original', 'prompt', 'image', 'corner'];
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -201,13 +202,11 @@ function rarityOf(g) {
   if (levels.includes(g.rarity)) return g.rarity;
   return g.rarity === 'mythical' ? 'mythical' : 'rare';
 }
-function sizeOf(g) {
-  const i = levels.indexOf(rarityOf(g));
-  return Math.round(SIZES[0] + ((SIZES[2] - SIZES[0]) * i) / (levels.length - 1));
+function sizeOf() {
+  return PIN_SIZE;
 }
-function glowOf(g) {
-  const lv = rarityOf(g);
-  return lv === 'common' ? null : lv;
+function glowOf() {
+  return null;
 }
 function colourOf(g) {
   if (g.seasonal) return '#9fe3ff';
@@ -353,11 +352,13 @@ function paintBar() {
   const bar = $('mapBar');
   const legend = $('legend');
   const nearby = $('nearbyTitle');
+  const nearbyRow = $('nearbyRow');
   bar.classList.toggle('is-off', !filterOn);
   $('filterGbox').classList.toggle('is-filter-on', filterOn);
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
   nearby.textContent = displayCopy(btnCopy('nearby'));
-  nearby.hidden = filterOn;
+  nearbyRow.hidden = filterOn;
+  $('nearbyIco').innerHTML = gemSvg(PUBLIC_GEM_FILL);
   legend.hidden = !filterOn;
   const list = stops();
   const stop = list.find((x) => x.id === stopId) || list[0];
@@ -401,6 +402,19 @@ function pickStop(id) {
   drawPins(true);
 }
 
+function nearestStopButton() {
+  const roller = $('roller');
+  const mid = roller.getBoundingClientRect().left + roller.clientWidth / 2;
+  let best = null;
+  let dist = Infinity;
+  for (const b of roller.querySelectorAll('button')) {
+    const rct = b.getBoundingClientRect();
+    const d = Math.abs(rct.left + rct.width / 2 - mid);
+    if (d < dist) { dist = d; best = b; }
+  }
+  return best;
+}
+
 function fillRoller() {
   const roller = $('roller');
   roller.replaceChildren();
@@ -411,10 +425,6 @@ function fillRoller() {
     b.setAttribute('role', 'option');
     b.setAttribute('aria-label', stop.label);
     b.innerHTML = pinFor(sampleFor(stop.id));
-    b.addEventListener('click', () => {
-      pickStop(stop.id);
-      centerStop(stop.id, true);
-    });
     roller.append(b);
   }
 }
@@ -422,47 +432,44 @@ function fillRoller() {
 function bindRoller() {
   const roller = $('roller');
   let tick = 0;
+  let drag = null;
   roller.addEventListener('scroll', () => {
     if (lockScroll || !filterOn) return;
     cancelAnimationFrame(tick);
     tick = requestAnimationFrame(() => {
-      const mid = roller.getBoundingClientRect().left + roller.clientWidth / 2;
-      let best = null;
-      let dist = Infinity;
-      for (const b of roller.querySelectorAll('button')) {
-        const rct = b.getBoundingClientRect();
-        const d = Math.abs(rct.left + rct.width / 2 - mid);
-        if (d < dist) { dist = d; best = b; }
-      }
+      const best = nearestStopButton();
       if (best && best.dataset.stop !== stopId) pickStop(best.dataset.stop);
     });
   });
-  let drag = null;
   roller.addEventListener('pointerdown', (e) => {
     if (!filterOn) return;
-    drag = { id: e.pointerId, x: e.clientX, left: roller.scrollLeft, moved: false };
-    roller.setPointerCapture(e.pointerId);
+    const btn = e.target.closest('button[data-stop]');
+    drag = {
+      id: e.pointerId,
+      x: e.clientX,
+      left: roller.scrollLeft,
+      moved: false,
+      btn,
+    };
+    try { roller.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
   });
   roller.addEventListener('pointermove', (e) => {
     if (!drag || drag.id !== e.pointerId) return;
     const dx = e.clientX - drag.x;
-    if (Math.abs(dx) > 3) drag.moved = true;
-    roller.scrollLeft = drag.left - dx;
+    if (Math.abs(dx) > 6) drag.moved = true;
+    if (drag.moved) roller.scrollLeft = drag.left - dx;
   });
   const endDrag = (e) => {
     if (!drag || drag.id !== e.pointerId) return;
-    const moved = drag.moved;
+    const { moved, btn } = drag;
     drag = null;
+    if (!moved && btn && btn.dataset.stop) {
+      pickStop(btn.dataset.stop);
+      centerStop(btn.dataset.stop, true);
+      return;
+    }
     if (moved) {
-      roller.dataset.dragged = '1';
-      const mid = roller.getBoundingClientRect().left + roller.clientWidth / 2;
-      let best = null;
-      let dist = Infinity;
-      for (const b of roller.querySelectorAll('button')) {
-        const rct = b.getBoundingClientRect();
-        const d = Math.abs(rct.left + rct.width / 2 - mid);
-        if (d < dist) { dist = d; best = b; }
-      }
+      const best = nearestStopButton();
       if (best) {
         pickStop(best.dataset.stop);
         centerStop(best.dataset.stop, true);
@@ -472,17 +479,16 @@ function bindRoller() {
   roller.addEventListener('pointerup', endDrag);
   roller.addEventListener('pointercancel', endDrag);
   roller.addEventListener('click', (e) => {
-    if (roller.dataset.dragged === '1') {
-      e.preventDefault();
-      e.stopPropagation();
-      roller.dataset.dragged = '0';
-    }
+    e.preventDefault();
+    e.stopPropagation();
   }, true);
   roller.addEventListener('wheel', (e) => {
     if (!filterOn) return;
     e.preventDefault();
     e.stopPropagation();
     roller.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
+    const best = nearestStopButton();
+    if (best && best.dataset.stop !== stopId) pickStop(best.dataset.stop);
   }, { passive: false });
 }
 
