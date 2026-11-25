@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v63 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v64 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -211,6 +211,11 @@ const COPY = {
   feedDistance: (minutes) => `${minutes} min away`,
   feedFresh: '[new]',
   feedPromptKicker: '[spot this]',
+  publishTip:
+    '[this gem goes public — don’t dox people; name the thing you found, not the street]',
+  publishWriteLabel: '[add a few words]',
+  publishNotePh: '[bunny house / tree on the mailbox]',
+  publishConfirm: '[publish]',
 };
 
 const SPOOF_COPY = {
@@ -261,6 +266,11 @@ const SPOOF_COPY = {
   feedDistance: (minutes) => `${minutes} min away`,
   feedFresh: 'New',
   feedPromptKicker: 'Spot this',
+  publishTip:
+    'This gem goes public — don’t dox people; name the thing you found, not the street.',
+  publishWriteLabel: 'Add a few words',
+  publishNotePh: 'Bunny house / tree on the mailbox',
+  publishConfirm: 'Publish',
   emptyPublicTitle: 'Nothing public yet',
   emptyPublicBody: 'Publish a find and it’ll show up here.',
   emptyHiddenTitle: 'No hidden gems',
@@ -345,6 +355,8 @@ const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'banner';
+let hubEdition = 'v2';
+let pendingPublish = null;
 const FEED_VARIANTS = new Set([
   'banner',
   'overlay',
@@ -353,6 +365,13 @@ const FEED_VARIANTS = new Set([
   'caption',
   'peek',
 ]);
+const publishSheet = document.getElementById('publishSheet');
+const publishSheetScrim = document.getElementById('publishSheetScrim');
+const publishTip = document.getElementById('publishTip');
+const publishWriteLabel = document.getElementById('publishWriteLabel');
+const publishNote = document.getElementById('publishNote');
+const publishConfirm = document.getElementById('publishConfirm');
+const hubMeta = document.getElementById('hubMeta');
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
 const sortSub = document.getElementById('sortSub');
@@ -493,12 +512,25 @@ function rarityForLikes(likes, isPublic) {
   if (!isPublic) {
     return { id: 'hidden', fill: HIDDEN_GEM_FILL, label: 'hidden', minLikes: 0 };
   }
+  if (!showRarity()) {
+    return { id: 'cyan', fill: PUBLIC_GEM_FILL, label: 'aquamarine', minLikes: 0 };
+  }
   const n = Number(likes) || 0;
   if (n >= RARITY.diamond.minLikes) return RARITY.diamond;
   if (n >= RARITY.platinum.minLikes) return RARITY.platinum;
   if (n >= RARITY.gold.minLikes) return RARITY.gold;
   if (n >= RARITY.silver.minLikes) return RARITY.silver;
   return RARITY.cyan;
+}
+
+function showRarity() {
+  return hubEdition === 'v2';
+}
+
+function gemCornerFill(gem) {
+  if (!gem.isPublic) return HIDDEN_GEM_FILL;
+  if (!showRarity()) return PUBLIC_GEM_FILL;
+  return rarityForLikes(gem.likes, true).fill;
 }
 
 /* Prototype walk minutes — same “{{minutes}} min away” string as app TravelTime */
@@ -779,7 +811,7 @@ function setLikesCardRarity(els, rarity, { pop = false } = {}) {
   }
   els.gem.innerHTML = gemSvg(rarity.fill, { softOutline: true });
   if (els.rarity) {
-    els.rarity.hidden = rarity.id === 'cyan';
+    els.rarity.hidden = !showRarity() || rarity.id === 'cyan';
     els.rarity.textContent = rarity.label;
     els.rarity.classList.toggle('is-pop', !!pop);
   }
@@ -798,10 +830,11 @@ function cornerRibbonHtml(fill, uid) {
 
 function buildGemCard(gem, opts = {}) {
   const rarity = rarityForLikes(gem.likes, gem.isPublic);
+  const cornerFill = gemCornerFill(gem);
   const wrap = document.createElement('div');
   wrap.className = 'gem-card';
   if (opts.enter) wrap.classList.add('is-enter');
-  wrap.style.setProperty('--gem-line', rarity.fill);
+  wrap.style.setProperty('--gem-line', cornerFill);
   const img = document.createElement('img');
   img.className = 'gem-card-photo';
   img.src = gem.imageUri;
@@ -811,7 +844,7 @@ function buildGemCard(gem, opts = {}) {
   const scrim = document.createElement('div');
   scrim.className = 'gem-card-scrim';
   wrap.appendChild(scrim);
-  if (gem.isPublic && rarity.id !== 'cyan') {
+  if (showRarity() && gem.isPublic && rarity.id !== 'cyan') {
     const rarityEl = document.createElement('span');
     rarityEl.className = `gem-card-rarity is-${rarity.id}`;
     rarityEl.textContent = rarity.label;
@@ -823,15 +856,15 @@ function buildGemCard(gem, opts = {}) {
   const art = document.createElement('div');
   art.className = 'gem-card-corner-art';
   art.setAttribute('aria-hidden', 'true');
-  art.innerHTML = cornerRibbonHtml(rarity.fill, gem.id || rarity.id);
+  art.innerHTML = cornerRibbonHtml(cornerFill, gem.id || rarity.id);
   corner.appendChild(art);
   const stack = document.createElement('div');
   stack.className = 'gem-card-corner-stack';
   const gemEl = document.createElement('span');
   gemEl.className = 'gem-card-gem';
   if (!gem.isPublic) gemEl.classList.add('is-hidden-fill');
-  else if (rarity.id !== 'cyan') gemEl.classList.add(`is-${rarity.id}`);
-  gemEl.innerHTML = gemSvg(rarity.fill);
+  else if (showRarity() && rarity.id !== 'cyan') gemEl.classList.add(`is-${rarity.id}`);
+  gemEl.innerHTML = gemSvg(cornerFill);
   stack.appendChild(gemEl);
   corner.appendChild(stack);
   wrap.appendChild(corner);
@@ -888,7 +921,7 @@ function buildFeedChip(g, variant) {
       ? t('feedDistance', minutes)
       : t('gemNearby');
   const rarityWord =
-    rarity.id !== 'cyan'
+    showRarity() && rarity.id !== 'cyan'
       ? `<p class="feed-chip-rarity-word is-${rarity.id}">${rarity.label}</p>`
       : '';
   const goBtn = `<button type="button" class="feed-chip-go">${t('detailNav')}</button>`;
@@ -905,22 +938,20 @@ function buildFeedChip(g, variant) {
   chip.tabIndex = 0;
   chip.setAttribute(
     'aria-label',
-    `${dist}${rarity.id !== 'cyan' ? `, ${rarity.label}` : ''}`,
+    `${dist}${showRarity() && rarity.id !== 'cyan' ? `, ${rarity.label}` : ''}`,
   );
 
   const promptLine = g.caption || g.tagline || g.title || '';
-  const promptBlock = `
+  const captionPromptBlock = `
     <p class="feed-chip-prompt-kicker">${t('feedPromptKicker')}</p>
     <p class="feed-chip-prompt">${promptLine}</p>`;
   if (variant === 'prompt') {
     chip.innerHTML = `
       <div class="feed-chip-prompt-panel">
-        ${promptBlock}
+        <p class="feed-chip-prompt-kicker">${dist}</p>
+        <p class="feed-chip-prompt">${promptLine}</p>
         <div class="feed-chip-prompt-foot">
-          <div class="feed-chip-media is-thumb is-prompt">
-            <img src="${g.imageUri}" alt="">
-          </div>
-          ${copyBlock}
+          ${rarityWord}
           ${goBtn}
         </div>
       </div>
@@ -933,7 +964,7 @@ function buildFeedChip(g, variant) {
       </div>
       <div class="feed-chip-body is-on-photo is-caption">
         <div class="feed-chip-caption-copy">
-          ${promptBlock}
+          ${captionPromptBlock}
           ${copyBlock}
         </div>
         ${goBtn}
@@ -1299,8 +1330,8 @@ function openDetail(id) {
   if (detailOverlay) {
     detailOverlay.style.setProperty('--rarity-glow', rarity.fill);
   }
-  /* Rarity is a public-likes tier — not a second “Hidden” chip */
-  if (gem.isPublic && rarity.id !== 'cyan') {
+  /* Rarity is a public-likes tier — V2 only */
+  if (showRarity() && gem.isPublic && rarity.id !== 'cyan') {
     detailRarityChip.hidden = false;
     detailRarityLabel.textContent = rarity.label;
     detailRarityGem.innerHTML = gemSvg(rarity.fill);
@@ -1598,7 +1629,7 @@ function bindSortDrag(card) {
       return;
     }
     if (dx > SWIPE_COMMIT_X) {
-      settleSort(card, 'public');
+      openPublishSheet(card);
       return;
     }
     if (dx < -SWIPE_COMMIT_X) {
@@ -1699,7 +1730,60 @@ function flyGemIntoSection(photoSrc, toPublic) {
   });
 }
 
-async function settleSort(card, action) {
+function syncPublishSheetCopy() {
+  if (publishTip) publishTip.textContent = t('publishTip');
+  if (publishWriteLabel) publishWriteLabel.textContent = t('publishWriteLabel');
+  if (publishNote) publishNote.placeholder = t('publishNotePh');
+  if (publishConfirm) publishConfirm.textContent = t('publishConfirm');
+}
+
+function openPublishSheet(card) {
+  const find = pendingSort[0];
+  if (!find || !publishSheet) {
+    settleSort(card, 'public');
+    return;
+  }
+  pendingPublish = { card, find };
+  card.classList.add('is-publishing');
+  card.style.transition = `transform ${SWIPE_SETTLE_MS}ms ${EASE_POPULAR}, opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
+  card.style.transform = 'translate(18%, -4%) rotate(8deg) scale(0.96)';
+  card.style.opacity = '0.55';
+  syncPublishSheetCopy();
+  if (publishNote) publishNote.value = '';
+  publishSheet.hidden = false;
+  publishSheet.setAttribute('aria-hidden', 'false');
+  window.setTimeout(() => publishNote?.focus(), 40);
+}
+
+function closePublishSheet({ restoreCard = true } = {}) {
+  if (publishSheet) {
+    publishSheet.hidden = true;
+    publishSheet.setAttribute('aria-hidden', 'true');
+  }
+  const card = pendingPublish?.card;
+  pendingPublish = null;
+  if (restoreCard && card) {
+    card.classList.remove('is-publishing');
+    card.style.transition = `transform ${SWIPE_SETTLE_MS}ms ${EASE_POPULAR}, opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
+    card.style.transform = 'rotate(-4deg)';
+    card.style.opacity = '1';
+    window.setTimeout(() => {
+      card.style.transition = '';
+      card.style.transform = '';
+    }, SWIPE_FADE_MS);
+  }
+}
+
+async function confirmPublishSheet() {
+  const pending = pendingPublish;
+  if (!pending) return;
+  const note = (publishNote?.value || '').trim();
+  const title = note || t('publishNotePh');
+  closePublishSheet({ restoreCard: false });
+  await settleSort(pending.card, 'public', { title, caption: note || title });
+}
+
+async function settleSort(card, action, opts = {}) {
   const find = pendingSort[0];
   if (!find) return;
   const fly =
@@ -1722,7 +1806,15 @@ async function settleSort(card, action) {
     isPublic: action === 'public',
     owned: true,
   });
-  if (action === 'public') gem.likes = LIKES_DEMO;
+  if (action === 'public') {
+    gem.likes = LIKES_DEMO;
+    if (opts.title) {
+      gem.title = opts.title;
+      gem.tagline = opts.caption || opts.title;
+      gem.caption = opts.caption || opts.title;
+      gem.entries = [opts.caption || opts.title];
+    }
+  }
   gems.unshift(gem);
   await flyGemIntoSection(find.photo, action === 'public');
   setSection(action === 'public' ? 'public' : 'hidden');
@@ -1730,6 +1822,25 @@ async function settleSort(card, action) {
   refreshHub(gem.id);
   const cell = gemGrid.querySelector(`[data-id="${gem.id}"]`);
   if (cell) cell.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+function setHubEdition(edition) {
+  hubEdition = edition === 'v1' ? 'v1' : 'v2';
+  document.body.classList.toggle('is-v1', hubEdition === 'v1');
+  document.body.classList.toggle('is-v2', hubEdition === 'v2');
+  document.querySelectorAll('[data-hub-edition]').forEach((btn) => {
+    const on = btn.getAttribute('data-hub-edition') === hubEdition;
+    btn.classList.toggle('is-on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  if (hubMeta) {
+    hubMeta.textContent =
+      hubEdition === 'v1'
+        ? 'LOCATION-GEMS-HUB-v64 · V1. No rarity.'
+        : 'LOCATION-GEMS-HUB-v64 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+  }
+  refreshHub();
+  renderFeed();
 }
 
 function pickLikedJams(count) {
@@ -1954,6 +2065,7 @@ function init() {
   seedPendingSort();
   setupSnapshotArc();
   applyStaticCopy();
+  setHubEdition(hubEdition);
   setSection('public');
   refreshHub();
   showTip(!storageGet(TIP_KEY));
@@ -2016,6 +2128,27 @@ document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
     setFeedVariant(btn.getAttribute('data-feed-variant') || 'banner');
   });
 });
+document.querySelectorAll('[data-hub-edition]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    setHubEdition(btn.getAttribute('data-hub-edition') || 'v2');
+  });
+});
+if (publishSheetScrim) {
+  publishSheetScrim.addEventListener('click', () => closePublishSheet({ restoreCard: true }));
+}
+if (publishConfirm) {
+  publishConfirm.addEventListener('click', () => {
+    confirmPublishSheet();
+  });
+}
+if (publishNote) {
+  publishNote.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      confirmPublishSheet();
+    }
+  });
+}
 bindTipGesture();
 bindFeedDismissGesture();
 setFeedVariant(feedVariant);

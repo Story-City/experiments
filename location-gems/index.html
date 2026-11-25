@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=63">
+<link rel="stylesheet" href="app.css?v=64">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -133,16 +133,22 @@
           <div class="sort-stage" id="sortStage">
             <!-- Swipe rails (default) -->
             <div class="sort-rail sort-rail-left" id="railPrivate" data-rail="private" aria-hidden="true">
-              <span class="sort-rail-icon sort-rail-gem" id="railPrivateIcon" aria-hidden="true"></span>
-              <span class="sort-rail-chip" data-copy="private">[keep hidden]</span>
+              <div class="sort-rail-pod">
+                <span class="sort-rail-icon sort-rail-gem" id="railPrivateIcon" aria-hidden="true"></span>
+                <span class="sort-rail-chip" data-copy="private">[keep hidden]</span>
+              </div>
             </div>
             <div class="sort-rail sort-rail-right" id="railPublic" data-rail="public" aria-hidden="true">
-              <span class="sort-rail-icon sort-rail-gem" id="railPublicIcon" aria-hidden="true"></span>
-              <span class="sort-rail-chip" data-copy="public">[publish]</span>
+              <div class="sort-rail-pod">
+                <span class="sort-rail-icon sort-rail-gem" id="railPublicIcon" aria-hidden="true"></span>
+                <span class="sort-rail-chip" data-copy="public">[publish]</span>
+              </div>
             </div>
             <div class="sort-rail sort-rail-down" id="railDelete" data-rail="delete" aria-hidden="true">
-              <img class="sort-rail-x" src="assets/close.svg" alt="" width="22" height="22">
-              <span class="sort-rail-chip" data-copy="delete">[delete]</span>
+              <div class="sort-rail-pod">
+                <img class="sort-rail-x" src="assets/close.svg" alt="" width="22" height="22">
+                <span class="sort-rail-chip" data-copy="delete">[delete]</span>
+              </div>
             </div>
             <!-- Drag-to-section drop zones (debug mode) -->
             <div class="drop-zone drop-zone-hidden" id="dropHidden" hidden aria-hidden="true">
@@ -312,15 +318,38 @@
       </div>
     </div>
 
+    <div class="publish-sheet" id="publishSheet" hidden aria-hidden="true">
+      <button type="button" class="publish-sheet-scrim" id="publishSheetScrim" aria-label="Back to sorting"></button>
+      <div class="publish-sheet-card" role="dialog" aria-labelledby="publishTip" aria-modal="true">
+        <p class="publish-tip" id="publishTip">[this gem goes public — don’t dox people; name the thing you found, not the street]</p>
+        <p class="side-label" id="publishWriteLabel">[add a few words]</p>
+        <input class="note-input" id="publishNote" type="text" maxlength="60" placeholder="[bunny house / tree on the mailbox]" autocomplete="off" aria-label="A few words">
+        <div class="side-actions">
+          <button type="button" class="confirm-pill" id="publishConfirm">[publish]</button>
+        </div>
+      </div>
+    </div>
+
     <div class="fly-layer" id="flyLayer" aria-hidden="true"></div>
   </main>
 
-  <p class="meta">
-    LOCATION-GEMS-HUB-v63. Rarity = aquamarine/moonstone/topaz/opal/diamond.
+  <p class="meta" id="hubMeta">
+    LOCATION-GEMS-HUB-v64 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.
   </p>
     </div>
+
+    <aside class="edition-rail" aria-label="Edition">
+      <section class="tool-block">
+        <h2 class="tool-title">Edition</h2>
+        <p class="tool-note">V1 drops rarity. V2 keeps it.</p>
+        <div class="variant-pick is-rail" role="group" aria-label="Hub edition">
+          <button type="button" class="variant-btn" data-hub-edition="v1" aria-pressed="false">V1</button>
+          <button type="button" class="variant-btn is-on" data-hub-edition="v2" aria-pressed="true">V2</button>
+        </div>
+      </section>
+    </aside>
   </div>
-  <script src="corner-ribbon.js?v=63"></script>
-  <script src="app.js?v=63"></script>
+  <script src="corner-ribbon.js?v=64"></script>
+  <script src="app.js?v=64"></script>
 </body>
 </html>
