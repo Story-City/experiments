@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v21 — Disc: Figma bottom-arc only (big ellipse clipped), tight gem step. */
+/* GEM-PINS-V2-v22 — Disc: Figma bottom-arc only; gems wrapped to rim; tight step. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -526,12 +526,12 @@ function paintDiscAngle(angle) {
   const nearest = nearestDiscIndex(angle, n);
   const buttons = [...wheel.querySelectorAll('button[data-stop]')];
   buttons.forEach((b, i) => {
-    const deg = angle + i * DISC_STEP;
+    /* Wrap onto the visible bottom rim — never place gems on the hidden upper ellipse */
+    const deg = wrapDiscDeg(angle + i * DISC_STEP, n);
     const rad = (deg * Math.PI) / 180;
     const x = Math.sin(rad) * DISC_RX;
     const y = Math.cos(rad) * DISC_RY;
-    const wrap = wrapDiscDeg(deg, n);
-    const abs = Math.abs(wrap);
+    const abs = Math.abs(deg);
     const proximity = Math.max(0, 1 - abs / DISC_FADE_DEG);
     const scale = DISC_SCALE_MIN + (DISC_SCALE_MAX - DISC_SCALE_MIN) * (proximity ** 1.2);
     const on = i === nearest;
