@@ -1,0 +1,29 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Component 22">
+<path id="Vector" d="M37.3793 42H78.6207L84 48V62L78.6207 68H37.3793L32 62V48L37.3793 42Z" fill="url(#paint0_linear_0_166)"/>
+<path id="Vector_2" d="M22 30H88L78 42H32L22 30Z" fill="#FF7696"/>
+<path id="Vector_3" d="M16 40L26 30L36 42L30 48L16 40Z" fill="#FFB0C3"/>
+<path id="Vector_4" d="M16 70V40L30 48V62L16 70Z" fill="#F32E5C"/>
+<path id="Vector_5" d="M88 30L98 40L84 48L78 42L88 30Z" fill="#FF4F79"/>
+<path id="Vector_6" d="M26 80L16 70L30 62L36 68L26 80Z" fill="#FF4F79"/>
+<path id="Vector_7" d="M98 40V70L84 62V48L98 40Z" fill="#790B25"/>
+<path id="Vector_8" d="M98 70L88 80L78 68L84 62L98 70Z" fill="#7D001D"/>
+<path id="Vector_9" d="M88 80H26L35.3939 68H78.6061L88 80Z" fill="#E90037"/>
+<path id="Vector_10" d="M36.4828 42H78.5172L84 48V62L78.5172 68H36.4828L31 62V48L36.4828 42Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="#F4F4F4"/>
+<path id="Vector_11" d="M26 30L36 42" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="#F4F4F4"/>
+<path id="Vector_12" d="M88 30L78 42" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="#F4F4F4"/>
+<path id="Vector_13" d="M98 40L84 48" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="#F4F4F4"/>
+<path id="Vector_14" d="M98 70L84 62" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="#F4F4F4"/>
+<path id="Vector_15" d="M88 80L78 68" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="#F4F4F4"/>
+<path id="Vector_16" d="M26 80L36 68" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="#F4F4F4"/>
+<path id="Vector_17" d="M16 70L30 62" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_18" d="M16 40L30 48" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="#F4F4F4"/>
+<path id="Vector_19" d="M24.6512 30H88.3488L98 40V70L88.3488 80H24.6512L15 70V40L24.6512 30Z" stroke-width="4.2" stroke-linejoin="round" stroke="white"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_166" x1="58" y1="42" x2="58" y2="87" gradientUnits="userSpaceOnUse">
+<stop offset="0.278846" stop-color="#FF4F79"/>
+<stop offset="1" stop-color="#992F49"/>
+</linearGradient>
+</defs>
+</svg>

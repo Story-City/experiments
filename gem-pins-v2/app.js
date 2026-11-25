@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v5 — Brett’s pick, legend roller, Original + Prompt / Image / Corner. */
+/* GEM-PINS-V2-v6 — Figma Component 22 gems, no liked/visited on pins, wording spoof. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -14,9 +14,27 @@ const ICON = {
   check: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M7.8 12.4l2.8 2.8 5.6-5.8"/></svg>',
 };
 const TOAST_MS = 1600;
-const ART_KEY = { nature: 'nature', eat: 'eatshop', shop: 'eatshop', culture: 'art', play: 'activities', landmark: 'landmarks' };
-const ART_COLOUR = { nature: '#2fd6a2', eatshop: '#ff5c7a', art: '#41c7d8', activities: '#f5c44a', nugget: '#b36bff', fan: '#b36bff', landmarks: '#f29b2e', mine: '#cdd6ea' };
-const EXPLAIN = {
+const GEM_SRC = {
+  nature: 'assets/gems/nature.svg',
+  eat: 'assets/gems/eat-drink.svg',
+  shop: 'assets/gems/eat-drink.svg',
+  culture: 'assets/gems/art.svg',
+  play: 'assets/gems/play.svg',
+  landmark: 'assets/gems/landmarks.svg',
+  curio: 'assets/gems/curiosities.svg',
+};
+const GEM_COLOUR = {
+  nature: '#00CD9D',
+  eat: '#FF4F79',
+  shop: '#FF7696',
+  culture: '#41C7D8',
+  play: '#F7C85C',
+  landmark: '#F1A638',
+  curio: '#B36BFF',
+  mine: '#cdd6ea',
+};
+const HEART_MARK = `<svg class="pin-gem is-heart" viewBox="0 0 24 22" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.3-9.2C1.6 7.8 3.5 4.5 6.8 4.5c2 0 3.4 1.1 4.2 2.4h2c.8-1.3 2.2-2.4 4.2-2.4 3.3 0 5.2 3.3 4.1 6.3C19.5 15.4 12 20 12 20z" fill="${LOVE}" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const EXPLAIN_DEFAULT = {
   nature: '[explain nature finds]',
   eat: '[explain eat and drink finds]',
   shop: '[explain shop finds]',
@@ -27,11 +45,22 @@ const EXPLAIN = {
   liked: '[explain liked gems]',
   wishlist: '[explain saved for later]',
 };
-const STOPS = [
-  ...CATS.map((c) => ({ id: c.id, label: c.label })),
-  { id: 'liked', label: 'Liked' },
-  { id: 'wishlist', label: 'Wishlist' },
-];
+const wording = {
+  nearby: 'Gems nearby',
+  navigate: '[navigate]',
+  save: '[save for later]',
+  saved: '[saved for later]',
+  liked: 'Liked',
+  wishlist: 'Wishlist',
+  explain: { ...EXPLAIN_DEFAULT },
+};
+function stops() {
+  return [
+    ...CATS.map((c) => ({ id: c.id, label: c.label })),
+    { id: 'liked', label: wording.liked },
+    { id: 'wishlist', label: wording.wishlist },
+  ];
+}
 
 const rng = (seed) => () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 const r = rng(4242);
@@ -81,18 +110,6 @@ const GEMS = [...centre, ...rest].map((pi, i) => {
 });
 GEMS.forEach((g) => { if (g.rarity === 'rare' && g.id % 2) g.rarity = 'epic'; });
 
-const SLATE = [104, 99, 150];
-function slateTones(markup) {
-  return markup.replace(/#([0-9a-f]{6})\b/gi, (m, h) => {
-    const [rr, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
-    if (Math.max(rr, g, b) - Math.min(rr, g, b) < 24 && rr > 200) return '#b7b3d6';
-    if (Math.max(rr, g, b) - Math.min(rr, g, b) < 24) return m;
-    const l = (0.299 * rr + 0.587 * g + 0.114 * b) / 255;
-    const mixTo = l > 0.55 ? 255 : 0;
-    const t = l > 0.55 ? (l - 0.55) / 0.45 * 0.45 : (0.55 - l) / 0.55 * 0.55;
-    return '#' + SLATE.map((c) => Math.round(c + (mixTo - c) * t).toString(16).padStart(2, '0')).join('');
-  }).replace(/stroke="#fff"/gi, 'stroke="#b7b3d6"').replace(/stroke="#FFFFFF"/g, 'stroke="#b7b3d6"');
-}
 const levels = ['common', 'rare', 'mythical'];
 function rarityOf(g) {
   if (levels.includes(g.rarity)) return g.rarity;
@@ -106,31 +123,34 @@ function glowOf(g) {
   const lv = rarityOf(g);
   return lv === 'common' ? null : lv;
 }
-function artFor(g) {
-  if (g.seasonal) return null;
-  const tag = g.tags[0];
-  const key = g.mine ? 'mine' : tag === 'curio' ? 'nugget' : ART_KEY[tag] || 'nature';
-  const hollow = g.mine && g.private;
-  const markup = ART[hollow ? 'hollow' : 'victoria'][key];
-  if (g.visited) return { markup: slateTones(markup), colour: '#6863a0' };
-  return { markup, colour: ART_COLOUR[key] };
-}
 function colourOf(g) {
-  return artFor(g)?.colour || '#9fe3ff';
+  if (g.seasonal) return '#9fe3ff';
+  if (g.mine) return GEM_COLOUR.mine;
+  return GEM_COLOUR[g.tags[0]] || GEM_COLOUR.nature;
 }
 function pinFor(g) {
-  const art = artFor(g);
-  const fill = colourOf(g);
-  return pinSvg({
-    art: art?.markup,
-    shape: g.mine ? 'classic' : g.seasonal ? 'winter' : 'classic',
-    size: sizeOf(g),
-    fill,
-    heart: g.liked && !g.mine,
-    loveColour: LOVE,
-    glow: glowOf(g),
-    clock: !!g.expiring,
-  });
+  const size = sizeOf(g);
+  const glow = glowOf(g);
+  const glowClass = glow ? ` glow-${glow}` : '';
+  if (g.roller === 'liked') {
+    return `<span class="pin-gem-wrap${glowClass}" style="width:${size}px;height:${size}px">${HEART_MARK}</span>`;
+  }
+  if (g.mine || g.seasonal) {
+    const hollow = g.mine && g.private;
+    const markup = g.seasonal ? null : ART[hollow ? 'hollow' : 'victoria'].mine;
+    return pinSvg({
+      art: markup,
+      shape: g.seasonal ? 'winter' : 'classic',
+      size,
+      fill: colourOf(g),
+      heart: false,
+      loveColour: LOVE,
+      glow,
+      clock: !!g.expiring,
+    });
+  }
+  const src = GEM_SRC[g.tags[0]] || GEM_SRC.nature;
+  return `<img class="pin-gem${glowClass}" src="${src}" width="${size}" height="${size}" alt="" decoding="async">`;
 }
 
 const saved = new Set();
@@ -219,7 +239,7 @@ function drawPins(animate) {
 }
 
 function sampleFor(id) {
-  if (id === 'liked') return { tags: ['culture'], liked: true, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
+  if (id === 'liked') return { tags: ['culture'], roller: 'liked', liked: true, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
   if (id === 'wishlist') return { tags: ['nature'], liked: false, mine: true, private: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
   return { tags: [id], liked: false, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
 }
@@ -229,10 +249,11 @@ function paintBar() {
   const legend = $('legend');
   bar.classList.toggle('is-off', !filterOn);
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
-  const stop = STOPS.find((s) => s.id === stopId);
+  const list = stops();
+  const stop = list.find((x) => x.id === stopId) || list[0];
   const ico = filterOn ? pinFor(sampleFor(stopId)) : pinFor(sampleFor('wishlist'));
-  const title = filterOn ? stop.label : 'Gems nearby';
-  const note = filterOn ? `<p class="legend-note">${EXPLAIN[stopId]}</p>` : '';
+  const title = filterOn ? stop.label : wording.nearby;
+  const note = filterOn ? `<p class="legend-note">${wording.explain[stopId] || ''}</p>` : '';
   const prev = legend.querySelector('.legend-title');
   const changed = !prev || prev.textContent !== title;
   legend.innerHTML = `<span class="legend-ico">${ico}</span><div class="legend-copy"><p class="legend-title">${title}</p>${note}</div>`;
@@ -243,7 +264,10 @@ function paintBar() {
   }
   for (const b of $('roller').querySelectorAll('button')) {
     b.setAttribute('aria-selected', String(b.dataset.stop === stopId));
+    const lab = list.find((x) => x.id === b.dataset.stop);
+    if (lab) b.setAttribute('aria-label', lab.label);
   }
+  $('navBtn').textContent = wording.navigate;
 }
 
 function centerStop(id, smooth) {
@@ -265,9 +289,10 @@ function pickStop(id) {
   drawPins(true);
 }
 
-function buildRoller() {
+function fillRoller() {
   const roller = $('roller');
-  for (const stop of STOPS) {
+  roller.replaceChildren();
+  for (const stop of stops()) {
     const b = document.createElement('button');
     b.type = 'button';
     b.dataset.stop = stop.id;
@@ -280,6 +305,10 @@ function buildRoller() {
     });
     roller.append(b);
   }
+}
+
+function bindRoller() {
+  const roller = $('roller');
   let tick = 0;
   roller.addEventListener('scroll', () => {
     if (lockScroll || !filterOn) return;
@@ -296,6 +325,53 @@ function buildRoller() {
       if (best && best.dataset.stop !== stopId) pickStop(best.dataset.stop);
     });
   });
+  let drag = null;
+  roller.addEventListener('pointerdown', (e) => {
+    if (!filterOn) return;
+    drag = { id: e.pointerId, x: e.clientX, left: roller.scrollLeft, moved: false };
+    roller.setPointerCapture(e.pointerId);
+  });
+  roller.addEventListener('pointermove', (e) => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const dx = e.clientX - drag.x;
+    if (Math.abs(dx) > 3) drag.moved = true;
+    roller.scrollLeft = drag.left - dx;
+  });
+  const endDrag = (e) => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const moved = drag.moved;
+    drag = null;
+    if (moved) {
+      roller.dataset.dragged = '1';
+      const mid = roller.getBoundingClientRect().left + roller.clientWidth / 2;
+      let best = null;
+      let dist = Infinity;
+      for (const b of roller.querySelectorAll('button')) {
+        const rct = b.getBoundingClientRect();
+        const d = Math.abs(rct.left + rct.width / 2 - mid);
+        if (d < dist) { dist = d; best = b; }
+      }
+      if (best) {
+        pickStop(best.dataset.stop);
+        centerStop(best.dataset.stop, true);
+      }
+    }
+  };
+  roller.addEventListener('pointerup', endDrag);
+  roller.addEventListener('pointercancel', endDrag);
+  roller.addEventListener('click', (e) => {
+    if (roller.dataset.dragged === '1') {
+      e.preventDefault();
+      e.stopPropagation();
+      roller.dataset.dragged = '0';
+    }
+  }, true);
+  roller.addEventListener('wheel', (e) => {
+    if (!filterOn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    roller.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
+  }, { passive: false });
 }
 
 function cornerHtml(g) {
@@ -367,8 +443,7 @@ function paintTags(g) {
     const x = document.createElement('span');
     x.className = 'tag';
     x.textContent = c.label;
-    const key = id === 'curio' ? 'nugget' : (ART_KEY[id] || 'nature');
-    x.style.setProperty('--c', ART_COLOUR[key] || '#9fe3ff');
+    x.style.setProperty('--c', GEM_COLOUR[id] || GEM_COLOUR.nature);
     tags.append(x);
   }
 }
@@ -425,7 +500,27 @@ function paintSlide() {
   const save = $('saveBtn');
   const on = saved.has(g.id);
   save.setAttribute('aria-pressed', String(on));
-  save.textContent = on ? '[saved for later]' : '[save for later]';
+  save.textContent = on ? wording.saved : wording.save;
+  $('navBtn').textContent = wording.navigate;
+}
+
+function applyWording(next) {
+  if (!next || typeof next !== 'object') return;
+  if (typeof next.nearby === 'string') wording.nearby = next.nearby;
+  if (typeof next.navigate === 'string') wording.navigate = next.navigate;
+  if (typeof next.save === 'string') wording.save = next.save;
+  if (typeof next.saved === 'string') wording.saved = next.saved;
+  if (typeof next.liked === 'string') wording.liked = next.liked;
+  if (typeof next.wishlist === 'string') wording.wishlist = next.wishlist;
+  if (next.explain && typeof next.explain === 'object') {
+    for (const [k, v] of Object.entries(next.explain)) {
+      if (typeof v === 'string' && k in wording.explain) wording.explain[k] = v;
+    }
+  }
+  fillRoller();
+  paintBar();
+  if (openId != null) paintSlide();
+  if (filterOn) requestAnimationFrame(() => centerStop(stopId, false));
 }
 
 function openGem(g) {
@@ -444,7 +539,7 @@ function closeSlide() {
 
 function resetFilter() {
   filterOn = true;
-  stopId = STOPS[0].id;
+  stopId = stops()[0].id;
   paintBar();
   if (openId != null && !shown(GEMS[openId])) {
     openId = null;
@@ -507,6 +602,7 @@ $('saveBtn').addEventListener('click', (e) => {
   if (filterOn && stopId === 'wishlist') drawPins(true);
 });
 $('navBtn').addEventListener('click', (e) => { e.stopPropagation(); toast('[would open navigate]'); });
+document.querySelector('.map-top').addEventListener('pointerdown', (e) => e.stopPropagation());
 $('slide').addEventListener('click', (e) => {
   if (sheet !== 'original' || sheetFull || e.target.closest('button')) return;
   sheetFull = true;
@@ -526,6 +622,7 @@ window.addEventListener('message', (e) => {
     for (const [key, value] of Object.entries(data.vars)) document.documentElement.style.setProperty(key, value);
   }
   if (data.type === 'gem-pins-reset-filter') resetFilter();
+  if (data.type === 'gem-pins-wording') applyWording(data.wording);
 });
 
 let panMoved = false;
@@ -558,7 +655,8 @@ $('phone').addEventListener('wheel', (e) => {
   drawPins();
 }, { passive: false });
 
-buildRoller();
+fillRoller();
+bindRoller();
 setSheet(sheet);
 paintBar();
 drawPins();

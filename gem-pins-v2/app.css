@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v5 — phone chrome from gem-pins + location-gems + daily-side-quests */
+/* GEM-PINS-V2-v6 — Figma Component 22 gems, swipe roller, no liked/visited on pins */
 :root {
   --bg: #170c35;
   --surface: #241b46;
@@ -126,7 +126,23 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   100% { opacity: 0; transform: translateY(8px); }
 }
 .legend.is-swap { animation: pinFadeIn 480ms var(--ease-out) both; }
-.pin.visited svg { opacity: 0.4; filter: saturate(0.3); }
+.pin .pin-gem,
+.pin .pin-gem-wrap {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.pin .pin-gem-wrap { width: auto; height: auto; }
+.pin .pin-gem.is-heart { width: 100%; height: 100%; }
+.legend-ico .pin-gem,
+.legend-ico .pin-gem-wrap,
+.roller .pin-gem,
+.roller .pin-gem-wrap {
+  width: 34px;
+  height: 34px;
+}
 .pin.selected { z-index: 3; }
 .pin.selected::before {
   content: "";
@@ -234,7 +250,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   border-color: rgba(0, 194, 255, 0.7);
 }
 
-.roller-wrap { min-width: 0; height: 48px; }
+.roller-wrap { min-width: 0; height: 48px; touch-action: pan-x; }
 .roller {
   display: flex;
   align-items: center;
@@ -242,19 +258,27 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   height: 48px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
   scrollbar-width: none;
   padding-inline: calc(50% - 20px);
+  touch-action: pan-x;
+  cursor: grab;
   mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
 }
+.roller:active { cursor: grabbing; }
 .roller::-webkit-scrollbar { display: none; }
 .roller button {
   scroll-snap-align: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: transparent;
   opacity: 0.45;
+  touch-action: pan-x;
   transition: opacity 480ms var(--ease-out), box-shadow 480ms var(--ease-out);
 }
 .roller button[aria-selected="true"] {
