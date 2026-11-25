@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v23 — Disc: tighter hug + visible tinted arc stroke. */
+/* GEM-PINS-V2-v24 — Disc: tighter hug; tinted arc stroke unmasked. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
