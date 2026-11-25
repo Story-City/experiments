@@ -2141,7 +2141,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   top: calc(var(--y) + var(--r, 26px) + 14px);
   z-index: 1;
   container-type: inline-size;
-  touch-action: pan-y;
+  touch-action: pan-x;
+  cursor: pointer;
   opacity: 0;
   transform: translateX(48px);
   transition:
@@ -2598,14 +2599,14 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 10px 14px calc(14px + var(--kb, 0px));
+  padding: 10px 14px 14px;
   pointer-events: none;
   background: rgba(8, 3, 22, 0.42);
   box-sizing: border-box;
 }
 .publish-sheet.is-words {
   padding-top: 10px;
-  padding-bottom: calc(10px + var(--kb, 0px));
+  padding-bottom: 14px;
   justify-content: flex-start;
 }
 .publish-sheet[hidden] { display: none !important; }
@@ -2631,9 +2632,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   animation: publishSheetIn 320ms var(--ease-out) both;
 }
 .publish-sheet.is-words .publish-sheet-stack {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-height: 0;
-  max-height: 100%;
+  max-height: calc(100% - var(--kb, 0px));
   padding-top: 0;
 }
 .publish-sheet-card {
@@ -2650,12 +2651,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   flex-direction: column;
   gap: 12px;
   overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-bottom: 12px;
 }
 .publish-sheet.is-words .publish-sheet-card {
   gap: 10px;
-  overflow: hidden;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 1 auto;
   max-height: 100%;
 }
 .publish-photo {
@@ -2673,23 +2675,16 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   aspect-ratio: 16 / 9;
 }
 .publish-step-words {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: none;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 .publish-fields {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  flex: none;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-bottom: 2px;
-  touch-action: pan-y;
 }
 .publish-field {
   display: flex;
@@ -2711,11 +2706,11 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   font-variant-numeric: tabular-nums;
 }
 .note-area {
-  min-height: 120px;
+  min-height: 96px;
+  max-height: 132px;
   resize: none;
   line-height: 1.35;
-  field-sizing: content;
-  max-height: none;
+  overflow-y: auto;
 }
 .publish-photo-img {
   display: block;
@@ -2764,7 +2759,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .publish-sheet.is-words .side-actions {
   flex: none;
-  padding-top: 2px;
 }
 @keyframes publishSheetIn {
   from { opacity: 0; transform: translateY(14px); }
@@ -2890,12 +2884,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   position: relative;
   width: 100%;
   z-index: 2;
-  touch-action: pan-y;
+  touch-action: pan-x;
   opacity: 0;
   transform: translateX(0);
   transition: opacity 280ms var(--ease-out), transform 320ms var(--ease-out);
   pointer-events: none;
   container-type: inline-size;
+  cursor: pointer;
 }
 /* Must beat .tip-wrap { position: relative } — tip overlays the form, never sits beside it */
 .publish-sheet .tip-wrap.publish-tip-overlay {
@@ -2903,11 +2898,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   left: 14px;
   right: 14px;
   top: 10px;
-  z-index: 4;
+  z-index: 5;
   width: auto;
   max-width: 340px;
   margin: 0 auto;
   pointer-events: none;
+  touch-action: pan-x;
 }
 .publish-sheet .tip-wrap.publish-tip-overlay.is-on {
   pointer-events: auto;

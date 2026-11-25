@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v87 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v88 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -1733,42 +1733,60 @@ function runOnboardingTips() {
   window.setTimeout(() => presentMapTip(), 80);
 }
 
-function bindTipGesture() {
+function bindSwipeDismissTip(el, isActive, onDismiss) {
+  if (!el) return;
   let startX = 0;
   let dragging = false;
-  const onStart = (x) => {
-    if (spot.hidden || !mapTip.classList.contains('is-on')) return;
-    startX = x;
+  el.addEventListener('pointerdown', (e) => {
+    if (!isActive()) return;
+    el.setPointerCapture(e.pointerId);
+    startX = e.clientX;
     dragging = true;
-    mapTip.style.transition = 'none';
-  };
-  const onMove = (x) => {
+    el.style.transition = 'none';
+  });
+  el.addEventListener('pointermove', (e) => {
     if (!dragging) return;
-    const dx = Math.max(0, x - startX);
-    mapTip.style.transform = `translateX(${dx}px)`;
-  };
-  const onEnd = (x) => {
+    const dx = Math.max(0, e.clientX - startX);
+    el.style.transform = `translateX(${dx}px)`;
+  });
+  el.addEventListener('pointerup', (e) => {
     if (!dragging) return;
     dragging = false;
-    mapTip.style.transition = '';
-    const dx = x - startX;
-    if (dx >= TIP_SWIPE_DISMISS_PX) {
-      advanceMapTip();
-    } else {
-      mapTip.style.transform = '';
-      if (Math.abs(dx) <= TIP_TAP_SLOP_PX) advanceMapTip();
+    el.style.transition = '';
+    const dx = e.clientX - startX;
+    if (dx >= TIP_SWIPE_DISMISS_PX || Math.abs(dx) <= TIP_TAP_SLOP_PX) {
+      onDismiss();
+      return;
     }
-  };
-  mapTip.addEventListener('pointerdown', (e) => {
-    mapTip.setPointerCapture(e.pointerId);
-    onStart(e.clientX);
+    el.style.transform = '';
   });
-  mapTip.addEventListener('pointermove', (e) => onMove(e.clientX));
-  mapTip.addEventListener('pointerup', (e) => onEnd(e.clientX));
-  mapTip.addEventListener('pointercancel', (e) => onEnd(e.clientX));
+  el.addEventListener('pointercancel', () => {
+    if (!dragging) return;
+    dragging = false;
+    el.style.transition = '';
+    el.style.transform = '';
+  });
+}
+
+function bindTipGesture() {
+  bindSwipeDismissTip(
+    mapTip,
+    () => !spot.hidden && mapTip.classList.contains('is-on'),
+    () => advanceMapTip(),
+  );
   spot.addEventListener('click', (e) => {
     if (e.target === spot) advanceMapTip();
   });
+  bindSwipeDismissTip(
+    publishTipWrap,
+    () =>
+      !!(
+        publishTipWrap &&
+        !publishTipWrap.hidden &&
+        publishTipWrap.classList.contains('is-on')
+      ),
+    () => hidePublishTip(),
+  );
 }
 
 function railModeFromDelta(dx, dy, current) {
@@ -2173,8 +2191,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v87 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v87 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v88 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v88 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
