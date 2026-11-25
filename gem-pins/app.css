@@ -7,10 +7,12 @@
   --text: #fbf7ff;
   --muted: #b9b2d9;
   --accent: #009eff;
+  --accent-deep: #0259a1;
   --glow: #c49bff;
   --love: #e84aa8;
   --f-app: 'Darker Grotesque', system-ui, sans-serif;
   --f-ui: 'Karla', system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.33, 0, 0.2, 1);
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -308,7 +310,109 @@ body.cb-rg .phone { filter: url(#deutan); }
 .pin.cluster svg { filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35)); }
 .count-badge { position: absolute; right: -2px; top: -4px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #fff; color: #170c35; font: 800 13px/22px var(--f-ui); text-align: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); pointer-events: none; }
 
-/* GEM-PINS-EDITION-v4 — Versioning on the right; V2 adds its settings underneath */
+/* GEM-PINS-EDITION-v5 — Look on the left, Versioning on the right, eye hides both */
+.settings-eye {
+  position: fixed;
+  z-index: 60;
+  top: 16px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(36, 27, 70, 0.72);
+  box-shadow: 0 0 16px rgba(179, 107, 255, 0.35);
+  display: grid;
+  place-items: center;
+}
+.settings-eye svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.settings-eye .eye-shut { display: none; }
+body.is-settings-hidden .settings-eye .eye-open { display: none; }
+body.is-settings-hidden .settings-eye .eye-shut { display: block; }
+.look-rail {
+  position: fixed;
+  z-index: 50;
+  top: 68px;
+  left: 16px;
+  width: 230px;
+  max-height: calc(100dvh - 88px);
+  overflow-y: auto;
+}
+.look-rail .tool-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.look-rail .tool-title {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.look-rail .tool-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+.look-rail .switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  transition: background 480ms var(--ease-out);
+}
+.look-rail .switch[aria-checked="true"] { background: color-mix(in srgb, var(--accent) 72%, #fff 8%); }
+.look-rail .switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 480ms var(--ease-out);
+}
+.look-rail .switch[aria-checked="true"] .switch-knob { transform: translateX(18px); }
+.look-rail .accent-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+.look-rail .accent-pick span { flex: 1; }
+.look-rail .accent-pick input[type="color"] { width: 28px; height: 22px; padding: 0; border: 0; background: transparent; }
+.look-rail .accent-pick input[type="range"] { width: 72px; }
+.look-rail, .edition-rail {
+  transition: opacity 480ms var(--ease-out), transform 480ms var(--ease-out);
+}
+body.is-settings-hidden .look-rail,
+body.is-settings-hidden .edition-rail {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+@media (min-width: 1280px) {
+  .layout { padding-left: 260px; padding-right: 248px; }
+}
 .edition-rail {
   position: fixed;
   z-index: 50;
@@ -336,7 +440,8 @@ body.cb-rg .phone { filter: url(#deutan); }
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.06);
 }
-.edition-bar button {
+.edition-bar button,
+.edition-sheets button {
   height: 36px;
   padding: 0 12px;
   border: 0;
@@ -345,6 +450,7 @@ body.cb-rg .phone { filter: url(#deutan); }
   color: rgba(255, 255, 255, 0.72);
   font-weight: 800;
   font-size: 15px;
+  transition: background 480ms var(--ease-out), color 480ms var(--ease-out);
 }
 .edition-bar button[aria-pressed="true"] {
   background: linear-gradient(90deg, #0259a1, #00c2ff);
@@ -356,7 +462,7 @@ body.cb-rg .phone { filter: url(#deutan); }
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: max-height 320ms ease, opacity 320ms ease;
+  transition: max-height 480ms var(--ease-out), opacity 480ms var(--ease-out);
 }
 body.is-v2 .edition-extra { max-height: 220px; opacity: 1; }
 .edition-label {
@@ -393,6 +499,6 @@ body.is-v2 .options-btn { z-index: 26; }
   background: #170c35;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 320ms ease;
+  transition: opacity 480ms var(--ease-out);
 }
 .edition-frame.is-shown { opacity: 1; pointer-events: auto; }

@@ -17,7 +17,7 @@
   },
   {
     "slug": "gem-pins",
-    "path": "gem-pins/?v=4",
+    "path": "gem-pins/?v=5",
     "area": "gems",
     "frame": "wide",
     "title": "Gem map pins",
@@ -33,7 +33,7 @@
   },
   {
     "slug": "gem-pins-v2",
-    "path": "gem-pins-v2/?v=3",
+    "path": "gem-pins-v2/?v=4",
     "area": "gems",
     "title": "Gem map pins V2",
     "what": "Victoria's gem art on Melissa's Edmonton map. Filter turns the top bar into a legend plus a gem roller (categories, liked, wishlist). Slide-out switches: prompt, image, image with gem corner. Navigate and save for later stay on every version.",
@@ -114,7 +114,7 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=69",
+    "path": "location-gems/?v=70",
     "area": "gems",
     "title": "Location Gems hub",
     "what": "Rarity: aquamarine/moonstone/topaz/opal/diamond. Sort hub, spotlight, likes.",

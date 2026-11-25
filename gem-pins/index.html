@@ -14,7 +14,45 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
 </head>
 <body>
-<!-- GEM-PINS-EDITION-v4: Versioning on the right, V2 settings underneath, settings panel stays -->
+<!-- GEM-PINS-EDITION-v5: colour tools on the left, eye hides settings, 480ms fades -->
+<button type="button" class="settings-eye" id="settingsEye" aria-pressed="true" aria-label="Hide settings">
+  <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+  <svg class="eye-shut" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M2 12s4-7 10-7c1.7 0 3.2.4 4.5 1.1M22 12s-4 7-10 7c-1.7 0-3.2-.4-4.5-1.1"/><path d="M9.5 9.5a3 3 0 0 0 4.2 4.2"/></svg>
+</button>
+<aside class="look-rail" aria-label="Look">
+  <section class="tool-block">
+    <h2 class="tool-title">Look</h2>
+    <label class="accent-pick is-rail" title="Accent color (keeps gradients)">
+      <span>Accent</span>
+      <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
+      <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
+    </label>
+    <label class="accent-pick is-rail" title="Secondary radial wash colour + strength">
+      <span>Radial</span>
+      <input type="color" id="radialColor" value="#b36bff" aria-label="Button radial color">
+      <input type="range" id="radialAmount" min="0" max="100" value="55" aria-label="Radial amount">
+    </label>
+    <label class="accent-pick is-rail" title="How impactful the secondary radial wash is">
+      <span>Radial impact</span>
+      <input type="range" id="radialImpact" min="0" max="100" value="60" aria-label="Radial impact">
+    </label>
+    <label class="accent-pick is-rail" title="Page background indigo">
+      <span>Background</span>
+      <input type="color" id="bgColor" value="#170c35" aria-label="Background color">
+      <input type="range" id="bgDepth" min="40" max="100" value="100" aria-label="Background depth">
+    </label>
+    <div class="tool-toggle">
+      <span>Mid tone</span>
+      <button type="button" class="switch" id="midToneOn" role="switch" aria-checked="false" aria-label="Mid tone">
+        <span class="switch-knob" aria-hidden="true"></span>
+      </button>
+    </div>
+    <label class="accent-pick is-rail is-mid-tone" id="midTonePick" title="Raised / card mid tone" hidden>
+      <span>Mid</span>
+      <input type="color" id="midToneColor" value="#241b46" aria-label="Mid tone color">
+    </label>
+  </section>
+</aside>
 <aside class="edition-rail" aria-label="Versioning">
   <h2 class="edition-title">Versioning</h2>
   <div class="edition-bar" role="group" aria-label="Version">
@@ -105,7 +143,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     const v2 = edition === 'v2';
     document.body.classList.toggle('is-v2', v2);
     if (v2 && frame.dataset.ready !== '1') {
-      frame.src = '../gem-pins-v2/?v=3&embed=1&sheet=' + sheet;
+      frame.src = '../gem-pins-v2/?v=4&embed=1&sheet=' + sheet;
       frame.dataset.ready = '1';
     } else if (v2) {
       showFrame();
@@ -137,6 +175,71 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
       });
       sendSheet();
     });
+  });
+
+  const accentColor = document.getElementById('accentColor');
+  const accentAlpha = document.getElementById('accentAlpha');
+  const radialColor = document.getElementById('radialColor');
+  const radialAmount = document.getElementById('radialAmount');
+  const radialImpact = document.getElementById('radialImpact');
+  const bgColor = document.getElementById('bgColor');
+  const bgDepth = document.getElementById('bgDepth');
+  const midToneOn = document.getElementById('midToneOn');
+  const midToneColor = document.getElementById('midToneColor');
+  const midTonePick = document.getElementById('midTonePick');
+  function hexToRgb(hex) {
+    const h = String(hex || '').replace('#', '');
+    const n = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+    return { r: parseInt(n.slice(0, 2), 16), g: parseInt(n.slice(2, 4), 16), b: parseInt(n.slice(4, 6), 16) };
+  }
+  function publishLook() {
+    const hex = accentColor.value || '#00c2ff';
+    const alpha = (Number(accentAlpha.value) || 100) / 100;
+    const { r, g, b } = hexToRgb(hex);
+    const deep = `rgb(${Math.max(0, r - 40)}, ${Math.max(0, g - 50)}, ${Math.max(0, b - 20)})`;
+    const accent = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    const solid = `rgb(${r}, ${g}, ${b})`;
+    const rad = hexToRgb(radialColor.value || '#b36bff');
+    const amount = (Number(radialAmount.value) || 55) / 100;
+    const impact = (Number(radialImpact.value) || 60) / 100;
+    const radAlpha = 0.35 * amount + 0.65 * amount * impact;
+    const spreadX = 140 + Math.round(120 * impact);
+    const spreadY = 55 + Math.round(35 * impact);
+    const fade = 58 + Math.round(22 * (1 - impact));
+    const bg = hexToRgb(bgColor.value || '#170c35');
+    const depth = (Number(bgDepth.value) || 100) / 100;
+    const bgOut = `rgb(${Math.round(bg.r * depth)}, ${Math.round(bg.g * depth)}, ${Math.round(bg.b * depth)})`;
+    const midOn = midToneOn.getAttribute('aria-checked') === 'true';
+    midTonePick.hidden = !midOn;
+    const raised = midOn ? midToneColor.value : '#241b46';
+    const vars = {
+      '--accent': solid,
+      '--accent-deep': deep,
+      '--brand-accent': accent,
+      '--bg': bgOut,
+      '--raised': raised,
+      '--surface': raised,
+      '--btn-radial': `rgba(${rad.r}, ${rad.g}, ${rad.b}, ${radAlpha})`,
+      '--btn-radial-wash': `radial-gradient(ellipse ${spreadX}% ${spreadY}% at 50% 45%, rgba(${rad.r}, ${rad.g}, ${rad.b}, ${radAlpha}), transparent ${fade}%)`,
+    };
+    for (const [k, v] of Object.entries(vars)) document.documentElement.style.setProperty(k, v);
+    if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'gem-pins-look', vars: vars }, '*');
+  }
+  [accentColor, accentAlpha, radialColor, radialAmount, radialImpact, bgColor, bgDepth, midToneColor].forEach((el) => {
+    el.addEventListener('input', publishLook);
+  });
+  midToneOn.addEventListener('click', () => {
+    midToneOn.setAttribute('aria-checked', midToneOn.getAttribute('aria-checked') === 'true' ? 'false' : 'true');
+    publishLook();
+  });
+  frame.addEventListener('load', publishLook);
+  publishLook();
+
+  const eye = document.getElementById('settingsEye');
+  eye.addEventListener('click', () => {
+    const open = document.body.classList.toggle('is-settings-hidden');
+    eye.setAttribute('aria-pressed', String(!open));
+    eye.setAttribute('aria-label', open ? 'Show settings' : 'Hide settings');
   });
 })();
 </script>

@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v3 — phone chrome from gem-pins + location-gems + daily-side-quests */
+/* GEM-PINS-V2-v4 — phone chrome from gem-pins + location-gems + daily-side-quests */
 :root {
   --bg: #170c35;
   --surface: #241b46;
@@ -14,6 +14,7 @@
   --btn-radial: rgba(179, 107, 255, 0.55);
   --btn-radial-wash: radial-gradient(ellipse 200% 70% at 50% 45%, var(--btn-radial), transparent 72%);
   --font: "Darker Grotesque", system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.33, 0, 0.2, 1);
   --phone-w: 390px;
   --phone-h: 844px;
 }
@@ -114,7 +115,17 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   background: none;
   border-radius: 50%;
 }
-.pin svg { display: block; overflow: visible; }
+.pin.is-enter { animation: pinFadeIn 480ms var(--ease-out) both; }
+.pin.is-out { animation: pinFadeOut 480ms var(--ease-out) both; pointer-events: none; }
+@keyframes pinFadeIn {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes pinFadeOut {
+  0% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(8px); }
+}
+.legend.is-swap { animation: pinFadeIn 480ms var(--ease-out) both; }
 .pin.visited svg { opacity: 0.4; filter: saturate(0.3); }
 .pin.selected { z-index: 3; }
 .pin.selected::before {
@@ -143,8 +154,16 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   align-items: center;
   gap: 8px;
   min-height: 56px;
+  transition: grid-template-columns 480ms var(--ease-out);
 }
-.map-bar.is-off { grid-template-columns: minmax(0, 1fr) 40px; }
+.map-bar.is-off { grid-template-columns: minmax(0, 1fr) 0fr 40px; }
+.roller-wrap {
+  min-width: 0;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 480ms var(--ease-out);
+}
+.map-bar.is-off .roller-wrap { opacity: 0; pointer-events: none; }
 
 .legend {
   min-width: 0;
@@ -236,6 +255,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   border-radius: 50%;
   background: transparent;
   opacity: 0.45;
+  transition: opacity 480ms var(--ease-out), box-shadow 480ms var(--ease-out);
 }
 .roller button[aria-selected="true"] {
   opacity: 1;

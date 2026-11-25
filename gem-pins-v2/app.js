@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v3 — Brett’s pick on Melissa’s map, plus the legend roller and three slide-outs. */
+/* GEM-PINS-V2-v4 — Brett’s pick on Melissa’s map, plus the legend roller and three slide-outs. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -168,30 +168,47 @@ function shown(g) {
   return g.tags.includes(stopId);
 }
 
-function drawPins() {
+function drawPins(animate) {
   const pins = $('pins');
-  pins.replaceChildren();
   applyView();
   const box = pins.getBoundingClientRect();
   const phone = $('phone').getBoundingClientRect();
   const rank = (g) => (g.rarity === 'mythical' ? 3 : g.mine ? 2 : g.liked ? 1 : 0);
   const list = GEMS.slice(0, DENSITY).filter(shown).sort((a, b) => rank(a) - rank(b));
+  const keep = new Set();
   for (const g of list) {
     const p = placeOf(g, box, phone);
     if (p[0] < -22 || p[0] > box.width + 22 || p[1] < -22 || p[1] > box.height + 22) continue;
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'pin' + (g.id === openId ? ' selected' : '');
+    keep.add(String(g.id));
+    let b = pins.querySelector(`.pin[data-id="${g.id}"]`);
+    if (!b) {
+      b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'pin' + (animate ? ' is-enter' : '');
+      b.dataset.id = String(g.id);
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (panMoved) return;
+        openGem(GEMS[Number(b.dataset.id)]);
+      });
+      pins.append(b);
+    }
     b.style.left = `${p[0]}px`;
     b.style.top = `${p[1]}px`;
-    b.innerHTML = pinFor(g);
+    b.classList.toggle('selected', g.id === openId);
+    b.classList.remove('is-out');
+    const html = pinFor(g);
+    if (b.innerHTML !== html) b.innerHTML = html;
     b.setAttribute('aria-label', `${g.name}, ${RARITY[rarityOf(g)].label}`);
-    b.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (panMoved) return;
-      openGem(g);
-    });
-    pins.append(b);
+  }
+  for (const b of [...pins.querySelectorAll('.pin')]) {
+    if (keep.has(b.dataset.id)) continue;
+    if (animate && !b.classList.contains('is-out')) {
+      b.classList.add('is-out');
+      b.classList.remove('is-enter');
+      const gone = b;
+      setTimeout(() => { if (gone.isConnected && gone.classList.contains('is-out')) gone.remove(); }, 480);
+    } else if (!animate) b.remove();
   }
 }
 
@@ -205,13 +222,19 @@ function paintBar() {
   const bar = $('mapBar');
   const legend = $('legend');
   bar.classList.toggle('is-off', !filterOn);
-  $('rollerWrap').hidden = !filterOn;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
   const stop = STOPS.find((s) => s.id === stopId);
   const ico = filterOn ? pinFor(sampleFor(stopId)) : pinFor(sampleFor('wishlist'));
   const title = filterOn ? stop.label : 'Gems nearby';
   const note = filterOn ? `<p class="legend-note">${EXPLAIN[stopId]}</p>` : '';
+  const prev = legend.querySelector('.legend-title');
+  const changed = !prev || prev.textContent !== title;
   legend.innerHTML = `<span class="legend-ico">${ico}</span><div class="legend-copy"><p class="legend-title">${title}</p>${note}</div>`;
+  if (changed) {
+    legend.classList.remove('is-swap');
+    void legend.offsetWidth;
+    legend.classList.add('is-swap');
+  }
   for (const b of $('roller').querySelectorAll('button')) {
     b.setAttribute('aria-selected', String(b.dataset.stop === stopId));
   }
@@ -223,14 +246,17 @@ function centerStop(id, smooth) {
   lockScroll = true;
   const left = b.offsetLeft - $('roller').clientWidth / 2 + b.offsetWidth / 2;
   $('roller').scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
-  setTimeout(() => { lockScroll = false; }, smooth ? 280 : 40);
+  setTimeout(() => { lockScroll = false; }, smooth ? 480 : 40);
 }
 
 function pickStop(id) {
   stopId = id;
   paintBar();
-  drawPins();
-  if (openId != null && !shown(GEMS[openId])) closeSlide();
+  if (openId != null && !shown(GEMS[openId])) {
+    openId = null;
+    $('slide').hidden = true;
+  }
+  drawPins(true);
 }
 
 function buildRoller() {
@@ -333,9 +359,12 @@ function toast(text) {
 $('filterBtn').addEventListener('click', () => {
   filterOn = !filterOn;
   paintBar();
-  drawPins();
+  if (openId != null && !shown(GEMS[openId])) {
+    openId = null;
+    $('slide').hidden = true;
+  }
+  drawPins(true);
   if (filterOn) requestAnimationFrame(() => centerStop(stopId, false));
-  if (openId != null && !shown(GEMS[openId])) closeSlide();
 });
 $('likeBtn').addEventListener('click', () => {
   const g = GEMS[openId];
@@ -344,14 +373,14 @@ $('likeBtn').addEventListener('click', () => {
   g.likes = Math.max(0, g.likes + (g.liked ? 1 : -1));
   paintSlide();
   paintBar();
-  drawPins();
+  drawPins(filterOn && stopId === 'liked');
 });
 $('saveBtn').addEventListener('click', () => {
   if (openId == null) return;
   if (saved.has(openId)) saved.delete(openId);
   else saved.add(openId);
   paintSlide();
-  if (filterOn && stopId === 'wishlist') drawPins();
+  if (filterOn && stopId === 'wishlist') drawPins(true);
 });
 $('navBtn').addEventListener('click', () => toast('[would open navigate]'));
 $('screen').addEventListener('click', () => {
@@ -362,8 +391,11 @@ for (const b of $('sheetSwitch').querySelectorAll('button')) {
   b.addEventListener('click', () => setSheet(b.dataset.sheet));
 }
 window.addEventListener('message', (e) => {
-  const next = e.data && e.data.type === 'gem-pins-sheet' ? e.data.sheet : '';
-  if (SHEETS.includes(next)) setSheet(next);
+  const data = e.data || {};
+  if (data.type === 'gem-pins-sheet' && SHEETS.includes(data.sheet)) setSheet(data.sheet);
+  if (data.type === 'gem-pins-look' && data.vars) {
+    for (const [key, value] of Object.entries(data.vars)) document.documentElement.style.setProperty(key, value);
+  }
 });
 
 let panMoved = false;
