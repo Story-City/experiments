@@ -358,7 +358,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .arc-wrap {
   position: absolute;
-  top: -44px;
+  top: -52px;
   width: 240px;
   height: 106.11px;
   transform: scaleY(-1);

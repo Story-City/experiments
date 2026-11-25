@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v92 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v93 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -2265,8 +2265,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v92 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v92 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v93 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v93 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
