@@ -14,7 +14,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
 </head>
 <body>
-<!-- GEM-PINS-EDITION-v23: Disc Figma bottom-arc gems on rim -->
+<!-- GEM-PINS-EDITION-v24: Disc tighter hug + tinted arc -->
 <button type="button" class="settings-eye" id="settingsEye" aria-pressed="true" aria-label="Hide settings">
   <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
   <svg class="eye-shut" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M2 12s4-7 10-7c1.7 0 3.2.4 4.5 1.1M22 12s-4 7-10 7c-1.7 0-3.2-.4-4.5-1.1"/><path d="M9.5 9.5a3 3 0 0 0 4.2 4.2"/></svg>
@@ -164,7 +164,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     const v2 = edition === 'v2';
     document.body.classList.toggle('is-v2', v2);
     if (v2 && frame.dataset.ready !== '1') {
-      frame.src = '../gem-pins-v2/?v=22&embed=1&sheet=' + sheet;
+      frame.src = '../gem-pins-v2/?v=23&embed=1&sheet=' + sheet;
       frame.dataset.ready = '1';
     } else if (v2) {
       showFrame();

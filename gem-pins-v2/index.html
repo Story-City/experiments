@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=22">
+<link rel="stylesheet" href="app.css?v=23">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -51,27 +51,25 @@
             </div>
           </div>
           <div class="disc-stage" id="discStage" hidden>
-            <svg class="disc-arc" id="discArc" viewBox="0 0 400 120" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
-              <defs>
-                <linearGradient id="discArcFade" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0" stop-color="#fff" stop-opacity="0"/>
-                  <stop offset="0.16" stop-color="#fff" stop-opacity="0.75"/>
-                  <stop offset="0.5" stop-color="#fff" stop-opacity="1"/>
-                  <stop offset="0.84" stop-color="#fff" stop-opacity="0.75"/>
-                  <stop offset="1" stop-color="#fff" stop-opacity="0"/>
-                </linearGradient>
-                <mask id="discArcMask">
-                  <rect x="0" y="0" width="400" height="120" fill="url(#discArcFade)"/>
-                </mask>
-              </defs>
-              <!-- Bottom rim only of a large ellipse whose centre sits above the frame (Figma) -->
+            <svg class="disc-arc" id="discArc" viewBox="0 0 400 100" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+              <!-- Bottom rim only; currentColor = selected gem tint -->
               <path
-                class="disc-arc-stroke"
-                d="M -100 -178 A 300 260 0 0 1 500 -178"
+                class="disc-arc-glow"
+                d="M -50 -148 A 250 220 0 0 1 450 -148"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2.25"
-                mask="url(#discArcMask)"
+                stroke-width="12"
+                stroke-linecap="round"
+                opacity="0.4"
+              />
+              <path
+                class="disc-arc-tint"
+                d="M -50 -148 A 250 220 0 0 1 450 -148"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3.75"
+                stroke-linecap="round"
+                opacity="1"
               />
             </svg>
             <div class="disc-wheel" id="discWheel" role="listbox" aria-label="Filter gems on disc"></div>
@@ -169,8 +167,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v22 — Disc: Figma bottom-arc only; gems wrapped to rim; tight step.</p>
-  <script src="../location-gems/corner-ribbon.js?v=22"></script>
-  <script type="module" src="app.js?v=22"></script>
+  <p class="meta">GEM-PINS-V2-v23 — Disc: tighter hug + visible tinted arc stroke.</p>
+  <script src="../location-gems/corner-ribbon.js?v=23"></script>
+  <script type="module" src="app.js?v=23"></script>
 </body>
 </html>

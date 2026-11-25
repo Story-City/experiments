@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v22 — Disc: Figma bottom-arc only; gems wrapped to rim; tight step. */
+/* GEM-PINS-V2-v23 — Disc: tighter hug + visible tinted arc stroke. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -13,14 +13,14 @@ const SHEETS = ['original', 'prompt', 'image', 'bar'];
  * Figma: huge ellipse mostly above the frame — only the bottom rim shows.
  * Gems sit on that rim with a tight visual step (not 360/n), so padding matches the frame.
  */
-const DISC_RX = 300;
-const DISC_RY = 260;
-const DISC_ORIGIN_Y = -178;
-const DISC_STEP = 13;
-const DISC_PX_PER_DEG = 2.4;
-const DISC_SCALE_MIN = 0.42;
-const DISC_SCALE_MAX = 1.18;
-const DISC_FADE_DEG = 48;
+const DISC_RX = 250;
+const DISC_RY = 220;
+const DISC_ORIGIN_Y = -148;
+const DISC_STEP = 9;
+const DISC_PX_PER_DEG = 2.8;
+const DISC_SCALE_MIN = 0.5;
+const DISC_SCALE_MAX = 1.2;
+const DISC_FADE_DEG = 40;
 const DISC_ANIM_MS = 520;
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
@@ -549,7 +549,15 @@ function paintDiscAngle(angle) {
   const front = list[nearest];
   if (front) {
     const tint = stopDisc(front.id);
-    if (stage) stage.style.setProperty('--disc-tint', tint);
+    if (stage) {
+      stage.style.setProperty('--disc-tint', tint);
+      stage.style.color = tint;
+    }
+    const arc = $('discArc');
+    if (arc) {
+      arc.style.color = tint;
+      arc.setAttribute('color', tint);
+    }
     if (titleEl) titleEl.textContent = front.label;
     if (noteEl) noteEl.textContent = displayCopy(explainOf(front.id));
   }
