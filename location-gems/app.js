@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v74 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v75 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -25,15 +25,16 @@ const PUBLIC_GEM_FILL = '#00c2ff';
 const HIDDEN_GEM_FILL = '#9370c4';
 /** Melissa's jam categories (gem-pins / 19 Nov) — shape + colour */
 /** Melissa’s cats — Figma Component 22 gems (Social Media 2847:469) */
+/* Same as gem-pins: eat + shop combined into one Eat & Drink stop */
 const JAM_CATS = [
   { id: 'nature', label: 'Nature', colour: '#00CD9D', art: 'assets/gems/nature.svg' },
   { id: 'eat', label: 'Eat & Drink', colour: '#FF4F79', art: 'assets/gems/eat-drink.svg' },
-  { id: 'shop', label: 'Shop', colour: '#FF7696', art: 'assets/gems/eat-drink.svg' },
   { id: 'culture', label: 'Culture', colour: '#41C7D8', art: 'assets/gems/art.svg' },
   { id: 'play', label: 'Play', colour: '#F7C85C', art: 'assets/gems/play.svg' },
   { id: 'landmark', label: 'Landmarks', colour: '#F1A638', art: 'assets/gems/landmarks.svg' },
   { id: 'curio', label: 'Curiosities', colour: '#B36BFF', art: 'assets/gems/curiosities.svg' },
 ];
+const JAM_CAT_ALIASES = { shop: 'eat' };
 const SORT_CARD_LOOKS = new Set(['polaroid', 'overlay', 'flush', 'stack']);
 const SILVER_GEM_FILL = '#c8d2e6';
 const GOLD_GEM_FILL = '#ffc448';
@@ -497,7 +498,8 @@ function displayCopy(text) {
 }
 
 function jamCatById(id) {
-  return JAM_CATS.find((c) => c.id === id) || JAM_CATS[0];
+  const resolved = JAM_CAT_ALIASES[id] || id;
+  return JAM_CATS.find((c) => c.id === resolved) || JAM_CATS[0];
 }
 
 function categoryGemMark(cat) {
@@ -2081,8 +2083,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v74 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v74 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v75 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v75 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
