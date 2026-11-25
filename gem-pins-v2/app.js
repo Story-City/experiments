@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v17 — Disc centred big arc, caption under selected, size falloff, live scroll. */
+/* GEM-PINS-V2-v18 — Inline 2-row + big gems; Disc centred big arc, caption under selected. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -10,10 +10,10 @@ const DENSITY = 40;
 const PIN_SIZE = 28;
 const SHEETS = ['original', 'prompt', 'image', 'bar'];
 /** Half-circle disc: big arc pointing up; plate centre on the stage floor */
-const DISC_RADIUS = 168;
+const DISC_RADIUS = 190;
 const DISC_PX_PER_DEG = 1.85;
-const DISC_SCALE_MIN = 0.52;
-const DISC_SCALE_MAX = 1.28;
+const DISC_SCALE_MIN = 0.72;
+const DISC_SCALE_MAX = 1.32;
 const DISC_ANIM_MS = 480;
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
