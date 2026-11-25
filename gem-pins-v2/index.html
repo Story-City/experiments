@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Gem map pins V2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
+<link rel="stylesheet" href="app.css?v=1">
+<meta http-equiv="Cache-Control" content="no-cache">
+</head>
+<body>
+  <header class="page-head">
+    <p class="eyebrow">StoryCity · experiments</p>
+    <h1>Gem map pins V2</h1>
+    <p class="lede">Melissa’s map, Victoria’s gems. Filter is the top bar. Switch the slide-out below.</p>
+  </header>
+
+  <div class="sheet-switch" id="sheetSwitch" role="group" aria-label="Slide-out version">
+    <button type="button" data-sheet="prompt">Prompt</button>
+    <button type="button" data-sheet="image">Image</button>
+    <button type="button" data-sheet="corner">Corner</button>
+  </div>
+
+  <main class="phone" id="phone">
+    <div class="screen" id="screen">
+      <div class="map" id="map"></div>
+      <div class="pins" id="pins"></div>
+    </div>
+
+    <header class="map-top">
+      <div class="map-bar" id="mapBar">
+        <div class="legend" id="legend"></div>
+        <div class="roller-wrap" id="rollerWrap" hidden>
+          <div class="roller" id="roller" role="listbox" aria-label="Filter gems"></div>
+        </div>
+        <button type="button" class="filter-btn" id="filterBtn" aria-pressed="false" aria-label="Filter">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+
+    <section class="slide" id="slide" hidden aria-label="Gem">
+      <i class="grab"></i>
+      <div class="slide-photo" id="slidePhoto" hidden></div>
+      <div class="slide-glass">
+        <p class="slide-user" id="slideUser"></p>
+        <h2 id="slideName"></h2>
+        <p class="slide-line" id="slideLine"></p>
+        <button type="button" class="like-btn" id="likeBtn" aria-label="Like">
+          <span class="like-heart" id="likeHeart" aria-hidden="true">♡</span>
+          <span class="like-count" id="likeCount">0</span>
+        </button>
+      </div>
+      <div class="slide-actions">
+        <button type="button" class="save-btn" id="saveBtn">[save for later]</button>
+        <button type="button" class="nav-btn" id="navBtn">[navigate]</button>
+      </div>
+    </section>
+  </main>
+
+  <p class="meta">GEM-PINS-V2-v1 — Victoria gem art, legend roller, three slide-outs.</p>
+  <script src="../location-gems/corner-ribbon.js?v=1"></script>
+  <script type="module" src="app.js?v=1"></script>
+</body>
+</html>
