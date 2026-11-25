@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v31 — Disc: gems on SVG U curve, readable unselected size. */
+/* GEM-PINS-V2-v32 — Wishlist filter mark uses solid bookmark. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -132,7 +132,7 @@ function heartMark() {
 
 function bookmarkMark() {
   return `<svg class="pin-gem is-bookmark" viewBox="0 0 24 24" aria-hidden="true">
-    <path d="${BOOKMARK_PATH}" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${BOOKMARK_PATH}" fill="#e8e4ff" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
 }
 
