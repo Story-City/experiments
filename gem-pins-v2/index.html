@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=4">
+<link rel="stylesheet" href="app.css?v=5">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -18,6 +18,7 @@
   </header>
 
   <div class="sheet-switch" id="sheetSwitch" role="group" aria-label="Slide-out version">
+    <button type="button" data-sheet="original">Original</button>
     <button type="button" data-sheet="prompt">Prompt</button>
     <button type="button" data-sheet="image">Image</button>
     <button type="button" data-sheet="corner">Corner</button>
@@ -45,8 +46,31 @@
 
     <section class="slide" id="slide" hidden aria-label="Gem">
       <i class="grab"></i>
-      <div class="slide-photo" id="slidePhoto" hidden></div>
-      <div class="slide-glass">
+      <div class="slide-media" id="slideMedia" hidden>
+        <div class="slide-photo" id="slidePhoto"></div>
+        <div class="slide-scrim" aria-hidden="true"></div>
+        <div class="slide-corner" id="slideCorner" hidden></div>
+        <div class="slide-overlay" id="slideOverlay">
+          <p class="slide-user" id="slideUserOv"></p>
+          <h2 id="slideNameOv"></h2>
+          <div class="slide-info-row">
+            <button type="button" class="like-btn" id="likeBtnOv" aria-label="Like">
+              <span class="like-heart" id="likeHeartOv" aria-hidden="true">♡</span>
+              <span class="like-count" id="likeCountOv">0</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="slide-head" id="slideHead" hidden>
+        <span class="slide-art" id="slideArt"></span>
+        <div class="slide-head-copy">
+          <h2 id="slideNameHead"></h2>
+          <p class="slide-line" id="slideLineHead"></p>
+        </div>
+        <div class="corner-acts" id="slideActs"></div>
+      </div>
+      <div class="tags" id="slideTags" hidden></div>
+      <div class="slide-glass" id="slideGlass">
         <p class="slide-user" id="slideUser"></p>
         <h2 id="slideName"></h2>
         <p class="slide-line" id="slideLine"></p>
@@ -55,15 +79,17 @@
           <span class="like-count" id="likeCount">0</span>
         </button>
       </div>
-      <div class="slide-actions">
+      <p class="sheet-more" id="slideMore" hidden>[tap for more]</p>
+      <p class="sheet-status" id="slideStatus" hidden></p>
+      <div class="slide-actions" id="slideActions">
         <button type="button" class="save-btn" id="saveBtn">[save for later]</button>
         <button type="button" class="nav-btn" id="navBtn">[navigate]</button>
       </div>
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v4 — Victoria gem art, legend roller, three slide-outs.</p>
-  <script src="../location-gems/corner-ribbon.js?v=4"></script>
-  <script type="module" src="app.js?v=4"></script>
+  <p class="meta">GEM-PINS-V2-v5 — Original + Prompt / Image / Corner from Location Gems.</p>
+  <script src="../location-gems/corner-ribbon.js?v=5"></script>
+  <script type="module" src="app.js?v=5"></script>
 </body>
 </html>

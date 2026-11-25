@@ -14,12 +14,29 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
 </head>
 <body>
-<!-- GEM-PINS-EDITION-v5: colour tools on the left, eye hides settings, 480ms fades -->
+<!-- GEM-PINS-EDITION-v6: right debug panel, eye hides everything including Melissa -->
 <button type="button" class="settings-eye" id="settingsEye" aria-pressed="true" aria-label="Hide settings">
   <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
   <svg class="eye-shut" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M2 12s4-7 10-7c1.7 0 3.2.4 4.5 1.1M22 12s-4 7-10 7c-1.7 0-3.2-.4-4.5-1.1"/><path d="M9.5 9.5a3 3 0 0 0 4.2 4.2"/></svg>
 </button>
-<aside class="look-rail" aria-label="Look">
+<aside class="debug-rail" aria-label="Debug">
+  <section class="tool-block">
+    <h2 class="edition-title">Versioning</h2>
+    <div class="edition-bar" role="group" aria-label="Version">
+      <button type="button" data-edition="v1" aria-pressed="true">V1</button>
+      <button type="button" data-edition="v2" aria-pressed="false">V2</button>
+    </div>
+    <div class="edition-extra" id="editionExtra">
+      <p class="edition-label">Slide-out</p>
+      <div class="edition-sheets" role="group" aria-label="Slide-out">
+        <button type="button" data-sheet="original" aria-pressed="false">Original</button>
+        <button type="button" data-sheet="prompt" aria-pressed="true">Prompt</button>
+        <button type="button" data-sheet="image" aria-pressed="false">Image</button>
+        <button type="button" data-sheet="corner" aria-pressed="false">Corner</button>
+      </div>
+      <button type="button" class="reset-filter" id="resetFilter">Reset filter</button>
+    </div>
+  </section>
   <section class="tool-block">
     <h2 class="tool-title">Look</h2>
     <label class="accent-pick is-rail" title="Accent color (keeps gradients)">
@@ -52,21 +69,6 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
       <input type="color" id="midToneColor" value="#241b46" aria-label="Mid tone color">
     </label>
   </section>
-</aside>
-<aside class="edition-rail" aria-label="Versioning">
-  <h2 class="edition-title">Versioning</h2>
-  <div class="edition-bar" role="group" aria-label="Version">
-    <button type="button" data-edition="v1" aria-pressed="true">V1</button>
-    <button type="button" data-edition="v2" aria-pressed="false">V2</button>
-  </div>
-  <div class="edition-extra" id="editionExtra">
-    <p class="edition-label">Slide-out</p>
-    <div class="edition-sheets" role="group" aria-label="Slide-out">
-      <button type="button" data-sheet="prompt" aria-pressed="true">Prompt</button>
-      <button type="button" data-sheet="image" aria-pressed="false">Image</button>
-      <button type="button" data-sheet="corner" aria-pressed="false">Corner</button>
-    </div>
-  </div>
 </aside>
 <!-- red-green colour-blind simulation (option 15) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -143,7 +145,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     const v2 = edition === 'v2';
     document.body.classList.toggle('is-v2', v2);
     if (v2 && frame.dataset.ready !== '1') {
-      frame.src = '../gem-pins-v2/?v=4&embed=1&sheet=' + sheet;
+      frame.src = '../gem-pins-v2/?v=5&embed=1&sheet=' + sheet;
       frame.dataset.ready = '1';
     } else if (v2) {
       showFrame();
@@ -240,6 +242,9 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     const open = document.body.classList.toggle('is-settings-hidden');
     eye.setAttribute('aria-pressed', String(!open));
     eye.setAttribute('aria-label', open ? 'Show settings' : 'Hide settings');
+  });
+  document.getElementById('resetFilter').addEventListener('click', () => {
+    if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'gem-pins-reset-filter' }, '*');
   });
 })();
 </script>

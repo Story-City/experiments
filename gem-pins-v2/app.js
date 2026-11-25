@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v4 — Brett’s pick on Melissa’s map, plus the legend roller and three slide-outs. */
+/* GEM-PINS-V2-v5 — Brett’s pick, legend roller, Original + Prompt / Image / Corner. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -7,7 +7,12 @@ import { ART } from '../gem-pins/gem-art.js';
 const $ = (id) => document.getElementById(id);
 const DENSITY = 40;
 const SIZES = [22, 28, 34];
-const SHEETS = ['prompt', 'image', 'corner'];
+const SHEETS = ['original', 'prompt', 'image', 'corner'];
+const ICON = {
+  heart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.3-9.2C1.6 7.8 3.5 4.5 6.8 4.5c2 0 3.4 1.1 4.2 2.4h2c.8-1.3 2.2-2.4 4.2-2.4 3.3 0 5.2 3.3 4.1 6.3C19.5 15.4 12 20 12 20z"/></svg>',
+  hide: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.6"/><path d="M4 20 20 4"/></svg>',
+  check: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M7.8 12.4l2.8 2.8 5.6-5.8"/></svg>',
+};
 const TOAST_MS = 1600;
 const ART_KEY = { nature: 'nature', eat: 'eatshop', shop: 'eatshop', culture: 'art', play: 'activities', landmark: 'landmarks' };
 const ART_COLOUR = { nature: '#2fd6a2', eatshop: '#ff5c7a', art: '#41c7d8', activities: '#f5c44a', nugget: '#b36bff', fan: '#b36bff', landmarks: '#f29b2e', mine: '#cdd6ea' };
@@ -132,6 +137,7 @@ const saved = new Set();
 let filterOn = false;
 let stopId = 'nature';
 let openId = null;
+let sheetFull = false;
 let sheet = SHEETS.includes(new URLSearchParams(location.search).get('sheet'))
   ? new URLSearchParams(location.search).get('sheet')
   : 'prompt';
@@ -301,24 +307,121 @@ function cornerHtml(g) {
   return `<div class="gem-card-corner" style="--gem-line:${fill}"><div class="gem-card-corner-art" aria-hidden="true">${ribbon}</div><div class="gem-card-corner-stack"><span class="gem-card-gem">${pinFor(g)}</span></div></div>`;
 }
 
+function whoLine(g) {
+  return (g.mine ? `${COPY.yours} · ${g.private ? COPY.private : COPY.public}` : COPY.by(g.owner))
+    + (g.visited ? ` · ${COPY.visited}` : '');
+}
+
+function paintLike(btnId, heartId, countId, g) {
+  const like = $(btnId);
+  like.classList.toggle('is-liked', g.liked);
+  $(heartId).textContent = g.liked ? '♥' : '♡';
+  $(countId).textContent = String(g.likes);
+}
+
+function paintActs(g) {
+  const box = $('slideActs');
+  box.replaceChildren();
+  if (g.mine) return;
+  const mk = (cls, html, label, on, fn) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'cact ' + cls;
+    b.innerHTML = html;
+    b.setAttribute('aria-label', label);
+    if (on != null) b.setAttribute('aria-pressed', String(on));
+    b.addEventListener('click', (e) => { e.stopPropagation(); fn(); });
+    return b;
+  };
+  box.append(
+    mk('heart', ICON.heart, g.liked ? COPY.unlikeIt || 'Unlike' : COPY.likeIt || 'Like', g.liked, () => {
+      g.liked = !g.liked;
+      if (g.liked) g.visited = false;
+      paintSlide();
+      drawPins(filterOn && stopId === 'liked');
+    }),
+    mk('hide', ICON.hide, COPY.hideLong || 'Hide', null, () => {
+      toast('[would hide from map]');
+      closeSlide();
+    }),
+    mk('check', ICON.check, g.visited ? COPY.unmarkIt || 'Unmark' : COPY.markIt || 'Mark visited', g.visited, () => {
+      g.visited = !g.visited;
+      if (g.visited) g.liked = false;
+      paintSlide();
+      drawPins();
+    }),
+  );
+}
+
+function paintTags(g) {
+  const tags = $('slideTags');
+  tags.replaceChildren();
+  const rarity = document.createElement('span');
+  rarity.className = 'tag rarity';
+  rarity.textContent = RARITY[rarityOf(g)].label;
+  rarity.style.setProperty('--c', rarityOf(g) === 'mythical' ? '#c49bff' : rarityOf(g) === 'rare' || rarityOf(g) === 'epic' ? '#7ad7ff' : '#9fe3ff');
+  tags.append(rarity);
+  for (const id of g.tags) {
+    const c = CATS.find((x) => x.id === id);
+    if (!c) continue;
+    const x = document.createElement('span');
+    x.className = 'tag';
+    x.textContent = c.label;
+    const key = id === 'curio' ? 'nugget' : (ART_KEY[id] || 'nature');
+    x.style.setProperty('--c', ART_COLOUR[key] || '#9fe3ff');
+    tags.append(x);
+  }
+}
+
 function paintSlide() {
   const g = GEMS[openId];
   if (!g) return;
   const slide = $('slide');
-  slide.classList.toggle('is-image', sheet === 'image');
-  slide.classList.toggle('is-corner', sheet === 'corner');
-  slide.classList.toggle('is-prompt', sheet === 'prompt');
-  const photo = $('slidePhoto');
-  photo.hidden = sheet === 'prompt';
-  photo.style.backgroundImage = sheet === 'prompt' ? '' : `url("${g.photo}")`;
-  photo.innerHTML = sheet === 'corner' ? cornerHtml(g) : '';
-  $('slideUser').textContent = g.mine ? '' : `@${g.owner.toLowerCase()}`;
+  const isOriginal = sheet === 'original';
+  const isPrompt = sheet === 'prompt';
+  const isImage = sheet === 'image';
+  const isCorner = sheet === 'corner';
+  slide.classList.toggle('is-original', isOriginal);
+  slide.classList.toggle('is-prompt', isPrompt);
+  slide.classList.toggle('is-image', isImage);
+  slide.classList.toggle('is-corner', isCorner);
+  slide.classList.toggle('is-full', isOriginal && sheetFull);
+
+  const media = $('slideMedia');
+  const showMedia = isImage || isCorner || (isOriginal && sheetFull);
+  media.hidden = !showMedia;
+  $('slidePhoto').style.backgroundImage = showMedia ? `url("${g.photo}")` : '';
+  const corner = $('slideCorner');
+  corner.hidden = !isCorner;
+  corner.innerHTML = isCorner ? cornerHtml(g) : '';
+  $('slideOverlay').hidden = !(isImage || isCorner);
+
+  $('slideHead').hidden = !isOriginal;
+  $('slideTags').hidden = !isOriginal;
+  $('slideGlass').hidden = isOriginal || isImage || isCorner;
+  $('slideMore').hidden = !(isOriginal && !sheetFull);
+  $('slideStatus').hidden = !(isOriginal && sheetFull);
+  $('slideActions').hidden = isOriginal && !sheetFull;
+
+  if (isOriginal) {
+    $('slideArt').innerHTML = pinFor(g);
+    $('slideNameHead').textContent = g.name;
+    $('slideLineHead').textContent = whoLine(g);
+    paintActs(g);
+    paintTags(g);
+    $('slideStatus').textContent = `${COPY.likes(g.likes + (g.liked ? 1 : 0))} · ${g.mine || g.visited ? COPY.visited : COPY.notVisited}`;
+  }
+
+  const user = g.mine ? '' : `@${String(g.owner || '').toLowerCase()}`;
+  const line = g.mine ? COPY.yours : COPY.by(g.owner);
+  $('slideUser').textContent = user;
   $('slideName').textContent = g.name;
-  $('slideLine').textContent = g.mine ? COPY.yours : COPY.by(g.owner);
-  const like = $('likeBtn');
-  like.classList.toggle('is-liked', g.liked);
-  $('likeHeart').textContent = g.liked ? '♥' : '♡';
-  $('likeCount').textContent = String(g.likes);
+  $('slideLine').textContent = line;
+  $('slideUserOv').textContent = user;
+  $('slideNameOv').textContent = g.name;
+  paintLike('likeBtn', 'likeHeart', 'likeCount', g);
+  paintLike('likeBtnOv', 'likeHeartOv', 'likeCountOv', g);
+
   const save = $('saveBtn');
   const on = saved.has(g.id);
   save.setAttribute('aria-pressed', String(on));
@@ -327,18 +430,34 @@ function paintSlide() {
 
 function openGem(g) {
   openId = g.id;
+  sheetFull = false;
   $('slide').hidden = false;
   paintSlide();
   drawPins();
 }
 function closeSlide() {
   openId = null;
+  sheetFull = false;
   $('slide').hidden = true;
   drawPins();
 }
 
+function resetFilter() {
+  filterOn = true;
+  stopId = STOPS[0].id;
+  paintBar();
+  if (openId != null && !shown(GEMS[openId])) {
+    openId = null;
+    sheetFull = false;
+    $('slide').hidden = true;
+  }
+  drawPins(true);
+  requestAnimationFrame(() => centerStop(stopId, true));
+}
+
 function setSheet(next) {
   sheet = next;
+  sheetFull = false;
   const url = new URL(location.href);
   url.searchParams.set('sheet', next);
   history.replaceState(null, '', url);
@@ -346,6 +465,16 @@ function setSheet(next) {
     b.setAttribute('aria-pressed', String(b.dataset.sheet === sheet));
   }
   if (openId != null) paintSlide();
+}
+
+function toggleLike() {
+  const g = GEMS[openId];
+  if (!g) return;
+  g.liked = !g.liked;
+  g.likes = Math.max(0, g.likes + (g.liked ? 1 : -1));
+  paintSlide();
+  paintBar();
+  drawPins(filterOn && stopId === 'liked');
 }
 
 function toast(text) {
@@ -361,28 +490,28 @@ $('filterBtn').addEventListener('click', () => {
   paintBar();
   if (openId != null && !shown(GEMS[openId])) {
     openId = null;
+    sheetFull = false;
     $('slide').hidden = true;
   }
   drawPins(true);
   if (filterOn) requestAnimationFrame(() => centerStop(stopId, false));
 });
-$('likeBtn').addEventListener('click', () => {
-  const g = GEMS[openId];
-  if (!g) return;
-  g.liked = !g.liked;
-  g.likes = Math.max(0, g.likes + (g.liked ? 1 : -1));
-  paintSlide();
-  paintBar();
-  drawPins(filterOn && stopId === 'liked');
-});
-$('saveBtn').addEventListener('click', () => {
+$('likeBtn').addEventListener('click', (e) => { e.stopPropagation(); toggleLike(); });
+$('likeBtnOv').addEventListener('click', (e) => { e.stopPropagation(); toggleLike(); });
+$('saveBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
   if (openId == null) return;
   if (saved.has(openId)) saved.delete(openId);
   else saved.add(openId);
   paintSlide();
   if (filterOn && stopId === 'wishlist') drawPins(true);
 });
-$('navBtn').addEventListener('click', () => toast('[would open navigate]'));
+$('navBtn').addEventListener('click', (e) => { e.stopPropagation(); toast('[would open navigate]'); });
+$('slide').addEventListener('click', (e) => {
+  if (sheet !== 'original' || sheetFull || e.target.closest('button')) return;
+  sheetFull = true;
+  paintSlide();
+});
 $('screen').addEventListener('click', () => {
   if (panMoved) { panMoved = false; return; }
   if (openId != null) closeSlide();
@@ -396,6 +525,7 @@ window.addEventListener('message', (e) => {
   if (data.type === 'gem-pins-look' && data.vars) {
     for (const [key, value] of Object.entries(data.vars)) document.documentElement.style.setProperty(key, value);
   }
+  if (data.type === 'gem-pins-reset-filter') resetFilter();
 });
 
 let panMoved = false;
