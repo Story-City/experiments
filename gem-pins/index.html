@@ -14,7 +14,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
 </head>
 <body>
-<!-- GEM-PINS-EDITION-v8: V1 sizes, legend under roller, gbox, app tab bar, reset outside -->
+<!-- GEM-PINS-EDITION-v9: spoof toggle, all-gems default, corner from location-gems -->
 <button type="button" class="settings-eye" id="settingsEye" aria-pressed="true" aria-label="Hide settings">
   <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
   <svg class="eye-shut" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M2 12s4-7 10-7c1.7 0 3.2.4 4.5 1.1M22 12s-4 7-10 7c-1.7 0-3.2-.4-4.5-1.1"/><path d="M9.5 9.5a3 3 0 0 0 4.2 4.2"/></svg>
@@ -35,22 +35,12 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
         <button type="button" data-sheet="image" aria-pressed="false">Image</button>
         <button type="button" data-sheet="corner" aria-pressed="false">Corner</button>
       </div>
-      <p class="edition-label">Wording</p>
-      <label class="word-pick"><span>Nearby</span><input type="text" id="spoofNearby" value="Gems nearby"></label>
-      <label class="word-pick"><span>Navigate</span><input type="text" id="spoofNav" value="[navigate]"></label>
-      <label class="word-pick"><span>Save</span><input type="text" id="spoofSave" value="[save for later]"></label>
-      <label class="word-pick"><span>Saved</span><input type="text" id="spoofSaved" value="[saved for later]"></label>
-      <label class="word-pick"><span>Liked</span><input type="text" id="spoofLiked" value="Liked"></label>
-      <label class="word-pick"><span>Wishlist</span><input type="text" id="spoofWishlist" value="Wishlist"></label>
-      <label class="word-pick is-area"><span>Nature note</span><textarea id="spoofNature" rows="2">[explain nature finds]</textarea></label>
-      <label class="word-pick is-area"><span>Eat note</span><textarea id="spoofEat" rows="2">[explain eat and drink finds]</textarea></label>
-      <label class="word-pick is-area"><span>Shop note</span><textarea id="spoofShop" rows="2">[explain shop finds]</textarea></label>
-      <label class="word-pick is-area"><span>Culture note</span><textarea id="spoofCulture" rows="2">[explain culture finds]</textarea></label>
-      <label class="word-pick is-area"><span>Play note</span><textarea id="spoofPlay" rows="2">[explain play finds]</textarea></label>
-      <label class="word-pick is-area"><span>Landmark note</span><textarea id="spoofLandmark" rows="2">[explain landmark finds]</textarea></label>
-      <label class="word-pick is-area"><span>Curio note</span><textarea id="spoofCurio" rows="2">[explain curiosity finds]</textarea></label>
-      <label class="word-pick is-area"><span>Liked note</span><textarea id="spoofLikedNote" rows="2">[explain liked gems]</textarea></label>
-      <label class="word-pick is-area"><span>Wishlist note</span><textarea id="spoofWishlistNote" rows="2">[explain saved for later]</textarea></label>
+      <div class="tool-toggle">
+        <span>Spoof wording</span>
+        <button type="button" class="switch" id="debugSpoof" role="switch" aria-checked="false" aria-label="Spoof wording">
+          <span class="switch-knob" aria-hidden="true"></span>
+        </button>
+      </div>
     </div>
   </section>
   <section class="tool-block">
@@ -161,7 +151,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     const v2 = edition === 'v2';
     document.body.classList.toggle('is-v2', v2);
     if (v2 && frame.dataset.ready !== '1') {
-      frame.src = '../gem-pins-v2/?v=7&embed=1&sheet=' + sheet;
+      frame.src = '../gem-pins-v2/?v=8&embed=1&sheet=' + sheet;
       frame.dataset.ready = '1';
     } else if (v2) {
       showFrame();
@@ -262,32 +252,16 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   document.getElementById('resetFilter').addEventListener('click', () => {
     if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'gem-pins-reset-filter' }, '*');
   });
-  function publishWording() {
-    const wording = {
-      nearby: document.getElementById('spoofNearby').value,
-      navigate: document.getElementById('spoofNav').value,
-      save: document.getElementById('spoofSave').value,
-      saved: document.getElementById('spoofSaved').value,
-      liked: document.getElementById('spoofLiked').value,
-      wishlist: document.getElementById('spoofWishlist').value,
-      explain: {
-        nature: document.getElementById('spoofNature').value,
-        eat: document.getElementById('spoofEat').value,
-        shop: document.getElementById('spoofShop').value,
-        culture: document.getElementById('spoofCulture').value,
-        play: document.getElementById('spoofPlay').value,
-        landmark: document.getElementById('spoofLandmark').value,
-        curio: document.getElementById('spoofCurio').value,
-        liked: document.getElementById('spoofLikedNote').value,
-        wishlist: document.getElementById('spoofWishlistNote').value,
-      },
-    };
-    if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'gem-pins-wording', wording: wording }, '*');
+  const debugSpoof = document.getElementById('debugSpoof');
+  function publishSpoof() {
+    const on = debugSpoof.getAttribute('aria-checked') === 'true';
+    if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'gem-pins-spoof', spoof: on }, '*');
   }
-  document.querySelectorAll('.word-pick input, .word-pick textarea').forEach((el) => {
-    el.addEventListener('input', publishWording);
+  debugSpoof.addEventListener('click', () => {
+    debugSpoof.setAttribute('aria-checked', debugSpoof.getAttribute('aria-checked') === 'true' ? 'false' : 'true');
+    publishSpoof();
   });
-  frame.addEventListener('load', publishWording);
+  frame.addEventListener('load', publishSpoof);
 })();
 </script>
 </body>

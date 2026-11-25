@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v7 — V1 sizes, legend under roller, gbox, app tab bar. */
+/* GEM-PINS-V2-v8 — spoof toggle, all-gems, location-gems heart/corner/hide. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -8,6 +8,18 @@ const $ = (id) => document.getElementById(id);
 const DENSITY = 40;
 const SIZES = [22, 28, 34];
 const SHEETS = ['original', 'prompt', 'image', 'corner'];
+const PUBLIC_GEM_FILL = '#00c2ff';
+const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
+const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
+const GEM_SHADE = 'M9 7.5H15L12 20.5Z';
+const GEM_FACETS = 'M9 7.5L12 20.5L15 7.5M1.5 7.5H22.5';
+const GEM_STROKE = 1.5;
+const GEM_FACET_STROKE = 1;
+const HEART_PATH =
+  'M15.0007 10.0002C16.2423 8.7835 17.5007 7.32516 17.5007 5.41683C17.5007 4.20125 17.0178 3.03547 16.1582 2.17592C15.2987 1.31638 14.1329 0.833496 12.9173 0.833496C11.4507 0.833496 10.4173 1.25016 9.16732 2.50016C7.91732 1.25016 6.88398 0.833496 5.41732 0.833496C4.20174 0.833496 3.03595 1.31638 2.17641 2.17592C1.31687 3.03547 0.833984 4.20125 0.833984 5.41683C0.833984 7.3335 2.08398 8.79183 3.33398 10.0002L9.16732 15.8335L15.0007 10.0002Z';
+const LIKE_PINK_HOT = '#ff7aab';
+/** Feather bookmark — wishlist / save-for-later mark */
+const BOOKMARK_PATH = 'M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z';
 const ICON = {
   heart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.3-9.2C1.6 7.8 3.5 4.5 6.8 4.5c2 0 3.4 1.1 4.2 2.4h2c.8-1.3 2.2-2.4 4.2-2.4 3.3 0 5.2 3.3 4.1 6.3C19.5 15.4 12 20 12 20z"/></svg>',
   hide: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.6"/><path d="M4 20 20 4"/></svg>',
@@ -33,8 +45,8 @@ const GEM_COLOUR = {
   curio: '#B36BFF',
   mine: '#cdd6ea',
 };
-const HEART_MARK = `<svg class="pin-gem is-heart" viewBox="0 0 24 22" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.3-9.2C1.6 7.8 3.5 4.5 6.8 4.5c2 0 3.4 1.1 4.2 2.4h2c.8-1.3 2.2-2.4 4.2-2.4 3.3 0 5.2 3.3 4.1 6.3C19.5 15.4 12 20 12 20z" fill="${LOVE}" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
 const EXPLAIN_DEFAULT = {
+  all: '[every gem nearby]',
   nature: '[explain nature finds]',
   eat: '[explain eat and drink finds]',
   shop: '[explain shop finds]',
@@ -45,6 +57,27 @@ const EXPLAIN_DEFAULT = {
   liked: '[explain liked gems]',
   wishlist: '[explain saved for later]',
 };
+const SPOOF_LABELS = {
+  nearby: 'Gems nearby',
+  navigate: 'Navigate',
+  save: 'Save for later',
+  saved: 'Saved for later',
+  liked: 'Liked',
+  wishlist: 'Wishlist',
+  all: 'All gems',
+  explain: {
+    all: 'Every gem nearby',
+    nature: 'Nature finds',
+    eat: 'Eat and drink finds',
+    shop: 'Shop finds',
+    culture: 'Culture finds',
+    play: 'Play finds',
+    landmark: 'Landmark finds',
+    curio: 'Curiosity finds',
+    liked: 'Gems you hearted',
+    wishlist: 'Saved for later',
+  },
+};
 const wording = {
   nearby: 'Gems nearby',
   navigate: '[navigate]',
@@ -52,14 +85,66 @@ const wording = {
   saved: '[saved for later]',
   liked: 'Liked',
   wishlist: 'Wishlist',
+  all: 'All gems',
   explain: { ...EXPLAIN_DEFAULT },
 };
+
+function gemSvg(fill) {
+  return `<svg class="pin-gem" viewBox="0 0 24 22" aria-hidden="true">
+    <path d="${GEM_OUTLINE}" fill="${fill}"/>
+    <path d="${GEM_TABLE}" fill="#fff" fill-opacity="0.3"/>
+    <path d="${GEM_SHADE}" fill="#000" fill-opacity="0.22"/>
+    <path d="${GEM_FACETS}" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="${GEM_FACET_STROKE}" stroke-linejoin="round"/>
+    <path d="${GEM_OUTLINE}" fill="none" stroke="#fff" stroke-width="${GEM_STROKE}" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+function heartMark() {
+  return `<svg class="pin-gem is-heart" viewBox="0 0 19 17" aria-hidden="true">
+    <path d="${HEART_PATH}" fill="${LIKE_PINK_HOT}"/>
+    <path d="${HEART_PATH}" fill="none" stroke="#fff" stroke-width="${GEM_STROKE}" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+function bookmarkMark() {
+  return `<svg class="pin-gem is-bookmark" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="${BOOKMARK_PATH}" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
 function stops() {
   return [
+    { id: 'all', label: labelOf('all') },
     ...CATS.map((c) => ({ id: c.id, label: c.label })),
-    { id: 'liked', label: wording.liked },
-    { id: 'wishlist', label: wording.wishlist },
+    { id: 'liked', label: labelOf('liked') },
+    { id: 'wishlist', label: labelOf('wishlist') },
   ];
+}
+
+function labelOf(key) {
+  if (spoofWording && SPOOF_LABELS[key]) return SPOOF_LABELS[key];
+  if (key === 'liked') return wording.liked;
+  if (key === 'wishlist') return wording.wishlist;
+  if (key === 'all') return wording.all;
+  return wording[key] || key;
+}
+
+function explainOf(id) {
+  if (spoofWording && SPOOF_LABELS.explain[id]) return SPOOF_LABELS.explain[id];
+  return wording.explain[id] || '';
+}
+
+function displayCopy(text) {
+  if (text == null) return '';
+  const s = String(text);
+  if (!spoofWording) return s;
+  if (/^\[.*\]$/.test(s.trim())) return s.replace(/^\[/, '').replace(/\]$/, '');
+  return s;
+}
+
+function btnCopy(key) {
+  if (spoofWording && SPOOF_LABELS[key]) return SPOOF_LABELS[key];
+  return wording[key];
 }
 
 const rng = (seed) => () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
@@ -106,6 +191,7 @@ const GEMS = [...centre, ...rest].map((pi, i) => {
     expiring: sp.expiring || null,
     seasonal: !!sp.seasonal,
     photo: `../gem-pins/${PHOTOS[i % PHOTOS.length]}`,
+    hidden: false,
   };
 });
 GEMS.forEach((g) => { if (g.rarity === 'rare' && g.id % 2) g.rarity = 'epic'; });
@@ -128,12 +214,24 @@ function colourOf(g) {
   if (g.mine) return GEM_COLOUR.mine;
   return GEM_COLOUR[g.tags[0]] || GEM_COLOUR.nature;
 }
+function categoryMark(tagId, size) {
+  const src = GEM_SRC[tagId] || GEM_SRC.nature;
+  const s = size || 28;
+  return `<img class="cat-gem-art" src="${src}" width="${s}" height="${s}" alt="" decoding="async">`;
+}
+
 function pinFor(g) {
   const size = sizeOf(g);
   const glow = glowOf(g);
   const glowClass = glow ? ` glow-${glow}` : '';
+  if (g.roller === 'all') {
+    return `<span class="pin-gem-wrap" style="width:${size}px;height:${size}px">${gemSvg(PUBLIC_GEM_FILL)}</span>`;
+  }
   if (g.roller === 'liked') {
-    return `<span class="pin-gem-wrap${glowClass}" style="width:${size}px;height:${size}px">${HEART_MARK}</span>`;
+    return `<span class="pin-gem-wrap${glowClass}" style="width:${size}px;height:${size}px">${heartMark()}</span>`;
+  }
+  if (g.roller === 'wishlist') {
+    return `<span class="pin-gem-wrap" style="width:${size}px;height:${size}px">${bookmarkMark()}</span>`;
   }
   if (g.mine || g.seasonal) {
     const hollow = g.mine && g.private;
@@ -149,13 +247,13 @@ function pinFor(g) {
       clock: !!g.expiring,
     });
   }
-  const src = GEM_SRC[g.tags[0]] || GEM_SRC.nature;
-  return `<img class="pin-gem${glowClass}" src="${src}" width="${size}" height="${size}" alt="" decoding="async">`;
+  return categoryMark(g.tags[0], size).replace('cat-gem-art', `pin-gem${glowClass}`);
 }
 
 const saved = new Set();
+let spoofWording = false;
 let filterOn = false;
-let stopId = 'nature';
+let stopId = 'all';
 let openId = null;
 let sheetFull = false;
 let sheet = SHEETS.includes(new URLSearchParams(location.search).get('sheet'))
@@ -188,7 +286,8 @@ function placeOf(g, box, phone) {
 }
 
 function shown(g) {
-  if (!filterOn) return true;
+  if (g.hidden) return false;
+  if (!filterOn || stopId === 'all') return true;
   if (stopId === 'liked') return g.liked;
   if (stopId === 'wishlist') return saved.has(g.id);
   return g.tags.includes(stopId);
@@ -244,8 +343,9 @@ function drawPins(animate) {
 }
 
 function sampleFor(id) {
+  if (id === 'all') return { tags: ['nature'], roller: 'all', liked: false, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
   if (id === 'liked') return { tags: ['culture'], roller: 'liked', liked: true, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
-  if (id === 'wishlist') return { tags: ['nature'], liked: false, mine: true, private: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
+  if (id === 'wishlist') return { tags: ['nature'], roller: 'wishlist', liked: false, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
   return { tags: [id], liked: false, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
 }
 
@@ -256,7 +356,7 @@ function paintBar() {
   bar.classList.toggle('is-off', !filterOn);
   $('filterGbox').classList.toggle('is-filter-on', filterOn);
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
-  nearby.textContent = wording.nearby;
+  nearby.textContent = displayCopy(btnCopy('nearby'));
   nearby.hidden = filterOn;
   legend.hidden = !filterOn;
   const list = stops();
@@ -264,7 +364,7 @@ function paintBar() {
   if (filterOn) {
     const ico = pinFor(sampleFor(stopId));
     const title = stop.label;
-    const note = wording.explain[stopId] || '';
+    const note = explainOf(stopId);
     const prev = legend.querySelector('.legend-title');
     const changed = !prev || prev.textContent !== title;
     legend.innerHTML = `<span class="legend-ico">${ico}</span><div class="legend-copy"><p class="legend-title">${title}</p><p class="legend-note">${note}</p></div>`;
@@ -279,7 +379,7 @@ function paintBar() {
     const lab = list.find((x) => x.id === b.dataset.stop);
     if (lab) b.setAttribute('aria-label', lab.label);
   }
-  $('navBtn').textContent = wording.navigate;
+  $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
 
 function centerStop(id, smooth) {
@@ -386,13 +486,24 @@ function bindRoller() {
   }, { passive: false });
 }
 
-function cornerHtml(g) {
+function cornerRibbonHtml(fill, uid) {
   const tpl = window.LOCATION_GEMS_CORNER_RIBBON;
   if (!tpl) return '';
-  const fill = colourOf(g);
-  const uid = `v2-${g.id}`;
-  const ribbon = tpl.split('{{GEM}}').join(fill).replace(/paint0_linear_0_4/g, `paint0_${uid}`).replace(/paint1_linear_0_4/g, `paint1_${uid}`);
-  return `<div class="gem-card-corner" style="--gem-line:${fill}"><div class="gem-card-corner-art" aria-hidden="true">${ribbon}</div><div class="gem-card-corner-stack"><span class="gem-card-gem">${pinFor(g)}</span></div></div>`;
+  const safe = String(uid || 'x').replace(/[^a-zA-Z0-9_-]/g, '');
+  return tpl
+    .split('{{GEM}}')
+    .join(fill)
+    .replace(/paint0_linear_0_4/g, `paint0_${safe}`)
+    .replace(/paint1_linear_0_4/g, `paint1_${safe}`);
+}
+
+/** Same corner stack as location-gems buildGemCard — ribbon 58% + category art */
+function cornerHtml(g) {
+  const tagId = g.tags[0];
+  const fill = GEM_COLOUR[tagId] || colourOf(g);
+  const ribbon = cornerRibbonHtml(fill, `v2-${g.id}`);
+  if (!ribbon) return '';
+  return `<div class="gem-card-corner" style="--gem-line:${fill}"><div class="gem-card-corner-art" aria-hidden="true">${ribbon}</div><div class="gem-card-corner-stack"><span class="gem-card-gem">${categoryMark(tagId, 46)}</span></div></div>`;
 }
 
 function whoLine(g) {
@@ -407,10 +518,30 @@ function paintLike(btnId, heartId, countId, g) {
   $(countId).textContent = String(g.likes);
 }
 
+function hideGem(g) {
+  g.hidden = true;
+  toast(displayCopy('[would hide from map]'));
+  closeSlide();
+  drawPins(true);
+}
+
 function paintActs(g) {
   const box = $('slideActs');
   box.replaceChildren();
-  if (g.mine) return;
+  if (g.mine) {
+    box.append(
+      (() => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cact hide';
+        b.innerHTML = ICON.hide;
+        b.setAttribute('aria-label', COPY.hideLong || 'Hide');
+        b.addEventListener('click', (e) => { e.stopPropagation(); hideGem(g); });
+        return b;
+      })(),
+    );
+    return;
+  }
   const mk = (cls, html, label, on, fn) => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -428,10 +559,7 @@ function paintActs(g) {
       paintSlide();
       drawPins(filterOn && stopId === 'liked');
     }),
-    mk('hide', ICON.hide, COPY.hideLong || 'Hide', null, () => {
-      toast('[would hide from map]');
-      closeSlide();
-    }),
+    mk('hide', ICON.hide, COPY.hideLong || 'Hide', null, () => hideGem(g)),
     mk('check', ICON.check, g.visited ? COPY.unmarkIt || 'Unmark' : COPY.markIt || 'Mark visited', g.visited, () => {
       g.visited = !g.visited;
       if (g.visited) g.liked = false;
@@ -489,15 +617,19 @@ function paintSlide() {
   $('slideMore').hidden = !(isOriginal && !sheetFull);
   $('slideStatus').hidden = !(isOriginal && sheetFull);
   $('slideActions').hidden = isOriginal && !sheetFull;
+  $('slideActs').hidden = false;
+  $('slideActs').classList.toggle('is-on-media', isImage || isCorner);
+  $('slideActs').classList.toggle('is-on-prompt', isPrompt);
+  $('slideActs').classList.toggle('is-on-head', isOriginal);
 
   if (isOriginal) {
     $('slideArt').innerHTML = pinFor(g);
     $('slideNameHead').textContent = g.name;
     $('slideLineHead').textContent = whoLine(g);
-    paintActs(g);
     paintTags(g);
     $('slideStatus').textContent = `${COPY.likes(g.likes + (g.liked ? 1 : 0))} · ${g.mine || g.visited ? COPY.visited : COPY.notVisited}`;
   }
+  paintActs(g);
 
   const user = g.mine ? '' : `@${String(g.owner || '').toLowerCase()}`;
   const line = g.mine ? COPY.yours : COPY.by(g.owner);
@@ -512,23 +644,12 @@ function paintSlide() {
   const save = $('saveBtn');
   const on = saved.has(g.id);
   save.setAttribute('aria-pressed', String(on));
-  save.textContent = on ? wording.saved : wording.save;
-  $('navBtn').textContent = wording.navigate;
+  save.textContent = displayCopy(btnCopy(on ? 'saved' : 'save'));
+  $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
 
-function applyWording(next) {
-  if (!next || typeof next !== 'object') return;
-  if (typeof next.nearby === 'string') wording.nearby = next.nearby;
-  if (typeof next.navigate === 'string') wording.navigate = next.navigate;
-  if (typeof next.save === 'string') wording.save = next.save;
-  if (typeof next.saved === 'string') wording.saved = next.saved;
-  if (typeof next.liked === 'string') wording.liked = next.liked;
-  if (typeof next.wishlist === 'string') wording.wishlist = next.wishlist;
-  if (next.explain && typeof next.explain === 'object') {
-    for (const [k, v] of Object.entries(next.explain)) {
-      if (typeof v === 'string' && k in wording.explain) wording.explain[k] = v;
-    }
-  }
+function setSpoofWording(on) {
+  spoofWording = !!on;
   fillRoller();
   paintBar();
   if (openId != null) paintSlide();
@@ -551,7 +672,7 @@ function closeSlide() {
 
 function resetFilter() {
   filterOn = true;
-  stopId = stops()[0].id;
+  stopId = 'all';
   paintBar();
   if (openId != null && !shown(GEMS[openId])) {
     openId = null;
@@ -594,6 +715,7 @@ function toast(text) {
 
 $('filterBtn').addEventListener('click', () => {
   filterOn = !filterOn;
+  if (filterOn && !stops().some((s) => s.id === stopId)) stopId = 'all';
   paintBar();
   if (openId != null && !shown(GEMS[openId])) {
     openId = null;
@@ -613,7 +735,7 @@ $('saveBtn').addEventListener('click', (e) => {
   paintSlide();
   if (filterOn && stopId === 'wishlist') drawPins(true);
 });
-$('navBtn').addEventListener('click', (e) => { e.stopPropagation(); toast('[would open navigate]'); });
+$('navBtn').addEventListener('click', (e) => { e.stopPropagation(); toast(displayCopy('[would open navigate]')); });
 document.querySelector('.map-top').addEventListener('pointerdown', (e) => e.stopPropagation());
 $('slide').addEventListener('click', (e) => {
   if (sheet !== 'original' || sheetFull || e.target.closest('button')) return;
@@ -634,7 +756,7 @@ window.addEventListener('message', (e) => {
     for (const [key, value] of Object.entries(data.vars)) document.documentElement.style.setProperty(key, value);
   }
   if (data.type === 'gem-pins-reset-filter') resetFilter();
-  if (data.type === 'gem-pins-wording') applyWording(data.wording);
+  if (data.type === 'gem-pins-spoof') setSpoofWording(!!data.spoof);
 });
 
 let panMoved = false;
