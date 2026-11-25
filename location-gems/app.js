@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v85 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v86 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -857,13 +857,14 @@ function applyMidTone() {
       ? midToneColor.value
       : MID_TONE_DEFAULT;
   document.documentElement.style.setProperty('--raised', hex);
-  /* Mid tone also drives unsorted polaroid frame when enabled */
-  const frame =
-    on && midToneColor && midToneColor.value
-      ? midToneColor.value
-      : (sortFrameColor && sortFrameColor.value) || SORT_FRAME_DEFAULT;
+  /* Mid tone drives unsorted frame for polaroid/tape — tinted keeps its own frame colour */
+  const useMidForFrame =
+    on && midToneColor && midToneColor.value && sortCardLook !== 'tinted';
+  const frame = useMidForFrame
+    ? midToneColor.value
+    : (sortFrameColor && sortFrameColor.value) || SORT_FRAME_DEFAULT;
   document.documentElement.style.setProperty('--sort-frame', frame);
-  if (sortFrameColor && on) sortFrameColor.value = frame;
+  if (sortFrameColor && useMidForFrame) sortFrameColor.value = frame;
 }
 
 function applySortCardText() {
@@ -1349,9 +1350,7 @@ function applySortLookFrameDefaults(look) {
   } else {
     return;
   }
-  if (!midToneEnabled()) {
-    document.documentElement.style.setProperty('--sort-frame', sortFrameColor.value);
-  }
+  document.documentElement.style.setProperty('--sort-frame', sortFrameColor.value);
   applySortCardText();
   applyMidTone();
 }
@@ -2152,8 +2151,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v85 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v85 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v86 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v86 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();

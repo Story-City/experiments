@@ -1635,6 +1635,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   transform: scale(1.04);
 }
 .sort-rail-down {
+  --sort-rail-pod-h: 56px;
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
@@ -1644,7 +1645,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .sort-rail-down .sort-rail-pod {
   border-radius: 22px 22px 0 0;
-  padding: 12px 8px 10px;
+  padding: 8px 6px 6px;
+  gap: 4px;
   border-bottom: 0;
 }
 .sort-rail-down.is-on .sort-rail-pod {
@@ -1864,12 +1866,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 /* Figma 2853:555 Variant3 — dark indigo polaroid + rotated translucent tape + soft inset */
 .sort-card.is-tinted {
   --sort-tape-overhang: 18px;
+  background: var(--sort-frame, #13123b);
   border-radius: 12px;
   padding: 12px 12px 0;
   box-shadow:
     0 12px 28px rgba(0, 0, 0, 0.45),
-    inset 18px -16px 28px -14px rgba(125, 255, 216, 0.08),
-    inset 0 6px 28px 4px rgba(255, 82, 82, 0.05);
+    inset 22px -18px 32px -12px rgba(125, 255, 216, 0.12),
+    inset 0 8px 36px 6px rgba(255, 82, 82, 0.08);
 }
 .sort-card.is-tinted .sort-card-body {
   min-height: 88px;
