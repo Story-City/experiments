@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v9 — no filter chrome, full roller, same-size pins, oval gems */
+/* GEM-PINS-V2-v10 — filter layouts, eat+shop combined, no map tab */
 :root {
   --bg: #170c35;
   --surface: #241b46;
@@ -225,21 +225,88 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   text-overflow: ellipsis;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
 }
+.top-roller-slot {
+  min-width: 0;
+  width: 100%;
+}
 .roller-wrap {
   min-width: 0;
   width: 100%;
   overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
-  height: 0;
-}
-.gbox.is-filter-on .roller-wrap {
-  opacity: 1;
-  pointer-events: auto;
   height: 40px;
 }
-.gbox:not(.is-filter-on) .roller-wrap { display: none; }
-.gbox.is-filter-on .nearby-row { display: none; }
+.roller-wrap[hidden] { display: none !important; }
+.filter-btn[hidden] { display: none !important; }
+
+/* —— Always on: roller + legend, no filter toggle —— */
+.gbox.is-layout-always .map-bar {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "roller"
+    "legend";
+}
+.gbox.is-layout-always .nearby-row { display: none !important; }
+.gbox.is-layout-always .top-roller-slot { grid-area: roller; }
+.gbox.is-layout-always .legend { grid-area: legend; display: flex; }
+.gbox.is-layout-always .filter-btn { display: none !important; }
+
+/* —— Classic top: nearby/roller + filter; legend under —— */
+.gbox.is-layout-classic .map-bar {
+  grid-template-columns: minmax(0, 1fr) 40px;
+  grid-template-areas:
+    "main filter"
+    "legend legend";
+}
+.gbox.is-layout-classic .nearby-row { grid-area: main; }
+.gbox.is-layout-classic .top-roller-slot { grid-area: main; }
+.gbox.is-layout-classic .filter-btn { grid-area: filter; }
+.gbox.is-layout-classic .legend { grid-area: legend; }
+.gbox.is-layout-classic:not(.is-filter-on) .top-roller-slot { display: none; }
+.gbox.is-layout-classic:not(.is-filter-on) .legend { display: none !important; }
+.gbox.is-layout-classic.is-filter-on .nearby-row { display: none !important; }
+
+/* —— Bottom roller: legend/nearby + filter on top; roller below map —— */
+.gbox.is-layout-bottom .map-bar {
+  grid-template-columns: minmax(0, 1fr) 40px;
+  grid-template-areas: "main filter";
+}
+.gbox.is-layout-bottom .nearby-row,
+.gbox.is-layout-bottom .legend { grid-area: main; }
+.gbox.is-layout-bottom .top-roller-slot { display: none !important; }
+.gbox.is-layout-bottom .filter-btn { grid-area: filter; }
+.gbox.is-layout-bottom:not(.is-filter-on) .legend { display: none !important; }
+.gbox.is-layout-bottom.is-filter-on .nearby-row { display: none !important; }
+
+/* —— Inline: legend + roller one line, no filter —— */
+.gbox.is-layout-inline .map-bar {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: "legend roller";
+  gap: 8px;
+}
+.gbox.is-layout-inline .nearby-row { display: none !important; }
+.gbox.is-layout-inline .legend { grid-area: legend; display: flex; max-width: 42%; }
+.gbox.is-layout-inline .legend-note { display: none; }
+.gbox.is-layout-inline .top-roller-slot { grid-area: roller; }
+.gbox.is-layout-inline .filter-btn { display: none !important; }
+
+.map-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 72px;
+  z-index: 6;
+  padding: 0 8px 8px;
+  pointer-events: none;
+}
+.map-bottom[hidden] { display: none !important; }
+.bottom-roller-slot {
+  pointer-events: auto;
+  width: 100%;
+}
+.bottom-roller-slot .roller-wrap {
+  height: 44px;
+  padding: 2px 0;
+}
 
 .legend {
   min-width: 0;

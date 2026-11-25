@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v9 — no filter chrome, full roller, same-size pins, oval gems. */
+/* GEM-PINS-V2-v10 — filter layouts, eat+shop combined, no map tab. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -46,11 +46,20 @@ const GEM_COLOUR = {
   curio: '#B36BFF',
   mine: '#cdd6ea',
 };
+/** Filter cats — eat + shop combined into one stop */
+const FILTER_CATS = [
+  { id: 'nature', label: 'Nature', match: ['nature'], art: 'nature' },
+  { id: 'eatshop', label: 'Eat & Drink', match: ['eat', 'shop'], art: 'eat' },
+  { id: 'culture', label: 'Culture', match: ['culture'], art: 'culture' },
+  { id: 'play', label: 'Play', match: ['play'], art: 'play' },
+  { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
+  { id: 'curio', label: 'Curiosities', match: ['curio'], art: 'curio' },
+];
+const FILTER_LAYOUTS = ['always', 'bottom', 'classic', 'inline'];
 const EXPLAIN_DEFAULT = {
   all: '[every gem nearby]',
   nature: '[explain nature finds]',
-  eat: '[explain eat and drink finds]',
-  shop: '[explain shop finds]',
+  eatshop: '[explain eat, drink and shop finds]',
   culture: '[explain culture finds]',
   play: '[explain play finds]',
   landmark: '[explain landmark finds]',
@@ -69,8 +78,7 @@ const SPOOF_LABELS = {
   explain: {
     all: 'Every gem nearby',
     nature: 'Nature finds',
-    eat: 'Eat and drink finds',
-    shop: 'Shop finds',
+    eatshop: 'Eat, drink and shop finds',
     culture: 'Culture finds',
     play: 'Play finds',
     landmark: 'Landmark finds',
@@ -116,10 +124,14 @@ function bookmarkMark() {
 function stops() {
   return [
     { id: 'all', label: labelOf('all') },
-    ...CATS.map((c) => ({ id: c.id, label: c.label })),
+    ...FILTER_CATS.map((c) => ({ id: c.id, label: c.label, match: c.match, art: c.art })),
     { id: 'liked', label: labelOf('liked') },
     { id: 'wishlist', label: labelOf('wishlist') },
   ];
+}
+
+function filterCat(id) {
+  return FILTER_CATS.find((c) => c.id === id);
 }
 
 function labelOf(key) {
@@ -251,7 +263,8 @@ function pinFor(g) {
 
 const saved = new Set();
 let spoofWording = false;
-let filterOn = false;
+let filterLayout = 'always';
+let filterOn = true;
 let stopId = 'all';
 let openId = null;
 let sheetFull = false;
@@ -284,11 +297,17 @@ function placeOf(g, box, phone) {
   return [cx + (px - cx) * view.z + view.x, cy + (py - cy) * view.z + view.y];
 }
 
+function layoutNeedsToggle() {
+  return filterLayout === 'classic' || filterLayout === 'bottom';
+}
+
 function shown(g) {
   if (g.hidden) return false;
   if (!filterOn || stopId === 'all') return true;
   if (stopId === 'liked') return g.liked;
   if (stopId === 'wishlist') return saved.has(g.id);
+  const cat = filterCat(stopId);
+  if (cat) return g.tags.some((t) => cat.match.includes(t));
   return g.tags.includes(stopId);
 }
 
@@ -345,7 +364,40 @@ function sampleFor(id) {
   if (id === 'all') return { tags: ['nature'], roller: 'all', liked: false, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
   if (id === 'liked') return { tags: ['culture'], roller: 'liked', liked: true, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
   if (id === 'wishlist') return { tags: ['nature'], roller: 'wishlist', liked: false, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
+  const cat = filterCat(id);
+  if (cat) return { tags: [cat.art], liked: false, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
   return { tags: [id], liked: false, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
+}
+
+function placeRoller() {
+  const wrap = $('rollerWrap');
+  const bottom = $('mapBottom');
+  if (filterLayout === 'bottom') {
+    $('bottomRollerSlot').appendChild(wrap);
+    bottom.hidden = !filterOn;
+  } else {
+    $('topRollerSlot').appendChild(wrap);
+    bottom.hidden = true;
+  }
+}
+
+function setFilterLayout(next) {
+  if (!FILTER_LAYOUTS.includes(next)) return;
+  filterLayout = next;
+  $('phone').dataset.filterLayout = filterLayout;
+  if (!layoutNeedsToggle()) {
+    filterOn = true;
+    if (!stops().some((s) => s.id === stopId)) stopId = 'all';
+  }
+  placeRoller();
+  paintBar();
+  if (openId != null && !shown(GEMS[openId])) {
+    openId = null;
+    sheetFull = false;
+    $('slide').hidden = true;
+  }
+  drawPins(true);
+  if (filterOn) requestAnimationFrame(() => centerStop(stopId, false));
 }
 
 function paintBar() {
@@ -353,22 +405,32 @@ function paintBar() {
   const legend = $('legend');
   const nearby = $('nearbyTitle');
   const nearbyRow = $('nearbyRow');
+  const showToggle = layoutNeedsToggle();
+  const rollerVisible = filterOn || !showToggle;
   bar.classList.toggle('is-off', !filterOn);
   $('filterGbox').classList.toggle('is-filter-on', filterOn);
+  $('filterGbox').classList.toggle('is-layout-always', filterLayout === 'always');
+  $('filterGbox').classList.toggle('is-layout-bottom', filterLayout === 'bottom');
+  $('filterGbox').classList.toggle('is-layout-classic', filterLayout === 'classic');
+  $('filterGbox').classList.toggle('is-layout-inline', filterLayout === 'inline');
+  $('filterBtn').hidden = !showToggle;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
   nearby.textContent = displayCopy(btnCopy('nearby'));
-  nearbyRow.hidden = filterOn;
+  nearbyRow.hidden = filterOn || !showToggle;
   $('nearbyIco').innerHTML = gemSvg(PUBLIC_GEM_FILL);
-  legend.hidden = !filterOn;
+  placeRoller();
+  $('rollerWrap').hidden = !rollerVisible;
+  const showLegend = filterOn || filterLayout === 'inline' || filterLayout === 'always';
+  legend.hidden = !showLegend;
   const list = stops();
   const stop = list.find((x) => x.id === stopId) || list[0];
-  if (filterOn) {
+  if (showLegend) {
     const ico = pinFor(sampleFor(stopId));
     const title = stop.label;
-    const note = explainOf(stopId);
+    const note = filterLayout === 'inline' ? '' : explainOf(stopId);
     const prev = legend.querySelector('.legend-title');
     const changed = !prev || prev.textContent !== title;
-    legend.innerHTML = `<span class="legend-ico">${ico}</span><div class="legend-copy"><p class="legend-title">${title}</p><p class="legend-note">${note}</p></div>`;
+    legend.innerHTML = `<span class="legend-ico">${ico}</span><div class="legend-copy"><p class="legend-title">${title}</p>${note ? `<p class="legend-note">${note}</p>` : ''}</div>`;
     if (changed) {
       legend.classList.remove('is-swap');
       void legend.offsetWidth;
@@ -434,7 +496,7 @@ function bindRoller() {
   let tick = 0;
   let drag = null;
   roller.addEventListener('scroll', () => {
-    if (lockScroll || !filterOn) return;
+    if (lockScroll || (!filterOn && layoutNeedsToggle())) return;
     cancelAnimationFrame(tick);
     tick = requestAnimationFrame(() => {
       const best = nearestStopButton();
@@ -442,7 +504,7 @@ function bindRoller() {
     });
   });
   roller.addEventListener('pointerdown', (e) => {
-    if (!filterOn) return;
+    if (!filterOn && layoutNeedsToggle()) return;
     const btn = e.target.closest('button[data-stop]');
     drag = {
       id: e.pointerId,
@@ -483,7 +545,7 @@ function bindRoller() {
     e.stopPropagation();
   }, true);
   roller.addEventListener('wheel', (e) => {
-    if (!filterOn) return;
+    if (!filterOn && layoutNeedsToggle()) return;
     e.preventDefault();
     e.stopPropagation();
     roller.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
@@ -677,7 +739,8 @@ function closeSlide() {
 }
 
 function resetFilter() {
-  filterOn = true;
+  if (layoutNeedsToggle()) filterOn = true;
+  else filterOn = true;
   stopId = 'all';
   paintBar();
   if (openId != null && !shown(GEMS[openId])) {
@@ -720,6 +783,7 @@ function toast(text) {
 }
 
 $('filterBtn').addEventListener('click', () => {
+  if (!layoutNeedsToggle()) return;
   filterOn = !filterOn;
   if (filterOn && !stops().some((s) => s.id === stopId)) stopId = 'all';
   paintBar();
@@ -743,6 +807,7 @@ $('saveBtn').addEventListener('click', (e) => {
 });
 $('navBtn').addEventListener('click', (e) => { e.stopPropagation(); toast(displayCopy('[would open navigate]')); });
 document.querySelector('.map-top').addEventListener('pointerdown', (e) => e.stopPropagation());
+$('mapBottom').addEventListener('pointerdown', (e) => e.stopPropagation());
 $('slide').addEventListener('click', (e) => {
   if (sheet !== 'original' || sheetFull || e.target.closest('button')) return;
   sheetFull = true;
@@ -763,6 +828,7 @@ window.addEventListener('message', (e) => {
   }
   if (data.type === 'gem-pins-reset-filter') resetFilter();
   if (data.type === 'gem-pins-spoof') setSpoofWording(!!data.spoof);
+  if (data.type === 'gem-pins-filter-layout') setFilterLayout(data.layout);
 });
 
 let panMoved = false;
@@ -795,10 +861,11 @@ $('phone').addEventListener('wheel', (e) => {
   drawPins();
 }, { passive: false });
 
+$('phone').dataset.filterLayout = filterLayout;
 fillRoller();
 bindRoller();
 setSheet(sheet);
-paintBar();
+setFilterLayout(filterLayout);
 drawPins();
 window.addEventListener('resize', drawPins);
 $('tabBar').addEventListener('click', (e) => {

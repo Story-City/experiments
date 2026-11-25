@@ -442,7 +442,7 @@ body.is-settings-hidden .settings-eye .eye-shut { display: block; }
   overflow: hidden;
   transition: max-height 480ms var(--ease-out), opacity 480ms var(--ease-out);
 }
-body.is-v2 .edition-extra { max-height: 420px; opacity: 1; }
+body.is-v2 .edition-extra { max-height: 720px; opacity: 1; }
 .edition-extra .tool-toggle {
   display: flex;
   align-items: center;
