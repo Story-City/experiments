@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v76 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v77 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -34,7 +34,7 @@ const JAM_CATS = [
   { id: 'landmark', label: 'Landmarks', colour: '#F1A638', art: 'assets/gems/landmarks.svg' },
   { id: 'curio', label: 'Curiosities', colour: '#B36BFF', art: 'assets/gems/curiosities.svg' },
 ];
-const JAM_CAT_ALIASES = { shop: 'eat' };
+const JAM_CAT_ALIASES = { shop: 'eat', entertainment: 'play' };
 const SORT_CARD_LOOKS = new Set(['polaroid', 'overlay', 'flush', 'stack']);
 const SILVER_GEM_FILL = '#c8d2e6';
 const GOLD_GEM_FILL = '#ffc448';
@@ -2083,8 +2083,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v76 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v76 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v77 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v77 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
