@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v19 — Disc U-arc (Figma): selected bottom-centre, title above, tinted rim. */
+/* GEM-PINS-V2-v20 — Disc flat stretched U; smaller gems; motion unchanged. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -9,14 +9,14 @@ const DENSITY = 40;
 /** V1 rarityBy none — every pin the same size; keep uploaded category gems */
 const PIN_SIZE = 28;
 const SHEETS = ['original', 'prompt', 'image', 'bar'];
-/** Figma U-arc: ellipse centre near top; selected gem at bottom of curve */
-const DISC_RX = 168;
-const DISC_RY = 132;
-const DISC_ORIGIN_Y = 8;
+/** Flat stretched U (wide, shallow); selected at bottom centre */
+const DISC_RX = 176;
+const DISC_RY = 52;
+const DISC_ORIGIN_Y = 44;
 const DISC_PX_PER_DEG = 1.65;
-const DISC_SCALE_MIN = 0.55;
-const DISC_SCALE_MAX = 1.42;
-const DISC_FADE_DEG = 118;
+const DISC_SCALE_MIN = 0.48;
+const DISC_SCALE_MAX = 1.12;
+const DISC_FADE_DEG = 102;
 const DISC_ANIM_MS = 520;
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
