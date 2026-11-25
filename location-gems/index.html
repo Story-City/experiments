@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=65">
+<link rel="stylesheet" href="app.css?v=66">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -320,13 +320,25 @@
 
     <div class="publish-sheet" id="publishSheet" hidden aria-hidden="true">
       <button type="button" class="publish-sheet-scrim" id="publishSheetScrim" aria-label="Back to sorting"></button>
-      <div class="publish-sheet-card" role="dialog" aria-labelledby="publishTitleLabel" aria-modal="true">
-        <p class="side-label" id="publishTitleLabel">[title]</p>
-        <input class="note-input" id="publishTitle" type="text" maxlength="40" placeholder="[name the thing you found]" autocomplete="off" aria-label="Title">
-        <p class="side-label" id="publishWriteLabel">[add a few words]</p>
-        <input class="note-input" id="publishNote" type="text" maxlength="80" placeholder="[optional note]" autocomplete="off" aria-label="A few words">
-        <div class="side-actions">
-          <button type="button" class="confirm-pill" id="publishConfirm">[publish]</button>
+      <div class="publish-sheet-stack">
+        <div class="tip-wrap" id="publishTipWrap" hidden>
+          <img class="tip-layer" src="assets/tip.png" alt="" decoding="async">
+          <p class="tip-copy" id="publishTipCopy">[encourage public share — don’t dox]</p>
+        </div>
+        <div class="publish-sheet-card" role="dialog" aria-labelledby="publishTitleLabel" aria-modal="true">
+          <div class="publish-step" id="publishStepWords">
+            <p class="side-label" id="publishTitleLabel">[title]</p>
+            <input class="note-input" id="publishTitle" type="text" maxlength="40" placeholder="[name the thing you found]" autocomplete="off" aria-label="Title">
+            <p class="side-label" id="publishWriteLabel">[add a few words]</p>
+            <input class="note-input" id="publishNote" type="text" maxlength="80" placeholder="[optional note]" autocomplete="off" aria-label="A few words">
+            <div class="side-actions">
+              <button type="button" class="confirm-pill" id="publishNext">[next]</button>
+            </div>
+          </div>
+          <div class="publish-step" id="publishStepCats" hidden>
+            <p class="publish-cat-prompt" id="publishCatPrompt">[what best describes your jam]</p>
+            <div class="publish-cat-grid" id="publishCatGrid" role="listbox" aria-label="Jam categories"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -335,7 +347,7 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v65 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.
+    LOCATION-GEMS-HUB-v66 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.
   </p>
     </div>
 
@@ -350,7 +362,7 @@
       </section>
     </aside>
   </div>
-  <script src="corner-ribbon.js?v=65"></script>
-  <script src="app.js?v=65"></script>
+  <script src="corner-ribbon.js?v=66"></script>
+  <script src="app.js?v=66"></script>
 </body>
 </html>
