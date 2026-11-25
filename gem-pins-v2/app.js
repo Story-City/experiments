@@ -1,4 +1,5 @@
-/* GEM-PINS-V2-v1 — Brett’s pick on Melissa’s map, plus the legend roller and three slide-outs. */
+/* GEM-PINS-V2-v2 — Brett’s pick on Melissa’s map, plus the legend roller and three slide-outs. */
+if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
 import { ART } from '../gem-pins/gem-art.js';

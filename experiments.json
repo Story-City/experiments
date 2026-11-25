@@ -17,11 +17,11 @@
   },
   {
     "slug": "gem-pins",
-    "path": "gem-pins/",
+    "path": "gem-pins/?v=2",
     "area": "gems",
     "frame": "wide",
     "title": "Gem map pins",
-    "what": "Gems on a real Edmonton map. Six one-tap presets (Explorer, Treasure Hunt, Jewel Box, Make It Yours, Calm, Loud), each runnable at 10 / 40 / 100 gems and colour-blind, plus an Explorer ⇄ Treasure Hunt switch. 20 options underneath, including four ways to show a gem's details on tap. Every setup is a shareable link.",
+    "what": "Gems on a real Edmonton map. V1 is this options lab. V2 on the same page is the legend filter, the gem roller, and the three slide-outs.",
     "author": "melissa",
     "authorName": "Melissa",
     "date": "2026-11",
@@ -33,7 +33,7 @@
   },
   {
     "slug": "gem-pins-v2",
-    "path": "gem-pins-v2/?v=1",
+    "path": "gem-pins-v2/?v=2",
     "area": "gems",
     "title": "Gem map pins V2",
     "what": "Victoria's gem art on Melissa's Edmonton map. Filter turns the top bar into a legend plus a gem roller (categories, liked, wishlist). Slide-out switches: prompt, image, image with gem corner. Navigate and save for later stay on every version.",

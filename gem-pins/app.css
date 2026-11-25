@@ -307,3 +307,41 @@ body.cb-rg .phone { filter: url(#deutan); }
 .zbtn:disabled { color: rgba(255, 255, 255, 0.3); border-color: rgba(255, 255, 255, 0.12); cursor: default; }
 .pin.cluster svg { filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35)); }
 .count-badge { position: absolute; right: -2px; top: -4px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #fff; color: #170c35; font: 800 13px/22px var(--f-ui); text-align: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); pointer-events: none; }
+
+/* GEM-PINS-EDITION-v2 — same switch shape as the location-gems edition pills */
+.edition-bar {
+  position: fixed;
+  z-index: 50;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(36, 27, 70, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.edition-bar button {
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 800;
+  font-size: 13px;
+}
+.edition-bar button[aria-pressed="true"] {
+  background: linear-gradient(90deg, #0259a1, #00c2ff);
+  color: #fff;
+}
+body.is-v2 .layout { visibility: hidden; }
+.edition-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #170c35;
+}

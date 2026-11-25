@@ -14,6 +14,12 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
 </head>
 <body>
+<!-- GEM-PINS-EDITION-v2: V1 is this page, V2 is the legend build -->
+<div class="edition-bar" role="group" aria-label="Version">
+  <button type="button" data-edition="v1" aria-pressed="true">V1</button>
+  <button type="button" data-edition="v2" aria-pressed="false">V2</button>
+</div>
+<iframe class="edition-frame" id="editionFrame" hidden title="Gem map pins V2"></iframe>
 <!-- red-green colour-blind simulation (option 15) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <filter id="deutan"><feColorMatrix type="matrix" values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0"/></filter>
@@ -73,5 +79,33 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   </main>
 </div>
 <script type="module">import(`./app.js${window.CACHE_V}`);</script>
+<script>
+(function () {
+  const frame = document.getElementById('editionFrame');
+  function apply(edition) {
+    const v2 = edition === 'v2';
+    document.body.classList.toggle('is-v2', v2);
+    if (v2 && frame.dataset.ready !== '1') {
+      frame.src = '../gem-pins-v2/?v=2&embed=1';
+      frame.dataset.ready = '1';
+    }
+    frame.hidden = !v2;
+    document.querySelectorAll('[data-edition]').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.edition === (v2 ? 'v2' : 'v1')));
+    });
+  }
+  apply(new URLSearchParams(location.search).get('edition') === 'v2' ? 'v2' : 'v1');
+  document.querySelectorAll('[data-edition]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const edition = b.dataset.edition;
+      const url = new URL(location.href);
+      if (edition === 'v2') url.searchParams.set('edition', 'v2');
+      else url.searchParams.delete('edition');
+      history.replaceState(null, '', url);
+      apply(edition);
+    });
+  });
+})();
+</script>
 </body>
 </html>
