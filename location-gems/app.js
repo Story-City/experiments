@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v84 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v85 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -406,7 +406,7 @@ const publishSheetScrim = document.getElementById('publishSheetScrim');
 const publishTipWrap = document.getElementById('publishTipWrap');
 const publishTipCopy = document.getElementById('publishTipCopy');
 const publishAddress = document.getElementById('publishAddress');
-const publishAddressLabel = document.getElementById('publishAddressLabel');
+const publishAddressText = document.getElementById('publishAddressText');
 const publishTitleLabel = document.getElementById('publishTitleLabel');
 const publishTitle = document.getElementById('publishTitle');
 const publishWriteLabel = document.getElementById('publishWriteLabel');
@@ -1921,14 +1921,14 @@ function syncPublishSheetCopy() {
   if (publishTitle) publishTitle.placeholder = t('publishTitlePh');
   if (publishWriteLabel) publishWriteLabel.textContent = t('publishWriteLabel');
   if (publishNote) publishNote.placeholder = t('publishNotePh');
-  if (publishAddressLabel) publishAddressLabel.textContent = t('publishAddressLabel');
   if (publishNext) publishNext.textContent = t('publishNext');
   if (publishCatPrompt) publishCatPrompt.textContent = t('publishCatPrompt');
 }
 
 function syncPublishAddress(find) {
-  if (!publishAddress) return;
-  publishAddress.value = find?.place || '';
+  const place = find?.place || '';
+  if (publishAddressText) publishAddressText.textContent = place;
+  if (publishAddress) publishAddress.hidden = !place;
 }
 
 function syncPublishKeyboard() {
@@ -2152,8 +2152,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v84 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v84 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v85 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v85 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
