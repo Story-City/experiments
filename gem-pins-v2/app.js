@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v14 — Tint colour layout, inline legend+note, taller slides. */
+/* GEM-PINS-V2-v15 — Disc colour layout (circular colour disc on selected), inline legend+note, taller slides. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -56,7 +56,7 @@ const FILTER_CATS = [
   { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
   { id: 'curio', label: 'Curiosities', match: ['curio'], art: 'curio' },
 ];
-const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'tint'];
+const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc'];
 const EXPLAIN_DEFAULT = {
   all: '[every gem nearby]',
   nature: '[explain nature finds]',
@@ -302,7 +302,7 @@ function layoutNeedsToggle() {
   return filterLayout === 'classic';
 }
 
-function stopTint(id) {
+function stopDisc(id) {
   if (id === 'all') return PUBLIC_GEM_FILL;
   if (id === 'liked') return LIKE_PINK_HOT;
   if (id === 'wishlist') return '#e8e4ff';
@@ -411,19 +411,19 @@ function paintBar() {
   $('filterGbox').classList.toggle('is-layout-always', filterLayout === 'always');
   $('filterGbox').classList.toggle('is-layout-classic', filterLayout === 'classic');
   $('filterGbox').classList.toggle('is-layout-inline', filterLayout === 'inline');
-  $('filterGbox').classList.toggle('is-layout-tint', filterLayout === 'tint');
+  $('filterGbox').classList.toggle('is-layout-disc', filterLayout === 'disc');
   $('filterBtn').hidden = !showToggle;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
   const resetBtn = $('filterReset');
   if (resetBtn) {
-    resetBtn.hidden = filterLayout !== 'tint';
+    resetBtn.hidden = filterLayout !== 'disc';
     resetBtn.disabled = stopId === 'all';
   }
   nearby.textContent = displayCopy(btnCopy('nearby'));
   nearbyRow.hidden = filterOn || !showToggle;
   $('nearbyIco').innerHTML = gemSvg(PUBLIC_GEM_FILL);
   $('rollerWrap').hidden = !rollerVisible;
-  const showLegend = filterOn || filterLayout === 'inline' || filterLayout === 'always' || filterLayout === 'tint';
+  const showLegend = filterOn || filterLayout === 'inline' || filterLayout === 'always' || filterLayout === 'disc';
   legend.hidden = !showLegend;
   const list = stops();
   const stop = list.find((x) => x.id === stopId) || list[0];
@@ -445,8 +445,8 @@ function paintBar() {
     b.setAttribute('aria-selected', String(on));
     const lab = list.find((x) => x.id === b.dataset.stop);
     if (lab) b.setAttribute('aria-label', lab.label);
-    if (on) b.style.setProperty('--stop-tint', stopTint(b.dataset.stop));
-    else b.style.removeProperty('--stop-tint');
+    if (on) b.style.setProperty('--stop-disc', stopDisc(b.dataset.stop));
+    else b.style.removeProperty('--stop-disc');
   }
   $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
@@ -807,7 +807,7 @@ $('filterBtn').addEventListener('click', () => {
   if (filterOn) requestAnimationFrame(() => centerStop(stopId, true));
 });
 $('filterReset').addEventListener('click', () => {
-  if (filterLayout !== 'tint') return;
+  if (filterLayout !== 'disc') return;
   resetFilter();
 });
 for (const b of document.querySelectorAll('#layoutSwitch [data-filter-layout]')) {

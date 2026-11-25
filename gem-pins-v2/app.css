@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v14 — Tint colour layout, inline legend+note, taller slides */
+/* GEM-PINS-V2-v15 — Disc colour layout, inline legend+note, taller slides */
 :root {
   --bg: #170c35;
   --surface: #241b46;
@@ -382,8 +382,8 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .gbox.is-layout-inline .filter-btn,
 .gbox.is-layout-inline .filter-reset { display: none !important; }
 
-/* —— Tint colour: roller + reset; selected shape washes in its colour; legend under —— */
-.gbox.is-layout-tint .map-bar {
+/* —— Disc colour: roller + reset; selected gem sits on a circular colour disc; legend under —— */
+.gbox.is-layout-disc .map-bar {
   grid-template-columns: minmax(0, 1fr) 40px;
   grid-template-areas:
     "roller reset"
@@ -391,18 +391,18 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   gap: 8px;
   align-items: center;
 }
-.gbox.is-layout-tint .nearby-row { display: none !important; }
-.gbox.is-layout-tint .top-roller-slot { grid-area: roller; }
-.gbox.is-layout-tint .filter-reset { grid-area: reset; display: grid; }
-.gbox.is-layout-tint .legend {
+.gbox.is-layout-disc .nearby-row { display: none !important; }
+.gbox.is-layout-disc .top-roller-slot { grid-area: roller; }
+.gbox.is-layout-disc .filter-reset { grid-area: reset; display: grid; }
+.gbox.is-layout-disc .legend {
   grid-area: legend;
   display: flex;
   align-items: flex-start;
   gap: 10px;
 }
-.gbox.is-layout-tint .legend-copy { display: grid; gap: 2px; }
-.gbox.is-layout-tint .legend-title { font-size: 18px; font-weight: 900; }
-.gbox.is-layout-tint .legend-note {
+.gbox.is-layout-disc .legend-copy { display: grid; gap: 2px; }
+.gbox.is-layout-disc .legend-title { font-size: 18px; font-weight: 900; }
+.gbox.is-layout-disc .legend-note {
   display: block;
   white-space: normal;
   overflow: visible;
@@ -410,24 +410,63 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   font-size: 13px;
   line-height: 1.25;
 }
-.gbox.is-layout-tint .filter-btn { display: none !important; }
-.gbox.is-layout-tint .roller {
-  padding-inline: calc(50% - 20px);
+.gbox.is-layout-disc .filter-btn { display: none !important; }
+.gbox.is-layout-disc .roller {
+  padding-inline: calc(50% - 22px);
   scroll-snap-type: x mandatory;
   mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
 }
-.gbox.is-layout-tint .roller button {
-  border-radius: 12px;
-  transition: opacity 480ms var(--ease-out), background 480ms var(--ease-out), box-shadow 480ms var(--ease-out), filter 480ms var(--ease-out);
+.gbox.is-layout-disc .roller button {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: transparent;
+  filter: none;
+  transition:
+    opacity 480ms var(--ease-out),
+    transform 480ms var(--ease-out),
+    background 480ms var(--ease-out),
+    box-shadow 480ms var(--ease-out);
 }
-.gbox.is-layout-tint .roller button[aria-selected="true"] {
+.gbox.is-layout-disc .roller button::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  z-index: 0;
+  pointer-events: none;
+  transition:
+    background 480ms var(--ease-out),
+    box-shadow 480ms var(--ease-out),
+    transform 480ms var(--ease-out);
+}
+.gbox.is-layout-disc .roller button > * {
+  position: relative;
+  z-index: 1;
+}
+.gbox.is-layout-disc .roller button[aria-selected="true"] {
   opacity: 1;
   filter: none;
-  background: color-mix(in srgb, var(--stop-tint, var(--accent)) 32%, transparent);
+  background: transparent;
+  transform: scale(1.04);
+}
+/* Colour disc — same language as location-gems publish-cat + circular like map pin select */
+.gbox.is-layout-disc .roller button[aria-selected="true"]::before {
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      color-mix(in srgb, var(--stop-disc, var(--accent)) 52%, #fff) 0%,
+      color-mix(in srgb, var(--stop-disc, var(--accent)) 28%, transparent) 55%,
+      color-mix(in srgb, var(--stop-disc, var(--accent)) 10%, transparent) 100%
+    );
   box-shadow:
-    0 0 0 1.5px color-mix(in srgb, var(--stop-tint, var(--accent)) 75%, #fff),
-    0 0 18px color-mix(in srgb, var(--stop-tint, var(--accent)) 55%, transparent);
+    0 0 0 1.5px color-mix(in srgb, var(--stop-disc, var(--accent)) 72%, #fff),
+    0 0 18px color-mix(in srgb, var(--stop-disc, var(--accent)) 48%, transparent),
+    inset 0 0 12px color-mix(in srgb, var(--stop-disc, var(--accent)) 22%, transparent);
 }
 
 .legend {
