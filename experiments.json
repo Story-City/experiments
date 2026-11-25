@@ -32,6 +32,19 @@
     "reviewer": "Melissa"
   },
   {
+    "slug": "gem-pins-v2",
+    "path": "gem-pins-v2/?v=1",
+    "area": "gems",
+    "title": "Gem map pins V2",
+    "what": "Victoria's gem art on Melissa's Edmonton map. Filter turns the top bar into a legend plus a gem roller (categories, liked, wishlist). Slide-out switches: prompt, image, image with gem corner. Navigate and save for later stay on every version.",
+    "author": "victoria",
+    "authorName": "Victoria",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null
+  },
+  {
     "slug": "first-story-flow",
     "path": "first-story-flow/",
     "area": "first",
@@ -101,7 +114,7 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=64",
+    "path": "location-gems/?v=65",
     "area": "gems",
     "title": "Location Gems hub",
     "what": "Rarity: aquamarine/moonstone/topaz/opal/diamond. Sort hub, spotlight, likes.",

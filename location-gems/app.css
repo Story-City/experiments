@@ -1451,6 +1451,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   height: 420px;
   overflow: visible;
   background: transparent;
+  margin-left: calc(-1 * var(--space-l));
+  margin-right: calc(-1 * var(--space-l));
+  width: calc(100% + 2 * var(--space-l));
 }
 /* Iconography only — no pill containers */
 .sort-rail {
@@ -1498,8 +1501,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .sort-rail-left .sort-rail-pod {
   height: 100%;
   border-radius: 0 28px 28px 0;
-  padding-left: 10px;
+  padding-left: 8px;
   padding-right: 16px;
+  border-left: 0;
 }
 .sort-rail-left.is-on .sort-rail-pod {
   background:
@@ -1526,8 +1530,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .sort-rail-right .sort-rail-pod {
   height: 100%;
   border-radius: 28px 0 0 28px;
-  padding-right: 10px;
+  padding-right: 8px;
   padding-left: 16px;
+  border-right: 0;
 }
 .sort-rail-right.is-on .sort-rail-pod {
   background:
@@ -1557,7 +1562,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   flex-direction: row;
   gap: 10px;
   border-radius: 28px 28px 0 0;
-  padding: 14px 18px 16px;
+  padding: 14px 18px 12px;
+  border-bottom: 0;
 }
 .sort-rail-down.is-on .sort-rail-pod {
   background:
@@ -2337,7 +2343,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 16px 14px 22px;
+  padding: 12px 14px calc(16px + var(--kb, 0px));
+  pointer-events: none;
 }
 .publish-sheet[hidden] { display: none !important; }
 .publish-sheet-scrim {
@@ -2345,8 +2352,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   inset: 0;
   border: 0;
   padding: 0;
-  background: rgba(8, 3, 22, 0.55);
+  background: transparent;
   cursor: pointer;
+  pointer-events: auto;
 }
 .publish-sheet-card {
   position: relative;
@@ -2355,7 +2363,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   max-width: 340px;
   padding: 14px 14px 16px;
   border-radius: 18px;
-  background: color-mix(in srgb, var(--raised) 78%, transparent);
+  background: color-mix(in srgb, var(--raised) 82%, transparent);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -2363,25 +2371,25 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   display: flex;
   flex-direction: column;
   gap: 8px;
+  pointer-events: auto;
   animation: publishSheetIn 320ms var(--ease-out) both;
 }
 @keyframes publishSheetIn {
   from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.publish-tip {
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(0, 194, 255, 0.14);
-  border: 1px solid rgba(0, 194, 255, 0.35);
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.35;
-}
 .publish-sheet .side-actions .confirm-pill {
   flex: 1;
+}
+.phone.is-publishing .sort-card.is-publishing {
+  z-index: 50;
+}
+.spot.is-publish-tip {
+  z-index: 52;
+  pointer-events: none;
+}
+.spot.is-publish-tip .spot-tip {
+  pointer-events: none;
 }
 body.is-v1 .gem-card-rarity,
 body.is-v1 .feed-chip-rarity-word,

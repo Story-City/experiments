@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v64 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v65 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -212,9 +212,11 @@ const COPY = {
   feedFresh: '[new]',
   feedPromptKicker: '[spot this]',
   publishTip:
-    '[this gem goes public — don’t dox people; name the thing you found, not the street]',
+    '[encourage sharing this public gem while warning not to dox people — name the object, not the place]',
+  publishTitleLabel: '[title]',
+  publishTitlePh: '[name the thing you found]',
   publishWriteLabel: '[add a few words]',
-  publishNotePh: '[bunny house / tree on the mailbox]',
+  publishNotePh: '[optional note]',
   publishConfirm: '[publish]',
 };
 
@@ -267,10 +269,12 @@ const SPOOF_COPY = {
   feedFresh: 'New',
   feedPromptKicker: 'Spot this',
   publishTip:
-    'This gem goes public — don’t dox people; name the thing you found, not the street.',
-  publishWriteLabel: 'Add a few words',
-  publishNotePh: 'Bunny house / tree on the mailbox',
-  publishConfirm: 'Publish',
+    '[encourage sharing this public gem while warning not to dox people — name the object, not the place]',
+  publishTitleLabel: '[title]',
+  publishTitlePh: '[name the thing you found]',
+  publishWriteLabel: '[add a few words]',
+  publishNotePh: '[optional note]',
+  publishConfirm: '[publish]',
   emptyPublicTitle: 'Nothing public yet',
   emptyPublicBody: 'Publish a find and it’ll show up here.',
   emptyHiddenTitle: 'No hidden gems',
@@ -367,11 +371,13 @@ const FEED_VARIANTS = new Set([
 ]);
 const publishSheet = document.getElementById('publishSheet');
 const publishSheetScrim = document.getElementById('publishSheetScrim');
-const publishTip = document.getElementById('publishTip');
+const publishTitleLabel = document.getElementById('publishTitleLabel');
+const publishTitle = document.getElementById('publishTitle');
 const publishWriteLabel = document.getElementById('publishWriteLabel');
 const publishNote = document.getElementById('publishNote');
 const publishConfirm = document.getElementById('publishConfirm');
 const hubMeta = document.getElementById('hubMeta');
+let publishKbBound = false;
 const sortTitle = document.getElementById('sortTitle');
 const sortIntro = document.getElementById('sortIntro');
 const sortSub = document.getElementById('sortSub');
@@ -1731,10 +1737,52 @@ function flyGemIntoSection(photoSrc, toPublic) {
 }
 
 function syncPublishSheetCopy() {
-  if (publishTip) publishTip.textContent = t('publishTip');
+  if (publishTitleLabel) publishTitleLabel.textContent = t('publishTitleLabel');
+  if (publishTitle) publishTitle.placeholder = t('publishTitlePh');
   if (publishWriteLabel) publishWriteLabel.textContent = t('publishWriteLabel');
   if (publishNote) publishNote.placeholder = t('publishNotePh');
   if (publishConfirm) publishConfirm.textContent = t('publishConfirm');
+}
+
+function syncPublishKeyboard() {
+  if (!publishSheet || publishSheet.hidden) return;
+  const vv = window.visualViewport;
+  if (!vv) {
+    publishSheet.style.setProperty('--kb', '0px');
+    return;
+  }
+  const occluded = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+  publishSheet.style.setProperty('--kb', `${occluded}px`);
+}
+
+function bindPublishKeyboard() {
+  if (publishKbBound || !window.visualViewport) return;
+  publishKbBound = true;
+  window.visualViewport.addEventListener('resize', syncPublishKeyboard);
+  window.visualViewport.addEventListener('scroll', syncPublishKeyboard);
+}
+
+function showPublishTip(card) {
+  clearMapTips();
+  const target = card || tipTargetEl('card');
+  sortInline.scrollIntoView({ block: 'nearest' });
+  placeSpotlight(target);
+  mapTipBody.textContent = displayCopy(t('publishTip'));
+  mapTipBody.classList.remove('is-swap');
+  void mapTipBody.offsetWidth;
+  mapTipBody.classList.add('is-swap');
+  spot.hidden = false;
+  spot.classList.add('is-publish-tip');
+  mapTip.classList.remove('is-out');
+  mapTip.style.transform = '';
+  void mapTip.offsetWidth;
+  mapTip.classList.add('is-on');
+  mapTipAdvance = null;
+}
+
+function hidePublishTip() {
+  spot.classList.remove('is-publish-tip');
+  hideMapTip();
 }
 
 function openPublishSheet(card) {
@@ -1745,21 +1793,33 @@ function openPublishSheet(card) {
   }
   pendingPublish = { card, find };
   card.classList.add('is-publishing');
+  phone.classList.add('is-publishing');
   card.style.transition = `transform ${SWIPE_SETTLE_MS}ms ${EASE_POPULAR}, opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
-  card.style.transform = 'translate(18%, -4%) rotate(8deg) scale(0.96)';
-  card.style.opacity = '0.55';
+  card.style.transform = 'rotate(-4deg)';
+  card.style.opacity = '1';
+  window.setTimeout(() => {
+    card.style.transition = '';
+    card.style.transform = '';
+  }, SWIPE_FADE_MS);
   syncPublishSheetCopy();
+  if (publishTitle) publishTitle.value = '';
   if (publishNote) publishNote.value = '';
+  bindPublishKeyboard();
   publishSheet.hidden = false;
   publishSheet.setAttribute('aria-hidden', 'false');
-  window.setTimeout(() => publishNote?.focus(), 40);
+  syncPublishKeyboard();
+  showPublishTip(card);
+  window.setTimeout(() => publishTitle?.focus(), 80);
 }
 
 function closePublishSheet({ restoreCard = true } = {}) {
+  hidePublishTip();
   if (publishSheet) {
     publishSheet.hidden = true;
     publishSheet.setAttribute('aria-hidden', 'true');
+    publishSheet.style.setProperty('--kb', '0px');
   }
+  phone.classList.remove('is-publishing');
   const card = pendingPublish?.card;
   pendingPublish = null;
   if (restoreCard && card) {
@@ -1777,10 +1837,15 @@ function closePublishSheet({ restoreCard = true } = {}) {
 async function confirmPublishSheet() {
   const pending = pendingPublish;
   if (!pending) return;
+  const title = (publishTitle?.value || '').trim() || t('publishTitlePh');
   const note = (publishNote?.value || '').trim();
-  const title = note || t('publishNotePh');
+  const card = pending.card;
   closePublishSheet({ restoreCard: false });
-  await settleSort(pending.card, 'public', { title, caption: note || title });
+  card.classList.remove('is-publishing');
+  await settleSort(card, 'public', {
+    title,
+    caption: note || title,
+  });
 }
 
 async function settleSort(card, action, opts = {}) {
@@ -1836,8 +1901,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v64 · V1. No rarity.'
-        : 'LOCATION-GEMS-HUB-v64 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v65 · V1. No rarity.'
+        : 'LOCATION-GEMS-HUB-v65 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2141,6 +2206,15 @@ if (publishConfirm) {
     confirmPublishSheet();
   });
 }
+if (publishTitle) {
+  publishTitle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      publishNote?.focus();
+    }
+  });
+  publishTitle.addEventListener('focus', syncPublishKeyboard);
+}
 if (publishNote) {
   publishNote.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
@@ -2148,6 +2222,7 @@ if (publishNote) {
       confirmPublishSheet();
     }
   });
+  publishNote.addEventListener('focus', syncPublishKeyboard);
 }
 bindTipGesture();
 bindFeedDismissGesture();
