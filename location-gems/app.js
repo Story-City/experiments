@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v99 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v100 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -477,8 +477,20 @@ const debugSubcats = document.getElementById('debugSubcats');
 const debugDesignMove = document.getElementById('debugDesignMove');
 const btnRadius = document.getElementById('btnRadius');
 const btnRadiusValue = document.getElementById('btnRadiusValue');
+const spaceScale = document.getElementById('spaceScale');
+const spaceScaleValue = document.getElementById('spaceScaleValue');
+const typeScale = document.getElementById('typeScale');
+const typeScaleValue = document.getElementById('typeScaleValue');
 const designSelectionLabel = document.getElementById('designSelectionLabel');
+const designActions = document.getElementById('designActions');
 const designResetPos = document.getElementById('designResetPos');
+const designCenterX = document.getElementById('designCenterX');
+const designCenterY = document.getElementById('designCenterY');
+const designCenterBoth = document.getElementById('designCenterBoth');
+const designLock = document.getElementById('designLock');
+const designUnlock = document.getElementById('designUnlock');
+const designClearStudio = document.getElementById('designClearStudio');
+const designSaveNote = document.getElementById('designSaveNote');
 /** Pieces designers can select + drag in Move mode (groups / components). */
 const DESIGN_TARGET_SEL = [
   '.camera-button',
@@ -497,6 +509,7 @@ const DESIGN_TARGET_SEL = [
   '.snapshot-section',
 ].join(', ');
 const BTN_RADIUS_PILL = 24;
+const DESIGN_STUDIO_KEY = 'location-gems-design-studio-v1';
 
 /** @type {'public'|'hidden'|'liked'} */
 let activeSection = 'public';
@@ -517,10 +530,11 @@ let likesStackMode = false;
 let dragMode = false;
 let subcatsMode = false;
 let designMoveMode = false;
-/** @type {HTMLElement | null} */
-let designSelected = null;
-/** @type {{ el: HTMLElement, startX: number, startY: number, origX: number, origY: number } | null} */
+/** @type {Set<HTMLElement>} */
+let designSelection = new Set();
+/** @type {{ els: HTMLElement[], startX: number, startY: number, origins: { el: HTMLElement, x: number, y: number }[] } | null} */
 let designDrag = null;
+let designSaveTimer = 0;
 /** @type {any} */
 let drag = null;
 /** @type {(() => void) | null} */
@@ -1461,6 +1475,8 @@ function refreshHub(enterId) {
   renderFeed();
   renderSortStack();
   renderGrid(enterId);
+  const studio = readDesignStudio();
+  if (studio?.positions) applyDesignPositions(studio.positions);
   if (designMoveMode) markDesignTargets(true);
 }
 
@@ -2379,8 +2395,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v99 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v99 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v100 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v100 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2584,6 +2600,22 @@ function applyBtnRadius() {
   if (btnRadiusValue) btnRadiusValue.textContent = pill ? 'pill' : `${Math.max(0, n)}`;
 }
 
+function applySpaceScale() {
+  if (!spaceScale) return;
+  const n = Number(spaceScale.value);
+  const pct = Number.isFinite(n) ? n : 100;
+  document.documentElement.style.setProperty('--space-scale', String(pct / 100));
+  if (spaceScaleValue) spaceScaleValue.textContent = `${pct}%`;
+}
+
+function applyTypeScale() {
+  if (!typeScale) return;
+  const n = Number(typeScale.value);
+  const pct = Number.isFinite(n) ? n : 100;
+  document.documentElement.style.setProperty('--type-scale', String(pct / 100));
+  if (typeScaleValue) typeScaleValue.textContent = `${pct}%`;
+}
+
 function designOffsetOf(el) {
   const x = Number(el.dataset.designX || 0);
   const y = Number(el.dataset.designY || 0);
@@ -2596,14 +2628,20 @@ function applyDesignOffset(el) {
   else el.style.transform = '';
 }
 
-function clearDesignSelection() {
-  if (designSelected) {
-    designSelected.classList.remove('is-design-selected', 'is-design-dragging');
-    designSelected = null;
-  }
-  designDrag = null;
-  if (designSelectionLabel) designSelectionLabel.textContent = '[nothing selected]';
-  if (designResetPos) designResetPos.hidden = true;
+function designKeyFor(el) {
+  if (el.dataset.designKey) return el.dataset.designKey;
+  const base =
+    el.id ||
+    el.className
+      .toString()
+      .split(/\s+/)
+      .find((c) => c && !c.startsWith('is-')) ||
+    'piece';
+  const parent = el.parentElement;
+  const idx = parent ? [...parent.children].indexOf(el) : 0;
+  const key = `${base}:${idx}`;
+  el.dataset.designKey = key;
+  return key;
 }
 
 function designLabelFor(el) {
@@ -2619,13 +2657,45 @@ function designLabelFor(el) {
   );
 }
 
-function selectDesignTarget(el) {
-  if (!el || el === designSelected) return;
-  if (designSelected) designSelected.classList.remove('is-design-selected', 'is-design-dragging');
-  designSelected = el;
-  el.classList.add('is-design-selected');
-  if (designSelectionLabel) designSelectionLabel.textContent = designLabelFor(el);
-  if (designResetPos) designResetPos.hidden = false;
+function isDesignLocked(el) {
+  return el.dataset.designLocked === '1';
+}
+
+function syncDesignSelectionUi() {
+  const list = [...designSelection];
+  if (designSelectionLabel) {
+    if (!list.length) designSelectionLabel.textContent = '[nothing selected]';
+    else if (list.length === 1) designSelectionLabel.textContent = designLabelFor(list[0]);
+    else designSelectionLabel.textContent = `[${list.length} selected]`;
+  }
+  if (designActions) designActions.hidden = list.length === 0;
+}
+
+function clearDesignSelection() {
+  designSelection.forEach((el) => {
+    el.classList.remove('is-design-selected', 'is-design-dragging');
+  });
+  designSelection.clear();
+  designDrag = null;
+  syncDesignSelectionUi();
+}
+
+function selectDesignTarget(el, { additive = false } = {}) {
+  if (!el) return;
+  if (!additive) {
+    designSelection.forEach((node) => {
+      if (node !== el) node.classList.remove('is-design-selected', 'is-design-dragging');
+    });
+    designSelection.clear();
+  }
+  if (designSelection.has(el) && additive) {
+    el.classList.remove('is-design-selected', 'is-design-dragging');
+    designSelection.delete(el);
+  } else {
+    designSelection.add(el);
+    el.classList.add('is-design-selected');
+  }
+  syncDesignSelectionUi();
 }
 
 function markDesignTargets(on) {
@@ -2634,7 +2704,10 @@ function markDesignTargets(on) {
   if (!on) return;
   phone.querySelectorAll(DESIGN_TARGET_SEL).forEach((el) => {
     if (el.closest('[hidden]')) return;
+    designKeyFor(el);
     el.classList.add('is-design-target');
+    if (isDesignLocked(el)) el.classList.add('is-design-locked');
+    applyDesignOffset(el);
   });
 }
 
@@ -2648,14 +2721,155 @@ function setDesignMoveMode(on) {
     return;
   }
   markDesignTargets(true);
-  if (hint) hint.textContent = '[tap a piece, then drag]';
+  if (hint) hint.textContent = '[tap a piece, shift+tap for more, then drag]';
 }
 
 function resetDesignPosition() {
-  if (!designSelected) return;
-  delete designSelected.dataset.designX;
-  delete designSelected.dataset.designY;
-  applyDesignOffset(designSelected);
+  if (!designSelection.size) return;
+  designSelection.forEach((el) => {
+    delete el.dataset.designX;
+    delete el.dataset.designY;
+    applyDesignOffset(el);
+  });
+  scheduleDesignStudioSave();
+}
+
+function setDesignLocked(on) {
+  designSelection.forEach((el) => {
+    if (on) {
+      el.dataset.designLocked = '1';
+      el.classList.add('is-design-locked');
+    } else {
+      delete el.dataset.designLocked;
+      el.classList.remove('is-design-locked');
+    }
+  });
+  scheduleDesignStudioSave();
+}
+
+function centerDesignSelection(axis) {
+  if (!phone || !designSelection.size) return;
+  const phoneRect = phone.getBoundingClientRect();
+  designSelection.forEach((el) => {
+    if (isDesignLocked(el)) return;
+    const r = el.getBoundingClientRect();
+    const off = designOffsetOf(el);
+    let dx = 0;
+    let dy = 0;
+    if (axis === 'x' || axis === 'both') {
+      dx = phoneRect.left + phoneRect.width / 2 - (r.left + r.width / 2);
+    }
+    if (axis === 'y' || axis === 'both') {
+      dy = phoneRect.top + phoneRect.height / 2 - (r.top + r.height / 2);
+    }
+    el.dataset.designX = String(Math.round(off.x + dx));
+    el.dataset.designY = String(Math.round(off.y + dy));
+    applyDesignOffset(el);
+  });
+  scheduleDesignStudioSave();
+}
+
+function collectDesignPositions() {
+  /** @type {Record<string, { x: number, y: number, locked?: boolean }>} */
+  const positions = {};
+  if (!phone) return positions;
+  phone.querySelectorAll(DESIGN_TARGET_SEL).forEach((el) => {
+    const key = designKeyFor(el);
+    const off = designOffsetOf(el);
+    const locked = isDesignLocked(el);
+    if (!off.x && !off.y && !locked) return;
+    positions[key] = { x: off.x, y: off.y };
+    if (locked) positions[key].locked = true;
+  });
+  return positions;
+}
+
+function applyDesignPositions(positions) {
+  if (!phone || !positions) return;
+  phone.querySelectorAll(DESIGN_TARGET_SEL).forEach((el) => {
+    const key = designKeyFor(el);
+    const saved = positions[key];
+    if (!saved) return;
+    if (saved.x) el.dataset.designX = String(saved.x);
+    else delete el.dataset.designX;
+    if (saved.y) el.dataset.designY = String(saved.y);
+    else delete el.dataset.designY;
+    if (saved.locked) {
+      el.dataset.designLocked = '1';
+      el.classList.add('is-design-locked');
+    }
+    applyDesignOffset(el);
+  });
+}
+
+function readDesignStudio() {
+  try {
+    const raw = localStorage.getItem(DESIGN_STUDIO_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function writeDesignStudio(data) {
+  try {
+    localStorage.setItem(DESIGN_STUDIO_KEY, JSON.stringify(data));
+    if (designSaveNote) designSaveNote.textContent = 'Saved in this browser · auto';
+  } catch {
+    if (designSaveNote) designSaveNote.textContent = '[could not save in this browser]';
+  }
+}
+
+function scheduleDesignStudioSave() {
+  window.clearTimeout(designSaveTimer);
+  designSaveTimer = window.setTimeout(() => {
+    writeDesignStudio({
+      btnRadius: btnRadius ? Number(btnRadius.value) : BTN_RADIUS_PILL,
+      spaceScale: spaceScale ? Number(spaceScale.value) : 100,
+      typeScale: typeScale ? Number(typeScale.value) : 100,
+      positions: collectDesignPositions(),
+      savedAt: Date.now(),
+    });
+  }, 180);
+}
+
+function loadDesignStudio() {
+  const data = readDesignStudio();
+  if (!data) return;
+  if (btnRadius && data.btnRadius != null) btnRadius.value = String(data.btnRadius);
+  if (spaceScale && data.spaceScale != null) spaceScale.value = String(data.spaceScale);
+  if (typeScale && data.typeScale != null) typeScale.value = String(data.typeScale);
+  applyBtnRadius();
+  applySpaceScale();
+  applyTypeScale();
+  applyDesignPositions(data.positions || {});
+  if (designSaveNote) designSaveNote.textContent = 'Restored from this browser · auto';
+}
+
+function clearDesignStudio() {
+  try {
+    localStorage.removeItem(DESIGN_STUDIO_KEY);
+  } catch {
+    /* ignore */
+  }
+  if (btnRadius) btnRadius.value = String(BTN_RADIUS_PILL);
+  if (spaceScale) spaceScale.value = '100';
+  if (typeScale) typeScale.value = '100';
+  applyBtnRadius();
+  applySpaceScale();
+  applyTypeScale();
+  if (phone) {
+    phone.querySelectorAll(DESIGN_TARGET_SEL).forEach((el) => {
+      delete el.dataset.designX;
+      delete el.dataset.designY;
+      delete el.dataset.designLocked;
+      el.classList.remove('is-design-locked');
+      applyDesignOffset(el);
+    });
+  }
+  clearDesignSelection();
+  if (designSaveNote) designSaveNote.textContent = 'Cleared · defaults restored';
 }
 
 function onDesignPointerDown(e) {
@@ -2668,16 +2882,19 @@ function onDesignPointerDown(e) {
   }
   e.preventDefault();
   e.stopPropagation();
-  selectDesignTarget(target);
-  const off = designOffsetOf(target);
+  selectDesignTarget(target, { additive: e.shiftKey });
+  const movers = [...designSelection].filter((el) => !isDesignLocked(el));
+  if (!movers.length) return;
   designDrag = {
-    el: target,
+    els: movers,
     startX: e.clientX,
     startY: e.clientY,
-    origX: off.x,
-    origY: off.y,
+    origins: movers.map((el) => {
+      const off = designOffsetOf(el);
+      return { el, x: off.x, y: off.y };
+    }),
   };
-  target.classList.add('is-design-dragging');
+  movers.forEach((el) => el.classList.add('is-design-dragging'));
   target.setPointerCapture?.(e.pointerId);
 }
 
@@ -2685,20 +2902,23 @@ function onDesignPointerMove(e) {
   if (!designDrag) return;
   const dx = e.clientX - designDrag.startX;
   const dy = e.clientY - designDrag.startY;
-  designDrag.el.dataset.designX = String(Math.round(designDrag.origX + dx));
-  designDrag.el.dataset.designY = String(Math.round(designDrag.origY + dy));
-  applyDesignOffset(designDrag.el);
+  designDrag.origins.forEach(({ el, x, y }) => {
+    el.dataset.designX = String(Math.round(x + dx));
+    el.dataset.designY = String(Math.round(y + dy));
+    applyDesignOffset(el);
+  });
 }
 
 function onDesignPointerUp(e) {
   if (!designDrag) return;
-  designDrag.el.classList.remove('is-design-dragging');
+  designDrag.els.forEach((el) => el.classList.remove('is-design-dragging'));
   try {
-    designDrag.el.releasePointerCapture?.(e.pointerId);
+    e.target.releasePointerCapture?.(e.pointerId);
   } catch {
     /* ignore */
   }
   designDrag = null;
+  scheduleDesignStudioSave();
 }
 
 function setMidTone(on) {
@@ -2744,6 +2964,8 @@ function init() {
   applyMidTone();
   applySortCardText();
   applyBtnRadius();
+  applySpaceScale();
+  applyTypeScale();
   seedGems();
   seedPendingSort();
   setupSnapshotArc();
@@ -2752,6 +2974,7 @@ function init() {
   setSortCardLook(sortCardLook);
   setSection('public');
   refreshHub();
+  loadDesignStudio();
   showTip(!storageGet(TIP_KEY));
   window.setInterval(tickPlaces, ROTATE_MS);
   if (!storageGet(ONBOARD_KEY)) {
@@ -2852,11 +3075,30 @@ if (debugDesignMove) {
   debugDesignMove.addEventListener('click', () => setDesignMoveMode(!designMoveMode));
 }
 if (btnRadius) {
-  btnRadius.addEventListener('input', applyBtnRadius);
+  btnRadius.addEventListener('input', () => {
+    applyBtnRadius();
+    scheduleDesignStudioSave();
+  });
 }
-if (designResetPos) {
-  designResetPos.addEventListener('click', resetDesignPosition);
+if (spaceScale) {
+  spaceScale.addEventListener('input', () => {
+    applySpaceScale();
+    scheduleDesignStudioSave();
+  });
 }
+if (typeScale) {
+  typeScale.addEventListener('input', () => {
+    applyTypeScale();
+    scheduleDesignStudioSave();
+  });
+}
+if (designResetPos) designResetPos.addEventListener('click', resetDesignPosition);
+if (designCenterX) designCenterX.addEventListener('click', () => centerDesignSelection('x'));
+if (designCenterY) designCenterY.addEventListener('click', () => centerDesignSelection('y'));
+if (designCenterBoth) designCenterBoth.addEventListener('click', () => centerDesignSelection('both'));
+if (designLock) designLock.addEventListener('click', () => setDesignLocked(true));
+if (designUnlock) designUnlock.addEventListener('click', () => setDesignLocked(false));
+if (designClearStudio) designClearStudio.addEventListener('click', clearDesignStudio);
 if (phone) {
   phone.addEventListener('pointerdown', onDesignPointerDown, true);
   phone.addEventListener('pointermove', onDesignPointerMove);
