@@ -16,7 +16,7 @@ const nw = s => {
 const CHEV = '<svg class="chev" viewBox="0 0 10 16" aria-hidden="true"><path d="M2 2l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const CHEV_L = '<svg class="chev" viewBox="0 0 10 16" aria-hidden="true"><path d="M8 2L2 8l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-const S = { v: 'a', picked: [], screen: 'pick' };
+const S = { v: 'a', h: 0, picked: [], screen: 'pick' };
 const isPicked = id => S.picked.includes(id);
 let cur = null;
 
@@ -25,6 +25,9 @@ const LETTER = Object.fromEntries(VERSIONS.map((v, i) => [v.key, String.fromChar
 const qv = (new URLSearchParams(location.search).get('v') || '').toUpperCase();
 const fromUrl = VERSIONS.find(v => LETTER[v.key] === qv);
 S.v = (fromUrl || VERSIONS[0]).key;
+const qh = parseInt(new URLSearchParams(location.search).get('h'), 10);
+if (qh >= 1 && qh <= COPY.titles.length) S.h = qh - 1;
+const NARROW = matchMedia('(max-width:520px)');
 
 /* ---------- shell ---------- */
 document.title = 'Explore Picker';
@@ -37,6 +40,15 @@ $('#switcher').addEventListener('click', e => {
   const u = new URL(location.href); u.searchParams.set('v', LETTER[S.v].toLowerCase()); history.replaceState(null, '', u);
   render();
 });
+$('#heads').innerHTML = `<span class="heads-lab">${esc(COPY.headingLabel)}</span>` + COPY.titles.map((t, i) =>
+  `<button class="sw hd" data-h="${i}" title="${esc(t)}" aria-label="Heading ${i + 1}: ${esc(t)}">${i + 1}</button>`).join('');
+$('#heads').addEventListener('click', e => {
+  const b = e.target.closest('[data-h]'); if (!b) return;
+  // on a phone only the current number shows, so tapping it steps to the next heading
+  S.h = NARROW.matches ? (S.h + 1) % COPY.titles.length : +b.dataset.h;
+  const u = new URL(location.href); u.searchParams.set('h', S.h + 1); history.replaceState(null, '', u);
+  render();
+});
 $('#noteToggle').addEventListener('click', () => {
   const open = document.body.classList.toggle('note-open');
   $('#noteToggle').setAttribute('aria-expanded', open);
@@ -45,6 +57,7 @@ $('#noteToggle').addEventListener('click', () => {
 function render() {
   const V = VERSIONS.find(v => v.key === S.v);
   document.querySelectorAll('.sw[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === S.v));
+  document.querySelectorAll('.sw[data-h]').forEach(b => b.classList.toggle('on', +b.dataset.h === S.h));
   $('#note').innerHTML = `<b>${LETTER[V.key]} · ${esc(V.name)}.</b> <span class="why">Why it might work:</span> ${nw(V.why)} <span class="dot">·</span> <span class="risk">Risk:</span> ${nw(V.risk)}`;
   if (S.screen === 'pick') renderPick(V); else renderUnlock(S.screen === 'skip');
 }
@@ -55,7 +68,7 @@ function renderPick(V) {
   scr.innerHTML = `
   <div class="pk">
     <div class="pk-top"><span class="pk-step">${esc(COPY.stepLabel)}</span><button class="sbtn ghost" id="skip">${esc(COPY.skip)}</button></div>
-    <h1 class="pk-h">${nw(COPY.title)}</h1>
+    <h1 class="pk-h">${nw(COPY.titles[S.h])}</h1>
     <p class="pk-sub">${nw(sub)}</p>
     <div class="picker v-${V.key}" id="picker"></div>
     <div class="pk-foot"><button class="btn-primary" id="continue" disabled></button></div>
@@ -170,7 +183,7 @@ function mountA(el) {
   const draw = () => {
     grid.innerHTML = OPTIONS.map(o => isPicked(o.id)
       ? `<div class="a-slot" data-slot="${o.id}" aria-hidden="true"><span>${icon(o.id)}</span></div>`
-      : `<button class="a-card" data-opt="${o.id}" aria-pressed="false" style="--c:${o.color}"><span class="a-idx tl" aria-hidden="true">${icon(o.id)}</span><span class="a-idx br" aria-hidden="true">${icon(o.id)}</span><span class="a-emo">${icon(o.id)}</span><span class="a-lab">${nw(o.label)}</span></button>`).join('');
+      : `<button class="a-card" data-opt="${o.id}" aria-pressed="false" style="--c:${o.color}"><span class="a-emo">${icon(o.id)}</span><span class="a-lab">${nw(o.label)}</span></button>`).join('');
     pile.innerHTML = S.picked.length
       ? S.picked.map((id, i) => `<button class="a-mini" data-opt="${id}" aria-pressed="true" aria-label="Put back: ${esc(byId[id].label)}" style="--r:${((i * 37) % 13) - 6}deg;--c:${byId[id].color}">${icon(id)}</button>`).join('')
       : `<div class="a-empty">${nw('Your pile · tap cards to add them')}</div>`;
