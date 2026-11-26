@@ -103,6 +103,7 @@ const EXPLAIN_DEFAULT = {
   play: '[explain play finds]',
   landmark: '[explain landmark finds]',
   curio: '[explain curiosity finds]',
+  mine: '[explain my gems]',
   liked: '[explain liked gems]',
   wishlist: '[explain saved for later]',
 };
@@ -111,6 +112,7 @@ const SPOOF_LABELS = {
   navigate: 'Navigate',
   save: 'Save for later',
   saved: 'Saved for later',
+  mine: 'My gems',
   liked: 'Liked',
   wishlist: 'Wishlist',
   all: 'All gems',
@@ -122,6 +124,7 @@ const SPOOF_LABELS = {
     play: 'Play finds',
     landmark: 'Landmark finds',
     curio: 'Curiosity finds',
+    mine: 'Gems you left',
     liked: 'Gems you hearted',
     wishlist: 'Saved for later',
   },
@@ -131,6 +134,7 @@ const wording = {
   navigate: '[navigate]',
   save: '[save for later]',
   saved: '[saved for later]',
+  mine: 'My gems',
   liked: 'Liked',
   wishlist: 'Wishlist',
   all: 'All gems',
@@ -164,6 +168,7 @@ function stops() {
   return [
     { id: 'all', label: labelOf('all') },
     ...FILTER_CATS.map((c) => ({ id: c.id, label: c.label, match: c.match, art: c.art })),
+    { id: 'mine', label: labelOf('mine') },
     { id: 'liked', label: labelOf('liked') },
     { id: 'wishlist', label: labelOf('wishlist') },
   ];
@@ -175,6 +180,7 @@ function filterCat(id) {
 
 function labelOf(key) {
   if (spoofWording && SPOOF_LABELS[key]) return SPOOF_LABELS[key];
+  if (key === 'mine') return wording.mine;
   if (key === 'liked') return wording.liked;
   if (key === 'wishlist') return wording.wishlist;
   if (key === 'all') return wording.all;
@@ -365,6 +371,7 @@ function layoutNeedsToggle() {
 
 function stopDisc(id) {
   if (id === 'all') return PUBLIC_GEM_FILL;
+  if (id === 'mine') return GEM_COLOUR.mine;
   if (id === 'liked') return LIKE_PINK_HOT;
   if (id === 'wishlist') return '#e8e4ff';
   const cat = filterCat(id);
@@ -375,6 +382,7 @@ function stopDisc(id) {
 function shown(g) {
   if (g.hidden) return false;
   if (!filterOn || stopId === 'all') return true;
+  if (stopId === 'mine') return g.mine;
   if (stopId === 'liked') return g.liked;
   if (stopId === 'wishlist') return saved.has(g.id);
   const cat = filterCat(stopId);
@@ -439,6 +447,8 @@ function drawPins(animate) {
 
 function sampleFor(id) {
   if (id === 'all') return { tags: ['nature'], roller: 'all', liked: false, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
+  /* Disc “My gems” uses hollow mine art (private) */
+  if (id === 'mine') return { tags: ['nature'], liked: false, mine: true, private: true, rarity: 'common', visited: false, seasonal: false, expiring: null };
   if (id === 'liked') return { tags: ['culture'], roller: 'liked', liked: true, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
   if (id === 'wishlist') return { tags: ['nature'], roller: 'wishlist', liked: false, mine: false, rarity: 'common', visited: false, seasonal: false, expiring: null };
   const cat = filterCat(id);
