@@ -127,6 +127,13 @@
   details.card { padding: 10px 16px; opacity: .75; }
   details.card[open] { opacity: 1; padding-bottom: 16px; }
   details.card summary { cursor: pointer; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  /* part-of-the-app symbol, top right of each card */
+  div.card { position: relative; }
+  .cat { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: color-mix(in srgb, var(--ink) 55%, transparent); color: var(--mist); flex: none; }
+  .cat svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  div.card > .cat { position: absolute; top: 10px; right: 10px; z-index: 1; pointer-events: auto; }
+  details.card summary .cat { margin-left: auto; align-self: center; width: 26px; height: 26px; }
+  .body .name { padding-inline: 26px; }
   details.card summary .name { font-size: 21px; }
   details.card a { color: var(--who); }
   .status.stage { display: inline-block; white-space: nowrap; }
@@ -353,6 +360,29 @@
     return box;
   }
 
+  // Part-of-the-app symbol in each card's top-right corner (24px line icons, drawn with currentColor)
+  const AREA_ICONS = {
+    first: '<path d="M12 3l1.8 4.7L18.5 9l-4.7 1.8L12 15.5l-1.8-4.7L5.5 9l4.7-1.3z"/><path d="M18.5 15l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>',
+    finding: '<circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/>',
+    reading: '<path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5z"/><path d="M12 6.5v13"/>',
+    puzzles: '<path d="M10 4.5a2 2 0 1 1 4 0V6h4v4h-1.5a2 2 0 1 0 0 4H18v4h-4v-1.5a2 2 0 1 0-4 0V18H6v-4h1.5a2 2 0 1 0 0-4H6V6h4z"/>',
+    map: '<path d="M12 21s-6-5.5-6-11a6 6 0 1 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/>',
+    gems: '<path d="M7 4h10l4 5-9 11L3 9z"/><path d="M3 9h18"/><path d="M12 20 9 9l2-5M12 20l3-11-2-5"/>',
+    together: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15.5 14.2c2.9.2 5.5 2.2 5.5 5.3"/>',
+    outside: '<rect x="4" y="3" width="10" height="18" rx="2"/><path d="M12 12h9m-3-3 3 3-3 3"/>',
+    design: '<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.9 1.2-1.8-.5-1 .2-2.2 1.3-2.2H17a4 4 0 0 0 4-4c0-5.5-4-10-9-10z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/>',
+    other: '<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+  };
+  function areaIcon(area) {
+    const label = (AREAS.find(([id]) => id === area) || AREAS[AREAS.length - 1])[1];
+    const s = el('span', 'cat');
+    s.title = label;
+    s.setAttribute('role', 'img');
+    s.setAttribute('aria-label', label);
+    s.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${AREA_ICONS[area] || AREA_ICONS.other}</svg>`;
+    return s;
+  }
+
   function card(e) {
     const li = el('li');
     li.dataset.author = e.author;
@@ -361,7 +391,7 @@
     if (e.archived) {
       const d = el('details', 'card');
       const sum = el('summary');
-      sum.append(el('span', 'name', e.title), el('span', 'tag', 'Archived'));
+      sum.append(el('span', 'name', e.title), el('span', 'tag', 'Archived'), areaIcon(li.dataset.area));
       const open = el('a', null, 'Open it');
       open.href = viewUrl(e);
       const m = meta(e);
@@ -378,7 +408,7 @@
       body.append(meta(e));
       if (e.live) a.append(snippet(e.live));
       a.append(body);
-      wrap.append(a, links(e));
+      wrap.append(areaIcon(li.dataset.area), a, links(e));
       li.append(wrap);
     }
     return li;
