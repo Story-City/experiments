@@ -429,7 +429,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   color: var(--disc-tint);
 }
 .disc-stage:active { cursor: grabbing; }
-/* GEM-PINS-V2-v37-DISC-SOFT-GLOW — long soft mask; no hard plateau / bloom cut */
+/* GEM-PINS-V2-v38-DISC-SOFT-GLOW — long soft mask; no hard plateau / bloom cut */
 .disc-arc {
   position: absolute;
   left: 0;
@@ -803,14 +803,137 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 }
 .slide.is-bar .slide-scrim { display: none; }
 .slide.is-prompt {
-  padding: 10px 16px 18px;
+  padding: 8px 12px 14px;
+  gap: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.slide.is-prompt .grab {
+  margin-bottom: 8px;
+}
+/* Match location-gems feed-chip.is-prompt */
+.slide-prompt {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #170c35;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+}
+.slide-prompt[hidden] { display: none !important; }
+.slide-prompt-panel {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
+  padding: 16px 14px 12px;
+  min-height: 168px;
+  background:
+    radial-gradient(
+      120% 90% at 100% 0%,
+      color-mix(in srgb, var(--gem-line, #00c2ff) 22%, transparent) 0%,
+      transparent 55%
+    ),
+    #170c35;
 }
-.slide.is-prompt .slide-head {
-  padding-right: 108px;
+.slide-prompt-kicker {
+  margin: 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
-.slide.is-prompt .slide-head-copy h2 {
-  font-size: 22px;
+.slide-prompt-line {
+  margin: 0;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.slide-prompt-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 4px;
+  min-height: 20px;
+}
+.slide-prompt-rarity {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #9fe3ff;
+}
+.slide-prompt-rarity.is-rare,
+.slide-prompt-rarity.is-epic { color: #7ad7ff; }
+.slide-prompt-rarity.is-mythical { color: #c49bff; }
+.slide-prompt-corner {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.slide-prompt-corner .gem-card-corner {
+  position: absolute;
+  inset: 0;
+}
+.slide-prompt-corner .gem-card-corner-art {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 62%;
+  height: 56%;
+  overflow: visible;
+}
+.slide-prompt-corner .gem-card-corner-art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.slide-prompt-corner .gem-card-corner-stack {
+  position: absolute;
+  top: 3%;
+  right: 2%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.slide-prompt-corner .gem-card-gem {
+  width: 38px;
+  height: 38px;
+  display: block;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
+}
+.slide-prompt-corner .gem-card-gem svg,
+.slide-prompt-corner .gem-card-gem .cat-gem-art,
+.slide-prompt-corner .gem-card-gem img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+.slide.is-prompt .slide-prompt-panel .slide-actions {
+  margin-top: 4px;
+  width: 100%;
+}
+.slide.is-prompt .nav-btn.is-compact {
+  flex: 1;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+.slide.is-prompt .slide-actions .icon-act {
+  width: 36px;
+  height: 36px;
 }
 .slide.is-bar .slide-glass {
   padding: 2px 0 0;

@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=37">
+<link rel="stylesheet" href="app.css?v=38">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -151,6 +151,17 @@
         </div>
       </div>
       <div class="tags" id="slideTags" hidden></div>
+      <!-- Prompt = location-gems feed-chip prompt (panel + corner, no nested glass) -->
+      <div class="slide-prompt" id="slidePrompt" hidden>
+        <div class="slide-prompt-panel">
+          <p class="slide-prompt-kicker" id="slidePromptKicker"></p>
+          <p class="slide-prompt-line" id="slidePromptLine"></p>
+          <div class="slide-prompt-foot">
+            <p class="slide-prompt-rarity" id="slidePromptRarity" hidden></p>
+          </div>
+        </div>
+        <div class="slide-prompt-corner" id="slidePromptCorner" aria-hidden="true"></div>
+      </div>
       <div class="slide-glass" id="slideGlass">
         <p class="slide-user" id="slideUser"></p>
         <h2 id="slideName"></h2>
@@ -170,8 +181,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v37 — Category ids align with location-gems (eat).</p>
+  <p class="meta">GEM-PINS-V2-v38 — Category ids align with location-gems (eat).</p>
   <script src="../location-gems/corner-ribbon.js?v=36"></script>
-  <script type="module" src="app.js?v=37"></script>
+  <script type="module" src="app.js?v=38"></script>
 </body>
 </html>

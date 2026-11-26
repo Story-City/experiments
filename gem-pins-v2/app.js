@@ -858,9 +858,9 @@ function paintActs(g) {
     b.addEventListener('click', (e) => { e.stopPropagation(); fn(); });
     return b;
   };
-  /* Image/Bar: bookmark+hide live in the action row — never over the corner */
-  if (sheet !== 'original' && sheet !== 'prompt') return;
-  /* Original + Prompt: heart / hide / visited on the head (same as Melissa original) */
+  /* Image/Bar/Prompt: bookmark+hide live in the action row — never over the corner */
+  if (sheet !== 'original') return;
+  /* Melissa original keeps heart / hide / visited */
   if (g.mine) {
     box.append(mk('hide', ICON.hide, COPY.hideLong || 'Hide', null, () => hideGem(g)));
     return;
@@ -937,26 +937,52 @@ function paintSlide() {
   /* Overlay only on Image — Bar keeps text in the glass bar under the photo */
   $('slideOverlay').hidden = !isImage;
 
-  /* Prompt = flat sheet like Original (no nested glass): gem art + who + tags */
-  $('slideHead').hidden = !(isOriginal || isPrompt);
-  $('slideTags').hidden = !(isOriginal || isPrompt);
+  /* Prompt = location-gems nearby prompt chip (panel + corner gem) */
+  const promptEl = $('slidePrompt');
+  if (promptEl) promptEl.hidden = !isPrompt;
+  $('slideHead').hidden = !isOriginal;
+  $('slideTags').hidden = !isOriginal;
   $('slideGlass').hidden = !isBar;
   $('slideMore').hidden = !(isOriginal && !sheetFull);
   $('slideStatus').hidden = !(isOriginal && sheetFull);
   /* Bookmark + hide stay in the action row (beside navigate) — never over the corner */
   $('slideActions').hidden = isOriginal ? !sheetFull : false;
   $('hideBtn').hidden = isPrompt;
-  $('slideActs').hidden = !(isOriginal || isPrompt);
+  $('slideActs').hidden = !isOriginal;
   $('slideActs').classList.toggle('is-on-media', false);
-  $('slideActs').classList.toggle('is-on-prompt', isPrompt);
-  $('slideActs').classList.toggle('is-on-head', isOriginal || isPrompt);
+  $('slideActs').classList.toggle('is-on-prompt', false);
+  $('slideActs').classList.toggle('is-on-head', isOriginal);
+  $('navBtn').classList.toggle('is-compact', isPrompt);
 
-  if (isOriginal || isPrompt) {
+  const fill = GEM_COLOUR[g.tags[0]] || colourOf(g);
+  slide.style.setProperty('--gem-line', fill);
+
+  if (isOriginal) {
     $('slideArt').innerHTML = pinFor(g);
     $('slideNameHead').textContent = g.name;
     $('slideLineHead').textContent = whoLine(g);
     paintTags(g);
     $('slideStatus').textContent = `${COPY.likes(g.likes + (g.liked ? 1 : 0))} · ${g.mine || g.visited ? COPY.visited : COPY.notVisited}`;
+  }
+  const actions = $('slideActions');
+  const promptPanel = document.querySelector('.slide-prompt-panel');
+  if (isPrompt && promptPanel && actions.parentElement !== promptPanel) {
+    promptPanel.appendChild(actions);
+  } else if (!isPrompt && actions.parentElement !== slide) {
+    slide.appendChild(actions);
+  }
+
+  if (isPrompt) {
+    const rid = rarityOf(g);
+    const rarity = RARITY[rid];
+    $('slidePromptKicker').textContent = whoLine(g);
+    $('slidePromptLine').textContent = g.name;
+    const rarityEl = $('slidePromptRarity');
+    const showRarityWord = rid !== 'common' && !!(rarity && rarity.label);
+    rarityEl.hidden = !showRarityWord;
+    rarityEl.textContent = showRarityWord ? rarity.label : '';
+    rarityEl.className = 'slide-prompt-rarity' + (showRarityWord ? ` is-${rid}` : '');
+    $('slidePromptCorner').innerHTML = cornerHtml(g);
   }
   paintActs(g);
   paintActionIcons(g);
@@ -972,7 +998,6 @@ function paintSlide() {
   $('slideNameOv').textContent = g.name;
   paintLike('likeBtn', 'likeHeart', 'likeCount', g);
   paintLike('likeBtnOv', 'likeHeartOv', 'likeCountOv', g);
-  /* Prompt keeps like in the action row with navigate — not a second card */
   $('likeBtn').hidden = isPrompt;
   $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
