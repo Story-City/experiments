@@ -83,7 +83,7 @@ const cell = s => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ');
 export const STATUS_SLUG = 'status';
 export const STATES = [
   ['draft', 'Draft'],
-  ['experiment', 'Experiment'],
+  ['experiment', 'Ready for Feedback'],
   ['review', 'In review'],
   ['ready', 'Ready for Dev'],
   ['built', 'Built'],
