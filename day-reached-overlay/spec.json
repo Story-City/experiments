@@ -1,6 +1,6 @@
 {
   "final": "Day reached — streak overlay as on this page (phone underlays + Training Hub Lottie). Colour wheel is a tester only; ship the celebration geometry and timing, not the wheel chrome.",
-  "summary": "When the player hits their daily step goal, a soft celebration plays on the Training Hub streak arc: haze in, Lottie bloom on today’s bead, side beads settle, short streak copy, shine, then dissolve. The overlay sits over the real screen underneath — no hub headline or chrome.",
+  "summary": "When the player hits their daily step goal mid-activity (for example mid-story, story completion, or upcoming gems challenges), a soft celebration plays over the current screen: haze in, Lottie bloom on today’s bead, side beads settle, short streak copy, shine, then dissolve. This does not replace Training Hub or Step Glance animations; it replaces the simple goal-reached notification for that mid-activity moment.",
   "flows": [
     {
       "title": "Daily goal reached",
@@ -77,7 +77,7 @@
   "notes": [
     "Geometry and Lottie mirrored from feature/SC-3526-training-hub (TrainingHubStreakBanner + training_hub_day_reached.json).",
     "Notion design task: Goal reached banner (NSC-2049). Experiment is the design handoff — no separate UX doc.",
-    "Old Debug “Preview Goal Reached” sheet is not this path; ship the Training Hub streak overlay."
+    "Does not replace Training Hub day-reached or Step Glance. Replaces the simple mid-activity goal-reached notification only."
   ],
   "assets": [
     {
