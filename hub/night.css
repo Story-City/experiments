@@ -1,0 +1,27 @@
+/* Story City night palette for the experiment viewer, so it matches the homepage (index.html keeps
+   its own copy of these colours inline; change both together). Loaded after theme.css, before
+   view.css. The light/dark switch in theme.css no longer applies here: the viewer is always night. */
+:root, :root:not([x]) {
+  color-scheme: dark;
+  --ink: #0B0620;
+  --midnight: #1A0B3D;
+  --velvet: #2A1658;
+  --line: #46337E;
+  --starlight: #FBF7FF;
+  --mist: #D9CEF5;
+  --lilac: #A493D6;
+  --glow: #C49BFF;
+  --bg: var(--midnight);
+  --surface: var(--velvet);
+  --border: var(--line);
+  --text: var(--starlight);
+  --text-muted: var(--mist);
+  --accent: var(--glow);
+  --ink-900: var(--ink); /* dark text on glow buttons */
+  --author-brett: #5B8CFF;
+  --author-melissa: #DA82ED;
+  --author-victoria: #00CD9D;
+  --author-other: var(--lilac);
+}
+html { background: radial-gradient(120% 60% at 50% 0%, #2A1658 0%, var(--midnight) 55%, var(--ink) 100%) fixed var(--ink); }
+html body { background: transparent; font-family: 'Karla', system-ui, sans-serif; }
