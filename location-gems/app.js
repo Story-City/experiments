@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v127 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v128 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -1022,15 +1022,11 @@ function applySortCardText() {
   document.documentElement.style.setProperty('--sort-card-text', hex);
 }
 
-function applySortTintShades(opts = {}) {
+function applySortTintShades() {
   const a = (sortTintShadeA && sortTintShadeA.value) || SORT_TINT_SHADE_A_DEFAULT;
   const b = (sortTintShadeB && sortTintShadeB.value) || SORT_TINT_SHADE_B_DEFAULT;
   document.documentElement.style.setProperty('--sort-tint-a', a);
   document.documentElement.style.setProperty('--sort-tint-b', b);
-  /* On picker input, show Tinted so the two colours actually paint the card */
-  if (opts.fromPicker && sortCardLook !== 'tinted' && sortCardLook !== 'tape') {
-    setSortCardLook('tinted');
-  }
 }
 
 function setSwitch(el, on) {
@@ -3624,16 +3620,10 @@ if (sortFrameColor) {
   );
 }
 if (sortTintShadeA) {
-  sortTintShadeA.addEventListener(
-    'input',
-    onLookToolInput(() => applySortTintShades({ fromPicker: true })),
-  );
+  sortTintShadeA.addEventListener('input', onLookToolInput(applySortTintShades));
 }
 if (sortTintShadeB) {
-  sortTintShadeB.addEventListener(
-    'input',
-    onLookToolInput(() => applySortTintShades({ fromPicker: true })),
-  );
+  sortTintShadeB.addEventListener('input', onLookToolInput(applySortTintShades));
 }
 if (sortCardTextColor) {
   sortCardTextColor.addEventListener('input', onLookToolInput(applySortCardText));
