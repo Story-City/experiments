@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v122 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v123 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -44,6 +44,8 @@ const SORT_CARD_TEXT_DEFAULT = '#1a1230';
 /* Figma 2853:555 Variant3 — dark indigo frame + light chin text */
 const SORT_TINTED_FRAME = '#13123b';
 const SORT_TINTED_TEXT = '#f2eef8';
+const SORT_TINT_SHADE_A_DEFAULT = '#7dffd8';
+const SORT_TINT_SHADE_B_DEFAULT = '#ff5252';
 /* Story.name / Story.summary — server Assert\Length; web-client Title/Tagline */
 const PUBLISH_TITLE_MAX = 40;
 const PUBLISH_NOTE_MAX = 160;
@@ -396,6 +398,8 @@ const midToneOn = document.getElementById('midToneOn');
 const midToneColor = document.getElementById('midToneColor');
 const midTonePick = document.getElementById('midTonePick');
 const sortFrameColor = document.getElementById('sortFrameColor');
+const sortTintShadeA = document.getElementById('sortTintShadeA');
+const sortTintShadeB = document.getElementById('sortTintShadeB');
 const sortCardTextColor = document.getElementById('sortCardTextColor');
 const MID_TONE_DEFAULT = '#241b46';
 const tabPublic = document.getElementById('tabPublic');
@@ -1005,6 +1009,13 @@ function applyMidTone() {
 function applySortCardText() {
   const hex = (sortCardTextColor && sortCardTextColor.value) || SORT_CARD_TEXT_DEFAULT;
   document.documentElement.style.setProperty('--sort-card-text', hex);
+}
+
+function applySortTintShades() {
+  const a = (sortTintShadeA && sortTintShadeA.value) || SORT_TINT_SHADE_A_DEFAULT;
+  const b = (sortTintShadeB && sortTintShadeB.value) || SORT_TINT_SHADE_B_DEFAULT;
+  document.documentElement.style.setProperty('--sort-tint-a', a);
+  document.documentElement.style.setProperty('--sort-tint-b', b);
 }
 
 function setSwitch(el, on) {
@@ -3053,6 +3064,8 @@ function captureDesignStudio() {
     midToneOn: midToneEnabled(),
     midToneColor: midToneColor ? midToneColor.value : MID_TONE_DEFAULT,
     sortFrame: sortFrameColor ? sortFrameColor.value : SORT_FRAME_DEFAULT,
+    sortTintA: sortTintShadeA ? sortTintShadeA.value : SORT_TINT_SHADE_A_DEFAULT,
+    sortTintB: sortTintShadeB ? sortTintShadeB.value : SORT_TINT_SHADE_B_DEFAULT,
     sortCardText: sortCardTextColor ? sortCardTextColor.value : SORT_CARD_TEXT_DEFAULT,
     positions: collectDesignPositions(),
     savedAt: Date.now(),
@@ -3109,6 +3122,8 @@ function applyDesignStudioData(data, { note } = {}) {
   if (midToneColor && data.midToneColor) midToneColor.value = data.midToneColor;
   if (typeof data.midToneOn === 'boolean') setMidTone(data.midToneOn);
   if (sortFrameColor && data.sortFrame) sortFrameColor.value = data.sortFrame;
+  if (sortTintShadeA && data.sortTintA) sortTintShadeA.value = data.sortTintA;
+  if (sortTintShadeB && data.sortTintB) sortTintShadeB.value = data.sortTintB;
   if (sortCardTextColor && data.sortCardText) sortCardTextColor.value = data.sortCardText;
   applyBtnRadius();
   applySpaceScale();
@@ -3117,6 +3132,7 @@ function applyDesignStudioData(data, { note } = {}) {
   applyRadial();
   applyBg();
   applyMidTone();
+  applySortTintShades();
   applySortCardText();
   if (phone) {
     phone.querySelectorAll(DESIGN_TARGET_SEL).forEach((el) => {
@@ -3410,6 +3426,7 @@ function init() {
   applyRadial();
   applyBg();
   applyMidTone();
+  applySortTintShades();
   applySortCardText();
   applyBtnRadius();
   applySpaceScale();
@@ -3533,6 +3550,12 @@ if (sortFrameColor) {
       );
     }),
   );
+}
+if (sortTintShadeA) {
+  sortTintShadeA.addEventListener('input', onLookToolInput(applySortTintShades));
+}
+if (sortTintShadeB) {
+  sortTintShadeB.addEventListener('input', onLookToolInput(applySortTintShades));
 }
 if (sortCardTextColor) {
   sortCardTextColor.addEventListener('input', onLookToolInput(applySortCardText));

@@ -25,6 +25,9 @@
   --indigo-glow: rgba(99, 78, 180, 0.45);
   /* palette.alpha.indigo70 — readable chrome on photos */
   --indigo-70: rgba(28, 27, 66, 0.7);
+  /* Tinted polaroid dual shade washes (Figma Variant3) */
+  --sort-tint-a: #7dffd8;
+  --sort-tint-b: #ff5252;
   --space-xs: 4px;
   --space-s: 8px;
   --space-m: 16px;
@@ -2137,8 +2140,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   padding: 12px 12px 0;
   box-shadow:
     0 12px 28px rgba(0, 0, 0, 0.45),
-    inset 22px -18px 32px -12px rgba(125, 255, 216, 0.12),
-    inset 0 8px 36px 6px rgba(255, 82, 82, 0.08);
+    inset 22px -18px 32px -12px color-mix(in srgb, var(--sort-tint-a) 12%, transparent),
+    inset 0 8px 36px 6px color-mix(in srgb, var(--sort-tint-b) 8%, transparent);
 }
 .sort-card.is-tinted .sort-card-body {
   min-height: 88px;

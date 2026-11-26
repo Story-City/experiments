@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=122">
+<link rel="stylesheet" href="app.css?v=123">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -88,16 +88,21 @@
 
       <section class="tool-block">
         <h2 class="tool-title">Unsorted cards</h2>
-        <p class="tool-note">Try looks for the sort stack</p>
+        <p class="tool-note">Polaroid first — tint options + dual shade</p>
         <div class="variant-pick is-rail is-wrap" role="group" aria-label="Unsorted card looks">
           <button type="button" class="variant-btn is-on" data-sort-look="polaroid" aria-pressed="true">Polaroid</button>
-          <button type="button" class="variant-btn" data-sort-look="tape" aria-pressed="false">Tape</button>
           <button type="button" class="variant-btn" data-sort-look="tinted" aria-pressed="false">Tinted</button>
+          <button type="button" class="variant-btn" data-sort-look="tape" aria-pressed="false">Tape</button>
           <button type="button" class="variant-btn" data-sort-look="overlay" aria-pressed="false">Overlay</button>
         </div>
         <label class="accent-pick is-rail" title="Polaroid / unsorted frame colour">
           <span>Frame</span>
           <input type="color" id="sortFrameColor" value="#ffffff" aria-label="Unsorted card frame color">
+        </label>
+        <label class="accent-pick is-rail" title="Dual shade tint washes on tinted polaroid">
+          <span>Dual shade</span>
+          <input type="color" id="sortTintShadeA" value="#7dffd8" aria-label="Tint shade A">
+          <input type="color" id="sortTintShadeB" value="#ff5252" aria-label="Tint shade B">
         </label>
         <label class="accent-pick is-rail" title="Text colour on unsorted cards">
           <span>Card text</span>
@@ -434,7 +439,7 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v122 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v123 · V1. Figma gems, no rarity.
   </p>
     </div>
 
@@ -535,6 +540,6 @@
     </aside>
   </div>
   <script src="corner-ribbon.js?v=109"></script>
-  <script src="app.js?v=122"></script>
+  <script src="app.js?v=123"></script>
 </body>
 </html>
