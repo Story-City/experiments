@@ -464,3 +464,104 @@ h2 { margin: 0; font-size: 24px; line-height: 1.05; font-weight: 700; }
 .lcard[aria-pressed="true"] .tick svg { stroke: #fff; }
 .lgo { margin-top: 18px; }
 .lgo:disabled { background: #3a3163; box-shadow: none; color: #b9b2d9; cursor: default; }
+
+/* ---------------------------------------------------------------- flow B (story first) */
+.hookbody .free { margin: -14px 0 24px; font-size: 20px; font-weight: 600; color: #e6e2f5; }
+.hookbody .free + .btn { margin-top: 0; }
+
+/* chapter 1: "Not feeling it?" */
+.pickother { align-self: center; margin: -6px 0 6px; height: 28px; padding: 0 14px; border-radius: 999px; background: rgba(16, 5, 46, .55); border: 1px solid rgba(255, 255, 255, .22); font: 700 15px var(--dg); color: #cfe9ff; }
+.sheet.pickpanel { background: var(--raised); border-top: 1px solid var(--hudline); }
+.pick { padding: 18px 18px calc(22px + env(safe-area-inset-bottom)); }
+.pickhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.picks { display: grid; gap: 8px; margin-top: 14px; }
+.pickrow { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 14px; background: rgba(255, 255, 255, .06); border: 1px solid transparent; text-align: left; }
+.pickrow:active { border-color: var(--accent); }
+.pickrow .cover { width: 48px; flex: none; }
+.pickrow .ctitle { display: none; }
+.pickrow b { display: block; font-size: 20px; line-height: 1.05; }
+.pickrow small { display: block; margin-top: 2px; color: var(--lav); font-size: 15px; }
+
+/* two-page trial offer */
+.pwdone { position: absolute; z-index: 1; left: 50%; bottom: 34px; transform: translateX(-50%); padding: 5px 12px; border-radius: 999px; background: rgba(18, 18, 58, .7); border: 1px solid rgba(255, 255, 255, .3); font: 700 14px var(--dg); color: #fff; white-space: nowrap; }
+.pw2 { padding-top: calc(44px + var(--top) + 14px); }
+.pwback { position: absolute; top: calc(44px + var(--top) - 4px); left: 14px; }
+.tline { list-style: none; margin: 20px 0 10px; padding: 0; align-self: stretch; }
+.tline li { position: relative; display: flex; gap: 14px; padding-bottom: 18px; }
+.tline li::before { content: ''; position: absolute; left: 16px; top: 34px; bottom: 2px; width: 3px; border-radius: 3px; background: linear-gradient(180deg, #1FA4F4, #2c3570); }
+.tline li:last-child::before { display: none; }
+.tline i { flex: none; width: 34px; height: 34px; border-radius: 99px; display: grid; place-items: center; background: #1FA4F4; box-shadow: 0 0 12px rgba(31, 164, 244, .55); }
+.tline li + li i { background: #2c3570; box-shadow: none; }
+.tline i svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tline em { display: block; font: 700 13px var(--bar); font-style: normal; letter-spacing: .08em; text-transform: uppercase; color: #1FA4F4; }
+.tline b { display: block; font-size: 20px; line-height: 1.1; }
+.tline small { display: block; margin-top: 1px; font-size: 16px; font-weight: 500; color: #d7d7ea; }
+.link.freewait { margin-top: 4px; font-size: 15px; color: #3ddc84; white-space: nowrap; }
+.lockcard .demo { display: block; margin: 4px auto 0; }
+
+/* the unlock: one ask at a time, "I'm at home" as an equal button */
+.msheet.b h2 { margin-bottom: 2px; }
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.duo.one { grid-template-columns: 1fr; }
+.duo .btn { padding: 12px 8px; font-size: 17px; line-height: 20px; gap: 6px; }
+.duo .btn svg { width: 18px; height: 18px; flex: none; }
+.btn.line { background: rgba(255, 255, 255, .06); border: 1.5px solid rgba(255, 255, 255, .45); }
+.btn.line:active { border-color: var(--accent); }
+.msheet .duo .btn.hunt { margin-top: 0; }
+.today { margin: 8px 0 0; font: 700 15px/19px var(--bar); color: #3ddc84; }
+.link.small { margin-top: 10px; font-size: 15px; }
+.maptip.ask { bottom: 190px; right: 76px; }
+.maptip.ask p { padding-right: 84px; }
+.maptip.ask p b { letter-spacing: 0; font-size: 14px; color: var(--lav); }
+
+/* iOS system alert stand-in (dark mode) */
+.scrim.light { background: rgba(0, 0, 0, .4); }
+.ios { position: absolute; left: 50%; top: 50%; width: 270px; transform: translate(-50%, -50%) scale(1.06); border-radius: 14px; overflow: hidden; background: rgba(44, 44, 46, .94); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); color: #fff; text-align: center; font-family: var(--sys); opacity: 0; transition: opacity .2s, transform .2s; }
+.overlay.on .ios { opacity: 1; transform: translate(-50%, -50%); }
+.iosbody { padding: 19px 16px 18px; }
+.iosbody b { display: block; font: 600 17px/22px var(--sys); }
+.iosbody p { margin: 4px 0 0; font: 400 13px/17px var(--sys); }
+.iosmap { position: relative; height: 110px; margin-top: 12px; border-radius: 10px; background: linear-gradient(135deg, #3a4a3a, #2b3540); overflow: hidden; }
+.iosmap::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 38px, rgba(255, 255, 255, .12) 38px 41px), repeating-linear-gradient(0deg, transparent 0 30px, rgba(255, 255, 255, .1) 30px 33px); }
+.iosmap i { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px; border-radius: 99px; background: #0A84FF; border: 3px solid #fff; }
+.iosbtns { display: grid; grid-template-columns: 1fr 1fr; border-top: .5px solid rgba(84, 84, 88, .65); }
+.iosbtns.stack { grid-template-columns: 1fr; }
+.iosbtn { height: 44px; font: 400 17px var(--sys); color: #0A84FF; }
+.iosbtn.bold { font-weight: 600; }
+.iosbtns:not(.stack) .iosbtn + .iosbtn { border-left: .5px solid rgba(84, 84, 88, .65); }
+.iosbtns.stack .iosbtn + .iosbtn { border-top: .5px solid rgba(84, 84, 88, .65); }
+
+/* notification ask */
+.burst.bell { background: rgba(0, 158, 255, .16); }
+.burst.bell svg { stroke: var(--accent); stroke-width: 2; }
+
+/* Home after the story */
+.tag.played { background: #3ddc84; color: var(--bg); }
+
+/* resume card */
+.resume .hookbody { text-align: left; }
+.resume .hookbody h1 { margin-bottom: 0; font-size: 36px; }
+.rscard { display: flex; align-items: center; gap: 12px; width: 100%; margin: 18px 0 16px; padding: 10px; border-radius: 16px; background: rgba(36, 27, 70, .92); border: 1px solid var(--hudline); text-align: left; }
+.rscard .cover { width: 54px; flex: none; }
+.rscard .ctitle { display: none; }
+.rscard > span { flex: 1; min-width: 0; }
+.rscard b { display: block; font-size: 21px; line-height: 1.05; }
+.rscard small { display: block; margin: 2px 0 6px; color: var(--lav); font-size: 15px; }
+.resume .link { margin-left: auto; margin-right: auto; }
+
+/* tester panel: flow chips first */
+.tl.first { margin-top: 0; }
+.tchips + .tsteps { margin-top: 10px; }
+
+/* review fixes: equal unlock buttons, map header below the status bar, one card at a time */
+.btn.eq { background: rgba(0, 158, 255, .16); border: 1.5px solid var(--accent); box-shadow: 0 0 14px rgba(0, 158, 255, .22); }
+.btn.eq:active { background: rgba(0, 158, 255, .3); }
+.mapscreen .rtop { top: 44px; }
+@media (max-width: 480px) and (pointer: coarse) { .mapscreen .rtop { top: 0; padding-top: calc(env(safe-area-inset-top) + var(--top) + 2px); } }
+.phone:has(.overlay.on .sheet.small) .msheet, .phone:has(.overlay.on .sheet.small) .maptip { visibility: hidden; }
+.modes { top: calc(44px + var(--top) + 56px); }
+.modetip { top: calc(44px + var(--top) + 96px); }
+@media (max-width: 480px) and (pointer: coarse) {
+  .modes { top: calc(env(safe-area-inset-top) + var(--top) + 46px); }
+  .modetip { top: calc(env(safe-area-inset-top) + var(--top) + 86px); }
+}

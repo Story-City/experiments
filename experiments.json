@@ -97,7 +97,7 @@
     "path": "first-story-flow/",
     "area": "first",
     "title": "First story flow",
-    "what": "The recommended first-time path in the current app's look: welcome, “How do you walk?”, the real paywall (skippable), Home with a new Start here shelf (the real Summons plus three short stories) and a tour of the tabs, chapter 1, a couch-proof first unlock, “Save your story?”, a second paywall at the cliffhanger, and the finish with a step-goal reminder. Tester panel jumps to any step.",
+    "what": "Two flows (switch inside). B, story first (default): welcome, “How do you walk?”, straight into The Summons, a two-page trial offer after chapter 1, an unlock with the in-story step-counting ask and an equal “I’m at home” button, “Save your story?” and one nudge ask, the cliffhanger offer (or walk 500 steps tomorrow), the finish, then Home and the tour. A: the Nov 12 proposal. Tester panel jumps to any step.",
     "author": "melissa",
     "authorName": "Melissa",
     "date": "2026-11",

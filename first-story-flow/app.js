@@ -1,8 +1,10 @@
-// First story flow: the recommended first-time path, one phone, nine steps.
+// First story flow: the recommended first-time path, one phone, nine steps, two flows.
+// Flow A = the Nov 12 proposal. Flow B (default) = story first, from the Nov 16 research report.
 // Words: copy.js (screens) and stories.js (story lines). Tester panel jumps to any step.
-// Links: #s1…#s9 opens a step; ?walk=dog|city|treadmill|home, ?story=<id>, ?trial=1 (took the first trial).
+// Links: #s1…#s9 opens a step of the current flow; ?flow=a|b, ?walk=dog|city|treadmill|home, ?story=<id>,
+//        ?trial=1 (took the first trial), ?today=2340 (steps already walked, flow B), ?free=0 (hide the walk-tomorrow path).
 const V = window.CACHE_V || '';
-const [{ COPY, STEPS, WALKS, LIKES }, { STORIES, START_HERE, SAMPLE, SHELVES, FEATURED }] = await Promise.all([
+const [{ COPY, FLOWS, STEP_INFO, WALKS, LIKES }, { STORIES, START_HERE, SAMPLE, SHELVES, FEATURED }] = await Promise.all([
   import('./copy.js' + V), import('./stories.js' + V),
 ]);
 
@@ -15,8 +17,18 @@ let pending = [];
 let run = 0; // bumps on every jump so old async chains stop
 
 const qs = new URLSearchParams(location.search);
+const TODAY_STEPS = 2340;
 const S = {
   step: 1,
+  key: 'hook',
+  flow: qs.get('flow') === 'a' ? 'a' : 'b',
+  today: qs.get('today') === String(TODAY_STEPS) ? TODAY_STEPS : 0,
+  free: qs.get('free') !== '0',
+  motion: null, loc: null, notif: null, // flow B permissions: null = not asked yet, 'on', 'off'
+  offered1: false, // flow B: the first trial offer has been shown
+  preferHome: false, // flow B: picked "I'd rather stay inside"
+  waitPath: false, // flow B: chose "walk 500 steps tomorrow"
+  done: false, played: new Set(),
   walk: WALKS[qs.get('walk')] ? qs.get('walk') : 'dog',
   mode: null, // set from walk
   trial: qs.get('trial') === '1',
@@ -35,7 +47,10 @@ const fill = (t) => String(t)
   .replace(/\{story\}/g, story().title).replace(/\{who\}/g, story().who)
   .replace(/\{walk\}/g, WALKS[S.walk].short).replace(/\{goal\}/g, COPY.unlock.goal);
 const story = () => STORIES[S.story || pickDefault()];
-function pickDefault() { return START_HERE[S.walk][0]; }
+function pickDefault() { return S.flow === 'b' ? SAMPLE : START_HERE[S.walk][0]; }
+const B = () => S.flow === 'b';
+const keys = () => FLOWS[S.flow];
+const at = (k) => keys().indexOf(k);
 
 const ICON = {
   close: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
@@ -46,6 +61,8 @@ const ICON = {
   home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6.5 8 6.5V20h-5.5v-5h-5v5H4z"/></svg>',
   cam: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3.5L9 5.5h6L16.5 8H20v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg>',
   bell: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0112 0v5.5l1.5 1.5h-15zM10 20.5h4"/></svg>',
+  steps: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 3.5c1.6 0 2.4 1.7 2.4 3.8s-.9 3.7-2.4 3.7S6 9.4 6 7.3s.9-3.8 2.5-3.8zM7 13.5h3.2l-.3 2.3c-.2 1-.9 1.6-1.6 1.6s-1.3-.7-1.3-1.7zM15.5 7c1.6 0 2.5 1.7 2.5 3.8s-.9 3.7-2.5 3.7-2.4-1.6-2.4-3.7S13.9 7 15.5 7zM14 17h3.2l-.3 2.3c-.2 1-.9 1.6-1.6 1.6s-1.3-.7-1.3-1.7z"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.1-6.5-11.2a6.5 6.5 0 0113 0C18.5 14.9 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.4"/></svg>',
   lock: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/></svg>',
   apple: '<svg viewBox="0 0 24 24" aria-hidden="true" class="fillicon"><path d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8C7 7.3 5.6 8.2 4.8 9.6c-1.6 2.8-.4 6.9 1.2 9.1.8 1.1 1.6 2.3 2.8 2.3 1.1 0 1.5-.7 2.9-.7s1.7.7 2.9.7 2-1.1 2.7-2.2c.9-1.3 1.2-2.5 1.2-2.6 0 0-2.3-.9-2.1-3.6zM14.2 5.6c.6-.8 1-1.8.9-2.9-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.7-1 2.8 1 .1 2.1-.5 2.8-1.3z"/></svg>',
   google: '<svg viewBox="0 0 24 24" aria-hidden="true" class="gicon"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 01-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0012 22z"/><path fill="#FBBC05" d="M6.4 14c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7.4H3.1a10 10 0 000 9.2z"/><path fill="#EA4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9A10 10 0 003.1 7.4L6.4 10c.8-2.3 3-4.1 5.6-4.1z"/></svg>',
@@ -115,33 +132,41 @@ function choose(root, sel) {
   });
 }
 
-function setStep(n) {
-  S.step = n;
+function setStep(key) {
+  const n = at(key) + 1;
+  S.step = n; S.key = key;
   $$('.tstep').forEach((b) => b.setAttribute('aria-current', String(+b.dataset.s === n)));
-  $('#tbtnN').textContent = `${n}/9`;
-  const st = STEPS[n - 1];
-  $('#note').innerHTML = `<p class="nk">Step ${n} of 9</p><h2>${st.name}</h2><p>${st.note}</p>`;
-  noWidows($('#note'));
+  $('#tbtnN').textContent = `${S.flow.toUpperCase()} · ${n}/9`;
+  const st = STEP_INFO[key];
+  note(`Flow ${S.flow.toUpperCase()} · Step ${n} of 9`, (B() && st.nameB) || st.name, st[S.flow]);
   const url = new URL(location.href);
   url.hash = 's' + n;
+  url.searchParams.set('flow', S.flow);
   url.searchParams.set('walk', S.walk);
-  url.searchParams.set('tiles', S.tiles);
+  if (B()) url.searchParams.delete('tiles'); else url.searchParams.set('tiles', S.tiles);
+  if (B() && S.today) url.searchParams.set('today', S.today); else url.searchParams.delete('today');
+  if (B() && !S.free) url.searchParams.set('free', '0'); else url.searchParams.delete('free');
   if (S.story) url.searchParams.set('story', S.story); else url.searchParams.delete('story');
   if (S.trial) url.searchParams.set('trial', '1'); else url.searchParams.delete('trial');
   history.replaceState(null, '', url);
+}
+function note(kick, name, text) {
+  $('#note').innerHTML = `<p class="nk">${kick}</p><h2>${name}</h2><p>${text}</p>`;
+  noWidows($('#note'));
 }
 
 // ---------------------------------------------------------------- 1 hook
 
 async function hook() {
-  setStep(1);
+  setStep('hook');
   const c = COPY.hook;
   show(`<div class="hook">
       <div class="hookart" aria-hidden="true"></div>
       <div class="hooktop"><img class="logo" src="img/logo-on-dark.png" alt="Story City"></div>
       <div class="hookbody">
-        <h1>${c.title}<span>${c.title2}</span></h1>
+        <h1>${B() ? c.titleB : c.title}<span>${c.title2}</span></h1>
         ${c.sub ? `<p class="lede">${c.sub}</p>` : ''}
+        ${B() ? `<p class="free">${c.free}</p>` : ''}
         <button class="btn grad" data-k="go">${c.cta}</button>
         <button class="link" data-k="login">${c.login}</button>
       </div>
@@ -154,14 +179,15 @@ async function hook() {
 // ---------------------------------------------------------------- 2 walk
 
 async function walkPick() {
-  setStep(2);
-  if (S.tiles === 'c') return walkLikes();
+  setStep('walk');
+  const tiles = B() ? 'a' : S.tiles;
+  if (tiles === 'c') return walkLikes();
   const c = COPY.walk;
   show(`<div class="pad walk">
       <p class="kick">${c.kick}</p>
       <h1>${c.title}</h1>
       <p class="sub">${c.sub}</p>
-      <div class="walks t-${S.tiles}">${Object.entries(WALKS).map(([k, w]) => `<button class="wcard${k === S.walk ? ' was' : ''}" data-v="${k}">
+      <div class="walks t-${tiles}">${Object.entries(WALKS).map(([k, w]) => `<button class="wcard${k === S.walk ? ' was' : ''}" data-v="${k}">
           <span class="wic">${WALK_ICON[k]}</span><span class="wt"><b>${w.label}</b><small>${w.line}</small></span><span class="wbig" aria-hidden="true">${WALK_ICON[k]}</span></button>`).join('')}</div>
       <p class="fine">${c.fine}</p>
     </div>`);
@@ -169,6 +195,7 @@ async function walkPick() {
   S.walk = v; S.mode = WALKS[v].mode;
   const b = $(`.wcard[data-v="${v}"]`); b.classList.add('on');
   await wait(380);
+  if (B()) { S.ch = 0; return reader(0); }
   return trial(1);
 }
 
@@ -204,9 +231,61 @@ async function walkLikes() {
 
 // ---------------------------------------------------------------- 3 & 8 trial
 
+const TL_ICON = [
+  '<svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 017.8-1.2"/></svg>',
+  ICON.bell,
+  '<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>',
+];
+const pwFoot = '<p class="pwfoot"><span>Restore Purchases</span><span>Terms</span><span>Privacy</span></p>';
+const plansHtml = () => `<div class="plans">${COPY.plans.map((p, i) => `<button class="plan${i === 0 ? ' on' : ''}" data-plan="${i}">${p.tag ? `<i>${p.tag}</i>` : ''}<b>${p.name}</b><small>${p.price}</small><span class="radio" aria-hidden="true"></span></button>`).join('')}</div>`;
+function planPicker(sh) {
+  sh.addEventListener('click', (e) => {
+    const p = e.target.closest('.plan'); if (!p) return;
+    $$('.plan', sh).forEach((x) => x.classList.toggle('on', x === p));
+  });
+}
+
+// Flow B: the first offer comes after chapter 1's payoff, in two pages. "Skip for now" on both.
+async function trialPages() {
+  setStep('trial1');
+  S.offered1 = true;
+  const c = COPY.trialB, pw = COPY.paywall;
+  let page = 1, k;
+  for (;;) {
+    if (page === 1) {
+      sheet(`<div class="pw">
+          <div class="pwhero" aria-hidden="true"><span class="pwdone">${c.done}</span></div>
+          <h2>${COPY.trial.title}<span>${COPY.trial.title2}</span></h2>
+          <ol class="pwlist">${pw.points.map((p, i) => `<li><i class="pwi i${i}">${PW_ICON[i]}</i><span><b>${p[0]}</b><small>${p[1]}</small></span></li>`).join('')}</ol>
+          <button class="btn solid" data-k="next">${c.next}</button>
+          <button class="link" data-k="skip">${pw.skip}</button>
+          ${pwFoot}
+        </div>`, 'full paywall');
+    } else {
+      sheet(`<div class="pw pw2">
+          <button class="chip ghost pwback" data-k="back" aria-label="Back">${ICON.back}</button>
+          <h2>${c.title}<span>${c.title2}</span></h2>
+          <ol class="tline">${c.timeline.map(([d, t, l], i) => `<li><i>${TL_ICON[i]}</i><span><em>${d}</em><b>${t}</b><small>${l}</small></span></li>`).join('')}</ol>
+          ${plansHtml()}
+          <button class="btn solid" data-k="start">${pw.cta}</button>
+          <button class="link" data-k="skip">${pw.skip}</button>
+          ${pwFoot}
+        </div>`, 'full paywall');
+      planPicker($('.sheet', overlay));
+    }
+    k = await choose($('.sheet', overlay), '[data-k]');
+    if (k === 'next') { page = 2; continue; }
+    if (k === 'back') { page = 1; continue; }
+    break;
+  }
+  closeSheet();
+  if (k === 'start') { S.trial = true; await toast(pw.started); } else S.skipped = true;
+  return unlock(1);
+}
+
 async function trial(which) {
   const second = which === 2;
-  setStep(second ? 8 : 3);
+  setStep(second ? 'trial2' : 'trial1');
   const c = second ? COPY.trial2 : COPY.trial;
   const st = story();
   const cliff = second ? (st.ch[1].cliff || '') : '';
@@ -215,20 +294,17 @@ async function trial(which) {
       ${second ? `<p class="cliffline">“${esc(cliff)}”</p>` : ''}
       <h2>${fill(c.title)}<span>${fill(c.title2)}</span></h2>
       <ol class="pwlist">${COPY.paywall.points.map((p, i) => `<li><i class="pwi i${i}">${PW_ICON[i]}</i><span><b>${p[0]}</b><small>${p[1]}</small></span></li>`).join('')}</ol>
-      <div class="plans">
-        ${COPY.plans.map((p, i) => `<button class="plan${i === 0 ? ' on' : ''}" data-plan="${i}">${p.tag ? `<i>${p.tag}</i>` : ''}<b>${p.name}</b><small>${p.price}</small><span class="radio" aria-hidden="true"></span></button>`).join('')}
-      </div>
+      ${plansHtml()}
       <button class="btn solid" data-k="start">${COPY.paywall.cta}</button>
       <button class="link" data-k="skip">${COPY.paywall.skip}</button>
-      <p class="pwfoot"><span>Restore Purchases</span><span>Terms</span><span>Privacy</span></p>
+      ${second && B() && S.free ? `<button class="link freewait" data-k="wait">${COPY.wait.link}</button>` : ''}
+      ${pwFoot}
     </div>`, 'full paywall');
   const sh = $('.sheet', overlay);
-  sh.addEventListener('click', (e) => {
-    const p = e.target.closest('.plan'); if (!p) return;
-    $$('.plan', sh).forEach((x) => x.classList.toggle('on', x === p));
-  });
+  planPicker(sh);
   const k = await choose(sh, '[data-k]');
   closeSheet();
+  if (k === 'wait') return waitTomorrow();
   if (k === 'start') { S.trial = true; await toast(COPY.paywall.started); }
   else if (!second) { S.skipped = true; }
   if (!second) return library();
@@ -237,19 +313,39 @@ async function trial(which) {
 }
 
 async function locked() {
-  setStep(8);
+  setStep('trial2');
   const st = story(), c = COPY.locked;
   show(`${topbar(st.title, `Chapter 3 of ${st.ch.length}`)}
     <div class="pad lockedwrap">
       <div class="lockcard"><span class="lic">${ICON.lock}</span>
         <h2>${fill(c.title)}</h2><p class="sub">${fill(c.sub)}</p>
         <button class="btn grad" data-k="trial">${c.cta}</button>
-        <button class="link" data-k="lib">${c.back}</button>
+        ${B() && S.free ? `<button class="link freewait" data-k="wait">${COPY.wait.link}</button>` : ''}
+        <button class="link" data-k="lib">${B() && !S.done ? c.notNow : c.back}</button>
       </div>
     </div>`);
   const k = await choose(screen, '[data-k]');
   if (k === 'trial') return trial(2);
+  if (k === 'wait') return waitTomorrow();
   return library();
+}
+
+// Flow B's free path (Melissa to decide): wait a day and walk for it, instead of paying.
+async function waitTomorrow() {
+  setStep('trial2');
+  const st = story(), c = COPY.wait;
+  show(`${topbar(st.title, `Chapter 3 of ${st.ch.length}`)}
+    <div class="pad lockedwrap">
+      <div class="lockcard"><span class="lic">${ICON.bell}</span>
+        <h2>${c.title}</h2><p class="sub">${c.sub}</p>
+        <button class="demo" data-k="tomorrow">▶ ${c.demo}</button>
+        <button class="link" data-k="trial">${c.trial}</button>
+      </div>
+    </div>`);
+  const k = await choose(screen, '[data-k]');
+  if (k === 'trial') return trial(2);
+  S.waitPath = true;
+  return unlock(2);
 }
 
 // ---------------------------------------------------------------- 4 library
@@ -266,7 +362,7 @@ function cover(st, size = '') {
 // Home (Explore) in the app's dark theme, with the new Start here shelf on top
 async function library() {
   const my = ++run;
-  setStep(4);
+  setStep('home');
   const c = COPY.library, w = WALKS[S.walk];
   const picks = START_HERE[S.walk];
   show(`<div class="wash" style="background-image:url(${FEATURED.cover})" aria-hidden="true"></div>
@@ -366,7 +462,7 @@ function storyCard(id, sample = false) {
   return `<button class="scard${sample ? ' sample' : ''}" data-v="${id}">
       ${cover(st)}
       <span class="travel">${st.where === 'near' ? st.mins : c.anywhere}</span>
-      ${sample ? `<span class="tag">${c.sampleTag}</span>` : ''}
+      ${S.played.has(id) ? `<span class="tag played">${c.playedTag}</span>` : sample ? `<span class="tag">${c.sampleTag}</span>` : ''}
       <small>${st.mins} · ${st.ch.length} ${c.chapters}</small>
     </button>`;
 }
@@ -395,8 +491,10 @@ async function overview() {
 
 // ---------------------------------------------------------------- 5 reader
 
+// Flow B has no Home until the first story is done, so the back chevron waits until then.
 function topbar(title, sub, mapBtn = false) {
-  return `<header class="rtop"><button class="chip ghost" data-k="lib" aria-label="Back to Home">${ICON.back}</button>
+  const back = !B() || S.done;
+  return `<header class="rtop">${back ? `<button class="chip ghost" data-k="lib" aria-label="Back to Home">${ICON.back}</button>` : '<span class="chip ghost hide"></span>'}
     <div class="rt"><b>${title}</b><small>${sub}</small></div>
     ${mapBtn ? `<button class="chip ghost mapbtn" data-k="map" aria-label="Open map">${ICON.map}</button>` : '<span class="chip ghost hide"></span>'}</header>`;
 }
@@ -404,10 +502,11 @@ function topbar(title, sub, mapBtn = false) {
 async function reader(ci) {
   const my = ++run;
   S.ch = ci;
-  setStep(ci === 0 ? 5 : ci === 1 ? 8 : 9);
+  setStep(ci === 0 ? 'ch1' : ci === 1 ? 'trial2' : 'finish');
   const st = story(), ch = st.ch[ci];
+  const canPick = B() && ci === 0 && !S.done;
   show(`${topbar(st.letter ? st.who : st.title, st.letter ? `${st.title} · Chapter ${ci + 1} of ${st.ch.length}` : `Chapter ${ci + 1} of ${st.ch.length} · ${ch.name}`, true)}
-    <div class="thread" id="thread"><p class="chname">Chapter ${ci + 1}<b>${ch.name}</b></p></div>
+    <div class="thread" id="thread"><p class="chname">Chapter ${ci + 1}<b>${ch.name}</b></p>${canPick ? `<button class="pickother" data-k="pick">${COPY.pick.link}</button>` : ''}</div>
     <div class="reply" id="reply"></div>`, 'reader');
   screen.dataset.story = S.story;
   const bg = $('#bg');
@@ -415,8 +514,9 @@ async function reader(ci) {
   bg.style.backgroundImage = `url(${st.bg || st.cover || 'img/ftue_background.png'})`;
   if (st.bg) bg.classList.add('sharp');
   screen.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-k="lib"]');
-    if (b) { run++; closeSheet(); library(); }
+    if (my !== run) return;
+    if (e.target.closest('[data-k="lib"]')) { run++; closeSheet(); library(); }
+    if (e.target.closest('[data-k="pick"]')) pickOther();
   });
   const thread = $('#thread'), reply = $('#reply');
   const alive = () => my === run;
@@ -433,9 +533,9 @@ async function reader(ci) {
       if (first) { S.seen.choice = true; snack(COPY.tips.choice, 0); }
       let v = await offer(reply, beat.choice, beat.dim);
       if (!alive()) return;
-      if (beat.dim !== undefined && v === beat.choice[beat.dim]) {   // the app's push-back panel for the discouraged choice
-        v = await pushBack(beat.choice[0]);
-        if (!alive()) return;
+      if (beat.dim !== undefined && v === beat.choice[beat.dim]) {
+        if (B()) S.preferHome = true;   // flow B asks for location only in Hunt, so no push-back: the unlock leads with "I'm at home"
+        else { v = await pushBack(beat.choice[0]); if (!alive()) return; }   // the app's push-back panel for the discouraged choice
       }
       hideSnack();
       me(thread, v);
@@ -450,8 +550,14 @@ async function reader(ci) {
   await wait(500);
   if (!alive()) return;
   addRow(thread, `<div class="chend"><p>${ci === 0 ? COPY.reader.end1 : COPY.reader.end2}</p></div>`);
+  $('.pickother', thread)?.remove();
+  if (B() && ci === 0 && !S.trial && !S.offered1) {
+    await wait(1100);
+    if (!alive()) return;
+    return trialPages();
+  }
   reply.innerHTML = `<button class="btn grad" data-k="map">${ICON.map}<span>${COPY.reader.openMap}</span></button>`;
-  if (ci === 0 && !S.seen.map) {
+  if (ci === 0 && !S.seen.map && !B()) {
     S.seen.map = true;
     await spotlight($('.mapbtn'), COPY.tips.map);
     if (!alive()) return;
@@ -460,6 +566,22 @@ async function reader(ci) {
   if (!alive()) return;
   if (ci === 1 && !S.trial) return trial(2);
   return unlock(ci + 1);
+}
+
+// Flow B, chapter 1: swap to one of the three stories matched to the walk answer (no shelf, no tour)
+async function pickOther() {
+  const c = COPY.pick;
+  const ids = [SAMPLE, ...START_HERE[S.walk]].filter((id) => id !== (S.story || pickDefault()));
+  sheet(`<div class="pick"><div class="pickhead"><h2>${c.title}</h2><button class="chip ghost" data-k="x" aria-label="Close">${ICON.close}</button></div>
+      <p class="sub">${fill(c.sub).replace('{for}', WALKS[S.walk].for)}</p>
+      <div class="picks">${ids.map((id) => { const st = STORIES[id]; return `<button class="pickrow" data-v="${id}">${cover(st, 'mini')}<span><b>${st.title}</b><small>${st.genre} · ${st.mins}</small></span></button>`; }).join('')}</div>
+    </div>`, 'pickpanel');
+  const k = await choose($('.sheet', overlay), '[data-k],[data-v]');
+  closeSheet();
+  if (k === 'x') return;
+  run++; pending.splice(0).forEach((f) => f()); hideSnack();
+  S.story = k; S.ch = 0;
+  reader(0);
 }
 
 function addRow(thread, html) {
@@ -524,9 +646,11 @@ async function puzzle(thread, beat, alive) {
 
 // ---------------------------------------------------------------- 6 unlock (the map)
 
-async function unlock(nextCh) {
+function unlock(nextCh) { return B() ? unlockB(nextCh) : unlockA(nextCh); }
+
+async function unlockA(nextCh) {
   const my = ++run;
-  setStep(nextCh === 1 ? 6 : 8);
+  setStep(nextCh === 1 ? 'unlock1' : 'trial2');
   const st = story(), c = COPY.unlock;
   const goal = nextCh === 1 ? c.goalSteps : c.goalSteps2;
   const target = st.ch[nextCh - 1].unlock;
@@ -591,10 +715,146 @@ async function unlock(nextCh) {
   return reader(nextCh);
 }
 
+// Flow B: the character asks for the one permission this mode needs, with "I'm at home" as an equal button.
+// Steps → Motion & Fitness (today's steps pre-fill on iPhone). Hunt → location, "While Using" only.
+// A refusal falls back to playing at home.
+async function unlockB(nextCh) {
+  const my = ++run;
+  setStep(nextCh === 1 ? 'unlock1' : 'trial2');
+  const st = story(), c = COPY.unlock, p = COPY.perm;
+  const free = nextCh === 2 && S.waitPath;
+  const goal = free ? c.goalFree : nextCh === 1 ? c.goalSteps : c.goalSteps2;
+  const target = st.ch[nextCh - 1].unlock;
+  if (free) S.mode = 'steps'; else if (target.mode) S.mode = target.mode;
+  const homeFirst = S.walk === 'home' || S.preferHome;
+  let count = 0, phase = 'idle', prefilled = false;
+  const homeBtn = () => `<button class="btn eq" data-k="home">${ICON.home}<span>${p.homeBtn}</span></button>`;
+  const duo = (other) => (other
+    ? `<div class="duo">${homeFirst ? homeBtn() + other : other + homeBtn()}</div>`
+    : `<div class="duo one">${homeBtn()}</div>`);
+  const render = () => {
+    const m = S.mode, hunt = m === 'hunt', perm = hunt ? S.loc : S.motion;
+    const title = free ? COPY.wait.objective : hunt ? esc(target.hunt) : target.objective ? esc(target.objective) : fill(c.walkTitle).replace('{n}', goal).replace('{place}', esc(target.place));
+    let body;
+    if (phase === 'virtual') {
+      body = `<h2>${p.virtual}</h2>
+        <div class="counter"><b id="cnt">${count}</b><span>${c.outOf.replace('{n}', goal)}</span></div>
+        <div class="bar"><i id="barfill" style="width:${100 * count / goal}%"></i></div>
+        <p class="sub">${p.virtualSub}</p>`;
+    } else if (perm === null) {
+      body = `<h2>${title}</h2>${duo(hunt
+        ? `<button class="btn eq" data-k="loc">${ICON.pin}<span>${p.locBtn}</span></button>`
+        : `<button class="btn eq" data-k="motion">${ICON.steps}<span>${p.motionBtn}</span></button>`)}`;
+    } else if (perm === 'off') {
+      body = `<h2>${title}</h2><p class="sub">${hunt ? p.locOff : p.motionOff}</p>
+        <div class="duo one">${homeBtn()}</div>
+        <button class="link small" data-k="settings">${hunt ? p.locBtn : p.turnOn}</button>`;
+    } else if (hunt) {
+      body = `<h2>${title}</h2><p class="sub">${c.huntSub}</p>${duo(`<button class="btn hunt" data-k="photo">${ICON.cam}<span>${c.photo}</span></button>`)}`;
+    } else {
+      body = `<h2>${title}</h2>
+        <div class="counter"><b id="cnt">${count.toLocaleString('en-US')}</b><span>${c.outOf.replace('{n}', goal)}</span></div>
+        <div class="bar"><i id="barfill" style="width:${100 * count / goal}%"></i></div>
+        ${prefilled ? `<p class="today">${p.today.replace('{steps}', S.today.toLocaleString('en-US'))}</p>` : `<p class="sub">${c.walkSub}</p>`}
+        ${prefilled ? '' : `<button class="demo" data-k="walk">▶ ${c.pretend}</button>${duo('')}`}`;
+    }
+    const askTip = phase === 'idle' && perm === null
+      ? `<div class="maptip ask" id="maptip"><p><b>${esc(st.who)}</b>${esc(hunt ? p.locAsk : p.motionAsk.replace('{n}', goal))}</p><img src="${st.tipArt || 'img/elf.png'}" alt=""></div>` : '';
+    show(`${topbar(st.title, `${c.unlocks} ${nextCh + 1}`)}
+      <div class="map m-${m}" id="map">${mapSvg(phase === 'virtual' ? 'steps' : m, count / goal)}
+        <div class="modes" role="tablist" aria-label="Map mode">${['steps', 'path', 'hunt'].map((k) => `<button role="tab" class="mode m-${k}${k === m ? ' on' : ''}${k === 'path' ? ' soon' : ''}" data-mode="${k}" aria-selected="${k === m}"${k === 'path' ? ' aria-disabled="true"' : ''}>${COPY.modes[k].name}</button>`).join('')}</div>
+        <p class="modetip" id="modetip" hidden>${COPY.modes.path.tip}</p>
+      </div>
+      ${askTip}
+      <div class="msheet b">${body}</div>`, 'mapscreen');
+    const tip = $('#maptip'), ms = $('.msheet', screen);
+    if (tip && ms) tip.style.bottom = (ms.offsetHeight + 14) + 'px';
+  };
+  render();
+  const tick = (n) => {
+    count = Math.min(goal, n);
+    const cnt = $('#cnt'); if (cnt) cnt.textContent = count.toLocaleString('en-US');
+    const bf = $('#barfill'); if (bf) bf.style.width = (100 * count / goal) + '%';
+    const ring = $('.goalring'); if (ring) ring.setAttribute('r', 48 - 30 * count / goal);
+    const trail = $('#trailDone'); if (trail) trail.setAttribute('stroke-dashoffset', 1 - count / goal);
+  };
+  const walkTo = async (ms) => {
+    const n = 18;
+    for (let i = 1; i <= n && my === run; i++) { tick(Math.round(goal * i / n)); await wait(ms / n); }
+  };
+  const how = await new Promise((done) => {
+    let busy = false;
+    screen.addEventListener('click', async (e) => {
+      if (my !== run || busy) return;
+      if (e.target.closest('[data-k="lib"]')) { run++; closeSheet(); return library(); }
+      const mb = e.target.closest('[data-mode]');
+      if (mb && phase === 'idle') {
+        if (mb.dataset.mode === 'path') { const t = $('#modetip'); t.hidden = false; setTimeout(() => { if (t.isConnected) t.hidden = true; }, 2600); return; }
+        S.mode = mb.dataset.mode; return render();
+      }
+      const b = e.target.closest('[data-k]'); if (!b) return;
+      const k = b.dataset.k;
+      busy = true;
+      try {
+        if (k === 'home') {
+          phase = 'virtual'; count = 0; render();
+          await wait(250); await walkTo(2200);
+          if (my === run) done('home');
+        } else if (k === 'motion') {
+          const v = await iosAlert(p.iosMotion, p.motionWhy, [{ v: 'no', label: p.iosNo }, { v: 'ok', label: p.iosOk, bold: true }]);
+          if (my !== run) return;
+          S.motion = v === 'ok' ? 'on' : 'off';
+          if (S.motion === 'on') toast(p.motionOn);
+          if (S.motion === 'on' && S.today) {
+            prefilled = true; count = 0; render();
+            await walkTo(700);
+            await wait(900);
+            if (my === run) done('today');
+            return;
+          }
+          render();
+        } else if (k === 'loc') {
+          const v = await iosAlert(p.iosLoc, p.locWhy, [{ v: 'once', label: p.iosOnce }, { v: 'while', label: p.iosWhile, bold: true }, { v: 'no', label: p.iosNo }], true);
+          if (my !== run) return;
+          S.loc = v === 'no' ? 'off' : 'on';
+          if (S.loc === 'on') toast(p.locOn);
+          render();
+        } else if (k === 'settings') {
+          await toast(p.settingsToast);
+        } else if (k === 'photo') {
+          await camera(target.hunt);
+          if (my === run) done('photo');
+        } else if (k === 'walk') {
+          b.disabled = true;
+          await walkTo(1700);
+          if (my === run) done('walk');
+        }
+      } finally { busy = false; }
+    });
+  });
+  if (my !== run) return;
+  await unlockedSheet(nextCh, how);
+  if (my !== run) return;
+  if (nextCh === 1 && !S.account) return account();
+  return reader(nextCh);
+}
+
+// A stand-in for the iOS system alert (dark mode). Three buttons stack, as iOS does.
+function iosAlert(title, body, btns, map = false) {
+  overlay.innerHTML = `<div class="scrim light"></div><div class="ios" role="alertdialog" aria-modal="true">
+      <div class="iosbody"><b>${title}</b><p>${body}</p>${map ? '<div class="iosmap" aria-hidden="true"><i></i></div>' : ''}</div>
+      <div class="iosbtns${btns.length > 2 ? ' stack' : ''}">${btns.map((b) => `<button class="iosbtn${b.bold ? ' bold' : ''}" data-v="${b.v}">${b.label}</button>`).join('')}</div>
+    </div>`;
+  overlay.hidden = false;
+  noWidows(overlay);
+  requestAnimationFrame(() => overlay.classList.add('on'));
+  return choose(overlay, '.iosbtn').then((v) => { closeSheet(); return v; });
+}
+
 async function unlockedSheet(nextCh, how) {
   const c = COPY.unlocked;
   sheet(`<div class="unl"><span class="burst">${ICON.check}</span><p class="kick">${c.kick}</p><h2>${c.title.replace('{n}', nextCh + 1)}</h2>
-    <p class="sub">${how === 'home' ? c.home : how === 'photo' ? c.photo : c.walk}</p>
+    <p class="sub">${how === 'home' ? c.home : how === 'photo' ? c.photo : how === 'today' ? c.today : c.walk}</p>
     <button class="btn grad" data-k="go">${c.cta}</button></div>`, 'small');
   await choose($('.sheet', overlay), '[data-k]');
   closeSheet();
@@ -636,7 +896,7 @@ function mapSvg(mode, t) {
 // ---------------------------------------------------------------- 7 account
 
 async function account() {
-  setStep(7);
+  setStep('account');
   const c = COPY.account, st = story();
   sheet(`<div class="acct">
       <h2>${fill(c.title)}</h2>
@@ -652,14 +912,30 @@ async function account() {
   closeSheet();
   if (k !== 'skip') { S.account = true; await toast(c.saved); }
   else await toast(c.later);
+  if (B() && S.notif === null) await nudge();
   return reader(1);
+}
+
+// Flow B: one notification ask, after the account ask, framed around the next chapter
+async function nudge() {
+  const my = run, c = COPY.nudge;
+  sheet(`<div class="unl"><span class="burst bell">${ICON.bell}</span><h2>${c.title}</h2><p class="sub">${c.sub}</p>
+    <button class="btn grad" data-k="yes">${c.yes}</button><button class="link" data-k="no">${c.no}</button></div>`, 'small');
+  const k = await choose($('.sheet', overlay), '[data-k]');
+  closeSheet();
+  if (my !== run) return;
+  if (k === 'no') { S.notif = 'later'; return; }
+  const v = await iosAlert(c.ios, c.iosBody, [{ v: 'no', label: COPY.perm.iosNo }, { v: 'ok', label: c.allow, bold: true }]);
+  S.notif = v === 'ok' ? 'on' : 'off';
+  if (S.notif === 'on') await toast(c.on);
 }
 
 // ---------------------------------------------------------------- 9 finish
 
 async function finish() {
   const my = ++run;
-  setStep(9);
+  setStep('finish');
+  S.done = true; S.played.add(S.story || pickDefault());
   const st = story(), c = COPY.finish, end = st.ch[st.ch.length - 1].end;
   const next = [...START_HERE[S.walk], SAMPLE].find((id) => id !== S.story);
   show(`<div class="pad fin">
@@ -671,7 +947,7 @@ async function finish() {
         <p class="mk">${c.remindKick}</p>
         <div class="notif"><span class="nicon">SC</span><div><b>${c.notifTitle}</b><small>${fill(c.notifBody)}</small></div><em>${c.notifWhen}</em></div>
         <p class="sub">${fill(c.remindSub)}</p>
-        <label class="toggle"><input type="checkbox" id="remind" checked><span class="sw"></span><b>${c.remindLabel}</b></label>
+        <label class="toggle"><input type="checkbox" id="remind"${S.notif === 'off' ? '' : ' checked'}><span class="sw"></span><b>${c.remindLabel}</b></label>
       </section>
       <section class="upnext"><p class="mk">${c.upNext}</p>${storyCard(next)}</section>
       <button class="btn grad" data-k="lib">${c.cta}</button>
@@ -724,54 +1000,105 @@ function spotlight(target, text, opts = {}) {
 
 // ---------------------------------------------------------------- tester panel
 
-function jump(n) {
+function stopAll() {
   run++;
   pending.splice(0).forEach((f) => f());
   closeSheet(); hideSnack(); $('#spot').hidden = true;
-  if (!S.story && n >= 5) S.story = pickDefault();
-  const firstTime = { 4: ['tour'], 5: ['choice', 'puzzle', 'map', 'mapTip1'], 6: ['mapTip1'], 8: ['mapTip2'] };
-  (firstTime[n] || []).forEach((k) => delete S.seen[k]);
-  if (n <= 3) { S.trial = false; S.skipped = false; }
-  if (n === 8 && !S.trial) S.skipped = true;
+}
+
+function jump(n) {
+  stopAll();
+  const key = keys()[n - 1], i = at(key);
+  if (!S.story && i >= at('ch1')) S.story = pickDefault();
+  const firstTime = { home: ['tour'], ch1: ['choice', 'puzzle', 'map', 'mapTip1'], unlock1: ['mapTip1'], trial2: ['mapTip2'] };
+  (firstTime[key] || []).forEach((k) => delete S.seen[k]);
+  if (i <= at('trial1')) { S.trial = false; S.skipped = false; S.offered1 = false; } else if (B()) S.offered1 = true;
+  if (key === 'trial2' && !S.trial) S.skipped = true;
+  if (i <= at('ch1')) S.preferHome = false;
+  if (i <= at('unlock1')) { S.motion = null; S.loc = null; }
+  if (i <= at('account')) S.notif = null;
+  S.waitPath = false;
+  S.done = B() ? key === 'home' : i >= at('finish') && key !== 'finish';
+  S.played = new Set(S.done ? [S.story || pickDefault()] : []);
   const go = {
-    1: hook, 2: walkPick, 3: () => trial(1), 4: library, 5: () => reader(0),
-    6: () => unlock(1), 7: account, 8: () => (S.trial ? reader(1) : trial(2)), 9: finish,
-  }[n];
+    hook, walk: walkPick, trial1: () => (B() ? trialPages() : trial(1)), home: library, ch1: () => reader(0),
+    unlock1: () => unlock(1), account, trial2: () => (S.trial ? reader(1) : trial(2)), finish,
+  }[key];
   go();
+}
+
+// "Close and reopen the app": the card a returning player would see
+async function resume() {
+  stopAll();
+  const my = run, i = at(S.key), t = COPY.tester, c = COPY.resume;
+  if (S.key === 'home') return library();
+  if (!S.story || i < at('ch1')) return jump(1);
+  note(t.reopenName, c.title, t.reopenNote);
+  const st = story(), n = Math.min(S.ch + 1, st.ch.length);
+  show(`<div class="hook resume">
+      <div class="hookart" aria-hidden="true"></div>
+      <div class="hooktop"><img class="logo" src="img/logo-on-dark.png" alt="Story City"></div>
+      <div class="hookbody">
+        <p class="kick">${c.kick}</p>
+        <h1>${c.title}</h1>
+        <button class="rscard" data-k="go">${cover(st, 'mini')}<span><b>${st.title}</b><small>${c.chapter.replace('{n}', n).replace('{of}', st.ch.length)}</small><span class="ipbar"><i style="width:${Math.round(100 * (n - 1) / st.ch.length) || 8}%"></i></span></span></button>
+        <button class="btn grad" data-k="go">${c.cta}</button>
+        <button class="link" data-k="other">${c.other}</button>
+      </div>
+    </div>`, 'dark');
+  const k = await choose(screen, '[data-k]');
+  if (my !== run) return;
+  if (k === 'other') { S.done = true; return library(); }
+  jump(S.step);
+}
+
+function panelHtml() {
+  const t = COPY.tester, chip = (attr, v, label, on) => `<button class="tchip" data-${attr}="${v}" aria-pressed="${on}">${label}</button>`;
+  const ids = [...START_HERE[S.walk], SAMPLE];
+  return `<p class="th">${t.title}</p>
+    <p class="tl first">${t.flow}</p>
+    <div class="tchips">${chip('flow', 'b', t.flowB, B())}${chip('flow', 'a', t.flowA, !B())}</div>
+    <ol class="tsteps">${keys().map((k, i) => `<li><button class="tstep" data-s="${i + 1}" aria-current="${i + 1 === S.step}"><b>${i + 1}</b>${(B() && STEP_INFO[k].nameB) || STEP_INFO[k].name}</button></li>`).join('')}</ol>
+    <p class="tl">${t.walk}</p>
+    <div class="tchips">${Object.entries(WALKS).map(([k, w]) => chip('walk', k, w.short, k === S.walk)).join('')}</div>
+    <p class="tl">${t.story}</p>
+    <div class="tchips">${ids.map((id) => chip('story', id, STORIES[id].title.replace(/^The /, ''), id === (S.story || pickDefault()))).join('')}</div>
+    ${B() ? `<p class="tl">${t.today}</p>
+    <div class="tchips">${chip('today', 0, t.todayNone, !S.today)}${chip('today', TODAY_STEPS, t.todaySome, !!S.today)}</div>
+    <p class="tl">${t.free}</p>
+    <div class="tchips">${chip('free', 1, t.freeOn, S.free)}${chip('free', 0, t.freeOff, !S.free)}</div>`
+    : `<p class="tl">${t.tiles}</p>
+    <div class="tchips">${chip('tiles', 'a', t.tilesA, S.tiles === 'a')}${chip('tiles', 'b', t.tilesB, S.tiles === 'b')}${chip('tiles', 'c', t.tilesC, S.tiles === 'c')}</div>`}
+    <p class="tl">${t.trial}</p>
+    <div class="tchips">${chip('trial', 0, t.skipped, !S.trial)}${chip('trial', 1, t.took, S.trial)}</div>
+    <button class="tchip wide" data-reopen>${t.reopen}</button>
+    <button class="tchip wide" data-reset>${t.reset}</button>`;
 }
 
 function buildPanel() {
   const p = $('#tpanel');
-  p.innerHTML = `<p class="th">${COPY.tester.title}</p>
-    <ol class="tsteps">${STEPS.map((s, i) => `<li><button class="tstep" data-s="${i + 1}"><b>${i + 1}</b>${s.name}</button></li>`).join('')}</ol>
-    <p class="tl">${COPY.tester.walk}</p>
-    <div class="tchips" id="twalk">${Object.entries(WALKS).map(([k, w]) => `<button class="tchip" data-walk="${k}">${w.short}</button>`).join('')}</div>
-    <p class="tl">${COPY.tester.story}</p>
-    <div class="tchips" id="tstory"></div>
-    <p class="tl">${COPY.tester.tiles}</p>
-    <div class="tchips"><button class="tchip" data-tiles="a">${COPY.tester.tilesA}</button><button class="tchip" data-tiles="b">${COPY.tester.tilesB}</button><button class="tchip" data-tiles="c">${COPY.tester.tilesC}</button></div>
-    <p class="tl">${COPY.tester.trial}</p>
-    <div class="tchips" id="ttrial"><button class="tchip" data-trial="0">${COPY.tester.skipped}</button><button class="tchip" data-trial="1">${COPY.tester.took}</button></div>
-    <button class="tchip wide" data-reset>${COPY.tester.reset}</button>`;
   p.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
-    if (b.dataset.s) { togglePanel(false); return jump(+b.dataset.s); }
-    if (b.dataset.walk) { S.walk = b.dataset.walk; S.mode = WALKS[S.walk].mode; if (!START_HERE[S.walk].includes(S.story) && S.story !== SAMPLE) S.story = null; }
-    if (b.dataset.story) S.story = b.dataset.story;
-    if (b.dataset.trial) { S.trial = b.dataset.trial === '1'; S.skipped = !S.trial; }
-    if (b.dataset.tiles) { S.tiles = b.dataset.tiles; syncPanel(); togglePanel(false); return jump(2); }
-    if ('reset' in b.dataset) { S.seen = {}; S.trial = false; S.skipped = false; S.account = false; S.story = null; togglePanel(false); return jump(1); }
+    const d = b.dataset;
+    if (d.s) { togglePanel(false); return jump(+d.s); }
+    if ('reopen' in d) { togglePanel(false); return resume(); }
+    if ('reset' in d) { S.seen = {}; S.trial = false; S.skipped = false; S.account = false; S.story = null; togglePanel(false); return jump(1); }
+    if (d.flow) {
+      const key = S.key;
+      S.flow = d.flow; if (!START_HERE[S.walk].includes(S.story) && S.story !== SAMPLE) S.story = null;
+      togglePanel(false); return jump(at(key) + 1);
+    }
+    if (d.tiles) { S.tiles = d.tiles; togglePanel(false); return jump(at('walk') + 1); }
+    if (d.walk) { S.walk = d.walk; S.mode = WALKS[S.walk].mode; if (!START_HERE[S.walk].includes(S.story) && S.story !== SAMPLE) S.story = null; }
+    if (d.story) S.story = d.story;
+    if (d.trial) { S.trial = d.trial === '1'; S.skipped = !S.trial; }
+    if (d.today) S.today = +d.today;
+    if (d.free) S.free = d.free === '1';
     syncPanel();
     jump(S.step);
   });
 }
-function syncPanel() {
-  $$('[data-walk]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.walk === S.walk)));
-  const ids = [...START_HERE[S.walk], SAMPLE];
-  $('#tstory').innerHTML = ids.map((id) => `<button class="tchip" data-story="${id}" aria-pressed="${id === (S.story || pickDefault())}">${STORIES[id].title.replace(/^The /, '')}</button>`).join('');
-  $$('[data-trial]').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.trial === '1') === S.trial)));
-  $$('[data-tiles]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tiles === S.tiles)));
-}
+function syncPanel() { $('#tpanel').innerHTML = panelHtml(); }
 function togglePanel(open) {
   const p = $('#tpanel'), b = $('#tbtn');
   const on = open ?? p.hidden;

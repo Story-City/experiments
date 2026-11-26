@@ -3,18 +3,43 @@
 // [new]  = written for this proposal.
 // {story} {who} {walk} are filled in by app.js.
 
-// The nine steps, as the tester panel and the side note show them.
-export const STEPS = [
-  { name: 'Hook', note: 'One screen, one promise, one button. Replaces the portal intro and the old carousel.' },
-  { name: 'How do you walk?', note: 'One tap. The answer sets the map mode the first story opens in (Steps or Hunt) and which stories go on the Start here shelf. Path shows as “coming soon”.' },
-  { name: 'Trial offer (skippable)', note: 'The early “cold” paywall from 4.27.2, shown once. The real one is RevenueCat’s hosted paywall; this is a stand-in.' },
-  { name: 'Home: Start here + tour', note: 'Home in the app’s dark look. A new Start here shelf on top: the real Summons (“Tiny story”) plus three short stories matched to the walk answer. A three-stop tour points out Start here, the Map tab and the Library tab.' },
-  { name: 'Chapter 1', note: 'Chat-bubble reader. First-time-only tips: the first choice, the first puzzle, and a map spotlight at the chapter end.' },
-  { name: 'First unlock', note: 'The key fix: about 30 steps, or “I’m at home” unlocks it on the couch. Modes can be switched any time.' },
-  { name: 'Save your story?', note: 'A soft account ask after chapter 1. “Not now” keeps playing.' },
-  { name: 'Second trial offer', note: 'At chapter 2’s cliffhanger, only for players who skipped step 3. Players with a trial go straight on.' },
-  { name: 'Finish + reminder', note: 'A short first story ends. “Your next chapter is waiting” is tied to their step goal.' },
-];
+// Two flows, switched in the tester panel (?flow=a|b). B is the default.
+//   A = the Nov 12 proposal.  B = story first (the Nov 16 research report's recommended flow).
+export const FLOWS = {
+  a: ['hook', 'walk', 'trial1', 'home', 'ch1', 'unlock1', 'account', 'trial2', 'finish'],
+  b: ['hook', 'walk', 'ch1', 'trial1', 'unlock1', 'account', 'trial2', 'finish', 'home'],
+};
+
+// Every step, as the tester panel and the side note show them. a / b = the note for that flow.
+export const STEP_INFO = {
+  hook: { name: 'Hook',
+    a: 'One screen, one promise, one button. Replaces the portal intro and the old carousel.',
+    b: 'One screen, one promise, one button. “Your first story is free.” sets expectations before any offer.' },
+  walk: { name: 'How do you walk?',
+    a: 'One tap. The answer sets the map mode the first story opens in (Steps or Hunt) and which stories go on the Start here shelf. Path shows as “coming soon”.',
+    b: 'One tap (version A tiles). The answer sets the map mode, then The Summons starts straight away.' },
+  trial1: { name: 'Trial offer (skippable)', nameB: 'Trial offer (2 pages)',
+    a: 'The early “cold” paywall from 4.27.2, shown once. The real one is RevenueCat’s hosted paywall; this is a stand-in.',
+    b: 'Right after chapter 1’s payoff. Page 1: what you get. Page 2: Today / Day 5 / Day 7 and the plans. “Skip for now” on both. The reminder is promised, not shown as a push.' },
+  home: { name: 'Home: Start here + tour', nameB: 'Home, after the story',
+    a: 'Home in the app’s dark look. A new Start here shelf on top: the real Summons (“Tiny story”) plus three short stories matched to the walk answer. A three-stop tour points out Start here, the Map tab and the Library tab.',
+    b: 'Home, the Start here shelf and the three-stop tour only appear once the first story is done.' },
+  ch1: { name: 'Chapter 1',
+    a: 'Chat-bubble reader. First-time-only tips: the first choice, the first puzzle, and a map spotlight at the chapter end.',
+    b: 'Straight into The Summons: no Home, shelf or tour. “Not feeling it?” offers the three stories matched to the walk answer.' },
+  unlock1: { name: 'First unlock',
+    a: 'The key fix: about 30 steps, or “I’m at home” unlocks it on the couch. Modes can be switched any time.',
+    b: 'The character asks for step counting, then the iOS prompt. Steps already walked today (iPhone) unlock it at once. “I’m at home” is an equal button that plays a short virtual walk. Location is asked only in Hunt.' },
+  account: { name: 'Save your story?',
+    a: 'A soft account ask after chapter 1. “Not now” keeps playing.',
+    b: 'A soft account ask after chapter 1, then one notification ask. “Not now” keeps playing.' },
+  trial2: { name: 'Second trial offer',
+    a: 'At chapter 2’s cliffhanger, only for players who skipped step 3. Players with a trial go straight on.',
+    b: 'Chapter 2’s cliffhanger, same session. Without a trial: the offer again, or “Walk 500 steps tomorrow” for free (Melissa to decide; switch in the tester panel).' },
+  finish: { name: 'Finish + reminder',
+    a: 'A short first story ends. “Your next chapter is waiting” is tied to their step goal.',
+    b: 'The first story ends with the reminder. Then Home opens for the first time.' },
+};
 
 // Step 2 answers. mode = the map mode the first story opens in.
 export const WALKS = {
@@ -39,11 +64,77 @@ export const LIKES = {                                              // [new]
 export const COPY = {
   hook: {
     title: 'Pick a story.',                                         // [new] (the brief), in the real welcome layout
-    title2: 'Walk to find out what happens next.',                  // [new] blue second line, like “an adventure.”
+    title2: 'Walk to find out what happens next.',
+    titleB: 'Pick up the story.',                                    // [new] flow B: the story starts for you (research report, step 1)                  // [new] blue second line, like “an adventure.”
     sub: '',                                                        // removed (Melissa, Nov 12); the real line is “Less scrolling, more strolling. Never have a boring walk again.”
     cta: 'Start Exploring',                                         // [real]
     login: 'Already have an account? Sign in',                      // [real]
     loginToast: 'Sign in opens here',
+    free: 'Your first story is free.',                              // [new] flow B (research report, step 1)
+  },
+  pick: {                                                           // [new] flow B, chapter 1
+    link: 'Not feeling it? Pick another story',
+    title: 'Pick another story',
+    sub: 'Short first stories for {for}.',
+  },
+  // Flow B's two-page trial offer. Page 1 = the real RevenueCat points; page 2 = how the trial works.
+  trialB: {
+    done: '✓ Chapter 1 complete',                                   // [new]
+    next: 'Continue',
+    title: 'Try every story', title2: 'free for 7 days',            // [new]
+    timeline: [                                                     // [new]
+      ['Today', 'Your free trial starts', 'Play every story, with no limits.'],
+      ['Day 5', 'We remind you', 'A heads-up before your trial ends.'],
+      ['Day 7', 'Your plan starts', 'Cancel any time before then.'],
+    ],
+  },
+  // Flow B permissions. Lines marked [real] are from the app (summons.ts, app.config.ts, en.json scriptedFtue).
+  perm: {
+    motionAsk: "Their drop is within {n} steps of you, but my scans can't tell which way. Turn on step tracking and I'll count them down.", // [real]
+    motionBtn: 'Share my steps',                                    // [real]
+    homeBtn: 'I’m at home',                                         // [new]
+    iosMotion: '“Story City” Would Like to Access Your Motion & Fitness Activity', // iOS system
+    motionWhy: "Story City counts your steps while you're signed in, for your step stats and so you can walk to unlock chapters.", // [real] NSMotionUsageDescription
+    iosNo: 'Don’t Allow', iosOk: 'OK',                              // iOS system
+    motionOn: '👣 Step counting on',                                // [real]
+    today: 'You’ve already walked {steps} steps today.',            // [new]
+    motionOff: 'Step counting is off, so this chapter plays at home.', // [new]
+    turnOn: 'Enable step tracking',                                 // [real]
+    settingsToast: 'In the app, this opens Settings',
+    locAsk: "Ok, we'll need you to share your location so we can guide you.", // [real]
+    locBtn: 'Share my location',                                    // [real]
+    iosLoc: 'Allow “Story City” to use your location?',             // iOS system
+    locWhy: 'Uses your location in the background to progress through adventures, and locate stories near you.', // [real] NSLocationWhenInUseUsageDescription
+    iosOnce: 'Allow Once', iosWhile: 'Allow While Using App',       // iOS system (no “Always” in session one)
+    locOn: '📍 Location shared',                                    // [real]
+    locOff: 'Location is off, so this hunt plays at home.',         // [new]
+    virtual: 'A short walk from home',                              // [new]
+    virtualSub: 'Your character walks it for you.',                 // [new]
+  },
+  nudge: {                                                          // [new] flow B, after “Save your story?”
+    title: 'Want a nudge when your next chapter unlocks?',
+    sub: 'One notification when it’s ready.',
+    yes: 'Yes, nudge me',
+    no: 'Not now',
+    ios: '“Story City” Would Like to Send You Notifications',       // iOS system
+    iosBody: 'Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.', // iOS system
+    allow: 'Allow',
+    on: '🔔 Notifications on',                                       // [real]
+  },
+  wait: {                                                           // [new] flow B free path (Melissa to decide)
+    link: 'Or walk 500 steps tomorrow to unlock it free',
+    title: 'Chapter 3 unlocks tomorrow',
+    sub: 'Walk 500 steps tomorrow and it’s yours, free. We’ll send one reminder.',
+    demo: 'Pretend it’s tomorrow',
+    trial: 'Or start your free trial',
+    objective: 'Walk 500 steps',
+  },
+  resume: {                                                         // [new] tester: close and reopen the app
+    kick: 'Welcome back',
+    title: 'Pick up where you left off',
+    chapter: 'Chapter {n} of {of}',
+    cta: 'Keep reading',
+    other: 'Start something else',
   },
   likes: {
     title: 'How do you like to walk?',                              // [new] (Melissa, Nov 12)
@@ -83,12 +174,14 @@ export const COPY = {
     sub: 'Start a free trial to keep reading and unlock every premium adventure.', // [real] previewWall.premiumBodyTrial
     cta: 'Start your free trial',
     back: 'Back to Home',
+    notNow: 'Not now',                                              // flow B: no Home yet, so this opens it for the first time
   },
   library: {
     search: 'Search',                                               // [real] common.search
     start: 'Start here',                                            // [new]
     startSub: 'Short first stories for {for}. Each one takes about 15 minutes.', // [new]
     sampleTag: 'Tiny story',                                        // [new] Golden Path Q8 pick B
+    playedTag: '✓ Played',                                          // [new] flow B: Home opens after the first story
     chapters: 'chapters',
     anywhere: 'Play Anywhere',                                      // [real] travel chip
   },
@@ -138,6 +231,7 @@ export const COPY = {
     goal: '30 steps',
     goalSteps: 30,                                                  // first unlock: tiny on purpose
     goalSteps2: 60,
+    goalFree: 500,                                                  // flow B “walk tomorrow” path
     walkTitle: 'Walk {n} steps to {place}',
     walkSub: 'Walk in any direction. The circle shrinks as you near your goal.', // [real] map tip, trimmed
     walkSubHome: 'Walk around the room, or skip it this time.',
@@ -157,6 +251,7 @@ export const COPY = {
     walk: 'You walked it. Nice.',
     photo: 'Photo saved. Nice find.',
     home: 'Unlocked from home. Your steps still count whenever you walk.',
+    today: 'Your steps from today unlocked it.',                     // [new] flow B pre-fill
     cta: 'Keep reading',
   },
   account: {
@@ -194,6 +289,18 @@ export const COPY = {
   },
   tester: {
     title: 'Tester panel',
+    flow: 'Flow',
+    flowA: 'A · Nov 12 proposal',
+    flowB: 'B · Story first',
+    today: 'Steps already walked today (iPhone)',
+    todayNone: 'None',
+    todaySome: '2,340',
+    free: 'Free “walk tomorrow” path',
+    freeOn: 'Show it',
+    freeOff: 'Hide it',
+    reopen: 'Close and reopen the app',
+    reopenName: 'Close and reopen',
+    reopenNote: 'The card a returning player sees. Guests can’t resume yet: saving progress is in the growth plan.',
     walk: 'Walk answer',
     story: 'Story',
     tiles: 'Step 2 version',
