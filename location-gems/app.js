@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v117 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v118 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -132,6 +132,12 @@ const CHALLENGE_FINDS = [
 ];
 
 const ROTATE_MS = 2200;
+/** Page-anchor default must stay Original (camera). Never persist or boot to another look. */
+const PAGE_ANCHOR_DEFAULT = 'camera';
+const PAGE_ANCHOR_VARIANTS = new Set(['camera', 'cta', 'haze', 'outline', 'yellow']);
+const PAGE_ANCHOR_OUTLINE_FILLS = ['#00c2ff', '#ffc448', '#b36bff'];
+const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
+const PAGE_ANCHOR_COPY_CTA = '[post a snapshot jam]';
 const TIP_OUT_MS = 360;
 const TIP_SWIPE_DISMISS_PX = 72;
 const FEED_SWIPE_DISMISS_PX = 72;
@@ -331,7 +337,10 @@ const emptyState = document.getElementById('emptyState');
 const emptyTitle = document.getElementById('emptyTitle');
 const emptyBody = document.getElementById('emptyBody');
 const emptyIcon = document.getElementById('emptyIcon');
+const snapshotSection = document.getElementById('snapshotSection');
 const snapshotBtn = document.getElementById('snapshotBtn');
+const snapshotPrefix = document.getElementById('snapshotPrefix');
+const pageAnchorOutline = document.getElementById('pageAnchorOutline');
 const cameraButton = document.getElementById('cameraButton');
 const rotatingWord = document.getElementById('rotatingWord');
 const snapshotTip = document.getElementById('snapshotTip');
@@ -401,6 +410,7 @@ const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'banner';
+let pageAnchor = PAGE_ANCHOR_DEFAULT;
 let hubEdition = 'v1';
 let sortCardLook = 'polaroid';
 let pendingPublish = null;
@@ -1752,6 +1762,35 @@ function handleSnapshot() {
 function tickPlaces() {
   placeIndex = (placeIndex + 1) % SNAPSHOT_PLACES.length;
   rotatingWord.textContent = SNAPSHOT_PLACES[placeIndex];
+}
+
+function fillPageAnchorOutline() {
+  if (!pageAnchorOutline || pageAnchorOutline.childElementCount) return;
+  PAGE_ANCHOR_OUTLINE_FILLS.forEach((fill) => {
+    const wrap = document.createElement('span');
+    wrap.className = 'page-anchor-gem';
+    wrap.innerHTML = gemSvg(fill, { softOutline: true });
+    pageAnchorOutline.appendChild(wrap);
+  });
+}
+
+function setPageAnchor(variant) {
+  const next = PAGE_ANCHOR_VARIANTS.has(variant) ? variant : PAGE_ANCHOR_DEFAULT;
+  pageAnchor = next;
+  if (snapshotSection) snapshotSection.dataset.pageAnchor = next;
+  document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
+    const on = btn.getAttribute('data-page-anchor') === next;
+    btn.classList.toggle('is-on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  const label = next === 'cta' ? PAGE_ANCHOR_COPY_CTA : PAGE_ANCHOR_COPY_ORIGINAL;
+  if (snapshotPrefix) snapshotPrefix.textContent = label;
+  if (snapshotBtn) {
+    snapshotBtn.setAttribute(
+      'aria-label',
+      next === 'cta' ? label : 'Take a snapshot gem',
+    );
+  }
 }
 
 function tipTargetEl(kind) {
@@ -3376,7 +3415,9 @@ function init() {
   seedGems();
   seedPendingSort();
   setupSnapshotArc();
+  fillPageAnchorOutline();
   applyStaticCopy();
+  setPageAnchor(PAGE_ANCHOR_DEFAULT);
   setHubEdition(hubEdition);
   setSortCardLook(sortCardLook);
   setSection('public');
@@ -3629,6 +3670,11 @@ if (publishCatNext) {
 document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
   btn.addEventListener('click', () => {
     setFeedVariant(btn.getAttribute('data-feed-variant') || 'banner');
+  });
+});
+document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    setPageAnchor(btn.getAttribute('data-page-anchor') || PAGE_ANCHOR_DEFAULT);
   });
 });
 document.querySelectorAll('[data-hub-edition]').forEach((btn) => {

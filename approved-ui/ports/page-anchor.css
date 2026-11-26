@@ -1,0 +1,134 @@
+/* Page anchor — library port of location-gems hub top.
+   Original (camera) is the real look; other data-page-anchor values only layer on. */
+.page-anchor-host {
+  --pa-accent: var(--brand-accent, #00c2ff);
+  --pa-deep: var(--brand-primary-deep, #0259a1);
+  --pa-text: var(--text, #fff);
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  color: var(--pa-text);
+  font-family: "Darker Grotesque", system-ui, sans-serif;
+}
+.page-anchor-haze,
+.page-anchor-outline {
+  display: none;
+  pointer-events: none;
+}
+.page-anchor-host[data-page-anchor="cta"] .page-anchor-arc {
+  display: none;
+}
+.page-anchor-host[data-page-anchor="cta"] .page-anchor-copy {
+  padding-top: 22px;
+  padding-bottom: 14px;
+}
+.page-anchor-host[data-page-anchor="haze"] .page-anchor-haze {
+  display: block;
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  top: -8px;
+  height: calc(100% + 28px);
+  z-index: 0;
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse 95% 85% at 50% 0%, color-mix(in srgb, var(--pa-accent) 42%, transparent) 0%, transparent 70%),
+    radial-gradient(ellipse 70% 55% at 50% 30%, rgba(255, 255, 255, 0.14) 0%, transparent 60%);
+}
+.page-anchor-host[data-page-anchor="outline"] .page-anchor-outline {
+  display: flex;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4px;
+  height: 88px;
+  z-index: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+}
+.page-anchor-outline .page-anchor-gem {
+  width: 42px;
+  height: 42px;
+  opacity: 0.5;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--pa-accent) 45%, transparent));
+}
+.page-anchor-outline .page-anchor-gem:nth-child(2) {
+  width: 52px;
+  height: 52px;
+  opacity: 0.62;
+}
+.page-anchor-host[data-page-anchor="yellow"] {
+  border-radius: 20px;
+  background:
+    radial-gradient(ellipse 110% 90% at 50% -8%, color-mix(in srgb, #ffc448 38%, transparent) 0%, transparent 62%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #ffc448 32%, transparent);
+}
+.page-anchor-host[data-page-anchor="yellow"] .page-anchor-prefix {
+  color: #ffe29a;
+}
+.page-anchor-host[data-page-anchor="yellow"] .page-anchor-word {
+  color: #ffc448;
+}
+.page-anchor-host[data-page-anchor="cta"] {
+  border-radius: 20px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+.page-anchor-hero {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.page-anchor-arc {
+  position: relative;
+  width: 240px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+}
+.page-anchor-cam {
+  position: absolute;
+  top: 4px;
+  z-index: 2;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--pa-accent), var(--pa-deep));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  border: 3px solid rgba(12, 18, 48, 0.85);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--pa-accent) 55%, transparent);
+}
+.page-anchor-cam svg {
+  width: 34px;
+  height: 34px;
+}
+.page-anchor-copy {
+  align-self: stretch;
+  text-align: center;
+  padding: 0 16px;
+}
+.page-anchor-prefix,
+.page-anchor-word {
+  margin: 0;
+  font-size: 22px;
+  line-height: 26px;
+  font-weight: 800;
+  color: var(--pa-text);
+}
+.page-anchor-word {
+  display: block;
+  margin-top: -5px;
+  color: var(--pa-accent);
+}

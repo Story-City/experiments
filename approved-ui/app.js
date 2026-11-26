@@ -1,6 +1,6 @@
-/** Approved UI library — APPROVED-UI-v29
+/** Approved UI library — APPROVED-UI-v30
  * Tools + opens location-gems edition-rail (same Look/Move tools). Category selector + gem-pins.
- * GEM-CAT-SELECTOR-v22 · LOCATION-GEMS tools=1
+ * GEM-CAT-SELECTOR-v22 · PAGE-ANCHOR (Original default) · LOCATION-GEMS tools=1
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -216,6 +216,14 @@ const ELEMENT_DEFS = [
     ux: 'When: publishing a jam — pick the category that fits. Six Figma gems in a 3×2 grid; primary outline. Try: tap a category.',
     stage: 'gem-cats',
     mount: mountGemCategorySelector,
+  },
+  {
+    id: 'page-anchor',
+    title: 'Page anchor',
+    source: 'location-gems hub top · Original kept',
+    ux: 'When: top of gems hub. Original is the real camera + arc. CTA / Haze / Outline / Yellow only layer on — tap Original to restore. Try: switch anchors.',
+    stage: 'page-anchor',
+    mount: mountPageAnchor,
   },
   {
     id: 'gem-disc-filter',
@@ -1585,6 +1593,78 @@ function gemPinsMarkHtml(stop) {
   }
   const src = GEM_SRC[stop.art] || GEM_SRC.nature;
   return `<img class="pin-gem" src="${src}" width="28" height="28" alt="" decoding="async">`;
+}
+
+const PAGE_ANCHOR_DEFAULT = 'camera';
+const PAGE_ANCHOR_PLACES = [
+  'a café',
+  'a park bench',
+  'a street corner',
+  'a bridge',
+  'a town square',
+  'a waterfront',
+];
+const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
+const PAGE_ANCHOR_COPY_CTA = '[post a snapshot jam]';
+const PAGE_ANCHOR_ROTATE_MS = 2200;
+
+function mountPageAnchor(stage, actions) {
+  const host = document.createElement('div');
+  host.className = 'page-anchor-host';
+  host.dataset.pageAnchor = PAGE_ANCHOR_DEFAULT;
+  host.innerHTML = `
+    <div class="page-anchor-haze" aria-hidden="true"></div>
+    <div class="page-anchor-outline" aria-hidden="true"></div>
+    <div class="page-anchor-hero" role="img" aria-label="Take a snapshot gem">
+      <div class="page-anchor-arc" aria-hidden="true">
+        <div class="page-anchor-cam">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1.2 2H20a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3.8L9 3zm3 4.5A5.5 5.5 0 1 0 17.5 13 5.5 5.5 0 0 0 12 7.5zm0 2A3.5 3.5 0 1 1 8.5 13 3.5 3.5 0 0 1 12 9.5z"/></svg>
+        </div>
+      </div>
+      <div class="page-anchor-copy">
+        <p class="page-anchor-prefix">${PAGE_ANCHOR_COPY_ORIGINAL}</p>
+        <span class="page-anchor-word">a café</span>
+      </div>
+    </div>
+  `;
+  stage.appendChild(host);
+  const outline = host.querySelector('.page-anchor-outline');
+  const prefix = host.querySelector('.page-anchor-prefix');
+  const hero = host.querySelector('.page-anchor-hero');
+  const word = host.querySelector('.page-anchor-word');
+  ['#00c2ff', '#ffc448', '#b36bff'].forEach((fill) => {
+    const gem = document.createElement('span');
+    gem.className = 'page-anchor-gem';
+    gem.innerHTML = gemSvg(fill, { softOutline: true });
+    outline.appendChild(gem);
+  });
+  let idx = 0;
+  const setAnchor = (id) => {
+    host.dataset.pageAnchor = id;
+    const label = id === 'cta' ? PAGE_ANCHOR_COPY_CTA : PAGE_ANCHOR_COPY_ORIGINAL;
+    if (prefix) prefix.textContent = label;
+    if (hero) {
+      hero.setAttribute(
+        'aria-label',
+        id === 'cta' ? label : 'Take a snapshot gem',
+      );
+    }
+  };
+  const tick = () => {
+    idx = (idx + 1) % PAGE_ANCHOR_PLACES.length;
+    if (word) word.textContent = PAGE_ANCHOR_PLACES[idx];
+  };
+  const timer = window.setInterval(tick, PAGE_ANCHOR_ROTATE_MS);
+  stage.addEventListener(
+    'remove',
+    () => window.clearInterval(timer),
+    { once: true },
+  );
+  addPlay(actions, 'Original', () => setAnchor(PAGE_ANCHOR_DEFAULT));
+  addGhost(actions, 'CTA', () => setAnchor('cta'));
+  addGhost(actions, 'Haze', () => setAnchor('haze'));
+  addGhost(actions, 'Outline', () => setAnchor('outline'));
+  addGhost(actions, 'Yellow', () => setAnchor('yellow'));
 }
 
 function mountGemCategorySelector(stage, actions) {
