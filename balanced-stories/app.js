@@ -1,16 +1,15 @@
 import { STORIES } from './stories.js';
 
-const MODES = ['before', 'after'];
 const BALANCE_MAX_LINES = 6;
 const MIN_EVEN_RATIO = 0.6;
 const MIN_FIT_FRACTION = 0.5;
-const FIT_STEP_PX = 2;
+const FIT_STEP_PX = 6;
 const TICKET_STOCK = ['#C5D1E2', '#E3D1BC', '#C1D5D0'];
 const SERIAL_BASE = 214;
 const SERIAL_STEP = 97;
 const CHOICE_HEADER = 'Where to next?';
 const AUDIO_BUTTON_TEXT = 'Tap To Play Audio';
-const BLOCK_SELECTOR = 'p, li, h1, h2, h3, h4, h5, h6, blockquote';
+const END_LABEL = 'The End';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 const $ = (id) => document.getElementById(id);
@@ -20,7 +19,6 @@ const params = new URLSearchParams(location.search);
 const state = {
   story: clamp((parseInt(params.get('s'), 10) || 1) - 1, 0, STORIES.length - 1),
   chapter: 0,
-  mode: MODES.includes(params.get('m')) ? params.get('m') : 'after',
 };
 state.chapter = clamp((parseInt(params.get('c'), 10) || 1) - 1, 0, STORIES[state.story].chapters.length - 1);
 
@@ -152,21 +150,33 @@ function lineWidths(el) {
 
 const lineCount = (el) => lineWidths(el).length;
 
-// text-wrap: balance is skipped by some engines (e.g. around inline pills); narrow
-// the block to the smallest width that keeps its line count, which evens the lines.
+const evenness = (widths) => Math.min(...widths) / Math.max(...widths);
+
+// text-wrap: balance is skipped by some engines (e.g. around inline pills); try
+// narrower widths with the same line count and keep the most even one.
 function evenOut(el) {
   const widths = lineWidths(el);
   if (widths.length < 2 || widths.length > BALANCE_MAX_LINES) return;
-  if (Math.min(...widths) / Math.max(...widths) >= MIN_EVEN_RATIO) return;
-  const lines = widths.length;
-  let hi = el.getBoundingClientRect().width;
-  let lo = hi * MIN_FIT_FRACTION;
-  while (hi - lo > FIT_STEP_PX) {
-    const mid = (hi + lo) / 2;
-    el.style.maxWidth = `${mid}px`;
-    if (lineCount(el) === lines) hi = mid; else lo = mid;
+  let best = { ratio: evenness(widths), width: null };
+  if (best.ratio >= MIN_EVEN_RATIO) return;
+  const full = el.getBoundingClientRect().width;
+  for (let w = full - FIT_STEP_PX; w >= full * MIN_FIT_FRACTION; w -= FIT_STEP_PX) {
+    el.style.maxWidth = `${w}px`;
+    const now = lineWidths(el);
+    if (now.length !== widths.length) continue;
+    const ratio = evenness(now);
+    if (ratio > best.ratio) best = { ratio, width: w };
   }
-  el.style.maxWidth = `${Math.ceil(hi)}px`;
+  el.style.maxWidth = best.width ? `${best.width}px` : '';
+}
+
+// Balanced text in a bubble leaves a gap on the right; shrink each bubble to its widest line.
+function fitBubble(b) {
+  b.style.width = '';
+  const widths = lineWidths(b);
+  if (widths.length < 2) return;
+  const cs = getComputedStyle(b);
+  b.style.width = `${Math.ceil(Math.max(...widths) + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 2)}px`;
 }
 
 function applyNewStyle(blocks) {
@@ -182,15 +192,12 @@ function renderControls() {
   STORIES.forEach((s, i) => {
     const b = document.createElement('button');
     b.type = 'button';
-    b.textContent = String(i + 1);
-    b.title = `${s.name} (${s.style.toLowerCase()})`;
-    b.setAttribute('aria-label', `Story ${i + 1}: ${s.name}`);
+    b.textContent = `${i + 1} ${s.short}`;
+    b.title = `${s.title} (${s.kind.toLowerCase()})`;
+    b.setAttribute('aria-label', `Story ${i + 1}: ${s.title}`);
     b.setAttribute('aria-pressed', String(i === state.story));
     b.addEventListener('click', () => { state.story = i; state.chapter = 0; render(true); });
     seg.appendChild(b);
-  });
-  document.querySelectorAll('#modeSeg button').forEach((b) => {
-    b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode));
   });
   const total = STORIES[state.story].chapters.length;
   $('count').textContent = `${state.chapter + 1}/${total}`;
@@ -217,8 +224,7 @@ function ticket(label, index, onPress) {
 function render(scrollTop) {
   const story = STORIES[state.story];
   const ch = story.chapters[state.chapter];
-  phone.classList.toggle('after', state.mode === 'after');
-  $('navTitle').textContent = story.name;
+  $('navTitle').textContent = story.title;
 
   const featured = $('featured');
   featured.innerHTML = '';
@@ -228,10 +234,35 @@ function render(scrollTop) {
     img.alt = '';
     featured.appendChild(img);
   }
-  $('chapterName').textContent = ch.title;
-
   const web = $('webview');
-  web.innerHTML = ch.html;
+  web.innerHTML = '';
+  if (ch.audio) web.appendChild(document.createElement('audio'));
+  const narration = document.createElement('div');
+  narration.className = 'narration';
+  let lastSpeaker = null;
+  for (const line of ch.lines) {
+    const d = document.createElement('div');
+    if (line.who === 'narrator') {
+      d.className = 'narr';
+      d.innerHTML = line.html;
+      lastSpeaker = null;
+    } else {
+      d.className = 'say';
+      if (line.name !== lastSpeaker) {
+        const who = document.createElement('div');
+        who.className = 'who';
+        who.textContent = line.name;
+        d.appendChild(who);
+      }
+      const bub = document.createElement('div');
+      bub.className = 'bub';
+      bub.innerHTML = line.html;
+      d.appendChild(bub);
+      lastSpeaker = line.name;
+    }
+    narration.appendChild(d);
+  }
+  web.appendChild(narration);
   injectLikeApp(web);
 
   const nc = $('nextChapters');
@@ -239,43 +270,29 @@ function render(scrollTop) {
   const isLast = state.chapter === story.chapters.length - 1;
   const header = document.createElement('h2');
   header.className = 'nc-header';
-  header.textContent = ch.choices.length ? (ch.endLabel || CHOICE_HEADER) : (ch.endLabel || 'The End');
+  header.textContent = ch.options.length ? (ch.prompt || CHOICE_HEADER) : (ch.prompt || END_LABEL);
   nc.appendChild(header);
-  if (ch.choices.length) {
+  if (ch.options.length) {
     const list = document.createElement('div');
     list.className = 'choice-list';
-    ch.choices.forEach((label, i) => list.appendChild(ticket(label, i, () => {
+    ch.options.forEach((label, i) => list.appendChild(ticket(label, i, () => {
       if (!isLast) { state.chapter += 1; render(true); }
     })));
     nc.appendChild(list);
   }
 
-  if (state.mode === 'after') {
-    const blocks = [
-      ...web.querySelectorAll(BLOCK_SELECTOR),
-      ...[...web.children].filter((el) => el.matches('div') && el.textContent.trim()),
-      $('chapterName'),
-      header,
-      ...nc.querySelectorAll('.ticket-title'),
-    ].filter((el) => el.textContent.trim() && !el.closest('.audio-button'));
-    applyNewStyle(blocks);
-  }
+  applyNewStyle([...narration.querySelectorAll('.narr, .bub'), header, ...nc.querySelectorAll('.ticket-title')]);
+  narration.querySelectorAll('.bub').forEach(fitBubble);
 
   renderControls();
   const url = new URL(location.href);
   url.searchParams.set('s', state.story + 1);
   url.searchParams.set('c', state.chapter + 1);
-  url.searchParams.set('m', state.mode);
+  url.searchParams.delete('m');
   history.replaceState(null, '', url);
   if (scrollTop) window.scrollTo(0, 0);
 }
 
-document.querySelectorAll('#modeSeg button').forEach((b) => b.addEventListener('click', () => {
-  state.mode = b.dataset.mode;
-  const y = window.scrollY;
-  render(false);
-  window.scrollTo(0, y);
-}));
 $('prev').addEventListener('click', () => { state.chapter -= 1; render(true); });
 $('next').addEventListener('click', () => { state.chapter += 1; render(true); });
 

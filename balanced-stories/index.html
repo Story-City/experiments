@@ -8,20 +8,16 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@300;400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <script>
 window.CACHE_V = '?v=' + Date.now();
 document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
 </head>
 <body>
-<div class="phone" id="phone">
+<div class="phone after" id="phone">
   <div class="demo" role="toolbar" aria-label="Mockup controls">
     <div class="seg" id="storySeg" role="group" aria-label="Story"></div>
-    <div class="seg" id="modeSeg" role="group" aria-label="Wrapping">
-      <button type="button" data-mode="before">Before</button>
-      <button type="button" data-mode="after">After</button>
-    </div>
     <div class="pager">
       <button type="button" id="prev" aria-label="Previous chapter"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <span id="count">1/6</span>

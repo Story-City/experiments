@@ -11,6 +11,10 @@
   --ticket-ink: #2C2C2C;
   --amethyst: #9b6bd6;
   --amethyst-glow: rgba(155, 107, 214, .55);
+  --glass: rgba(255, 255, 255, 0.22);
+  --glass-edge: rgba(255, 255, 255, 0.4);
+  --glass-dark: rgba(14, 10, 30, 0.35);
+  --msg-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, Roboto, "Segoe UI", sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -194,10 +198,24 @@ button { font: inherit; color: inherit; }
 }
 .webview .link-image { margin-left: 5px; width: 15px; }
 
-/* ---- The new style (After): no lone last word, even lines ---- */
-.after .webview :is(p, li, h1, h2, h3, h4, blockquote) { text-wrap: pretty; }
-.after .webview .bal { text-wrap: balance; }
-.after .nc-header, .after .ticket-title { text-wrap: balance; }
+/* ---- Narrator text, as in the Narrated reader experiment (apps/narrated-reader/app.css) ---- */
+.narration { display: flex; flex-direction: column; gap: 8px; padding-top: 6px; }
+.narr { align-self: stretch; text-align: left; padding: 2px 0; font-style: italic; font-weight: 500; font-size: 20px; line-height: 1.25; color: #d6d0ee; }
+.say { display: flex; flex-direction: column; align-items: flex-start; }
+.say .who { margin: 6px 0 4px 4px; color: #fff; opacity: .8; font: 600 13px/1.2 var(--msg-font); letter-spacing: .8px; text-transform: uppercase; }
+.say .bub {
+  max-width: 82%;
+  padding: 8px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--glass-edge);
+  background: linear-gradient(var(--glass), var(--glass)), var(--glass-dark);
+  color: #fff;
+  font: 400 17px/22px var(--msg-font);
+}
+.webview .narr span[info], .webview .bub span[info] { font-size: inherit; font-style: normal; }
+
+/* ---- The text rule: no lone last word (app.js), even lines ---- */
+.narr, .bub, .nc-header, .ticket-title { text-wrap: balance; }
 
 /* ---- NextChapters: header (TextStyles.secondaryHeader 24 / 28.8) + ticket buttons ---- */
 .nc-header { font-size: 24px; line-height: 28.8px; font-weight: 700; margin: 20px 0 0; }
