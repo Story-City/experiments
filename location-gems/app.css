@@ -409,12 +409,31 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   pointer-events: none;
 }
 .page-anchor-mist,
+.page-anchor-sheer,
 .page-anchor-stream,
 .page-anchor-wash,
+.page-anchor-glow,
 .page-anchor-gems {
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+.page-anchor-sheer {
+  opacity: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 55%),
+    linear-gradient(105deg, transparent 20%, rgba(0, 194, 255, 0.1) 48%, transparent 76%);
+  filter: blur(5px);
+}
+.page-anchor-glow {
+  opacity: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 28%,
+    rgba(255, 255, 255, 0.34) 48%,
+    transparent 68%
+  );
+  transform: translate3d(-40%, 0, 0);
 }
 .page-anchor-mist {
   opacity: 0;
@@ -452,13 +471,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   transform-origin: 50% 30%;
 }
 
-/* Mist — breathing veil + gentle bob */
+/* Mist — slower breathing veil + gentle bob */
 .hub[data-page-anchor="mist"] .page-anchor-mist {
   opacity: 1;
-  animation: pageAnchorMistBreath 5.6s ease-in-out infinite;
+  animation: pageAnchorMistBreath 8.4s ease-in-out infinite;
 }
 .hub[data-page-anchor="mist"] .page-anchor-gem {
-  animation: pageAnchorMistBob 8.8s ease-in-out infinite;
+  animation: pageAnchorMistBob 12s ease-in-out infinite;
 }
 
 /* Drift — slow current; travel = --pa-drift-travel (RN: onLayout width) */
@@ -533,6 +552,34 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .hub[data-page-anchor="cascade"] .page-anchor-gem {
   animation: pageAnchorCascade 12.5s linear infinite;
   opacity: 0;
+}
+
+/* Sheer — thin layered sheets with barely-there crystals */
+.hub[data-page-anchor="sheer"] .page-anchor-mist {
+  opacity: 0.55;
+  animation: pageAnchorMistBreath 9s ease-in-out infinite;
+}
+.hub[data-page-anchor="sheer"] .page-anchor-sheer {
+  opacity: 0.85;
+  animation: pageAnchorSheerSway 10.5s ease-in-out infinite;
+}
+.hub[data-page-anchor="sheer"] .page-anchor-gem {
+  animation: pageAnchorMistBob 14s ease-in-out infinite;
+  opacity: 0.1;
+  filter: blur(1.6px) drop-shadow(0 0 5px color-mix(in srgb, var(--brand-accent) 14%, transparent));
+}
+
+/* Shimmer — soft shine sweep over quiet category crystals */
+.hub[data-page-anchor="shimmer"] .page-anchor-mist {
+  opacity: 0.72;
+  animation: pageAnchorMistBreath 7.6s ease-in-out infinite;
+}
+.hub[data-page-anchor="shimmer"] .page-anchor-glow {
+  opacity: 0;
+  animation: pageAnchorShimmerSweep 5.8s ease-in-out infinite;
+}
+.hub[data-page-anchor="shimmer"] .page-anchor-gem {
+  animation: pageAnchorBloomPulse 9.2s ease-in-out infinite;
 }
 
 .page-anchor-gem {
@@ -681,6 +728,16 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   16% { opacity: 0.18; }
   70% { opacity: 0.12; }
   100% { transform: translate3d(3px, 26px, 0); opacity: 0; }
+}
+@keyframes pageAnchorSheerSway {
+  0%, 100% { transform: translate3d(-4%, 0, 0); opacity: 0.55; }
+  50% { transform: translate3d(5%, 0, 0); opacity: 0.9; }
+}
+@keyframes pageAnchorShimmerSweep {
+  0% { transform: translate3d(-55%, 0, 0); opacity: 0; }
+  22% { opacity: 0.55; }
+  55% { opacity: 0.35; }
+  100% { transform: translate3d(85%, 0, 0); opacity: 0; }
 }
 .snapshot-hero {
   position: relative;
