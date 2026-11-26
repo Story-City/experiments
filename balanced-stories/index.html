@@ -31,6 +31,11 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     <div class="demo demo-cast" id="castRow" role="group" aria-label="How characters show">
       <div class="seg" id="castSeg"></div>
       <span class="cast-name" id="castName"></span>
+      <div class="pager line-pager" role="group" aria-label="Jump between lines">
+        <button type="button" id="lineBack" aria-label="Back one line"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span id="lineCount">Line 1/1</span>
+        <button type="button" id="lineNext" aria-label="Ahead one line"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
     </div>
   </div>
 

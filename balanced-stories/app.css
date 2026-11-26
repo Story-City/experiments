@@ -65,6 +65,9 @@ button { font: inherit; color: inherit; }
 }
 .demo-cast { height: 38px; justify-content: flex-start; gap: 10px; padding-top: 0; }
 .demo-cast[hidden] { display: none; }
+.line-pager { margin-left: auto; flex: none; }
+.line-pager span { min-width: 62px; font-size: 14px; }
+#castSeg[hidden], #castName[hidden] { display: none; }
 .cast-name { font-size: 16px; font-weight: 700; color: #c9c2e6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pager { display: flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 700; color: #c9c2e6; }
 .pager button {

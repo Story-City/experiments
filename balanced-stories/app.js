@@ -231,11 +231,12 @@ function renderControls() {
     b.type = 'button';
     b.textContent = v.name;
     b.setAttribute('aria-pressed', String(v.key === state.layout));
-    b.addEventListener('click', () => { state.layout = v.key; render(true); });
+    b.addEventListener('click', () => { state.layout = v.key; render(false, true); });
     laySeg.appendChild(b);
   });
   const hasCast = storyCast(STORIES[state.story]).length > 0;
-  $('castRow').hidden = !hasCast;
+  $('castSeg').hidden = !hasCast;
+  $('castName').hidden = !hasCast;
   const castSeg = $('castSeg');
   castSeg.innerHTML = '';
   CAST_VERSIONS.forEach((v) => {
@@ -245,7 +246,7 @@ function renderControls() {
     b.title = v.name;
     b.setAttribute('aria-label', `${v.key.toUpperCase()}: ${v.name}`);
     b.setAttribute('aria-pressed', String(v.key === state.cast));
-    b.addEventListener('click', () => { state.cast = v.key; render(false); });
+    b.addEventListener('click', () => { state.cast = v.key; render(false, true); });
     castSeg.appendChild(b);
   });
   $('castName').textContent = CAST_VERSIONS.find((v) => v.key === state.cast).name;
@@ -271,8 +272,10 @@ function ticket(label, index, onPress) {
   return btn;
 }
 
-function render(scrollTop) {
-  stopPlayback();
+// keepPlaying: a view switch (layout or character style) redraws the same moment and the voiceover carries on.
+function render(scrollTop, keepPlaying = false) {
+  const carry = keepPlaying ? detachPlayback() : null;
+  if (!carry) stopPlayback();
   const story = STORIES[state.story];
   const ch = story.chapters[state.chapter];
   $('navTitle').textContent = story.title;
@@ -366,7 +369,7 @@ function render(scrollTop) {
     follow = narration.scrollTop + narration.clientHeight >= narration.scrollHeight - FOLLOW_SLACK_PX;
   }, { passive: true });
   follow = true;
-  setupPlayback(ch, lineEls, narration, nc, capBox);
+  setupPlayback(ch, lineEls, narration, nc, capBox, carry);
 
   renderControls();
   const url = new URL(location.href);
@@ -390,7 +393,7 @@ function storyCast(story) {
 let pb = null;
 const wordsOf = (html) => html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
 
-function setupPlayback(ch, lineEls, narration, nc, capBox) {
+function setupPlayback(ch, lineEls, narration, nc, capBox, carry) {
   const words = ch.lines.map((l) => wordsOf(l.html));
   const total = words.reduce((a, b) => a + b, 0) || 1;
   const fakeSecs = words.map((w) => LINE_BASE_SECS + w * SECS_PER_WORD);
@@ -402,6 +405,7 @@ function setupPlayback(ch, lineEls, narration, nc, capBox) {
   for (const s2 of fakeSecs) { fakeStarts.push(acc); acc += s2; }
   pb = { ch, lineEls, narration, nc, capBox, timed: ch.lines.length > 0 && ch.lines.every((l) => typeof l.t === 'number'), share, fakeStarts, fakeTotal: acc, revealed: 0, playing: false, ended: false,
     audio: null, fake: !ch.audio || FAST > 0, clock: 0, lastTick: 0, timer: null, startGuard: null };
+  if (carry) { resumeFrom(carry); return; }
   if (!ch.lines.length) finishPlayback();
   else startPlayback();   // like the app with autoplay on; a blocked autoplay waits for a tap on the button
 }
@@ -478,16 +482,40 @@ function tick() {
   if (pb.fake && t >= pb.fakeTotal) finishPlayback();
 }
 
-function revealTo(n) {
+// Hand the running voiceover to the redrawn view: same audio, same lines shown, same play/pause.
+function detachPlayback() {
+  if (!pb) return null;
+  clearInterval(pb.timer);
+  clearTimeout(pb.startGuard);
+  const carry = { audio: pb.audio, fake: pb.fake, clock: pb.clock, revealed: pb.revealed, playing: pb.playing, ended: pb.ended };
+  pb = null;
+  return carry;
+}
+
+function resumeFrom(carry) {
+  Object.assign(pb, { audio: carry.audio, fake: carry.fake, clock: carry.clock });
+  revealTo(carry.revealed, true);
+  if (carry.ended) { finishPlayback(true); return; }
+  pb.narration.classList.add('playing');
+  if (carry.playing) {
+    pb.playing = true;
+    pb.lastTick = performance.now();
+    pb.timer = setInterval(tick, TICK_MS);
+  }
+  followNewest(pb.lineEls[pb.revealed - 1], true, true);
+}
+
+function revealTo(n, quiet = false) {
   for (let i = pb.revealed; i < Math.min(n, pb.lineEls.length); i++) {
     const el = pb.lineEls[i];
     el.hidden = false;
-    el.classList.add('enter');
+    if (!quiet) el.classList.add('enter');
     styleLine(el);
   }
   if (n > pb.revealed) {
     pb.revealed = Math.min(n, pb.lineEls.length);
     pb.lineEls.forEach((el, i) => el.classList.toggle('now', i === pb.revealed - 1));
+    updateLineCount();
     if (state.layout === 'over') showCaption(pb.lineEls[pb.revealed - 1]);
     else followNewest(pb.lineEls[pb.revealed - 1]);
   }
@@ -523,6 +551,7 @@ function finishPlayback() {
   pb.narration.classList.remove('playing');
   pb.lineEls.forEach((el) => el.classList.remove('now'));
   pb.nc.hidden = false;
+  updateLineCount();
   applyNewStyle([...pb.nc.querySelectorAll('.nc-header, .ticket-title')]);
   followNewest(pb.nc, true);
 }
@@ -532,13 +561,32 @@ $('webview').addEventListener('click', skipLine);
 $('featured').addEventListener('click', (e) => { if (e.target.closest('.cap-box')) skipLine(e); });
 function skipLine(e) {
   if (!pb || pb.ended || e.target.closest('button, .link-wrapper, .next-chapters')) return;
-  if (pb.revealed >= pb.lineEls.length) { finishPlayback(); return; }
-  const next = pb.revealed;
-  if (!pb.fake && pb.audio && (pb.timed || isFinite(pb.audio.duration))) pb.audio.currentTime = lineStart(next);
-  else pb.clock = pb.fakeStarts[next];
-  revealTo(next + 1);
+  seekToLine(pb.revealed);
 }
 
+// Testing controls: jump a line back or ahead; the voiceover moves with it and keeps its play/pause.
+$('lineBack').addEventListener('click', () => { if (pb) seekToLine(pb.revealed - 2); });
+$('lineNext').addEventListener('click', () => { if (pb && !pb.ended) seekToLine(pb.revealed); });
+function updateLineCount() {
+  $('lineCount').textContent = pb ? `Line ${Math.max(1, pb.revealed)}/${pb.lineEls.length}` : '';
+  $('lineBack').disabled = !pb || pb.revealed <= 1;
+  $('lineNext').disabled = !pb || pb.ended;
+}
+function seekToLine(i) {
+  if (!pb || !pb.lineEls.length) return;
+  if (i >= pb.lineEls.length) { finishPlayback(); return; }
+  i = clamp(i, 0, pb.lineEls.length - 1);
+  if (pb.ended) {
+    pb.ended = false;
+    pb.nc.hidden = true;
+    pb.narration.classList.add('playing');
+  }
+  pb.lineEls.forEach((el, k) => { if (k > i) { el.hidden = true; el.classList.remove('enter', 'now'); } });
+  pb.revealed = i;
+  if (!pb.fake && pb.audio && (pb.timed || isFinite(pb.audio.duration))) pb.audio.currentTime = lineStart(i);
+  else pb.clock = pb.fakeStarts[i];
+  revealTo(i + 1);
+}
 // Follow the voice unless the reader has scrolled up to look back.
 let follow = true;
 let ownScrollUntil = 0;
@@ -546,18 +594,19 @@ addEventListener('scroll', () => {
   if (performance.now() < ownScrollUntil) return;
   follow = window.scrollY + innerHeight >= document.documentElement.scrollHeight - FOLLOW_SLACK_PX;
 }, { passive: true });
-function followNewest(el, force) {
+function followNewest(el, force, instant) {
+  const behavior = instant ? 'auto' : 'smooth';
   if (!el || (!follow && !force)) return;
   ownScrollUntil = performance.now() + OWN_SCROLL_MS;
   if (state.layout === 'window') {
     const box = pb.narration;
-    box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+    box.scrollTo({ top: box.scrollHeight, behavior });
     return;
   }
   const r = el.getBoundingClientRect();
   if (r.bottom <= innerHeight - 16) return;
   ownScrollUntil = performance.now() + OWN_SCROLL_MS;
-  window.scrollBy({ top: r.bottom - innerHeight + 24, behavior: 'smooth' });
+  window.scrollBy({ top: r.bottom - innerHeight + 24, behavior });
 }
 
 render(false);
@@ -566,5 +615,6 @@ document.fonts.ready.then(() => { if (pb) pb.lineEls.filter((el) => !el.hidden).
 window.__balancedStories = {
   state, render, STORIES,
   finishNow: () => finishPlayback(),
+  caption: (i) => { if (pb) showCaption(pb.lineEls[i]); },
   get playback() { return pb && { revealed: pb.revealed, total: pb.lineEls.length, playing: pb.playing, ended: pb.ended, fake: pb.fake }; },
 };
