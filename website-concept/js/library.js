@@ -14,7 +14,7 @@
     { id: 'barista', name: 'Tips From Your Barista', summary: 'Ways to survive your fae coffee shop experience.', genre: 'Fantasy', minutes: null, type: 'anywhere', cover: 'img/barista.jpg' },
     { id: 'crystal', name: 'Crystal of Echoes', summary: 'Multiple paths lead to the same destination, but your choices decide whether you join the Sacred Order, the Merchant Guild or the Shadow Collectors.', genre: 'Adventure', minutes: 25, type: 'anywhere', cover: 'img/crystal-cover.jpg' },
     { id: 'summons', name: 'The Summons', summary: 'A mysterious letter arrives, and a guide called Wren is waiting to show you what it means.', genre: 'Mystery', minutes: null, type: 'anywhere', cover: null },
-    { id: 'knight', name: "The Knight's Quest", summary: 'Ride out on a quest with Sir Wendell, a knight who speaks olde English.', genre: 'Adventure', minutes: null, type: 'anywhere', cover: null }
+    { id: 'knight', name: "The Knight's Quest", summary: 'Ride out with Sir Wendell, a knight who speaks olde English.', genre: 'Adventure', minutes: null, type: 'anywhere', cover: null }
   ];
 
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');

@@ -22,7 +22,7 @@
   menu.addEventListener('click', e => { if (e.target.closest('a')) closeMenu(); });
 
   /* ---------- Cycling word: "Turn any walk into a …" ---------- */
-  const words = ['mystery.', 'mission.', 'quest.', 'heist.', 'haunting.', 'treasure hunt.', 'love story.', 'mystery.'];
+  const words = ['mystery.', 'mission.', 'heist.', 'haunting.', 'treasure hunt.', 'love story.', 'mystery.'];
   const cyc = $('#cycle');
   if (!reduce) {
     let wi = 0;
