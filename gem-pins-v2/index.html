@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=45">
+<link rel="stylesheet" href="app.css?v=46">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -28,6 +28,7 @@
     <button type="button" data-filter-layout="classic" aria-pressed="false">Classic top</button>
     <button type="button" data-filter-layout="inline" aria-pressed="false">Inline legend</button>
     <button type="button" data-filter-layout="disc" aria-pressed="false">Disc colour</button>
+    <button type="button" data-filter-layout="disc-haze" aria-pressed="false">Disc haze</button>
     <button type="button" data-filter-layout="corner" aria-pressed="false">Corner</button>
   </div>
   <p class="layout-note">[more filter layout patterns]</p>
@@ -85,13 +86,34 @@
         </div>
       </div>
     </header>
-    <aside class="corner-stage" id="cornerStage" hidden aria-label="Corner filter">
-      <div class="corner-copy">
-        <p class="corner-title" id="cornerTitle"></p>
-        <p class="corner-note" id="cornerNote"></p>
+    <!-- Corner = own disc copy (does not restyle Disc colour) -->
+    <div class="corner-disc-stage" id="cornerDiscStage" hidden>
+      <svg class="disc-arc" id="cornerDiscArc" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
+        <path
+          class="disc-arc-glow"
+          d="M 68 36 Q 200 112 332 36"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="5"
+          stroke-linecap="round"
+          opacity="0.22"
+        />
+        <path
+          class="disc-arc-tint"
+          d="M 68 36 Q 200 112 332 36"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          opacity="0.92"
+        />
+      </svg>
+      <div class="disc-wheel" id="cornerDiscWheel" role="listbox" aria-label="Filter gems on corner disc"></div>
+      <div class="disc-caption" id="cornerDiscCaption">
+        <p class="disc-title" id="cornerDiscTitle"></p>
+        <p class="disc-note" id="cornerDiscNote"></p>
       </div>
-      <div class="corner-wheel" id="cornerWheel" role="listbox" aria-label="Filter gems"></div>
-    </aside>
+    </div>
     <!-- Tab icons pulled from mobile-rn FloatingTabBar + GemIcon (assets/app-icons/*.tsx) -->
     <nav class="tab-bar" id="tabBar" aria-label="Main">
       <button type="button" class="tab" data-tab="explore" aria-pressed="false">
@@ -185,8 +207,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v45 — Corner filter (disc left alone).</p>
+  <p class="meta">GEM-PINS-V2-v46 — Disc haze + Corner disc copy.</p>
   <script src="../location-gems/corner-ribbon.js?v=36"></script>
-  <script type="module" src="app.js?v=45"></script>
+  <script type="module" src="app.js?v=46"></script>
 </body>
 </html>

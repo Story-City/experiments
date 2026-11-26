@@ -70,7 +70,29 @@ const FILTER_CATS = [
   { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
   { id: 'curio', label: 'Curiosities', match: ['curio'], art: 'curio' },
 ];
-const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc', 'corner'];
+const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc', 'disc-haze', 'corner'];
+const isTopDiscLayout = () => filterLayout === 'disc' || filterLayout === 'disc-haze';
+const isCornerDiscLayout = () => filterLayout === 'corner';
+const usesDiscMotion = () => isTopDiscLayout() || isCornerDiscLayout();
+
+function activeDiscRefs() {
+  if (isCornerDiscLayout()) {
+    return {
+      stage: $('cornerDiscStage'),
+      wheel: $('cornerDiscWheel'),
+      arc: $('cornerDiscArc'),
+      title: $('cornerDiscTitle'),
+      note: $('cornerDiscNote'),
+    };
+  }
+  return {
+    stage: $('discStage'),
+    wheel: $('discWheel'),
+    arc: $('discArc'),
+    title: $('discTitle'),
+    note: $('discNote'),
+  };
+}
 const EXPLAIN_DEFAULT = {
   all: '[every gem nearby]',
   nature: '[explain nature finds]',
@@ -450,21 +472,22 @@ function paintBar() {
   $('filterGbox').classList.toggle('is-layout-classic', filterLayout === 'classic');
   $('filterGbox').classList.toggle('is-layout-inline', filterLayout === 'inline');
   $('filterGbox').classList.toggle('is-layout-disc', filterLayout === 'disc');
+  $('filterGbox').classList.toggle('is-layout-disc-haze', filterLayout === 'disc-haze');
   $('filterGbox').classList.toggle('is-layout-corner', filterLayout === 'corner');
   $('filterBtn').hidden = !showToggle;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
   nearby.textContent = displayCopy(btnCopy('nearby'));
   nearbyRow.hidden = filterOn || !showToggle;
   $('nearbyIco').innerHTML = gemSvg(PUBLIC_GEM_FILL);
-  const isDisc = filterLayout === 'disc';
-  const isCorner = filterLayout === 'corner';
-  $('rollerWrap').hidden = !rollerVisible || isDisc || isCorner;
+  const topDisc = isTopDiscLayout();
+  const cornerDisc = isCornerDiscLayout();
+  $('rollerWrap').hidden = !rollerVisible || topDisc || cornerDisc;
   const discStage = $('discStage');
-  if (discStage) discStage.hidden = !isDisc;
-  const cornerStage = $('cornerStage');
-  if (cornerStage) cornerStage.hidden = !isCorner;
+  if (discStage) discStage.hidden = !topDisc;
+  const cornerStage = $('cornerDiscStage');
+  if (cornerStage) cornerStage.hidden = !cornerDisc;
   /* Disc: no separate legend — title sits under the selected gem on the arc */
-  const showLegend = !isDisc && !isCorner && (filterOn || filterLayout === 'inline' || filterLayout === 'always');
+  const showLegend = !topDisc && !cornerDisc && (filterOn || filterLayout === 'inline' || filterLayout === 'always');
   legend.hidden = !showLegend;
   const list = stops();
   const stop = list.find((x) => x.id === stopId) || list[0];
@@ -487,18 +510,13 @@ function paintBar() {
     const lab = list.find((x) => x.id === b.dataset.stop);
     if (lab) b.setAttribute('aria-label', lab.label);
   }
-  if (isDisc) paintDiscAngle(discAngle);
-  if (isCorner) paintCorner();
+  if (usesDiscMotion()) paintDiscAngle(discAngle);
   $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
 
 function centerStop(id, smooth) {
-  if (filterLayout === 'disc') {
+  if (usesDiscMotion()) {
     snapDiscTo(id, !!smooth);
-    return;
-  }
-  if (filterLayout === 'corner') {
-    paintCorner();
     return;
   }
   const b = $('roller').querySelector(`[data-stop="${id}"]`);
@@ -553,10 +571,7 @@ function discPointOnArc(t) {
 }
 
 function paintDiscAngle(angle) {
-  const wheel = $('discWheel');
-  const stage = $('discStage');
-  const titleEl = $('discTitle');
-  const noteEl = $('discNote');
+  const { stage, wheel, arc, title: titleEl, note: noteEl } = activeDiscRefs();
   if (!wheel) return;
   const list = stops();
   const n = list.length || 1;
@@ -589,7 +604,6 @@ function paintDiscAngle(angle) {
       stage.style.setProperty('--disc-tint', tint);
       stage.style.color = tint;
     }
-    const arc = $('discArc');
     if (arc) {
       arc.style.color = tint;
       arc.style.setProperty('--disc-tint', tint);
@@ -683,11 +697,9 @@ function fillRoller() {
     roller.append(b);
   }
   fillDiscWheel();
-  fillCornerWheel();
 }
 
-function fillCornerWheel() {
-  const wheel = $('cornerWheel');
+function fillOneDiscWheel(wheel) {
   if (!wheel) return;
   wheel.replaceChildren();
   for (const stop of stops()) {
@@ -697,59 +709,25 @@ function fillCornerWheel() {
     b.setAttribute('role', 'option');
     b.setAttribute('aria-label', stop.label);
     b.innerHTML = pinFor(sampleFor(stop.id));
-    b.addEventListener('click', (e) => {
-      e.stopPropagation();
-      pickStop(stop.id);
-    });
     wheel.append(b);
-  }
-  paintCorner();
-}
-
-function paintCorner() {
-  const stage = $('cornerStage');
-  const wheel = $('cornerWheel');
-  const title = $('cornerTitle');
-  if (!stage || !wheel) return;
-  const list = stops();
-  const stop = list.find((x) => x.id === stopId) || list[0];
-  if (title) title.textContent = stop ? stop.label : '';
-  const note = $('cornerNote');
-  if (note) {
-    const text = stop ? explainOf(stop.id) : '';
-    note.textContent = text;
-    note.hidden = !text;
-  }
-  for (const b of wheel.querySelectorAll('button')) {
-    const on = b.dataset.stop === stopId;
-    b.setAttribute('aria-selected', String(on));
-    b.classList.toggle('is-on', on);
   }
 }
 
 function fillDiscWheel() {
-  const wheel = $('discWheel');
-  if (!wheel) return;
-  wheel.replaceChildren();
-  for (const stop of stops()) {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.dataset.stop = stop.id;
-    b.setAttribute('role', 'option');
-    b.setAttribute('aria-label', stop.label);
-    b.innerHTML = pinFor(sampleFor(stop.id));
-    wheel.append(b);
-  }
+  fillOneDiscWheel($('discWheel'));
+  fillOneDiscWheel($('cornerDiscWheel'));
   discAngle = discAngleForIndex(Math.max(0, stops().findIndex((s) => s.id === stopId)), stops().length);
   paintDiscAngle(discAngle);
 }
 
-function bindDiscWheel() {
-  const stage = $('discStage');
-  if (!stage) return;
+function bindOneDiscStage(stage) {
+  if (!stage || stage.dataset.discBound === '1') return;
+  stage.dataset.discBound = '1';
   let drag = null;
   stage.addEventListener('pointerdown', (e) => {
-    if (filterLayout !== 'disc') return;
+    if (!usesDiscMotion()) return;
+    if (isCornerDiscLayout() && stage.id !== 'cornerDiscStage') return;
+    if (isTopDiscLayout() && stage.id !== 'discStage') return;
     cancelAnimationFrame(discAnim);
     discAnim = 0;
     const btn = e.target.closest('button[data-stop]');
@@ -764,7 +742,9 @@ function bindDiscWheel() {
     try { stage.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
   });
   stage.addEventListener('pointermove', (e) => {
-    if (!drag || drag.id !== e.pointerId || filterLayout !== 'disc') return;
+    if (!drag || drag.id !== e.pointerId || !usesDiscMotion()) return;
+    if (isCornerDiscLayout() && stage.id !== 'cornerDiscStage') return;
+    if (isTopDiscLayout() && stage.id !== 'discStage') return;
     const dx = e.clientX - drag.x;
     if (Math.abs(dx) > 4) drag.moved = true;
     if (!drag.moved) return;
@@ -788,7 +768,9 @@ function bindDiscWheel() {
     const { moved, btn } = drag;
     drag = null;
     discDragAngle = null;
-    if (filterLayout !== 'disc') return;
+    if (!usesDiscMotion()) return;
+    if (isCornerDiscLayout() && stage.id !== 'cornerDiscStage') return;
+    if (isTopDiscLayout() && stage.id !== 'discStage') return;
     if (!moved && btn && btn.dataset.stop) {
       pickStop(btn.dataset.stop);
       snapDiscTo(btn.dataset.stop, true);
@@ -799,7 +781,9 @@ function bindDiscWheel() {
   stage.addEventListener('pointerup', endDrag);
   stage.addEventListener('pointercancel', endDrag);
   stage.addEventListener('wheel', (e) => {
-    if (filterLayout !== 'disc') return;
+    if (!usesDiscMotion()) return;
+    if (isCornerDiscLayout() && stage.id !== 'cornerDiscStage') return;
+    if (isTopDiscLayout() && stage.id !== 'discStage') return;
     e.preventDefault();
     cancelAnimationFrame(discAnim);
     discAnim = 0;
@@ -809,6 +793,11 @@ function bindDiscWheel() {
     clearTimeout(stage._discWheelSnap);
     stage._discWheelSnap = setTimeout(() => commitDiscNearest(true), 90);
   }, { passive: false });
+}
+
+function bindDiscWheel() {
+  bindOneDiscStage($('discStage'));
+  bindOneDiscStage($('cornerDiscStage'));
 }
 
 function bindRoller() {
