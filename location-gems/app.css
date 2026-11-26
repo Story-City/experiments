@@ -366,7 +366,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .snapshot-section {
   position: relative;
   margin-bottom: 0;
-  overflow: hidden;
+  overflow: visible;
+  min-height: 1px;
+  transition: background 220ms var(--ease-out, ease), box-shadow 220ms ease;
+}
+.hub.is-page-anchor-preview .snapshot-section {
+  opacity: 1 !important;
+  z-index: 5;
 }
 .snapshot-section[data-page-anchor]:not([data-page-anchor="camera"]) .arc-stage {
   display: none;
@@ -375,8 +381,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .snapshot-section[data-page-anchor="haze"] .tagline-block,
 .snapshot-section[data-page-anchor="outline"] .tagline-block,
 .snapshot-section[data-page-anchor="yellow"] .tagline-block {
-  padding-top: 18px;
-  padding-bottom: 8px;
+  padding-top: 22px;
+  padding-bottom: 14px;
 }
 .page-anchor-haze,
 .page-anchor-outline {
@@ -386,14 +392,15 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .snapshot-section[data-page-anchor="haze"] .page-anchor-haze {
   display: block;
   position: absolute;
-  left: -8%;
-  right: -8%;
-  top: -28%;
-  height: 120%;
+  left: -12%;
+  right: -12%;
+  top: -12px;
+  height: calc(100% + 36px);
   z-index: 0;
+  border-radius: 24px;
   background:
-    radial-gradient(ellipse 90% 70% at 50% 0%, color-mix(in srgb, var(--brand-accent) 34%, transparent) 0%, transparent 62%),
-    radial-gradient(ellipse 70% 50% at 50% 18%, rgba(255, 255, 255, 0.1) 0%, transparent 55%);
+    radial-gradient(ellipse 95% 85% at 50% 0%, color-mix(in srgb, var(--brand-accent) 48%, transparent) 0%, transparent 70%),
+    radial-gradient(ellipse 70% 55% at 50% 30%, rgba(255, 255, 255, 0.16) 0%, transparent 60%);
   animation: pageAnchorHaze 4.8s ease-in-out infinite alternate;
 }
 .snapshot-section[data-page-anchor="outline"] .page-anchor-outline {
@@ -401,32 +408,37 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   position: absolute;
   left: 0;
   right: 0;
-  top: 4px;
-  height: 72px;
+  top: 0;
+  height: 88px;
   z-index: 0;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  opacity: 0.55;
+  gap: 22px;
 }
 .page-anchor-outline .page-anchor-gem {
-  width: 36px;
-  height: 36px;
-  opacity: 0.35;
+  width: 42px;
+  height: 42px;
+  opacity: 0.55;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--brand-accent) 55%, transparent));
   animation: pageAnchorOutline 5.6s ease-in-out infinite;
 }
-.page-anchor-outline .page-anchor-gem:nth-child(2) { animation-delay: 0.9s; width: 44px; height: 44px; }
+.page-anchor-outline .page-anchor-gem:nth-child(2) { animation-delay: 0.9s; width: 52px; height: 52px; }
 .page-anchor-outline .page-anchor-gem:nth-child(3) { animation-delay: 1.8s; }
 .snapshot-section[data-page-anchor="yellow"] {
+  border-radius: 20px;
   background:
-    radial-gradient(ellipse 100% 80% at 50% -10%, color-mix(in srgb, #ffc448 28%, transparent) 0%, transparent 58%);
+    radial-gradient(ellipse 110% 90% at 50% -8%, color-mix(in srgb, #ffc448 42%, transparent) 0%, transparent 62%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #ffc448 35%, transparent);
 }
-.snapshot-section[data-page-anchor="yellow"] .title-prefix,
-.snapshot-section[data-page-anchor="yellow"] .rotating-line {
+.snapshot-section[data-page-anchor="yellow"] .title-prefix {
   color: #ffe29a;
 }
 .snapshot-section[data-page-anchor="yellow"] .rotating-line {
   color: #ffc448;
+}
+.snapshot-section[data-page-anchor="cta"] {
+  border-radius: 20px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 @keyframes pageAnchorHaze {
   from { opacity: 0.72; transform: scale(1); }

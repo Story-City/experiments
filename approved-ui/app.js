@@ -1,6 +1,6 @@
-/** Approved UI library — APPROVED-UI-v27
+/** Approved UI library — APPROVED-UI-v28
  * Tools + opens location-gems edition-rail (same Look/Move tools). Page anchor + gem-pins.
- * GEM-CAT-SELECTOR-v22 · PAGE-ANCHOR-v1 · LOCATION-GEMS tools=1
+ * GEM-CAT-SELECTOR-v22 · PAGE-ANCHOR-v2 · LOCATION-GEMS tools=1
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -220,8 +220,8 @@ const ELEMENT_DEFS = [
   {
     id: 'page-anchor',
     title: 'Page anchor',
-    source: 'location-gems hub top · PAGE-ANCHOR-v1',
-    ux: 'When: top of gems hub. Default CTA has no camera and no arc; places use Brad’s roller. Debug: Camera · Haze · Outline · Yellow. Try: switch anchors.',
+    source: 'location-gems hub top · PAGE-ANCHOR-v2',
+    ux: 'When: top of gems hub. Original keeps camera + arc. CTA / Haze / Outline / Yellow are alternates; places use Brad’s roller. Try: switch anchors.',
     stage: 'page-anchor',
     mount: mountPageAnchor,
   },
@@ -304,7 +304,7 @@ const toolsPlus = document.getElementById('toolsPlus');
 const toolsDrawer = document.getElementById('toolsDrawer');
 const toolsDrawerClose = document.getElementById('toolsDrawerClose');
 const toolsFrame = document.getElementById('toolsFrame');
-const LOOK_TOOLS_SRC = '../location-gems/?tools=1&v=115';
+const LOOK_TOOLS_SRC = '../location-gems/?tools=1&v=116';
 /** Local Look snapshot — filled by location-gems tools iframe postMessage */
 let lookTools = {
   accent: '#00c2ff',
@@ -1609,18 +1609,18 @@ const PAGE_ANCHOR_ROTATE_MS = 2200;
 function mountPageAnchor(stage, actions) {
   const host = document.createElement('div');
   host.className = 'page-anchor-host';
-  host.dataset.pageAnchor = 'cta';
+  host.dataset.pageAnchor = 'camera';
   host.innerHTML = `
     <div class="page-anchor-haze" aria-hidden="true"></div>
     <div class="page-anchor-outline" aria-hidden="true"></div>
-    <button type="button" class="page-anchor-hero" aria-label="[post a snapshot jam]">
+    <button type="button" class="page-anchor-hero" aria-label="Take a snapshot gem of">
       <div class="page-anchor-arc" aria-hidden="true">
         <div class="page-anchor-cam">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1.2 2H20a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3.8L9 3zm3 4.5A5.5 5.5 0 1 0 17.5 13 5.5 5.5 0 0 0 12 7.5zm0 2A3.5 3.5 0 1 1 8.5 13 3.5 3.5 0 0 1 12 9.5z"/></svg>
         </div>
       </div>
       <div class="page-anchor-copy">
-        <p class="page-anchor-prefix">[post a snapshot jam]</p>
+        <p class="page-anchor-prefix">Take a snapshot gem of</p>
         <div class="page-anchor-reel">
           <p class="page-anchor-roll-line is-idle"><span class="page-anchor-word">a café</span></p>
           <p class="page-anchor-roll-line is-out" hidden></p>
@@ -1631,6 +1631,8 @@ function mountPageAnchor(stage, actions) {
   `;
   stage.appendChild(host);
   const outline = host.querySelector('.page-anchor-outline');
+  const prefix = host.querySelector('.page-anchor-prefix');
+  const hero = host.querySelector('.page-anchor-hero');
   ['#00c2ff', '#ffc448', '#b36bff'].forEach((fill) => {
     const gem = document.createElement('span');
     gem.className = 'page-anchor-gem';
@@ -1646,6 +1648,9 @@ function mountPageAnchor(stage, actions) {
   let busy = false;
   const setAnchor = (id) => {
     host.dataset.pageAnchor = id;
+    const label = id === 'camera' ? 'Take a snapshot gem of' : '[post a snapshot jam]';
+    if (prefix) prefix.textContent = label;
+    if (hero) hero.setAttribute('aria-label', label);
   };
   const roll = () => {
     if (busy || PAGE_ANCHOR_PLACES.length < 2) return;
@@ -1675,8 +1680,8 @@ function mountPageAnchor(stage, actions) {
     () => window.clearInterval(timer),
     { once: true },
   );
-  addPlay(actions, 'CTA', () => setAnchor('cta'));
-  addGhost(actions, 'Camera', () => setAnchor('camera'));
+  addPlay(actions, 'Original', () => setAnchor('camera'));
+  addGhost(actions, 'CTA', () => setAnchor('cta'));
   addGhost(actions, 'Haze', () => setAnchor('haze'));
   addGhost(actions, 'Outline', () => setAnchor('outline'));
   addGhost(actions, 'Yellow', () => setAnchor('yellow'));

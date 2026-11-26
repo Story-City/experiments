@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v115 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v116 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -411,7 +411,7 @@ const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'banner';
-let pageAnchor = 'cta';
+let pageAnchor = 'camera';
 let hubEdition = 'v1';
 let sortCardLook = 'polaroid';
 let placeRollBusy = false;
@@ -1804,17 +1804,30 @@ function fillPageAnchorOutline() {
 }
 
 function setPageAnchor(variant) {
-  const next = PAGE_ANCHOR_VARIANTS.has(variant) ? variant : 'cta';
+  const next = PAGE_ANCHOR_VARIANTS.has(variant) ? variant : 'camera';
   pageAnchor = next;
   if (snapshotSection) snapshotSection.dataset.pageAnchor = next;
-  document.querySelectorAll('[data-page-anchor]').forEach((btn) => {
-    if (!btn.classList.contains('variant-btn')) return;
+  document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
     const on = btn.getAttribute('data-page-anchor') === next;
     btn.classList.toggle('is-on', on);
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
-  if (snapshotPrefix) snapshotPrefix.textContent = '[post a snapshot jam]';
-  if (snapshotBtn) snapshotBtn.setAttribute('aria-label', '[post a snapshot jam]');
+  const originalCopy = 'Take a snapshot gem of';
+  const ctaCopy = '[post a snapshot jam]';
+  const label = next === 'camera' ? originalCopy : ctaCopy;
+  if (snapshotPrefix) snapshotPrefix.textContent = label;
+  if (snapshotBtn) snapshotBtn.setAttribute('aria-label', label);
+  if (!snapshotTip.hidden) dismissTip();
+  if (hub) {
+    hub.classList.add('is-page-anchor-preview');
+    window.clearTimeout(setPageAnchor.previewTimer);
+    setPageAnchor.previewTimer = window.setTimeout(() => {
+      hub.classList.remove('is-page-anchor-preview');
+    }, 2400);
+  }
+  if (snapshotSection) {
+    snapshotSection.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
 }
 
 function tipTargetEl(kind) {
@@ -2503,8 +2516,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v115 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v115 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v116 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v116 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -3698,7 +3711,7 @@ document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
 });
 document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
   btn.addEventListener('click', () => {
-    setPageAnchor(btn.getAttribute('data-page-anchor') || 'cta');
+    setPageAnchor(btn.getAttribute('data-page-anchor') || 'camera');
   });
 });
 document.querySelectorAll('[data-hub-edition]').forEach((btn) => {
