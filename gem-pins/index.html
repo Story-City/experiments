@@ -53,7 +53,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
         <button type="button" data-filter-layout="classic" aria-pressed="false">Classic top</button>
         <button type="button" data-filter-layout="inline" aria-pressed="false">Inline legend</button>
         <button type="button" data-filter-layout="disc" aria-pressed="false">Disc colour</button>
-        <button type="button" data-filter-layout="disc-corner" aria-pressed="false">Disc corner</button>
+        <button type="button" data-filter-layout="corner" aria-pressed="false">Corner</button>
       </div>
       <p class="edition-note">[more filter layout patterns]</p>
     </div>
@@ -224,7 +224,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     const v2 = edition === 'v2';
     document.body.classList.toggle('is-v2', v2);
     if (v2 && frame.dataset.ready !== '1') {
-      frame.src = '../gem-pins-v2/?v=44&embed=1&sheet=' + sheet;
+      frame.src = '../gem-pins-v2/?v=45&embed=1&sheet=' + sheet;
       frame.dataset.ready = '1';
     } else if (v2) {
       showFrame();

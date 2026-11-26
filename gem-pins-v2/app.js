@@ -70,8 +70,7 @@ const FILTER_CATS = [
   { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
   { id: 'curio', label: 'Curiosities', match: ['curio'], art: 'curio' },
 ];
-const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc', 'disc-corner'];
-const isDiscLayout = () => filterLayout === 'disc' || filterLayout === 'disc-corner';
+const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc', 'corner'];
 const EXPLAIN_DEFAULT = {
   all: '[every gem nearby]',
   nature: '[explain nature finds]',
@@ -451,18 +450,21 @@ function paintBar() {
   $('filterGbox').classList.toggle('is-layout-classic', filterLayout === 'classic');
   $('filterGbox').classList.toggle('is-layout-inline', filterLayout === 'inline');
   $('filterGbox').classList.toggle('is-layout-disc', filterLayout === 'disc');
-  $('filterGbox').classList.toggle('is-layout-disc-corner', filterLayout === 'disc-corner');
+  $('filterGbox').classList.toggle('is-layout-corner', filterLayout === 'corner');
   $('filterBtn').hidden = !showToggle;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
   nearby.textContent = displayCopy(btnCopy('nearby'));
   nearbyRow.hidden = filterOn || !showToggle;
   $('nearbyIco').innerHTML = gemSvg(PUBLIC_GEM_FILL);
-  const isDisc = isDiscLayout();
-  $('rollerWrap').hidden = !rollerVisible || isDisc;
+  const isDisc = filterLayout === 'disc';
+  const isCorner = filterLayout === 'corner';
+  $('rollerWrap').hidden = !rollerVisible || isDisc || isCorner;
   const discStage = $('discStage');
   if (discStage) discStage.hidden = !isDisc;
+  const cornerStage = $('cornerStage');
+  if (cornerStage) cornerStage.hidden = !isCorner;
   /* Disc: no separate legend — title sits under the selected gem on the arc */
-  const showLegend = !isDisc && (filterOn || filterLayout === 'inline' || filterLayout === 'always');
+  const showLegend = !isDisc && !isCorner && (filterOn || filterLayout === 'inline' || filterLayout === 'always');
   legend.hidden = !showLegend;
   const list = stops();
   const stop = list.find((x) => x.id === stopId) || list[0];
@@ -486,12 +488,17 @@ function paintBar() {
     if (lab) b.setAttribute('aria-label', lab.label);
   }
   if (isDisc) paintDiscAngle(discAngle);
+  if (isCorner) paintCorner();
   $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
 
 function centerStop(id, smooth) {
-  if (isDiscLayout()) {
+  if (filterLayout === 'disc') {
     snapDiscTo(id, !!smooth);
+    return;
+  }
+  if (filterLayout === 'corner') {
+    paintCorner();
     return;
   }
   const b = $('roller').querySelector(`[data-stop="${id}"]`);
@@ -676,6 +683,48 @@ function fillRoller() {
     roller.append(b);
   }
   fillDiscWheel();
+  fillCornerWheel();
+}
+
+function fillCornerWheel() {
+  const wheel = $('cornerWheel');
+  if (!wheel) return;
+  wheel.replaceChildren();
+  for (const stop of stops()) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.stop = stop.id;
+    b.setAttribute('role', 'option');
+    b.setAttribute('aria-label', stop.label);
+    b.innerHTML = pinFor(sampleFor(stop.id));
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pickStop(stop.id);
+    });
+    wheel.append(b);
+  }
+  paintCorner();
+}
+
+function paintCorner() {
+  const stage = $('cornerStage');
+  const wheel = $('cornerWheel');
+  const title = $('cornerTitle');
+  if (!stage || !wheel) return;
+  const list = stops();
+  const stop = list.find((x) => x.id === stopId) || list[0];
+  if (title) title.textContent = stop ? stop.label : '';
+  const note = $('cornerNote');
+  if (note) {
+    const text = stop ? explainOf(stop.id) : '';
+    note.textContent = text;
+    note.hidden = !text;
+  }
+  for (const b of wheel.querySelectorAll('button')) {
+    const on = b.dataset.stop === stopId;
+    b.setAttribute('aria-selected', String(on));
+    b.classList.toggle('is-on', on);
+  }
 }
 
 function fillDiscWheel() {
@@ -700,7 +749,7 @@ function bindDiscWheel() {
   if (!stage) return;
   let drag = null;
   stage.addEventListener('pointerdown', (e) => {
-    if (!isDiscLayout()) return;
+    if (filterLayout !== 'disc') return;
     cancelAnimationFrame(discAnim);
     discAnim = 0;
     const btn = e.target.closest('button[data-stop]');
@@ -715,7 +764,7 @@ function bindDiscWheel() {
     try { stage.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
   });
   stage.addEventListener('pointermove', (e) => {
-    if (!drag || drag.id !== e.pointerId || !isDiscLayout()) return;
+    if (!drag || drag.id !== e.pointerId || filterLayout !== 'disc') return;
     const dx = e.clientX - drag.x;
     if (Math.abs(dx) > 4) drag.moved = true;
     if (!drag.moved) return;
@@ -739,7 +788,7 @@ function bindDiscWheel() {
     const { moved, btn } = drag;
     drag = null;
     discDragAngle = null;
-    if (!isDiscLayout()) return;
+    if (filterLayout !== 'disc') return;
     if (!moved && btn && btn.dataset.stop) {
       pickStop(btn.dataset.stop);
       snapDiscTo(btn.dataset.stop, true);
@@ -750,7 +799,7 @@ function bindDiscWheel() {
   stage.addEventListener('pointerup', endDrag);
   stage.addEventListener('pointercancel', endDrag);
   stage.addEventListener('wheel', (e) => {
-    if (!isDiscLayout()) return;
+    if (filterLayout !== 'disc') return;
     e.preventDefault();
     cancelAnimationFrame(discAnim);
     discAnim = 0;

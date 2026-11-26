@@ -417,52 +417,81 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .gbox.is-layout-disc .filter-btn,
 .gbox.is-layout-disc .legend { display: none !important; }
 .gbox.is-layout-disc .disc-stage { grid-area: disc; display: block; }
-.gbox:not(.is-layout-disc):not(.is-layout-disc-corner) .disc-stage { display: none !important; }
+.gbox:not(.is-layout-disc) .disc-stage { display: none !important; }
 
-/* Disc corner — same wheel, anchored bottom-right on the map */
-.map-top:has(.is-layout-disc-corner) {
-  inset: 0;
-  padding: 0;
-}
-.gbox.is-layout-disc-corner {
+/* Corner — own control, bottom-right; does not touch Disc */
+.gbox.is-layout-corner .map-bar { display: none !important; }
+.corner-stage {
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-.gbox.is-layout-disc-corner .map-bar {
-  position: absolute;
-  inset: 0;
-  display: block;
-  pointer-events: none;
-}
-.gbox.is-layout-disc-corner .nearby-row,
-.gbox.is-layout-disc-corner .top-roller-slot,
-.gbox.is-layout-disc-corner .filter-btn,
-.gbox.is-layout-disc-corner .legend { display: none !important; }
-.gbox.is-layout-disc-corner .disc-stage {
-  display: block;
-  pointer-events: auto;
-  position: absolute;
-  right: 4px;
+  right: 10px;
   bottom: 88px;
-  left: auto;
-  top: auto;
-  width: 168px;
-  height: 168px;
-  overflow: hidden;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: auto;
 }
-.gbox.is-layout-disc-corner .disc-arc {
-  width: 168px;
-  height: 168px;
-  top: 32px;
-  left: -16px;
+.corner-stage[hidden] { display: none !important; }
+.corner-copy {
+  max-width: 132px;
+  text-align: right;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.75);
+  pointer-events: none;
 }
-.gbox.is-layout-disc-corner .disc-caption {
-  top: 18px;
-  width: min(90%, 140px);
+.corner-title {
+  margin: 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
 }
-.gbox.is-layout-disc-corner .disc-title { font-size: 15px; }
-.gbox.is-layout-disc-corner .disc-note { font-size: 10px; }
+.corner-note {
+  margin: 3px 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.corner-wheel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 18px;
+  background: rgba(23, 12, 53, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+.corner-wheel button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  opacity: 0.72;
+}
+.corner-wheel button img,
+.corner-wheel button .pin-gem,
+.corner-wheel button .cat-gem-art,
+.corner-wheel button svg {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+.corner-wheel button.is-on,
+.corner-wheel button[aria-selected="true"] {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
 .disc-stage {
   position: relative;
   width: 100%;
