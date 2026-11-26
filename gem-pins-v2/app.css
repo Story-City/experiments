@@ -417,7 +417,52 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .gbox.is-layout-disc .filter-btn,
 .gbox.is-layout-disc .legend { display: none !important; }
 .gbox.is-layout-disc .disc-stage { grid-area: disc; display: block; }
-.gbox:not(.is-layout-disc) .disc-stage { display: none !important; }
+.gbox:not(.is-layout-disc):not(.is-layout-disc-corner) .disc-stage { display: none !important; }
+
+/* Disc corner — same wheel, anchored bottom-right on the map */
+.map-top:has(.is-layout-disc-corner) {
+  inset: 0;
+  padding: 0;
+}
+.gbox.is-layout-disc-corner {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.gbox.is-layout-disc-corner .map-bar {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+.gbox.is-layout-disc-corner .nearby-row,
+.gbox.is-layout-disc-corner .top-roller-slot,
+.gbox.is-layout-disc-corner .filter-btn,
+.gbox.is-layout-disc-corner .legend { display: none !important; }
+.gbox.is-layout-disc-corner .disc-stage {
+  display: block;
+  pointer-events: auto;
+  position: absolute;
+  right: 4px;
+  bottom: 88px;
+  left: auto;
+  top: auto;
+  width: 168px;
+  height: 168px;
+  overflow: hidden;
+}
+.gbox.is-layout-disc-corner .disc-arc {
+  width: 168px;
+  height: 168px;
+  top: 32px;
+  left: -16px;
+}
+.gbox.is-layout-disc-corner .disc-caption {
+  top: 18px;
+  width: min(90%, 140px);
+}
+.gbox.is-layout-disc-corner .disc-title { font-size: 15px; }
+.gbox.is-layout-disc-corner .disc-note { font-size: 10px; }
 .disc-stage {
   position: relative;
   width: 100%;
@@ -1077,6 +1122,13 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   align-items: flex-start;
   gap: 4px;
 }
+.slide.is-image .slide-overlay {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 4px;
+}
 .slide-overlay h2 {
   margin: 0;
   color: #fff;
@@ -1086,6 +1138,11 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   letter-spacing: -0.02em;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
 }
+.slide.is-image .slide-overlay h2 {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+}
 .slide-overlay .slide-user {
   color: #fff;
   text-transform: none;
@@ -1093,7 +1150,18 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   font-weight: 700;
   line-height: 1.2;
 }
+.slide.is-image .slide-overlay .slide-user {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
 .slide-info-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 2px; }
+.slide.is-image .slide-info-row {
+  grid-column: 2;
+  grid-row: 2;
+  margin-top: 0;
+  justify-self: end;
+  align-self: center;
+}
 /* Corner = location-gems gem-card: art 52% top-right of the photo */
 .slide-corner {
   position: absolute;

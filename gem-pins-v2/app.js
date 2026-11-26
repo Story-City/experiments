@@ -70,7 +70,8 @@ const FILTER_CATS = [
   { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
   { id: 'curio', label: 'Curiosities', match: ['curio'], art: 'curio' },
 ];
-const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc'];
+const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc', 'disc-corner'];
+const isDiscLayout = () => filterLayout === 'disc' || filterLayout === 'disc-corner';
 const EXPLAIN_DEFAULT = {
   all: '[every gem nearby]',
   nature: '[explain nature finds]',
@@ -184,11 +185,12 @@ for (let tries = 0; PTS.length < 100 && tries < 20000; tries++) {
   const y = 30 + r() * 580;
   if (PTS.every(([a, b]) => Math.hypot(a - x, b - y) > 31)) PTS.push([x, y]);
 }
+/* Keep hidden (private mine). Drop seasonal stars + public uncategorized mine pins. */
 const SPECIAL = [
-  { mine: true, private: true }, { mine: true, private: false }, { liked: true }, { mythical: true },
-  { mine: true, private: true }, { liked: true }, { mine: true, private: false }, { liked: true },
-  { expiring: '2h', left: '2 hours', from: 'Whimsy Walk' }, { seasonal: true },
-  { expiring: '1d', left: '1 day', from: 'challenge' }, { seasonal: true },
+  { mine: true, private: true }, { liked: true }, { mythical: true },
+  { mine: true, private: true }, { liked: true }, { liked: true },
+  { expiring: '2h', left: '2 hours', from: 'Whimsy Walk' },
+  { expiring: '1d', left: '1 day', from: 'challenge' },
 ];
 const order = PTS.map((p, i) => i).sort((a, b) => {
   const d = ([x, y]) => Math.hypot(x - 195, (y - 330) * 0.8);
@@ -449,12 +451,13 @@ function paintBar() {
   $('filterGbox').classList.toggle('is-layout-classic', filterLayout === 'classic');
   $('filterGbox').classList.toggle('is-layout-inline', filterLayout === 'inline');
   $('filterGbox').classList.toggle('is-layout-disc', filterLayout === 'disc');
+  $('filterGbox').classList.toggle('is-layout-disc-corner', filterLayout === 'disc-corner');
   $('filterBtn').hidden = !showToggle;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
   nearby.textContent = displayCopy(btnCopy('nearby'));
   nearbyRow.hidden = filterOn || !showToggle;
   $('nearbyIco').innerHTML = gemSvg(PUBLIC_GEM_FILL);
-  const isDisc = filterLayout === 'disc';
+  const isDisc = isDiscLayout();
   $('rollerWrap').hidden = !rollerVisible || isDisc;
   const discStage = $('discStage');
   if (discStage) discStage.hidden = !isDisc;
@@ -487,7 +490,7 @@ function paintBar() {
 }
 
 function centerStop(id, smooth) {
-  if (filterLayout === 'disc') {
+  if (isDiscLayout()) {
     snapDiscTo(id, !!smooth);
     return;
   }
@@ -697,7 +700,7 @@ function bindDiscWheel() {
   if (!stage) return;
   let drag = null;
   stage.addEventListener('pointerdown', (e) => {
-    if (filterLayout !== 'disc') return;
+    if (!isDiscLayout()) return;
     cancelAnimationFrame(discAnim);
     discAnim = 0;
     const btn = e.target.closest('button[data-stop]');
@@ -712,7 +715,7 @@ function bindDiscWheel() {
     try { stage.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
   });
   stage.addEventListener('pointermove', (e) => {
-    if (!drag || drag.id !== e.pointerId || filterLayout !== 'disc') return;
+    if (!drag || drag.id !== e.pointerId || !isDiscLayout()) return;
     const dx = e.clientX - drag.x;
     if (Math.abs(dx) > 4) drag.moved = true;
     if (!drag.moved) return;
@@ -736,7 +739,7 @@ function bindDiscWheel() {
     const { moved, btn } = drag;
     drag = null;
     discDragAngle = null;
-    if (filterLayout !== 'disc') return;
+    if (!isDiscLayout()) return;
     if (!moved && btn && btn.dataset.stop) {
       pickStop(btn.dataset.stop);
       snapDiscTo(btn.dataset.stop, true);
@@ -747,7 +750,7 @@ function bindDiscWheel() {
   stage.addEventListener('pointerup', endDrag);
   stage.addEventListener('pointercancel', endDrag);
   stage.addEventListener('wheel', (e) => {
-    if (filterLayout !== 'disc') return;
+    if (!isDiscLayout()) return;
     e.preventDefault();
     cancelAnimationFrame(discAnim);
     discAnim = 0;
