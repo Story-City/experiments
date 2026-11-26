@@ -430,14 +430,24 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .gbox.is-layout-disc-haze .top-roller-slot,
 .gbox.is-layout-disc-haze .filter-btn,
 .gbox.is-layout-disc-haze .legend { display: none !important; }
-.gbox.is-layout-disc-haze .disc-stage { grid-area: disc; display: block; }
+.gbox.is-layout-disc-haze .disc-stage {
+  grid-area: disc;
+  display: block;
+  overflow: visible;
+}
 .gbox.is-layout-disc-haze .disc-arc-glow {
-  opacity: 0.12;
-  filter: blur(5px) drop-shadow(0 0 8px color-mix(in srgb, var(--disc-tint) 30%, transparent));
+  opacity: 1;
+  stroke-width: 7;
+  filter:
+    blur(3.5px)
+    drop-shadow(0 0 5px var(--disc-tint))
+    drop-shadow(0 0 14px color-mix(in srgb, var(--disc-tint) 70%, transparent));
 }
 .gbox.is-layout-disc-haze .disc-arc-tint {
-  opacity: 0.4;
-  filter: blur(2.5px);
+  opacity: 0.95;
+  filter:
+    blur(1.2px)
+    drop-shadow(0 0 6px color-mix(in srgb, var(--disc-tint) 60%, transparent));
 }
 
 /* Corner — same disc arc, slight rotate into top-left (Figma); Disc colour untouched */
