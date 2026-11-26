@@ -2261,16 +2261,45 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   --sort-tape-h: calc(var(--sort-tape-w) * 104.335 / 79.1262);
   --sort-tape-overhang: calc(var(--sort-tape-h) * 0.42);
 }
-/* Figma 2853:555 Variant3 — dark indigo polaroid + rotated translucent tape + soft inset */
+/* Figma 2853:555 Variant3 — dark frame + dual shade washes (pickers drive --sort-tint-a/b) */
 .sort-card.is-tinted {
   --sort-tape-overhang: 12px;
-  background: var(--sort-frame, #13123b);
+  background:
+    radial-gradient(
+      ellipse 110% 90% at 0% 100%,
+      color-mix(in srgb, var(--sort-tint-a) 48%, transparent) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 100% 80% at 100% 0%,
+      color-mix(in srgb, var(--sort-tint-b) 42%, transparent) 0%,
+      transparent 55%
+    ),
+    var(--sort-frame, #13123b);
   border-radius: 12px;
   padding: 12px 12px 0;
   box-shadow:
     0 12px 28px rgba(0, 0, 0, 0.45),
-    inset 22px -18px 32px -12px color-mix(in srgb, var(--sort-tint-a) 12%, transparent),
-    inset 0 8px 36px 6px color-mix(in srgb, var(--sort-tint-b) 8%, transparent);
+    inset 20px -16px 30px -8px color-mix(in srgb, var(--sort-tint-a) 52%, transparent),
+    inset -12px 12px 34px -6px color-mix(in srgb, var(--sort-tint-b) 44%, transparent);
+}
+.sort-card.is-tinted .sort-card-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--sort-tint-a) 32%, transparent) 0%,
+      transparent 42%
+    ),
+    linear-gradient(
+      315deg,
+      color-mix(in srgb, var(--sort-tint-b) 28%, transparent) 0%,
+      transparent 44%
+    );
 }
 .sort-card.is-tinted .sort-card-body {
   min-height: 88px;
