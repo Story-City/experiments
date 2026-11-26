@@ -1,5 +1,5 @@
 const V_ = window.CACHE_V || '';
-const { COPY, OPTIONS, DEFAULT_EXPLORE, BOOKERTON, EXPLORER, VERSIONS, STREET, SIGNPOST } = await import(`./data.js${V_}`);
+const { COPY, OPTIONS, DEFAULT_EXPLORE, BOOKERTON, EXPLORER, VERSIONS, STREET } = await import(`./data.js${V_}`);
 const { icon } = await import(`./icons.js${V_}`);
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -221,21 +221,56 @@ function mountB(el) {
 }
 
 /* ---------- C · Map tiles unfog ---------- */
-const MAP_SVG = `<svg class="c-mapsvg" viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true">
-  <rect width="300" height="300" fill="#1f1645"/>
-  <path d="M-10 210 C 60 190, 90 250, 160 230 S 260 170, 310 190 L310 225 C 260 205, 220 265, 160 262 S 60 222, -10 245Z" fill="#1d6f7a" opacity=".85"/>
-  <circle cx="225" cy="70" r="46" fill="#0f6b55" opacity=".9"/><circle cx="60" cy="120" r="22" fill="#0f6b55" opacity=".7"/>
-  <g stroke="#463a7c" stroke-width="7" stroke-linecap="round" fill="none"><path d="M0 100 H300"/><path d="M100 0 V300"/><path d="M200 0 V300"/><path d="M0 160 Q150 140 300 160"/></g>
-  <g stroke="#5a4c96" stroke-width="2" stroke-dasharray="4 5" fill="none"><path d="M30 0 V90"/><path d="M150 110 V300"/><path d="M240 120 H300"/></g>
-  <g fill="#2e2460"><rect x="12" y="12" width="34" height="26" rx="3"/><rect x="112" y="14" width="30" height="40" rx="3"/><rect x="150" y="18" width="38" height="22" rx="3"/>
-  <rect x="120" y="172" width="40" height="22" rx="3"/><rect x="12" y="270" width="40" height="22" rx="3"/><rect x="214" y="268" width="70" height="24" rx="3"/><rect x="112" y="268" width="30" height="24" rx="3"/></g></svg>`;
+// A real street map (OpenStreetMap tiles, darkened and tinted to the app's dark map palette) under one continuous fog bank.
+// Centred on the player only if location is already allowed (never prompts), otherwise the app's own default, downtown Edmonton.
+const MAP_HOME = { lat: 53.5461, lon: -113.4938 };
+const MAP_ZOOM = 16, TILE_PX = 256;
+const TILE_URL = (z, x, y) => `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
+const worldPx = ({ lat, lon }, z) => {
+  const n = TILE_PX * 2 ** z, r = lat * Math.PI / 180;
+  return [(lon + 180) / 360 * n, (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n];
+};
+function drawTiles(box, where) {
+  const w = box.clientWidth, h = box.clientHeight; if (!w) return;
+  const [cx, cy] = worldPx(where, MAP_ZOOM), left = cx - w / 2, top = cy - h / 2;
+  let out = '';
+  for (let tx = Math.floor(left / TILE_PX); tx * TILE_PX < left + w; tx++)
+    for (let ty = Math.floor(top / TILE_PX); ty * TILE_PX < top + h; ty++)
+      out += `<img src="${TILE_URL(MAP_ZOOM, tx, ty)}" alt="" draggable="false" style="left:${Math.round(tx * TILE_PX - left)}px;top:${Math.round(ty * TILE_PX - top)}px">`;
+  box.innerHTML = out;
+}
+const FOG_SVG = `<svg class="c-fogsvg" viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true">
+  <defs>
+    <filter id="cWisp" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".014" numOctaves="4" seed="11"/>
+      <feColorMatrix values="0 0 0 0 1  0 0 0 0 .97  0 0 0 0 1  0 0 0 1.5 -.55"/></filter>
+    <filter id="cSoft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="8"/></filter>
+    <mask id="cMask" maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="300"><rect width="300" height="300" fill="#fff"/>
+      ${OPTIONS.map((o, i) => `<rect class="c-hole" data-hole="${o.id}" x="${(i % 3) * 100 - 10}" y="${Math.floor(i / 3) * 100 - 10}" width="120" height="120" rx="44" fill="#000" filter="url(#cSoft)"/>`).join('')}</mask>
+  </defs>
+  <g mask="url(#cMask)"><rect width="300" height="300" fill="#a99ed6"/><rect class="c-wisp" x="-60" y="-60" width="420" height="420" filter="url(#cWisp)"/>
+    <rect width="300" height="300" fill="url(#cShade)"/></g>
+  <defs><radialGradient id="cShade" cx=".5" cy=".4" r=".75"><stop offset="0" stop-color="#d9d0f6" stop-opacity=".35"/><stop offset="1" stop-color="#6f62a8" stop-opacity=".45"/></radialGradient></defs>
+</svg>`;
 function mountC(el) {
-  el.innerHTML = `<div class="c-map">${MAP_SVG}<div class="c-grid">${OPTIONS.map((o, i) => `<button class="c-tile" data-opt="${o.id}" style="--i:${i}">
-    <span class="c-fog"></span><span class="c-scene">${o.scene}</span><span class="c-lab">${nw(o.label)}</span></button>`).join('')}</div></div>
+  el.innerHTML = `<div class="c-map" id="cMap"><div class="c-tiles" id="cTiles"></div><div class="c-tint"></div>${FOG_SVG}
+    <div class="c-grid">${OPTIONS.map(o => `<button class="c-tile" data-opt="${o.id}" style="--c:${o.color}">
+      <span class="c-pin">${icon(o.id)}</span><span class="c-lab">${nw(o.label)}</span><span class="c-short">${esc(o.short)}</span></button>`).join('')}</div>
+    <span class="c-credit">© OpenStreetMap contributors</span></div>
     <p class="c-count" id="cCount"></p>`;
-  const count = () => { $('#cCount', el).innerHTML = nw(S.picked.length ? `${S.picked.length} of 9 tiles cleared` : 'Your map is under fog. Tap to clear it.'); };
-  syncPressed(el); count();
-  return { update() { syncPressed(el); count(); } };
+  const tiles = $('#cTiles', el);
+  let where = MAP_HOME;
+  const redraw = () => drawTiles(tiles, where);
+  requestAnimationFrame(redraw);
+  new ResizeObserver(redraw).observe(tiles);
+  navigator.permissions?.query({ name: 'geolocation' }).then(p => {
+    if (p.state === 'granted') navigator.geolocation.getCurrentPosition(pos => { where = { lat: pos.coords.latitude, lon: pos.coords.longitude }; redraw(); });
+  }).catch(() => {});
+  const draw = () => {
+    el.querySelectorAll('.c-hole').forEach(h => h.classList.toggle('on', isPicked(h.dataset.hole)));
+    $('#cCount', el).innerHTML = nw(S.picked.length ? `${S.picked.length} of 9 squares cleared` : 'Your map is under fog. Tap to clear it.');
+  };
+  syncPressed(el); draw();
+  return { update() { syncPressed(el); draw(); } };
 }
 
 /* ---------- D · Constellation ---------- */
@@ -568,21 +603,6 @@ function mountM(el) {
   return { update(id, added) { syncPressed(el); draw(); if (added) scene.querySelectorAll(`[data-el="${id}"]`).forEach(e => pulse(e, 'arrive')); } };
 }
 
-/* ---------- N · Signpost ---------- */
-function mountN(el) {
-  el.innerHTML = `<div class="n-scene">${RINGS}<div class="n-post"><span class="n-cap"></span><span class="n-pole"></span>
-      <div class="n-planks" id="nPlanks"></div><span class="n-base"></span></div></div>
-    <div class="chips n-chips">${OPTIONS.map(o => `<button class="chip" data-opt="${o.id}" style="--c:${o.color}">${icon(o.id)}<span>${esc(o.short)}</span></button>`).join('')}</div>`;
-  const planks = $('#nPlanks', el);
-  const draw = newId => {
-    planks.innerHTML = S.picked.length
-      ? S.picked.map((id, i) => `<span class="n-plank ${i % 2 ? 'l' : 'r'} ${id === newId && !RM ? 'new' : ''}" style="--c:${byId[id].color};--t:${((i * 23) % 7) - 3}deg">${icon(id)}<b>${esc(SIGNPOST.planks[id])}</b></span>`).join('')
-      : `<span class="n-plank ghost r">${esc(SIGNPOST.empty)}</span>`;
-  };
-  syncPressed(el); draw();
-  return { update(id, added) { syncPressed(el); draw(added ? id : null); } };
-}
-
-const MOUNTS = { a: mountA, b: mountB, c: mountC, d: mountD, e: mountE, f: mountF, g: mountG, h: mountH, i: mountI, j: mountJ, k: mountK, l: mountL, m: mountM, n: mountN };
+const MOUNTS = { a: mountA, b: mountB, c: mountC, d: mountD, e: mountE, f: mountF, g: mountG, h: mountH, i: mountI, j: mountJ, k: mountK, l: mountL, m: mountM };
 window.__explore = { S, toggle };
 render();

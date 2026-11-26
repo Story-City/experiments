@@ -146,23 +146,27 @@ button:focus-visible{outline:2px solid var(--tq); outline-offset:2px}
 .b-count,.c-count,.j-count{text-align:center; color:var(--muted); font-size:13px; margin:12px 0 0}
 
 /* ---------- C · Map tiles ---------- */
-.c-map{position:relative; width:min(100%, 336px); aspect-ratio:1; margin:0 auto; border-radius:18px; overflow:hidden; border:1px solid var(--line)}
-.c-mapsvg{position:absolute; inset:0; width:100%; height:100%}
+.picker.v-c{display:flex; flex-direction:column}
+.c-map{position:relative; flex:1 0 auto; width:100%; min-height:min(340px, calc(100vw - 36px)); max-height:560px; border-radius:18px; overflow:hidden; border:1px solid var(--line); background:#1E2D4C}
+.c-tiles{position:absolute; inset:0; overflow:hidden; filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.85) saturate(.6)}
+.c-tiles img{position:absolute; width:256px; height:256px; user-select:none}
+.c-tint{position:absolute; inset:0; background:#1E2D4C; mix-blend-mode:color; opacity:.85; pointer-events:none}
+.c-fogsvg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
+.c-hole{opacity:0; transition:opacity .9s ease}
+.c-hole.on{opacity:1}
+.c-wisp{animation:wisp 18s ease-in-out infinite alternate}
+@keyframes wisp{to{transform:translate(40px, 24px)}}
 .c-grid{position:absolute; inset:0; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr)}
-.c-tile{position:relative; border:0; background:none; padding:0; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:flex-end}
-.c-tile + .c-tile{box-shadow:inset 1px 0 rgba(255,255,255,.04)}
-.c-fog{position:absolute; inset:-6px; background:
-  radial-gradient(60% 50% at 30% 35%, rgba(222,214,248,.95), transparent 70%),
-  radial-gradient(55% 45% at 75% 60%, rgba(200,190,236,.92), transparent 70%),
-  radial-gradient(70% 60% at 50% 90%, rgba(176,166,220,.95), transparent 75%),
-  linear-gradient(#a99ed6, #8f84c2);
-  transition:opacity .7s ease, transform .9s ease; animation:drift 8s ease-in-out infinite alternate; animation-delay:calc(var(--i) * -0.9s)}
-@keyframes drift{to{background-position:8px 4px, -6px 3px, 4px -5px, 0 0}}
-.c-tile.on .c-fog{opacity:0; transform:scale(1.4)}
-.c-scene{position:absolute; top:24%; left:50%; transform:translateX(-50%) scale(.3); font-size:30px; opacity:0; transition:all .45s cubic-bezier(.3,1.6,.5,1) .15s; filter:drop-shadow(0 0 8px rgba(51,199,209,.6))}
-.c-tile.on .c-scene{opacity:1; transform:translateX(-50%) scale(1)}
-.c-lab{position:relative; margin:0 5px 7px; font-size:11.5px; line-height:1.2; font-weight:700; color:#2a1f55; text-align:center}
-.c-tile.on .c-lab{color:var(--text); background:rgba(23,12,53,.75); border-radius:8px; padding:3px 6px; font-weight:500; box-shadow:0 0 0 1px rgba(51,199,209,.5)}
+.c-tile{position:relative; border:0; background:none; padding:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
+.c-lab{font-size:15.5px; line-height:1.22; font-weight:700; color:#2a1f55; text-shadow:0 0 10px rgba(235,230,255,.8); transition:opacity .35s}
+.c-tile.on .c-lab{opacity:0}
+.c-pin,.c-short{position:absolute; left:50%; opacity:0; transition:opacity .4s .25s, transform .45s cubic-bezier(.3,1.6,.5,1) .25s}
+.c-pin{top:calc(50% - 30px); width:34px; height:34px; margin-left:-17px; border-radius:50%; background:#241b46; border:2px solid var(--c); display:flex; align-items:center; justify-content:center; font-size:16px;
+  box-shadow:0 0 12px color-mix(in srgb, var(--c) 60%, transparent); transform:scale(.3)}
+.c-short{top:calc(50% + 10px); transform:translateX(-50%) translateY(6px); white-space:nowrap; font-size:12.5px; font-weight:700; color:var(--text); background:rgba(16,5,46,.85); border-radius:9px; padding:3px 8px; box-shadow:0 0 0 1px color-mix(in srgb, var(--c) 60%, transparent)}
+.c-tile.on .c-pin{opacity:1; transform:none}
+.c-tile.on .c-short{opacity:1; transform:translateX(-50%)}
+.c-credit{position:absolute; right:6px; bottom:4px; font-size:9px; color:rgba(255,255,255,.75); text-shadow:0 0 3px #000; pointer-events:none}
 
 /* ---------- D · Constellation ---------- */
 .d-sky{position:relative; flex:1; width:100%; min-height:min(340px, 92vw); max-height:560px; margin:0 auto; border-radius:20px; border:1px solid var(--line); overflow:hidden;
@@ -391,7 +395,7 @@ button:focus-visible{outline:2px solid var(--tq); outline-offset:2px}
 .l-chips .chip{font-size:13px; padding:0 11px}
 
 /* ---------- J · Living street ---------- */
-.picker.v-m,.picker.v-n{display:flex; flex-direction:column}
+.picker.v-m{display:flex; flex-direction:column}
 .m-scene{position:relative; flex:1 0 230px; border-radius:18px; overflow:hidden; border:1px solid var(--line); background:linear-gradient(#10052E, #2a1f5c 70%); box-shadow:inset 0 0 30px rgba(0,158,255,.12)}
 .m-stage{position:absolute; left:0; right:0; bottom:0; aspect-ratio:360/300}
 .m-bg{position:absolute; inset:0; width:100%; height:100%}
@@ -420,33 +424,14 @@ button:focus-visible{outline:2px solid var(--tq); outline-offset:2px}
 .m-fog{position:absolute; inset:0; background:radial-gradient(circle at 50% 90%, transparent 0 15%, rgba(150,128,214,.28) 32%, rgba(170,152,226,.6) 75%)}
 .has-fog [data-el="fog"]{transform:none}
 .m-cap{text-align:center; font-size:13.5px; margin:10px 0 8px; line-height:1.35; min-height:38px}
-.m-chips,.n-chips{flex:none; justify-content:center; gap:6px}
-.m-chips .chip,.n-chips .chip{font-size:13px; padding:0 10px}
+.m-chips{flex:none; justify-content:center; gap:6px}
+.m-chips .chip{font-size:13px; padding:0 10px}
 .arrive{animation:arrive .5s cubic-bezier(.3,1.6,.5,1)}
 @keyframes arrive{from{transform:scale(.3)}}
 
-/* ---------- K · Signpost ---------- */
-.n-scene{position:relative; flex:1 0 auto; min-height:240px; margin-bottom:12px; border-radius:18px; overflow:hidden; border:1px solid var(--line);
-  background:linear-gradient(transparent calc(100% - 26px), #1f1748 calc(100% - 26px)), radial-gradient(120% 80% at 50% 0%, #2a1a66, #10052E)}
-.n-scene .rings{left:auto; right:0; transform:scaleX(-1)}
-.n-post{position:relative; min-height:100%; padding:26px 0 40px}
-.n-pole{position:absolute; left:50%; top:20px; bottom:16px; width:12px; margin-left:-6px; background:linear-gradient(90deg, #6b5fa0 50%, #4a3c86 50%); border-radius:3px}
-.n-cap{position:absolute; left:50%; top:10px; width:22px; height:16px; margin-left:-11px; background:#ffc861; border-radius:11px 11px 3px 3px; box-shadow:0 0 14px rgba(255,200,97,.6)}
-.n-base{position:absolute; left:50%; bottom:12px; width:64px; height:10px; margin-left:-32px; border-radius:50%; background:#0d0720; opacity:.7}
-.n-planks{position:relative; z-index:1; display:flex; flex-direction:column; gap:7px}
-.n-plank{height:32px; display:inline-flex; align-items:center; gap:7px; font-family:var(--serif); font-weight:500; font-size:13.5px; white-space:nowrap; width:max-content;
-  background:linear-gradient(180deg, color-mix(in srgb, var(--c) 34%, #2e2458), color-mix(in srgb, var(--c) 22%, #241b46)); box-shadow:inset 0 1px rgba(255,255,255,.18), inset 0 -2px rgba(0,0,0,.25);
-  transform:rotate(var(--t)); filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}
-.n-plank b{font-weight:500}
-.n-plank.r{margin-left:calc(50% - 20px); padding:0 22px 0 12px; clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%)}
-.n-plank.l{margin-left:auto; margin-right:calc(50% - 20px); padding:0 12px 0 22px; flex-direction:row-reverse; clip-path:polygon(14px 0, 100% 0, 100% 100%, 14px 100%, 0 50%)}
-.n-plank.ghost{--c:#6b5fa0; color:var(--muted); font-style:italic}
-.n-plank.new{animation:swing .55s cubic-bezier(.3,1.5,.5,1)}
-@keyframes swing{from{opacity:0; transform:translateY(-14px) rotate(calc(var(--t) - 22deg))}}
-
 @media (max-width:380px){
-  .m-chips .chip,.n-chips .chip{font-size:12.5px; padding:0 8px; gap:4px}
-  .m-chips,.n-chips{gap:5px}
+  .m-chips .chip{font-size:12.5px; padding:0 8px; gap:4px}
+  .m-chips{gap:5px}
 }
 
 /* ---------- small phones ---------- */

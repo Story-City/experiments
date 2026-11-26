@@ -1,7 +1,7 @@
 // All copy for the explore picker lives here. Each line is a one-line edit.
 
 export const COPY = {
-  pageTitle: 'Explore picker · 11 ways to pick',
+  pageTitle: 'Explore picker · 10 ways to pick',
   stepLabel: 'Step 2 of 3',
   // Heading options, switched with 1–4 in the bar (?h=1…4)
   titles: ['How do you like to explore?', 'How would you like to explore?', 'How can we help you explore?', 'How do you want to explore?'],
@@ -85,7 +85,7 @@ export const EXPLORER = {
 };
 
 // The versions of the picking mechanic. hint = one line inside the phone (false = no subhead); why / risk = the note under the switcher.
-// Ruled out 25 Nov (Melissa): Pack your bag, Bubbles, Trail of lanterns. Letters are re-assigned in order.
+// Ruled out 25 Nov (Melissa): Pack your bag, Bubbles, Trail of lanterns, Signpost. Letters are re-assigned in order.
 export const VERSIONS = [
   { key: 'a', name: 'Card shuffle',      hint: false,
     why: 'Physical, tactile and quick; the hand makes choices feel owned.', risk: 'Nine text cards is a lot to read on a couch.' },
@@ -105,11 +105,9 @@ export const VERSIONS = [
     why: 'The changing brew colour makes every pick visible.', risk: 'Whimsy may hide the practical choices.' },
   { key: 'l', name: 'Explorer card',     hint: 'Tap to add badges to your card.',
     why: 'An identity reveal people want to screenshot and share.', risk: 'Funny titles can misfire on odd combos.' },
-  // Added 25 Nov from the competitor research: live preview (Headspace, Pokémon GO avatar) and wayfinding.
+  // Added 25 Nov from the competitor research: live preview (Headspace, Pokémon GO avatar).
   { key: 'm', name: 'Living street',     hint: 'Each pick changes your street. Tap all that fit.',
     why: 'The most literal take on "each answer changes what you see"; it previews the home map.', risk: 'A busy scene can hide which pick did what.' },
-  { key: 'n', name: 'Signpost',          hint: 'Each pick adds a direction to your signpost.',
-    why: 'Wayfinding is the brand; the finished post reads like a plan for tomorrow.', risk: 'Nine planks get tall on small phones.' },
 ];
 
 // Living street (version J): the caption under the scene
@@ -117,13 +115,4 @@ export const STREET = {
   label: 'Your street',
   empty: 'A quiet street. Pick what you want to find on it.',
   stepGoal: '0 / 6,000 steps',
-};
-
-// Signpost (version K): one plank name per option
-export const SIGNPOST = {
-  empty: 'Which way?',
-  planks: {
-    stories: 'Story Lane', gems: 'Hidden Gem Alley', steps: 'Step Goal Street', fog: 'Foggy Hollow',
-    daily: 'Tiny Adventure Way', together: 'Friends Crossing', city: 'New City Road', treadmill: 'Indoor Track', puzzles: 'Puzzle Square',
-  },
 };
