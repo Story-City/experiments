@@ -172,6 +172,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   object-fit: contain;
   overflow: visible;
   pointer-events: none;
+  filter: brightness(0) invert(1);
 }
 .legend-ico .pin-gem,
 .legend-ico .pin-gem-wrap,
@@ -419,7 +420,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .gbox.is-layout-disc .disc-stage { grid-area: disc; display: block; }
 .gbox:not(.is-layout-disc):not(.is-layout-disc-haze) .disc-stage { display: none !important; }
 
-/* Disc haze — same size as Disc colour; subtle soft glow; hard mask fully cleared */
+/* Disc haze — Disc colour as-is, only lower intensity + slight blur */
 .gbox.is-layout-disc-haze .map-bar {
   position: relative;
   grid-template-columns: minmax(0, 1fr);
@@ -431,23 +432,14 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .gbox.is-layout-disc-haze .top-roller-slot,
 .gbox.is-layout-disc-haze .filter-btn,
 .gbox.is-layout-disc-haze .legend { display: none !important; }
-.gbox.is-layout-disc-haze .disc-stage {
-  grid-area: disc;
-  display: block;
-  overflow: visible;
-}
-.gbox.is-layout-disc-haze .disc-arc {
-  -webkit-mask: none !important;
-  mask: none !important;
-  -webkit-mask-image: none !important;
-  mask-image: none !important;
-  overflow: visible;
-}
-.gbox.is-layout-disc-haze .disc-arc-tint { display: none; }
+.gbox.is-layout-disc-haze .disc-stage { grid-area: disc; display: block; }
 .gbox.is-layout-disc-haze .disc-arc-glow {
-  stroke-width: 6;
-  opacity: 0.2;
-  filter: blur(3px);
+  opacity: 0.12;
+  filter: blur(1.5px);
+}
+.gbox.is-layout-disc-haze .disc-arc-tint {
+  opacity: 0.4;
+  filter: blur(0.8px);
 }
 
 /* Corner — same disc arc, slight rotate into top-left (Figma); Disc colour untouched */

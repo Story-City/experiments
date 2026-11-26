@@ -65,7 +65,7 @@
   },
   {
     "slug": "gem-pins",
-    "path": "gem-pins/?v=48",
+    "path": "gem-pins/?v=49",
     "area": "gems",
     "frame": "wide",
     "title": "Gem map pins",
@@ -81,7 +81,7 @@
   },
   {
     "slug": "gem-pins-v2",
-    "path": "gem-pins-v2/?v=48",
+    "path": "gem-pins-v2/?v=49",
     "area": "gems",
     "title": "Gem map pins V2",
     "what": "Victoria's gem art on Melissa's Edmonton map. Filter turns the top bar into a legend plus a gem roller. Slide-outs: Melissa original, Prompt, Image, Corner. Navigate and save for later stay on the Victoria versions.",
@@ -122,7 +122,7 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=27",
+    "path": "approved-ui/?v=28",
     "area": "design",
     "frame": "wide",
     "title": "Approved UI library",
@@ -162,7 +162,7 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=115",
+    "path": "location-gems/?v=116",
     "area": "gems",
     "title": "Location Gems hub",
     "what": "Page anchor CTAs (no camera/arc, haze, outline, yellow) + roller places. Rarity + sort hub.",
