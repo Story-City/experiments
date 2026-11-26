@@ -1,5 +1,6 @@
 const V_ = window.CACHE_V || '';
-const { COPY, OPTIONS, DEFAULT_EXPLORE, BOOKERTON, EXPLORER, VERSIONS } = await import(`./data.js${V_}`);
+const { COPY, OPTIONS, DEFAULT_EXPLORE, BOOKERTON, EXPLORER, VERSIONS, STREET, SIGNPOST } = await import(`./data.js${V_}`);
+const { icon } = await import(`./icons.js${V_}`);
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const byId = Object.fromEntries(OPTIONS.map(o => [o.id, o]));
@@ -68,6 +69,7 @@ function renderPick(V) {
   $('#continue').addEventListener('click', () => { if (S.picked.length) { S.screen = 'unlock'; render(); } });
   cur = MOUNTS[V.key](picker) || {};
   refreshFoot();
+  if (FIT.has(V.key)) requestAnimationFrame(() => fit(picker));
 }
 
 function refreshFoot() {
@@ -88,8 +90,8 @@ function toggle(id, force) {
 
 function renderUnlock(skipped) {
   const items = skipped
-    ? DEFAULT_EXPLORE.map(d => ({ ...d, color: '#b9b2d9' }))
-    : S.picked.map(id => ({ id, emoji: byId[id].emoji, title: byId[id].unlock, note: byId[id].note, color: byId[id].color }));
+    ? DEFAULT_EXPLORE.map(d => ({ ...d, ico: icon(d.icon), color: '#b9b2d9' }))
+    : S.picked.map(id => ({ id, ico: icon(id), title: byId[id].unlock, note: byId[id].note, color: byId[id].color }));
   const scr = $('#scr');
   scr.innerHTML = `
   <div class="ul">
@@ -99,7 +101,7 @@ function renderUnlock(skipped) {
     <p class="pk-sub">${nw(skipped ? COPY.defaultSub : COPY.unlockSub)}</p>
     <ul class="ul-list ${skipped ? 'is-default' : ''}" id="ulList">
       ${items.map((it, i) => `<li class="ul-card" ${skipped ? 'data-default' : `data-unlock="${it.id}"`} style="--i:${i};--c:${it.color}">
-        <span class="ul-emo">${it.emoji}</span>
+        <span class="ul-emo">${it.ico}</span>
         <span class="ul-txt"><b>${nw(it.title)}</b><span>${nw(it.note)}</span></span>${CHEV}</li>`).join('')}
     </ul>
     <div class="pk-foot"><button class="btn-primary" id="start">${esc(COPY.start)}</button></div>
@@ -113,6 +115,22 @@ function renderUnlock(skipped) {
 }
 
 /* ---------- helpers ---------- */
+// Tall phones: grow the picker's art (via --k) until it fills the space, capped so it never looks blown up.
+const FIT = new Set(['b', 'j']);
+const FIT_MAX = 1.5, FIT_STEP = 0.05;
+function fit(picker) {
+  picker.classList.add('fit-measure');
+  let k = 1;
+  picker.style.setProperty('--k', k);
+  while (k < FIT_MAX) {
+    picker.style.setProperty('--k', k + FIT_STEP);
+    if (picker.scrollHeight > picker.clientHeight) break;
+    k += FIT_STEP;
+  }
+  picker.style.setProperty('--k', k.toFixed(2));
+  picker.classList.remove('fit-measure');
+}
+addEventListener('resize', () => { const p = $('#picker'); if (p && FIT.has(S.v)) fit(p); });
 function syncPressed(root) {
   root.querySelectorAll('[data-opt]').forEach(b => {
     const on = isPicked(b.dataset.opt);
@@ -151,10 +169,10 @@ function mountA(el) {
   const grid = $('#aGrid', el), pile = $('#aPile', el), cap = $('#aCap', el);
   const draw = () => {
     grid.innerHTML = OPTIONS.map(o => isPicked(o.id)
-      ? `<div class="a-slot" data-slot="${o.id}" aria-hidden="true"><span>${o.emoji}</span></div>`
-      : `<button class="a-card" data-opt="${o.id}" aria-pressed="false"><span class="a-emo">${o.emoji}</span><span class="a-lab">${nw(o.label)}</span></button>`).join('');
+      ? `<div class="a-slot" data-slot="${o.id}" aria-hidden="true"><span>${icon(o.id)}</span></div>`
+      : `<button class="a-card" data-opt="${o.id}" aria-pressed="false" style="--c:${o.color}"><span class="a-idx tl" aria-hidden="true">${icon(o.id)}</span><span class="a-idx br" aria-hidden="true">${icon(o.id)}</span><span class="a-emo">${icon(o.id)}</span><span class="a-lab">${nw(o.label)}</span></button>`).join('');
     pile.innerHTML = S.picked.length
-      ? S.picked.map((id, i) => `<button class="a-mini" data-opt="${id}" aria-pressed="true" aria-label="Put back: ${esc(byId[id].label)}" style="--r:${((i * 37) % 13) - 6}deg;--c:${byId[id].color}">${byId[id].emoji}</button>`).join('')
+      ? S.picked.map((id, i) => `<button class="a-mini" data-opt="${id}" aria-pressed="true" aria-label="Put back: ${esc(byId[id].label)}" style="--r:${((i * 37) % 13) - 6}deg;--c:${byId[id].color}">${icon(id)}</button>`).join('')
       : `<div class="a-empty">${nw('Your pile · tap cards to add them')}</div>`;
     cap.innerHTML = S.picked.length ? nw(`${S.picked.length} in your pile · tap one to put it back`) : '';
   };
@@ -165,7 +183,7 @@ function mountA(el) {
       draw();
       if (added) {
         const t = pile.querySelector(`[data-opt="${id}"]`);
-        if (t && !RM) { t.style.visibility = 'hidden'; fly(from, rectOf(t), `<div class="a-flycard"><span>${byId[id].emoji}</span></div>`, { rot: 8 }).then(() => { t.style.visibility = ''; pulse(t, 'land'); }); }
+        if (t && !RM) { t.style.visibility = 'hidden'; fly(from, rectOf(t), `<div class="a-flycard"><span>${icon(id)}</span></div>`, { rot: 8 }).then(() => { t.style.visibility = ''; pulse(t, 'land'); }); }
       } else pulse(grid.querySelector(`[data-opt="${id}"]`));
     },
   };
@@ -290,7 +308,7 @@ function mountF(el) {
       btns.classList.remove('off');
       deck.innerHTML = OPTIONS.slice(idx, idx + 3).map((o, k) => `<div class="f-card ${k === 0 ? 'top' : ''}" style="--k:${k};--c:${o.color}" ${k === 0 ? 'id="fTop"' : ''}>
         <span class="f-stamp yes">YES</span><span class="f-stamp no">NOPE</span>
-        <span class="f-n">${idx + k + 1} of ${OPTIONS.length}</span><span class="f-emo">${o.emoji}</span><b class="f-lab">${nw(o.label)}</b>
+        <span class="f-n">${idx + k + 1} of ${OPTIONS.length}</span><span class="f-emo">${icon(o.id)}</span><b class="f-lab">${nw(o.label)}</b>
         <span class="f-un">Unlocks · ${nw(o.unlock)}</span></div>`).reverse().join('');
       bindSwipe($('#fTop', el));
     }
@@ -298,7 +316,7 @@ function mountF(el) {
   };
   const drawChips = () => {
     chips.innerHTML = S.picked.length
-      ? S.picked.map(id => `<button class="chip on" data-opt="${id}" aria-pressed="true" aria-label="Remove ${esc(byId[id].label)}"><span>${byId[id].emoji}</span><span>${esc(byId[id].short)}</span><span class="x">✕</span></button>`).join('')
+      ? S.picked.map(id => `<button class="chip on" data-opt="${id}" aria-pressed="true" aria-label="Remove ${esc(byId[id].label)}"><span>${icon(id)}</span><span>${esc(byId[id].short)}</span><span class="x">✕</span></button>`).join('')
       : `<span class="f-none">${nw('None yet. Swipe right on what sounds like you.')}</span>`;
   };
   let busy = false;
@@ -344,7 +362,7 @@ const BUB = [[58, 62, 98], [168, 50, 88], [280, 68, 100], [62, 178, 92], [172, 1
 function mountG(el) {
   el.innerHTML = `<div class="g-field">${OPTIONS.map((o, i) => `<button class="g-bub" data-opt="${o.id}" aria-label="${esc(o.label)}"
       style="left:${BUB[i][0]}px;top:${BUB[i][1]}px;--s:${BUB[i][2]}px;--c:${o.color};--d:${(i * 0.53) % 3}s;--t:${5 + (i % 3)}s">
-      <span class="g-in"><span class="g-emo">${o.emoji}</span><span class="g-lab">${esc(o.short)}</span><i class="g-tick">✓</i></span></button>`).join('')}</div>`;
+      <span class="g-in"><span class="g-emo">${icon(o.id)}</span><span class="g-lab">${esc(o.short)}</span><i class="g-tick">✓</i></span></button>`).join('')}</div>`;
   syncPressed(el);
   return { update(id, added) { syncPressed(el); if (added) pulse(el.querySelector(`[data-opt="${id}"] .g-in`), 'boing'); } };
 }
@@ -368,7 +386,7 @@ function mountH(el) {
       <path class="h-light" d="M12 74 V31 Q12 10 30 10 Q48 10 48 31 V74Z"/><circle cx="43" cy="46" r="2.4" fill="#ffc861"/></svg>
       <span class="h-dlab">Tomorrow</span></div>
     ${OPTIONS.map((o, i) => `<button class="h-lan ${i % 2 ? 'r' : 'l'}" data-opt="${o.id}" style="${i % 2 ? `right:${100 - pts[i][0]}%` : `left:${pts[i][0]}%`};top:${pts[i][1]}px">
-      <span class="h-pool"></span>${LANTERN}<span class="h-lab">${o.emoji} ${nw(o.label)}</span></button>`).join('')}
+      <span class="h-pool"></span>${LANTERN}<span class="h-lab">${icon(o.id)} ${nw(o.label)}</span></button>`).join('')}
     <span class="h-you" style="top:${H - 30}px">👣 You, tonight</span></div>`;
   const door = $('#hDoor', el);
   const glow = () => door.style.setProperty('--g', S.picked.length / OPTIONS.length);
@@ -388,12 +406,12 @@ function mountI(el) {
       <div class="i-row me" id="iMeRow" hidden><div class="i-b me" id="iMe"></div></div>
       <div class="i-row bot" id="iReactRow" hidden>${BOOK_AV}<div class="i-b bot" id="iReact"></div></div>
     </div>
-    <div class="i-chips chips">${OPTIONS.map(o => `<button class="chip" data-opt="${o.id}"><span>${o.emoji}</span><span>${esc(o.label)}</span></button>`).join('')}</div>`;
+    <div class="i-chips chips">${OPTIONS.map(o => `<button class="chip" data-opt="${o.id}"><span>${icon(o.id)}</span><span>${esc(o.label)}</span></button>`).join('')}</div>`;
   const chat = $('#iChat', el), me = $('#iMe', el), meRow = $('#iMeRow', el), react = $('#iReact', el), reactRow = $('#iReactRow', el);
   let timer;
   const drawMe = () => {
     meRow.hidden = !S.picked.length;
-    me.innerHTML = S.picked.map(id => `<span class="i-pk">${byId[id].emoji} ${esc(byId[id].short)}</span>`).join('');
+    me.innerHTML = S.picked.map(id => `<span class="i-pk">${icon(id)} ${esc(byId[id].short)}</span>`).join('');
   };
   syncPressed(el); drawMe();
   if (S.picked.length) { reactRow.hidden = false; react.innerHTML = nw(byId[S.picked[S.picked.length - 1]].bookerton); }
@@ -413,8 +431,8 @@ function mountI(el) {
 function mountJ(el) {
   el.innerHTML = `<div class="j-pass"><div class="j-head"><span>Story City</span><span class="j-hc">Explorer passport</span></div>
     <div class="j-grid">${OPTIONS.map((o, i) => `<button class="j-slot" data-opt="${o.id}" style="--c:${o.color};--r:${((i * 41) % 25) - 12}deg">
-      <span class="j-ring"><span class="j-ghost">${o.emoji}</span>
-        <span class="j-stamp"><span class="j-se">${o.emoji}</span><span class="j-sl">${esc(o.short)}</span><span class="j-sd">Today</span></span></span>
+      <span class="j-ring"><span class="j-ghost">${icon(o.id)}</span>
+        <span class="j-stamp"><span class="j-se">${icon(o.id)}</span><span class="j-sl">${esc(o.short)}</span><span class="j-sd">Today</span></span></span>
       <span class="j-lab">${nw(o.label)}</span></button>`).join('')}</div>
     <p class="j-count" id="jCount"></p></div>`;
   const count = () => { $('#jCount', el).innerHTML = nw(S.picked.length ? `${S.picked.length} ${S.picked.length === 1 ? 'stamp' : 'stamps'} on your first page` : 'A blank page, waiting for stamps'); };
@@ -476,11 +494,11 @@ function mountL(el) {
         <span class="l-who"><span class="l-name">${esc(EXPLORER.name)}</span><b class="l-title" id="lTitle"></b><span class="l-meta">${esc(EXPLORER.meta)}</span></span></div>
       <div class="l-badges" id="lBadges"></div></div>
     <p class="l-add">${esc(EXPLORER.addLabel)}</p>
-    <div class="chips l-chips">${OPTIONS.map(o => `<button class="chip" data-opt="${o.id}"><span>${o.emoji}</span><span>${esc(o.label)}</span></button>`).join('')}</div>`;
+    <div class="chips l-chips">${OPTIONS.map(o => `<button class="chip" data-opt="${o.id}"><span>${icon(o.id)}</span><span>${esc(o.label)}</span></button>`).join('')}</div>`;
   const title = $('#lTitle', el), badges = $('#lBadges', el), card = $('#lCard', el);
   const drawBadges = newId => {
     badges.innerHTML = S.picked.length
-      ? S.picked.map(id => `<span class="l-badge ${id === newId && !RM ? 'new' : ''}" style="--c:${byId[id].color}" title="${esc(byId[id].label)}">${byId[id].emoji}</span>`).join('')
+      ? S.picked.map(id => `<span class="l-badge ${id === newId && !RM ? 'new' : ''}" style="--c:${byId[id].color}" title="${esc(byId[id].label)}">${icon(id)}</span>`).join('')
       : `<span class="l-empty">${nw(EXPLORER.emptyBadges)}</span>`;
   };
   title.innerHTML = nw(explorerTitle()); syncPressed(el); drawBadges();
@@ -494,6 +512,64 @@ function mountL(el) {
   };
 }
 
-const MOUNTS = { a: mountA, b: mountB, c: mountC, d: mountD, e: mountE, f: mountF, g: mountG, h: mountH, i: mountI, j: mountJ, k: mountK, l: mountL };
+/* ---------- M · Living street ---------- */
+// Flat vector street in the app's illustration style: night sky with the FTUE's rainbow rings, flat buildings, dashed trail.
+const WALKER = (c, s = '#ffd9b8') => `<svg viewBox="0 0 24 48" aria-hidden="true"><circle cx="12" cy="7" r="5" fill="${s}"/><path d="M6 14h12l2 16h-4l-1 16h-3l-1-12-1 12H7L6 30H4z" fill="${c}"/><path d="M6 14h4l-2 16H4z" fill="#fff" opacity=".18"/></svg>`;
+// The FTUE background's thin rainbow rings, drawn from one corner
+const RINGS = `<svg class="rings" viewBox="0 0 140 140" aria-hidden="true"><g fill="none" stroke-width="1.3"><circle r="70" stroke="#E62828"/><circle r="84" stroke="#F5792F"/><circle r="98" stroke="#F5C907"/><circle r="112" stroke="#64C849"/><circle r="126" stroke="#1FA4F4"/></g></svg>`;
+const STREET_SVG = `<svg class="m-bg" viewBox="0 0 360 300" aria-hidden="true">
+  <defs><linearGradient id="mTrail" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#F5D007"/><stop offset="1" stop-color="#55D85A"/></linearGradient></defs>
+  <g class="m-sky-home" fill="#1d1546"><rect x="0" y="120" width="48" height="110"/><rect x="44" y="96" width="36" height="134"/><rect x="150" y="110" width="60" height="120"/><rect x="250" y="88" width="40" height="142"/><rect x="286" y="124" width="74" height="106"/></g>
+  <g class="m-sky-city" fill="#1d1546"><path d="M24 230V60l6-22 6 22v170z"/><rect x="12" y="120" width="36" height="110"/><path d="M150 230l18-110h4l18 110z"/><rect x="160" y="150" width="20" height="4" fill="#2a1f5c"/><circle cx="268" cy="104" r="22"/><rect x="246" y="104" width="44" height="126"/><path d="M262 82h12l-6-22z"/><rect x="300" y="130" width="60" height="100"/></g>
+  <g fill="#2e2458"><rect x="10" y="150" width="70" height="90" rx="3"/><path d="M8 152l37-24 37 24z"/><rect x="230" y="140" width="80" height="100" rx="3"/><rect x="310" y="168" width="50" height="72" rx="3"/><rect x="86" y="176" width="54" height="64" rx="3"/></g>
+  <g fill="#3b3070"><rect x="22" y="170" width="14" height="16" rx="2"/><rect x="54" y="170" width="14" height="16" rx="2"/><rect x="22" y="200" width="14" height="16" rx="2"/>
+    <rect x="244" y="156" width="16" height="18" rx="2"/><rect x="276" y="156" width="16" height="18" rx="2"/><rect x="244" y="190" width="16" height="18" rx="2"/><rect x="322" y="184" width="12" height="14" rx="2"/><rect x="98" y="190" width="12" height="14" rx="2"/><rect x="118" y="190" width="12" height="14" rx="2"/></g>
+  <rect class="m-window" x="276" y="190" width="16" height="18" rx="2" fill="#5ee0c2"/>
+  <rect x="48" y="214" width="16" height="26" rx="2" fill="#1d1546"/><rect class="m-door" x="48" y="214" width="16" height="26" rx="2" fill="#ff9f6b"/>
+  <rect x="0" y="238" width="360" height="62" fill="#1f1748"/><rect x="0" y="238" width="360" height="4" fill="#3b3070"/>
+  <path class="m-trail" d="M180 300 C 170 272, 120 268, 118 252 S 200 240, 262 244" fill="none" stroke="#6b5fa0" stroke-width="3" stroke-dasharray="5 6" stroke-linecap="round"/>
+  <path class="m-trail-on" d="M180 300 C 170 272, 120 268, 118 252 S 200 240, 262 244" fill="none" stroke="url(#mTrail)" stroke-width="4" stroke-dasharray="5 6" stroke-linecap="round"/>
+</svg>`;
+// where each pick shows up, as % of the 360×300 street drawing
+const STREET_SPOTS = { stories: [12.5, 36], gems: [55, 62], puzzles: [24, 64], daily: [76, 14], treadmill: [80, 56] };
+function mountM(el) {
+  el.innerHTML = `<div class="m-scene" id="mScene">${RINGS}<span class="m-moon"></span><div class="m-stage">${STREET_SVG}
+      ${['stories', 'gems', 'puzzles', 'treadmill'].map(id => `<span class="m-pin" data-el="${id}" style="left:${STREET_SPOTS[id][0]}%;top:${STREET_SPOTS[id][1]}%;--c:${byId[id].color}">${icon(id)}</span>`).join('')}
+      <span class="m-gem2" data-el="gems">${icon('gems')}</span>
+      <span class="m-balloon" data-el="daily" style="left:${STREET_SPOTS.daily[0]}%;top:${STREET_SPOTS.daily[1]}%">${icon('daily')}</span>
+      <span class="m-walkers"><span class="m-friend" data-el="together">${WALKER('#ff8fb1', '#f2c39b')}</span><span class="m-you">${WALKER('#b36bff')}</span></span></div>
+      <div class="m-fog" data-el="fog"></div>
+      <span class="m-steps" data-el="steps">${icon('steps')} ${esc(STREET.stepGoal)}</span>
+      <span class="m-passport" data-el="city">${icon('city')}</span>
+    </div>
+    <p class="m-cap" id="mCap"></p>
+    <div class="chips m-chips">${OPTIONS.map(o => `<button class="chip" data-opt="${o.id}" style="--c:${o.color}">${icon(o.id)}<span>${esc(o.short)}</span></button>`).join('')}</div>`;
+  const scene = $('#mScene', el), cap = $('#mCap', el);
+  const draw = () => {
+    OPTIONS.forEach(o => scene.classList.toggle('has-' + o.id, isPicked(o.id)));
+    cap.innerHTML = S.picked.length
+      ? `<span class="d-nk">${esc(STREET.label)}</span> ${S.picked.map(id => `<span style="white-space:nowrap">${esc(byId[id].short)}</span>`).join(' · ')}`
+      : `<span class="d-nk">${esc(STREET.label)}</span> ${nw(STREET.empty)}`;
+  };
+  syncPressed(el); draw();
+  return { update(id, added) { syncPressed(el); draw(); if (added) scene.querySelectorAll(`[data-el="${id}"]`).forEach(e => pulse(e, 'arrive')); } };
+}
+
+/* ---------- N · Signpost ---------- */
+function mountN(el) {
+  el.innerHTML = `<div class="n-scene">${RINGS}<div class="n-post"><span class="n-cap"></span><span class="n-pole"></span>
+      <div class="n-planks" id="nPlanks"></div><span class="n-base"></span></div></div>
+    <div class="chips n-chips">${OPTIONS.map(o => `<button class="chip" data-opt="${o.id}" style="--c:${o.color}">${icon(o.id)}<span>${esc(o.short)}</span></button>`).join('')}</div>`;
+  const planks = $('#nPlanks', el);
+  const draw = newId => {
+    planks.innerHTML = S.picked.length
+      ? S.picked.map((id, i) => `<span class="n-plank ${i % 2 ? 'l' : 'r'} ${id === newId && !RM ? 'new' : ''}" style="--c:${byId[id].color};--t:${((i * 23) % 7) - 3}deg">${icon(id)}<b>${esc(SIGNPOST.planks[id])}</b></span>`).join('')
+      : `<span class="n-plank ghost r">${esc(SIGNPOST.empty)}</span>`;
+  };
+  syncPressed(el); draw();
+  return { update(id, added) { syncPressed(el); draw(added ? id : null); } };
+}
+
+const MOUNTS = { a: mountA, b: mountB, c: mountC, d: mountD, e: mountE, f: mountF, g: mountG, h: mountH, i: mountI, j: mountJ, k: mountK, l: mountL, m: mountM, n: mountN };
 window.__explore = { S, toggle };
 render();

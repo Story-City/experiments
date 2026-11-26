@@ -1,7 +1,7 @@
 // All copy for the explore picker lives here. Each line is a one-line edit.
 
 export const COPY = {
-  pageTitle: 'Explore picker · 12 ways to pick',
+  pageTitle: 'Explore picker · 11 ways to pick',
   stepLabel: 'Step 2 of 3',
   title: 'How do you like to explore?',
   sub: 'Pick all that apply. Each pick changes what you see next.',
@@ -54,9 +54,9 @@ export const OPTIONS = [
 
 // Shown when the player taps Skip: a plain default Explore.
 export const DEFAULT_EXPLORE = [
-  { emoji: '📚', title: 'Stories near you',  note: 'The most played stories within a short walk.' },
-  { emoji: '🗺️', title: 'Your map in Steps mode', note: 'Switch to Path or Hunt any time.' },
-  { emoji: '⚡', title: 'Mini Missions',     note: 'Quick challenges for a spare ten minutes.' },
+  { icon: 'near', title: 'Stories near you',  note: 'The most played stories within a short walk.' },
+  { icon: 'map', title: 'Your map in Steps mode', note: 'Switch to Path or Hunt any time.' },
+  { icon: 'mini', title: 'Mini Missions',     note: 'Quick challenges for a spare ten minutes.' },
 ];
 
 // Bookerton (version I)
@@ -82,7 +82,7 @@ export const EXPLORER = {
   emptyBadges: 'Badges appear as you pick',
 };
 
-// The 12 versions of the picking mechanic. hint = one line inside the phone; why / risk = the note under the switcher.
+// The versions of the picking mechanic. hint = one line inside the phone; why / risk = the note under the switcher.
 // Ruled out 25 Nov (Melissa): Pack your bag, Bubbles, Trail of lanterns. Letters are re-assigned in order.
 export const VERSIONS = [
   { key: 'a', name: 'Card shuffle',      hint: 'Tap a card to flick it onto your pile.',
@@ -103,4 +103,25 @@ export const VERSIONS = [
     why: 'The changing brew colour makes every pick visible.', risk: 'Whimsy may hide the practical choices.' },
   { key: 'l', name: 'Explorer card',     hint: 'Tap to add badges to your card.',
     why: 'An identity reveal people want to screenshot and share.', risk: 'Funny titles can misfire on odd combos.' },
+  // Added 25 Nov from the competitor research: live preview (Headspace, Pokémon GO avatar) and wayfinding.
+  { key: 'm', name: 'Living street',     hint: 'Each pick changes your street. Tap all that fit.',
+    why: 'The most literal take on "each answer changes what you see"; it previews the home map.', risk: 'A busy scene can hide which pick did what.' },
+  { key: 'n', name: 'Signpost',          hint: 'Each pick adds a direction to your signpost.',
+    why: 'Wayfinding is the brand; the finished post reads like a plan for tomorrow.', risk: 'Nine planks get tall on small phones.' },
 ];
+
+// Living street (version J): the caption under the scene
+export const STREET = {
+  label: 'Your street',
+  empty: 'A quiet street. Pick what you want to find on it.',
+  stepGoal: '0 / 6,000 steps',
+};
+
+// Signpost (version K): one plank name per option
+export const SIGNPOST = {
+  empty: 'Which way?',
+  planks: {
+    stories: 'Story Lane', gems: 'Hidden Gem Alley', steps: 'Step Goal Street', fog: 'Foggy Hollow',
+    daily: 'Tiny Adventure Way', together: 'Friends Crossing', city: 'New City Road', treadmill: 'Indoor Track', puzzles: 'Puzzle Square',
+  },
+};
