@@ -365,19 +365,21 @@
   /* ---------- FAQ as a conversation with the guide ---------- */
   const FAQ = [
     // Answers use only decided facts (BRIEF.md). Anything still open is a { ph } line, shown only in team notes.
+    // Price, friends, data and indoors come first: they were the persona test's four biggest gaps. Price = public App Store listing (Nov 2026).
+    ['How much does it cost?', ['Every story is free for 7 days.', 'After that it\'s $4.99 a month or $34.99 a year (Canadian App Store price; $3.99 or $29.99 in the US).', 'Cancel any time in your phone\'s settings.', { ph: '[Confirm with team: the 7-day trial applies to both plans; Google Play prices]' }]],
+    ['Can I play with friends?', ['Yes, walk it together. Everyone plays the same story on their own phone, so you can compare choices as you go.', 'Or share one phone and decide together.', { ph: '[Confirm with team: a real play-together mode is still an experiment]' }]],
+    ['Do I need data, and does it work offline?', ['You\'ll need a data connection while you play: the story and the map load as you go.', 'There\'s no offline mode yet.', { ph: '[Confirm with team: how much data a typical story uses]' }]],
+    ['Can I play indoors on a rainy day?', ['Play Anywhere stories follow wherever you walk, so a few laps of your own street work.', 'A few stories play at home. In The Dictator\'s Laundromat, you start wherever you do your laundry.', 'A treadmill and indoor step mode is coming soon.']],
     ['Do my steps count?', ['Your steps unlock the next chapter. They only count for moving somewhere new in the story.', 'Choices and puzzles never need steps, so you can stop, think and decide whenever you like.', 'A treadmill and indoor step mode is coming soon.', { ph: '[Confirm with team: do steps from Apple Health / Google Fit or a watch count?]' }]],
     ['Can I play after dark?', ['You can. Use the same sense you would on any evening walk: stick to busy, well-lit streets, go with someone if you can, and keep your eyes up.', 'Choices and puzzles never need steps, so stop somewhere bright to read.', { ph: '[Confirm with team: does the app do anything different after dark, e.g. avoid parks or suggest lit routes?]' }]],
-    ['Can I play from the sofa?', ['You can play the first chapter on this page right where you are.', 'In the app, steps unlock new chapters, so full stories need you on your feet for now. A treadmill and indoor step mode is coming soon.', { ph: '[Confirm with team: can any stories be played as a virtual walk from home today?]' }]],
+    ['Can I play from the sofa?', ['You can play the first chapter on this page right where you are.', 'In the app, steps unlock new chapters, so most stories need you on your feet for now. A treadmill and indoor step mode is coming soon.', { ph: '[Confirm with team: can any stories be played as a virtual walk from home today?]' }]],
     ['How far do I have to walk?', ['You choose. Every story shows how long it takes before you start, from a quick coffee-run story to a long Sunday wander.', 'And you can stop whenever you like.', { ph: '[Confirm with team: is your place saved if you stop mid-story?]' }]],
     ['Do I have to go somewhere special?', ['Nope. Play Anywhere stories place themselves on the streets around you, wherever you are.', 'Some stories were written for one city, so you can play them right where they happen.']],
     ['Is it safe to read while walking?', ['Choices and puzzles never need steps, so you can stop, read and decide. The story waits for you.', 'Keep your eyes up when you\'re moving, and only cross where it\'s safe. No story is worth a stubbed toe.']],
     ['What do you do with my location?', ['Your location shows you where the story is happening around you.', 'If you\'d rather not share it, you can still play by counting steps instead.', { ph: '[Confirm with team: link to the privacy policy]' }]],
     ['What if I get stuck on a puzzle?', ['There are hints, one at a time, so you only take as much help as you want.', 'And if you just want to know what happens next, tap Solve This for Me. No judgement.']],
-    ['How much does it cost?', ['Every story is free for 7 days.', { ph: '[Confirm with team: price after the trial, and what\'s free forever]' }]],
     ['Is there a treadmill mode?', ['It\'s coming soon: a step mode for treadmills and indoor walking.', { ph: '[Confirm with team: a "tell me when" sign-up, and which stories will work indoors]' }]],
     ['Can kids play?', ['Every story has an age rating, so you can pick ones that suit the whole family.', { ph: '[Confirm with team: minimum age and family sharing]' }]],
-    ['Can I play with friends?', [{ ph: '[Confirm with team: playing together, sharing a story]' }]],
-    ['Does it use a lot of data, and does it work offline?', [{ ph: '[Confirm with team: mobile data use and offline play]' }]],
     ['Can I listen instead of reading?', [{ ph: '[Confirm with team: audio and listening options]' }]],
     ['Will it drain my battery?', [{ ph: '[Confirm with team: battery use while the map is open]' }]],
     ['Does it sync with Apple Health or Google Fit?', [{ ph: '[Confirm with team: Health sync]' }]],
