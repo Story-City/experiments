@@ -417,7 +417,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .gbox.is-layout-quarter-haze .map-bar { display: none !important; }
 .quarter-wrap {
   position: absolute;
-  top: var(--quarter-top, 44px);
+  top: 0;
   right: 0;
   z-index: 6;
   width: 200px;
@@ -459,12 +459,17 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 }
 .quarter-caption {
   position: absolute;
-  top: 10px;
-  right: 206px;
-  width: 170px;
+  top: 16px;
+  right: 16px;
+  width: 104px;
+  z-index: 3;
   text-align: right;
   pointer-events: none;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.75);
+}
+.quarter-caption .disc-note {
+  white-space: normal;
+  text-wrap: balance;
 }
 
 /* Corner — same disc arc, slight rotate into top-left (Figma); Disc colour untouched */
