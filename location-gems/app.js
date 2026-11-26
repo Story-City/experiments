@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v131 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v132 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -136,8 +136,23 @@ const CHALLENGE_FINDS = [
 const ROTATE_MS = 2200;
 /** Page-anchor default must stay Original (camera). Never persist or boot to another look. */
 const PAGE_ANCHOR_DEFAULT = 'camera';
-const PAGE_ANCHOR_VARIANTS = new Set(['camera', 'mist', 'drift', 'bloom']);
-const PAGE_ANCHOR_FLOWY = new Set(['mist', 'drift', 'bloom']);
+const PAGE_ANCHOR_VARIANTS = new Set([
+  'camera',
+  'mist',
+  'drift',
+  'bloom',
+  'tide',
+  'orbit',
+  'cascade',
+]);
+const PAGE_ANCHOR_FLOWY = new Set([
+  'mist',
+  'drift',
+  'bloom',
+  'tide',
+  'orbit',
+  'cascade',
+]);
 const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
 const PAGE_ANCHOR_ENTER_MS = 1300;
 /** Heading debug default must stay Original. Never boot to slash/erode/soft. */

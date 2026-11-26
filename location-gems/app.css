@@ -372,7 +372,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   position: relative;
   margin-bottom: 0;
 }
-/* Page anchor — Original + 3 flowy overlays (Mist / Drift / Bloom).
+/* Page anchor — Original + flowy overlays (Mist/Drift/Bloom/Tide/Orbit/Cascade).
    Soft gem mist in top ~50px; camera fades only; layout untouched. */
 .page-anchor-layer {
   position: absolute;
@@ -388,6 +388,21 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .hub.is-page-anchor-flow .page-anchor-layer {
   opacity: 1;
+  /* Soft bottom transparency on every flowy look */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 42%,
+    rgba(0, 0, 0, 0.5) 72%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 42%,
+    rgba(0, 0, 0, 0.5) 72%,
+    transparent 100%
+  );
 }
 .hub.is-page-anchor-flow .arc-stage {
   opacity: 0;
@@ -446,23 +461,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   animation: pageAnchorMistBob 8.8s ease-in-out infinite;
 }
 
-/* Drift — slow current; bottom soft-mask; travel = --pa-drift-travel (RN: onLayout width) */
+/* Drift — slow current; travel = --pa-drift-travel (RN: onLayout width) */
 .hub[data-page-anchor="drift"] .page-anchor-layer {
   --pa-drift-travel: 420px;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 38%,
-    rgba(0, 0, 0, 0.55) 68%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 38%,
-    rgba(0, 0, 0, 0.55) 68%,
-    transparent 100%
-  );
 }
 .hub[data-page-anchor="drift"] .page-anchor-mist {
   opacity: 0.78;
@@ -503,6 +504,35 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .hub[data-page-anchor="bloom"] .page-anchor-gem {
   animation: pageAnchorBloomPulse 7.4s ease-in-out infinite;
+}
+
+/* Tide — crystals rise slowly through a soft veil */
+.hub[data-page-anchor="tide"] .page-anchor-mist {
+  opacity: 0.88;
+  animation: pageAnchorMistBreath 7.2s ease-in-out infinite;
+}
+.hub[data-page-anchor="tide"] .page-anchor-gem {
+  animation: pageAnchorTideRise 14s ease-in-out infinite;
+  opacity: 0;
+}
+
+/* Orbit — crystals weave small soft loops in place */
+.hub[data-page-anchor="orbit"] .page-anchor-mist {
+  opacity: 0.8;
+  animation: pageAnchorMistBreath 6.8s ease-in-out infinite;
+}
+.hub[data-page-anchor="orbit"] .page-anchor-gem {
+  animation: pageAnchorOrbit 11s ease-in-out infinite;
+}
+
+/* Cascade — crystals settle downward through haze */
+.hub[data-page-anchor="cascade"] .page-anchor-mist {
+  opacity: 0.84;
+  animation: pageAnchorMistBreath 6.2s ease-in-out infinite;
+}
+.hub[data-page-anchor="cascade"] .page-anchor-gem {
+  animation: pageAnchorCascade 12.5s linear infinite;
+  opacity: 0;
 }
 
 .page-anchor-gem {
@@ -582,6 +612,24 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .hub[data-page-anchor="drift"] .page-anchor-gem:nth-child(4) { animation-duration: 22s; animation-delay: -2.1s; top: 62%; }
 .hub[data-page-anchor="drift"] .page-anchor-gem:nth-child(5) { animation-duration: 19.4s; animation-delay: -9.4s; top: 46%; }
 .hub[data-page-anchor="drift"] .page-anchor-gem:nth-child(6) { animation-duration: 21.2s; animation-delay: -12.6s; top: 52%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(1) { animation-duration: 13.2s; animation-delay: 0s; left: 12%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(2) { animation-duration: 15.4s; animation-delay: -2.6s; left: 28%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(3) { animation-duration: 12.6s; animation-delay: -5.1s; left: 44%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(4) { animation-duration: 16.2s; animation-delay: -1.4s; left: 60%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(5) { animation-duration: 14.1s; animation-delay: -7.8s; left: 74%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(6) { animation-duration: 15.8s; animation-delay: -10.2s; left: 88%; }
+.hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(1) { animation-duration: 10.4s; animation-delay: 0s; }
+.hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(2) { animation-duration: 12.2s; animation-delay: -2.1s; }
+.hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(3) { animation-duration: 11.1s; animation-delay: -4.4s; }
+.hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(4) { animation-duration: 13s; animation-delay: -1.2s; }
+.hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(5) { animation-duration: 10.8s; animation-delay: -6.3s; }
+.hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(6) { animation-duration: 12.6s; animation-delay: -8.1s; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(1) { animation-duration: 11.8s; animation-delay: 0s; left: 14%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(2) { animation-duration: 13.6s; animation-delay: -2.8s; left: 30%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(3) { animation-duration: 12.2s; animation-delay: -5.6s; left: 46%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(4) { animation-duration: 14.4s; animation-delay: -1.7s; left: 62%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(5) { animation-duration: 12.9s; animation-delay: -8.4s; left: 76%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(6) { animation-duration: 13.8s; animation-delay: -10.9s; left: 90%; }
 
 @keyframes pageAnchorMistBreath {
   0%, 100% { opacity: 0.82; filter: blur(0); }
@@ -614,6 +662,25 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 @keyframes pageAnchorBloomPulse {
   0%, 100% { transform: translate3d(0, 1px, 0) scale(0.94); opacity: 0.12; }
   45% { transform: translate3d(0, -3px, 0) scale(1.06); opacity: 0.22; }
+}
+@keyframes pageAnchorTideRise {
+  0% { transform: translate3d(0, 16px, 0); opacity: 0; }
+  18% { opacity: 0.2; }
+  62% { opacity: 0.14; }
+  100% { transform: translate3d(0, -20px, 0); opacity: 0; }
+}
+@keyframes pageAnchorOrbit {
+  0% { transform: translate3d(0, 2px, 0) rotate(0deg); opacity: 0.12; }
+  25% { transform: translate3d(5px, -3px, 0) rotate(5deg); opacity: 0.2; }
+  50% { transform: translate3d(0, -5px, 0) rotate(0deg); opacity: 0.16; }
+  75% { transform: translate3d(-5px, -2px, 0) rotate(-5deg); opacity: 0.2; }
+  100% { transform: translate3d(0, 2px, 0) rotate(0deg); opacity: 0.12; }
+}
+@keyframes pageAnchorCascade {
+  0% { transform: translate3d(0, -14px, 0); opacity: 0; }
+  16% { opacity: 0.18; }
+  70% { opacity: 0.12; }
+  100% { transform: translate3d(3px, 26px, 0); opacity: 0; }
 }
 .snapshot-hero {
   position: relative;
