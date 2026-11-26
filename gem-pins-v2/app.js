@@ -198,16 +198,32 @@ const centre = order.filter((i, j) => j % 4 === 0).slice(0, SPECIAL.length);
 const rest = PTS.map((p, i) => i).filter((i) => !centre.includes(i));
 const rv = rng(777);
 const FIRST10 = ['eat', 'nature', 'shop', 'culture', 'shop', 'landmark', 'play', 'curio', 'eat', 'nature'];
+/* Same enticing lines + minutes pattern as location-gems feed prompt chips */
+const PROMPT_LINES = [
+  'Paw print in the sidewalk concrete near the ravine.',
+  'Bird-shaped cloud above Victoria Trail.',
+  'Fox silhouette in the ivy on the mailbox.',
+  'Chalk hopscotch still fresh on the alley asphalt.',
+  'Tiny door tucked behind the lilac bush.',
+  'Ghost sign half-hiding under the new paint.',
+];
+const PROMPT_MINUTES = [2, 4, 6, 1, 3, 5, 8, 7, 9, 11, 10, 12];
 const GEMS = [...centre, ...rest].map((pi, i) => {
   const sp = SPECIAL[i] || {};
   const tags = [i < 10 ? FIRST10[i] : pickOne(CATS).id];
   const extra = r();
   if (extra > 0.45) tags.push(pickOne(CATS.filter((c) => !tags.includes(c.id))).id);
   if (extra > 0.85) tags.push(pickOne(CATS.filter((c) => !tags.includes(c.id))).id);
+  const name = pickOne(NAMES[tags[0]]);
+  const caption = PROMPT_LINES[i % PROMPT_LINES.length];
   return {
     id: i,
     at: [PTS[pi][0] / 390, PTS[pi][1] / 640],
-    name: pickOne(NAMES[tags[0]]),
+    name,
+    title: name,
+    tagline: caption,
+    caption,
+    minutesAway: PROMPT_MINUTES[i % PROMPT_MINUTES.length],
     tags,
     rarity: sp.mythical ? 'mythical' : sp.mine || sp.liked ? (i % 3 === 0 ? 'rare' : 'common') : r() < 0.22 ? 'rare' : 'common',
     mine: !!sp.mine,
@@ -991,9 +1007,15 @@ function paintSlide() {
   if (isPrompt) {
     const rid = rarityOf(g);
     const rarity = RARITY[rid];
-    /* Same fields as location-gems buildFeedChip('prompt'): dist kicker + title line */
-    $('slidePromptKicker').textContent = spoofWording ? 'Nearby' : '[nearby]';
-    $('slidePromptLine').textContent = g.name;
+    /* Exact location-gems buildFeedChip('prompt') fields */
+    const minutes = Number(g.minutesAway);
+    const dist =
+      Number.isFinite(minutes) && minutes >= 0
+        ? `${minutes} min away`
+        : (spoofWording ? 'Nearby' : '[nearby]');
+    const promptLine = g.caption || g.tagline || g.title || g.name || '';
+    $('slidePromptKicker').textContent = dist;
+    $('slidePromptLine').textContent = displayCopy(promptLine);
     const rarityEl = $('slidePromptRarity');
     const showRarityWord = rid !== 'common' && !!(rarity && rarity.label);
     rarityEl.hidden = !showRarityWord;
