@@ -943,6 +943,15 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   object-fit: contain;
   transform: none;
 }
+/* Culture oval is tall — square clip turns it into a planet ring in the pill */
+.ov-chip-cat:has(.cat-gem-art[src*="art.svg"]) {
+  overflow: visible;
+}
+.ov-chip-cat .ov-chip-gem:has(.cat-gem-art[src*="art.svg"]) {
+  width: 11px;
+  height: 17px;
+  overflow: visible;
+}
 .detail-scroll {
   height: 100%;
   overflow-y: auto;
