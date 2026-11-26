@@ -119,7 +119,7 @@ function paintLayer() {
   if (layer.width !== W * layerRes) { layer.width = W * layerRes; layer.height = H * layerRes; }
   lctx.setTransform(layerRes, 0, 0, layerRes, 0, 0);
   lctx.clearRect(0, 0, W, H);
-  L.paint(lctx, (performance.now() - t0) / 1000);
+  L.paint(lctx, (performance.now() - t0) / 1000, state.pos);
 }
 function setLook(k) {
   look = k;
@@ -216,7 +216,7 @@ window.addEventListener('resize', sizeFog);
 
 // --- overlay (above the fog) -------------------------------------------------
 const defs = el('defs', {}, over);
-defs.innerHTML = '<filter id="gemGlow" x="-2" y="-2" width="5" height="5"><feGaussianBlur stdDeviation="9"/></filter><filter id="fogBlur" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="2.6"/></filter>';
+defs.innerHTML = '<filter id="gemGlow" x="-2" y="-2" width="5" height="5"><feGaussianBlur stdDeviation="9"/></filter><filter id="fogBlur" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="4.5"/></filter>';
 const glints = el('g', {}, over);
 const trails = el('g', {}, over);
 const live = el('g', {}, over);

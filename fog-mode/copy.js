@@ -101,7 +101,7 @@ export const HOME = {
 // Vote page (vote.html): the team picks a favourite fog look. Votes save as you tap; you can change them any time.
 export const VOTE = {
   kicker: 'Fog mode · Team vote',
-  title: 'Which fog look should we use?',
+  title: 'Which fog look(s) should we use?',
   lead: 'Heart the looks you love, thumbs-up the ones you like, thumbs-down the ones you don’t, and say what would make each one better. Your vote saves as you go, and you can change it any time.',
   nameLabel: 'Your name',
   namePlaceholder: 'So we know whose vote it is',

@@ -88,10 +88,11 @@ const fog = document.createElement('canvas');
 fog.width = W; fog.height = H;
 const fctx = fog.getContext('2d');
 // Paint one preview: map, then the look's fog with the trail cut out, then one gem glowing through.
+const YOU = [280, 90]; // the walk ends here
 function paint(canvas, k, t) {
   fctx.globalCompositeOperation = 'source-over';
   fctx.clearRect(0, 0, W, H);
-  LOOKS[k].paint(fctx, t);
+  LOOKS[k].paint(fctx, t, YOU);
   fctx.globalCompositeOperation = 'destination-out';
   fctx.drawImage(trail, 0, 0);
   fctx.globalCompositeOperation = 'source-over';
@@ -101,15 +102,15 @@ function paint(canvas, k, t) {
   g.drawImage(mapLayer, 0, 0);
   g.drawImage(fog, 0, 0);
   // Victoria's gems, both still under the fog: soft and blurred, glowing through
-  g.save(); g.globalAlpha = 0.6; g.filter = 'blur(3px)'; g.shadowColor = GEM_COLORS.topaz; g.shadowBlur = 18;
+  g.save(); g.globalAlpha = 0.3; g.filter = 'blur(5px)'; g.shadowColor = GEM_COLORS.topaz; g.shadowBlur = 10;
   drawGem(g, 'topaz', 282, 200, 24);
   g.restore();
-  g.save(); g.globalAlpha = 0.5; g.filter = 'blur(3px)'; g.shadowColor = GEM_COLORS.hidden; g.shadowBlur = 18;
+  g.save(); g.globalAlpha = 0.25; g.filter = 'blur(5px)'; g.shadowColor = GEM_COLORS.hidden; g.shadowBlur = 10;
   drawGem(g, 'hidden', 255, 470, 22);
   g.restore();
   // you, at the end of the walk (the app's blue dot)
-  g.fillStyle = '#fff'; g.beginPath(); g.arc(280, 90, 11, 0, Math.PI * 2); g.fill();
-  g.fillStyle = '#007aff'; g.beginPath(); g.arc(280, 90, 7, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#fff'; g.beginPath(); g.arc(YOU[0], YOU[1], 11, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#007aff'; g.beginPath(); g.arc(YOU[0], YOU[1], 7, 0, Math.PI * 2); g.fill();
 }
 
 /* ---------- page ---------- */

@@ -38,10 +38,10 @@ function tile(size, n, rmin, rmax, colors, seed) {
   return c;
 }
 
-// Fill the map with a tile, shifted, turned (degrees round the map's middle) and scaled.
-function drift(p, t, { ox = 0, oy = 0, rot = 0, scale = 1, alpha = 1 }) {
+// Fill the map with a tile, shifted, turned (degrees round `at`, the map's middle by default) and scaled.
+function drift(p, t, { ox = 0, oy = 0, rot = 0, scale = 1, alpha = 1, at = [W / 2, H / 2] }) {
   t.pat ||= p.createPattern(t, 'repeat');
-  t.pat.setTransform(new DOMMatrix().translateSelf(W / 2, H / 2).rotateSelf(rot).scaleSelf(scale).translateSelf(-W / 2 + ox, -H / 2 + oy));
+  t.pat.setTransform(new DOMMatrix().translateSelf(at[0], at[1]).rotateSelf(rot).scaleSelf(scale).translateSelf(-at[0] + ox, -at[1] + oy));
   p.globalAlpha = alpha;
   p.fillStyle = t.pat;
   p.fillRect(0, 0, W, H);
@@ -137,6 +137,9 @@ function grain(p, n, light, dark, seed) {
 }
 
 let T = {}; // tiles, made on first use
+const YOU_REACH = 120; // map units round you that Teal tide reacts to
+const RIPPLES = 3;
+const RIPPLE_SECONDS = 4;
 
 export const LOOKS = {
   swirl: {
@@ -185,14 +188,14 @@ export const LOOKS = {
   },
   darkClouds: {
     name: 'Dark cloud sea',
-    what: 'Cloud sea at night: almost-black clouds with faint purple tops. The map you uncover is the brightest thing on screen.',
+    what: 'Cloud sea at night: almost-black clouds with dim, dark purple tops. The map you uncover is the brightest thing on screen.',
     animated: true,
     rim: [120, 105, 190],
     paint(p, t) {
       T.dLowShade ||= tile(512, 40, 40, 100, [[0, 0, 0, 0.75]], 13);
       T.dLow ||= tile(512, 40, 40, 100, [[26, 20, 44, 1]], 13);
       T.dHighShade ||= tile(400, 26, 25, 70, [[0, 0, 0, 0.6]], 29);
-      T.dHigh ||= tile(400, 26, 25, 70, [[40, 32, 66, 1]], 29);
+      T.dHigh ||= tile(400, 26, 25, 70, [[28, 22, 46, 1]], 29);
       const sky = p.createLinearGradient(0, 0, 0, H);
       sky.addColorStop(0, '#06040d');
       sky.addColorStop(1, '#030207');
@@ -221,6 +224,39 @@ export const LOOKS = {
         p.fillRect(x, y, s, s);
       });
       p.globalAlpha = 1;
+    },
+  },
+  tide: {
+    name: 'Teal tide',
+    rim: [150, 225, 215],
+    what: 'Soft swirl in pale teal that notices you: the mist thins and circles round where you are, with slow ripples spreading out.',
+    animated: true,
+    paint(p, t, you = [W / 2, H / 2]) {
+      const [x, y] = you;
+      T.tdBig ||= tile(512, 26, 80, 200, [[255, 255, 255, 0.5], [110, 185, 178, 0.22]], 61);
+      T.tdMid ||= tile(320, 30, 40, 110, [[255, 255, 255, 0.4], [90, 165, 160, 0.18]], 67);
+      T.tdSmall ||= tile(220, 40, 20, 60, [[255, 255, 255, 0.32], [140, 205, 198, 0.15]], 71);
+      p.fillStyle = '#d6ebe7';
+      p.fillRect(0, 0, W, H);
+      contours(p, { color: '#6e9f99', width: 0.6, minor: 0.2, major: 0.36 }, 0.85 + 0.15 * Math.sin(t * 0.6));
+      drift(p, T.tdBig, { ox: t * 6, oy: t * 3, rot: Math.sin(t * 0.05) * 8 });
+      drift(p, T.tdMid, { rot: -t * 6, at: you, alpha: 0.7 + 0.2 * Math.sin(t * 0.5) });
+      drift(p, T.tdSmall, { rot: t * 9, at: you, scale: 1.2, alpha: 0.55 + 0.2 * Math.sin(t * 0.8 + 1) });
+      p.globalCompositeOperation = 'destination-out';
+      const thin = p.createRadialGradient(x, y, 0, x, y, YOU_REACH);
+      thin.addColorStop(0, 'rgba(0,0,0,0.5)');
+      thin.addColorStop(1, 'rgba(0,0,0,0)');
+      p.fillStyle = thin;
+      p.fillRect(0, 0, W, H);
+      p.globalCompositeOperation = 'source-over';
+      p.lineWidth = 2.5;
+      for (let i = 0; i < RIPPLES; i++) {
+        const k = (t / RIPPLE_SECONDS + i / RIPPLES) % 1;
+        p.strokeStyle = `rgba(70,150,142,${0.28 * (1 - k)})`;
+        p.beginPath();
+        p.arc(x, y, 18 + k * YOU_REACH, 0, Math.PI * 2);
+        p.stroke();
+      }
     },
   },
 };
