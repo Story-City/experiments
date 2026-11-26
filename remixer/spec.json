@@ -85,6 +85,7 @@
     "Saved image is full size and must match the screen: replay the same steps at full resolution."
   ],
   "notes": [
+    "Approved in Notion; dev has it nearly finished (25 Nov). Moves to Built when it ships.",
     "Already built in part: mobile editor in mobile-rn #1402 (feature/SC-3583-remix-puzzle) and remix activity on feature/SC-3603-remix-activity-mobile. Server and creator tools not built yet.",
     "UX doc: Remix puzzle mobile in the Story City App database. Design review tasks NSC-2071 to NSC-2079 are Ready for Review with Melissa.",
     "Open (from the UX doc): add a feature flag, since only the server not sending REMIX hides it? Should tool tiles preview the current remix rather than the original?"
