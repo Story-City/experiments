@@ -160,12 +160,14 @@ button:focus-visible{outline:2px solid var(--tq); outline-offset:2px}
 .c-tile{position:relative; border:0; background:none; padding:6px; border-radius:28px; outline-offset:-10px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
 .c-lab{max-width:100%; text-wrap:balance; font-size:15.5px; line-height:1.22; font-weight:700; color:#2a1f55; text-shadow:0 0 10px rgba(235,230,255,.8); transition:opacity .35s}
 .c-tile.on .c-lab{opacity:0}
-.c-pin,.c-short{position:absolute; left:50%; opacity:0; transition:opacity .4s .25s, transform .45s cubic-bezier(.3,1.6,.5,1) .25s}
-.c-pin{top:calc(50% - 30px); width:34px; height:34px; margin-left:-17px; border-radius:50%; background:#241b46; border:2px solid var(--c); display:flex; align-items:center; justify-content:center; font-size:16px;
-  box-shadow:0 0 12px color-mix(in srgb, var(--c) 60%, transparent); transform:scale(.3)}
-.c-short{top:calc(50% + 10px); transform:translateX(-50%) translateY(6px); white-space:nowrap; font-size:12.5px; font-weight:700; color:var(--text); background:rgba(16,5,46,.85); border-radius:9px; padding:3px 8px; box-shadow:0 0 0 1px color-mix(in srgb, var(--c) 60%, transparent)}
-.c-tile.on .c-pin{opacity:1; transform:none}
-.c-tile.on .c-short{opacity:1; transform:translateX(-50%)}
+.c-mark{position:absolute; display:flex; flex-direction:column; align-items:center; gap:3px; opacity:0; transform:translate(-50%, -30%) scale(.4);
+  transition:opacity .4s .3s, transform .5s cubic-bezier(.3,1.6,.5,1) .3s; pointer-events:none}
+.c-tile.on .c-mark{opacity:1; transform:translate(-50%, -30%)}
+.c-gem{width:28px; height:24px; filter:drop-shadow(0 0 7px var(--c)) drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.c-tile.on .c-gem{animation:gemDrop .6s cubic-bezier(.3,1.6,.5,1) .3s both}
+@keyframes gemDrop{from{transform:translateY(-14px)}}
+.c-tag{font-size:11.5px; font-weight:700; line-height:1; white-space:nowrap; color:var(--text); background:rgba(16,5,46,.86); border-radius:7px; padding:3px 7px; box-shadow:0 0 0 1px color-mix(in srgb, var(--c) 55%, transparent)}
+.c-tile:focus-visible{outline:1.5px solid rgba(51,199,209,.55)}
 .c-credit{position:absolute; right:6px; bottom:4px; font-size:9px; color:rgba(255,255,255,.75); text-shadow:0 0 3px #000; pointer-events:none}
 
 /* ---------- D · Constellation ---------- */
@@ -393,7 +395,7 @@ button:focus-visible{outline:2px solid var(--tq); outline-offset:2px}
 /* two to a row, the odd one out centred on its own */
 .i-chips,.l-chips{display:grid; grid-template-columns:1fr 1fr; gap:6px}
 .i-chips .chip,.l-chips .chip{font-size:13.5px; padding:0 12px; width:100%}
-.i-chips .chip:last-child:nth-child(odd),.l-chips .chip:last-child:nth-child(odd){grid-column:1 / -1; justify-self:center; width:calc(50% - 3px)}
+.i-chips .chip:last-child:nth-child(odd),.l-chips .chip:last-child:nth-child(odd){grid-column:1 / -1; justify-self:center; width:auto; min-width:calc(50% - 3px)}
 
 /* ---------- J · Living street ---------- */
 .picker.v-m{display:flex; flex-direction:column}

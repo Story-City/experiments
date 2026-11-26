@@ -256,10 +256,14 @@ const FOG_SVG = `<svg class="c-fogsvg" viewBox="0 0 300 300" preserveAspectRatio
     <rect width="300" height="300" fill="url(#cShade)"/></g>
   <defs><radialGradient id="cShade" cx=".5" cy=".4" r=".75"><stop offset="0" stop-color="#d9d0f6" stop-opacity=".35"/><stop offset="1" stop-color="#6f62a8" stop-opacity=".45"/></radialGradient></defs>
 </svg>`;
+// where each uncovered gem sits inside its square (% of the square from its centre), so they read as points on a map, not a grid;
+// edge columns lean inward so labels stay on the map
+const MARK_AT = [[10, -14], [-14, 8], [-10, 16], [12, 12], [4, -20], [-12, 14], [8, -10], [-6, -12], [-14, 18]];
 function mountC(el) {
   el.innerHTML = `<div class="c-map" id="cMap"><div class="c-tiles" id="cTiles"></div><div class="c-tint"></div>${FOG_SVG}
-    <div class="c-grid">${OPTIONS.map(o => `<button class="c-tile" data-opt="${o.id}" style="--c:${o.color}">
-      <span class="c-pin">${icon(o.id)}</span><span class="c-lab">${esc(o.label)}</span><span class="c-short">${esc(o.short)}</span></button>`).join('')}</div>
+    <div class="c-grid">${OPTIONS.map((o, i) => `<button class="c-tile" data-opt="${o.id}" style="--c:${o.color}">
+      <span class="c-lab">${esc(o.label)}</span>
+      <span class="c-mark" style="left:${50 + MARK_AT[i][0]}%;top:${50 + MARK_AT[i][1]}%"><span class="c-gem">${gemSVG(o.color)}</span><span class="c-tag">${esc(o.short)}</span></span></button>`).join('')}</div>
     <span class="c-credit">© OpenStreetMap contributors</span></div>
     <p class="c-count" id="cCount"></p>`;
   const tiles = $('#cTiles', el);
@@ -300,7 +304,7 @@ function mountD(el) {
   };
   const name = () => {
     $('#dName', el).innerHTML = S.picked.length
-      ? `<span class="d-nk">Your constellation</span> ${nw(S.picked.map(id => byId[id].short).join(' · '))}`
+      ? `<span class="d-nk">Your constellation</span> ${S.picked.map(id => `<span style="white-space:nowrap">${esc(byId[id].short)}</span>`).join(' · ')}`
       : `<span class="d-nk">Your constellation</span> ${nw('Light a star to begin')}`;
   };
   syncPressed(el); name(); requestAnimationFrame(() => drawLines(false));
