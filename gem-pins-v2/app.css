@@ -172,7 +172,6 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   object-fit: contain;
   overflow: visible;
   pointer-events: none;
-  filter: brightness(0) invert(1);
 }
 .legend-ico .pin-gem,
 .legend-ico .pin-gem-wrap,
@@ -190,13 +189,12 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   overflow: visible;
 }
 .pin.selected { z-index: 3; }
-.pin.selected::before {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.6);
+/* Selected = approved-ui library roller glow (no ring) */
+.pin.selected .pin-gem,
+.pin.selected .pin-gem-wrap,
+.pin.selected img,
+.pin.selected svg {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent, #00c2ff) 55%, transparent));
 }
 .glow-rare { filter: drop-shadow(0 0 4px var(--glow)); }
 .glow-mythical { filter: drop-shadow(0 0 6px var(--glow)) drop-shadow(0 0 12px var(--glow)); }
@@ -434,11 +432,11 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .gbox.is-layout-disc-haze .legend { display: none !important; }
 .gbox.is-layout-disc-haze .disc-stage { grid-area: disc; display: block; }
 .gbox.is-layout-disc-haze .disc-arc-glow {
-  opacity: 0.12;
+  opacity: 0.1;
   filter: blur(1.5px);
 }
 .gbox.is-layout-disc-haze .disc-arc-tint {
-  opacity: 0.4;
+  opacity: 0.38;
   filter: blur(0.8px);
 }
 
