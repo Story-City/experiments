@@ -65,7 +65,7 @@
   },
   {
     "slug": "gem-pins",
-    "path": "gem-pins/?v=36",
+    "path": "gem-pins/?v=37",
     "area": "gems",
     "frame": "wide",
     "title": "Gem map pins",
@@ -81,7 +81,7 @@
   },
   {
     "slug": "gem-pins-v2",
-    "path": "gem-pins-v2/?v=35",
+    "path": "gem-pins-v2/?v=36",
     "area": "gems",
     "title": "Gem map pins V2",
     "what": "Victoria's gem art on Melissa's Edmonton map. Filter turns the top bar into a legend plus a gem roller. Slide-outs: Melissa original, Prompt, Image, Corner. Navigate and save for later stay on the Victoria versions.",
@@ -122,11 +122,11 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=21",
+    "path": "approved-ui/?v=22",
     "area": "design",
     "frame": "wide",
     "title": "Approved UI library",
-    "what": "Gem-pins V2: Disc, Always/Classic/Inline filters, tab bar. End-story badges, map mode, likes, tips.",
+    "what": "Elements|Tools tabs. Gem category selector + gem-pins filters. Look tools on Tools tab.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

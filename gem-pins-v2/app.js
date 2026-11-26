@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v33 — Disc arc soft mid glow, gentler mask. */
+/* GEM-PINS-V2-v34 — Category ids align with location-gems (eat). */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';
@@ -64,7 +64,7 @@ const GEM_COLOUR = {
 /** Filter cats — eat + shop combined into one stop */
 const FILTER_CATS = [
   { id: 'nature', label: 'Nature', match: ['nature'], art: 'nature' },
-  { id: 'eatshop', label: 'Eat & Drink', match: ['eat', 'shop'], art: 'eat' },
+  { id: 'eat', label: 'Eat & Drink', match: ['eat', 'shop'], art: 'eat' },
   { id: 'culture', label: 'Culture', match: ['culture'], art: 'culture' },
   { id: 'play', label: 'Play', match: ['play'], art: 'play' },
   { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
@@ -74,7 +74,7 @@ const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc'];
 const EXPLAIN_DEFAULT = {
   all: '[every gem nearby]',
   nature: '[explain nature finds]',
-  eatshop: '[explain eat, drink and shop finds]',
+  eat: '[explain eat, drink and shop finds]',
   culture: '[explain culture finds]',
   play: '[explain play finds]',
   landmark: '[explain landmark finds]',
@@ -93,7 +93,7 @@ const SPOOF_LABELS = {
   explain: {
     all: 'Every gem nearby',
     nature: 'Nature finds',
-    eatshop: 'Eat, drink and shop finds',
+    eat: 'Eat, drink and shop finds',
     culture: 'Culture finds',
     play: 'Play finds',
     landmark: 'Landmark finds',
@@ -858,9 +858,9 @@ function paintActs(g) {
     b.addEventListener('click', (e) => { e.stopPropagation(); fn(); });
     return b;
   };
-  /* Image/Bar/Prompt: bookmark+hide live in the action row — never over the corner */
-  if (sheet !== 'original') return;
-  /* Melissa original keeps heart / hide / visited */
+  /* Image/Bar: bookmark+hide live in the action row — never over the corner */
+  if (sheet !== 'original' && sheet !== 'prompt') return;
+  /* Original + Prompt: heart / hide / visited on the head (same as Melissa original) */
   if (g.mine) {
     box.append(mk('hide', ICON.hide, COPY.hideLong || 'Hide', null, () => hideGem(g)));
     return;
@@ -937,19 +937,21 @@ function paintSlide() {
   /* Overlay only on Image — Bar keeps text in the glass bar under the photo */
   $('slideOverlay').hidden = !isImage;
 
-  $('slideHead').hidden = !isOriginal;
-  $('slideTags').hidden = !isOriginal;
-  $('slideGlass').hidden = !(isPrompt || isBar);
+  /* Prompt = flat sheet like Original (no nested glass): gem art + who + tags */
+  $('slideHead').hidden = !(isOriginal || isPrompt);
+  $('slideTags').hidden = !(isOriginal || isPrompt);
+  $('slideGlass').hidden = !isBar;
   $('slideMore').hidden = !(isOriginal && !sheetFull);
   $('slideStatus').hidden = !(isOriginal && sheetFull);
   /* Bookmark + hide stay in the action row (beside navigate) — never over the corner */
   $('slideActions').hidden = isOriginal ? !sheetFull : false;
-  $('slideActs').hidden = !isOriginal;
+  $('hideBtn').hidden = isPrompt;
+  $('slideActs').hidden = !(isOriginal || isPrompt);
   $('slideActs').classList.toggle('is-on-media', false);
-  $('slideActs').classList.toggle('is-on-prompt', false);
-  $('slideActs').classList.toggle('is-on-head', isOriginal);
+  $('slideActs').classList.toggle('is-on-prompt', isPrompt);
+  $('slideActs').classList.toggle('is-on-head', isOriginal || isPrompt);
 
-  if (isOriginal) {
+  if (isOriginal || isPrompt) {
     $('slideArt').innerHTML = pinFor(g);
     $('slideNameHead').textContent = g.name;
     $('slideLineHead').textContent = whoLine(g);
@@ -961,9 +963,8 @@ function paintSlide() {
 
   const user = g.mine ? '' : `@${String(g.owner || '').toLowerCase()}`;
   const line = g.mine ? COPY.yours : COPY.by(g.owner);
-  /* Prompt = least language: name + like only */
-  $('slideUser').hidden = isPrompt || !user;
-  $('slideLine').hidden = isPrompt || isBar;
+  $('slideUser').hidden = !user;
+  $('slideLine').hidden = isBar;
   $('slideUser').textContent = user;
   $('slideName').textContent = g.name;
   $('slideLine').textContent = line;
@@ -971,6 +972,8 @@ function paintSlide() {
   $('slideNameOv').textContent = g.name;
   paintLike('likeBtn', 'likeHeart', 'likeCount', g);
   paintLike('likeBtnOv', 'likeHeartOv', 'likeCountOv', g);
+  /* Prompt keeps like in the action row with navigate — not a second card */
+  $('likeBtn').hidden = isPrompt;
   $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
 
