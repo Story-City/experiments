@@ -1,5 +1,21 @@
 [
   {
+    "slug": "type-tuning",
+    "path": "type-tuning/",
+    "area": "design",
+    "frame": "wide",
+    "title": "Type tuning on real app screens",
+    "what": "Live controls for every text role (story and chapter titles, eyebrows, body, chat bubbles, buttons, captions): weight, size, type scale, case, line height and spacing, shown on Library, Story, Chapter, Map and Paywall at once. Erode + Karla. Copy the result as CSS, JSON or a guidelines table; the link keeps your setup.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null,
+    "draft": true,
+    "reviewer": "Melissa"
+  },
+  {
     "slug": "explore-picker",
     "path": "explore-picker/",
     "area": "first",
