@@ -139,7 +139,10 @@ export function toStory(parsed, title) {
       chat: count('chat'),
       text: firstText.length > 170 ? firstText.slice(0, 170).replace(/\s+\S*$/, '') + '…' : firstText,
       fr: frText,
-      choices: c.choices.map((k) => ({ label: k.label, to: k.to, needs: k.needs })),
+      choices: c.choices.map((k, i) => ({ label: k.label, to: k.to, needs: k.needs, fr: c.frChoices[i] || null, line: k.line })),
+      blocks: c.blocks,
+      frBlocks: c.frBlocks,
+      line: c.line,
     };
   });
   return { id: 'script', title, note: 'Made from the script you pasted.', lang: ['en', 'fr'], chapters };

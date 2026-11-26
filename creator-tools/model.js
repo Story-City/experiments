@@ -47,11 +47,12 @@ export function splitName(rawName, text) {
 }
 
 export function prepare(story) {
-  const chapters = story.chapters.map((c) => ({ ...c, choices: c.choices.map((k) => ({ ...k })) }));
+  const chapters = story.chapters.map((c) => ({ ...c, choices: (c.choices || []).map((k) => ({ ...k })) }));
   const byId = new Map(chapters.map((c) => [c.id, c]));
   for (const c of chapters) {
     const n = splitName(c.name, c.text);
     Object.assign(c, n);
+    if (c.customTitle) { c.title = c.customTitle; c.untitled = false; }
     if (c.loc && !c.place && n.paren && n.paren !== c.title) c.place = n.paren;
     const upper = c.name.toUpperCase();
     if (c.puzzle == null) {
@@ -94,10 +95,14 @@ export function prepare(story) {
 // Checks shown under "N to check". lang = 'en' | 'fr'.
 export function findIssues(model, lang) {
   const out = [];
+  const starts = model.chapters.filter((c) => c.start);
+  if (model.chapters.length > 1 && !starts.length) out.push({ id: model.chapters[0].id, kind: 'block', text: 'No chapter is marked as the start.' });
+  if (starts.length > 1) out.push({ id: starts[1].id, kind: 'block', text: `${starts.length} chapters are marked as the start. Keep one.` });
   for (const c of model.chapters) {
     if (!c.reached) out.push({ id: c.id, kind: 'block', text: `“${c.title}” can't be reached from the start.` });
     if (!c.end && c.choices.length === 0) out.push({ id: c.id, kind: 'block', text: `“${c.title}” has no choices and isn't an ending.` });
     if (c.choices.some((k) => !k.to)) out.push({ id: c.id, kind: 'block', text: `“${c.title}” has a choice that goes nowhere.` });
+    if (c.end && c.choices.length) out.push({ id: c.id, kind: 'check', text: `“${c.title}” is an ending but still has choices.` });
     if (c.untitled) out.push({ id: c.id, kind: 'check', text: `${c.code || 'A chapter'} has no readable name. Players see it in Hunt mode.` });
     if (lang === 'fr' && c.fr == null) out.push({ id: c.id, kind: 'fr', text: `“${c.title}” needs French.` });
   }
@@ -108,11 +113,40 @@ export function findIssues(model, lang) {
 export const NODE_W = 230;
 const COL_GAP = 90;
 const ROW_GAP = 22;
-const BAND_GAP = 110;
+const BAND_GAP = 150;
 
 export const HEAD_H = 92;
+export const ROW_H = 24;
 export function nodeHeight(c) {
-  return HEAD_H + 8 + Math.max(1, c.choices.length) * 24;
+  return HEAD_H + 8 + (Math.max(1, c.choices.length) + 1) * ROW_H;
+}
+
+// Story at a glance: endings reached, shortest and longest way through (in chapters).
+export function storyStats(model) {
+  const { byId, start } = model;
+  const endings = model.chapters.filter((c) => c.end);
+  let shortest = null; let longest = 0;
+  if (start) {
+    const dist = new Map([[start.id, 1]]); const q = [start.id];
+    while (q.length) {
+      const id = q.shift();
+      for (const k of byId.get(id).choices) if (k.to && byId.has(k.to) && !dist.has(k.to)) { dist.set(k.to, dist.get(id) + 1); q.push(k.to); }
+    }
+    const reachedEnds = endings.filter((e) => dist.has(e.id));
+    if (reachedEnds.length) shortest = Math.min(...reachedEnds.map((e) => dist.get(e.id)));
+    const memo = new Map(); const onPath = new Set();
+    const deep = (id) => {
+      if (memo.has(id)) return memo.get(id);
+      onPath.add(id);
+      let best = byId.get(id).end ? 1 : -Infinity;
+      for (const k of byId.get(id).choices) if (k.to && byId.has(k.to) && !onPath.has(k.to)) best = Math.max(best, 1 + deep(k.to));
+      onPath.delete(id); memo.set(id, best); return best;
+    };
+    longest = Math.max(0, deep(start.id));
+  }
+  const choices = model.chapters.reduce((s, c) => s + c.choices.length, 0);
+  const words = model.chapters.reduce((s, c) => s + (c.blocks ? c.blocks.reduce((w, b) => w + (b.text ? b.text.split(/\s+/).length : 0), 0) : 0), 0);
+  return { chapters: model.chapters.length, choices, endings: endings.length, stops: model.stops.length, shortest, longest, words };
 }
 
 export function layout(model, opts = {}) {
