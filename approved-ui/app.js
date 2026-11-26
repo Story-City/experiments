@@ -1,6 +1,6 @@
-/** Approved UI library — APPROVED-UI-v22
- * Elements | Tools tabs; jam category selector; gem-pins filters; Look tools rail.
- * GEM-CAT-SELECTOR-v22 · GEM-PINS-CHROME-v21 · GEM-DISC-FILTER-v20
+/** Approved UI library — APPROVED-UI-v23
+ * Tools + opens location-gems edition-rail (same Look/Move tools). Category selector + gem-pins.
+ * GEM-CAT-SELECTOR-v22 · LOCATION-GEMS tools=1
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -290,26 +290,28 @@ const ELEMENT_DEFS = [
 ];
 
 const library = document.getElementById('library');
-const toolsPanel = document.getElementById('toolsPanel');
 const catalogNav = document.getElementById('catalogNav');
 const toolsSideNote = document.getElementById('toolsSideNote');
-const accentColor = document.getElementById('accentColor');
-const accentAlpha = document.getElementById('accentAlpha');
-const radialEnabled = document.getElementById('radialEnabled');
-const radialEnabledLabel = document.getElementById('radialEnabledLabel');
-const radialColor = document.getElementById('radialColor');
-const radialAmount = document.getElementById('radialAmount');
-const bgColor = document.getElementById('bgColor');
-const bgDepth = document.getElementById('bgDepth');
-const midToneOn = document.getElementById('midToneOn');
-const midTonePick = document.getElementById('midTonePick');
-const midToneColor = document.getElementById('midToneColor');
-const btnRadius = document.getElementById('btnRadius');
-const btnRadiusValue = document.getElementById('btnRadiusValue');
-const spaceScale = document.getElementById('spaceScale');
-const spaceScaleValue = document.getElementById('spaceScaleValue');
-const typeScale = document.getElementById('typeScale');
-const typeScaleValue = document.getElementById('typeScaleValue');
+const toolsPlus = document.getElementById('toolsPlus');
+const toolsDrawer = document.getElementById('toolsDrawer');
+const toolsDrawerClose = document.getElementById('toolsDrawerClose');
+const toolsFrame = document.getElementById('toolsFrame');
+const LOOK_TOOLS_SRC = '../location-gems/?tools=1&v=110';
+/** Local Look snapshot — filled by location-gems tools iframe postMessage */
+let lookTools = {
+  accent: '#00c2ff',
+  accentAlpha: 100,
+  radial: '#b36bff',
+  radialAmount: 55,
+  radialImpact: 60,
+  bg: '#170c35',
+  bgDepth: 100,
+  midToneOn: false,
+  midTone: '#241b46',
+  btnRadius: 24,
+  spaceScale: 100,
+  typeScale: 100,
+};
 
 function gemSvg(fill, opts = {}) {
   const soft = !!opts.softOutline;
@@ -343,16 +345,16 @@ function softAccentHex(hex) {
 }
 
 function accentHex() {
-  return (accentColor && accentColor.value) || '#00c2ff';
+  return lookTools.accent || '#00c2ff';
 }
 
 function myGemHex() {
-  return (radialColor && radialColor.value) || PURPLE;
+  return lookTools.radial || PURPLE;
 }
 
 function applyAccent() {
   const hex = accentHex();
-  const alpha = (Number(accentAlpha.value) || 100) / 100;
+  const alpha = (Number(lookTools.accentAlpha) || 100) / 100;
   const { r, g, b } = hexToRgb(hex);
   const deep = `rgb(${Math.max(0, r - 40)}, ${Math.max(0, g - 50)}, ${Math.max(0, b - 20)})`;
   const root = document.documentElement.style;
@@ -369,34 +371,28 @@ function applyAccent() {
   syncDayReachedAccent();
 }
 
-function isRadialOn() {
-  return !radialEnabled || radialEnabled.checked;
-}
-
 function applyRadial() {
   const hex = myGemHex();
-  const on = isRadialOn();
-  const amount = on ? ((radialAmount && Number(radialAmount.value)) || 55) / 100 : 0;
+  const amount = (Number(lookTools.radialAmount) || 55) / 100;
+  const impact = (Number(lookTools.radialImpact) || 60) / 100;
   const { r, g, b } = hexToRgb(hex);
+  const alpha = 0.35 * amount + 0.65 * amount * impact;
+  const spreadX = 140 + Math.round(120 * impact);
+  const spreadY = 55 + Math.round(35 * impact);
+  const fade = 58 + Math.round(22 * (1 - impact));
   const root = document.documentElement.style;
   root.setProperty('--my-gem', hex);
   root.setProperty('--btn-radial-solid', hex);
-  root.setProperty('--btn-radial', `rgba(${r}, ${g}, ${b}, ${0.75 * amount})`);
+  root.setProperty('--btn-radial', `rgba(${r}, ${g}, ${b}, ${alpha})`);
   root.setProperty(
     '--btn-radial-wash',
-    amount > 0
-      ? `radial-gradient(ellipse 200% 70% at 50% 45%, rgba(${r}, ${g}, ${b}, ${0.75 * amount}), transparent 72%)`
-      : 'none',
+    `radial-gradient(ellipse ${spreadX}% ${spreadY}% at 50% 45%, rgba(${r}, ${g}, ${b}, ${alpha}), transparent ${fade}%)`,
   );
-  document.body.classList.toggle('radial-off', !on);
-  if (radialEnabledLabel) radialEnabledLabel.textContent = on ? 'On' : 'Off';
-  if (radialColor) radialColor.disabled = !on;
-  if (radialAmount) radialAmount.disabled = !on;
 }
 
 function applyBg() {
-  const hex = (bgColor && bgColor.value) || '#170c35';
-  const depth = ((bgDepth && Number(bgDepth.value)) || 100) / 100;
+  const hex = lookTools.bg || '#170c35';
+  const depth = (Number(lookTools.bgDepth) || 100) / 100;
   const { r, g, b } = hexToRgb(hex);
   document.documentElement.style.setProperty(
     '--bg',
@@ -408,44 +404,33 @@ function applyMotion(name) {
   document.documentElement.style.setProperty('--motion', MOTION_VARS[name] || MOTION_VARS.swoosh);
 }
 
-function applyMidTone() {
-  const on = midToneOn && midToneOn.getAttribute('aria-checked') === 'true';
-  if (midTonePick) midTonePick.hidden = !on;
-  const hex = (midToneColor && midToneColor.value) || '#241b46';
-  document.documentElement.style.setProperty('--raised', on ? hex : '#241b46');
-  document.documentElement.style.setProperty('--mid-tone', on ? hex : 'transparent');
+function applyLookExtras() {
+  const on = !!lookTools.midToneOn;
+  const mid = lookTools.midTone || '#241b46';
+  document.documentElement.style.setProperty('--raised', on ? mid : '#241b46');
+  document.documentElement.style.setProperty('--mid-tone', on ? mid : 'transparent');
+  const n = Number(lookTools.btnRadius) || 24;
+  document.documentElement.style.setProperty('--btn-radius', n >= 24 ? '999px' : `${n}px`);
+  document.documentElement.style.setProperty('--space-scale', String((Number(lookTools.spaceScale) || 100) / 100));
+  document.documentElement.style.setProperty('--type-scale', String((Number(lookTools.typeScale) || 100) / 100));
 }
 
-function applyBtnRadius() {
-  const n = btnRadius ? Number(btnRadius.value) : 24;
-  const pill = n >= 24;
-  document.documentElement.style.setProperty('--btn-radius', pill ? '999px' : `${n}px`);
-  if (btnRadiusValue) btnRadiusValue.textContent = pill ? 'pill' : `${n}px`;
+function applyLookFromTools(data) {
+  lookTools = { ...lookTools, ...data };
+  applyBg();
+  applyAccent();
+  applyLookExtras();
 }
 
-function applySpaceScale() {
-  const n = spaceScale ? Number(spaceScale.value) : 100;
-  document.documentElement.style.setProperty('--space-scale', String(n / 100));
-  if (spaceScaleValue) spaceScaleValue.textContent = `${n}%`;
-}
-
-function applyTypeScale() {
-  const n = typeScale ? Number(typeScale.value) : 100;
-  document.documentElement.style.setProperty('--type-scale', String(n / 100));
-  if (typeScaleValue) typeScaleValue.textContent = `${n}%`;
-}
-
-function setLibraryTab(tab) {
-  const next = tab === 'tools' ? 'tools' : 'elements';
-  document.body.dataset.libTab = next;
-  document.querySelectorAll('.lib-tab').forEach((b) => {
-    const on = b.dataset.libTab === next;
-    b.setAttribute('aria-selected', String(on));
-  });
-  if (library) library.hidden = next !== 'elements';
-  if (toolsPanel) toolsPanel.hidden = next !== 'tools';
-  if (catalogNav) catalogNav.hidden = next !== 'elements';
-  if (toolsSideNote) toolsSideNote.hidden = next !== 'tools';
+function setToolsOpen(open) {
+  const on = !!open;
+  document.body.dataset.toolsOpen = on ? '1' : '0';
+  if (toolsPlus) toolsPlus.setAttribute('aria-expanded', String(on));
+  if (toolsDrawer) toolsDrawer.hidden = !on;
+  if (toolsSideNote) toolsSideNote.hidden = !on;
+  if (on && toolsFrame && !toolsFrame.src) {
+    toolsFrame.src = toolsFrame.dataset.src || LOOK_TOOLS_SRC;
+  }
 }
 
 function repaintTintedElements() {
@@ -2549,46 +2534,23 @@ function syncDayReachedAccent() {
   }, 120);
 }
 
-accentColor.addEventListener('input', applyAccent);
-accentAlpha.addEventListener('input', applyAccent);
-if (radialEnabled) {
-  radialEnabled.addEventListener('change', () => {
-    applyRadial();
+if (toolsPlus) {
+  toolsPlus.addEventListener('click', () => {
+    const open = toolsPlus.getAttribute('aria-expanded') !== 'true';
+    setToolsOpen(open);
   });
 }
-radialColor.addEventListener('input', () => {
-  applyRadial();
-  repaintTintedElements();
-});
-radialAmount.addEventListener('input', applyRadial);
-bgColor.addEventListener('input', applyBg);
-bgDepth.addEventListener('input', applyBg);
-document.querySelectorAll('input[name="motion"]').forEach((input) => {
-  input.addEventListener('change', () => {
-    if (input.checked) applyMotion(input.value);
-  });
-});
-if (midToneOn) {
-  midToneOn.addEventListener('click', () => {
-    const next = midToneOn.getAttribute('aria-checked') !== 'true';
-    midToneOn.setAttribute('aria-checked', String(next));
-    applyMidTone();
-  });
+if (toolsDrawerClose) {
+  toolsDrawerClose.addEventListener('click', () => setToolsOpen(false));
 }
-if (midToneColor) midToneColor.addEventListener('input', applyMidTone);
-if (btnRadius) btnRadius.addEventListener('input', applyBtnRadius);
-if (spaceScale) spaceScale.addEventListener('input', applySpaceScale);
-if (typeScale) typeScale.addEventListener('input', applyTypeScale);
-document.querySelectorAll('.lib-tab').forEach((btn) => {
-  btn.addEventListener('click', () => setLibraryTab(btn.dataset.libTab));
+window.addEventListener('message', (event) => {
+  if (!event || !event.data || event.data.type !== 'location-gems-look') return;
+  applyLookFromTools(event.data);
 });
 
 applyBg();
 applyMotion('swoosh');
-applyMidTone();
-applyBtnRadius();
-applySpaceScale();
-applyTypeScale();
+applyLookExtras();
 buildLibrary();
 applyAccent();
-setLibraryTab('elements');
+setToolsOpen(false);

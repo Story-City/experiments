@@ -3193,6 +3193,36 @@ body.is-embed .phone {
   box-shadow: none;
 }
 
+/* Approved UI Tools + — only the gems-management edition-rail (Look / Move) */
+body.is-tools-embed {
+  margin: 0;
+  padding: 12px;
+  min-height: 0;
+  background: var(--bg, #170c35);
+  display: block;
+}
+body.is-tools-embed > header,
+body.is-tools-embed > .workspace > .tool-rail,
+body.is-tools-embed > .workspace > .stage {
+  display: none !important;
+}
+body.is-tools-embed > .workspace {
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  gap: 0;
+}
+body.is-tools-embed > .workspace > .edition-rail {
+  display: flex !important;
+  position: static;
+  top: auto;
+  max-height: none;
+  width: 100%;
+  padding: 0;
+  overflow: visible;
+}
+
 /* Debug: app FloatingTabBar from gem-pins-v2 / mobile-rn (toggle off to remove) */
 .app-main-tabs {
   position: absolute;

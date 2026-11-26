@@ -8,107 +8,67 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=22">
-<link rel="stylesheet" href="ports/likes.css?v=22">
-<link rel="stylesheet" href="ports/claim.css?v=22">
-<link rel="stylesheet" href="ports/portal.css?v=22">
-<link rel="stylesheet" href="ports/reveal.css?v=22">
-<link rel="stylesheet" href="ports/sprites.css?v=22">
-<link rel="stylesheet" href="ports/spotlight.css?v=22">
-<link rel="stylesheet" href="ports/gems-rarity.css?v=22">
-<link rel="stylesheet" href="ports/tip-reply.css?v=22">
-<link rel="stylesheet" href="ports/map-mode-switch.css?v=22">
-<link rel="stylesheet" href="ports/badges.css?v=22">
-<link rel="stylesheet" href="ports/gem-disc-filter.css?v=22">
-<link rel="stylesheet" href="ports/gem-pins-chrome.css?v=22">
-<link rel="stylesheet" href="ports/gem-category-selector.css?v=22">
-<link rel="stylesheet" href="side-panel.css?v=2">
+<link rel="stylesheet" href="app.css?v=23">
+<link rel="stylesheet" href="ports/likes.css?v=23">
+<link rel="stylesheet" href="ports/claim.css?v=23">
+<link rel="stylesheet" href="ports/portal.css?v=23">
+<link rel="stylesheet" href="ports/reveal.css?v=23">
+<link rel="stylesheet" href="ports/sprites.css?v=23">
+<link rel="stylesheet" href="ports/spotlight.css?v=23">
+<link rel="stylesheet" href="ports/gems-rarity.css?v=23">
+<link rel="stylesheet" href="ports/tip-reply.css?v=23">
+<link rel="stylesheet" href="ports/map-mode-switch.css?v=23">
+<link rel="stylesheet" href="ports/badges.css?v=23">
+<link rel="stylesheet" href="ports/gem-disc-filter.css?v=23">
+<link rel="stylesheet" href="ports/gem-pins-chrome.css?v=23">
+<link rel="stylesheet" href="ports/gem-category-selector.css?v=23">
+<link rel="stylesheet" href="side-panel.css?v=3">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
-<body data-lib-tab="elements">
-  <!-- side panel: title, tab switch, jump links (elements) or tools summary -->
+<body data-tools-open="0">
+  <!-- side panel: title, Elements, Tools + that calls gems-management Look rail -->
   <aside class="side-panel" aria-label="Library controls">
   <header class="page-head">
     <p class="eyebrow">StoryCity · experiments</p>
     <h1>Approved UI</h1>
     <p class="lede">
-      Elements are isolated pieces at phone scale. Tools are Look controls you reuse across prototypes.
+      Isolated elements at phone scale. Press + beside Tools to call the same Look rail from gems management.
     </p>
   </header>
 
-  <div class="lib-tabs" role="tablist" aria-label="Library sections">
-    <button type="button" class="lib-tab" role="tab" id="tabElements" data-lib-tab="elements" aria-selected="true" aria-controls="library">Elements</button>
-    <button type="button" class="lib-tab" role="tab" id="tabTools" data-lib-tab="tools" aria-selected="false" aria-controls="toolsPanel">Tools</button>
+  <div class="lib-tabs" role="group" aria-label="Library sections">
+    <button type="button" class="lib-tab is-on" id="tabElements" data-lib-tab="elements" aria-pressed="true">Elements</button>
+    <div class="tools-call">
+      <span class="tools-call-label">Tools</span>
+      <button type="button" class="tools-plus" id="toolsPlus" aria-expanded="false" aria-controls="toolsDrawer" title="Open gems management tools">+</button>
+    </div>
   </div>
 
   <nav class="catalog-nav" id="catalogNav" aria-label="Jump to element"></nav>
-  <p class="tools-side-note" id="toolsSideNote" hidden>Open Tools for Accent, Radial, Background, Motion, and spacing. Changes tint Elements too.</p>
+  <p class="tools-side-note" id="toolsSideNote" hidden>Same Look / Move rail as Location Gems hub. Changes tint Elements here.</p>
   </aside>
 
-  <main class="library" id="library" role="tabpanel" aria-labelledby="tabElements">
+  <main class="library" id="library">
     <!-- cards injected by app.js from ELEMENT_DEFS -->
   </main>
 
-  <section class="tools-panel" id="toolsPanel" role="tabpanel" aria-labelledby="tabTools" hidden>
-    <header class="tools-head">
-      <h2>Prototype tools</h2>
-      <p>Look controls from gems management — call them here, then jump back to Elements to see the tint.</p>
-    </header>
-    <div class="toolbar is-tools" id="toolbar">
-      <label class="accent-pick" title="Accent — day-reached, likes, unlock gems, glance, tips, CTAs">
-        <span>Accent</span>
-        <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
-        <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
-      </label>
-      <label class="accent-pick" title="Radial wash on CTAs — toggle off for flat gradient only">
-        <span>Radial</span>
-        <input type="checkbox" id="radialEnabled" checked aria-label="Radial wash on">
-        <span class="toggle-label" id="radialEnabledLabel">On</span>
-        <input type="color" id="radialColor" value="#b36bff" aria-label="Button radial color">
-        <input type="range" id="radialAmount" min="0" max="100" value="55" aria-label="Radial amount">
-      </label>
-      <label class="accent-pick" title="Page background indigo">
-        <span>Background</span>
-        <input type="color" id="bgColor" value="#170c35" aria-label="Background color">
-        <input type="range" id="bgDepth" min="40" max="100" value="100" aria-label="Background depth">
-      </label>
-      <fieldset class="motion-pick" aria-label="Motion preset">
-        <legend>Motion</legend>
-        <label><input type="radio" name="motion" value="swoosh" checked> Swoosh</label>
-        <label><input type="radio" name="motion" value="spring"> Spring</label>
-        <label><input type="radio" name="motion" value="out"> Ease-out</label>
-      </fieldset>
-      <div class="tool-toggle">
-        <span>Mid tone</span>
-        <button type="button" class="switch" id="midToneOn" role="switch" aria-checked="false" aria-label="Mid tone">
-          <span class="switch-knob" aria-hidden="true"></span>
-        </button>
-      </div>
-      <label class="accent-pick is-mid-tone" id="midTonePick" title="Raised / polaroid frame mid tone" hidden>
-        <span>Mid / frame</span>
-        <input type="color" id="midToneColor" value="#241b46" aria-label="Mid tone color">
-      </label>
-      <label class="accent-pick" title="Corner radius on pills and action buttons">
-        <span>Button radius</span>
-        <input type="range" id="btnRadius" min="0" max="24" value="24" aria-label="Button corner radius">
-        <span class="tool-value" id="btnRadiusValue">pill</span>
-      </label>
-      <label class="accent-pick" title="Spacing scale">
-        <span>Spacing</span>
-        <input type="range" id="spaceScale" min="70" max="140" value="100" aria-label="Spacing scale">
-        <span class="tool-value" id="spaceScaleValue">100%</span>
-      </label>
-      <label class="accent-pick" title="Type size scale">
-        <span>Type size</span>
-        <input type="range" id="typeScale" min="80" max="130" value="100" aria-label="Type size scale">
-        <span class="tool-value" id="typeScaleValue">100%</span>
-      </label>
+  <aside class="tools-drawer" id="toolsDrawer" hidden aria-label="Gems management tools">
+    <div class="tools-drawer-head">
+      <h2>Gems management tools</h2>
+      <button type="button" class="tools-drawer-close" id="toolsDrawerClose" aria-label="Close tools">×</button>
     </div>
-  </section>
+    <iframe
+      class="tools-frame"
+      id="toolsFrame"
+      title="Location Gems Look tools"
+      src=""
+      data-src="../location-gems/?tools=1&v=110"
+    ></iframe>
+  </aside>
 
-  <p class="meta">APPROVED-UI-v22 — Elements + Tools tabs · GEM-CAT-SELECTOR-v22 · GEM-PINS-CHROME-v21.</p>
+  <p class="meta">APPROVED-UI-v23 — Tools + calls location-gems Look rail · GEM-CAT-SELECTOR-v22.</p>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="../location-gems/corner-ribbon.js?v=54"></script>
-  <script src="app.js?v=22"></script>
+  <script src="app.js?v=23"></script>
 </body>
 </html>

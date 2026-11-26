@@ -3411,10 +3411,31 @@ detail.addEventListener('click', (e) => {
   setDetailMenuOpen(false);
 });
 detailLikeBtn.addEventListener('click', toggleDetailLike);
+function publishLookToolsToParent() {
+  if (!document.body.classList.contains('is-tools-embed')) return;
+  if (window.parent === window) return;
+  window.parent.postMessage({
+    type: 'location-gems-look',
+    accent: accentColor ? accentColor.value : '#00c2ff',
+    accentAlpha: accentAlpha ? Number(accentAlpha.value) : 100,
+    radial: radialColor ? radialColor.value : '#b36bff',
+    radialAmount: radialAmount ? Number(radialAmount.value) : 55,
+    radialImpact: radialImpact ? Number(radialImpact.value) : 60,
+    bg: bgColor ? bgColor.value : '#170c35',
+    bgDepth: bgDepth ? Number(bgDepth.value) : 100,
+    midToneOn: midToneEnabled(),
+    midTone: midToneColor ? midToneColor.value : '#241b46',
+    btnRadius: btnRadius ? Number(btnRadius.value) : 24,
+    spaceScale: spaceScale ? Number(spaceScale.value) : 100,
+    typeScale: typeScale ? Number(typeScale.value) : 100,
+  }, '*');
+}
+
 function onLookToolInput(fn) {
   return () => {
     fn();
     if (!designHistoryMuted) scheduleDesignStudioSave();
+    publishLookToolsToParent();
   };
 }
 accentColor.addEventListener('input', onLookToolInput(applyAccent));
@@ -3514,18 +3535,21 @@ if (btnRadius) {
   btnRadius.addEventListener('input', () => {
     applyBtnRadius();
     scheduleDesignStudioSave();
+    publishLookToolsToParent();
   });
 }
 if (spaceScale) {
   spaceScale.addEventListener('input', () => {
     applySpaceScale();
     scheduleDesignStudioSave();
+    publishLookToolsToParent();
   });
 }
 if (typeScale) {
   typeScale.addEventListener('input', () => {
     applyTypeScale();
     scheduleDesignStudioSave();
+    publishLookToolsToParent();
   });
 }
 if (designResetPos) designResetPos.addEventListener('click', resetDesignPosition);
@@ -3612,8 +3636,13 @@ bindTipGesture();
 bindFeedDismissGesture();
 setFeedVariant(feedVariant);
 
-if (new URLSearchParams(location.search).get('embed') === '1') {
+const locationGemsParams = new URLSearchParams(location.search);
+if (locationGemsParams.get('embed') === '1') {
   document.body.classList.add('is-embed');
+}
+if (locationGemsParams.get('tools') === '1') {
+  document.body.classList.add('is-tools-embed');
+  requestAnimationFrame(() => publishLookToolsToParent());
 }
 
 window.addEventListener('message', (event) => {
