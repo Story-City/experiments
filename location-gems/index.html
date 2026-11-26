@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=116">
+<link rel="stylesheet" href="app.css?v=117">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -62,18 +62,6 @@
       </section>
 
       <section class="tool-block">
-        <h2 class="tool-title">Page anchor</h2>
-        <p class="tool-note">Top of hub — Original keeps camera + arc. Others try CTA / haze / outline / yellow.</p>
-        <div class="variant-pick is-rail is-wrap" role="group" aria-label="Page anchor">
-          <button type="button" class="variant-btn is-on" data-page-anchor="camera" aria-pressed="true">Original</button>
-          <button type="button" class="variant-btn" data-page-anchor="cta" aria-pressed="false">CTA</button>
-          <button type="button" class="variant-btn" data-page-anchor="haze" aria-pressed="false">Haze</button>
-          <button type="button" class="variant-btn" data-page-anchor="outline" aria-pressed="false">Outline</button>
-          <button type="button" class="variant-btn" data-page-anchor="yellow" aria-pressed="false">Yellow</button>
-        </div>
-      </section>
-
-      <section class="tool-block">
         <h2 class="tool-title">Nearby cards</h2>
         <p class="tool-note">Toggle layouts — each still has Navigate</p>
         <div class="variant-pick is-rail is-wrap" role="group" aria-label="Nearby card variants">
@@ -113,10 +101,8 @@
   <main class="phone" id="phone" aria-label="Location Gems hub">
     <div class="hub" id="hub">
       <div class="hub-scroll" id="hubScroll">
-        <section class="snapshot-section" id="snapshotSection" data-page-anchor="camera">
-          <div class="page-anchor-haze" aria-hidden="true"></div>
-          <div class="page-anchor-outline" id="pageAnchorOutline" aria-hidden="true"></div>
-          <button type="button" class="snapshot-hero" id="snapshotBtn" aria-label="Take a snapshot gem of">
+        <section class="snapshot-section">
+          <button type="button" class="snapshot-hero" id="snapshotBtn" aria-label="Take a snapshot gem">
             <div class="arc-stage">
               <div class="camera-button" id="cameraButton" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">
@@ -131,12 +117,8 @@
               </div>
             </div>
             <div class="tagline-block">
-              <p class="title-prefix" id="snapshotPrefix">Take a snapshot gem of</p>
-              <div class="rotating-reel" id="rotatingReel" aria-live="polite">
-                <p class="rotating-line is-idle" id="rotatingIdle"><span id="rotatingWord">a café</span></p>
-                <p class="rotating-line is-out" id="rotatingOut" hidden></p>
-                <p class="rotating-line is-in" id="rotatingIn" hidden></p>
-              </div>
+              <p class="title-prefix">Take a snapshot gem of</p>
+              <p class="rotating-line"><span id="rotatingWord">a café</span></p>
             </div>
           </button>
         </section>
@@ -440,7 +422,7 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v116 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v117 · V1. Figma gems, no rarity.
   </p>
     </div>
 
@@ -541,6 +523,6 @@
     </aside>
   </div>
   <script src="corner-ribbon.js?v=109"></script>
-  <script src="app.js?v=116"></script>
+  <script src="app.js?v=117"></script>
 </body>
 </html>

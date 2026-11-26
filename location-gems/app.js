@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v116 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v117 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -132,9 +132,6 @@ const CHALLENGE_FINDS = [
 ];
 
 const ROTATE_MS = 2200;
-const ROLL_MS = 320;
-const PAGE_ANCHOR_VARIANTS = new Set(['cta', 'camera', 'haze', 'outline', 'yellow']);
-const PAGE_ANCHOR_OUTLINE_FILLS = ['#00c2ff', '#ffc448', '#b36bff'];
 const TIP_OUT_MS = 360;
 const TIP_SWIPE_DISMISS_PX = 72;
 const FEED_SWIPE_DISMISS_PX = 72;
@@ -334,14 +331,7 @@ const emptyState = document.getElementById('emptyState');
 const emptyTitle = document.getElementById('emptyTitle');
 const emptyBody = document.getElementById('emptyBody');
 const emptyIcon = document.getElementById('emptyIcon');
-const snapshotSection = document.getElementById('snapshotSection');
 const snapshotBtn = document.getElementById('snapshotBtn');
-const snapshotPrefix = document.getElementById('snapshotPrefix');
-const rotatingReel = document.getElementById('rotatingReel');
-const rotatingIdle = document.getElementById('rotatingIdle');
-const rotatingOut = document.getElementById('rotatingOut');
-const rotatingIn = document.getElementById('rotatingIn');
-const pageAnchorOutline = document.getElementById('pageAnchorOutline');
 const cameraButton = document.getElementById('cameraButton');
 const rotatingWord = document.getElementById('rotatingWord');
 const snapshotTip = document.getElementById('snapshotTip');
@@ -411,10 +401,8 @@ const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'banner';
-let pageAnchor = 'camera';
 let hubEdition = 'v1';
 let sortCardLook = 'polaroid';
-let placeRollBusy = false;
 let pendingPublish = null;
 const FEED_VARIANTS = new Set([
   'banner',
@@ -1762,72 +1750,8 @@ function handleSnapshot() {
 }
 
 function tickPlaces() {
-  if (!rotatingWord || SNAPSHOT_PLACES.length < 2) return;
-  if (placeRollBusy) return;
-  const next = (placeIndex + 1) % SNAPSHOT_PLACES.length;
-  const outgoing = SNAPSHOT_PLACES[placeIndex];
-  const incoming = SNAPSHOT_PLACES[next];
-  if (!rotatingReel || !rotatingOut || !rotatingIn || !rotatingIdle) {
-    placeIndex = next;
-    rotatingWord.textContent = incoming;
-    return;
-  }
-  placeRollBusy = true;
-  rotatingIdle.hidden = true;
-  rotatingOut.hidden = false;
-  rotatingIn.hidden = false;
-  rotatingOut.textContent = outgoing;
-  rotatingIn.textContent = incoming;
-  rotatingReel.classList.remove('is-rolling');
-  void rotatingReel.offsetWidth;
-  rotatingReel.classList.add('is-rolling');
-  window.setTimeout(() => {
-    placeIndex = next;
-    rotatingWord.textContent = incoming;
-    rotatingIdle.hidden = false;
-    rotatingOut.hidden = true;
-    rotatingIn.hidden = true;
-    rotatingReel.classList.remove('is-rolling');
-    placeRollBusy = false;
-  }, ROLL_MS);
-}
-
-function fillPageAnchorOutline() {
-  if (!pageAnchorOutline) return;
-  pageAnchorOutline.replaceChildren();
-  PAGE_ANCHOR_OUTLINE_FILLS.forEach((fill) => {
-    const wrap = document.createElement('span');
-    wrap.className = 'page-anchor-gem';
-    wrap.innerHTML = gemSvg(fill, { softOutline: true });
-    pageAnchorOutline.appendChild(wrap);
-  });
-}
-
-function setPageAnchor(variant) {
-  const next = PAGE_ANCHOR_VARIANTS.has(variant) ? variant : 'camera';
-  pageAnchor = next;
-  if (snapshotSection) snapshotSection.dataset.pageAnchor = next;
-  document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
-    const on = btn.getAttribute('data-page-anchor') === next;
-    btn.classList.toggle('is-on', on);
-    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-  });
-  const originalCopy = 'Take a snapshot gem of';
-  const ctaCopy = '[post a snapshot jam]';
-  const label = next === 'camera' ? originalCopy : ctaCopy;
-  if (snapshotPrefix) snapshotPrefix.textContent = label;
-  if (snapshotBtn) snapshotBtn.setAttribute('aria-label', label);
-  if (!snapshotTip.hidden) dismissTip();
-  if (hub) {
-    hub.classList.add('is-page-anchor-preview');
-    window.clearTimeout(setPageAnchor.previewTimer);
-    setPageAnchor.previewTimer = window.setTimeout(() => {
-      hub.classList.remove('is-page-anchor-preview');
-    }, 2400);
-  }
-  if (snapshotSection) {
-    snapshotSection.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }
+  placeIndex = (placeIndex + 1) % SNAPSHOT_PLACES.length;
+  rotatingWord.textContent = SNAPSHOT_PLACES[placeIndex];
 }
 
 function tipTargetEl(kind) {
@@ -3452,9 +3376,7 @@ function init() {
   seedGems();
   seedPendingSort();
   setupSnapshotArc();
-  fillPageAnchorOutline();
   applyStaticCopy();
-  setPageAnchor(pageAnchor);
   setHubEdition(hubEdition);
   setSortCardLook(sortCardLook);
   setSection('public');
@@ -3707,11 +3629,6 @@ if (publishCatNext) {
 document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
   btn.addEventListener('click', () => {
     setFeedVariant(btn.getAttribute('data-feed-variant') || 'banner');
-  });
-});
-document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    setPageAnchor(btn.getAttribute('data-page-anchor') || 'camera');
   });
 });
 document.querySelectorAll('[data-hub-edition]').forEach((btn) => {
