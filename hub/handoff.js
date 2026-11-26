@@ -76,3 +76,57 @@ export function specMarkdown(entry, spec, root) {
 }
 
 const cell = s => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+
+// Status changes made on the site (edit mode) are saved as hub-database docs with slug "status",
+// text = JSON { target, from, to, notionPageId? }. "from" is the experiments.json state when the change was
+// made, so once experiments.json changes (folded in, or edited by hand) an old change stops applying.
+export const STATUS_SLUG = 'status';
+export const STATES = [
+  ['draft', 'Draft'],
+  ['experiment', 'Experiment'],
+  ['review', 'In review'],
+  ['ready', 'Ready for Dev'],
+  ['built', 'Built'],
+  ['archived', 'Archived'],
+];
+
+export function stateKey(entry) {
+  if (entry.archived) return 'archived';
+  if (STAGES[entry.stage]) return entry.stage;
+  return entry.draft ? 'draft' : 'experiment';
+}
+
+export function withState(entry, to, notionPageId) {
+  const e = { ...entry, archived: to === 'archived' };
+  if (to === 'archived') return e;
+  e.draft = to === 'draft' || undefined;
+  if (e.draft && !e.reviewer) e.reviewer = 'Melissa';
+  if (!e.draft) delete e.reviewer;
+  if (STAGES[to]) e.stage = to; else delete e.stage;
+  if (to === 'ready' && notionPageId && !e.notionPageId) e.notionPageId = notionPageId;
+  return e;
+}
+
+export function parseStatusDocs(docs) {
+  const latest = {};
+  for (const d of docs || []) {
+    let c;
+    try { c = JSON.parse(d.text); } catch { continue; }
+    if (!c?.target || !STATES.some(([k]) => k === c.to)) continue;
+    latest[c.target] = c;
+  }
+  return latest;
+}
+
+export function applyStatusChanges(entries, docs) {
+  const latest = parseStatusDocs(docs);
+  return entries.map(e => {
+    const c = latest[e.slug];
+    return c && c.from === stateKey(e) ? { ...withState(e, c.to, c.notionPageId), changedOnSite: c } : e;
+  });
+}
+
+export function notionIdFrom(text) {
+  const m = String(text || '').replace(/-/g, '').match(/[0-9a-f]{32}/i);
+  return m ? m[0].toLowerCase().replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5') : null;
+}

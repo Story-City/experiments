@@ -38,3 +38,9 @@ Experiments are the design handoff: no separate UX doc or Figma. The Notion task
   - `assets`: `[{ "label", "file", "note" }]`: real files devs download (never screenshots)
 - **Copy spec** in the Spec tab copies it as Markdown for a ticket.
 - Run `node hub/check-handoff.mjs` before pushing: it fails on an unknown stage, Ready for Dev without a Notion task or spec, a missing spec, page or asset file, or a non-snake_case event.
+
+## Changing status from the site
+
+**Edit statuses** at the bottom of the Experiments tab (or `index.html?edit=1`) turns on edit mode in that browser: every card gets a status picker (Draft, Experiment, In review, Ready for Dev, Built, Archived) and **Done** turns it off. Picking one saves for everyone, on the live site only. Ready for Dev asks for the Notion task link when the entry has none.
+
+Changes are saved in the hub database (comments collection, slug `status`), each with the `experiments.json` state it started from, so a change stops applying once `experiments.json` moves on. The viewer badge follows them too. `node hub/fold-status.mjs` (read-only) lists the site changes not yet in `experiments.json`; `--write` folds them in, then run `node hub/check-handoff.mjs` and commit.

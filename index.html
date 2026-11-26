@@ -154,6 +154,13 @@
   .area-nav a { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-muted); font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap; }
   .area-nav a[hidden], .area[hidden] { display: none; }
   .area-nav a:hover { border-color: var(--glow); color: var(--text); }
+  /* edit mode: a status picker under every card */
+  .edit-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; padding: 10px 14px; border: 1px dashed var(--glow); border-radius: 12px; color: var(--mist); font-size: 14px; }
+  .edit-bar[hidden], .edit-toggle [hidden] { display: none; }
+  .edit-bar button, .edit-toggle button { height: 30px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: 600 13px var(--f-body); cursor: pointer; }
+  .edit-toggle { margin: 40px 0 0; text-align: center; }
+  .edit-toggle button { background: transparent; color: var(--lilac); border-color: transparent; }
+  .status-pick { margin-left: auto; height: 30px; padding: 0 8px; border-radius: 8px; border: 1px solid var(--glow); background: var(--ink); color: var(--text); font: 600 13px var(--f-body); }
   /* stage tabs inside Experiments: folder tabs, the picked one joined to the page */
   .stages { display: flex; gap: 4px; margin: -8px 0 16px; border-bottom: 1px solid var(--border); }
   .stages[hidden] { display: none; }
@@ -241,6 +248,7 @@
   <button type="button" role="tab" id="stage-ready" data-stage="ready" aria-controls="sub-ready" aria-selected="false" tabindex="-1">Ready for Dev <span class="n" id="n-ready"></span></button>
 </div>
 <div class="filters" role="group" aria-label="Filter by author"></div>
+<p class="edit-bar" id="edit-bar" hidden>Editing statuses: pick one under any card. It saves for everyone. <button type="button" id="edit-done">Done</button></p>
 
 <section id="panel-experiments" role="tabpanel" aria-labelledby="tab-experiments">
 
@@ -262,6 +270,7 @@
 <ul id="ready"></ul>
 <p class="empty" id="ready-empty" hidden>Nothing is Ready for Dev yet.</p>
 </section>
+<p class="edit-toggle"><button type="button" id="edit-on">Edit statuses</button></p>
 </section>
 
 <section id="panel-polls" role="tabpanel" aria-labelledby="tab-polls" hidden>
@@ -275,14 +284,31 @@
 
 <script type="module">
   import * as store from './hub/store.js';
-  import { stageOf, notionUrl } from './hub/handoff.js';
+  import { stageOf, notionUrl, STATES, STATUS_SLUG, stateKey, applyStatusChanges, notionIdFrom } from './hub/handoff.js';
   import(`./timeline.js?v=${Date.now()}`).then((m) => m.initTimeline()).catch(() => {});
 
   const [manifest, notion] = await Promise.all([
     store.loadJson('experiments.json'),
     store.loadJson('hub/notion.json'),
   ]);
-  const entries = manifest || [];
+  // Status changes made here in edit mode live in the hub database (live site only) until folded into experiments.json
+  const LIVE = location.pathname.includes('/experiments/');
+  const STATUS_WAIT_MS = 3000;
+  const gitEntries = manifest || [];
+  const gitBySlug = Object.fromEntries(gitEntries.map(e => [e.slug, e]));
+  const within = (p, ms, fallback) => Promise.race([p, new Promise(r => setTimeout(() => r(fallback), ms))]);
+  let statusDocs = [];
+  if (LIVE) {
+    try {
+      const ctx = await within(store.init(), STATUS_WAIT_MS, null);
+      if (ctx?.enabled) statusDocs = await within(new Promise(r => store.watchComments(STATUS_SLUG, d => r(d))), STATUS_WAIT_MS, []);
+    } catch {}
+  }
+  const entries = applyStatusChanges(gitEntries, statusDocs);
+  const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
+  const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} };
+  if (new URLSearchParams(location.search).has('edit')) lsSet('scEditStatus', '1');
+  const editing = lsGet('scEditStatus') === '1';
   const tasks = notion?.tasks || {};
   const month = d => new Date(d + '-01T00:00').toLocaleDateString('en', { month: 'long', year: 'numeric' });
   const el = (tag, cls, text) => {
@@ -331,7 +357,56 @@
       row.append(a);
     }
     if (e.jira) row.append(link(`https://storycity.atlassian.net/browse/${e.jira}`, e.jira));
+    if (editing) row.append(statusPicker(e));
     return row;
+  }
+
+  function statusPicker(e) {
+    const sel = el('select', 'status-pick');
+    sel.setAttribute('aria-label', `Status of ${e.title}`);
+    for (const [k, label] of STATES) {
+      const o = el('option', null, label);
+      o.value = k;
+      sel.append(o);
+    }
+    sel.value = stateKey(e);
+    sel.addEventListener('click', ev => ev.stopPropagation());
+    sel.addEventListener('change', () => changeStatus(e, sel));
+    return sel;
+  }
+
+  async function changeStatus(e, sel) {
+    const to = sel.value;
+    const undo = () => { sel.value = stateKey(e); };
+    if (!LIVE) { alert('Status changes save on the live site only.'); return undo(); }
+    const git = gitBySlug[e.slug] || e;
+    let notionPageId = null;
+    if (to === 'ready' && !git.notionPageId) {
+      notionPageId = notionIdFrom(prompt('Ready for Dev needs its Notion task. Paste the Notion task link:'));
+      if (!notionPageId) { alert('No Notion task link, so it stays as it is.'); return undo(); }
+    }
+    let name = lsGet('hubName');
+    if (!name) {
+      name = (prompt('Your name (saved with the change):') || '').trim().slice(0, 60);
+      if (!name) return undo();
+      lsSet('hubName', name);
+    }
+    sel.disabled = true;
+    try {
+      await store.init();
+      const u = store.user();
+      await store.addComment({
+        slug: STATUS_SLUG,
+        text: JSON.stringify({ target: e.slug, from: stateKey(git), to, notionPageId, by: name }),
+        url: null, x: null, y: null, sha: null, screenshot: null,
+        author: { uid: u.uid, name, guest: !u.email },
+      });
+      location.reload();
+    } catch (err) {
+      sel.disabled = false;
+      alert(`Could not save: ${err.message}`);
+      undo();
+    }
   }
 
   // live: { since: 'YYYY-MM', shots: ['slug/live/1.png' or '.mp4'], note: 'what shipped' }; up to 2 snippets
@@ -496,6 +571,16 @@
   }
 
   apply(new URLSearchParams(location.search).get('by') || '');
+
+  document.getElementById('edit-bar').hidden = !editing;
+  document.getElementById('edit-on').hidden = editing;
+  document.getElementById('edit-on').addEventListener('click', () => { lsSet('scEditStatus', '1'); location.reload(); });
+  document.getElementById('edit-done').addEventListener('click', () => {
+    lsSet('scEditStatus', null);
+    const url = new URL(location.href);
+    url.searchParams.delete('edit');
+    location.href = url.href;
+  });
 
   // Experiments | Polls tabs; ?tab=polls opens Polls
   const tabs = [...document.querySelectorAll('.tab')];

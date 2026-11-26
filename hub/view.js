@@ -1,5 +1,5 @@
 import * as store from './store.js';
-import { stageOf, normalizeSpec, specMarkdown, notionUrl } from './handoff.js';
+import { stageOf, normalizeSpec, specMarkdown, notionUrl, applyStatusChanges, STATUS_SLUG } from './handoff.js';
 
 const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -102,12 +102,15 @@ if (task?.status) {
 }
 
 const stage = stageOf(entry);
-if (stage) {
-  $('stage').textContent = stage.label;
-  $('stage').dataset.stage = stage.key;
-  if (stage.blocked) $('stage').dataset.blocked = 'true';
-  $('stage').hidden = false;
+function showStageBadge(st) {
+  const b = $('stage');
+  b.hidden = !st;
+  if (!st) return;
+  b.textContent = st.label;
+  b.dataset.stage = st.key;
+  if (st.blocked) b.dataset.blocked = 'true'; else delete b.dataset.blocked;
 }
+showStageBadge(stage);
 
 // "spec": "<folder>/spec.json" in experiments.json: the UX spec devs build from, in a Spec tab beside the questions.
 const spec = entry.spec ? normalizeSpec(await store.loadJson(new URL(entry.spec, root))) : null;
@@ -600,6 +603,7 @@ try {
   } else {
     store.onUser(renderMe);
     renderMe();
+    store.watchComments(STATUS_SLUG, docs => showStageBadge(stageOf(applyStatusChanges([entry], docs)[0])));
     store.watchComments(slug, (list, err) => {
       if (err) notice(`Could not load comments: ${err.message}`);
       comments = list;
