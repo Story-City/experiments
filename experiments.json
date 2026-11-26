@@ -1,5 +1,19 @@
 [
   {
+    "slug": "everyday-app",
+    "path": "everyday-app/",
+    "title": "Everyday Story City",
+    "what": "The whole app after the first-time tour: Today, the feed, the map, the library, You, gems, a full story to its ending, reminders and the trial. Journeys jump to a persona, Team Options switch open questions, Reviewer shows where each choice came from, and Type tunes fonts and colours.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null,
+    "draft": true,
+    "reviewer": "Melissa"
+  },
+  {
     "slug": "balanced-stories",
     "path": "balanced-stories/",
     "area": "reading",
