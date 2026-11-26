@@ -122,11 +122,11 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=20",
+    "path": "approved-ui/?v=21",
     "area": "design",
     "frame": "wide",
     "title": "Approved UI library",
-    "what": "Disc colour filter from gem-pins V2. End-story badges, map mode card, likes, tips, rarities.",
+    "what": "Gem-pins V2: Disc, Always/Classic/Inline filters, tab bar. End-story badges, map mode, likes, tips.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

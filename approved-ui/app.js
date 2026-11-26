@@ -1,6 +1,6 @@
-/** Approved UI library — APPROVED-UI-v20
- * Gem Disc colour filter from gem-pins-v2; EndStory badges; map chapter card; likes.
- * GEM-DISC-FILTER-v20 · END-STORY-BADGES-POPUP-v19 · MAP-MODE-CARD-v19
+/** Approved UI library — APPROVED-UI-v21
+ * Gem-pins V2: Disc, Always/Classic/Inline filters, tab bar; EndStory; map mode; likes.
+ * GEM-PINS-CHROME-v21 · GEM-DISC-FILTER-v20 · END-STORY-BADGES-POPUP-v19 · MAP-MODE-CARD-v19
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -216,6 +216,38 @@ const ELEMENT_DEFS = [
     ux: 'When: map gems filter. Selected gem at bottom centre; soft tinted arc (mid shine, soft mask); ≤5 gems on the rim; solid liked heart + wishlist bookmark. Try: drag · tap a gem · Spin next.',
     stage: 'disc',
     mount: mountGemDiscFilter,
+  },
+  {
+    id: 'gem-filter-always',
+    title: 'Always-on filter',
+    source: 'gem-pins-v2 Always on',
+    ux: 'When: gems map with filter always visible. Roller on top, legend under. Try: tap a gem in the row.',
+    stage: 'gem-filter',
+    mount: (stage, actions) => mountGemFilterLayout(stage, actions, 'always'),
+  },
+  {
+    id: 'gem-filter-classic',
+    title: 'Classic top filter',
+    source: 'gem-pins-v2 Classic top',
+    ux: 'When: “Gems nearby” until filter opens. Filter button reveals roller + legend. Try: Open filter · pick a gem.',
+    stage: 'gem-filter',
+    mount: (stage, actions) => mountGemFilterLayout(stage, actions, 'classic'),
+  },
+  {
+    id: 'gem-filter-inline',
+    title: 'Inline legend filter',
+    source: 'gem-pins-v2 Inline legend',
+    ux: 'When: compact gems map bar. Icon + title beside the roller; explain on the second row. Try: tap a gem.',
+    stage: 'gem-filter',
+    mount: (stage, actions) => mountGemFilterLayout(stage, actions, 'inline'),
+  },
+  {
+    id: 'gem-tab-bar',
+    title: 'Gems tab bar',
+    source: 'gem-pins-v2 · FloatingTabBar + GemIcon',
+    ux: 'When: main app tabs on gems map. Explore / Feed / Gems / Library; Gems uses the app gem outline. Try: tap a tab.',
+    stage: 'gem-tabs',
+    mount: mountGemTabBar,
   },
   {
     id: 'map-mode-switch',
@@ -1456,6 +1488,206 @@ function mountTipWithReply(stage, actions) {
   apply(active);
   addPlay(actions, 'Show tip', show);
   addGhost(actions, 'Dismiss', dismiss);
+}
+
+/** Shared stops/marks for gem-pins filter ports (from gem-pins-v2). */
+function gemPinsFilterStops() {
+  return [
+    { id: 'all', label: 'All gems', note: '[every gem nearby]', kind: 'all' },
+    { id: 'nature', label: 'Nature', note: '[explain nature finds]', kind: 'cat', art: 'nature' },
+    { id: 'eatshop', label: 'Eat & Drink', note: '[explain eat, drink and shop finds]', kind: 'cat', art: 'eat' },
+    { id: 'culture', label: 'Culture', note: '[explain culture finds]', kind: 'cat', art: 'culture' },
+    { id: 'play', label: 'Play', note: '[explain play finds]', kind: 'cat', art: 'play' },
+    { id: 'landmark', label: 'Landmarks', note: '[explain landmark finds]', kind: 'cat', art: 'landmark' },
+    { id: 'curio', label: 'Curiosities', note: '[explain curiosity finds]', kind: 'cat', art: 'curio' },
+    { id: 'liked', label: 'Liked', note: '[explain liked gems]', kind: 'liked' },
+    { id: 'wishlist', label: 'Wishlist', note: '[explain saved for later]', kind: 'wishlist' },
+  ];
+}
+
+function gemPinsMarkHtml(stop) {
+  const LIKE_PINK_HOT = '#ff7aab';
+  const WISHLIST_FILL = '#e8e4ff';
+  const HEART_PATH =
+    'M15.0007 10.0002C16.2423 8.7835 17.5007 7.32516 17.5007 5.41683C17.5007 4.20125 17.0178 3.03547 16.1582 2.17592C15.2987 1.31638 14.1329 0.833496 12.9173 0.833496C11.4507 0.833496 10.4173 1.25016 9.16732 2.50016C7.91732 1.25016 6.88398 0.833496 5.41732 0.833496C4.20174 0.833496 3.03595 1.31638 2.17641 2.17592C1.31687 3.03547 0.833984 4.20125 0.833984 5.41683C0.833984 7.3335 2.08398 8.79183 3.33398 10.0002L9.16732 15.8335L15.0007 10.0002Z';
+  const BOOKMARK_PATH = 'M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z';
+  const GEM_SRC = {
+    nature: '../gem-pins-v2/assets/gems/nature.svg',
+    eat: '../gem-pins-v2/assets/gems/eat-drink.svg',
+    culture: '../gem-pins-v2/assets/gems/art.svg',
+    play: '../gem-pins-v2/assets/gems/play.svg',
+    landmark: '../gem-pins-v2/assets/gems/landmarks.svg',
+    curio: '../gem-pins-v2/assets/gems/curiosities.svg',
+  };
+  if (stop.kind === 'all') return gemSvg(PUBLIC_GEM_FILL);
+  if (stop.kind === 'liked') {
+    return `<svg class="pin-gem is-heart" viewBox="0 0 19 17" aria-hidden="true"><path d="${HEART_PATH}" fill="${LIKE_PINK_HOT}"/><path d="${HEART_PATH}" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  }
+  if (stop.kind === 'wishlist') {
+    return `<svg class="pin-gem is-bookmark" viewBox="0 0 24 24" aria-hidden="true"><path d="${BOOKMARK_PATH}" fill="${WISHLIST_FILL}" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  }
+  const src = GEM_SRC[stop.art] || GEM_SRC.nature;
+  return `<img class="pin-gem" src="${src}" width="28" height="28" alt="" decoding="async">`;
+}
+
+function mountGemTabBar(stage, actions) {
+  const host = document.createElement('div');
+  host.className = 'gpc-tab-host';
+  host.innerHTML = `
+    <nav class="gpc-tab-bar" aria-label="Main">
+      <button type="button" class="gpc-tab" data-tab="explore" aria-pressed="false">
+        <svg class="gpc-tab-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M10.9444 4C10.9444 2.89543 10.049 2 8.94439 2H4.5C3.39543 2 2.5 2.89543 2.5 4V12.8C2.5 13.9046 3.39543 14.8 4.5 14.8H8.94439C10.049 14.8 10.9444 13.9046 10.9444 12.8V4ZM21.4998 4C21.4998 2.89543 20.6044 2 19.4998 2H15.0555C13.9509 2 13.0555 2.89543 13.0555 4V4.8C13.0555 5.90457 13.9509 6.8 15.0555 6.8H19.4998C20.6044 6.8 21.4998 5.90457 21.4998 4.8V4ZM2.5 19.2C2.5 18.0954 3.39543 17.2 4.5 17.2H8.94439C10.049 17.2 10.9444 18.0954 10.9444 19.2V20C10.9444 21.1046 10.049 22 8.94439 22H4.5C3.39543 22 2.5 21.1046 2.5 20V19.2ZM21.4998 11.2C21.4998 10.0954 20.6044 9.2 19.4998 9.2H15.0555C13.9509 9.2 13.0555 10.0954 13.0555 11.2V20C13.0555 21.1046 13.9509 22 15.0555 22H19.4998C20.6044 22 21.4998 21.1046 21.4998 20V11.2Z" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Explore</span>
+      </button>
+      <button type="button" class="gpc-tab" data-tab="feed" aria-pressed="false">
+        <svg class="gpc-tab-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3.85714 2C2.83417 2 1.85309 2.39509 1.12973 3.09835C0.406376 3.80161 0 4.75544 0 5.75V18.25C0 19.2446 0.406376 20.1984 1.12973 20.9016C1.85309 21.6049 2.83417 22 3.85714 22H20.1429C21.1658 22 22.1469 21.6049 22.8703 20.9016C23.5936 20.1984 24 19.2446 24 18.25V5.75C24 4.75544 23.5936 3.80161 22.8703 3.09835C22.1469 2.39509 21.1658 2 20.1429 2H3.85714ZM1.71429 5.75C1.71429 5.19747 1.94005 4.66756 2.34191 4.27686C2.74378 3.88616 3.28882 3.66667 3.85714 3.66667H20.1429C20.7112 3.66667 21.2562 3.88616 21.6581 4.27686C22.0599 4.66756 22.2857 5.19747 22.2857 5.75V18.25C22.2857 18.8025 22.0599 19.3324 21.6581 19.7231C21.2562 20.1138 20.7112 20.3333 20.1429 20.3333H3.85714C3.28882 20.3333 2.74378 20.1138 2.34191 19.7231C1.94005 19.3324 1.71429 18.8025 1.71429 18.25V5.75ZM8.57143 8.6675V15.3333C8.57153 15.4771 8.6099 15.6185 8.68283 15.7436C8.75575 15.8687 8.86074 15.9734 8.98758 16.0474C9.11442 16.1213 9.25879 16.1622 9.40666 16.1658C9.55453 16.1695 9.70086 16.1359 9.83143 16.0683L16.2583 12.7358C16.3952 12.6647 16.5097 12.5588 16.5895 12.4293C16.6693 12.2999 16.7115 12.1518 16.7115 12.0008C16.7115 11.8499 16.6693 11.7018 16.5895 11.5724C16.5097 11.4429 16.3952 11.337 16.2583 11.2658L9.83229 7.9325C9.70163 7.86468 9.55513 7.83093 9.40706 7.83454C9.259 7.83815 9.11442 7.87901 8.98743 7.95312C8.86044 8.02723 8.75537 8.13207 8.68246 8.25742C8.60955 8.38276 8.5713 8.5235 8.57143 8.6675Z" fill="currentColor"/>
+        </svg>
+        <span>Feed</span>
+      </button>
+      <button type="button" class="gpc-tab is-active" data-tab="gems" aria-pressed="true">
+        <svg class="gpc-tab-ico gpc-tab-gem" viewBox="0 0 24 22" fill="none" aria-hidden="true">
+          <path d="M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M1.5 7.5H22.5M7 1.5L9 7.5L12 20.5L15 7.5L17 1.5" stroke="currentColor" stroke-width="1" stroke-linejoin="round" opacity="0.55"/>
+        </svg>
+        <span>Gems</span>
+      </button>
+      <button type="button" class="gpc-tab" data-tab="library" aria-pressed="false">
+        <svg class="gpc-tab-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="6" y="4" width="13" height="17" rx="2" stroke="currentColor" stroke-width="2"/>
+          <path d="M15 10V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>Library</span>
+      </button>
+    </nav>
+  `;
+  stage.appendChild(host);
+  const setTab = (id) => {
+    host.querySelectorAll('.gpc-tab').forEach((b) => {
+      const on = b.dataset.tab === id;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+  };
+  host.querySelectorAll('.gpc-tab').forEach((b) => {
+    b.addEventListener('click', () => setTab(b.dataset.tab));
+  });
+  addPlay(actions, 'Select Gems', () => setTab('gems'));
+  addGhost(actions, 'Select Explore', () => setTab('explore'));
+}
+
+function mountGemFilterLayout(stage, actions, layout) {
+  const stops = gemPinsFilterStops();
+  let stopId = 'all';
+  let filterOn = layout !== 'classic';
+
+  const host = document.createElement('div');
+  host.className = 'gpc-filter-host';
+  host.innerHTML = `
+    <div class="gpc-map-bar is-${layout}${filterOn ? ' is-filter-on' : ''}">
+      <div class="gpc-nearby-row">
+        <span class="gpc-legend-ico" aria-hidden="true">${gemSvg(PUBLIC_GEM_FILL)}</span>
+        <p class="gpc-nearby-title">Gems nearby</p>
+      </div>
+      <div class="gpc-roller-slot">
+        <div class="gpc-roller-wrap">
+          <div class="gpc-roller" role="listbox" aria-label="Filter gems"></div>
+        </div>
+      </div>
+      <div class="gpc-legend">
+        <span class="gpc-legend-ico"></span>
+        <div class="gpc-legend-copy">
+          <p class="gpc-legend-title"></p>
+          <p class="gpc-legend-note"></p>
+        </div>
+      </div>
+      <button type="button" class="gpc-filter-btn" aria-pressed="false" aria-label="Filter">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/></svg>
+      </button>
+    </div>
+  `;
+  stage.appendChild(host);
+
+  const bar = host.querySelector('.gpc-map-bar');
+  const roller = host.querySelector('.gpc-roller');
+  const legendIco = host.querySelector('.gpc-legend .gpc-legend-ico');
+  const legendTitle = host.querySelector('.gpc-legend-title');
+  const legendNote = host.querySelector('.gpc-legend-note');
+  const filterBtn = host.querySelector('.gpc-filter-btn');
+
+  const paint = () => {
+    bar.classList.toggle('is-filter-on', filterOn);
+    filterBtn.setAttribute('aria-pressed', String(filterOn));
+    const stop = stops.find((s) => s.id === stopId) || stops[0];
+    legendIco.innerHTML = gemPinsMarkHtml(stop);
+    legendTitle.textContent = stop.label;
+    legendNote.textContent = stop.note;
+    roller.querySelectorAll('button').forEach((b) => {
+      b.setAttribute('aria-selected', String(b.dataset.stop === stopId));
+    });
+  };
+
+  roller.replaceChildren();
+  stops.forEach((stop) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.stop = stop.id;
+    b.setAttribute('role', 'option');
+    b.setAttribute('aria-label', stop.label);
+    b.innerHTML = gemPinsMarkHtml(stop);
+    b.addEventListener('click', () => {
+      stopId = stop.id;
+      if (layout === 'classic') filterOn = true;
+      paint();
+      const target = roller.querySelector(`[data-stop="${stop.id}"]`);
+      if (target) {
+        const left = target.offsetLeft - roller.clientWidth / 2 + target.offsetWidth / 2;
+        roller.scrollTo({ left, behavior: 'smooth' });
+      }
+    });
+    roller.append(b);
+  });
+
+  filterBtn.addEventListener('click', () => {
+    if (layout !== 'classic') return;
+    filterOn = !filterOn;
+    if (filterOn) stopId = 'all';
+    paint();
+  });
+
+  paint();
+  requestAnimationFrame(() => {
+    const target = roller.querySelector(`[data-stop="${stopId}"]`);
+    if (!target) return;
+    const left = target.offsetLeft - roller.clientWidth / 2 + target.offsetWidth / 2;
+    roller.scrollTo({ left, behavior: 'auto' });
+  });
+
+  if (layout === 'classic') {
+    addPlay(actions, 'Open filter', () => {
+      filterOn = true;
+      paint();
+    });
+    addGhost(actions, 'Close filter', () => {
+      filterOn = false;
+      paint();
+    });
+  } else {
+    addPlay(actions, 'Select Liked', () => {
+      stopId = 'liked';
+      paint();
+      const target = roller.querySelector('[data-stop="liked"]');
+      if (target) {
+        const left = target.offsetLeft - roller.clientWidth / 2 + target.offsetWidth / 2;
+        roller.scrollTo({ left, behavior: 'smooth' });
+      }
+    });
+  }
 }
 
 /** Disc colour filter — geometry + marks from gem-pins-v2 v33 (no reinvent). */

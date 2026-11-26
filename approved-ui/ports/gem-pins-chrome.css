@@ -1,0 +1,317 @@
+/* Gem pins chrome — tab bar + Always / Classic / Inline filters from gem-pins-v2.
+   Scoped .gpc-*  GEM-PINS-CHROME-v21 */
+
+/* —— Bottom tab bar (FloatingTabBar icons from app) —— */
+.gpc-tab-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px 12px 20px;
+  box-sizing: border-box;
+  background:
+    linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.35)),
+    var(--bg, #170c35);
+}
+.gpc-tab-bar {
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(42, 47, 92, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.gpc-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 5px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.62);
+  font: inherit;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 12px;
+  cursor: pointer;
+}
+.gpc-tab.is-active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.gpc-tab-ico {
+  width: 23px;
+  height: 23px;
+  display: block;
+}
+.gpc-tab-gem {
+  width: 23px;
+  height: 21px;
+}
+
+/* —— Shared filter host —— */
+.gpc-filter-host {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  padding: 14px 10px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 0%, rgba(0, 194, 255, 0.1), transparent 65%),
+    var(--bg, #170c35);
+  color: #fff;
+  font-family: inherit;
+}
+.gpc-map-bar {
+  width: 100%;
+  min-width: 0;
+}
+.gpc-legend {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px;
+  filter: drop-shadow(0 1px 8px rgba(0, 0, 0, 0.55));
+}
+.gpc-legend-ico,
+.gpc-roller button {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+}
+.gpc-legend-copy { min-width: 0; }
+.gpc-legend-title {
+  margin: 0;
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+}
+.gpc-legend-note {
+  margin: 2px 0 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gpc-roller-wrap {
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+  height: 40px;
+}
+.gpc-roller {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  height: 40px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  cursor: grab;
+}
+.gpc-roller::-webkit-scrollbar { display: none; }
+.gpc-roller button {
+  scroll-snap-align: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 480ms var(--ease-out), filter 480ms var(--ease-out);
+}
+.gpc-roller button[aria-selected="true"] {
+  opacity: 1;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--brand-accent, #00c2ff) 55%, transparent));
+}
+.gpc-roller button img,
+.gpc-roller button .pin-gem,
+.gpc-legend-ico img,
+.gpc-legend-ico .pin-gem {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+.gpc-filter-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(36, 27, 70, 0.55);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 16px rgba(179, 107, 255, 0.45),
+    inset 0 0 12px rgba(255, 255, 255, 0.14);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #fff;
+}
+.gpc-filter-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.gpc-filter-btn[aria-pressed="true"] {
+  background:
+    var(--btn-radial-wash, radial-gradient(circle at 30% 20%, rgba(179, 107, 255, 0.55), transparent 55%)),
+    linear-gradient(180deg, rgba(0, 194, 255, 0.35), rgba(36, 27, 70, 0.7));
+  border-color: rgba(0, 194, 255, 0.7);
+}
+.gpc-nearby-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.gpc-nearby-title {
+  margin: 0;
+  font-weight: 800;
+  font-size: 22px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+}
+
+/* Always on: roller then legend */
+.gpc-map-bar.is-always {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "roller" "legend";
+  gap: 6px;
+}
+.gpc-map-bar.is-always .gpc-roller-slot { grid-area: roller; }
+.gpc-map-bar.is-always .gpc-legend { grid-area: legend; }
+.gpc-map-bar.is-always .gpc-nearby-row,
+.gpc-map-bar.is-always .gpc-filter-btn { display: none !important; }
+
+/* Classic: nearby/filter → roller+legend when on */
+.gpc-map-bar.is-classic {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  grid-template-areas:
+    "main filter"
+    "legend legend";
+  gap: 6px;
+  align-items: center;
+}
+.gpc-map-bar.is-classic .gpc-nearby-row { grid-area: main; }
+.gpc-map-bar.is-classic .gpc-roller-slot { grid-area: main; }
+.gpc-map-bar.is-classic .gpc-filter-btn { grid-area: filter; }
+.gpc-map-bar.is-classic .gpc-legend { grid-area: legend; }
+.gpc-map-bar.is-classic:not(.is-filter-on) .gpc-roller-slot { display: none; }
+.gpc-map-bar.is-classic:not(.is-filter-on) .gpc-legend { display: none !important; }
+.gpc-map-bar.is-classic.is-filter-on .gpc-nearby-row { display: none !important; }
+.gpc-map-bar.is-classic .gpc-roller {
+  padding-inline: calc(50% - 20px);
+  scroll-snap-type: x mandatory;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 72%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 72%, transparent 100%);
+}
+
+/* Inline: ico + title + roller / full-width note */
+.gpc-map-bar.is-inline {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-areas:
+    "ico title roller"
+    "note note note";
+  column-gap: 10px;
+  row-gap: 6px;
+  align-items: center;
+  justify-items: start;
+}
+.gpc-map-bar.is-inline .gpc-nearby-row,
+.gpc-map-bar.is-inline .gpc-filter-btn { display: none !important; }
+.gpc-map-bar.is-inline .gpc-legend {
+  display: contents;
+  filter: none;
+}
+.gpc-map-bar.is-inline .gpc-legend-ico {
+  grid-area: ico;
+  width: 44px;
+  height: 44px;
+}
+.gpc-map-bar.is-inline .gpc-legend-ico img,
+.gpc-map-bar.is-inline .gpc-legend-ico .pin-gem {
+  width: 34px;
+  height: 34px;
+}
+.gpc-map-bar.is-inline .gpc-legend-copy { display: contents; }
+.gpc-map-bar.is-inline .gpc-legend-title {
+  grid-area: title;
+  max-width: 7.5em;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.85);
+  align-self: center;
+}
+.gpc-map-bar.is-inline .gpc-legend-note {
+  grid-area: note;
+  display: block;
+  margin: 0;
+  padding: 0 2px;
+  width: 100%;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+}
+.gpc-map-bar.is-inline .gpc-roller-slot {
+  grid-area: roller;
+  justify-self: stretch;
+  min-width: 0;
+  width: 100%;
+}
+.gpc-map-bar.is-inline .gpc-roller-wrap { height: 52px; }
+.gpc-map-bar.is-inline .gpc-roller {
+  height: 52px;
+  gap: 10px;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+}
+.gpc-map-bar.is-inline .gpc-roller button {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+}
+.gpc-map-bar.is-inline .gpc-roller button img,
+.gpc-map-bar.is-inline .gpc-roller button .pin-gem {
+  width: 34px;
+  height: 34px;
+}

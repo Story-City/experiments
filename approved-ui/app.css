@@ -224,6 +224,14 @@ h1 {
   height: 168px;
   aspect-ratio: unset;
 }
+.stage.stage-gem-filter {
+  height: 140px;
+  aspect-ratio: unset;
+}
+.stage.stage-gem-tabs {
+  height: 120px;
+  aspect-ratio: unset;
+}
 .stage.stage-badges {
   /* Phone-tall so 72% modal fits hero+stats+badges without scroll */
   height: 760px;
