@@ -1,0 +1,30 @@
+<svg preserveAspectRatio="xMidYMid meet" overflow="visible" style="display: block;" width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Component 22">
+<path id="Vector" d="M55 10C66 25 85 43 85 66C85 85 71 98 55 98C39 98 25 85 25 66C25 43 44 25 55 10Z" fill="#00CD9D"/>
+<path id="Vector_2" d="M55 10L74 35L65 47L55 32V10Z" fill="#8CE9BB"/>
+<path id="Vector_3" d="M74 35L85 66L70 65L65 47L74 35Z" fill="#087D62"/>
+<path id="Vector_4" d="M85 66L76 89L65 79L70 65L85 66Z" fill="#009471"/>
+<path id="Vector_5" d="M76 89L56 98V83L65.5238 79L76 89Z" fill="#13600A"/>
+<path id="Vector_6" d="M55 98L34 89L45 79L55 83V98Z" fill="#13600A"/>
+<path id="Vector_7" d="M34 89L25 66L40 65L45 79L34 89Z" fill="#38D8B3"/>
+<path id="Vector_8" d="M25 66L36 35L45 47L40 65L25 66Z" fill="#29BC90"/>
+<path id="Vector_9" d="M36 35L55 10V32L45 47L36 35Z" fill="#8CE9BB"/>
+<path id="Vector_10" d="M55 32L65 47L70 65L65 79L55 83L45 79L40 65L45 47L55 32Z" fill="url(#paint0_linear_0_67)"/>
+<path id="Vector_11" d="M55 32L65 47L70 65L65 79L55 83L45 79L40 65L45 47L55 32Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_12" d="M55 10V32" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_13" d="M74 35L65 47" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_14" d="M85 66L70 65" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_15" d="M76 89L65 79" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+<path id="Vector_16" d="M55 98V83" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+<path id="Vector_17" d="M34 89L45 79" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+<path id="Vector_18" d="M25 66L40 65" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+<path id="Vector_19" d="M36 35L45 47" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.6"/>
+<path id="Vector_20" d="M55 10C66 25 85 43 85 66C85 85 71 98 55 98C39 98 25 85 25 66C25 43 44 25 55 10Z" stroke-width="4.2" stroke-linejoin="round" stroke="white"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_67" x1="55" y1="32" x2="55" y2="85.5" gradientUnits="userSpaceOnUse">
+<stop stop-color="#38D8B3"/>
+<stop offset="1" stop-color="#1E725E"/>
+</linearGradient>
+</defs>
+</svg>

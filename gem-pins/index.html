@@ -26,6 +26,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     <div class="edition-bar" role="group" aria-label="Version">
       <button type="button" data-edition="v1" aria-pressed="true">V1</button>
       <button type="button" data-edition="v2" aria-pressed="false">V2</button>
+      <button type="button" data-edition="v3" aria-pressed="false">V3</button>
     </div>
     <div class="edition-extra" id="editionExtra">
       <p class="edition-label">Slide-out</p>
@@ -221,29 +222,35 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   function showFrame() {
     if (document.body.classList.contains('is-v2')) frame.classList.add('is-shown');
   }
+  // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
+  // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
+  const FRAMES = { v2: '../gem-pins-v2/?v=49', v3: '../gem-pins-v3/?v=1' };
   function apply(edition) {
-    const v2 = edition === 'v2';
-    document.body.classList.toggle('is-v2', v2);
-    if (v2 && frame.dataset.ready !== '1') {
-      frame.src = '../gem-pins-v2/?v=49&embed=1&sheet=' + sheet;
-      frame.dataset.ready = '1';
-    } else if (v2) {
+    const src = FRAMES[edition];
+    document.body.classList.toggle('is-v2', !!src);
+    if (src && frame.dataset.edition !== edition) {
+      frame.classList.remove('is-shown');
+      frame.src = src + '&embed=1&sheet=' + sheet;
+      frame.dataset.edition = edition;
+      frame.title = 'Gem map pins ' + edition.toUpperCase();
+    } else if (src) {
       showFrame();
       sendSheet();
     } else {
       frame.classList.remove('is-shown');
     }
     document.querySelectorAll('[data-edition]').forEach((b) => {
-      b.setAttribute('aria-pressed', String(b.dataset.edition === (v2 ? 'v2' : 'v1')));
+      b.setAttribute('aria-pressed', String(b.dataset.edition === (src ? edition : 'v1')));
     });
   }
   frame.addEventListener('load', () => { showFrame(); sendSheet(); sendFilterLayout(); });
-  apply(new URLSearchParams(location.search).get('edition') === 'v2' ? 'v2' : 'v1');
+  const startEdition = new URLSearchParams(location.search).get('edition');
+  apply(FRAMES[startEdition] ? startEdition : 'v1');
   document.querySelectorAll('[data-edition]').forEach((b) => {
     b.addEventListener('click', () => {
       const edition = b.dataset.edition;
       const url = new URL(location.href);
-      if (edition === 'v2') url.searchParams.set('edition', 'v2');
+      if (FRAMES[edition]) url.searchParams.set('edition', edition);
       else url.searchParams.delete('edition');
       history.replaceState(null, '', url);
       apply(edition);
