@@ -1321,6 +1321,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .feed-chip.is-banner,
 .feed-chip.is-overlay,
 .feed-chip.is-prompt,
+.feed-chip.is-text,
 .feed-chip.is-wide,
 .feed-chip.is-caption,
 .feed-chip.is-peek {
@@ -1394,6 +1395,23 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   letter-spacing: -0.02em;
   text-transform: none;
   color: #fff;
+}
+.feed-chip.is-text .feed-chip-prompt-kicker {
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  font-weight: 900;
+  line-height: 1.1;
+  background: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--gem-line, #00c2ff) 42%, #fff) 0%,
+    var(--gem-line, #00c2ff) 48%,
+    color-mix(in srgb, var(--gem-line, #00c2ff) 65%, #ffe08a) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 .feed-chip-shot img {
   width: 100%;
@@ -1477,6 +1495,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   width: 62%;
   height: 56%;
 }
+.feed-chip.is-text .feed-chip-corner-art {
+  width: 50%;
+  height: 45%;
+}
 .feed-chip.is-wide .feed-chip-corner-art {
   width: 48%;
   height: 64%;
@@ -1513,6 +1535,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .feed-chip.is-peek .feed-chip-corner-gem {
   width: 38px;
   height: 38px;
+}
+.feed-chip.is-text .feed-chip-corner-gem {
+  width: calc(38px * 0.8);
+  height: calc(38px * 0.8);
 }
 .feed-chip-corner-gem svg,
 .feed-chip-corner-gem .cat-gem-art {
@@ -1605,6 +1631,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   white-space: nowrap;
 }
 .feed-chip.is-prompt .feed-chip-dist,
+.feed-chip.is-text .feed-chip-dist,
 .feed-chip.is-caption .feed-chip-dist,
 .feed-chip.is-peek .feed-chip-dist {
   font-size: 14px;
