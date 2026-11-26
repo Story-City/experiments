@@ -70,6 +70,13 @@
   .tab:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; border-radius: 6px 6px 0 0; }
   .tab .n { font-size: 13px; font-weight: 500; color: var(--lilac); }
   .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; }
+  /* search: title, description, author, part of the app; ?q= keeps it in the link, / focuses it */
+  .search { position: relative; max-width: 420px; margin: 0 0 12px; }
+  .search svg { position: absolute; left: 12px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); fill: none; stroke: var(--lilac); stroke-width: 2; stroke-linecap: round; pointer-events: none; }
+  .search input { width: 100%; height: 34px; padding: 0 64px 0 36px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: 400 15px var(--f-body); }
+  .search input:focus { outline: none; border-color: var(--glow); box-shadow: 0 0 12px -3px var(--glow); }
+  .search-n { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--lilac); pointer-events: none; }
+  mark { background: color-mix(in srgb, var(--glow) 35%, transparent); color: inherit; border-radius: 3px; }
   .chip {
     --who: var(--accent);
     padding: 6px 14px;
@@ -181,7 +188,7 @@
   .tabs { overflow-x: auto; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }
   .tabs .tab { flex: none; }
-  .filters[hidden], .tl-form[hidden], #panel-timeline [hidden] { display: none; }
+  .filters[hidden], .search[hidden], .tl-form[hidden], #panel-timeline [hidden] { display: none; }
   /* company timeline */
   #panel-timeline .sub { margin-top: 4px; }
   .tl-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0; }
@@ -246,6 +253,11 @@
   <button type="button" role="tab" id="stage-drafts" data-stage="drafts" aria-controls="sub-drafts" aria-selected="false" tabindex="-1">Drafts <span class="n" id="n-drafts"></span></button>
   <button type="button" role="tab" id="stage-live" data-stage="live" aria-controls="sub-live" aria-selected="true">Ready for Feedback <span class="n" id="n-live"></span></button>
   <button type="button" role="tab" id="stage-ready" data-stage="ready" aria-controls="sub-ready" aria-selected="false" tabindex="-1">Ready for Dev <span class="n" id="n-ready"></span></button>
+</div>
+<div class="search">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+  <input id="q" type="search" placeholder="Search experiments" aria-label="Search experiments" autocomplete="off">
+  <span class="search-n" id="q-n" aria-live="polite"></span>
 </div>
 <div class="filters" role="group" aria-label="Filter by author"></div>
 <p class="edit-bar" id="edit-bar" hidden>Editing statuses: pick one under any card. It saves for everyone. <button type="button" id="edit-done">Done</button></p>
@@ -459,6 +471,7 @@
     li.dataset.author = e.author;
     li.dataset.authorName = e.authorName;
     li.dataset.area = AREAS.some(([id]) => id === e.area) ? e.area : 'other';
+    li.dataset.search = [e.title, e.what, e.authorName, e.slug, (AREAS.find(([id]) => id === li.dataset.area) || [])[1], e.live?.note].filter(Boolean).join(' ').toLowerCase();
     if (e.archived) {
       const d = el('details', 'card');
       const sum = el('summary');
@@ -540,10 +553,18 @@
     return b;
   });
 
-  function apply(key) {
+  let author = '';
+  const qIn = document.getElementById('q');
+  const words = () => qIn.value.toLowerCase().split(/\s+/).filter(Boolean);
+  function apply(key = author) {
     if (key && !authors.has(key)) key = '';
+    author = key;
     for (const b of chips) b.setAttribute('aria-pressed', String((b.dataset.author || '') === key));
-    for (const li of items) li.hidden = !!key && li.dataset.author !== key;
+    const w = words();
+    for (const li of items) li.hidden = (!!key && li.dataset.author !== key) || !w.every(x => li.dataset.search.includes(x));
+    // when searching, archived matches open so they can be seen
+    for (const d of document.querySelectorAll('#archived details')) d.open = w.length > 0 && !d.closest('li').hidden;
+    document.getElementById('q-n').textContent = w.length ? `${items.filter(li => !li.hidden).length} found` : '';
     document.getElementById('archived-heading').hidden =
       ![...document.querySelectorAll('#archived li')].some(li => !li.hidden);
     document.getElementById('n-experiments').textContent = [...document.querySelectorAll('#live li, #ready li, #drafts li')].filter(li => !li.hidden).length;
@@ -567,9 +588,13 @@
     document.getElementById('n-live').textContent = [...document.querySelectorAll('#live li')].filter(li => !li.hidden).length;
     const url = new URL(location.href);
     key ? url.searchParams.set('by', key) : url.searchParams.delete('by');
+    qIn.value.trim() ? url.searchParams.set('q', qIn.value.trim()) : url.searchParams.delete('q');
     history.replaceState(null, '', url);
   }
 
+  qIn.value = new URLSearchParams(location.search).get('q') || '';
+  qIn.addEventListener('input', () => apply());
+  addEventListener('keydown', (ev) => { if (ev.key === '/' && document.activeElement !== qIn && !/input|textarea|select/i.test(document.activeElement?.tagName)) { ev.preventDefault(); qIn.focus(); } });
   apply(new URLSearchParams(location.search).get('by') || '');
 
   document.getElementById('edit-bar').hidden = !editing;
@@ -594,6 +619,7 @@
       if (on && focus) b.focus();
     }
     document.querySelector('.filters').hidden = name === 'timeline'; // authors don't apply to the timeline
+    document.querySelector('.search').hidden = name === 'timeline';
     document.querySelector('.stages').hidden = name !== 'experiments';
     const url = new URL(location.href);
     name !== 'experiments' ? url.searchParams.set('tab', name) : url.searchParams.delete('tab');
