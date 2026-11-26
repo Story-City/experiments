@@ -143,6 +143,21 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   padding: 7px 8px;
   font-size: 12px;
 }
+.design-history {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.edition-rail .design-history .play {
+  width: 100%;
+  text-align: center;
+  padding: 7px 8px;
+  font-size: 12px;
+}
+.edition-rail .design-history .play:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
 .tool-rail .play {
   width: 100%;
   text-align: left;
