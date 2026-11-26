@@ -1,5 +1,6 @@
 import {
   FONTS, ERODE_ADJUST, SCALE, CASES, TITLE_SMALL_WORDS, PROPER_WORDS, RANGES, ROLES, WEIGHT_NAMES, UI, SCREENS, COPY,
+  PALETTE, SURFACES, THEMES, STORIES,
 } from './data.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -21,14 +22,19 @@ const stepFor = (size, base, ratio) => Math.log(size / base) / Math.log(ratio);
 
 function defaultRoles() {
   return Object.fromEntries(ROLES.map((r) => [r.id, {
-    weight: r.weight, step: stepFor(r.size, SCALE.base, SCALE.ratio), case: r.case, lh: r.lh, ls: r.ls, phoneFont: !!r.phoneFont,
+    weight: r.weight, step: stepFor(r.size, SCALE.base, SCALE.ratio), case: r.case, lh: r.lh, ls: r.ls, phoneFont: !!r.phoneFont, colour: r.colour,
   }]));
 }
+
+const defaultSurfaces = () => Object.fromEntries(SURFACES.map((s) => [s.id, s.hex]));
+const HEX_RE = /^#[0-9a-f]{6}$/i;
+const swatchName = (hex) => PALETTE.find((p) => p.hex.toLowerCase() === hex.toLowerCase())?.name ?? UI.custom;
 
 const state = {
   base: SCALE.base,
   ratio: SCALE.ratio,
   roles: defaultRoles(),
+  surfaces: defaultSurfaces(),
   view: 'mine',
   open: ROLES[0].id,
   screen: SCREENS[0].id,
@@ -41,9 +47,9 @@ function encodeState() {
   const roles = {};
   for (const role of ROLES) {
     const r = state.roles[role.id];
-    roles[role.id] = [r.weight, sizeOf(r), r.case, r.lh, r.ls, r.phoneFont ? 1 : 0];
+    roles[role.id] = [r.weight, sizeOf(r), r.case, r.lh, r.ls, r.phoneFont ? 1 : 0, r.colour];
   }
-  const json = JSON.stringify({ b: state.base, q: state.ratio, r: roles, s: state.screen, o: state.open });
+  const json = JSON.stringify({ b: state.base, q: state.ratio, r: roles, c: state.surfaces, s: state.screen, o: state.open });
   return btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
@@ -57,11 +63,17 @@ function decodeState() {
     if (typeof json.q === 'number') state.ratio = json.q;
     for (const [id, v] of Object.entries(json.r || {})) {
       if (!ROLE_BY_ID[id] || !Array.isArray(v)) continue;
-      const [weight, size, kase, lh, ls, phone] = v;
-      state.roles[id] = { weight, step: stepFor(size, state.base, state.ratio), case: kase, lh, ls, phoneFont: !!phone };
+      const [weight, size, kase, lh, ls, phone, colour] = v;
+      state.roles[id] = {
+        weight, step: stepFor(size, state.base, state.ratio), case: kase, lh, ls, phoneFont: !!phone,
+        colour: HEX_RE.test(colour) ? colour : ROLE_BY_ID[id].colour,
+      };
+    }
+    for (const [id, hex] of Object.entries(json.c || {})) {
+      if (id in state.surfaces && HEX_RE.test(hex)) state.surfaces[id] = hex;
     }
     if (SCREENS.some((s) => s.id === json.s)) state.screen = json.s;
-    if (ROLE_BY_ID[json.o]) state.open = json.o;
+    if (ROLE_BY_ID[json.o] || json.o === COLOURS_ID) state.open = json.o;
   } catch {
     /* a broken link falls back to the spec */
   }
@@ -104,13 +116,14 @@ function fontFor(role, r) {
   return FONTS[role.font];
 }
 
-function styleRules(roles, base, ratio) {
-  return ROLES.map((role) => {
+function styleRules(roles, base, ratio, surfaces) {
+  const vars = `.screens{${SURFACES.map((s) => `--s-${s.id}:${surfaces[s.id]}`).join(';')}}`;
+  return [vars, ...ROLES.map((role) => {
     const r = roles[role.id];
     const f = fontFor(role, r);
-    return `.t-${role.id}{font-family:${f.stack};font-weight:${r.weight};font-size:${sizeOf(r, base, ratio)}px;`
-      + `line-height:${r.lh};letter-spacing:${r.ls}em;text-transform:${r.case === 'caps' ? 'uppercase' : 'none'};color:var(--${role.colour})}`;
-  }).join('\n');
+    return `.screens .t-${role.id}{font-family:${f.stack};font-weight:${r.weight};font-size:${sizeOf(r, base, ratio)}px;`
+      + `line-height:${r.lh};letter-spacing:${r.ls}em;text-transform:${r.case === 'caps' ? 'uppercase' : 'none'};color:${r.colour}}`;
+  })].join('\n');
 }
 
 const styleEl = document.createElement('style');
@@ -120,7 +133,8 @@ function paintText() {
   const roles = state.view === 'spec' ? defaultRoles() : state.roles;
   const base = state.view === 'spec' ? SCALE.base : state.base;
   const ratio = state.view === 'spec' ? SCALE.ratio : state.ratio;
-  styleEl.textContent = styleRules(roles, base, ratio);
+  const surfaces = state.view === 'spec' ? defaultSurfaces() : state.surfaces;
+  styleEl.textContent = styleRules(roles, base, ratio, surfaces);
   for (const el of $$('[data-role]')) {
     const r = roles[el.dataset.role];
     el.textContent = noWidow(applyCase(el.dataset.src, r.case === 'caps' ? 'none' : r.case));
@@ -134,32 +148,45 @@ function paintText() {
 const t = (role, text, tag = 'p', cls = '') => `<${tag} class="t-${role} ${cls}" data-role="${role}" data-src="${esc(text)}"></${tag}>`;
 const status = () => '<div class="status"><span>9:41</span><span>●●● ▮</span></div>';
 
+const coverImg = (s, cls = '') => `<img class="cover-img ${cls}" src="${esc(s.cover)}" alt="${esc(s.title)} cover" loading="lazy" decoding="async">`;
+
+function storyCard(id) {
+  const s = STORIES[id];
+  const overlay = s.coverHasTitle ? '' : `<div class="card-scrim">${t('cardTitle', s.title, 'h3')}</div>`;
+  return `<div class="story-card">${coverImg(s)}
+    ${t('caption', s.genre, 'span', 'chip-on chip-top')}${overlay}
+    ${t('caption', s.time, 'span', 'chip-on chip-bottom')}</div>`;
+}
+
 function libraryScreen() {
   const c = COPY.library;
   const cur = c.current;
+  const s = STORIES[cur.story];
   return `${status()}<div class="scroll"><div class="pad">
     <div class="lib-head">${t('storyTitle', c.title, 'h2')}</div>
     ${t('eyebrow', c.continueKicker)}
     <div class="hero-card">
-      <div class="cover" style="--j:${cur.jewel}"></div>
-      ${t('eyebrow', cur.genre)}
-      ${t('cardTitle', cur.title, 'h3')}
-      ${t('caption', cur.meta)}
+      <div class="cont">${coverImg(s, 'thumb')}
+        <div class="cont-text">
+          ${t('eyebrow', `${s.genre} · ${s.time}`)}
+          ${t('cardTitle', s.title, 'h3')}
+          ${t('caption', cur.meta)}
+          <div class="progress"><i style="width:30%"></i></div>
+        </div>
+      </div>
       ${t('button', cur.button, 'div', 'cta')}
     </div>
     ${t('eyebrow', c.newKicker)}
-    <div class="mini-grid">${c.cards.map((k) => `<div class="mini">
-      <div class="cover" style="--j:${k.jewel}"></div>
-      ${t('eyebrow', k.genre)}${t('cardTitle', k.title, 'h3')}${t('caption', k.meta)}</div>`).join('')}
-    </div>
+    <div class="mini-grid">${c.cards.map(storyCard).join('')}</div>
   </div></div>
   <nav class="tabbar">${c.tabs.map((x, i) => `<span class="${i === 1 ? 'cur' : ''}"><i></i>${t('caption', x, 'span')}</span>`).join('')}</nav>`;
 }
 
 function detailScreen() {
   const c = COPY.detail;
+  const s = STORIES[c.story];
   return `${status()}<div class="back" aria-hidden="true"></div><div class="scroll">
-    <div class="cover detail-cover" style="--j:${c.jewel}"></div>
+    <div class="detail-cover">${coverImg(s)}</div>
     <div class="pad">
       ${t('eyebrow', c.eyebrow)}
       ${t('storyTitle', c.title, 'h2')}
@@ -202,7 +229,7 @@ function mapScreen() {
       <circle cx="180" cy="470" r="9" fill="#5b8cff" stroke="#fbf7ff" stroke-width="3"/>
       <path d="M215 232c-12-16-18-24-18-32a18 18 0 0 1 36 0c0 8-6 16-18 32z" fill="#5b8cff" stroke="#fbf7ff" stroke-width="2"/>
     </svg>
-    ${t('button', c.mode, 'div', 'mode-chip')}
+    ${t('caption', c.mode, 'div', 'mode-chip')}
     <div class="map-card">
       ${t('eyebrow', c.eyebrow)}
       ${t('chapterTitle', c.title, 'h3')}
@@ -215,7 +242,9 @@ function mapScreen() {
 
 function paywallScreen() {
   const c = COPY.paywall;
+  const fan = ['frightnight', 'alice', 'pirate'].map((id) => coverImg(STORIES[id], 'fan')).join('');
   return `${status()}<div class="scroll paywall"><div class="pad center">
+    <div class="fan" aria-hidden="true">${fan}</div>
     ${t('eyebrow', c.eyebrow)}
     ${t('storyTitle', c.title, 'h2')}
     ${t('body', c.body)}
@@ -257,6 +286,72 @@ function slider(key, label, min, max, step) {
     <input type="range" id="${key}" data-k="${key}" min="${min}" max="${max}" step="${step}"><output data-o="${key}"></output></div>`;
 }
 
+const COLOURS_ID = '__colours';
+const swatchBtn = (target) => `<button type="button" class="swatch-btn" data-pick="${target}" aria-haspopup="dialog"><i></i><span></span></button>`;
+
+function coloursBlock() {
+  return `<div class="role" data-role-panel="${COLOURS_ID}">
+    <button type="button" class="role-head" data-toggle="${COLOURS_ID}" aria-expanded="false">
+      <span class="role-name">${esc(UI.colours)}</span><span class="role-sum" data-sum="${COLOURS_ID}"></span><span class="chev"></span>
+    </button>
+    <div class="role-body">
+      <div class="row"><span class="note">${esc(UI.theme)}</span>${THEMES.map((th) => `<button type="button" class="chip" data-theme="${th.id}">${esc(th.label)}</button>`).join('')}</div>
+      ${SURFACES.map((s) => `<div class="slider crow"><span class="lbl">${esc(s.label)}</span>${swatchBtn(`surface:${s.id}`)}</div>`).join('')}
+      <p class="note">${esc(UI.surfacesNote)}</p>
+    </div>
+  </div>`;
+}
+
+function getColour(target) {
+  const [kind, id] = target.split(':');
+  return kind === 'role' ? state.roles[id].colour : state.surfaces[id];
+}
+
+function setColour(target, hex) {
+  const [kind, id] = target.split(':');
+  if (kind === 'role') state.roles[id].colour = hex;
+  else state.surfaces[id] = hex;
+  update();
+}
+
+function applyTheme(id) {
+  const th = THEMES.find((x) => x.id === id);
+  const surfaces = defaultSurfaces();
+  state.surfaces = { ...surfaces, ...(th.surfaces || {}) };
+  for (const role of ROLES) state.roles[role.id].colour = th.roles?.[role.id] ?? role.colour;
+  update();
+}
+
+function themeMatch() {
+  return THEMES.find((th) => {
+    const surfaces = { ...defaultSurfaces(), ...(th.surfaces || {}) };
+    return SURFACES.every((s) => surfaces[s.id].toLowerCase() === state.surfaces[s.id].toLowerCase())
+      && ROLES.every((r) => (th.roles?.[r.id] ?? r.colour).toLowerCase() === state.roles[r.id].colour.toLowerCase());
+  })?.id;
+}
+
+let pickerTarget = '';
+function openPicker(btn) {
+  const pop = $('#picker');
+  pickerTarget = btn.dataset.pick;
+  const cur = getColour(pickerTarget).toLowerCase();
+  pop.innerHTML = `<div class="sw-grid">${PALETTE.map((p) => `<button type="button" class="sw" data-hex="${p.hex}" title="${esc(p.name)} ${p.hex}" aria-label="${esc(p.name)}" aria-pressed="${p.hex.toLowerCase() === cur}" style="--c:${p.hex}"></button>`).join('')}</div>
+    <div class="row"><label class="custom">${esc(UI.custom)} <input type="color" value="${cur}" data-custom></label><input class="hex" data-hexin value="${cur.toUpperCase()}" maxlength="7" spellcheck="false" aria-label="Hex"></div>`;
+  pop.hidden = false;
+  const r = btn.getBoundingClientRect();
+  const w = pop.offsetWidth;
+  const h = pop.offsetHeight;
+  const left = Math.max(8, Math.min(innerWidth - w - 8, r.left));
+  const top = r.bottom + 6 + h > innerHeight ? Math.max(8, r.top - h - 6) : r.bottom + 6;
+  pop.style.left = `${left}px`;
+  pop.style.top = `${top}px`;
+}
+
+function closePicker() {
+  $('#picker').hidden = true;
+  pickerTarget = '';
+}
+
 function roleBlock(role) {
   const f = FONTS[role.font];
   const id = role.id;
@@ -266,6 +361,7 @@ function roleBlock(role) {
     </button>
     <div class="role-body">
       <p class="role-use">${esc(role.use)}</p>
+      <div class="slider crow"><span class="lbl">${esc(UI.colour)}</span>${swatchBtn(`role:${id}`)}</div>
       ${id === 'bubble' ? `<div class="row"><span class="note">${esc(UI.bubbleFont)}</span><span class="seg">
         <button type="button" class="chip" data-phone="${id}" data-v="0">${esc(UI.karla)}</button>
         <button type="button" class="chip" data-phone="${id}" data-v="1">${esc(UI.phoneFont)}</button></span></div>` : ''}
@@ -298,7 +394,13 @@ function buildPanel() {
       <div class="slider"><label for="ratio">${esc(UI.ratio)}</label>
         <select id="ratio" style="grid-column: span 2">${SCALE.ratios.map((r) => `<option value="${r.v}">${esc(r.label)}</option>`).join('')}</select></div>
     </div>
-    <div class="roles">${ROLES.map(roleBlock).join('')}</div>`;
+    <div class="roles">${coloursBlock()}${ROLES.map(roleBlock).join('')}</div>`;
+  const pop = document.createElement('div');
+  pop.id = 'picker';
+  pop.className = 'picker';
+  pop.hidden = true;
+  pop.setAttribute('role', 'dialog');
+  document.body.append(pop);
 }
 
 function syncPanel() {
@@ -325,6 +427,17 @@ function syncPanel() {
     panel.classList.toggle('open', open);
     $('.role-head', panel).setAttribute('aria-expanded', String(open));
   }
+  for (const b of $$('[data-pick]')) {
+    const hex = getColour(b.dataset.pick);
+    $('i', b).style.background = hex;
+    $('span', b).textContent = `${swatchName(hex)} ${hex.toUpperCase()}`;
+  }
+  const theme = themeMatch();
+  for (const b of $$('[data-theme]')) b.setAttribute('aria-pressed', String(b.dataset.theme === theme));
+  $(`[data-sum="${COLOURS_ID}"]`).textContent = theme ? THEMES.find((x) => x.id === theme).label : UI.custom;
+  const cp = $(`[data-role-panel="${COLOURS_ID}"]`);
+  cp.classList.toggle('open', state.open === COLOURS_ID);
+  $('.role-head', cp).setAttribute('aria-expanded', String(state.open === COLOURS_ID));
 }
 
 function update() {
@@ -353,9 +466,12 @@ function rows() {
       size, appSize: role.font === 'head' ? Math.round(size * ERODE_ADJUST) : size, lineHeight: r.lh, linePx: Math.round(size * r.lh),
       letterSpacingEm: r.ls, letterSpacingPx: Math.round(r.ls * size * 100) / 100,
       case: CASES.find((c) => c.id === r.case)?.label ?? r.case, stack: f.stack, transform: r.case === 'caps' ? 'uppercase' : 'none', use: role.use,
+      colour: r.colour.toUpperCase(), colourName: swatchName(r.colour),
     };
   });
 }
+
+const surfaceRows = () => SURFACES.map((s) => ({ id: s.id, label: s.label, hex: state.surfaces[s.id].toUpperCase(), name: swatchName(state.surfaces[s.id]) }));
 
 function exportText(kind) {
   const list = rows();
@@ -366,22 +482,26 @@ function exportText(kind) {
       scale: { base: state.base, ratio: state.ratio },
       roles: Object.fromEntries(list.map((x) => [x.id, {
         label: x.label, font: x.font, weight: x.weight, size: x.size, appSize: x.appSize, lineHeight: x.lineHeight,
-        letterSpacingEm: x.letterSpacingEm, letterSpacingPx: x.letterSpacingPx, case: x.case,
+        letterSpacingEm: x.letterSpacingEm, letterSpacingPx: x.letterSpacingPx, case: x.case, colour: x.colour, colourName: x.colourName,
       }])),
+      colours: Object.fromEntries(surfaceRows().map((s) => [s.id, { label: s.label, hex: s.hex, name: s.name }])),
       link: location.href,
     }, null, 2);
   }
   if (kind === 'table') {
-    const head = '| Style | Font | Size / line | Spacing | Case | App size | Used for |\n|---|---|---|---|---|---|---|';
-    const body = list.map((x) => `| ${x.label} | ${x.font} ${x.weightName} | ${x.size} / ${x.linePx} | ${x.letterSpacingPx.toFixed(2)} | ${x.case} | ${x.appSize} | ${x.use} |`).join('\n');
-    return `${head}\n${body}\n\nSizes in px as drawn on the brand page. Erode app size = size × ${ERODE_ADJUST}.`;
+    const head = '| Style | Font | Size / line | Spacing | Case | Colour | App size | Used for |\n|---|---|---|---|---|---|---|---|';
+    const body = list.map((x) => `| ${x.label} | ${x.font} ${x.weightName} | ${x.size} / ${x.linePx} | ${x.letterSpacingPx.toFixed(2)} | ${x.case} | ${x.colourName} ${x.colour} | ${x.appSize} | ${x.use} |`).join('\n');
+    const sHead = '| Surface | Colour |\n|---|---|';
+    const sBody = surfaceRows().map((s) => `| ${s.label} | ${s.name} ${s.hex} |`).join('\n');
+    return `${head}\n${body}\n\n${sHead}\n${sBody}\n\nSizes in px as drawn on the brand page. Erode app size = size × ${ERODE_ADJUST}.`;
   }
   const vars = list.map((x) => {
     const k = kebab(x.id);
     return `  /* ${x.label}: ${x.case} */\n  --${k}-family: ${x.stack};\n  --${k}-weight: ${x.weight};\n  --${k}-size: ${x.size}px;\n`
-      + `  --${k}-app-size: ${x.appSize}px;\n  --${k}-line-height: ${x.lineHeight};\n  --${k}-letter-spacing: ${x.letterSpacingEm}em;\n  --${k}-transform: ${x.transform};`;
+      + `  --${k}-app-size: ${x.appSize}px;\n  --${k}-line-height: ${x.lineHeight};\n  --${k}-letter-spacing: ${x.letterSpacingEm}em;\n  --${k}-transform: ${x.transform};\n  --${k}-colour: ${x.colour};`;
   }).join('\n\n');
-  return `/* Story City type. Erode app size = size × ${ERODE_ADJUST} (no size-adjust in React Native). */\n:root {\n  --type-base: ${state.base}px;\n  --type-ratio: ${state.ratio};\n\n${vars}\n}`;
+  const surf = surfaceRows().map((s) => `  --colour-${kebab(s.id)}: ${s.hex}; /* ${s.label}: ${s.name} */`).join('\n');
+  return `/* Story City type. Erode app size = size × ${ERODE_ADJUST} (no size-adjust in React Native). */\n:root {\n  --type-base: ${state.base}px;\n  --type-ratio: ${state.ratio};\n\n${surf}\n\n${vars}\n}`;
 }
 
 async function copyText(text) {
@@ -452,16 +572,41 @@ function bind() {
     const b = e.target.closest('button');
     if (!b) return;
     const d = b.dataset;
+    if (d.pick) { if (pickerTarget === d.pick) closePicker(); else openPicker(b); return; }
+    if (d.theme) { applyTheme(d.theme); return; }
     if (d.toggle) { state.open = state.open === d.toggle ? '' : d.toggle; refresh(); }
     else if (d.case) { state.roles[d.case].case = d.v; update(); }
     else if (d.phone) { state.roles[d.phone].phoneFont = d.v === '1'; const f = fontFor(ROLE_BY_ID[d.phone], state.roles[d.phone]); const r = state.roles[d.phone]; r.weight = Math.min(f.max, Math.max(f.min, r.weight)); update(); }
     else if (d.reset) { state.roles[d.reset] = defaultRoles()[d.reset]; state.roles[d.reset].step = stepFor(ROLE_BY_ID[d.reset].size, state.base, state.ratio); update(); }
     else if (d.view) { state.view = d.view; refresh(); }
     else if (d.export) openExport(d.export);
-    else if (b.id === 'resetAll') { state.base = SCALE.base; state.ratio = SCALE.ratio; state.roles = defaultRoles(); update(); }
+    else if (b.id === 'resetAll') { state.base = SCALE.base; state.ratio = SCALE.ratio; state.roles = defaultRoles(); state.surfaces = defaultSurfaces(); update(); }
     else if (b.id === 'copyLink') { history.replaceState(null, '', `#${URL_KEY}=${encodeState()}`); copyText(location.href).then((ok) => ok && toast(UI.linkCopied)); }
     else if (b.id === 'sheetHandle') setSheet(!panel.classList.contains('open'));
   });
+  const pop = $('#picker');
+  pop.addEventListener('click', (e) => {
+    const sw = e.target.closest('[data-hex]');
+    if (!sw || !pickerTarget) return;
+    setColour(pickerTarget, sw.dataset.hex);
+    closePicker();
+  });
+  pop.addEventListener('input', (e) => {
+    if (!pickerTarget) return;
+    if (e.target.matches('[data-custom]')) {
+      setColour(pickerTarget, e.target.value);
+      $('[data-hexin]', pop).value = e.target.value.toUpperCase();
+    } else if (e.target.matches('[data-hexin]')) {
+      const v = e.target.value.trim();
+      const hex = v.startsWith('#') ? v : `#${v}`;
+      if (HEX_RE.test(hex)) { setColour(pickerTarget, hex); $('[data-custom]', pop).value = hex.toLowerCase(); }
+    }
+  });
+  document.addEventListener('pointerdown', (e) => {
+    if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('[data-pick]')) closePicker();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pop.hidden) closePicker(); });
+  $('#panelBody').addEventListener('scroll', () => { if (!pop.hidden) closePicker(); }, { passive: true });
   $('#screens').addEventListener('click', (e) => {
     const el = e.target.closest('[data-role]');
     if (el) openRole(el.dataset.role, true);
