@@ -584,8 +584,10 @@
     "authorName": "Melissa",
     "date": "2026-09",
     "archived": false,
-    "notionPageId": null,
-    "jira": null
+    "notionPageId": "3ea66b10-71fa-808d-a86f-c6542e81e8d8",
+    "jira": "SC-3583",
+    "stage": "ready",
+    "spec": "remixer/spec.json"
   },
   {
     "slug": "image-remix",

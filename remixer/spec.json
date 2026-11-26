@@ -1,0 +1,96 @@
+{
+  "final": "The Remixer as on this page, with Melissa's 10 Nov editor pass from the UX doc (Remix puzzle mobile).",
+  "summary": "A remix puzzle inside a story (Operation: COPY//WRITE, Loc 3i). crisp-E hands the player a painting and the Remixer: three tabs of one-tap tools (Mix it, Shape it, Wreck it). Save unlocks after any 2 different tools. Saving shows crisp-E's reaction and lets the player share the image.",
+  "flows": [
+    {
+      "title": "Loc 3i: crisp-E hands it over",
+      "show": "remixer/",
+      "rows": [
+        { "when": "Location opens", "then": "crisp-E's chat bubbles pop in, with the painting already partly scrambled and its caption." },
+        { "when": "Tap Open the Remixer", "then": "Opens the editor on the Mix it tab.", "event": "remix_opened" }
+      ]
+    },
+    {
+      "title": "Editor: the goal and Save",
+      "rows": [
+        { "when": "Editor opens", "then": "Goal reads “Use 2 tools to remix it” with two empty pips. Save it is disabled. Undo, Redo and Start over are disabled." },
+        { "when": "Use a first tool", "then": "One pip fills: “Nice. 1 more tool to remix it”. The tool's tile gets a folded corner.", "event": "remix_tool_used" },
+        { "when": "Use a second, different tool", "then": "Both pips fill: “Remixed! Keep going or save it.” Save it turns on." },
+        { "when": "Tap a tool you just used", "then": "Gives a different version (its tile shows a re-roll mark). It doesn't count as a new tool." },
+        { "when": "Switch tab (Mix it, Shape it, Wreck it)", "then": "Shows that tab's four tools. The picture and the count stay." },
+        { "when": "Tap Save it", "then": "Saves the remix to the gallery and opens Loc 3j.", "event": "remix_saved" }
+      ]
+    },
+    {
+      "title": "Mix it tab",
+      "rows": [
+        { "when": "Tap Add", "then": "Tray: take a photo, choose one, or “No pic handy? Try a sample”. Then a Size slider with Cancel and Stick it on." },
+        { "when": "Tap Stick it on", "then": "Stamps the photo onto the painting. Toast: “Stuck on. Looking good.”" },
+        { "when": "Tap Colour or Contrast", "then": "A sheet of options previewed on the current picture, Original first. Picking one wipes the new look across. Only one Colour and one Contrast apply at a time; Original removes it." },
+        { "when": "Tap Surprise me", "then": "Rolls a random Colour + Contrast (never Original), names it in a toast. Tap again to re-roll. One Undo goes back to before the surprise. Counts as one tool." }
+      ]
+    },
+    {
+      "title": "Shape it tab",
+      "rows": [
+        { "when": "Tap Dot, Pixel, Facet or Glass", "then": "Rebuilds the picture in that shape. A Size slider (fine to chunky) opens in the strip above Save; nothing else moves." },
+        { "when": "Drag Size", "then": "Pieces get bigger or smaller. Glass draws dark lines between pieces, thicker as pieces grow; Facet has no lines." },
+        { "when": "Double-tap the Size label", "then": "Resets the slider to its start value." }
+      ]
+    },
+    {
+      "title": "Wreck it tab",
+      "rows": [
+        { "when": "Tap Glitch or Shuffle", "then": "Applies it at once. Shuffle's tile previews the exact next shuffle." },
+        { "when": "Tap Marble, then drag on the picture", "then": "Pulls the paint into swirls over whatever look is applied. Tap Marble again to stop." },
+        { "when": "Tap Lens", "then": "Drops a lens on the picture. Drag it to move, drag its edge to resize, Bulge slider pushes in or out, + adds another lens. It saves as you go." }
+      ]
+    },
+    {
+      "title": "Undo, Redo, Start over",
+      "rows": [
+        { "when": "Tap Undo / Redo", "then": "Steps back or forward one change. Toast: “Undone” / “Redone”." },
+        { "when": "Tap Start over", "then": "Back to crisp-E's starting picture, history cleared, tool count back to 0, Save disabled.", "event": "remix_restarted" }
+      ]
+    },
+    {
+      "title": "Loc 3j: saved",
+      "rows": [
+        { "when": "Screen opens", "then": "“✓ Saved to your gallery” stamp over the remix, then crisp-E: “YES”, “get wrecked park people”, “you can post it if you want”, #messwithQ." },
+        { "when": "Tap Share", "then": "Opens the phone's share sheet with the image and “I remixed a masterpiece in Story City #messwithQ”. Without a share sheet, the image downloads and the text is copied.", "event": "remix_shared" },
+        { "when": "Tap Bork it more", "then": "Back to the editor with the remix and tool count kept." },
+        { "when": "Tap Keep going", "then": "Continues the story to the next location." }
+      ]
+    }
+  ],
+  "back": [
+    { "from": "Editor", "then": "Back to Loc 3i. Edits are kept if they reopen it (to confirm)." },
+    { "from": "Colour / Contrast sheet", "then": "Closes the sheet without changing the picture." },
+    { "from": "Loc 3j", "then": "Same as Bork it more: editor, remix kept (to confirm)." }
+  ],
+  "events": [
+    { "name": "remix_opened", "status": "new", "when": "Open the Remixer tapped.", "props": "story_id, location_id" },
+    { "name": "remix_tool_used", "status": "new", "when": "Each tool applied (re-rolls included).", "props": "tool (me, recolour, contrast, surprise, dots, pixel, shapes, glass, glitch, shuffle, marble, lens), tab, used_count" },
+    { "name": "remix_saved", "status": "new", "when": "Save it tapped.", "props": "tools (distinct, sorted, comma-joined), tool_count, undo_count, restarted (true/false)" },
+    { "name": "remix_restarted", "status": "new", "when": "Start over tapped.", "props": "tool_count before restart" },
+    { "name": "remix_shared", "status": "new", "when": "Share tapped.", "props": "method (share_sheet, download)" },
+    { "name": "photo_puzzle_completed", "status": "existing", "when": "The photo puzzle's completion event. The remix events follow the same naming.", "props": "" }
+  ],
+  "edgeCases": [
+    "Using the same tool twice counts once. Undo doesn't take a tool off the count; only Start over resets it.",
+    "Taps on tools, Undo and Redo are ignored while an effect is animating.",
+    "Save stays disabled under 2 different tools, even after many changes with one tool.",
+    "Square images not tested yet (from the UX doc).",
+    "“Surprise me” / “Surprends-moi” may clip in TitleMedium on the smallest phones; check both languages.",
+    "Saved image is full size and must match the screen: replay the same steps at full resolution."
+  ],
+  "notes": [
+    "Already built in part: mobile editor in mobile-rn #1402 (feature/SC-3583-remix-puzzle) and remix activity on feature/SC-3603-remix-activity-mobile. Server and creator tools not built yet.",
+    "UX doc: Remix puzzle mobile in the Story City App database. Design review tasks NSC-2071 to NSC-2079 are Ready for Review with Melissa.",
+    "Open (from the UX doc): add a feature flag, since only the server not sending REMIX hides it? Should tool tiles preview the current remix rather than the original?"
+  ],
+  "assets": [
+    { "label": "The Maynard Family painting (maynard.jpg)", "file": "remixer/art/maynard.jpg", "note": "Arthur Devis, c.1755–62, public domain. The painting crisp-E hands over at Loc 3i." },
+    { "label": "Mona Lisa (mona-lisa.jpg)", "file": "remixer/art/mona-lisa.jpg", "note": "Public domain. Second sample painting." }
+  ]
+}
