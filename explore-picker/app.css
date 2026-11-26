@@ -147,7 +147,7 @@ button:focus-visible{outline:2px solid var(--tq); outline-offset:2px}
 
 /* ---------- C · Map tiles ---------- */
 .picker.v-c{display:flex; flex-direction:column}
-.c-map{position:relative; flex:1 0 auto; width:100%; min-height:min(340px, calc(100vw - 36px)); max-height:560px; border-radius:18px; overflow:hidden; border:1px solid var(--line); background:#1E2D4C}
+.c-map{position:relative; flex:1 0 auto; width:100%; min-height:min(340px, calc(100vw - 36px)); max-height:560px; border-radius:18px; overflow:hidden; overflow:clip; border:1px solid var(--line); background:#1E2D4C}
 .c-tiles{position:absolute; inset:0; overflow:hidden; filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.85) saturate(.6)}
 .c-tiles img{position:absolute; width:256px; height:256px; user-select:none}
 .c-tint{position:absolute; inset:0; background:#1E2D4C; mix-blend-mode:color; opacity:.85; pointer-events:none}
@@ -156,9 +156,9 @@ button:focus-visible{outline:2px solid var(--tq); outline-offset:2px}
 .c-hole.on{opacity:1}
 .c-wisp{animation:wisp 18s ease-in-out infinite alternate}
 @keyframes wisp{to{transform:translate(40px, 24px)}}
-.c-grid{position:absolute; inset:0; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr)}
+.c-grid{position:absolute; inset:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(3,minmax(0,1fr))}
 .c-tile{position:relative; border:0; background:none; padding:6px; border-radius:28px; outline-offset:-10px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
-.c-lab{font-size:15.5px; line-height:1.22; font-weight:700; color:#2a1f55; text-shadow:0 0 10px rgba(235,230,255,.8); transition:opacity .35s}
+.c-lab{max-width:100%; text-wrap:balance; font-size:15.5px; line-height:1.22; font-weight:700; color:#2a1f55; text-shadow:0 0 10px rgba(235,230,255,.8); transition:opacity .35s}
 .c-tile.on .c-lab{opacity:0}
 .c-pin,.c-short{position:absolute; left:50%; opacity:0; transition:opacity .4s .25s, transform .45s cubic-bezier(.3,1.6,.5,1) .25s}
 .c-pin{top:calc(50% - 30px); width:34px; height:34px; margin-left:-17px; border-radius:50%; background:#241b46; border:2px solid var(--c); display:flex; align-items:center; justify-content:center; font-size:16px;

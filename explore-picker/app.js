@@ -259,7 +259,7 @@ const FOG_SVG = `<svg class="c-fogsvg" viewBox="0 0 300 300" preserveAspectRatio
 function mountC(el) {
   el.innerHTML = `<div class="c-map" id="cMap"><div class="c-tiles" id="cTiles"></div><div class="c-tint"></div>${FOG_SVG}
     <div class="c-grid">${OPTIONS.map(o => `<button class="c-tile" data-opt="${o.id}" style="--c:${o.color}">
-      <span class="c-pin">${icon(o.id)}</span><span class="c-lab">${nw(o.label)}</span><span class="c-short">${esc(o.short)}</span></button>`).join('')}</div>
+      <span class="c-pin">${icon(o.id)}</span><span class="c-lab">${esc(o.label)}</span><span class="c-short">${esc(o.short)}</span></button>`).join('')}</div>
     <span class="c-credit">© OpenStreetMap contributors</span></div>
     <p class="c-count" id="cCount"></p>`;
   const tiles = $('#cTiles', el);
