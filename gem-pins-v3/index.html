@@ -7,9 +7,9 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=56">
+<link rel="stylesheet" href="app.css?v=57">
 <meta http-equiv="Cache-Control" content="no-cache">
-<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=2">
+<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=3">
 </head>
 <body>
   <header class="page-head">
@@ -189,16 +189,16 @@
 
   <p class="meta">GEM-PINS-V2-v49 — Disc haze = soft Disc colour; white map gems.</p>
   <script src="../location-gems/corner-ribbon.js?v=36"></script>
-  <script type="module" src="app.js?v=54"></script>
+  <script type="module" src="app.js?v=55"></script>
   <!-- The one bottom bar every Gem map pins version uses: shared/gem-tabbar -->
-  <script src="../shared/gem-tabbar/tabbar.js?v=2"></script>
+  <script src="../shared/gem-tabbar/tabbar.js?v=3"></script>
   <script>
   GemTabBar.mount({
     host: document.getElementById('phone'),
     active: 'map',
     onGems() {
       if (window.parent !== window) window.parent.postMessage({ type: 'gem-pins-open-gems' }, '*');
-      else location.href = '../location-gems/?v=111&appPages=1';
+      else location.href = '../location-gems/?v=112&appPages=1';
     },
   });
   </script>

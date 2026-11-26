@@ -41,7 +41,7 @@
 }
 .gtb-ico { width: 23px; height: 23px; display: block; }
 .gtb-gem { width: 23px; height: 21px; }
-/* Emphasised + in the middle, raised a little above the bar */
+/* The create button: emphasised, in the middle, raised a little above the bar */
 .gtb-tab.gtb-add { min-width: 56px; padding: 0 6px; }
 .gtb-add-plus {
   display: grid;
@@ -56,6 +56,56 @@
   box-shadow: 0 0 16px rgba(179, 107, 255, 0.55), 0 4px 10px rgba(0, 0, 0, 0.35);
 }
 .gtb-add-plus svg { width: 22px; height: 22px; }
+.gtb.is-capture .gtb-add-plus svg { width: 26px; height: 26px; }
+/* Spread: the bar runs nearly edge to edge with the tabs evenly spaced */
+.gtb.is-spread { width: auto; left: 12px; right: 12px; transform: none; max-width: none; justify-content: space-between; padding: 4px 10px; }
+/* Tab: rises from the bottom edge, rounded top corners only, room for the home indicator */
+.gtb.is-shape-tab { bottom: 0; padding: 6px 10px 22px; border-radius: 24px 24px 0 0; border-bottom: 0; }
+.gtb.is-shape-tab.is-spread { left: 8px; right: 8px; }
+/* Full: a flat bar across the whole bottom */
+.gtb.is-shape-full {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  max-width: none;
+  transform: none;
+  justify-content: space-around;
+  padding: 6px 8px 24px;
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.25);
+}
+/* No titles: icons only, a little more room around each */
+.gtb.is-no-labels .gtb-tab > span:not(.gtb-add-plus) { display: none; }
+.gtb.is-no-labels .gtb-tab { min-width: 50px; padding: 10px 12px; }
+.gtb.is-no-labels .gtb-tab.gtb-add { padding: 0 6px; }
+/* Subtle: a thin circled plus that looks like the other tabs */
+.gtb.is-subtle .gtb-tab.gtb-add { min-width: 48px; padding: 5px 10px; }
+.gtb.is-subtle .gtb-add-plus {
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  background: none;
+  border: 1.6px solid currentColor;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.78);
+}
+.gtb.is-subtle .gtb-add-plus svg { width: 15px; height: 15px; }
+.gtb.is-subtle .gtb-add-plus path { stroke-width: 2.2; }
+/* Camera: an outline camera, no circle, like the other tabs */
+.gtb.is-camera .gtb-tab.gtb-add { min-width: 48px; padding: 5px 10px; }
+.gtb.is-camera .gtb-add-plus {
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.78);
+}
+.gtb.is-camera .gtb-add-plus svg { width: 26px; height: 26px; }
 .gtb-tab.gtb-add:active .gtb-add-plus { transform: scale(0.94); }
 
 /* Hunt mode camera (mobile-rn CameraSheet + ConfirmScreen) */

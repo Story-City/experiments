@@ -338,9 +338,13 @@ let filterOn = true;
 let stopId = 'all';
 let openId = null;
 let sheetFull = false;
-let sheet = SHEETS.includes(new URLSearchParams(location.search).get('sheet'))
-  ? new URLSearchParams(location.search).get('sheet')
-  : 'prompt';
+// Text glow (Melissa, 26 Nov): the Text card with a glowing gem-coloured "min away" and a hollow gem
+const TEXT_GLOW_SHEET = 'prompt-glow';
+const HOLLOW_ART_KEY = { nature: 'nature', eat: 'eatshop', shop: 'eatshop', culture: 'art', play: 'activities', landmark: 'landmarks', curio: 'nugget' };
+const startSheet = new URLSearchParams(location.search).get('sheet');
+let textGlow = startSheet === TEXT_GLOW_SHEET;
+let sheet = SHEETS.includes(startSheet) ? startSheet : 'prompt';
+document.body.classList.toggle('is-text-glow', textGlow);
 let toastTimer = 0;
 let lockScroll = false;
 let discAngle = 0;
@@ -923,8 +927,12 @@ function feedPromptCornerHtml(g) {
   // V3 (Melissa, 26 Nov): smaller gem, no coloured ribbon lines behind it
   return `
     <div class="feed-chip-corner-stack">
-      <span class="feed-chip-corner-gem">${categoryMark(tagId, 28)}</span>
+      <span class="feed-chip-corner-gem">${textGlow ? hollowMark(tagId) : categoryMark(tagId, 28)}</span>
     </div>`;
+}
+
+function hollowMark(tagId) {
+  return `<span class="cat-gem-hollow">${ART.hollow[HOLLOW_ART_KEY[tagId] || 'nature']}</span>`;
 }
 
 function promptDist(g) {
@@ -1356,7 +1364,15 @@ for (const b of $('sheetSwitch').querySelectorAll('button')) {
 }
 window.addEventListener('message', (e) => {
   const data = e.data || {};
-  if (data.type === 'gem-pins-sheet' && SHEETS.includes(data.sheet)) setSheet(data.sheet);
+  if (data.type === 'gem-pins-sheet') {
+    const glow = data.sheet === TEXT_GLOW_SHEET;
+    const next = glow ? 'prompt' : data.sheet;
+    if (SHEETS.includes(next)) {
+      textGlow = glow;
+      document.body.classList.toggle('is-text-glow', glow);
+      setSheet(next);
+    }
+  }
   if (data.type === 'gem-pins-look' && data.vars) {
     for (const [key, value] of Object.entries(data.vars)) document.documentElement.style.setProperty(key, value);
   }

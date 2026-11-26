@@ -12,7 +12,7 @@
 window.CACHE_V = '?v=' + Date.now();
 document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
-<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=2">
+<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=3">
 </head>
 <body>
 <!-- GEM-PINS-EDITION-v29: Disc Figma calm U ≤5 gems -->
@@ -36,6 +36,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
       <div class="edition-sheets" role="group" aria-label="Slide-out">
         <button type="button" data-sheet="original" aria-pressed="false">Original</button>
         <button type="button" data-sheet="prompt" aria-pressed="true" class="is-fav" title="Favourite">Text</button>
+        <button type="button" data-sheet="prompt-glow" aria-pressed="false" class="v3-only" title="V3 only">Text glow</button>
         <button type="button" data-sheet="image" aria-pressed="false" class="is-fav" title="Favourite">Image</button>
         <button type="button" data-sheet="bar" aria-pressed="false">Bar</button>
       </div>
@@ -63,6 +64,31 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
         <button type="button" data-filter-layout="corner" aria-pressed="false">Corner</button>
       </div>
       <p class="edition-note">[more filter layout patterns]</p>
+    </div>
+    <div class="create-look">
+      <p class="edition-label">Create button</p>
+      <div class="edition-sheets" role="group" aria-label="Create button" id="createLookPick">
+        <button type="button" data-create-look="plus" aria-pressed="true">Plus</button>
+        <button type="button" data-create-look="capture" aria-pressed="false">Capture</button>
+        <button type="button" data-create-look="subtle" aria-pressed="false">Subtle</button>
+        <button type="button" data-create-look="camera" aria-pressed="false">Camera</button>
+      </div>
+      <p class="edition-label">Tab titles</p>
+      <div class="edition-sheets" role="group" aria-label="Tab titles">
+        <button type="button" data-tab-labels="on" aria-pressed="true">Titles</button>
+        <button type="button" data-tab-labels="off" aria-pressed="false">Icons only</button>
+      </div>
+      <p class="edition-label">Bar width</p>
+      <div class="edition-sheets" role="group" aria-label="Bar width">
+        <button type="button" data-tab-width="compact" aria-pressed="true">Compact</button>
+        <button type="button" data-tab-width="spread" aria-pressed="false">Spread</button>
+      </div>
+      <p class="edition-label">Bar shape</p>
+      <div class="edition-sheets" role="group" aria-label="Bar shape">
+        <button type="button" data-tab-shape="float" aria-pressed="true">Floating</button>
+        <button type="button" data-tab-shape="tab" aria-pressed="false">Tab</button>
+        <button type="button" data-tab-shape="full" aria-pressed="false">Full</button>
+      </div>
     </div>
   </section>
   <section class="tool-block">
@@ -177,7 +203,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   </main>
 </div>
 <script type="module">import(`./app.js${window.CACHE_V}`);</script>
-<script src="../shared/gem-tabbar/tabbar.js?v=2"></script>
+<script src="../shared/gem-tabbar/tabbar.js?v=3"></script>
 <script>
 (function () {
   const frame = document.getElementById('editionFrame');
@@ -185,7 +211,9 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   let filterLayout = 'always';
   function sendSheet() {
     if (!frame.contentWindow) return;
-    frame.contentWindow.postMessage({ type: 'gem-pins-sheet', sheet: sheet }, '*');
+    // Text glow exists only in V3; other versions show plain Text.
+    const shown = sheet === 'prompt-glow' && frame.dataset.edition !== 'v3' ? 'prompt' : sheet;
+    frame.contentWindow.postMessage({ type: 'gem-pins-sheet', sheet: shown }, '*');
   }
   function sendFilterLayout() {
     if (!frame.contentWindow) return;
@@ -199,7 +227,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   }
   // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
   // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
-const FRAMES = { v2: '../gem-pins-v2/?v=64', v3: '../gem-pins-v3/?v=9' };
+const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=10' };
   function apply(edition) {
     const src = FRAMES[edition];
     document.body.classList.toggle('is-v2', !!src);
@@ -409,7 +437,7 @@ const FRAMES = { v2: '../gem-pins-v2/?v=64', v3: '../gem-pins-v3/?v=9' };
   });
   frame.addEventListener('load', () => { publishSpoof(); sendFilterLayout(); });
 
-  const APP_PAGES_GEMS_HREF = '../location-gems/?v=111&appPages=1';
+  const APP_PAGES_GEMS_HREF = '../location-gems/?v=112&appPages=1';
   const APP_PAGES_PARAM = 'appPages';
   const debugAppPages = document.getElementById('debugAppPages');
   const phone = document.getElementById('phone');
@@ -420,6 +448,23 @@ const FRAMES = { v2: '../gem-pins-v2/?v=64', v3: '../gem-pins-v3/?v=9' };
   }
   const appPagesNav = GemTabBar.mount({ host: phone, active: 'map', onGems: () => openGemsPage('v1') }).nav;
   appPagesNav.hidden = true;
+  const createLookBtns = document.querySelectorAll('[data-create-look]');
+  function paintCreateLookPick() {
+    const look = GemTabBar.getCreateLook();
+    createLookBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.createLook === look)));
+  }
+  createLookBtns.forEach((b) => b.addEventListener('click', () => {
+    GemTabBar.setCreateLook(b.dataset.createLook);
+    paintCreateLookPick();
+  }));
+  paintCreateLookPick();
+  // Tab titles and bar width: same pattern, one shared setting each
+  [['tabLabels', 'getLabels', 'setLabels'], ['tabWidth', 'getWidth', 'setWidth'], ['tabShape', 'getShape', 'setShape']].forEach(([data, get, set]) => {
+    const btns = document.querySelectorAll('[data-' + data.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()) + ']');
+    const paint = () => btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[data] === GemTabBar[get]())));
+    btns.forEach((b) => b.addEventListener('click', () => { GemTabBar[set](b.dataset[data]); paint(); }));
+    paint();
+  });
   function setAppPagesMode(on) {
     if (debugAppPages) debugAppPages.setAttribute('aria-checked', on ? 'true' : 'false');
     if (phone) phone.classList.toggle('has-app-pages', on);

@@ -1,5 +1,11 @@
 // Gem map pins: the one bottom bar every version uses (V1, V2, V3). Change it here and every
-// version changes. Feed, Library, + (Hunt mode camera to add a gem), Map, Gems.
+// version changes. Feed, Library, the create button (Hunt mode camera to add a gem), Map, Gems.
+// The create button has three looks: plus (raised blue circle), capture (corner marks around a gem) and
+// subtle (a thin circled plus like the other tabs) and camera (an outline camera like the other tabs).
+// The choice is shared by every page via
+// localStorage; GemTabBar.setCreateLook(look) switches them. Tab titles can be hidden the same way
+// (GemTabBar.setLabels('on' | 'off')), the bar spread nearly edge to edge (setWidth('spread')), and its
+// shape: floating pill, a tab rising from the bottom edge, or a full bar (setShape('float'|'tab'|'full')).
 // After a photo: Create gem now opens the publish sheet on Victoria's Gems page (location-gems),
 // Create gem later puts the photo on top of its unsorted pile. The photo travels in sessionStorage.
 // mount({ host, active, gemsHref | onGems, onTab(id) }): onTab returning false keeps the bar as it is.
@@ -9,6 +15,15 @@
   const SHOT_H = 800;
   const SHOT_PLACE = '[where you took it]';
   const FLASH_MS = 220;
+  const LOOK_KEY = 'gem-pins-create-look';
+  const LOOKS = ['plus', 'capture', 'subtle', 'camera'];
+  const LABELS_KEY = 'gem-pins-tab-labels';
+  const LABELS = ['on', 'off'];
+  const WIDTH_KEY = 'gem-pins-tab-width';
+  const WIDTHS = ['compact', 'spread'];
+  const SHAPE_KEY = 'gem-pins-tab-shape';
+  const SHAPES = ['float', 'tab', 'full'];
+  const bars = [];
   const TABS = [
     { id: 'feed', label: 'Feed' },
     { id: 'library', label: 'Library' },
@@ -23,12 +38,14 @@
     "gems": "<svg class=\"gtb-ico gtb-gem\" viewBox=\"0 0 24 22\" fill=\"none\" aria-hidden=\"true\"><path d=\"M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/><path d=\"M1.5 7.5H22.5M7 1.5L9 7.5L12 20.5L15 7.5L17 1.5\" stroke=\"currentColor\" stroke-width=\"1\" stroke-linejoin=\"round\" opacity=\"0.55\"/></svg>"
   };
   const FLIP = '<svg viewBox="0 0 18 21" aria-hidden="true"><path d="M8.75.83C6.54.83 4.54 1.66 3 3L0 0v7.5h7.5L4.48 4.48a6.2 6.2 0 0 1 4.27-1.56c2.95 0 5.46 1.92 6.33 4.58l1.98-.65C15.9 3.36 12.63.83 8.75.83Z"/><path d="M8.31 20.17c2.2 0 4.2-.83 5.75-2.17l3 3v-7.5h-7.5l3.02 3.02a6.2 6.2 0 0 1-4.27 1.56c-2.95 0-5.46-1.92-6.33-4.58L0 14.15c1.16 3.49 4.43 6.02 8.31 6.02Z"/></svg>';
+  const CAPTURE = '<svg viewBox="0 0 24 24" fill="none"><path d="M3.5 8V5.5a2 2 0 0 1 2-2H8M16 3.5h2.5a2 2 0 0 1 2 2V8M20.5 16v2.5a2 2 0 0 1-2 2H16M8 20.5H5.5a2 2 0 0 1-2-2V16" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.6 8.2h4.8l2.6 2.9-5 6.3-5-6.3z" fill="currentColor"/><path d="M7 11.1h10M12 17.4l-1.4-6.3 1.4-2.9 1.4 2.9z" stroke="#0a6fd6" stroke-opacity=".35" stroke-width=".7" stroke-linejoin="round"/></svg>';
+  const CAMERA = '<svg viewBox="0 0 24 24" fill="none"><path d="M8.6 5.6 9.7 4h4.6l1.1 1.6H19a2.4 2.4 0 0 1 2.4 2.4v9.6a2.4 2.4 0 0 1-2.4 2.4H5a2.4 2.4 0 0 1-2.4-2.4V8A2.4 2.4 0 0 1 5 5.6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="12.6" r="3.7" stroke="currentColor" stroke-width="1.7"/></svg>';
   const PLUS = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
   const BACK = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg>';
 
   function tabHtml(t, active) {
     if (t.id === 'add') {
-      return '<button type="button" class="gtb-tab gtb-add" data-gtb="add" aria-label="Add a gem"><span class="gtb-add-plus" aria-hidden="true">' + PLUS + '</span></button>';
+      return '<button type="button" class="gtb-tab gtb-add" data-gtb="add" aria-label="Create"><span class="gtb-add-plus" aria-hidden="true">' + PLUS + '</span></button>';
     }
     const on = t.id === active;
     return '<button type="button" class="gtb-tab' + (on ? ' is-active' : '') + '" data-gtb="' + t.id + '" aria-pressed="' + on + '"' + (on ? ' aria-current="page"' : '') + '>' + ICONS[t.id] + '<span>' + t.label + '</span></button>';
@@ -58,6 +75,11 @@
     cam.setAttribute('aria-label', 'Add a gem');
     cam.innerHTML = CAM_HTML;
     host.append(nav, cam);
+    bars.push(nav);
+    paintLook(nav, readLook());
+    paintLabels(nav, readLabels());
+    paintWidth(nav, readWidth());
+    paintShape(nav, readShape());
 
     const q = (sel) => cam.querySelector(sel);
     const video = q('.gtb-cam-video');
@@ -159,5 +181,69 @@
     return { nav, cam, openCamera, closeCamera };
   }
 
-  window.GemTabBar = { mount };
+  function readSetting(key, allowed) {
+    try {
+      const v = localStorage.getItem(key);
+      return allowed.includes(v) ? v : allowed[0];
+    } catch (e) {
+      return allowed[0];
+    }
+  }
+  function writeSetting(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) { /* private window: this page only */ }
+  }
+  const readLabels = () => readSetting(LABELS_KEY, LABELS);
+  function paintLabels(nav, labels) {
+    nav.classList.toggle('is-no-labels', labels === 'off');
+  }
+  function setLabels(labels) {
+    if (!LABELS.includes(labels)) return;
+    writeSetting(LABELS_KEY, labels);
+    bars.forEach((nav) => paintLabels(nav, labels));
+  }
+  const readWidth = () => readSetting(WIDTH_KEY, WIDTHS);
+  function paintWidth(nav, width) {
+    nav.classList.toggle('is-spread', width === 'spread');
+  }
+  function setWidth(width) {
+    if (!WIDTHS.includes(width)) return;
+    writeSetting(WIDTH_KEY, width);
+    bars.forEach((nav) => paintWidth(nav, width));
+  }
+  const readShape = () => readSetting(SHAPE_KEY, SHAPES);
+  function paintShape(nav, shape) {
+    SHAPES.forEach((s) => nav.classList.toggle('is-shape-' + s, s === shape));
+  }
+  function setShape(shape) {
+    if (!SHAPES.includes(shape)) return;
+    writeSetting(SHAPE_KEY, shape);
+    bars.forEach((nav) => paintShape(nav, shape));
+  }
+  function readLook() {
+    try {
+      const v = localStorage.getItem(LOOK_KEY);
+      return LOOKS.includes(v) ? v : LOOKS[0];
+    } catch (e) {
+      return LOOKS[0];
+    }
+  }
+  function paintLook(nav, look) {
+    const icon = nav.querySelector('.gtb-add-plus');
+    icon.innerHTML = { capture: CAPTURE, camera: CAMERA }[look] || PLUS;
+    LOOKS.forEach((l) => nav.classList.toggle('is-' + l, l === look));
+  }
+  function setCreateLook(look) {
+    if (!LOOKS.includes(look)) return;
+    try { localStorage.setItem(LOOK_KEY, look); } catch (e) { /* private window: this page only */ }
+    bars.forEach((nav) => paintLook(nav, look));
+  }
+  // Another page (the wrapper, or a version in its frame) switched the look
+  window.addEventListener('storage', (e) => {
+    if (e.key === LOOK_KEY) bars.forEach((nav) => paintLook(nav, readLook()));
+    if (e.key === LABELS_KEY) bars.forEach((nav) => paintLabels(nav, readLabels()));
+    if (e.key === WIDTH_KEY) bars.forEach((nav) => paintWidth(nav, readWidth()));
+    if (e.key === SHAPE_KEY) bars.forEach((nav) => paintShape(nav, readShape()));
+  });
+
+  window.GemTabBar = { mount, setCreateLook, getCreateLook: readLook, setLabels, getLabels: readLabels, setWidth, getWidth: readWidth, setShape, getShape: readShape };
 })();
