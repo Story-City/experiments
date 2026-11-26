@@ -23,6 +23,12 @@ const DISC_SCALE_MIN = 0.82;
 const DISC_SCALE_MAX = 1.12;
 const DISC_FADE_DEG = 36;
 const DISC_ANIM_MS = 520;
+// Quarter haze: a true quarter circle centred on the map's top-right corner
+const QUARTER_SIZE = 200;
+const QUARTER_R = 150;
+const QUARTER_MID_DEG = 135;
+const QUARTER_SPREAD_DEG = 40;
+const QUARTER_DRAG = 0.7;
 const PUBLIC_GEM_FILL = '#00c2ff';
 const GEM_OUTLINE = 'M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z';
 const GEM_TABLE = 'M7 1.5H17L15 7.5H9Z';
@@ -70,12 +76,22 @@ const FILTER_CATS = [
   { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
   { id: 'curio', label: 'Curiosities', match: ['curio'], art: 'curio' },
 ];
-const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc', 'disc-haze', 'disc-haze-2', 'corner'];
+const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc', 'disc-haze', 'disc-haze-2', 'quarter-haze', 'corner'];
 const isTopDiscLayout = () => filterLayout === 'disc' || filterLayout === 'disc-haze' || filterLayout === 'disc-haze-2';
 const isCornerDiscLayout = () => filterLayout === 'corner';
-const usesDiscMotion = () => isTopDiscLayout() || isCornerDiscLayout();
+const isQuarterLayout = () => filterLayout === 'quarter-haze';
+const usesDiscMotion = () => isTopDiscLayout() || isCornerDiscLayout() || isQuarterLayout();
 
 function activeDiscRefs() {
+  if (isQuarterLayout()) {
+    return {
+      stage: $('quarterStage'),
+      wheel: $('quarterWheel'),
+      arc: $('quarterArc'),
+      title: $('quarterTitle'),
+      note: $('quarterNote'),
+    };
+  }
   if (isCornerDiscLayout()) {
     return {
       stage: $('cornerDiscStage'),
@@ -475,18 +491,20 @@ function paintBar() {
   $('filterGbox').classList.toggle('is-layout-disc-haze', filterLayout === 'disc-haze');
   $('filterGbox').classList.toggle('is-layout-disc-haze-2', filterLayout === 'disc-haze-2');
   $('filterGbox').classList.toggle('is-layout-corner', filterLayout === 'corner');
+  $('filterGbox').classList.toggle('is-layout-quarter-haze', filterLayout === 'quarter-haze');
   $('filterBtn').hidden = !showToggle;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
   nearby.textContent = displayCopy(btnCopy('nearby'));
   nearbyRow.hidden = filterOn || !showToggle;
   $('nearbyIco').innerHTML = gemSvg(PUBLIC_GEM_FILL);
   const topDisc = isTopDiscLayout();
-  const cornerDisc = isCornerDiscLayout();
+  const cornerDisc = isCornerDiscLayout() || isQuarterLayout();
   $('rollerWrap').hidden = !rollerVisible || topDisc || cornerDisc;
   const discStage = $('discStage');
   if (discStage) discStage.hidden = !topDisc;
   const cornerWrap = $('cornerDiscWrap');
-  if (cornerWrap) cornerWrap.hidden = !cornerDisc;
+  if (cornerWrap) cornerWrap.hidden = !isCornerDiscLayout();
+  $('quarterWrap').hidden = !isQuarterLayout();
   /* Disc: no separate legend — title sits under the selected gem on the arc */
   const showLegend = !topDisc && !cornerDisc && (filterOn || filterLayout === 'inline' || filterLayout === 'always');
   legend.hidden = !showLegend;
@@ -556,6 +574,15 @@ function wrapDiscDeg(deg, n) {
   return ((deg % period) + period * 1.5) % period - period / 2;
 }
 
+/** t −1…1 runs from the right edge, through the diagonal, to the top edge. */
+function quarterPoint(t) {
+  const rad = ((QUARTER_MID_DEG + QUARTER_SPREAD_DEG * t) * Math.PI) / 180;
+  return {
+    leftPct: ((QUARTER_SIZE + QUARTER_R * Math.cos(rad)) / QUARTER_SIZE) * 100,
+    topPx: QUARTER_R * Math.sin(rad),
+  };
+}
+
 /** Same quadratic as SVG `M 68 36 Q 200 112 332 36`; t −1…1 = ears → centre → ears. */
 function discPointOnArc(t) {
   const u = (t + 1) / 2;
@@ -581,7 +608,7 @@ function paintDiscAngle(angle) {
   buttons.forEach((b, i) => {
     const deg = wrapDiscDeg(angle + i * DISC_STEP, n);
     const t = Math.max(-1, Math.min(1, deg / DISC_FADE_DEG));
-    const { leftPct, topPx } = discPointOnArc(t);
+    const { leftPct, topPx } = isQuarterLayout() ? quarterPoint(t) : discPointOnArc(t);
     const abs = Math.abs(deg);
     const stepsOut = Math.round(abs / DISC_STEP);
     const proximity = Math.max(0, 1 - abs / DISC_FADE_DEG);
@@ -717,6 +744,7 @@ function fillOneDiscWheel(wheel) {
 function fillDiscWheel() {
   fillOneDiscWheel($('discWheel'));
   fillOneDiscWheel($('cornerDiscWheel'));
+  fillOneDiscWheel($('quarterWheel'));
   discAngle = discAngleForIndex(Math.max(0, stops().findIndex((s) => s.id === stopId)), stops().length);
   paintDiscAngle(discAngle);
 }
@@ -727,8 +755,7 @@ function bindOneDiscStage(stage) {
   let drag = null;
   stage.addEventListener('pointerdown', (e) => {
     if (!usesDiscMotion()) return;
-    if (isCornerDiscLayout() && stage.id !== 'cornerDiscStage') return;
-    if (isTopDiscLayout() && stage.id !== 'discStage') return;
+    if (stage !== activeDiscRefs().stage) return;
     cancelAnimationFrame(discAnim);
     discAnim = 0;
     const btn = e.target.closest('button[data-stop]');
@@ -745,12 +772,13 @@ function bindOneDiscStage(stage) {
   });
   stage.addEventListener('pointermove', (e) => {
     if (!drag || drag.id !== e.pointerId || !usesDiscMotion()) return;
-    if (isCornerDiscLayout() && stage.id !== 'cornerDiscStage') return;
-    if (isTopDiscLayout() && stage.id !== 'discStage') return;
+    if (stage !== activeDiscRefs().stage) return;
     /* Corner disc is tilted ~42deg — drag follows the visible arc */
-    const delta = isCornerDiscLayout()
-      ? ((e.clientX - drag.x) * 0.55 + (e.clientY - drag.y) * 0.85)
-      : (e.clientX - drag.x);
+    const dx = e.clientX - drag.x;
+    const dy = e.clientY - drag.y;
+    let delta = dx;
+    if (isCornerDiscLayout()) delta = dx * 0.55 + dy * 0.85;
+    else if (isQuarterLayout()) delta = (dx + dy) * QUARTER_DRAG;
     if (Math.abs(delta) > 4) drag.moved = true;
     if (!drag.moved) return;
     discAngle = drag.startAngle - delta / DISC_PX_PER_DEG;
@@ -774,8 +802,7 @@ function bindOneDiscStage(stage) {
     drag = null;
     discDragAngle = null;
     if (!usesDiscMotion()) return;
-    if (isCornerDiscLayout() && stage.id !== 'cornerDiscStage') return;
-    if (isTopDiscLayout() && stage.id !== 'discStage') return;
+    if (stage !== activeDiscRefs().stage) return;
     if (!moved && btn && btn.dataset.stop) {
       pickStop(btn.dataset.stop);
       snapDiscTo(btn.dataset.stop, true);
@@ -787,8 +814,7 @@ function bindOneDiscStage(stage) {
   stage.addEventListener('pointercancel', endDrag);
   stage.addEventListener('wheel', (e) => {
     if (!usesDiscMotion()) return;
-    if (isCornerDiscLayout() && stage.id !== 'cornerDiscStage') return;
-    if (isTopDiscLayout() && stage.id !== 'discStage') return;
+    if (stage !== activeDiscRefs().stage) return;
     e.preventDefault();
     cancelAnimationFrame(discAnim);
     discAnim = 0;
@@ -803,6 +829,7 @@ function bindOneDiscStage(stage) {
 function bindDiscWheel() {
   bindOneDiscStage($('discStage'));
   bindOneDiscStage($('cornerDiscStage'));
+  bindOneDiscStage($('quarterStage'));
 }
 
 function bindRoller() {

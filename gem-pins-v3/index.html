@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=55">
+<link rel="stylesheet" href="app.css?v=56">
 <meta http-equiv="Cache-Control" content="no-cache">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=2">
 </head>
@@ -87,6 +87,20 @@
         </div>
       </div>
     </header>
+    <!-- Quarter haze (Melissa, 26 Nov): Disc haze 2 glow on a true quarter circle in the top-right corner -->
+    <div class="quarter-wrap" id="quarterWrap" hidden>
+      <div class="quarter-caption">
+        <p class="disc-title" id="quarterTitle"></p>
+        <p class="disc-note" id="quarterNote"></p>
+      </div>
+      <div class="quarter-stage" id="quarterStage">
+        <svg class="quarter-arc" id="quarterArc" viewBox="0 0 200 200" aria-hidden="true">
+          <path class="disc-arc-glow" d="M 50 0 A 150 150 0 0 0 200 150" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+          <path class="disc-arc-tint" d="M 50 0 A 150 150 0 0 0 200 150" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <div class="disc-wheel" id="quarterWheel" role="listbox" aria-label="Filter gems on the corner arc"></div>
+      </div>
+    </div>
     <!-- Corner = same disc arc rotated into top-left (Figma); Disc colour untouched -->
     <div class="corner-disc-wrap" id="cornerDiscWrap" hidden>
       <div class="corner-disc-caption">

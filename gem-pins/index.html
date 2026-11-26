@@ -59,6 +59,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
         <button type="button" data-filter-layout="disc" aria-pressed="false">Disc colour</button>
         <button type="button" data-filter-layout="disc-haze" aria-pressed="false" class="is-fav" title="Favourite">Disc haze</button>
         <button type="button" data-filter-layout="disc-haze-2" aria-pressed="false" class="v3-only" title="V3 only">Disc haze 2</button>
+        <button type="button" data-filter-layout="quarter-haze" aria-pressed="false" class="v3-only" title="V3 only">Quarter haze</button>
         <button type="button" data-filter-layout="corner" aria-pressed="false">Corner</button>
       </div>
       <p class="edition-note">[more filter layout patterns]</p>
@@ -188,8 +189,9 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   }
   function sendFilterLayout() {
     if (!frame.contentWindow) return;
-    // Disc haze 2 exists only in V3; any other version gets plain Disc haze.
-    const layout = filterLayout === 'disc-haze-2' && frame.dataset.edition !== 'v3' ? 'disc-haze' : filterLayout;
+    // Disc haze 2 and Quarter haze exist only in V3; any other version gets plain Disc haze.
+    const v3Only = filterLayout === 'disc-haze-2' || filterLayout === 'quarter-haze';
+    const layout = v3Only && frame.dataset.edition !== 'v3' ? 'disc-haze' : filterLayout;
     frame.contentWindow.postMessage({ type: 'gem-pins-filter-layout', layout: layout }, '*');
   }
   function showFrame() {
@@ -197,7 +199,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   }
   // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
   // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
-const FRAMES = { v2: '../gem-pins-v2/?v=64', v3: '../gem-pins-v3/?v=8' };
+const FRAMES = { v2: '../gem-pins-v2/?v=64', v3: '../gem-pins-v3/?v=9' };
   function apply(edition) {
     const src = FRAMES[edition];
     document.body.classList.toggle('is-v2', !!src);
