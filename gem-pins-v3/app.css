@@ -1023,7 +1023,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .slide .feed-chip-prompt {
   margin: 0;
   color: #fff;
-  font-size: 17px;
+  font-size: 21px; /* V3: larger description (Melissa, 26 Nov) */
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.2;
@@ -1362,6 +1362,11 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   border-color: var(--accent);
 }
 .icon-act.bookmark-btn[aria-pressed="true"] svg { fill: currentColor; }
+/* V3: visited check, lit like the wish list when on */
+.icon-act.visit-btn[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+  border-color: var(--accent);
+}
 .roller .pin-gem.is-heart,
 .legend-ico .pin-gem.is-heart { width: 26px; height: 24px; }
 .roller .pin-gem.is-bookmark,

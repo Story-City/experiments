@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=49">
+<link rel="stylesheet" href="app.css?v=50">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -19,7 +19,7 @@
 
   <div class="sheet-switch" id="sheetSwitch" role="group" aria-label="Slide-out version">
     <button type="button" data-sheet="original">Original</button>
-    <button type="button" data-sheet="prompt">Prompt</button>
+    <button type="button" data-sheet="prompt">Text</button>
     <button type="button" data-sheet="image">Image</button>
     <button type="button" data-sheet="bar">Bar</button>
   </div>
@@ -202,15 +202,16 @@
       <p class="sheet-more" id="slideMore" hidden>[tap for more]</p>
       <p class="sheet-status" id="slideStatus" hidden></p>
       <div class="slide-actions" id="slideActions">
+        <button type="button" class="nav-btn" id="navBtn">[navigate]</button>
         <button type="button" class="icon-act bookmark-btn" id="saveBtn" aria-pressed="false" aria-label="[save for later]"></button>
         <button type="button" class="icon-act hide-btn" id="hideBtn" aria-label="Hide from my map"></button>
-        <button type="button" class="nav-btn" id="navBtn">[navigate]</button>
+        <button type="button" class="icon-act visit-btn" id="visitBtn" aria-pressed="false" aria-label="Mark visited"></button>
       </div>
     </section>
   </main>
 
   <p class="meta">GEM-PINS-V2-v49 — Disc haze = soft Disc colour; white map gems.</p>
   <script src="../location-gems/corner-ribbon.js?v=36"></script>
-  <script type="module" src="app.js?v=49"></script>
+  <script type="module" src="app.js?v=50"></script>
 </body>
 </html>

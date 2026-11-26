@@ -32,7 +32,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
       <p class="edition-label">Slide-out</p>
       <div class="edition-sheets" role="group" aria-label="Slide-out">
         <button type="button" data-sheet="original" aria-pressed="false">Original</button>
-        <button type="button" data-sheet="prompt" aria-pressed="true">Prompt</button>
+        <button type="button" data-sheet="prompt" aria-pressed="true">Text</button>
         <button type="button" data-sheet="image" aria-pressed="false">Image</button>
         <button type="button" data-sheet="bar" aria-pressed="false">Bar</button>
       </div>
@@ -224,7 +224,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   }
   // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
   // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
-  const FRAMES = { v2: '../gem-pins-v2/?v=52', v3: '../gem-pins-v3/?v=1' };
+  const FRAMES = { v2: '../gem-pins-v2/?v=52', v3: '../gem-pins-v3/?v=2' };
   function apply(edition) {
     const src = FRAMES[edition];
     document.body.classList.toggle('is-v2', !!src);

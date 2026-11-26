@@ -882,21 +882,20 @@ function cornerRibbonHtml(fill, uid) {
 function cornerHtml(g) {
   const tagId = g.tags[0];
   const fill = GEM_COLOUR[tagId] || colourOf(g);
-  const ribbon = cornerRibbonHtml(fill, `v2-${g.id}`);
-  if (!ribbon) return '';
-  return `<div class="gem-card-corner" style="--gem-line:${fill}"><div class="gem-card-corner-art" aria-hidden="true">${ribbon}</div><div class="gem-card-corner-stack"><span class="gem-card-gem">${categoryMark(tagId, 46)}</span></div></div>`;
+  if (!fill) return '';
+  // V3 (Melissa, 26 Nov): no coloured ribbon lines behind the corner gem
+  return `<div class="gem-card-corner" style="--gem-line:${fill}"><div class="gem-card-corner-stack"><span class="gem-card-gem">${categoryMark(tagId, 46)}</span></div></div>`;
 }
 
 /** Exact location-gems feedCornerHtml for prompt card */
 function feedPromptCornerHtml(g) {
   const tagId = g.tags[0];
   const fill = GEM_COLOUR[tagId] || colourOf(g);
-  const ribbon = cornerRibbonHtml(fill, `feed-${g.id}`);
-  if (!ribbon) return '';
+  if (!fill) return '';
+  // V3 (Melissa, 26 Nov): smaller gem, no coloured ribbon lines behind it
   return `
-    <div class="feed-chip-corner-art">${ribbon}</div>
     <div class="feed-chip-corner-stack">
-      <span class="feed-chip-corner-gem">${categoryMark(tagId, 38)}</span>
+      <span class="feed-chip-corner-gem">${categoryMark(tagId, 28)}</span>
     </div>`;
 }
 
@@ -939,8 +938,8 @@ function buildPromptChip(g) {
         <p class="feed-chip-rarity-word${showRarity ? ` is-${rid}` : ''}" ${showRarity ? '' : 'hidden'}>${showRarity ? rarity.label : ''}</p>
       </div>
       <div class="feed-chip-actions">
-        <button type="button" class="icon-act bookmark-btn" aria-pressed="false" aria-label="${displayCopy(btnCopy('save'))}"></button>
         <button type="button" class="nav-btn is-compact">${displayCopy(btnCopy('navigate'))}</button>
+        <button type="button" class="icon-act bookmark-btn" aria-pressed="false" aria-label="${displayCopy(btnCopy('save'))}"></button>
       </div>
     </div>
     <div class="feed-chip-corner" aria-hidden="true">${feedPromptCornerHtml(g)}</div>`;
@@ -1078,6 +1077,12 @@ function paintActionIcons(g) {
   if (hide) {
     hide.innerHTML = ICON.hide;
     hide.setAttribute('aria-label', COPY.hideLong || 'Hide');
+  }
+  const visit = $('visitBtn');
+  if (visit) {
+    visit.innerHTML = ICON.check;
+    visit.setAttribute('aria-pressed', String(!!g.visited));
+    visit.setAttribute('aria-label', g.visited ? COPY.unmarkIt || 'Visited: tap to undo' : COPY.markIt || 'Mark visited');
   }
 }
 
@@ -1275,6 +1280,16 @@ $('hideBtn').addEventListener('click', (e) => {
   e.stopPropagation();
   if (openId == null) return;
   hideGem(GEMS[openId]);
+});
+// V3 (Melissa, 26 Nov): "been there" check beside wish list and hide; a gem is visited or liked, not both
+$('visitBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (openId == null) return;
+  const g = GEMS[openId];
+  g.visited = !g.visited;
+  if (g.visited) g.liked = false;
+  paintSlide();
+  drawPins(true);
 });
 function onNavigate(e) {
   e.stopPropagation();
