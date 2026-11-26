@@ -3,8 +3,8 @@
 export const COPY = {
   pageTitle: 'Explore picker · 11 ways to pick',
   stepLabel: 'Step 2 of 3',
-  // Heading options, switched with 1–3 in the bar (?h=1…3)
-  titles: ['How do you like to explore?', 'How would you like to explore?', 'How can we help you explore?'],
+  // Heading options, switched with 1–4 in the bar (?h=1…4)
+  titles: ['How do you like to explore?', 'How would you like to explore?', 'How can we help you explore?', 'How do you want to explore?'],
   headingLabel: 'Heading',
   sub: 'Pick all that apply. Each pick changes what you see next.',
   skip: 'Skip',
