@@ -1,6 +1,6 @@
 // Every word the player sees lives here, so a wording change is a one-line edit.
 // Pick a version on the start list or with ?v=glow (numbers keypad with Victoria's envelope art, the default),
-// ?v=letters (QWERTY), ?v=dial (dial, 5 letters), ?v=dial7 (dial, 7 letters) or ?v=dialwords (dial of words). All use the glowing blue style.
+// ?v=letters (QWERTY), ?v=dial (dial, 5 letters), ?v=dial7 (dial, 7 letters), ?v=dialwords (dial of words) or ?v=dialdrum (dial of words on a drum). All use the glowing blue style.
 // image: the clue picture (swap the file to change it). Without it, the drawn envelope shows the answer on its seal.
 
 export const STORY = {
@@ -22,8 +22,8 @@ export const STORY = {
     title: 'Welcome to the Society.',
     eyebrow: 'End of mockup',
     again: 'Play again',
-    other: { glow: 'Try the word version', letters: 'Try the dial', dial: 'Try the 7-letter dial', dial7: 'Try the dial of words', dialwords: 'Try the number keypad' },
-    otherTo: { glow: 'letters', letters: 'dial', dial: 'dial7', dial7: 'dialwords', dialwords: 'glow' },
+    other: { glow: 'Try the word version', letters: 'Try the dial', dial: 'Try the 7-letter dial', dial7: 'Try the dial of words', dialwords: 'Try the drum of words', dialdrum: 'Try the number keypad' },
+    otherTo: { glow: 'letters', letters: 'dial', dial: 'dial7', dial7: 'dialwords', dialwords: 'dialdrum', dialdrum: 'glow' },
   },
 };
 
@@ -168,3 +168,6 @@ export const VARIANTS = {
     sendLabel: 'Send',
   },
 };
+
+// The same dial of words on a drum that bulges toward you: the top row bows down, the bottom row bows up, the sides squeeze in.
+VARIANTS.dialdrum = { ...VARIANTS.dialwords, label: 'Dial · drum', blurb: 'The dial of words on a drum that bulges toward you', drum: true };
