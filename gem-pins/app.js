@@ -230,6 +230,11 @@ function artFor(g) {
   // liked by you with 7B: the same gem, recoloured in pink tones (light facets stay light, dark stay dark)
   if (g.visited && opt.visited === 'mapcolour') return { markup: slateTones(markup), colour: '#6863a0' };
   if (g.liked && !g.mine && opt.liked === 'colour') { markup = pinkTones(markup); return { markup, colour: D.LOVE }; }
+  // seasonal with 22C: the category gem keeps its cut, recoloured in the season's colour
+  if (g.seasonal && opt.seasonal === 'colour') {
+    const sc = D.SEASONS[opt.season].colour;
+    return { markup: toneTo(markup, [1, 3, 5].map((i) => parseInt(sc.slice(i, i + 2), 16))), colour: sc };
+  }
   return { markup, colour: ART_COLOUR[key] };
 }
 function pinFor(g, overrides = {}) {
@@ -263,6 +268,7 @@ function pinFor(g, overrides = {}) {
     glowTint: g.expiring && opt.expiring === 'shardLab' ? '#ff8c28' : null,
     singleRing: g.liked && !g.mine && opt.liked === 'single',
     seasonBadge: g.seasonal && opt.seasonal === 'badge' ? D.SEASONS[opt.season].colour : null,
+    seasonShape: opt.season,
     sparkStyle: opt.sparkStyle,
     sparkle: SPARKLE_BY.includes(opt.rarityBy) ? { common: 0, rare: 2, epic: 3, mythical: 4 }[rarityOf(g)] : 0,
     check: g.visited && opt.visited === 'check',
@@ -456,7 +462,7 @@ const sheet = $('sheet');
 function openSheet(build) {
   sheet.replaceChildren();
   build(sheet);
-  const done = el('button', 'btn ghost', COPY.close);
+  const done = el('button', 'btn ghost', COPY.done);
   done.addEventListener('click', closeSheet);
   sheet.append(done);
   sheet.hidden = false;
@@ -531,6 +537,9 @@ function openGem(g) {
 // B: a small card right by the gem, pointing at it
 function openPop(g) {
   const pop = $('pop');
+  // the gem can leave the map after Mark Visited (17B), or fold into a group (24B/C): nothing to point at
+  const pinEl = document.querySelector(`.pin[data-id="${g.id}"]`);
+  if (!pinEl) return closeDetails();
   pop.replaceChildren();
   const head = el('div', 'gem-head');
   const art = el('span', 'gem-art small'); art.innerHTML = pinFor(g);
@@ -540,7 +549,7 @@ function openPop(g) {
   pop.hidden = false; $('catch').hidden = false;
   selectPin(g);
   const ph = $('phone').getBoundingClientRect();
-  const pin = document.querySelector(`.pin[data-id="${g.id}"]`).getBoundingClientRect();
+  const pin = pinEl.getBoundingClientRect();
   const cx = pin.left + 22 - ph.left; const cy = pin.top + 22 - ph.top;
   const w = pop.offsetWidth; const h = pop.offsetHeight;
   const below = cy - h - 30 < 90; // not enough room above: open under the gem
@@ -568,7 +577,8 @@ function openFull(g) {
 function openPeek(g) {
   const strip = $('peek');
   strip.replaceChildren();
-  const shown = [...document.querySelectorAll('.pin')].map((p) => GEMS[Number(p.dataset.id)]);
+  // single gems only: a group (24B/C) has no id of its own
+  const shown = [...document.querySelectorAll('.pin[data-id]')].map((p) => GEMS[Number(p.dataset.id)]);
   const near = shown.sort((a, b) => Math.hypot(a.at[0] - g.at[0], (a.at[1] - g.at[1]) * 1.6) - Math.hypot(b.at[0] - g.at[0], (b.at[1] - g.at[1]) * 1.6)).slice(0, 12);
   const top = el('div', 'peek-top');
   top.append(el('span', 'muted', COPY.nearby(near.length)), closeBtn());
@@ -951,18 +961,29 @@ function drawPresets() {
 // Read which qualities each thing uses from the options, and write them back. Both panel modes
 // (dropdowns, drag & drop) share the same options, so presets and links keep working.
 const rarityParts = (v) => ({ size: SIZE_BY.includes(v), glow: GLOW_BY.includes(v), sparkle: SPARKLE_BY.includes(v) });
+// One-attribute things: which attribute each option value uses. Dropping an attribute keeps the current
+// value when it already uses it (so 7F single ring stays 7F), otherwise takes the first value listed.
+// Ruled-out values (RULED_OUT) are left out, so drag & drop can never switch one back on.
+const QMAP = {
+  mine: { hollow: ['hollow'], dashed: ['frame'], lock: ['badge'], outline: ['outline'], wire: ['outline'], own: ['shape'], plinth: ['base'], groundring: ['ring'] },
+  liked: { heart: ['badge'], ring: ['ring'], single: ['ring'] },
+  visited: { fade: ['fade'], check: ['badge'], small: ['size'], mapcolour: ['tint'] },
+  expiring: { clock: ['badge'], countdown: ['label'], ring: ['ring'], hourglass: ['shape'], hourglassLab: ['shape'], shardLab: ['shape'], warmglow: ['glow'], rays: ['glow'] },
+  seasonal: { shape: ['shape'], badge: ['badge'], colour: ['tint'] },
+};
 function qualitiesOf(o) {
   const r = rarityParts(o.rarityBy);
   return {
-    creator: ['whose', 'picked'].includes(o.colour) && o.rarityBy !== 'colour' ? ['colour'] : [],
     rarity: [...(o.colour === 'rarity' || o.rarityBy === 'colour' ? ['colour'] : []), ...['size', 'glow', 'sparkle'].filter((k) => r[k])],
     category: [...(o.colour === 'category' && o.rarityBy !== 'colour' ? ['colour'] : []), ...(['category', 'crystal'].includes(o.shape) ? ['shape'] : [])],
-    mine: { hollow: ['hollow'], dashed: ['frame'], lock: ['badge'], outline: ['outline'] }[o.mine] || [],
-    liked: { heart: ['badge'], outline: ['outline'], ring: ['ring'], colour: ['tint'] }[o.liked] || [],
-    visited: { fade: ['fade'], check: ['badge'], small: ['size'] }[o.visited] || [],
-    expiring: { clock: ['badge'], countdown: ['label'], ring: ['ring'], hourglass: ['shape'], hourglassLab: ['shape'], shardLab: ['shape'], warmglow: ['glow'] }[o.expiring] || [],
-    seasonal: { shape: ['shape'], badge: ['badge'], colour: ['tint'] }[o.seasonal] || [],
+    ...Object.fromEntries(Object.entries(QMAP).map(([thing, m]) => [thing, m[o[thing]] || []])),
   };
+}
+function setOne(thing, qs) {
+  const m = QMAP[thing];
+  if (!qs.length) { opt[thing] = 'none'; return; }
+  if ((m[opt[thing]] || []).includes(qs[0])) return;
+  opt[thing] = Object.keys(m).find((v) => m[v].includes(qs[0])) || 'none';
 }
 function setQualities(thing, qs) {
   const has = (q) => qs.includes(q);
@@ -977,11 +998,14 @@ function setQualities(thing, qs) {
     if (has('colour')) opt.colour = 'category'; else if (opt.colour === 'category') opt.colour = 'none';
     opt.shape = has('shape') ? (opt.shape === 'crystal' ? 'crystal' : 'category') : 'one';
   }
-  if (thing === 'mine') opt.mine = has('hollow') ? 'hollow' : has('frame') ? 'dashed' : has('badge') ? 'lock' : has('outline') ? 'outline' : 'none';
-  if (thing === 'liked') opt.liked = has('badge') ? 'heart' : has('outline') ? 'outline' : has('ring') ? 'ring' : has('tint') ? 'colour' : 'none';
-  if (thing === 'visited') opt.visited = has('fade') ? 'fade' : has('badge') ? 'check' : has('size') ? 'small' : 'none';
-  if (thing === 'expiring') opt.expiring = has('badge') ? 'clock' : has('label') ? 'countdown' : has('ring') ? 'ring' : has('shape') ? 'hourglass' : has('glow') ? 'warmglow' : 'none';
-  if (thing === 'seasonal') opt.seasonal = has('shape') ? 'shape' : has('badge') ? 'badge' : has('tint') ? 'colour' : 'none';
+  if (QMAP[thing]) setOne(thing, qs);
+}
+// Gem art (25B–E) draws category colour and shape itself. When drag & drop gives colour or shape to
+// something else, switch to drawn shapes (25A) so the change shows on the map.
+function artFollows(before) {
+  if (before === 'drawn' || (opt.colour === 'category' && opt.shape === 'category')) return '';
+  opt.art = 'drawn';
+  return COPY.artSwitched;
 }
 const isIdea = (id) => id.startsWith('c-');
 const qLabel = (id) => (isIdea(id) ? ideas.find((a) => a.id === id)?.label || id : D.QUALITIES.find((q) => q.id === id).label);
@@ -997,20 +1021,29 @@ function dropQuality(q, thingId, fromThing) {
   const t = D.THINGS.find((x) => x.id === thingId);
   if (!t.uses.includes(q)) { toast(COPY.cantUse(t.label, qLabel(q))); return false; }
   const now = qualitiesOf(opt);
+  const artBefore = opt.art;
   if (fromThing && fromThing !== thingId) setQualities(fromThing, now[fromThing].filter((x) => x !== q));
-  let msg = '';
+  const msgs = [];
   if (q === 'colour') { // colour belongs to one thing: take it from whoever has it
-    const owner = Object.keys(now).find((k) => ['creator', 'rarity', 'category'].includes(k) && now[k].includes('colour') && k !== thingId);
-    if (owner) { setQualities(owner, qualitiesOf(opt)[owner].filter((x) => x !== 'colour')); msg = COPY.colourMoved(tLabel(owner), t.label); }
+    const owner = Object.keys(now).find((k) => ['rarity', 'category'].includes(k) && now[k].includes('colour') && k !== thingId);
+    if (owner) { setQualities(owner, qualitiesOf(opt)[owner].filter((x) => x !== 'colour')); msgs.push(COPY.colourMoved(tLabel(owner), t.label)); }
   }
   const cur = qualitiesOf(opt)[thingId];
   setQualities(thingId, t.many ? [...new Set([...cur, q])] : [q]);
+  msgs.push(artFollows(artBefore));
   writeHash(); closeDetails(); drawAll();
+  const msg = msgs.filter(Boolean).join(' ');
   if (msg) toast(msg);
   return true;
 }
 function removeQuality(q, thingId) {
-  if (isIdea(q)) { const a = ideas.find((x) => x.id === q); if (a) a.on = a.on.filter((t) => t !== thingId); writeHash(); drawDnd(); return; } setQualities(thingId, qualitiesOf(opt)[thingId].filter((x) => x !== q)); writeHash(); drawAll(); }
+  if (isIdea(q)) { const a = ideas.find((x) => x.id === q); if (a) a.on = a.on.filter((t) => t !== thingId); writeHash(); drawDnd(); return; }
+  const artBefore = opt.art;
+  setQualities(thingId, qualitiesOf(opt)[thingId].filter((x) => x !== q));
+  const msg = artFollows(artBefore);
+  writeHash(); drawAll();
+  if (msg) toast(msg);
+}
 
 let panelMode = 'dropdowns';
 try { panelMode = localStorage.getItem('sc-gem-panel') || 'dropdowns'; } catch (e) { /* fine */ }
@@ -1170,6 +1203,6 @@ function drawAll() {
   drawDnd();
   drawMode();
 }
-for (const [id, text] of [['kicker', COPY.kicker], ['title', COPY.title], ['lead', COPY.lead], ['resetBtn', COPY.reset], ['shareBtn', COPY.share], ['optionsBtn', COPY.options], ['panelClose', COPY.close], ['mapTitle', COPY.mapTitle], ['keyLabel', COPY.key], ['presetsTitle', COPY.presets]]) $(id).textContent = text;
+for (const [id, text] of [['kicker', COPY.kicker], ['title', COPY.title], ['lead', COPY.lead], ['resetBtn', COPY.reset], ['shareBtn', COPY.share], ['optionsBtn', COPY.options], ['panelClose', COPY.done], ['mapTitle', COPY.mapTitle], ['keyLabel', COPY.key], ['presetsTitle', COPY.presets]]) $(id).textContent = text;
 addEventListener('hashchange', () => { readHash(); drawAll(); });
 drawAll();

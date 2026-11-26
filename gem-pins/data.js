@@ -131,14 +131,15 @@ export const QUALITIES = [
   { id: 'fade', label: 'Fade' },
   { id: 'label', label: 'Label' },
   { id: 'tint', label: 'Tint' },
+  { id: 'base', label: 'Base' }, // something under the gem: the plinth (6G)
 ];
+// Creator left with its dropdown section (25 Nov). Liked lost Outline and Tint when 7B and 7D were ruled out.
 export const THINGS = [
-  { id: 'creator', label: 'Creator', uses: ['colour'], many: false },
   { id: 'rarity', label: 'Rarity', uses: ['colour', 'size', 'glow', 'sparkle'], many: true },
   { id: 'category', label: 'Category', uses: ['colour', 'shape'], many: true },
-  { id: 'mine', label: 'Private vs public', uses: ['hollow', 'frame', 'badge', 'outline'], many: false },
-  { id: 'liked', label: 'Liked', uses: ['badge', 'outline', 'ring', 'tint'], many: false },
-  { id: 'visited', label: 'Visited', uses: ['fade', 'badge', 'size'], many: false },
+  { id: 'mine', label: 'Private vs public', uses: ['hollow', 'frame', 'badge', 'outline', 'base', 'ring', 'shape'], many: false },
+  { id: 'liked', label: 'Liked', uses: ['badge', 'ring'], many: false },
+  { id: 'visited', label: 'Visited', uses: ['fade', 'badge', 'size', 'tint'], many: false },
   { id: 'expiring', label: 'Expiring soon', uses: ['badge', 'label', 'ring', 'shape', 'glow'], many: false },
   { id: 'seasonal', label: 'Seasonal', uses: ['shape', 'badge', 'tint'], many: false },
 ];
@@ -162,10 +163,10 @@ export const NOTES = {
   curioUnused: 'Only used with gem art (25B–E).',
   sparkUnused: 'Only used when rarity sparkles (3E, 3G, 3H or 3I).',
   ownSame: 'Looks like 6A until colour or shape shows the category (1C or 2B).',
-  glowUnused: 'Only used when rarity glows (3B, 3C or 3E).',
-  coloursUnused: 'Only used when colour shows rarity (1B or 3D).',
+  glowUnused: 'Only used when rarity glows (3B, 3C, 3E or 3I).',
+  coloursUnused: 'Only used when colour shows rarity (1B).',
   colourTaken: 'Colour is showing rarity (3D), so this has no effect right now.',
-  sizesUnused: 'Only used when rarity is shown by size (3A or 3C).',
+  sizesUnused: 'Only used when rarity is shown by size (3A, 3C, 3E or 3H).',
   seesUnused: 'Only matters when you can pick a colour (9B or 9C).',
   seesNotShown: 'On the map, others’ colours show with 1D. Your own colour always shows to you.',
   pickedSame: 'Looks like 1A until others’ colours are shown to everyone (10B).',
@@ -174,7 +175,7 @@ export const NOTES = {
 export const COPY = {
   kicker: 'Experiment · Gem map pins',
   title: 'Gem map pins',
-  lead: 'Find the clearest way to show who a gem belongs to, how rare it is, and its categories. Letters let you say which you mean (“3B”).',
+  lead: 'Find the clearest way to show what a gem is, how rare it is, and whether it’s yours, liked or visited. Letters let you say which you mean (“3B”).',
   reset: 'Back to Start',
   presets: 'Preset combos',
   myPick: 'Melissa’s pick',
@@ -187,7 +188,8 @@ export const COPY = {
   share: 'Copy link to this setup',
   copied: 'Link copied',
   options: 'Options',
-  close: 'Done',
+  done: 'Done',
+  artSwitched: 'Gem art switched to drawn shapes (25A) so this shows on the map.',
   mapTitle: 'Gems near you',
   all: 'All',
   filter: (n, total) => (n === total ? 'Filter' : `Filter · ${n}`),
