@@ -688,6 +688,53 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   background: transparent;
   box-shadow: none;
 }
+/* Disc colour / haze — nature, shop (eat), culture, hollow mine a touch larger */
+.disc-stage .disc-wheel button[data-stop="nature"] img,
+.disc-stage .disc-wheel button[data-stop="nature"] .pin-gem,
+.disc-stage .disc-wheel button[data-stop="nature"] .pin-gem-wrap,
+.disc-stage .disc-wheel button[data-stop="nature"] .cat-gem-art,
+.disc-stage .disc-wheel button[data-stop="nature"] svg,
+.disc-stage .disc-wheel button[data-stop="eat"] img,
+.disc-stage .disc-wheel button[data-stop="eat"] .pin-gem,
+.disc-stage .disc-wheel button[data-stop="eat"] .pin-gem-wrap,
+.disc-stage .disc-wheel button[data-stop="eat"] .cat-gem-art,
+.disc-stage .disc-wheel button[data-stop="eat"] svg,
+.disc-stage .disc-wheel button[data-stop="culture"] img,
+.disc-stage .disc-wheel button[data-stop="culture"] .pin-gem,
+.disc-stage .disc-wheel button[data-stop="culture"] .pin-gem-wrap,
+.disc-stage .disc-wheel button[data-stop="culture"] .cat-gem-art,
+.disc-stage .disc-wheel button[data-stop="culture"] svg,
+.disc-stage .disc-wheel button[data-stop="mine"] img,
+.disc-stage .disc-wheel button[data-stop="mine"] .pin-gem,
+.disc-stage .disc-wheel button[data-stop="mine"] .pin-gem-wrap,
+.disc-stage .disc-wheel button[data-stop="mine"] .cat-gem-art,
+.disc-stage .disc-wheel button[data-stop="mine"] svg {
+  width: 30px;
+  height: 30px;
+}
+.disc-stage .disc-wheel button.is-front[data-stop="nature"] img,
+.disc-stage .disc-wheel button.is-front[data-stop="nature"] .pin-gem,
+.disc-stage .disc-wheel button.is-front[data-stop="nature"] .pin-gem-wrap,
+.disc-stage .disc-wheel button.is-front[data-stop="nature"] .cat-gem-art,
+.disc-stage .disc-wheel button.is-front[data-stop="nature"] svg,
+.disc-stage .disc-wheel button.is-front[data-stop="eat"] img,
+.disc-stage .disc-wheel button.is-front[data-stop="eat"] .pin-gem,
+.disc-stage .disc-wheel button.is-front[data-stop="eat"] .pin-gem-wrap,
+.disc-stage .disc-wheel button.is-front[data-stop="eat"] .cat-gem-art,
+.disc-stage .disc-wheel button.is-front[data-stop="eat"] svg,
+.disc-stage .disc-wheel button.is-front[data-stop="culture"] img,
+.disc-stage .disc-wheel button.is-front[data-stop="culture"] .pin-gem,
+.disc-stage .disc-wheel button.is-front[data-stop="culture"] .pin-gem-wrap,
+.disc-stage .disc-wheel button.is-front[data-stop="culture"] .cat-gem-art,
+.disc-stage .disc-wheel button.is-front[data-stop="culture"] svg,
+.disc-stage .disc-wheel button.is-front[data-stop="mine"] img,
+.disc-stage .disc-wheel button.is-front[data-stop="mine"] .pin-gem,
+.disc-stage .disc-wheel button.is-front[data-stop="mine"] .pin-gem-wrap,
+.disc-stage .disc-wheel button.is-front[data-stop="mine"] .cat-gem-art,
+.disc-stage .disc-wheel button.is-front[data-stop="mine"] svg {
+  width: 34px;
+  height: 34px;
+}
 .disc-caption {
   position: absolute;
   left: 50%;
