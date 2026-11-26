@@ -44,10 +44,9 @@ button:focus-visible { outline: 2px solid #c49bff; outline-offset: 2px; }
 .page-head { max-width: 640px; text-align: center; }
 body.is-embed { padding: 0; }
 body.is-embed .page-head,
-body.is-embed .sheet-switch,
-body.is-embed .layout-switch,
-body.is-embed .layout-note,
+body.is-embed .gh-rail,
 body.is-embed .meta { display: none; }
+body.is-embed .gh-workspace { display: block; width: 100%; }
 body.is-embed .phone {
   width: 100%;
   height: 100dvh;
@@ -67,56 +66,6 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .lede { margin: 0; color: var(--muted); font-size: 16px; font-weight: 600; line-height: 1.3; }
 .meta { margin: 0; color: rgba(255, 255, 255, 0.38); font-size: 12px; font-weight: 700; }
 
-.sheet-switch {
-  display: flex;
-  gap: 6px;
-  padding: 4px;
-  border-radius: 999px;
-  background: rgba(36, 27, 70, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-}
-.sheet-switch button {
-  height: 32px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--muted);
-  font-weight: 800;
-  font-size: 15px;
-}
-.sheet-switch button[aria-pressed="true"] {
-  background: linear-gradient(90deg, var(--accent-deep), var(--accent));
-  color: #fff;
-}
-.layout-switch {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-  max-width: 640px;
-}
-.layout-switch button {
-  height: 32px;
-  padding: 0 12px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  background: rgba(36, 27, 70, 0.75);
-  color: var(--muted);
-  font-weight: 800;
-  font-size: 14px;
-}
-.layout-switch button[aria-pressed="true"] {
-  background: linear-gradient(90deg, var(--accent-deep), var(--accent));
-  border-color: transparent;
-  color: #fff;
-}
-.layout-note {
-  margin: -4px 0 0;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 13px;
-  font-weight: 600;
-}
 
 .phone {
   position: relative;
@@ -1506,3 +1455,6 @@ body.is-text-glow .feed-chip.is-prompt .feed-chip-prompt-kicker::before {
 }
 .cat-gem-hollow { display: block; width: 30px; height: 30px; }
 .cat-gem-hollow svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* In the rail layout the phone sits in an auto-width column, so give it its own width */
+body:not(.is-embed) .gh-workspace > .phone { width: var(--phone-w); max-width: calc(100vw - 32px); }

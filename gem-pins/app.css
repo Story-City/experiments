@@ -687,3 +687,41 @@ body.is-v2 .app-main-tabs {
 
 /* Debug buttons for layouts only V3 has */
 body:not(.is-v3) .edition-sheets button.v3-only { display: none; }
+
+/* Versioning menu in Victoria's Gem Hub rail style (location-gems variant-pick / variant-btn; shared/gem-hub-rail):
+   small-caps titles, choices in a two-column grid, the picked one a lighter tile */
+.debug-rail .edition-title {
+  font: 800 11px/1.2 var(--f-app, inherit);
+  color: rgba(255, 255, 255, 0.62);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.debug-rail .edition-label { font-size: 11px; letter-spacing: 0.08em; }
+.debug-rail .edition-bar,
+.debug-rail .edition-sheets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.debug-rail .edition-bar { grid-template-columns: repeat(auto-fit, minmax(48px, 1fr)); }
+.debug-rail .edition-bar button,
+.debug-rail .edition-sheets button {
+  height: auto;
+  min-height: 32px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.debug-rail .edition-bar button[aria-pressed="true"],
+.debug-rail .edition-sheets button[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+.debug-rail .edition-sheets button.is-fav { padding-right: 20px; }

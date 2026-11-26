@@ -1261,8 +1261,9 @@ function setSheet(next) {
   const url = new URL(location.href);
   url.searchParams.set('sheet', next);
   history.replaceState(null, '', url);
+  const pressed = textGlow && sheet === 'prompt' ? TEXT_GLOW_SHEET : sheet;
   for (const b of $('sheetSwitch').querySelectorAll('button')) {
-    b.setAttribute('aria-pressed', String(b.dataset.sheet === sheet));
+    b.setAttribute('aria-pressed', String(b.dataset.sheet === pressed));
   }
   if (openId != null) paintSlide();
 }
@@ -1359,20 +1360,20 @@ $('screen').addEventListener('click', () => {
   if (panMoved) { panMoved = false; return; }
   if (openId != null) closeSlide();
 });
+function chooseSheet(name) {
+  const glow = name === TEXT_GLOW_SHEET;
+  const next = glow ? 'prompt' : name;
+  if (!SHEETS.includes(next)) return;
+  textGlow = glow;
+  document.body.classList.toggle('is-text-glow', glow);
+  setSheet(next);
+}
 for (const b of $('sheetSwitch').querySelectorAll('button')) {
-  b.addEventListener('click', () => setSheet(b.dataset.sheet));
+  b.addEventListener('click', () => chooseSheet(b.dataset.sheet));
 }
 window.addEventListener('message', (e) => {
   const data = e.data || {};
-  if (data.type === 'gem-pins-sheet') {
-    const glow = data.sheet === TEXT_GLOW_SHEET;
-    const next = glow ? 'prompt' : data.sheet;
-    if (SHEETS.includes(next)) {
-      textGlow = glow;
-      document.body.classList.toggle('is-text-glow', glow);
-      setSheet(next);
-    }
-  }
+  if (data.type === 'gem-pins-sheet') chooseSheet(data.sheet);
   if (data.type === 'gem-pins-look' && data.vars) {
     for (const [key, value] of Object.entries(data.vars)) document.documentElement.style.setProperty(key, value);
   }

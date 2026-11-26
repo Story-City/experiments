@@ -4,35 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Gem map pins V2</title>
+<title>Gem map pins V3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=57">
+<link rel="stylesheet" href="app.css?v=59">
 <meta http-equiv="Cache-Control" content="no-cache">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=3">
+<link rel="stylesheet" href="../shared/gem-hub-rail/rail.css?v=1">
 </head>
 <body>
   <header class="page-head">
     <p class="eyebrow">StoryCity · experiments</p>
-    <h1>Gem map pins V2</h1>
-    <p class="lede">Melissa’s map, Victoria’s gems. Filter is the top bar. Switch the slide-out below.</p>
+    <h1>Gem map pins V3</h1>
+    <p class="lede">Melissa’s map, Victoria’s gems. Options are in the panel on the right.</p>
   </header>
 
-  <div class="sheet-switch" id="sheetSwitch" role="group" aria-label="Slide-out version">
-    <button type="button" data-sheet="original">Original</button>
-    <button type="button" data-sheet="prompt">Text</button>
-    <button type="button" data-sheet="image">Image</button>
-    <button type="button" data-sheet="bar">Bar</button>
-  </div>
-  <div class="layout-switch" id="layoutSwitch" role="group" aria-label="Filter layout">
-    <button type="button" data-filter-layout="always" aria-pressed="true">Always on</button>
-    <button type="button" data-filter-layout="classic" aria-pressed="false">Classic top</button>
-    <button type="button" data-filter-layout="inline" aria-pressed="false">Inline legend</button>
-    <button type="button" data-filter-layout="disc" aria-pressed="false">Disc colour</button>
-    <button type="button" data-filter-layout="disc-haze" aria-pressed="false">Disc haze</button>
-    <button type="button" data-filter-layout="corner" aria-pressed="false">Corner</button>
-  </div>
-  <p class="layout-note">[more filter layout patterns]</p>
+  <div class="gh-workspace">
 
   <main class="phone" id="phone">
     <div class="screen" id="screen">
@@ -186,10 +173,63 @@
       </div>
     </section>
   </main>
+  <!-- Options in Victoria's Gem Hub rail style (shared/gem-hub-rail) -->
+  <aside class="gh-rail" aria-label="Options">
+    <section class="gh-block">
+      <h2 class="gh-title">Slide-out</h2>
+      <div class="gh-pick" id="sheetSwitch" role="group" aria-label="Slide-out version">
+        <button type="button" data-sheet="original" aria-pressed="false">Original</button>
+        <button type="button" data-sheet="prompt" aria-pressed="false">Text</button>
+        <button type="button" data-sheet="prompt-glow" aria-pressed="false">Text glow</button>
+        <button type="button" data-sheet="image" aria-pressed="false">Image</button>
+        <button type="button" data-sheet="bar" aria-pressed="false">Bar</button>
+      </div>
+    </section>
+    <section class="gh-block">
+      <h2 class="gh-title">Filter layout</h2>
+      <div class="gh-pick" id="layoutSwitch" role="group" aria-label="Filter layout">
+        <button type="button" data-filter-layout="always" aria-pressed="true">Always on</button>
+        <button type="button" data-filter-layout="classic" aria-pressed="false">Classic top</button>
+        <button type="button" data-filter-layout="inline" aria-pressed="false">Inline legend</button>
+        <button type="button" data-filter-layout="disc" aria-pressed="false">Disc colour</button>
+        <button type="button" data-filter-layout="disc-haze" aria-pressed="false">Disc haze</button>
+        <button type="button" data-filter-layout="disc-haze-2" aria-pressed="false">Disc haze 2</button>
+        <button type="button" data-filter-layout="quarter-haze" aria-pressed="false">Quarter haze</button>
+        <button type="button" data-filter-layout="corner" aria-pressed="false">Corner</button>
+      </div>
+      <p class="gh-note">[more filter layout patterns]</p>
+    </section>
+    <section class="gh-block">
+      <h2 class="gh-title">Create button</h2>
+      <div class="gh-pick" role="group" aria-label="Create button">
+        <button type="button" data-create-look="plus" aria-pressed="false">Plus</button>
+        <button type="button" data-create-look="capture" aria-pressed="false">Capture</button>
+        <button type="button" data-create-look="subtle" aria-pressed="false">Subtle</button>
+        <button type="button" data-create-look="camera" aria-pressed="false">Camera</button>
+      </div>
+    </section>
+    <section class="gh-block">
+      <h2 class="gh-title">Bottom bar</h2>
+      <div class="gh-pick" role="group" aria-label="Tab titles">
+        <button type="button" data-tab-labels="on" aria-pressed="false">Titles</button>
+        <button type="button" data-tab-labels="off" aria-pressed="false">Icons only</button>
+      </div>
+      <div class="gh-pick" role="group" aria-label="Bar width">
+        <button type="button" data-tab-width="compact" aria-pressed="false">Compact</button>
+        <button type="button" data-tab-width="spread" aria-pressed="false">Spread</button>
+      </div>
+      <div class="gh-pick is-3" role="group" aria-label="Bar shape">
+        <button type="button" data-tab-shape="float" aria-pressed="false">Floating</button>
+        <button type="button" data-tab-shape="tab" aria-pressed="false">Tab</button>
+        <button type="button" data-tab-shape="full" aria-pressed="false">Full</button>
+      </div>
+    </section>
+  </aside>
+  </div>
 
   <p class="meta">GEM-PINS-V2-v49 — Disc haze = soft Disc colour; white map gems.</p>
   <script src="../location-gems/corner-ribbon.js?v=36"></script>
-  <script type="module" src="app.js?v=55"></script>
+  <script type="module" src="app.js?v=56"></script>
   <!-- The one bottom bar every Gem map pins version uses: shared/gem-tabbar -->
   <script src="../shared/gem-tabbar/tabbar.js?v=3"></script>
   <script>
@@ -200,6 +240,13 @@
       if (window.parent !== window) window.parent.postMessage({ type: 'gem-pins-open-gems' }, '*');
       else location.href = '../location-gems/?v=112&appPages=1';
     },
+  });
+  [['createLook', 'getCreateLook', 'setCreateLook'], ['tabLabels', 'getLabels', 'setLabels'], ['tabWidth', 'getWidth', 'setWidth'], ['tabShape', 'getShape', 'setShape']].forEach(([data, get, set]) => {
+    const btns = document.querySelectorAll('.gh-rail [data-' + data.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()) + ']');
+    const paint = () => btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[data] === GemTabBar[get]())));
+    btns.forEach((b) => b.addEventListener('click', () => { GemTabBar[set](b.dataset[data]); paint(); }));
+    window.addEventListener('storage', paint);
+    paint();
   });
   </script>
 </body>
