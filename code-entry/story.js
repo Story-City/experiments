@@ -1,6 +1,6 @@
 // Every word the player sees lives here, so a wording change is a one-line edit.
 // Switch versions with the chips at the top of the code screen, or link one with ?v=glow (numbers keypad with Victoria's envelope art, the default),
-// ?v=letters (QWERTY), ?v=dial (dial, 5 letters), ?v=dial7 (dial, 7 letters), ?v=dialwords (dial of words), ?v=dialdrum (dial of words on a drum) or ?v=dialbigdrum (a bigger drum). All use the glowing blue style.
+// ?v=letters (QWERTY), ?v=dial (dial, 5 letters), ?v=dialdrum5 (the 5 letters on a drum), ?v=dialwords (dial of words), or ?v=dialdrum (dial of words on a drum). All use the glowing blue style.
 // image: the clue picture (swap the file to change it). Without it, the drawn envelope shows the answer on its seal.
 
 export const STORY = {
@@ -17,15 +17,15 @@ export const STORY = {
     title: 'Welcome to the Society.',
     eyebrow: 'End of mockup',
     again: 'Play again',
-    other: { glow: 'Try the word version', letters: 'Try the dial', dial: 'Try the 7-letter dial', dial7: 'Try the dial of words', dialwords: 'Try the drum of words', dialdrum: 'Try the big drum', dialbigdrum: 'Try the number keypad' },
-    otherTo: { glow: 'letters', letters: 'dial', dial: 'dial7', dial7: 'dialwords', dialwords: 'dialdrum', dialdrum: 'dialbigdrum', dialbigdrum: 'glow' },
+    other: { glow: 'Try the QWERTY version', letters: 'Try the dial', dial: 'Try the letters on a drum', dialdrum5: 'Try the dial of words', dialwords: 'Try the drum of words', dialdrum: 'Try the number keypad' },
+    otherTo: { glow: 'letters', letters: 'dial', dial: 'dialdrum5', dialdrum5: 'dialwords', dialwords: 'dialdrum', dialdrum: 'glow' },
   },
 };
 
 export const VARIANTS = {
   glow: {
     label: 'Glow',
-    chip: 'Glow',
+    chip: 'Glow #',
     blurb: 'Glowing numbers keypad',
     answer: '786666',
     keypad: 'numbers',
@@ -52,8 +52,8 @@ export const VARIANTS = {
     sendLabel: 'Enter',
   },
   letters: {
-    label: 'Word',
-    chip: 'Word',
+    label: 'QWERTY',
+    chip: 'QWERTY',
     blurb: 'Type the word on glowing keys',
     answer: 'BISCUIT',
     keypad: 'letters',
@@ -105,34 +105,7 @@ export const VARIANTS = {
     backLabel: 'Delete',
     sendLabel: 'Send',
   },
-  dial7: {
-    label: 'Dial · 7 letters',
-    chip: '7 letters',
-    blurb: 'Turn seven rings of letters to line up the word',
-    answer: 'BISCUIT',
-    keypad: 'dial',
-    // One ring per letter, outer ring first. Each ring carries the right letter and 4 random others, repeating as it turns.
-    pick: 5,
-    chat: [
-      { say: 'You found it.' },
-      { image: 'dropspot', alt: 'A glowing mail slot floating in midair, with glowing buttons beside it and the hoodie symbol above' },
-      { say: 'See this dial? Line up the word to send the letter.' },
-      { choice: 'Okay, here goes…' },
-      { say: 'Get the envelope out. Let’s have a look.' },
-      { say: 'Look closely at the seal.' },
-      { open: true },
-    ],
-    codeLabel: 'Line up the word',
-    hints: ['It’s on the seal.', 'Turn each ring until its letter sits under the gold notch.'],
-    solve: 'Solve this for me',
-    wrong: 'That’s not it. Look at the seal again.',
-    notFull: '',
-    sealLabel: 'The wax seal, with the gold word BISCUIT',
-    backKey: '⌫',   // unused on the dial
-    sendKey: 'SEND',
-    backLabel: 'Delete',
-    sendLabel: 'Send',
-  },
+  dialdrum5: null,   // filled in below, from dial
   dialwords: {
     label: 'Dial · words',
     chip: 'Words',
@@ -170,6 +143,7 @@ export const VARIANTS = {
 };
 
 // The same dial of words on a drum that bulges toward you: the top row bows down, the bottom row bows up, the sides squeeze in.
-// Big drum: the same, exaggerated (bigger bows, sides squeezed narrower and shorter). Strengths are DRUMS in app.js.
+// Strength is DRUMS in app.js.
 VARIANTS.dialdrum = { ...VARIANTS.dialwords, label: 'Dial · drum', chip: 'Drum', blurb: 'The dial of words on a drum that bulges toward you', drum: 'gentle' };
-VARIANTS.dialbigdrum = { ...VARIANTS.dialwords, label: 'Dial · big drum', chip: 'Big drum', blurb: 'The drum again, with the perspective pushed further', drum: 'big' };
+VARIANTS.dialdrum5 = { ...VARIANTS.dial, label: 'Dial · 5-letter drum', chip: '5 drum', blurb: 'The five rings of letters on a drum that bulges toward you', flat: true, drum: 'gentle',
+  hints: ['It’s on the seal.', 'Slide each row until its letter sits in the outline.'] };

@@ -385,10 +385,11 @@ function alignGlyphs(){
 // the items line up like the spokes of a bike wheel. ----------
 const DIAL = { cx: 180, cy: 838, inner: 500, outer: 820, crop: 383, gap: 1.35 };   // a very big wheel seen through a narrow window, so the rings curve gently; crop: how much of its top is visible
 const ROW_BOW = 14;   // words dial: how far each row's ends (at the window's edges) sit below its middle, so the rows arc gently
-// drums (?v=dialdrum, ?v=dialbigdrum): the top row's ends drop by `bow` and the bottom row's rise by it, the middle
+// drum (?v=dialdrum): the top row's ends drop by `bow` and the bottom row's rise by it, the middle
 // row stays straight; r: the drum's radius (smaller squeezes the sides more); minH: how short the words get at the
 // very edge of the drum (1: never shorter)
-const DRUMS = { gentle: { bow: 26, r: 260, minH: 1 }, big: { bow: 42, r: 205, minH: 0.62 } };
+const DRUMS = { gentle: { bow: 26, r: 260, minH: 1 } };
+const FLAT_ARROW_ROOM = { words: 2.2, letters: 1.8 };   // flat rows: extra outline width for the ‹ ›, in font sizes
 const DRUM_TEXT_OPACITY = 0.82;   // matches .dial .ring text
 let drum = null;
 const QUARTER_TURN = Math.PI / 2;
@@ -451,16 +452,18 @@ function buildDial(){
   // letters: the same spacing on every ring. Words: each ring spaced for its longest word, and far enough apart
   // that the words either side of the notch stay clear of the outline (which is as wide as the longest answer word).
   // (flat rows have extra room inside the outline for a small ‹ › either side of each word)
-  const slotW = Math.round(V.words ? Math.max(...ans.map(w)) + fs * (flat ? 2.2 : 0.8) : fs * 1.45);
+  const arrowRoom = V.words ? FLAT_ARROW_ROOM.words : FLAT_ARROW_ROOM.letters;
+  const slotW = Math.round(V.words || flat ? Math.max(...ans.map(w)) + fs * (flat ? arrowRoom : 0.8) : fs * 1.45);
   const arrowX = slotW / 2 - fs * 0.5, arrowHit = unwarp(arrowX - fs * 0.6);   // where the ‹ › sit, and where a tap counts as hitting one
-  const clear = slotW / 2 + fs * 0.8;
-  const gaps = lists.map(l => {
-    if (!V.words) return fs * DIAL.gap;
+  const clear = slotW / 2 + fs * (V.words ? 0.8 : 0.35);
+  let gaps = lists.map(l => {
+    if (!V.words && !flat) return fs * DIAL.gap;
     const m = Math.max(...l.map(w));
     let g = Math.max(m + fs * 0.9, clear + m / 2);
     while (curve.drumR && warp(g) - squash(g) * m / 2 < clear && g < curve.drumR * QUARTER_TURN) g++;   // the drum pulls neighbours in: push them back out
     return g;
   });
+  if (flat && !V.words) gaps = gaps.map(() => Math.max(...gaps));   // letters share one spacing so they stand in columns
   const slotR = Math.round(Math.min(slotW, fs * 1.45) * 0.28), inset = flat ? -SLOT_COVER : 3;
   const slotTop = cy - DIAL.outer + inset, slotBot = cy - DIAL.inner - inset;
   const flatSlot = flat ? bowSlot(slotW / 2, slotTop, slotBot, slotR, inset / bandW, n - inset / bandW) : '';
