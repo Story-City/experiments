@@ -136,7 +136,7 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=32",
+    "path": "approved-ui/?v=33",
     "area": "design",
     "frame": "wide",
     "title": "Approved UI library",
@@ -176,10 +176,10 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=129",
+    "path": "location-gems/?v=130",
     "area": "gems",
     "title": "Location Gems hub",
-    "what": "Page anchor: Original + soft Haze only. Dual shade on Tinted. Heading debug kept.",
+    "what": "Page anchor: Original + Mist/Drift/Bloom flowy overlays. Dual shade on Tinted.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v129 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v130 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -136,9 +136,11 @@ const CHALLENGE_FINDS = [
 const ROTATE_MS = 2200;
 /** Page-anchor default must stay Original (camera). Never persist or boot to another look. */
 const PAGE_ANCHOR_DEFAULT = 'camera';
-const PAGE_ANCHOR_VARIANTS = new Set(['camera', 'haze']);
-const PAGE_ANCHOR_HAZE_FILLS = ['#00c2ff', '#7aa7ff', '#b9a0ff', '#9fe8ff'];
+const PAGE_ANCHOR_VARIANTS = new Set(['camera', 'mist', 'drift', 'bloom']);
+const PAGE_ANCHOR_FLOWY = new Set(['mist', 'drift', 'bloom']);
+const PAGE_ANCHOR_GEM_FILLS = ['#00c2ff', '#7aa7ff', '#b9a0ff', '#9fe8ff', '#c9b6ff'];
 const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
+const PAGE_ANCHOR_ENTER_MS = 1300;
 /** Heading debug default must stay Original. Never boot to slash/erode/soft. */
 const HEADING_DEFAULT = 'original';
 const HEADING_VARIANTS = new Set(['original', 'slash', 'erode', 'soft']);
@@ -1822,23 +1824,38 @@ function setHeadingLook(variant) {
   if (next === 'slash' || next === 'soft') playHeadingPlaceMotion();
 }
 
-function fillPageAnchorHaze() {
-  const haze = document.getElementById('pageAnchorHaze');
-  if (!haze || haze.childElementCount) return;
-  PAGE_ANCHOR_HAZE_FILLS.forEach((fill) => {
+let pageAnchorEnterTimer = 0;
+
+function fillPageAnchorGems() {
+  const gems = document.getElementById('pageAnchorGems');
+  if (!gems || gems.childElementCount) return;
+  PAGE_ANCHOR_GEM_FILLS.forEach((fill) => {
     const wrap = document.createElement('span');
-    wrap.className = 'page-anchor-haze-gem';
+    wrap.className = 'page-anchor-gem';
     wrap.innerHTML = gemSvg(fill, { softOutline: true });
-    haze.appendChild(wrap);
+    gems.appendChild(wrap);
   });
 }
 
 function setPageAnchor(variant) {
   const next = PAGE_ANCHOR_VARIANTS.has(variant) ? variant : PAGE_ANCHOR_DEFAULT;
+  const flowy = PAGE_ANCHOR_FLOWY.has(next);
   pageAnchor = next;
-  if (hub) hub.dataset.pageAnchor = next;
+  if (flowy) fillPageAnchorGems();
+  if (hub) {
+    hub.dataset.pageAnchor = next;
+    hub.classList.toggle('is-page-anchor-flow', flowy);
+    hub.classList.remove('is-page-anchor-enter');
+    window.clearTimeout(pageAnchorEnterTimer);
+    if (flowy) {
+      void hub.offsetWidth;
+      hub.classList.add('is-page-anchor-enter');
+      pageAnchorEnterTimer = window.setTimeout(() => {
+        hub.classList.remove('is-page-anchor-enter');
+      }, PAGE_ANCHOR_ENTER_MS);
+    }
+  }
   if (snapshotSection) snapshotSection.dataset.pageAnchor = next;
-  if (next === 'haze') fillPageAnchorHaze();
   document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
     const on = btn.getAttribute('data-page-anchor') === next;
     btn.classList.toggle('is-on', on);
@@ -3481,7 +3498,7 @@ function init() {
   seedGems();
   seedPendingSort();
   setupSnapshotArc();
-  fillPageAnchorHaze();
+  fillPageAnchorGems();
   applyStaticCopy();
   setPageAnchor(PAGE_ANCHOR_DEFAULT);
   setHeadingLook(HEADING_DEFAULT);

@@ -1,5 +1,5 @@
-/* Page anchor — Original (camera) + one Haze trial.
-   Haze: likes-style soft fade-in; faint gems in top 50px; layout untouched. */
+/* Page anchor — Original + Mist / Drift / Bloom overlays.
+   Soft gem mist in top ~50px; camera fades only; layout untouched. */
 .page-anchor-host {
   --pa-accent: var(--brand-accent, #00c2ff);
   --pa-deep: var(--brand-primary-deep, #0259a1);
@@ -13,97 +13,193 @@
   color: var(--pa-text);
   font-family: "Darker Grotesque", system-ui, sans-serif;
 }
-.page-anchor-haze {
+.page-anchor-layer {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 50px;
+  height: 52px;
   z-index: 18;
   overflow: hidden;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 480ms ease;
-  background:
-    radial-gradient(90% 120% at 50% 0%, rgba(0, 158, 255, 0.12), transparent 70%),
-    radial-gradient(120% 140% at 50% 8%, rgba(8, 3, 22, 0.55), transparent 72%),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--pa-haze-deep) 70%, transparent) 0%,
-      color-mix(in srgb, var(--pa-haze-mid) 45%, transparent) 42%,
-      transparent 100%
-    );
+  transition: opacity 520ms ease;
 }
-.page-anchor-host[data-page-anchor="haze"] .page-anchor-haze {
+.page-anchor-host.is-page-anchor-flow .page-anchor-layer {
   opacity: 1;
 }
-.page-anchor-arc {
-  position: relative;
-  width: 240px;
-  height: 100px;
-  display: flex;
-  justify-content: center;
-  transition: opacity 420ms ease;
-}
-.page-anchor-host[data-page-anchor="haze"] .page-anchor-arc {
+.page-anchor-host.is-page-anchor-flow .page-anchor-arc {
   opacity: 0;
   pointer-events: none;
 }
-.page-anchor-haze-gem {
+.page-anchor-mist,
+.page-anchor-stream,
+.page-anchor-wash,
+.page-anchor-gems {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.page-anchor-mist {
+  opacity: 0;
+  background:
+    radial-gradient(90% 130% at 50% 0%, rgba(0, 158, 255, 0.14), transparent 72%),
+    radial-gradient(120% 150% at 50% 10%, rgba(8, 3, 22, 0.58), transparent 74%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--pa-haze-deep) 72%, transparent) 0%,
+      color-mix(in srgb, var(--pa-haze-mid) 42%, transparent) 48%,
+      transparent 100%
+    );
+}
+.page-anchor-stream {
+  opacity: 0;
+  background:
+    linear-gradient(
+      100deg,
+      transparent 0%,
+      color-mix(in srgb, var(--pa-accent) 16%, transparent) 28%,
+      rgba(255, 255, 255, 0.1) 50%,
+      color-mix(in srgb, var(--pa-accent) 14%, transparent) 72%,
+      transparent 100%
+    );
+  background-size: 220% 100%;
+  filter: blur(6px);
+}
+.page-anchor-wash {
+  opacity: 0;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.28) 0%, transparent 42%),
+    radial-gradient(circle at 70% 35%, color-mix(in srgb, var(--pa-accent) 32%, transparent) 0%, transparent 48%),
+    radial-gradient(circle at 52% 70%, rgba(179, 107, 255, 0.22) 0%, transparent 46%);
+  transform: scale(0.2);
+  transform-origin: 50% 30%;
+}
+.page-anchor-host[data-page-anchor="mist"] .page-anchor-mist {
+  opacity: 1;
+  animation: pageAnchorMistBreath 5.6s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="mist"] .page-anchor-gem {
+  animation: pageAnchorMistBob 8.8s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-mist {
+  opacity: 0.85;
+}
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-stream {
+  opacity: 0.9;
+  animation: pageAnchorStreamFlow 7.2s linear infinite;
+}
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem {
+  top: 50%;
+  left: -12%;
+  margin-top: -10px;
+  animation: pageAnchorDriftGem 9.5s linear infinite;
+  opacity: 0;
+}
+.page-anchor-host[data-page-anchor="bloom"] .page-anchor-mist {
+  opacity: 1;
+  animation: pageAnchorMistBreath 6.4s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="bloom"].is-page-anchor-enter .page-anchor-wash {
+  animation: pageAnchorBloomWash 1280ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+.page-anchor-host[data-page-anchor="bloom"] .page-anchor-gem {
+  animation: pageAnchorBloomPulse 7.4s ease-in-out infinite;
+}
+.page-anchor-gem {
   position: absolute;
   top: 50%;
   width: 20px;
   height: 20px;
   margin-top: -10px;
   opacity: 0.16;
-  filter: blur(1.2px) drop-shadow(0 0 8px color-mix(in srgb, var(--pa-accent) 22%, transparent));
-  animation: pageAnchorHazeFloat 9.6s ease-in-out infinite;
+  filter: blur(1.1px) drop-shadow(0 0 8px color-mix(in srgb, var(--pa-accent) 24%, transparent));
 }
-.page-anchor-haze-gem svg {
+.page-anchor-gem svg {
   width: 100%;
   height: 100%;
   display: block;
 }
-.page-anchor-haze-gem:nth-child(1) {
-  left: 14%;
-  width: 16px;
-  height: 16px;
-  margin-top: -8px;
-  animation-duration: 10.4s;
-  animation-delay: -1.2s;
-  opacity: 0.14;
-}
-.page-anchor-haze-gem:nth-child(2) {
-  left: 38%;
-  width: 22px;
-  height: 22px;
-  margin-top: -11px;
-  animation-duration: 11.2s;
-  animation-delay: -3.4s;
-  opacity: 0.18;
-}
-.page-anchor-haze-gem:nth-child(3) {
-  left: 58%;
-  width: 18px;
-  height: 18px;
-  margin-top: -9px;
-  animation-duration: 9.8s;
-  animation-delay: -5.1s;
-  opacity: 0.15;
-}
-.page-anchor-haze-gem:nth-child(4) {
-  left: 78%;
+.page-anchor-gem:nth-child(1) {
+  left: 12%;
   width: 15px;
   height: 15px;
   margin-top: -7px;
-  animation-duration: 12s;
-  animation-delay: -2.2s;
+  animation-duration: 9.6s;
+  animation-delay: -1.1s;
+  opacity: 0.13;
+}
+.page-anchor-gem:nth-child(2) {
+  left: 34%;
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  animation-duration: 10.8s;
+  animation-delay: -2.8s;
+  opacity: 0.18;
+}
+.page-anchor-gem:nth-child(3) {
+  left: 56%;
+  width: 17px;
+  height: 17px;
+  margin-top: -8px;
+  animation-duration: 9.2s;
+  animation-delay: -4.6s;
+  opacity: 0.15;
+}
+.page-anchor-gem:nth-child(4) {
+  left: 74%;
+  width: 19px;
+  height: 19px;
+  margin-top: -9px;
+  animation-duration: 11.4s;
+  animation-delay: -0.9s;
+  opacity: 0.14;
+}
+.page-anchor-gem:nth-child(5) {
+  left: 88%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  animation-duration: 8.6s;
+  animation-delay: -3.7s;
   opacity: 0.12;
 }
-@keyframes pageAnchorHazeFloat {
-  0%, 100% { transform: translate3d(0, 1px, 0); }
-  50% { transform: translate3d(0, -3px, 0); }
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(1) { animation-duration: 10.2s; animation-delay: 0s; top: 42%; }
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(2) { animation-duration: 11.6s; animation-delay: -2.4s; top: 58%; }
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(3) { animation-duration: 9.4s; animation-delay: -4.8s; top: 36%; }
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(4) { animation-duration: 12.2s; animation-delay: -1.6s; top: 64%; }
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(5) { animation-duration: 10.8s; animation-delay: -6.1s; top: 48%; }
+
+@keyframes pageAnchorMistBreath {
+  0%, 100% { opacity: 0.82; filter: blur(0); }
+  50% { opacity: 1; filter: blur(0.4px); }
 }
+@keyframes pageAnchorMistBob {
+  0%, 100% { transform: translate3d(0, 2px, 0); }
+  50% { transform: translate3d(0, -4px, 0); }
+}
+@keyframes pageAnchorStreamFlow {
+  0% { background-position: 120% 0; }
+  100% { background-position: -40% 0; }
+}
+@keyframes pageAnchorDriftGem {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  12% { opacity: 0.22; }
+  55% { opacity: 0.16; }
+  88% { opacity: 0.1; }
+  100% { transform: translate3d(340px, -3px, 0); opacity: 0; }
+}
+@keyframes pageAnchorBloomWash {
+  0% { transform: scale(0.18); opacity: 0.55; }
+  55% { transform: scale(1.35); opacity: 0.42; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes pageAnchorBloomPulse {
+  0%, 100% { transform: translate3d(0, 1px, 0) scale(0.94); opacity: 0.12; }
+  45% { transform: translate3d(0, -3px, 0) scale(1.06); opacity: 0.22; }
+}
+
 .page-anchor-hero {
   position: relative;
   z-index: 1;
@@ -117,6 +213,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+.page-anchor-arc {
+  position: relative;
+  width: 240px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  transition: opacity 420ms ease;
 }
 .page-anchor-cam {
   position: absolute;

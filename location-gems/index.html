@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=129">
+<link rel="stylesheet" href="app.css?v=130">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -73,10 +73,12 @@
 
       <section class="tool-block">
         <h2 class="tool-title">Page anchor</h2>
-        <p class="tool-note">Original is the real camera + arc. Haze only soft-fades a 50px mist with faint gems on top — layout stays.</p>
+        <p class="tool-note">Original keeps camera + arc. Mist / Drift / Bloom are soft animated overlays in the top ~50px — layout stays.</p>
         <div class="variant-pick is-rail is-wrap" role="group" aria-label="Page anchor">
           <button type="button" class="variant-btn is-on" data-page-anchor="camera" aria-pressed="true">Original</button>
-          <button type="button" class="variant-btn" data-page-anchor="haze" aria-pressed="false">Haze</button>
+          <button type="button" class="variant-btn" data-page-anchor="mist" aria-pressed="false">Mist</button>
+          <button type="button" class="variant-btn" data-page-anchor="drift" aria-pressed="false">Drift</button>
+          <button type="button" class="variant-btn" data-page-anchor="bloom" aria-pressed="false">Bloom</button>
         </div>
       </section>
 
@@ -133,7 +135,12 @@
     <div class="stage">
   <main class="phone" id="phone" aria-label="Location Gems hub">
     <div class="hub" id="hub" data-page-anchor="camera">
-      <div class="page-anchor-haze" id="pageAnchorHaze" aria-hidden="true"></div>
+      <div class="page-anchor-layer" id="pageAnchorLayer" aria-hidden="true">
+        <div class="page-anchor-mist" aria-hidden="true"></div>
+        <div class="page-anchor-stream" aria-hidden="true"></div>
+        <div class="page-anchor-wash" aria-hidden="true"></div>
+        <div class="page-anchor-gems" id="pageAnchorGems" aria-hidden="true"></div>
+      </div>
       <div class="hub-scroll" id="hubScroll">
         <section class="snapshot-section" id="snapshotSection" data-page-anchor="camera">
           <button type="button" class="snapshot-hero" id="snapshotBtn" aria-label="Take a snapshot gem">
@@ -457,7 +464,7 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v129 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v130 · V1. Figma gems, no rarity.
   </p>
     </div>
 
@@ -558,6 +565,6 @@
     </aside>
   </div>
   <script src="corner-ribbon.js?v=109"></script>
-  <script src="app.js?v=129"></script>
+  <script src="app.js?v=130"></script>
 </body>
 </html>

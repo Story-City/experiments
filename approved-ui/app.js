@@ -221,7 +221,7 @@ const ELEMENT_DEFS = [
     id: 'page-anchor',
     title: 'Page anchor',
     source: 'location-gems hub top · Original kept',
-    ux: 'When: top of gems hub. Original is the real camera + arc. Haze soft-fades a 50px mist with faint gems on top — layout stays. Try: Haze, then Original.',
+    ux: 'When: top of gems hub. Original is camera + arc. Mist / Drift / Bloom are soft animated overlays in the top ~50px. Try each, then Original.',
     stage: 'page-anchor',
     mount: mountPageAnchor,
   },
@@ -1606,14 +1606,21 @@ const PAGE_ANCHOR_PLACES = [
 ];
 const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
 const PAGE_ANCHOR_ROTATE_MS = 2200;
-const PAGE_ANCHOR_HAZE_FILLS = ['#00c2ff', '#7aa7ff', '#b9a0ff', '#9fe8ff'];
+const PAGE_ANCHOR_FLOWY = new Set(['mist', 'drift', 'bloom']);
+const PAGE_ANCHOR_GEM_FILLS = ['#00c2ff', '#7aa7ff', '#b9a0ff', '#9fe8ff', '#c9b6ff'];
+const PAGE_ANCHOR_ENTER_MS = 1300;
 
 function mountPageAnchor(stage, actions) {
   const host = document.createElement('div');
   host.className = 'page-anchor-host';
   host.dataset.pageAnchor = PAGE_ANCHOR_DEFAULT;
   host.innerHTML = `
-    <div class="page-anchor-haze" aria-hidden="true"></div>
+    <div class="page-anchor-layer" aria-hidden="true">
+      <div class="page-anchor-mist" aria-hidden="true"></div>
+      <div class="page-anchor-stream" aria-hidden="true"></div>
+      <div class="page-anchor-wash" aria-hidden="true"></div>
+      <div class="page-anchor-gems" aria-hidden="true"></div>
+    </div>
     <div class="page-anchor-hero" role="img" aria-label="Take a snapshot gem">
       <div class="page-anchor-arc" aria-hidden="true">
         <div class="page-anchor-cam">
@@ -1627,17 +1634,30 @@ function mountPageAnchor(stage, actions) {
     </div>
   `;
   stage.appendChild(host);
-  const haze = host.querySelector('.page-anchor-haze');
+  const gems = host.querySelector('.page-anchor-gems');
   const word = host.querySelector('.page-anchor-word');
-  PAGE_ANCHOR_HAZE_FILLS.forEach((fill) => {
+  PAGE_ANCHOR_GEM_FILLS.forEach((fill) => {
     const gem = document.createElement('span');
-    gem.className = 'page-anchor-haze-gem';
+    gem.className = 'page-anchor-gem';
     gem.innerHTML = gemSvg(fill, { softOutline: true });
-    haze.appendChild(gem);
+    gems.appendChild(gem);
   });
   let idx = 0;
+  let enterTimer = 0;
   const setAnchor = (id) => {
-    host.dataset.pageAnchor = id === 'haze' ? 'haze' : PAGE_ANCHOR_DEFAULT;
+    const next = PAGE_ANCHOR_FLOWY.has(id) ? id : PAGE_ANCHOR_DEFAULT;
+    const flowy = PAGE_ANCHOR_FLOWY.has(next);
+    host.dataset.pageAnchor = next;
+    host.classList.toggle('is-page-anchor-flow', flowy);
+    host.classList.remove('is-page-anchor-enter');
+    window.clearTimeout(enterTimer);
+    if (flowy) {
+      void host.offsetWidth;
+      host.classList.add('is-page-anchor-enter');
+      enterTimer = window.setTimeout(() => {
+        host.classList.remove('is-page-anchor-enter');
+      }, PAGE_ANCHOR_ENTER_MS);
+    }
   };
   const tick = () => {
     idx = (idx + 1) % PAGE_ANCHOR_PLACES.length;
@@ -1646,11 +1666,16 @@ function mountPageAnchor(stage, actions) {
   const timer = window.setInterval(tick, PAGE_ANCHOR_ROTATE_MS);
   stage.addEventListener(
     'remove',
-    () => window.clearInterval(timer),
+    () => {
+      window.clearInterval(timer);
+      window.clearTimeout(enterTimer);
+    },
     { once: true },
   );
   addPlay(actions, 'Original', () => setAnchor(PAGE_ANCHOR_DEFAULT));
-  addGhost(actions, 'Haze', () => setAnchor('haze'));
+  addGhost(actions, 'Mist', () => setAnchor('mist'));
+  addGhost(actions, 'Drift', () => setAnchor('drift'));
+  addGhost(actions, 'Bloom', () => setAnchor('bloom'));
 }
 
 function mountGemCategorySelector(stage, actions) {
