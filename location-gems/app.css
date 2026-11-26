@@ -496,10 +496,16 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .snapshot-arc-fill { stroke: var(--brand-accent); }
 
 .tagline-block {
+  position: relative;
   align-self: stretch;
   text-align: center;
   padding: 0 var(--space-m);
   margin-top: 0;
+  overflow: hidden;
+}
+.heading-slash {
+  display: none;
+  pointer-events: none;
 }
 .title-prefix,
 .rotating-line {
@@ -510,6 +516,91 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   color: var(--text);
 }
 .rotating-line { margin-top: -5px; color: var(--brand-accent); }
+/* Heading debug — Original has no extra styles (live tagline stays intact) */
+.tagline-block[data-heading="slash"],
+.tagline-block[data-heading="erode"],
+.tagline-block[data-heading="soft"] {
+  filter: saturate(0.22);
+}
+.tagline-block[data-heading="slash"] .title-prefix,
+.tagline-block[data-heading="slash"] .rotating-line,
+.tagline-block[data-heading="erode"] .title-prefix,
+.tagline-block[data-heading="erode"] .rotating-line,
+.tagline-block[data-heading="soft"] .title-prefix,
+.tagline-block[data-heading="soft"] .rotating-line {
+  color: #c8c4d4;
+}
+.tagline-block[data-heading="slash"] .rotating-line,
+.tagline-block[data-heading="erode"] .rotating-line,
+.tagline-block[data-heading="soft"] .rotating-line {
+  color: #9a96a8;
+}
+/* Battle slash — diagonal wipe on place change (debug) */
+.tagline-block[data-heading="slash"] .heading-slash {
+  display: block;
+  position: absolute;
+  left: -20%;
+  top: 42%;
+  width: 140%;
+  height: 2px;
+  z-index: 2;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(220, 218, 230, 0.15) 30%,
+    rgba(240, 238, 248, 0.85) 50%,
+    rgba(220, 218, 230, 0.15) 70%,
+    transparent 100%
+  );
+  box-shadow: 0 0 12px rgba(200, 198, 210, 0.35);
+  transform: rotate(-18deg) scaleX(0);
+  transform-origin: left center;
+  opacity: 0;
+}
+.tagline-block[data-heading="slash"].is-slashing .heading-slash {
+  animation: headingSlash 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.tagline-block[data-heading="slash"].is-slashing .rotating-line {
+  animation: headingSlashWord 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes headingSlash {
+  0% { opacity: 0; transform: rotate(-18deg) scaleX(0) translateX(-8%); }
+  35% { opacity: 1; transform: rotate(-18deg) scaleX(1) translateX(0); }
+  100% { opacity: 0; transform: rotate(-18deg) scaleX(1.05) translateX(12%); }
+}
+@keyframes headingSlashWord {
+  0% { opacity: 0.35; letter-spacing: 0.04em; filter: blur(1px); }
+  40% { opacity: 1; letter-spacing: 0; filter: blur(0); }
+  100% { opacity: 1; letter-spacing: 0; filter: blur(0); }
+}
+/* Elegant Erode — brand heading from type-tuning / hub (debug) */
+.tagline-block[data-heading="erode"] .title-prefix,
+.tagline-block[data-heading="erode"] .rotating-line {
+  font-family: 'Erode', Georgia, serif;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  font-size: calc(24px * var(--type-scale));
+  line-height: calc(28px * var(--type-scale));
+}
+.tagline-block[data-heading="erode"] .rotating-line {
+  margin-top: 0;
+  font-style: italic;
+  color: #a8a4b4;
+}
+/* Elegant soft rise — day-reached subtitle motion (debug) */
+.tagline-block[data-heading="soft"] .title-prefix,
+.tagline-block[data-heading="soft"] .rotating-line {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 12px rgba(8, 3, 22, 0.55);
+}
+.tagline-block[data-heading="soft"].is-soft-in .rotating-line {
+  animation: headingSoftIn 900ms ease-out both;
+}
+@keyframes headingSoftIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 .snapshot-arc-fill { stroke: var(--brand-accent); }
 
 .tab-bar {

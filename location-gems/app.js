@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v123 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v124 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -140,6 +140,11 @@ const PAGE_ANCHOR_VARIANTS = new Set(['camera', 'cta', 'haze', 'outline', 'yello
 const PAGE_ANCHOR_OUTLINE_FILLS = ['#00c2ff', '#ffc448', '#b36bff'];
 const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
 const PAGE_ANCHOR_COPY_CTA = '[post a snapshot jam]';
+/** Heading debug default must stay Original. Never boot to slash/erode/soft. */
+const HEADING_DEFAULT = 'original';
+const HEADING_VARIANTS = new Set(['original', 'slash', 'erode', 'soft']);
+const HEADING_SLASH_MS = 520;
+const HEADING_SOFT_MS = 900;
 const TIP_OUT_MS = 360;
 const TIP_SWIPE_DISMISS_PX = 72;
 const FEED_SWIPE_DISMISS_PX = 72;
@@ -342,6 +347,7 @@ const emptyIcon = document.getElementById('emptyIcon');
 const snapshotSection = document.getElementById('snapshotSection');
 const snapshotBtn = document.getElementById('snapshotBtn');
 const snapshotPrefix = document.getElementById('snapshotPrefix');
+const taglineBlock = document.getElementById('taglineBlock');
 const pageAnchorOutline = document.getElementById('pageAnchorOutline');
 const cameraButton = document.getElementById('cameraButton');
 const rotatingWord = document.getElementById('rotatingWord');
@@ -415,9 +421,12 @@ const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'banner';
 let pageAnchor = PAGE_ANCHOR_DEFAULT;
+let headingLook = HEADING_DEFAULT;
 let hubEdition = 'v1';
 let sortCardLook = 'polaroid';
 let pendingPublish = null;
+let headingSlashTimer = 0;
+let headingSoftTimer = 0;
 const FEED_VARIANTS = new Set([
   'banner',
   'overlay',
@@ -1775,6 +1784,43 @@ function handleSnapshot() {
 function tickPlaces() {
   placeIndex = (placeIndex + 1) % SNAPSHOT_PLACES.length;
   rotatingWord.textContent = SNAPSHOT_PLACES[placeIndex];
+  playHeadingPlaceMotion();
+}
+
+function playHeadingPlaceMotion() {
+  if (!taglineBlock) return;
+  if (headingLook === 'slash') {
+    taglineBlock.classList.remove('is-slashing');
+    void taglineBlock.offsetWidth;
+    taglineBlock.classList.add('is-slashing');
+    window.clearTimeout(headingSlashTimer);
+    headingSlashTimer = window.setTimeout(() => {
+      taglineBlock.classList.remove('is-slashing');
+    }, HEADING_SLASH_MS);
+  } else if (headingLook === 'soft') {
+    taglineBlock.classList.remove('is-soft-in');
+    void taglineBlock.offsetWidth;
+    taglineBlock.classList.add('is-soft-in');
+    window.clearTimeout(headingSoftTimer);
+    headingSoftTimer = window.setTimeout(() => {
+      taglineBlock.classList.remove('is-soft-in');
+    }, HEADING_SOFT_MS);
+  }
+}
+
+function setHeadingLook(variant) {
+  const next = HEADING_VARIANTS.has(variant) ? variant : HEADING_DEFAULT;
+  headingLook = next;
+  if (taglineBlock) {
+    taglineBlock.dataset.heading = next;
+    taglineBlock.classList.remove('is-slashing', 'is-soft-in');
+  }
+  document.querySelectorAll('.variant-btn[data-heading]').forEach((btn) => {
+    const on = btn.getAttribute('data-heading') === next;
+    btn.classList.toggle('is-on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  if (next === 'slash' || next === 'soft') playHeadingPlaceMotion();
 }
 
 function fillPageAnchorOutline() {
@@ -3437,6 +3483,7 @@ function init() {
   fillPageAnchorOutline();
   applyStaticCopy();
   setPageAnchor(PAGE_ANCHOR_DEFAULT);
+  setHeadingLook(HEADING_DEFAULT);
   setHubEdition(hubEdition);
   setSortCardLook(sortCardLook);
   setSection('public');
@@ -3700,6 +3747,11 @@ document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
 document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
   btn.addEventListener('click', () => {
     setPageAnchor(btn.getAttribute('data-page-anchor') || PAGE_ANCHOR_DEFAULT);
+  });
+});
+document.querySelectorAll('.variant-btn[data-heading]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    setHeadingLook(btn.getAttribute('data-heading') || HEADING_DEFAULT);
   });
 });
 document.querySelectorAll('[data-hub-edition]').forEach((btn) => {

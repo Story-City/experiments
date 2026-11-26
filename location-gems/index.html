@@ -8,7 +8,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=123">
+<style>
+  @font-face {
+    font-family: 'Erode';
+    src: url(../fonts/erode-var-normal.woff2) format('woff2');
+    font-weight: 300 700;
+    font-style: normal;
+    font-display: swap;
+    size-adjust: 120%;
+  }
+</style>
+<link rel="stylesheet" href="app.css?v=124">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -74,6 +84,17 @@
       </section>
 
       <section class="tool-block">
+        <h2 class="tool-title">Heading</h2>
+        <p class="tool-note">Debug only — Original keeps the live tagline. Slash / Erode / Soft are trials; tap Original anytime.</p>
+        <div class="variant-pick is-rail is-wrap" role="group" aria-label="Heading options">
+          <button type="button" class="variant-btn is-on" data-heading="original" aria-pressed="true">Original</button>
+          <button type="button" class="variant-btn" data-heading="slash" aria-pressed="false">Slash</button>
+          <button type="button" class="variant-btn" data-heading="erode" aria-pressed="false">Erode</button>
+          <button type="button" class="variant-btn" data-heading="soft" aria-pressed="false">Soft</button>
+        </div>
+      </section>
+
+      <section class="tool-block">
         <h2 class="tool-title">Nearby cards</h2>
         <p class="tool-note">Toggle layouts — each still has Navigate</p>
         <div class="variant-pick is-rail is-wrap" role="group" aria-label="Nearby card variants">
@@ -133,7 +154,8 @@
                 </svg>
               </div>
             </div>
-            <div class="tagline-block">
+            <div class="tagline-block" id="taglineBlock" data-heading="original">
+              <span class="heading-slash" aria-hidden="true"></span>
               <p class="title-prefix" id="snapshotPrefix">Take a snapshot gem of</p>
               <p class="rotating-line"><span id="rotatingWord">a café</span></p>
             </div>
@@ -439,7 +461,7 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v123 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v124 · V1. Figma gems, no rarity.
   </p>
     </div>
 
@@ -540,6 +562,6 @@
     </aside>
   </div>
   <script src="corner-ribbon.js?v=109"></script>
-  <script src="app.js?v=123"></script>
+  <script src="app.js?v=124"></script>
 </body>
 </html>
