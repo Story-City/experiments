@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=98">
+<link rel="stylesheet" href="app.css?v=99">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -89,38 +89,6 @@
         </label>
       </section>
 
-      <section class="tool-block">
-        <h2 class="tool-title">Look</h2>
-        <label class="accent-pick is-rail" title="Accent color (keeps gradients)">
-          <span>Accent</span>
-          <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
-          <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
-        </label>
-        <label class="accent-pick is-rail" title="Secondary radial wash colour + strength">
-          <span>Radial</span>
-          <input type="color" id="radialColor" value="#b36bff" aria-label="Button radial color">
-          <input type="range" id="radialAmount" min="0" max="100" value="55" aria-label="Radial amount">
-        </label>
-        <label class="accent-pick is-rail" title="How impactful the secondary radial wash is">
-          <span>Radial impact</span>
-          <input type="range" id="radialImpact" min="0" max="100" value="60" aria-label="Radial impact">
-        </label>
-        <label class="accent-pick is-rail" title="Page background indigo">
-          <span>Background</span>
-          <input type="color" id="bgColor" value="#170c35" aria-label="Background color">
-          <input type="range" id="bgDepth" min="40" max="100" value="100" aria-label="Background depth">
-        </label>
-        <div class="tool-toggle">
-          <span>Mid tone</span>
-          <button type="button" class="switch" id="midToneOn" role="switch" aria-checked="false" aria-label="Mid tone">
-            <span class="switch-knob" aria-hidden="true"></span>
-          </button>
-        </div>
-        <label class="accent-pick is-rail is-mid-tone" id="midTonePick" title="Raised / polaroid frame mid tone" hidden>
-          <span>Mid / frame</span>
-          <input type="color" id="midToneColor" value="#241b46" aria-label="Mid tone color">
-        </label>
-      </section>
     </aside>
 
     <div class="stage">
@@ -409,11 +377,11 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v98 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v99 · V1. Figma gems, no rarity.
   </p>
     </div>
 
-    <aside class="edition-rail" aria-label="Edition">
+    <aside class="edition-rail" aria-label="Design tools">
       <section class="tool-block">
         <h2 class="tool-title">Edition</h2>
         <p class="tool-note">V1 = crystals, no rarity. V2 keeps rarity.</p>
@@ -422,9 +390,60 @@
           <button type="button" class="variant-btn" data-hub-edition="v2" aria-pressed="false">V2</button>
         </div>
       </section>
+
+      <section class="tool-block">
+        <h2 class="tool-title">Look</h2>
+        <label class="accent-pick is-rail" title="Accent color (keeps gradients)">
+          <span>Accent</span>
+          <input type="color" id="accentColor" value="#00c2ff" aria-label="Accent color">
+          <input type="range" id="accentAlpha" min="40" max="100" value="100" aria-label="Accent opacity">
+        </label>
+        <label class="accent-pick is-rail" title="Secondary radial wash colour + strength">
+          <span>Radial</span>
+          <input type="color" id="radialColor" value="#b36bff" aria-label="Button radial color">
+          <input type="range" id="radialAmount" min="0" max="100" value="55" aria-label="Radial amount">
+        </label>
+        <label class="accent-pick is-rail" title="How impactful the secondary radial wash is">
+          <span>Radial impact</span>
+          <input type="range" id="radialImpact" min="0" max="100" value="60" aria-label="Radial impact">
+        </label>
+        <label class="accent-pick is-rail" title="Page background indigo">
+          <span>Background</span>
+          <input type="color" id="bgColor" value="#170c35" aria-label="Background color">
+          <input type="range" id="bgDepth" min="40" max="100" value="100" aria-label="Background depth">
+        </label>
+        <div class="tool-toggle">
+          <span>Mid tone</span>
+          <button type="button" class="switch" id="midToneOn" role="switch" aria-checked="false" aria-label="Mid tone">
+            <span class="switch-knob" aria-hidden="true"></span>
+          </button>
+        </div>
+        <label class="accent-pick is-rail is-mid-tone" id="midTonePick" title="Raised / polaroid frame mid tone" hidden>
+          <span>Mid / frame</span>
+          <input type="color" id="midToneColor" value="#241b46" aria-label="Mid tone color">
+        </label>
+        <label class="accent-pick is-rail" title="Corner radius on pills and action buttons">
+          <span>Button radius</span>
+          <input type="range" id="btnRadius" min="0" max="24" value="24" aria-label="Button corner radius">
+          <span class="tool-value" id="btnRadiusValue">pill</span>
+        </label>
+      </section>
+
+      <section class="tool-block">
+        <h2 class="tool-title">Move</h2>
+        <p class="tool-note">Turn on, tap a piece in the phone, drag to nudge. Esc clears.</p>
+        <div class="tool-toggle">
+          <span>Select + drag</span>
+          <button type="button" class="switch" id="debugDesignMove" role="switch" aria-checked="false" aria-label="Select and drag">
+            <span class="switch-knob" aria-hidden="true"></span>
+          </button>
+        </div>
+        <p class="tool-note" id="designSelectionLabel">[nothing selected]</p>
+        <button type="button" class="play secondary" id="designResetPos" hidden>Reset position</button>
+      </section>
     </aside>
   </div>
-  <script src="corner-ribbon.js?v=98"></script>
-  <script src="app.js?v=98"></script>
+  <script src="corner-ribbon.js?v=99"></script>
+  <script src="app.js?v=99"></script>
 </body>
 </html>

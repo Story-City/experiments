@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v98 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v99 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -474,6 +474,29 @@ const debugSpoof = document.getElementById('debugSpoof');
 const debugDragMode = document.getElementById('debugDragMode');
 const debugLikesStack = document.getElementById('debugLikesStack');
 const debugSubcats = document.getElementById('debugSubcats');
+const debugDesignMove = document.getElementById('debugDesignMove');
+const btnRadius = document.getElementById('btnRadius');
+const btnRadiusValue = document.getElementById('btnRadiusValue');
+const designSelectionLabel = document.getElementById('designSelectionLabel');
+const designResetPos = document.getElementById('designResetPos');
+/** Pieces designers can select + drag in Move mode (groups / components). */
+const DESIGN_TARGET_SEL = [
+  '.camera-button',
+  '.tagline-block',
+  '.sort-inline-head',
+  '.sort-card',
+  '.gem-card',
+  '.feed-dock',
+  '.feed-chip',
+  '.detail-actions',
+  '.detail-hero',
+  '.detail-body',
+  '.publish-sheet-card',
+  '.publish-cat-btn',
+  '.tab-bar',
+  '.snapshot-section',
+].join(', ');
+const BTN_RADIUS_PILL = 24;
 
 /** @type {'public'|'hidden'|'liked'} */
 let activeSection = 'public';
@@ -493,6 +516,11 @@ let spoofWording = false;
 let likesStackMode = false;
 let dragMode = false;
 let subcatsMode = false;
+let designMoveMode = false;
+/** @type {HTMLElement | null} */
+let designSelected = null;
+/** @type {{ el: HTMLElement, startX: number, startY: number, origX: number, origY: number } | null} */
+let designDrag = null;
 /** @type {any} */
 let drag = null;
 /** @type {(() => void) | null} */
@@ -1433,6 +1461,7 @@ function refreshHub(enterId) {
   renderFeed();
   renderSortStack();
   renderGrid(enterId);
+  if (designMoveMode) markDesignTargets(true);
 }
 
 function setSection(section) {
@@ -2350,8 +2379,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v98 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v98 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v99 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v99 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2546,6 +2575,132 @@ function setSubcatsMode(on) {
   }
 }
 
+function applyBtnRadius() {
+  if (!btnRadius) return;
+  const n = Number(btnRadius.value);
+  const pill = !Number.isFinite(n) || n >= BTN_RADIUS_PILL;
+  const px = pill ? '999px' : `${Math.max(0, n)}px`;
+  document.documentElement.style.setProperty('--btn-radius', px);
+  if (btnRadiusValue) btnRadiusValue.textContent = pill ? 'pill' : `${Math.max(0, n)}`;
+}
+
+function designOffsetOf(el) {
+  const x = Number(el.dataset.designX || 0);
+  const y = Number(el.dataset.designY || 0);
+  return { x: Number.isFinite(x) ? x : 0, y: Number.isFinite(y) ? y : 0 };
+}
+
+function applyDesignOffset(el) {
+  const { x, y } = designOffsetOf(el);
+  if (x || y) el.style.transform = `translate(${x}px, ${y}px)`;
+  else el.style.transform = '';
+}
+
+function clearDesignSelection() {
+  if (designSelected) {
+    designSelected.classList.remove('is-design-selected', 'is-design-dragging');
+    designSelected = null;
+  }
+  designDrag = null;
+  if (designSelectionLabel) designSelectionLabel.textContent = '[nothing selected]';
+  if (designResetPos) designResetPos.hidden = true;
+}
+
+function designLabelFor(el) {
+  return (
+    el.getAttribute('aria-label') ||
+    el.dataset.designName ||
+    el.id ||
+    el.className
+      .toString()
+      .split(/\s+/)
+      .find((c) => c && !c.startsWith('is-')) ||
+    'piece'
+  );
+}
+
+function selectDesignTarget(el) {
+  if (!el || el === designSelected) return;
+  if (designSelected) designSelected.classList.remove('is-design-selected', 'is-design-dragging');
+  designSelected = el;
+  el.classList.add('is-design-selected');
+  if (designSelectionLabel) designSelectionLabel.textContent = designLabelFor(el);
+  if (designResetPos) designResetPos.hidden = false;
+}
+
+function markDesignTargets(on) {
+  if (!phone) return;
+  phone.querySelectorAll('.is-design-target').forEach((el) => el.classList.remove('is-design-target'));
+  if (!on) return;
+  phone.querySelectorAll(DESIGN_TARGET_SEL).forEach((el) => {
+    if (el.closest('[hidden]')) return;
+    el.classList.add('is-design-target');
+  });
+}
+
+function setDesignMoveMode(on) {
+  designMoveMode = on;
+  setSwitch(debugDesignMove, on);
+  if (phone) phone.classList.toggle('is-design-move', on);
+  if (!on) {
+    clearDesignSelection();
+    markDesignTargets(false);
+    return;
+  }
+  markDesignTargets(true);
+  if (hint) hint.textContent = '[tap a piece, then drag]';
+}
+
+function resetDesignPosition() {
+  if (!designSelected) return;
+  delete designSelected.dataset.designX;
+  delete designSelected.dataset.designY;
+  applyDesignOffset(designSelected);
+}
+
+function onDesignPointerDown(e) {
+  if (!designMoveMode || !phone || e.button !== 0) return;
+  if (e.target.closest('.edition-rail, .tool-rail')) return;
+  const target = e.target.closest(DESIGN_TARGET_SEL);
+  if (!target || !phone.contains(target)) {
+    clearDesignSelection();
+    return;
+  }
+  e.preventDefault();
+  e.stopPropagation();
+  selectDesignTarget(target);
+  const off = designOffsetOf(target);
+  designDrag = {
+    el: target,
+    startX: e.clientX,
+    startY: e.clientY,
+    origX: off.x,
+    origY: off.y,
+  };
+  target.classList.add('is-design-dragging');
+  target.setPointerCapture?.(e.pointerId);
+}
+
+function onDesignPointerMove(e) {
+  if (!designDrag) return;
+  const dx = e.clientX - designDrag.startX;
+  const dy = e.clientY - designDrag.startY;
+  designDrag.el.dataset.designX = String(Math.round(designDrag.origX + dx));
+  designDrag.el.dataset.designY = String(Math.round(designDrag.origY + dy));
+  applyDesignOffset(designDrag.el);
+}
+
+function onDesignPointerUp(e) {
+  if (!designDrag) return;
+  designDrag.el.classList.remove('is-design-dragging');
+  try {
+    designDrag.el.releasePointerCapture?.(e.pointerId);
+  } catch {
+    /* ignore */
+  }
+  designDrag = null;
+}
+
 function setMidTone(on) {
   setSwitch(midToneOn, on);
   applyMidTone();
@@ -2588,6 +2743,7 @@ function init() {
   applyBg();
   applyMidTone();
   applySortCardText();
+  applyBtnRadius();
   seedGems();
   seedPendingSort();
   setupSnapshotArc();
@@ -2692,6 +2848,24 @@ debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
 if (debugSubcats) {
   debugSubcats.addEventListener('click', () => setSubcatsMode(!subcatsMode));
 }
+if (debugDesignMove) {
+  debugDesignMove.addEventListener('click', () => setDesignMoveMode(!designMoveMode));
+}
+if (btnRadius) {
+  btnRadius.addEventListener('input', applyBtnRadius);
+}
+if (designResetPos) {
+  designResetPos.addEventListener('click', resetDesignPosition);
+}
+if (phone) {
+  phone.addEventListener('pointerdown', onDesignPointerDown, true);
+  phone.addEventListener('pointermove', onDesignPointerMove);
+  phone.addEventListener('pointerup', onDesignPointerUp);
+  phone.addEventListener('pointercancel', onDesignPointerUp);
+}
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && designMoveMode) clearDesignSelection();
+});
 if (debugLikesStack) {
   debugLikesStack.addEventListener('click', () => setLikesStackMode(!likesStackMode));
 }
