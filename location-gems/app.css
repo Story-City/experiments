@@ -858,16 +858,21 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   background: color-mix(in srgb, var(--cat-fill, #00c2ff) 18%, rgba(7, 5, 18, 0.4));
 }
 .ov-chip-cat .ov-chip-gem {
-  width: 22px;
-  height: 24px;
-  overflow: visible;
+  width: 14px;
+  height: 14px;
+  overflow: hidden;
   flex: none;
+  display: grid;
+  place-items: center;
 }
 .ov-chip-cat .ov-chip-gem .cat-gem-art,
 .ov-chip-cat .ov-chip-gem svg {
   width: 100%;
   height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
+  transform: none;
 }
 .detail-scroll {
   height: 100%;
@@ -3028,12 +3033,11 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   display: block;
   object-fit: contain;
 }
-/* Circle-ish card gems stay in the smaller frame; oval Culture reads larger */
+/* Oval Culture larger on cards / publish only — never on tip chips (those stay in-bounds) */
 .publish-cat-btn[data-cat-id="culture"] .publish-cat-gem .cat-gem-art,
 .gem-card-gem .cat-gem-art[src*="art.svg"],
 .feed-chip-corner-gem .cat-gem-art[src*="art.svg"],
-.sort-card-gem .cat-gem-art[src*="art.svg"],
-.ov-chip-cat .ov-chip-gem .cat-gem-art[src*="art.svg"] {
+.sort-card-gem .cat-gem-art[src*="art.svg"] {
   transform: scale(1.2);
   transform-origin: center;
 }
