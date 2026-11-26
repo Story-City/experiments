@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v121 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v122 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -38,7 +38,7 @@ const JAM_CATS = [
   { id: 'curio', label: 'Curiosities', colour: '#B36BFF', art: 'assets/gems/curiosities.svg' },
 ];
 const JAM_CAT_ALIASES = { shop: 'eat', entertainment: 'play' };
-const SORT_CARD_LOOKS = new Set(['polaroid', 'tape', 'tinted', 'overlay', 'flush', 'stack']);
+const SORT_CARD_LOOKS = new Set(['polaroid', 'tape', 'tinted', 'overlay']);
 const SORT_FRAME_DEFAULT = '#ffffff';
 const SORT_CARD_TEXT_DEFAULT = '#1a1230';
 /* Figma 2853:555 Variant3 — dark indigo frame + light chin text */
@@ -992,9 +992,9 @@ function applyMidTone() {
       ? midToneColor.value
       : MID_TONE_DEFAULT;
   document.documentElement.style.setProperty('--raised', hex);
-  /* Mid tone drives unsorted frame for polaroid/tape — tinted keeps its own frame colour */
+  /* Mid tone drives unsorted frame for Polaroid only — other looks stay tinted */
   const useMidForFrame =
-    on && midToneColor && midToneColor.value && sortCardLook !== 'tinted';
+    on && midToneColor && midToneColor.value && sortCardLook === 'polaroid';
   const frame = useMidForFrame
     ? midToneColor.value
     : (sortFrameColor && sortFrameColor.value) || SORT_FRAME_DEFAULT;
@@ -1440,8 +1440,9 @@ function buildSortCard(find, under, enter) {
   const words = String(find.text || '').trim();
   const hasWords = !!words;
   const isPolaroidFrame = look === 'polaroid' || look === 'tape' || look === 'tinted';
+  const isTintedFrame = look === 'tinted' || look === 'tape';
   const card = document.createElement('article');
-  card.className = `sort-card is-${look}${isPolaroidFrame ? ' is-polaroid' : ''}${hasWords ? ' has-words' : ' no-words'}${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
+  card.className = `sort-card is-${look}${isPolaroidFrame ? ' is-polaroid' : ''}${isTintedFrame ? ' is-tinted' : ''}${hasWords ? ' has-words' : ' no-words'}${under ? ' is-under' : ''}${enter ? ' is-enter' : ''}`;
   card.dataset.id = find.id;
   card.style.setProperty('--gem-line', PUBLIC_GEM_FILL);
   /* Figma 2850:550 — asset tape; 2853:555 — rotated translucent strip */
@@ -1481,10 +1482,11 @@ function buildSortCard(find, under, enter) {
 
 function applySortLookFrameDefaults(look) {
   if (!sortFrameColor || !sortCardTextColor) return;
-  if (look === 'tinted') {
+  if (look === 'tinted' || look === 'overlay' || look === 'tape') {
+    /* Other looks tinted — Polaroid stays the plain first option */
     sortFrameColor.value = SORT_TINTED_FRAME;
     sortCardTextColor.value = SORT_TINTED_TEXT;
-  } else if (look === 'polaroid' || look === 'tape') {
+  } else if (look === 'polaroid') {
     sortFrameColor.value = SORT_FRAME_DEFAULT;
     sortCardTextColor.value = SORT_CARD_TEXT_DEFAULT;
   } else {

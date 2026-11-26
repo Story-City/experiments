@@ -2118,20 +2118,20 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   border-radius: 6px;
   padding: 10px 10px 0;
   overflow: visible;
+  /* First option — lighter lift than tinted / tape */
   box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.38),
+    0 6px 16px rgba(0, 0, 0, 0.22),
     0 1px 0 rgba(255, 255, 255, 0.35) inset;
 }
-/* Figma 2850:550 Variant2 — same frame + wall tape (feature/location-gems polaroid_tape) */
+/* Figma 2850:550 Variant2 — same frame + wall tape (smaller strip) */
 .sort-card.is-tape {
-  /* overhang = tapeHeight * 0.42; tapeWidth ≈ card * 79.13/641 */
-  --sort-tape-w: calc(100% * 79.1262 / 641);
+  --sort-tape-w: calc(100% * 52 / 641);
   --sort-tape-h: calc(var(--sort-tape-w) * 104.335 / 79.1262);
   --sort-tape-overhang: calc(var(--sort-tape-h) * 0.42);
 }
 /* Figma 2853:555 Variant3 — dark indigo polaroid + rotated translucent tape + soft inset */
 .sort-card.is-tinted {
-  --sort-tape-overhang: 18px;
+  --sort-tape-overhang: 12px;
   background: var(--sort-frame, #13123b);
   border-radius: 12px;
   padding: 12px 12px 0;
@@ -2165,8 +2165,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   top: calc(var(--sort-tape-overhang) * -0.55);
   left: 50%;
   z-index: 4;
-  width: 31%;
-  height: 42px;
+  width: 22%;
+  height: 28px;
   background: #ffffff;
   opacity: 0.53;
   transform: translateX(-50%) rotate(7.79deg);
@@ -2206,13 +2206,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .sort-card.is-polaroid .sort-card-place {
   color: color-mix(in srgb, var(--sort-card-text) 78%, transparent);
 }
-.sort-card.is-flush {
-  transform: rotate(0deg);
-  border-radius: 18px;
-}
-.sort-card.is-stack {
-  transform: rotate(-2deg);
-}
 .sort-card:active { cursor: grabbing; }
 .sort-card.is-dragging {
   animation: none !important;
@@ -2225,18 +2218,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   opacity: 0.7;
   pointer-events: none;
 }
-.sort-card.is-flush.is-under {
-  transform: rotate(0deg) scale(0.94) translate(4%, 4%);
-}
 .sort-card.is-enter {
   animation: noteDrop 980ms var(--ease-out) both;
-}
-.sort-card.is-flush.is-enter {
-  animation: noteDropFlush 980ms var(--ease-out) both;
-}
-@keyframes noteDropFlush {
-  0% { opacity: 0; transform: scale(1.04) translateY(-4%); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 .hub.is-sorting-focus .hub-scroll {
   overflow: hidden;
@@ -2306,6 +2289,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .sort-card.is-overlay .sort-card-photo {
   height: 100%;
 }
+.sort-card.is-overlay {
+  box-shadow: 0 10px 24px rgba(28, 27, 66, 0.4);
+}
 .sort-card-fade {
   position: absolute;
   inset: 0;
@@ -2313,6 +2299,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   pointer-events: none;
   background: linear-gradient(
     180deg,
+    color-mix(in srgb, var(--indigo-70) 18%, transparent) 0%,
     transparent 35%,
     rgba(10, 6, 28, 0.55) 62%,
     rgba(10, 6, 28, 0.92) 100%
