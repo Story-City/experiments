@@ -746,8 +746,10 @@ function bindOneDiscStage(stage) {
     if (!drag || drag.id !== e.pointerId || !usesDiscMotion()) return;
     if (isCornerDiscLayout() && stage.id !== 'cornerDiscStage') return;
     if (isTopDiscLayout() && stage.id !== 'discStage') return;
-    /* Corner disc is rotated 90deg — drag along the visible arc uses Y */
-    const delta = isCornerDiscLayout() ? (e.clientY - drag.y) : (e.clientX - drag.x);
+    /* Corner disc is tilted ~42deg — drag follows the visible arc */
+    const delta = isCornerDiscLayout()
+      ? ((e.clientX - drag.x) * 0.55 + (e.clientY - drag.y) * 0.85)
+      : (e.clientX - drag.x);
     if (Math.abs(delta) > 4) drag.moved = true;
     if (!drag.moved) return;
     discAngle = drag.startAngle - delta / DISC_PX_PER_DEG;
