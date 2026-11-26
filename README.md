@@ -6,7 +6,7 @@ Each experiment is a folder of static files with relative paths, served at `/exp
 
 Cards are text only (title, one-line description, author and date); there are no preview images.
 
-Entry fields: `slug` (unique, used in `view.html?e=<slug>`), `path` (folder URL including any `?v=`), `title`, `what`, `author` (`brett`, `melissa`), `authorName`, `date` (`YYYY-MM`), `category` (optional: `"poll"` puts the card on the Polls tab; `index.html?tab=polls` opens that tab), `archived`, `notionPageId`, `jira`, and for a new experiment `draft: true` plus `reviewer` (the person who asked for it). Drafts show on the Drafts tab (`index.html?tab=drafts`), tagged "Draft · waiting for <reviewer>"; approving means deleting both fields, which moves the card to Experiments. Leave `notionPageId` null for a new experiment; the sync creates its Notion task.
+Entry fields: `slug` (unique, used in `view.html?e=<slug>`), `path` (folder URL including any `?v=`), `title`, `what`, `author` (`brett`, `melissa`), `authorName`, `date` (`YYYY-MM`), `category` (optional: `"poll"` puts the card on the Polls tab; `index.html?tab=polls` opens that tab), `archived`, `notionPageId`, `jira`, and for a new experiment `draft: true` plus `reviewer` (the person who asked for it). Drafts show in the Drafts section at the top of the Experiments tab (`index.html#area-drafts`), tagged "Draft · waiting for <reviewer>"; approving means deleting both fields, which moves the card into its part of the app. Leave `notionPageId` null for a new experiment; the sync creates its Notion task.
 
 A page that isn't phone-sized (like Approved UI's side panel + cards) can set `"frame": "wide"` to get a wider frame in the viewer.
 
@@ -28,7 +28,7 @@ Cards open `view.html`, which wraps the experiment in an iframe with comments (p
 
 Experiments are the design handoff: no separate UX doc or Figma. The Notion task links to its experiment.
 
-- **`stage`** in an entry: `review` (In review), `ready` (Ready for Dev), `built` (Built). It shows as a badge on the card and in the viewer. `ready` entries also list on the **Ready for Dev** tab (`index.html?tab=ready`). An experiment is Ready for Dev only once its design is final **and** it has `notionPageId`; without one the badge reads "Needs Notion task" (in red) instead.
+- **`stage`** in an entry: `review` (In review), `ready` (Ready for Dev), `built` (Built). It shows as a badge on the card and in the viewer. `ready` entries move to the **Ready for Dev** section, first on the Experiments tab (`index.html#area-ready`). Old `?tab=ready` and `?tab=drafts` links still land on their section. An experiment is Ready for Dev only once its design is final **and** it has `notionPageId`; without one the badge reads "Needs Notion task" (in red) instead.
 - **`spec`**: path to the experiment's spec file, e.g. `"explore-picker/spec.json"`. The viewer then shows a **Spec** tab beside **Questions for design** (the comments). `view.html?e=<slug>&panel=questions` opens the questions instead. Spec fields:
   - `final`: which version is final; `summary`: one short paragraph
   - `flows`: `[{ "title", "show": "<page to open with Show me>", "rows": [{ "when", "then", "event" }] }]`
