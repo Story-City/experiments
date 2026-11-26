@@ -1,7 +1,8 @@
 // Gem map pins: the one bottom bar every version uses (V1, V2, V3). Change it here and every
 // version changes. Feed, Library, the create button (Hunt mode camera to add a gem), Map, Gems.
 // The create button has three looks: plus (raised blue circle), capture (corner marks around a gem) and
-// subtle (a thin circled plus like the other tabs) and camera (an outline camera like the other tabs).
+// subtle (a thin circled plus like the other tabs), camera (an outline camera like the other tabs) and hunt
+// (the app's Hunt mode shutter: purple ring, white disc, faint camera, titled Create).
 // The choice is shared by every page via
 // localStorage; GemTabBar.setCreateLook(look) switches them. Tab titles can be hidden the same way
 // (GemTabBar.setLabels('on' | 'off')), the bar spread nearly edge to edge (setWidth('spread')), and its
@@ -16,7 +17,7 @@
   const SHOT_PLACE = '[where you took it]';
   const FLASH_MS = 220;
   const LOOK_KEY = 'gem-pins-create-look';
-  const LOOKS = ['plus', 'capture', 'subtle', 'camera'];
+  const LOOKS = ['plus', 'capture', 'subtle', 'camera', 'hunt'];
   const LABELS_KEY = 'gem-pins-tab-labels';
   const LABELS = ['on', 'off'];
   const WIDTH_KEY = 'gem-pins-tab-width';
@@ -45,7 +46,7 @@
 
   function tabHtml(t, active) {
     if (t.id === 'add') {
-      return '<button type="button" class="gtb-tab gtb-add" data-gtb="add" aria-label="Create"><span class="gtb-add-plus" aria-hidden="true">' + PLUS + '</span></button>';
+      return '<button type="button" class="gtb-tab gtb-add" data-gtb="add" aria-label="Create"><span class="gtb-add-plus" aria-hidden="true">' + PLUS + '</span><span class="gtb-add-label" aria-hidden="true">Create</span></button>';
     }
     const on = t.id === active;
     return '<button type="button" class="gtb-tab' + (on ? ' is-active' : '') + '" data-gtb="' + t.id + '" aria-pressed="' + on + '"' + (on ? ' aria-current="page"' : '') + '>' + ICONS[t.id] + '<span>' + t.label + '</span></button>';
@@ -229,7 +230,7 @@
   }
   function paintLook(nav, look) {
     const icon = nav.querySelector('.gtb-add-plus');
-    icon.innerHTML = { capture: CAPTURE, camera: CAMERA }[look] || PLUS;
+    icon.innerHTML = { capture: CAPTURE, camera: CAMERA, hunt: CAMERA }[look] || PLUS;
     LOOKS.forEach((l) => nav.classList.toggle('is-' + l, l === look));
   }
   function setCreateLook(look) {
