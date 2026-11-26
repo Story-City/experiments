@@ -83,7 +83,7 @@
     "area": "gems",
     "frame": "wide",
     "title": "Gem map pins",
-    "what": "Gems on a real Edmonton map. V1 is this options lab. V2 on the same page is the legend filter, the gem roller, and slide-outs (Original, Prompt, Image, Corner).",
+    "what": "Gems on a real Edmonton map, every version in one place: V1 the options lab, V2 Victoria's build, V3 Melissa's copy (Text glow, Quarter haze, create button). Switch versions in the Versioning rail.",
     "author": "melissa",
     "authorName": "Melissa",
     "date": "2026-11",
@@ -102,7 +102,7 @@
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
-    "archived": false,
+    "archived": true,
     "notionPageId": null,
     "jira": null
   },
