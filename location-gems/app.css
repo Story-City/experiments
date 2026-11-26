@@ -1320,7 +1320,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .feed-chip.is-banner,
 .feed-chip.is-overlay,
-.feed-chip.is-prompt,
 .feed-chip.is-text,
 .feed-chip.is-wide,
 .feed-chip.is-caption,
@@ -1389,12 +1388,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   gap: 10px;
   margin-top: auto;
   padding-top: 4px;
-}
-.feed-chip.is-prompt .feed-chip-prompt-kicker {
-  font-size: 15px;
-  letter-spacing: -0.02em;
-  text-transform: none;
-  color: #fff;
 }
 .feed-chip.is-text .feed-chip-prompt-kicker {
   font-size: 19px;
@@ -1491,10 +1484,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   width: 58%;
   height: 40%;
 }
-.feed-chip.is-prompt .feed-chip-corner-art {
-  width: 62%;
-  height: 56%;
-}
 .feed-chip.is-text .feed-chip-corner-art {
   width: 50%;
   height: 45%;
@@ -1530,7 +1519,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   width: 42px;
   height: 42px;
 }
-.feed-chip.is-prompt .feed-chip-corner-gem,
 .feed-chip.is-wide .feed-chip-corner-gem,
 .feed-chip.is-peek .feed-chip-corner-gem {
   width: 38px;
@@ -1630,7 +1618,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   line-height: 1.1;
   white-space: nowrap;
 }
-.feed-chip.is-prompt .feed-chip-dist,
 .feed-chip.is-text .feed-chip-dist,
 .feed-chip.is-caption .feed-chip-dist,
 .feed-chip.is-peek .feed-chip-dist {

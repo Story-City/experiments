@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v112 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v113 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -407,7 +407,6 @@ let pendingPublish = null;
 const FEED_VARIANTS = new Set([
   'banner',
   'overlay',
-  'prompt',
   'text',
   'wide',
   'caption',
@@ -1197,7 +1196,7 @@ function buildFeedChip(g, variant) {
   const captionPromptBlock = `
     <p class="feed-chip-prompt-kicker">${t('feedPromptKicker')}</p>
     <p class="feed-chip-prompt">${promptLine}</p>`;
-  if (variant === 'prompt' || variant === 'text') {
+  if (variant === 'text') {
     chip.innerHTML = `
       <div class="feed-chip-prompt-panel">
         <p class="feed-chip-prompt-kicker">${dist}</p>
@@ -2440,8 +2439,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v112 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v112 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v113 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v113 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
