@@ -1,0 +1,104 @@
+{
+  "final": "Day reached — streak overlay as on this page (phone underlays + Training Hub Lottie). Colour wheel is a tester only; ship the celebration geometry and timing, not the wheel chrome.",
+  "summary": "When the player hits their daily step goal, a soft celebration plays on the Training Hub streak arc: haze in, Lottie bloom on today’s bead, side beads settle, short streak copy, shine, then dissolve. The overlay sits over the real screen underneath — no hub headline or chrome.",
+  "flows": [
+    {
+      "title": "Daily goal reached",
+      "show": "day-reached-overlay/",
+      "rows": [
+        {
+          "when": "Player reaches today’s step goal",
+          "then": "A red dot / cue waits until Training Hub (or this overlay path) is shown; celebration is ready to play once.",
+          "event": "day_goal_reached"
+        },
+        {
+          "when": "Celebration starts (hub open or Play)",
+          "then": "Soft haze fades in over the current screen. Today’s bead slot runs the day-reached Lottie bloom with accent glow.",
+          "event": "day_reached_celebration_started"
+        },
+        {
+          "when": "Lottie settles",
+          "then": "Past weekday beads fade in; streak copy appears (e.g. “3-day streak!” / “Keep it up!” — Writing owns final strings); future beads follow; prolonged shine, then soft dissolve out."
+        },
+        {
+          "when": "Celebration ends",
+          "then": "Overlay is gone; underlay / hub UI is unchanged underneath.",
+          "event": "day_reached_celebration_finished"
+        }
+      ]
+    },
+    {
+      "title": "Accent (tester in experiment)",
+      "rows": [
+        {
+          "when": "Accent colour changes",
+          "then": "Celebration (arc glow, Lottie tint, shine) recolours. Layout, bead sizes, and timing stay the same."
+        }
+      ]
+    },
+    {
+      "title": "Approved UI embed",
+      "show": "day-reached-overlay/embed.html",
+      "rows": [
+        {
+          "when": "Opened inside Approved UI",
+          "then": "Phone-only shell; parent sends play / accent postMessages. No page chrome."
+        }
+      ]
+    }
+  ],
+  "back": [],
+  "events": [
+    {
+      "name": "day_goal_reached",
+      "status": "existing",
+      "when": "Daily step goal is met for the first time that day.",
+      "props": "steps, goal"
+    },
+    {
+      "name": "day_reached_celebration_started",
+      "status": "new",
+      "when": "Day-reached overlay / Lottie celebration begins.",
+      "props": "streak_count, accent"
+    },
+    {
+      "name": "day_reached_celebration_finished",
+      "status": "new",
+      "when": "Celebration dissolve completes.",
+      "props": "streak_count"
+    }
+  ],
+  "edgeCases": [
+    "Celebration plays once per day after the goal is hit; reopening the hub later that day does not replay it.",
+    "Sound and haptics are app-only (DayReachedCelebrationCue) — not in this web experiment.",
+    "Reduce Motion: keep a readable settle without the full bloom if the app already softens motion elsewhere.",
+    "Underlays in the experiment are staging screenshots for placement only — do not ship them as product UI."
+  ],
+  "notes": [
+    "Geometry and Lottie mirrored from feature/SC-3526-training-hub (TrainingHubStreakBanner + training_hub_day_reached.json).",
+    "Notion design task: Goal reached banner (NSC-2049). Experiment is the design handoff — no separate UX doc.",
+    "Old Debug “Preview Goal Reached” sheet is not this path; ship the Training Hub streak overlay."
+  ],
+  "assets": [
+    {
+      "label": "Day-reached Lottie (training_hub_day_reached.json)",
+      "file": "day-reached-overlay/training_hub_day_reached.json",
+      "note": "Same asset as mobile-rn Training Hub day-reached."
+    },
+    {
+      "label": "Adventure underlay (placement only)",
+      "file": "day-reached-overlay/underlays/adventure.jpg",
+      "note": "Staging screenshot — not product art."
+    },
+    {
+      "label": "Audio underlay (placement only)",
+      "file": "day-reached-overlay/underlays/audio.jpg",
+      "note": "Staging screenshot — not product art."
+    },
+    {
+      "label": "Reader underlay (placement only)",
+      "file": "day-reached-overlay/underlays/reader.jpg",
+      "note": "Staging screenshot — not product art."
+    }
+  ]
+}
