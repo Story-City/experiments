@@ -455,8 +455,28 @@ body.is-settings-hidden .settings-eye .eye-shut { display: block; }
   font-weight: 600;
   line-height: 1.35;
   text-wrap: balance;
+  min-height: 1.35em;
+  padding: 6px 8px;
+  border-radius: 8px;
+  outline: 1px solid transparent;
+  cursor: text;
+  transition: background 200ms var(--ease-out), outline-color 200ms var(--ease-out);
 }
-.version-note:empty { display: none; }
+.version-note:hover { background: rgba(255, 255, 255, 0.05); }
+.version-note:focus {
+  background: rgba(255, 255, 255, 0.08);
+  outline-color: rgba(167, 139, 250, 0.7);
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.35);
+  color: #fff;
+}
+.version-note-status {
+  margin: -6px 0 0;
+  min-height: 0;
+  color: rgba(167, 139, 250, 0.9);
+  font-size: 12px;
+  font-weight: 700;
+}
+.version-note-status:empty { display: none; }
 .edition-bar {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));

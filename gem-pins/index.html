@@ -28,7 +28,8 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
       <button type="button" data-edition="v2" aria-pressed="false" data-note="Victoria's build: Text and Image slide-outs, white map gems, Disc haze.">V2</button>
       <button type="button" data-edition="v3" aria-pressed="false" data-note="Melissa's copy of V2 (26 Nov): gems in category colours, Navigate first, visited ✓, ＋ opens the camera.">V3</button>
     </div>
-    <p class="version-note" id="versionNote" aria-live="polite"></p>
+    <p class="version-note" id="versionNote" contenteditable="plaintext-only" role="textbox" aria-label="Note for this version" title="Click to edit. Enter saves, Esc cancels." spellcheck="true"></p>
+    <p class="version-note-status" id="versionNoteStatus" aria-live="polite"></p>
     <div class="edition-extra" id="editionExtra">
       <p class="edition-label">Slide-out</p>
       <div class="edition-sheets" role="group" aria-label="Slide-out">
@@ -243,9 +244,64 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     document.querySelectorAll('[data-edition]').forEach((b) => {
       const on = b.dataset.edition === (src ? edition : 'v1');
       b.setAttribute('aria-pressed', String(on));
-      if (on && b.tagName === 'BUTTON') document.getElementById('versionNote').textContent = b.dataset.note || '';
     });
+    showNote(src ? edition : 'v1');
   }
+
+  // Version notes: anyone can edit. On the live site they save for the team in the hub database
+  // (slug notes:gem-pins, newest edit per version wins); elsewhere only in this browser.
+  const NOTE_SLUG = 'notes:gem-pins';
+  const NOTE_LOCAL = 'sc-gem-version-notes';
+  const NOTE_MAX = 240;
+  const noteEl = document.getElementById('versionNote');
+  const noteStatus = document.getElementById('versionNoteStatus');
+  const defaultNote = (ed) => document.querySelector('.edition-bar [data-edition="' + ed + '"]')?.dataset.note || '';
+  let notes = {};
+  try { notes = JSON.parse(localStorage.getItem(NOTE_LOCAL) || '{}'); } catch (e) { notes = {}; }
+  let noteDb = null;
+  let noteEdition = 'v1';
+  const noteFor = (ed) => (notes[ed] ? notes[ed].note : defaultNote(ed));
+  function showNote(ed) {
+    noteEdition = ed;
+    if (document.activeElement !== noteEl) noteEl.textContent = noteFor(ed);
+    noteStatus.textContent = '';
+  }
+  function flash(text) {
+    noteStatus.textContent = text;
+    clearTimeout(flash.t);
+    flash.t = setTimeout(() => { noteStatus.textContent = ''; }, 2400);
+  }
+  async function saveNote() {
+    const text = noteEl.textContent.replace(/\s+/g, ' ').trim().slice(0, NOTE_MAX);
+    if (text === noteFor(noteEdition)) { noteEl.textContent = text; return; }
+    const entry = { kind: 'version-note', edition: noteEdition, note: text || defaultNote(noteEdition), ts: Date.now() };
+    notes[noteEdition] = entry;
+    noteEl.textContent = entry.note;
+    if (noteDb) {
+      try { await noteDb.add(JSON.stringify(entry), 'Version note'); flash('Saved for the team'); }
+      catch (e) { flash('Couldn’t save. Try again.'); }
+    } else {
+      try { localStorage.setItem(NOTE_LOCAL, JSON.stringify(notes)); } catch (e) { /* private window */ }
+      flash('Saved in this browser');
+    }
+  }
+  noteEl.addEventListener('keydown', (e) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') { e.preventDefault(); noteEl.blur(); }
+    else if (e.key === 'Escape') { noteEl.textContent = noteFor(noteEdition); noteEl.blur(); }
+  });
+  noteEl.addEventListener('blur', saveNote);
+  import('./preset-store.js').then(({ connect }) => connect(NOTE_SLUG, (docs) => {
+    const latest = {};
+    docs.forEach((d) => {
+      try {
+        const v = JSON.parse(d.text);
+        if (v.kind === 'version-note' && (!latest[v.edition] || v.ts > latest[v.edition].ts)) latest[v.edition] = v;
+      } catch (e) { /* not a note */ }
+    });
+    notes = latest;
+    showNote(noteEdition);
+  }, () => {})).then((db) => { noteDb = db; }).catch(() => {});
   frame.addEventListener('load', () => { showFrame(); sendSheet(); sendFilterLayout(); });
   const startEdition = new URLSearchParams(location.search).get('edition');
   apply(FRAMES[startEdition] ? startEdition : 'v1');
