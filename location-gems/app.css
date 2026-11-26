@@ -377,25 +377,58 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   display: none;
   pointer-events: none;
 }
+/* Haze: camera + arc off; soft gems in a 50px mist over the page top only */
+.hub[data-page-anchor="haze"] .page-anchor-haze {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  z-index: 18;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 120% at 18% 40%, color-mix(in srgb, var(--brand-accent) 22%, transparent) 0%, transparent 62%),
+    radial-gradient(ellipse 80% 110% at 78% 55%, rgba(255, 196, 72, 0.14) 0%, transparent 58%),
+    radial-gradient(ellipse 70% 100% at 48% 0%, rgba(179, 107, 255, 0.12) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(8, 6, 28, 0.28) 0%, rgba(8, 6, 28, 0.08) 55%, transparent 100%);
+}
+.hub[data-page-anchor="haze"] .arc-stage {
+  display: none;
+}
+.page-anchor-haze-gem {
+  position: absolute;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  opacity: 0.28;
+  filter: blur(0.2px) drop-shadow(0 0 6px color-mix(in srgb, var(--brand-accent) 28%, transparent));
+  animation: pageAnchorHazeFloat 7.2s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+.page-anchor-haze-gem svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.page-anchor-haze-gem:nth-child(1) { left: 8%;  width: 18px; height: 18px; margin-top: -9px;  animation-duration: 6.4s; animation-delay: 0s; }
+.page-anchor-haze-gem:nth-child(2) { left: 28%; width: 26px; height: 26px; margin-top: -13px; animation-duration: 7.8s; animation-delay: -1.4s; opacity: 0.34; }
+.page-anchor-haze-gem:nth-child(3) { left: 48%; width: 20px; height: 20px; margin-top: -10px; animation-duration: 6.9s; animation-delay: -2.6s; }
+.page-anchor-haze-gem:nth-child(4) { left: 66%; width: 24px; height: 24px; margin-top: -12px; animation-duration: 8.2s; animation-delay: -0.8s; opacity: 0.32; }
+.page-anchor-haze-gem:nth-child(5) { left: 84%; width: 17px; height: 17px; margin-top: -8px;  animation-duration: 5.8s; animation-delay: -3.1s; opacity: 0.24; }
+@keyframes pageAnchorHazeFloat {
+  0%, 100% { transform: translate3d(0, 2px, 0) rotate(-10deg); opacity: 0.2; }
+  40% { transform: translate3d(3px, -5px, 0) rotate(6deg); opacity: 0.38; }
+  70% { transform: translate3d(-2px, -1px, 0) rotate(-4deg); opacity: 0.28; }
+}
 .snapshot-section[data-page-anchor="cta"] .arc-stage {
   display: none;
 }
 .snapshot-section[data-page-anchor="cta"] .tagline-block {
   padding-top: 22px;
   padding-bottom: 14px;
-}
-.snapshot-section[data-page-anchor="haze"] .page-anchor-haze {
-  display: block;
-  position: absolute;
-  left: -10%;
-  right: -10%;
-  top: -8px;
-  height: calc(100% + 28px);
-  z-index: 0;
-  border-radius: 24px;
-  background:
-    radial-gradient(ellipse 95% 85% at 50% 0%, color-mix(in srgb, var(--brand-accent) 42%, transparent) 0%, transparent 70%),
-    radial-gradient(ellipse 70% 55% at 50% 30%, rgba(255, 255, 255, 0.14) 0%, transparent 60%);
 }
 .snapshot-section[data-page-anchor="outline"] .page-anchor-outline {
   display: flex;

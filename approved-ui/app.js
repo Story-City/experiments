@@ -1629,6 +1629,7 @@ function mountPageAnchor(stage, actions) {
   `;
   stage.appendChild(host);
   const outline = host.querySelector('.page-anchor-outline');
+  const haze = host.querySelector('.page-anchor-haze');
   const prefix = host.querySelector('.page-anchor-prefix');
   const hero = host.querySelector('.page-anchor-hero');
   const word = host.querySelector('.page-anchor-word');
@@ -1637,6 +1638,12 @@ function mountPageAnchor(stage, actions) {
     gem.className = 'page-anchor-gem';
     gem.innerHTML = gemSvg(fill, { softOutline: true });
     outline.appendChild(gem);
+  });
+  ['#00c2ff', '#ffc448', '#b36bff', '#7dffd8', '#ff7ab6'].forEach((fill) => {
+    const gem = document.createElement('span');
+    gem.className = 'page-anchor-haze-gem';
+    gem.innerHTML = gemSvg(fill, { softOutline: true });
+    haze.appendChild(gem);
   });
   let idx = 0;
   const setAnchor = (id) => {

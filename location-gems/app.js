@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v125 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v126 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -138,6 +138,7 @@ const ROTATE_MS = 2200;
 const PAGE_ANCHOR_DEFAULT = 'camera';
 const PAGE_ANCHOR_VARIANTS = new Set(['camera', 'cta', 'haze', 'outline', 'yellow']);
 const PAGE_ANCHOR_OUTLINE_FILLS = ['#00c2ff', '#ffc448', '#b36bff'];
+const PAGE_ANCHOR_HAZE_FILLS = ['#00c2ff', '#ffc448', '#b36bff', '#7dffd8', '#ff7ab6'];
 const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
 const PAGE_ANCHOR_COPY_CTA = '[post a snapshot jam]';
 /** Heading debug default must stay Original. Never boot to slash/erode/soft. */
@@ -1834,10 +1835,23 @@ function fillPageAnchorOutline() {
   });
 }
 
+function fillPageAnchorHaze() {
+  const haze = document.getElementById('pageAnchorHaze');
+  if (!haze || haze.childElementCount) return;
+  PAGE_ANCHOR_HAZE_FILLS.forEach((fill) => {
+    const wrap = document.createElement('span');
+    wrap.className = 'page-anchor-haze-gem';
+    wrap.innerHTML = gemSvg(fill, { softOutline: true });
+    haze.appendChild(wrap);
+  });
+}
+
 function setPageAnchor(variant) {
   const next = PAGE_ANCHOR_VARIANTS.has(variant) ? variant : PAGE_ANCHOR_DEFAULT;
   pageAnchor = next;
+  if (hub) hub.dataset.pageAnchor = next;
   if (snapshotSection) snapshotSection.dataset.pageAnchor = next;
+  if (next === 'haze') fillPageAnchorHaze();
   document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
     const on = btn.getAttribute('data-page-anchor') === next;
     btn.classList.toggle('is-on', on);
@@ -3487,6 +3501,7 @@ function init() {
   seedPendingSort();
   setupSnapshotArc();
   fillPageAnchorOutline();
+  fillPageAnchorHaze();
   applyStaticCopy();
   setPageAnchor(PAGE_ANCHOR_DEFAULT);
   setHeadingLook(HEADING_DEFAULT);

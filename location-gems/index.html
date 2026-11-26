@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=125">
+<link rel="stylesheet" href="app.css?v=126">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -73,11 +73,11 @@
 
       <section class="tool-block">
         <h2 class="tool-title">Page anchor</h2>
-        <p class="tool-note">Original is the real top (camera + arc). Other looks only paint on top — tap Original anytime to restore.</p>
+        <p class="tool-note">Original keeps camera + arc. Haze hides those and floats soft gems in a ~50px mist on top of the page — tap Original to restore.</p>
         <div class="variant-pick is-rail is-wrap" role="group" aria-label="Page anchor">
           <button type="button" class="variant-btn is-on" data-page-anchor="camera" aria-pressed="true">Original</button>
-          <button type="button" class="variant-btn" data-page-anchor="cta" aria-pressed="false">CTA</button>
           <button type="button" class="variant-btn" data-page-anchor="haze" aria-pressed="false">Haze</button>
+          <button type="button" class="variant-btn" data-page-anchor="cta" aria-pressed="false">CTA</button>
           <button type="button" class="variant-btn" data-page-anchor="outline" aria-pressed="false">Outline</button>
           <button type="button" class="variant-btn" data-page-anchor="yellow" aria-pressed="false">Yellow</button>
         </div>
@@ -135,10 +135,10 @@
 
     <div class="stage">
   <main class="phone" id="phone" aria-label="Location Gems hub">
-    <div class="hub" id="hub">
+    <div class="hub" id="hub" data-page-anchor="camera">
+      <div class="page-anchor-haze" id="pageAnchorHaze" aria-hidden="true"></div>
       <div class="hub-scroll" id="hubScroll">
         <section class="snapshot-section" id="snapshotSection" data-page-anchor="camera">
-          <div class="page-anchor-haze" aria-hidden="true"></div>
           <div class="page-anchor-outline" id="pageAnchorOutline" aria-hidden="true"></div>
           <button type="button" class="snapshot-hero" id="snapshotBtn" aria-label="Take a snapshot gem">
             <div class="arc-stage">
@@ -461,7 +461,7 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v125 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v126 · V1. Figma gems, no rarity.
   </p>
     </div>
 
@@ -562,6 +562,6 @@
     </aside>
   </div>
   <script src="corner-ribbon.js?v=109"></script>
-  <script src="app.js?v=125"></script>
+  <script src="app.js?v=126"></script>
 </body>
 </html>
