@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=106">
+<link rel="stylesheet" href="app.css?v=107">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -49,6 +49,12 @@
         <div class="tool-toggle">
           <span>Subcategories</span>
           <button type="button" class="switch" id="debugSubcats" role="switch" aria-checked="false" aria-label="Subcategories">
+            <span class="switch-knob" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="tool-toggle">
+          <span>Gems / Map pages</span>
+          <button type="button" class="switch" id="debugAppPages" role="switch" aria-checked="false" aria-label="Gems / Map pages">
             <span class="switch-knob" aria-hidden="true"></span>
           </button>
         </div>
@@ -374,10 +380,15 @@
     </div>
 
     <div class="fly-layer" id="flyLayer" aria-hidden="true"></div>
+
+    <nav class="app-pages" id="appPagesNav" hidden aria-label="App pages">
+      <button type="button" class="app-pages-btn is-active" data-app-page="gems" aria-current="page">Gems</button>
+      <button type="button" class="app-pages-btn" data-app-page="map">Map</button>
+    </nav>
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v106 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v107 · V1. Figma gems, no rarity.
   </p>
     </div>
 
@@ -476,7 +487,7 @@
       </section>
     </aside>
   </div>
-  <script src="corner-ribbon.js?v=106"></script>
-  <script src="app.js?v=106"></script>
+  <script src="corner-ribbon.js?v=107"></script>
+  <script src="app.js?v=107"></script>
 </body>
 </html>

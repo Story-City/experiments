@@ -65,7 +65,7 @@
   },
   {
     "slug": "gem-pins",
-    "path": "gem-pins/?v=33",
+    "path": "gem-pins/?v=34",
     "area": "gems",
     "frame": "wide",
     "title": "Gem map pins",
@@ -162,7 +162,7 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=106",
+    "path": "location-gems/?v=107",
     "area": "gems",
     "title": "Location Gems hub",
     "what": "Rarity: aquamarine/moonstone/topaz/opal/diamond. Sort hub, spotlight, likes.",

@@ -541,3 +541,43 @@ body.is-v2 .options-btn { z-index: 26; }
   transition: opacity 480ms var(--ease-out);
 }
 .edition-frame.is-shown { opacity: 1; pointer-events: auto; }
+
+/* Debug: Gems / Map app pages (toggle off to remove) */
+.app-pages {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 70;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(20, 14, 40, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+.app-pages[hidden] { display: none !important; }
+.app-pages-btn {
+  flex: 1;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.62);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.app-pages-btn.is-active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.phone.has-app-pages .key,
+.phone.has-app-pages .options-btn {
+  bottom: 64px;
+}
+.phone.has-app-pages .toast {
+  bottom: 108px;
+}

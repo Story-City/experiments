@@ -41,6 +41,12 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
           <span class="switch-knob" aria-hidden="true"></span>
         </button>
       </div>
+      <div class="tool-toggle">
+        <span>Gems / Map pages</span>
+        <button type="button" class="switch" id="debugAppPages" role="switch" aria-checked="false" aria-label="Gems / Map pages">
+          <span class="switch-knob" aria-hidden="true"></span>
+        </button>
+      </div>
       <p class="edition-label">Filter layout</p>
       <div class="edition-sheets" role="group" aria-label="Filter layout">
         <button type="button" data-filter-layout="always" aria-pressed="true">Always on</button>
@@ -141,6 +147,10 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     <section class="full" id="full" hidden></section>
     <section class="peek" id="peek" hidden></section>
     <section class="gem-sheet" id="gemSheet" hidden aria-label="Gem details"></section>
+    <nav class="app-pages" id="appPagesNav" hidden aria-label="App pages">
+      <button type="button" class="app-pages-btn" data-app-page="gems">Gems</button>
+      <button type="button" class="app-pages-btn is-active" data-app-page="map" aria-current="page">Map</button>
+    </nav>
   </main>
 </div>
 <script type="module">import(`./app.js${window.CACHE_V}`);</script>
@@ -284,6 +294,34 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     publishSpoof();
   });
   frame.addEventListener('load', () => { publishSpoof(); sendFilterLayout(); });
+
+  const APP_PAGES_GEMS_HREF = '../location-gems/?v=107&appPages=1';
+  const APP_PAGES_PARAM = 'appPages';
+  const debugAppPages = document.getElementById('debugAppPages');
+  const appPagesNav = document.getElementById('appPagesNav');
+  const phone = document.getElementById('phone');
+  function setAppPagesMode(on) {
+    if (debugAppPages) debugAppPages.setAttribute('aria-checked', on ? 'true' : 'false');
+    if (phone) phone.classList.toggle('has-app-pages', on);
+    if (appPagesNav) appPagesNav.hidden = !on;
+    const url = new URL(location.href);
+    if (on) url.searchParams.set(APP_PAGES_PARAM, '1');
+    else url.searchParams.delete(APP_PAGES_PARAM);
+    history.replaceState(null, '', url);
+  }
+  setAppPagesMode(new URLSearchParams(location.search).get(APP_PAGES_PARAM) === '1');
+  if (debugAppPages) {
+    debugAppPages.addEventListener('click', () => {
+      setAppPagesMode(debugAppPages.getAttribute('aria-checked') !== 'true');
+    });
+  }
+  if (appPagesNav) {
+    appPagesNav.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-app-page]');
+      if (!btn || btn.classList.contains('is-active')) return;
+      if (btn.dataset.appPage === 'gems') location.href = APP_PAGES_GEMS_HREF;
+    });
+  }
 })();
 </script>
 </body>

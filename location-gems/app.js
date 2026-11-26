@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v106 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v107 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -474,7 +474,12 @@ const debugSpoof = document.getElementById('debugSpoof');
 const debugDragMode = document.getElementById('debugDragMode');
 const debugLikesStack = document.getElementById('debugLikesStack');
 const debugSubcats = document.getElementById('debugSubcats');
+const debugAppPages = document.getElementById('debugAppPages');
+const appPagesNav = document.getElementById('appPagesNav');
 const debugDesignMove = document.getElementById('debugDesignMove');
+/** Sibling Map experiment — gated by debug “Gems / Map pages”. */
+const APP_PAGES_MAP_HREF = '../gem-pins/?v=34&edition=v2&appPages=1';
+const APP_PAGES_PARAM = 'appPages';
 const btnRadius = document.getElementById('btnRadius');
 const btnRadiusValue = document.getElementById('btnRadiusValue');
 const spaceScale = document.getElementById('spaceScale');
@@ -2434,8 +2439,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v106 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v106 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v107 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v107 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -3456,6 +3461,35 @@ debugDragMode.addEventListener('click', () => setDragMode(!dragMode));
 if (debugSubcats) {
   debugSubcats.addEventListener('click', () => setSubcatsMode(!subcatsMode));
 }
+
+function setAppPagesMode(on) {
+  setSwitch(debugAppPages, on);
+  if (phone) phone.classList.toggle('has-app-pages', on);
+  if (appPagesNav) appPagesNav.hidden = !on;
+  const url = new URL(location.href);
+  if (on) url.searchParams.set(APP_PAGES_PARAM, '1');
+  else url.searchParams.delete(APP_PAGES_PARAM);
+  history.replaceState(null, '', url);
+}
+
+function initAppPagesDebug() {
+  const on = new URLSearchParams(location.search).get(APP_PAGES_PARAM) === '1';
+  setAppPagesMode(on);
+  if (debugAppPages) {
+    debugAppPages.addEventListener('click', () => {
+      setAppPagesMode(debugAppPages.getAttribute('aria-checked') !== 'true');
+    });
+  }
+  if (appPagesNav) {
+    appPagesNav.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-app-page]');
+      if (!btn || btn.classList.contains('is-active')) return;
+      if (btn.dataset.appPage === 'map') location.href = APP_PAGES_MAP_HREF;
+    });
+  }
+}
+initAppPagesDebug();
+
 if (debugDesignMove) {
   debugDesignMove.addEventListener('click', () => setDesignMoveMode(!designMoveMode));
 }
