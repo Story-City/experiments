@@ -683,3 +683,6 @@ body.is-v2 .options-btn { z-index: 26; }
 body.is-v2 .app-main-tabs {
   display: none !important;
 }
+
+/* Debug buttons for layouts only V3 has */
+body:not(.is-v3) .edition-sheets button.v3-only { display: none; }

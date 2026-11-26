@@ -70,8 +70,8 @@ const FILTER_CATS = [
   { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
   { id: 'curio', label: 'Curiosities', match: ['curio'], art: 'curio' },
 ];
-const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc', 'disc-haze', 'corner'];
-const isTopDiscLayout = () => filterLayout === 'disc' || filterLayout === 'disc-haze';
+const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc', 'disc-haze', 'disc-haze-2', 'corner'];
+const isTopDiscLayout = () => filterLayout === 'disc' || filterLayout === 'disc-haze' || filterLayout === 'disc-haze-2';
 const isCornerDiscLayout = () => filterLayout === 'corner';
 const usesDiscMotion = () => isTopDiscLayout() || isCornerDiscLayout();
 
@@ -473,6 +473,7 @@ function paintBar() {
   $('filterGbox').classList.toggle('is-layout-inline', filterLayout === 'inline');
   $('filterGbox').classList.toggle('is-layout-disc', filterLayout === 'disc');
   $('filterGbox').classList.toggle('is-layout-disc-haze', filterLayout === 'disc-haze');
+  $('filterGbox').classList.toggle('is-layout-disc-haze-2', filterLayout === 'disc-haze-2');
   $('filterGbox').classList.toggle('is-layout-corner', filterLayout === 'corner');
   $('filterBtn').hidden = !showToggle;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
