@@ -361,9 +361,14 @@ body.is-settings-hidden .settings-eye .eye-shut { display: block; }
   z-index: 50;
   top: 68px;
   right: 16px;
+  bottom: 16px;
   width: 230px;
-  max-height: calc(100dvh - 88px);
+  max-height: none;
   overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding-bottom: 12px;
+  scrollbar-gutter: stable;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -528,7 +533,7 @@ body.is-v2 .edition-extra { max-height: 720px; opacity: 1; }
 }
 body.is-v2 .reset-filter { display: inline-flex; align-items: center; }
 body:not(.is-v2) .reset-filter { display: none; }
-.debug-rail { top: 108px; }
+.debug-rail { top: 108px; bottom: 16px; }
 body.is-settings-hidden .debug-rail,
 body.is-settings-hidden .reset-filter,
 body.is-settings-hidden .panel,

@@ -122,11 +122,11 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=24",
+    "path": "approved-ui/?v=25",
     "area": "design",
     "frame": "wide",
     "title": "Approved UI library",
-    "what": "Tools + opens location-gems Look rail. Gem category selector + gem-pins filters.",
+    "what": "Tools + opens gems phone + Look/Move rail. Gem category selector + gem-pins filters.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
@@ -162,7 +162,7 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=110",
+    "path": "location-gems/?v=111",
     "area": "gems",
     "title": "Location Gems hub",
     "what": "Rarity: aquamarine/moonstone/topaz/opal/diamond. Sort hub, spotlight, likes.",
