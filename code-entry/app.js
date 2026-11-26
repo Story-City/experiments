@@ -384,6 +384,19 @@ function alignGlyphs(){
 // runs straight back round to its start, so there's never a gap. All rings share one angle per item, so at rest
 // the items line up like the spokes of a bike wheel. ----------
 const DIAL = { cx: 180, cy: 838, inner: 500, outer: 820, crop: 383, gap: 1.35 };   // a very big wheel seen through a narrow window, so the rings curve gently; crop: how much of its top is visible
+const ROW_BOW = 14;   // words dial: how far each row's ends (at the window's edges) sit below its middle, so the rows arc gently
+const BOW_K = ROW_BOW / (DIAL.cx * DIAL.cx);
+const bowY = dx => BOW_K * dx * dx;                                  // how far below its middle a row is, dx across from the centre
+const bowDeg = dx => Math.atan(2 * BOW_K * dx) * 180 / Math.PI;      // the row's tilt there
+// a row's curve from x0 to x1 at height y (a quadratic Bézier with evenly spaced ends is exactly this parabola)
+const bowPath = (x0, x1, y) => { const a = (x1 - x0) / 2, m = DIAL.cx; return `M${x0} ${(y + bowY(x0 - m)).toFixed(2)} Q${m} ${(y - bowY(a)).toFixed(2)} ${x1} ${(y + bowY(x1 - m)).toFixed(2)}`; };
+// the outline round the lined-up column, its top and bottom following the rows' curve
+function bowSlot(hw, top, bot, rr){
+  const m = DIAL.cx, L = m - hw, R = m + hw, a = hw - rr, Y = (y, x) => (y + bowY(x - m)).toFixed(2);
+  return `M${L + rr} ${Y(top, L + rr)} Q${m} ${(top - bowY(a)).toFixed(2)} ${R - rr} ${Y(top, R - rr)} Q${R} ${Y(top, R)} ${R} ${Y(top + rr, R)}` +
+    ` L${R} ${Y(bot - rr, R)} Q${R} ${Y(bot, R)} ${R - rr} ${Y(bot, R - rr)} Q${m} ${(bot - bowY(a)).toFixed(2)} ${L + rr} ${Y(bot, L + rr)}` +
+    ` Q${L} ${Y(bot, L)} ${L} ${Y(bot - rr, L)} L${L} ${Y(top + rr, L)} Q${L} ${Y(top, L)} ${L + rr} ${Y(top, L + rr)} Z`;
+}
 const DIAL_FONT = `system-ui, -apple-system, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif`;   // matches .dial .ring text
 const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 let rings = [];           // { g, syms, M, r, deg, K, texts, step, p, raf } — step: whole turns clockwise (any integer); p: where it's drawn (eases to step)
@@ -411,7 +424,7 @@ function nearest(i, ch){
 
 function buildDial(){
   const lists = ringLists(), ans = parts(V.answer);
-  const n = N(), bandW = (DIAL.outer - DIAL.inner) / n, { cx, cy } = DIAL, flat = !!V.flat;   // flat: straight rows that slide sideways, no curve
+  const n = N(), bandW = (DIAL.outer - DIAL.inner) / n, { cx, cy } = DIAL, flat = !!V.flat;   // flat: rows that slide sideways along a gentle arc, not round a wheel
   const fs = Math.round(bandW * (V.words ? 0.42 : 0.62));   // one size on every ring
   const ctx = document.createElement('canvas').getContext('2d'); ctx.font = `300 ${fs}px ${DIAL_FONT}`;
   const w = t => ctx.measureText(t).width;
@@ -424,7 +437,7 @@ function buildDial(){
   let svg = `<svg viewBox="0 0 360 ${DIAL.crop}" aria-hidden="true"${flat ? ' data-flat' : ''}>`;
   for (let i = 0; i <= n; i++) {
     const R = DIAL.outer - i * bandW, cls = i ? 'sep' : 'sep rim';
-    svg += flat ? `<line class="${cls}" x1="0" x2="360" y1="${cy - R}" y2="${cy - R}"/>` : `<circle class="${cls}" cx="${cx}" cy="${cy}" r="${R}"/>`;
+    svg += flat ? `<path class="${cls}" d="${bowPath(0, 360, cy - R)}"/>` : `<circle class="${cls}" cx="${cx}" cy="${cy}" r="${R}"/>`;
   }
   if (!flat) svg += `<path class="notch" d="M${cx - 8} 2 h16 l-8 11 z"/>`;   // flat rows use the ‹ › arrows instead
   // every ring turns by the same angle per item, so at rest the items line up along spokes from the centre.
@@ -448,12 +461,14 @@ function buildDial(){
   // flat rows: a small ‹ and › either side of each row's word, just inside the outline (tap one to slide that row)
   const ah = fs * 0.24, aw = fs * 0.13;
   if (flat) for (let i = 0; i < n; i++) {
-    const y = cy - radius(i);
-    svg += `<path class="row-arrow" d="M${cx - arrowX + aw} ${y - ah} L${cx - arrowX - aw} ${y} L${cx - arrowX + aw} ${y + ah}"/>` +
-           `<path class="row-arrow" d="M${cx + arrowX - aw} ${y - ah} L${cx + arrowX + aw} ${y} L${cx + arrowX - aw} ${y + ah}"/>`;
+    const y = cy - radius(i) + bowY(arrowX), tilt = bowDeg(arrowX).toFixed(2), lx = cx - arrowX, rx = cx + arrowX;
+    svg += `<path class="row-arrow" transform="rotate(${-tilt} ${lx} ${y.toFixed(1)})" d="M${lx + aw} ${y - ah} L${lx - aw} ${y} L${lx + aw} ${y + ah}"/>` +
+           `<path class="row-arrow" transform="rotate(${tilt} ${rx} ${y.toFixed(1)})" d="M${rx - aw} ${y - ah} L${rx + aw} ${y} L${rx - aw} ${y + ah}"/>`;
   }
   // the outline round the lined-up column: this replaces the code field on the dial
-  svg += `<rect class="slot" x="${cx - slotW / 2}" y="${cy - DIAL.outer + 3}" width="${slotW}" height="${DIAL.outer - DIAL.inner - 6}" rx="${Math.round(Math.min(slotW, fs * 1.45) * 0.28)}"/>`;
+  const slotR = Math.round(Math.min(slotW, fs * 1.45) * 0.28), slotTop = cy - DIAL.outer + 3, slotBot = cy - DIAL.inner - 3;
+  svg += flat ? `<path class="slot" d="${bowSlot(slotW / 2, slotTop, slotBot, slotR)}"/>`
+    : `<rect class="slot" x="${cx - slotW / 2}" y="${slotTop}" width="${slotW}" height="${slotBot - slotTop}" rx="${slotR}"/>`;
   svg += `</svg>`;
   keypadEl.innerHTML = svg;
   rings = [...keypadEl.querySelectorAll('.ring')].map((g, i) => ({ g, syms: lists[i], M: lists[i].length, ...geo[i], texts: [...g.children], step: 0, p: 0, raf: 0 }));
@@ -468,7 +483,8 @@ function draw(r){
   const { cx, cy } = DIAL, base = Math.round(-r.p);
   r.texts.forEach((t, j) => {
     const k = base + j - r.K, ch = r.syms[mod(k, r.M)];
-    t.setAttribute('transform', r.flat ? `translate(${((k + r.p) * r.deg).toFixed(2)} 0)` : `rotate(${((k + r.p) * r.deg).toFixed(3)} ${cx} ${cy})`);
+    const dx = (k + r.p) * r.deg;
+    t.setAttribute('transform', r.flat ? `translate(${dx.toFixed(2)} ${bowY(dx).toFixed(2)}) rotate(${bowDeg(dx).toFixed(2)} ${cx} ${(cy - r.r).toFixed(1)})` : `rotate(${((k + r.p) * r.deg).toFixed(3)} ${cx} ${cy})`);
     if (t.textContent !== ch) t.textContent = ch;
     t.classList.toggle('top', j === r.K);
   });
@@ -505,7 +521,7 @@ function dialDrag(svg){
   const at = e => {
     const b = svg.getBoundingClientRect(), s = b.width / 360;   // the window shows the wheel's top; its centre sits below
     const x = (e.clientX - b.left) / s - DIAL.cx, y = (e.clientY - b.top) / s - DIAL.cy;
-    if (svg.hasAttribute('data-flat')) return { a: x, dist: -y };   // flat rows: sideways distance, and height above the centre picks the row
+    if (svg.hasAttribute('data-flat')) return { a: x, dist: bowY(x) - y };   // flat rows: sideways distance, and height above the (bowed) centre picks the row
     return { a: Math.atan2(x, -y) * 180 / Math.PI, dist: Math.hypot(x, y) };
   };
   svg.addEventListener('pointerdown', e => {
