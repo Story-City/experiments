@@ -137,7 +137,7 @@ button { font: inherit; color: inherit; }
   display: flow-root;
 }
 .webview h1 { font-weight: bold; }
-.webview span[info] {
+:is(.webview, .cap-box) span[info] {
   font-weight: 400;
   text-decoration: none;
   color: #ffffff;
@@ -176,7 +176,7 @@ button { font: inherit; color: inherit; }
 }
 .webview img { max-width: 100%; height: auto; }
 .webview figure { width: auto; margin: 0; }
-.webview a {
+:is(.webview, .cap-box) a {
   font-family: 'Darker Grotesque', sans-serif;
   font-weight: 400;
   color: #FFF;
@@ -184,20 +184,20 @@ button { font: inherit; color: inherit; }
   user-select: none;
   white-space: nowrap;
 }
-.webview a, .webview .link-wrapper {
+:is(.webview, .cap-box) a, :is(.webview, .cap-box) .link-wrapper {
   padding: 2px 5px;
   background: linear-gradient(45deg, var(--primary-accent), var(--primary));
   line-height: 1;
   border-radius: 5px;
 }
-.webview .link-wrapper > a { background: none; padding: 0; border-radius: 0; }
-.webview .link-wrapper {
+:is(.webview, .cap-box) .link-wrapper > a { background: none; padding: 0; border-radius: 0; }
+:is(.webview, .cap-box) .link-wrapper {
   display: inline-flex;
   width: fit-content;
   justify-content: center;
   align-items: center;
 }
-.webview .link-image { margin-left: 5px; width: 15px; }
+:is(.webview, .cap-box) .link-image { margin-left: 5px; width: 15px; }
 
 /* ---- Narrator text, as in the Narrated reader experiment (apps/narrated-reader/app.css) ---- */
 .narration { display: flex; flex-direction: column; gap: 8px; padding-top: 6px; }
@@ -218,7 +218,7 @@ button { font: inherit; color: inherit; }
 /* Voiceover sync (Narrated reader): lines appear as spoken; the current one lit, earlier ones dimmed */
 .narration [hidden], .next-chapters[hidden] { display: none !important; }
 .narration > * { transition: opacity .35s; }
-.narration.playing > * { opacity: .38; }
+.narration.playing > :not(.next-chapters) { opacity: .38; }
 .narration.playing > .now { opacity: 1; }
 .narration.playing > .narr.now { color: #fff; }
 .narration > .enter { animation: rise .35s ease-out both; }
@@ -242,6 +242,27 @@ button { font: inherit; color: inherit; }
 .cv-e .say.right { align-items: flex-end; }
 .cv-e .say.right .who { margin: 6px 4px 4px 0; }
 .cv-e .say.right .bub { border-radius: 18px; }
+
+/* ---- Layouts: Full page (as the app scrolls today), Text window, Over picture ---- */
+.featured { position: relative; }
+.cap-box { display: none; }
+/* Text window: picture and audio button stay put; the words scroll inside a window below them */
+.lay-window.phone { height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.lay-window .reader { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.lay-window .content { flex: 1; min-height: 0; display: flex; flex-direction: column; padding-bottom: 0; margin-bottom: 0; }
+.lay-window .featured { flex: none; margin-bottom: 12px; }
+.lay-window .featured img { width: auto; max-width: calc(100% - 8px); max-height: 30vh; margin: 0 auto; }
+.lay-window .webview { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.lay-window .audio-button { flex: none; }
+.lay-window .narration { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 24px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 28px); mask-image: linear-gradient(to bottom, transparent 0, #000 28px); }
+/* Over picture: the line being spoken sits over the bottom of the image, one at a time */
+.lay-over .narration { display: none; }
+.lay-over .cap-box:not(:empty) { display: flex; flex-direction: column; justify-content: flex-end; position: absolute; left: 0; right: 8px; bottom: 0;
+  min-height: 38%; padding: 56px 16px 16px; border-radius: 0 0 20px 20px; cursor: pointer;
+  background: linear-gradient(to bottom, transparent, rgba(10, 5, 28, .78) 40%, rgba(10, 5, 28, .92)); }
+.lay-over .cap-box .narr { color: #fff; text-shadow: 0 2px 8px rgba(0, 0, 0, .6); }
+.lay-over .cap-box .say .avatar { visibility: visible; }
 
 /* ---- The text rule: no lone last word (app.js), even lines ---- */
 .narr, .bub, .nc-header, .ticket-title { text-wrap: balance; }

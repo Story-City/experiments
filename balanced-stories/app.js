@@ -10,6 +10,11 @@ const SERIAL_STEP = 97;
 const CHOICE_HEADER = 'Where to next?';
 const AUDIO_BUTTON_TEXT = 'Tap To Play Audio';
 const END_LABEL = 'The End';
+const LAYOUTS = [
+  { key: 'page', name: 'Full page' },
+  { key: 'window', name: 'Text window' },
+  { key: 'over', name: 'Over picture' },
+];
 const CAST_VERSIONS = [
   { key: 'a', name: 'Names above' },
   { key: 'b', name: 'Profile circles' },
@@ -30,6 +35,8 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 
 const $ = (id) => document.getElementById(id);
 const phone = $('phone');
+// Kept as a reference: the Text window layout moves it inside the story text, which each chapter clears.
+const NEXT_CHAPTERS = $('nextChapters');
 
 const params = new URLSearchParams(location.search);
 const FAST = Math.max(0, +params.get('fast') || 0);   // hidden: fake audio at N× for headless tests
@@ -37,6 +44,7 @@ const state = {
   story: clamp((parseInt(params.get('s'), 10) || 1) - 1, 0, STORIES.length - 1),
   chapter: 0,
   cast: CAST_VERSIONS.some((v) => v.key === params.get('ch')) ? params.get('ch') : 'a',
+  layout: LAYOUTS.some((v) => v.key === params.get('lay')) ? params.get('lay') : 'page',
 };
 state.chapter = clamp((parseInt(params.get('c'), 10) || 1) - 1, 0, STORIES[state.story].chapters.length - 1);
 
@@ -216,6 +224,16 @@ function renderControls() {
     b.addEventListener('click', () => { state.story = i; state.chapter = 0; render(true); });
     seg.appendChild(b);
   });
+  const laySeg = $('laySeg');
+  laySeg.innerHTML = '';
+  LAYOUTS.forEach((v) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = v.name;
+    b.setAttribute('aria-pressed', String(v.key === state.layout));
+    b.addEventListener('click', () => { state.layout = v.key; render(true); });
+    laySeg.appendChild(b);
+  });
   const hasCast = storyCast(STORIES[state.story]).length > 0;
   $('castRow').hidden = !hasCast;
   const castSeg = $('castSeg');
@@ -259,6 +277,8 @@ function render(scrollTop) {
   const ch = story.chapters[state.chapter];
   $('navTitle').textContent = story.title;
 
+  phone.classList.remove(...LAYOUTS.map((v) => `lay-${v.key}`));
+  phone.classList.add(`lay-${state.layout}`);
   const featured = $('featured');
   featured.innerHTML = '';
   if (ch.img) {
@@ -267,6 +287,10 @@ function render(scrollTop) {
     img.alt = '';
     featured.appendChild(img);
   }
+  const capBox = document.createElement('div');
+  capBox.className = 'cap-box';
+  capBox.setAttribute('aria-live', 'polite');
+  featured.appendChild(capBox);
   const web = $('webview');
   web.innerHTML = '';
   if (ch.audio) web.appendChild(document.createElement('audio'));
@@ -317,7 +341,7 @@ function render(scrollTop) {
   web.appendChild(narration);
   injectLikeApp(web);
 
-  const nc = $('nextChapters');
+  const nc = NEXT_CHAPTERS;
   nc.innerHTML = '';
   nc.hidden = true;
   const isLast = state.chapter === story.chapters.length - 1;
@@ -335,13 +359,21 @@ function render(scrollTop) {
   }
 
   for (const el of narration.querySelectorAll('.narr, .bub')) for (const seg of textSegments(el)) joinLastTwoWords(seg);
-  setupPlayback(ch, [...narration.children], narration, nc);
+  const lineEls = [...narration.children];
+  if (state.layout === 'window') narration.appendChild(nc); else $('content').appendChild(nc);
+  narration.addEventListener('scroll', () => {
+    if (performance.now() < ownScrollUntil) return;
+    follow = narration.scrollTop + narration.clientHeight >= narration.scrollHeight - FOLLOW_SLACK_PX;
+  }, { passive: true });
+  follow = true;
+  setupPlayback(ch, lineEls, narration, nc, capBox);
 
   renderControls();
   const url = new URL(location.href);
   url.searchParams.set('s', state.story + 1);
   url.searchParams.set('c', state.chapter + 1);
   url.searchParams.delete('m');
+  url.searchParams.set('lay', state.layout);
   if (cast.length) url.searchParams.set('ch', state.cast); else url.searchParams.delete('ch');
   history.replaceState(null, '', url);
   if (scrollTop) window.scrollTo(0, 0);
@@ -358,7 +390,7 @@ function storyCast(story) {
 let pb = null;
 const wordsOf = (html) => html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
 
-function setupPlayback(ch, lineEls, narration, nc) {
+function setupPlayback(ch, lineEls, narration, nc, capBox) {
   const words = ch.lines.map((l) => wordsOf(l.html));
   const total = words.reduce((a, b) => a + b, 0) || 1;
   const fakeSecs = words.map((w) => LINE_BASE_SECS + w * SECS_PER_WORD);
@@ -368,7 +400,7 @@ function setupPlayback(ch, lineEls, narration, nc) {
   const fakeStarts = [];
   acc = 0;
   for (const s2 of fakeSecs) { fakeStarts.push(acc); acc += s2; }
-  pb = { ch, lineEls, narration, nc, share, fakeStarts, fakeTotal: acc, revealed: 0, playing: false, ended: false,
+  pb = { ch, lineEls, narration, nc, capBox, timed: ch.lines.length > 0 && ch.lines.every((l) => typeof l.t === 'number'), share, fakeStarts, fakeTotal: acc, revealed: 0, playing: false, ended: false,
     audio: null, fake: !ch.audio || FAST > 0, clock: 0, lastTick: 0, timer: null, startGuard: null };
   if (!ch.lines.length) finishPlayback();
   else startPlayback();   // like the app with autoplay on; a blocked autoplay waits for a tap on the button
@@ -376,7 +408,12 @@ function setupPlayback(ch, lineEls, narration, nc) {
 
 const pbDuration = () => (!pb.fake && pb.audio && isFinite(pb.audio.duration) ? pb.audio.duration : pb.fakeTotal);
 const pbTime = () => (!pb.fake && pb.audio ? pb.audio.currentTime : pb.clock);
-const lineStart = (i) => (!pb.fake && pb.audio && isFinite(pb.audio.duration) ? pb.share[i] * pb.audio.duration : pb.fakeStarts[i]);
+// Brett's measured line times when we have them; otherwise each line's share of the words.
+const lineStart = (i) => {
+  if (!pb.fake && pb.timed) return pb.ch.lines[i].t;
+  if (!pb.fake && pb.audio && isFinite(pb.audio.duration)) return pb.share[i] * pb.audio.duration;
+  return pb.fakeStarts[i];
+};
 
 function startPlayback() {
   if (!pb || pb.ended) return;
@@ -451,8 +488,21 @@ function revealTo(n) {
   if (n > pb.revealed) {
     pb.revealed = Math.min(n, pb.lineEls.length);
     pb.lineEls.forEach((el, i) => el.classList.toggle('now', i === pb.revealed - 1));
-    followNewest(pb.lineEls[pb.revealed - 1]);
+    if (state.layout === 'over') showCaption(pb.lineEls[pb.revealed - 1]);
+    else followNewest(pb.lineEls[pb.revealed - 1]);
   }
+}
+
+// Over the picture: only the line being spoken, replaced by the next one.
+function showCaption(el) {
+  const c = el.cloneNode(true);
+  c.hidden = false;
+  c.classList.remove('now', 'enter');
+  if (c.matches('.say')) c.classList.remove('cont');
+  pb.capBox.replaceChildren(c);
+  c.classList.add('enter');
+  c.querySelectorAll('.bub').forEach((b) => { b.style.width = ''; b.style.maxWidth = ''; });
+  styleLine(c);
 }
 
 function styleLine(el) {
@@ -474,18 +524,20 @@ function finishPlayback() {
   pb.lineEls.forEach((el) => el.classList.remove('now'));
   pb.nc.hidden = false;
   applyNewStyle([...pb.nc.querySelectorAll('.nc-header, .ticket-title')]);
-  followNewest(pb.nc);
+  followNewest(pb.nc, true);
 }
 
-// Tap the story text to jump to the next line (and the voiceover with it).
-$('webview').addEventListener('click', (e) => {
-  if (!pb || pb.ended || e.target.closest('button, .link-wrapper')) return;
+// Tap the story text (or the caption over the picture) to jump to the next line, and the voiceover with it.
+$('webview').addEventListener('click', skipLine);
+$('featured').addEventListener('click', (e) => { if (e.target.closest('.cap-box')) skipLine(e); });
+function skipLine(e) {
+  if (!pb || pb.ended || e.target.closest('button, .link-wrapper, .next-chapters')) return;
   if (pb.revealed >= pb.lineEls.length) { finishPlayback(); return; }
   const next = pb.revealed;
-  if (!pb.fake && pb.audio && isFinite(pb.audio.duration)) pb.audio.currentTime = lineStart(next);
+  if (!pb.fake && pb.audio && (pb.timed || isFinite(pb.audio.duration))) pb.audio.currentTime = lineStart(next);
   else pb.clock = pb.fakeStarts[next];
   revealTo(next + 1);
-});
+}
 
 // Follow the voice unless the reader has scrolled up to look back.
 let follow = true;
@@ -494,8 +546,14 @@ addEventListener('scroll', () => {
   if (performance.now() < ownScrollUntil) return;
   follow = window.scrollY + innerHeight >= document.documentElement.scrollHeight - FOLLOW_SLACK_PX;
 }, { passive: true });
-function followNewest(el) {
-  if (!follow || !el) return;
+function followNewest(el, force) {
+  if (!el || (!follow && !force)) return;
+  ownScrollUntil = performance.now() + OWN_SCROLL_MS;
+  if (state.layout === 'window') {
+    const box = pb.narration;
+    box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+    return;
+  }
   const r = el.getBoundingClientRect();
   if (r.bottom <= innerHeight - 16) return;
   ownScrollUntil = performance.now() + OWN_SCROLL_MS;

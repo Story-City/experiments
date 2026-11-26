@@ -1,6 +1,8 @@
 // Real chapter text, pictures and choices from the public Story City API (api.storycity.app), fetched 25 Nov 2026.
 // Script lines ("NAME: text") become character bubbles; long passages are split into 1–2 sentence lines.
 //   who: narrator (centred, no bubble) | figure (left bubble, name above)
+// t: when the line starts in the chapter audio (seconds), from the audio-paragraph-viewer timings
+// t: when the line starts in the chapter audio (seconds), from the audio-paragraph-viewer timings
 export const STORIES = [
  {
   "key": "incident",
@@ -53,19 +55,23 @@ export const STORIES = [
     "lines": [
      {
       "who": "narrator",
-      "html": "Sometimes the case opens up side files."
+      "html": "Sometimes the case opens up side files.",
+      "t": 0.96
      },
      {
       "who": "narrator",
-      "html": "Look for the Codex buttons at the end of each episode. These are rabbit holes into the deeper lore of this world."
+      "html": "Look for the Codex buttons at the end of each episode. These are rabbit holes into the deeper lore of this world.",
+      "t": 4.03
      },
      {
       "who": "narrator",
-      "html": "Look for blue links in the chapters, you can tap on these to open reminders on characters or lore."
+      "html": "Look for blue links in the chapters, you can tap on these to open reminders on characters or lore.",
+      "t": 11.23
      },
      {
       "who": "narrator",
-      "html": "Follow them if you’re curious. The truth tends to hide in the details."
+      "html": "Follow them if you’re curious. The truth tends to hide in the details.",
+      "t": 17.44
      }
     ],
     "prompt": null,
@@ -80,27 +86,33 @@ export const STORIES = [
     "lines": [
      {
       "who": "narrator",
-      "html": "One last thing before we begin. You can experience this story two ways:"
+      "html": "One last thing before we begin. You can experience this story two ways:",
+      "t": 0.42
      },
      {
       "who": "narrator",
-      "html": "Narrative Mode - Chapters contain one continuous audio with fewer interruptions so you can keep your phone in your pocket longer as you roam."
+      "html": "Narrative Mode - Chapters contain one continuous audio with fewer interruptions so you can keep your phone in your pocket longer as you roam.",
+      "t": 6.66
      },
      {
       "who": "narrator",
-      "html": "Great for podcast or audio book fans. OR"
+      "html": "Great for podcast or audio book fans. OR",
+      "t": 15.24
      },
      {
       "who": "narrator",
-      "html": "Interactive Mode - Interact with the story to earn badges; each badge is a clue to what really happened. Expect 2–3 check-ins per chapter, breaking up longer scenes."
+      "html": "Interactive Mode - Interact with the story to earn badges; each badge is a clue to what really happened. Expect 2–3 check-ins per chapter, breaking up longer scenes.",
+      "t": 19.81
      },
      {
       "who": "narrator",
-      "html": "Perfect if you like to gamify your world."
+      "html": "Perfect if you like to gamify your world.",
+      "t": 30.44
      },
      {
       "who": "narrator",
-      "html": "It all leads to the same truth."
+      "html": "It all leads to the same truth.",
+      "t": 33.86
      }
     ],
     "prompt": "How do you want to hear it?",
@@ -116,15 +128,18 @@ export const STORIES = [
     "lines": [
      {
       "who": "narrator",
-      "html": "This particular mystery begins at your local cafe…"
+      "html": "This particular mystery begins at your local cafe…",
+      "t": 0.83
      },
      {
       "who": "narrator",
-      "html": "If you’re in step count mode, dive in."
+      "html": "If you’re in step count mode, dive in.",
+      "t": 4.51
      },
      {
       "who": "narrator",
-      "html": "If you’re in location mode, push the button below when you’ve arrived at your local cafe, perhaps with your beverage of choice."
+      "html": "If you’re in location mode, push the button below when you’ve arrived at your local cafe, perhaps with your beverage of choice.",
+      "t": 7.45
      }
     ],
     "prompt": null,
@@ -139,132 +154,161 @@ export const STORIES = [
     "lines": [
      {
       "who": "narrator",
-      "html": "The Capital of Laresveila, a city with more magic history than it would like to admit."
+      "html": "The Capital of Laresveila, a city with more magic history than it would like to admit.",
+      "t": 15.33
      },
      {
       "who": "narrator",
-      "html": "A commuter stuffs themselves into a crystal-powered propulsor tram, firing a suspicious look at the unhoused Fae in the alley outside."
+      "html": "A commuter stuffs themselves into a crystal-powered propulsor tram, firing a suspicious look at the unhoused Fae in the alley outside.",
+      "t": 21.63
      },
      {
       "who": "narrator",
-      "html": "A man slides a cursed letter through the crack in the door, hoping the witch who made it didn’t hold back."
+      "html": "A man slides a cursed letter through the crack in the door, hoping the witch who made it didn’t hold back.",
+      "t": 30.3
      },
      {
       "who": "narrator",
-      "html": "A vitriolic aircast cries the dangers of Portal Park, still wild and overgrown despite being cleaved from the Fae realms during the Severing 20 years ago."
+      "html": "A vitriolic aircast cries the dangers of Portal Park, still wild and overgrown despite being cleaved from the Fae realms during the Severing 20 years ago.",
+      "t": 38.97
      },
      {
       "who": "narrator",
-      "html": "Resentment seeps from the cracks in the pavement; this town is a cracked mirror, one bad day from shattering."
+      "html": "Resentment seeps from the cracks in the pavement; this town is a cracked mirror, one bad day from shattering.",
+      "t": 49.21
      },
      {
       "who": "narrator",
-      "html": "Few feel it teetering more than <span info=\"Farron comes from a family of oracles, who bared high status in their home country of Moerway but are reviled in their new one. The family changed their name to Augustine from Augurine, a reference to their family profession, augury. Farron and his sibling Thea were smuggled as kids out of Moerway during a coup and were encouraged to lay low and get normal jobs, which Farron ignored, instead opting to practise the family craft as an unlicensed seer.\">Farron Augustine</span>, an illegal seer who gives unsanctioned readings to souls desperate enough to pay."
+      "html": "Few feel it teetering more than <span info=\"Farron comes from a family of oracles, who bared high status in their home country of Moerway but are reviled in their new one. The family changed their name to Augustine from Augurine, a reference to their family profession, augury. Farron and his sibling Thea were smuggled as kids out of Moerway during a coup and were encouraged to lay low and get normal jobs, which Farron ignored, instead opting to practise the family craft as an unlicensed seer.\">Farron Augustine</span>, an illegal seer who gives unsanctioned readings to souls desperate enough to pay.",
+      "t": 56.7
      },
      {
       "who": "narrator",
-      "html": "He works out of the Pick-You-Up café, wreathed in the scent of their mood-enhancing brews, his usual table adorned with the exotic trappings the locals expect."
+      "html": "He works out of the Pick-You-Up café, wreathed in the scent of their mood-enhancing brews, his usual table adorned with the exotic trappings the locals expect.",
+      "t": 64.98
      },
      {
       "who": "narrator",
-      "html": "Most notably the filigreed porcelain teacups, hand-painted by his family back in Moerway, with a delicate pot to match. Farron pours a fragrant brew for his sour-faced guest."
+      "html": "Most notably the filigreed porcelain teacups, hand-painted by his family back in Moerway, with a delicate pot to match. Farron pours a fragrant brew for his sour-faced guest.",
+      "t": 76.4
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "My friend, I can only help you if you take the ritual seriously."
+      "html": "My friend, I can only help you if you take the ritual seriously.",
+      "t": 90.18
      },
      {
       "who": "narrator",
-      "html": "Ever since this customer stepped into the coffee shop and they locked eyes, a sense of unease swept away Farron’s good humour."
+      "html": "Ever since this customer stepped into the coffee shop and they locked eyes, a sense of unease swept away Farron’s good humour.",
+      "t": 94.05
      },
      {
       "who": "narrator",
-      "html": "The joys of being a seer; so in tune with fate you can make money off the future, so in tune you can ruin your whole day and never know why."
+      "html": "The joys of being a seer; so in tune with fate you can make money off the future, so in tune you can ruin your whole day and never know why.",
+      "t": 101.11
      },
      {
       "who": "narrator",
-      "html": "All you can hope is to feel your way out of fate."
+      "html": "All you can hope is to feel your way out of fate.",
+      "t": 110.62
      },
      {
       "who": "figure",
       "name": "Niyam",
-      "html": "Yes, yes, turn the cup."
+      "html": "Yes, yes, turn the cup.",
+      "t": 115.01
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "Clockwise. Careful, keep it in the saucer – otherwise they won’t settle right."
+      "html": "Clockwise. Careful, keep it in the saucer – otherwise they won’t settle right.",
+      "t": 118.21
      },
      {
       "who": "figure",
       "name": "Niyam",
-      "html": "I want that real Moerway reading, you get me? No grifter bullshit."
+      "html": "I want that real Moerway reading, you get me? No grifter bullshit.",
+      "t": 124.1
      },
      {
       "who": "narrator",
-      "html": "Hmm. A little insensitive to discount Farron’s years of practice, but Farron just gives him a wry smile."
+      "html": "Hmm. A little insensitive to discount Farron’s years of practice, but Farron just gives him a wry smile.",
+      "t": 129.28
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "Now take the last sip, <span info=\"Niyam is a regular customer of Farron, and yet, as he’s prone to anger, he always get upset when he doesn’t hear what he wants.\">Niyam</span>."
+      "html": "Now take the last sip, <span info=\"Niyam is a regular customer of Farron, and yet, as he’s prone to anger, he always get upset when he doesn’t hear what he wants.\">Niyam</span>.",
+      "t": 137.89
      },
      {
       "who": "narrator",
-      "html": "Finally he does it."
+      "html": "Finally he does it.",
+      "t": 141.31
      },
      {
       "who": "narrator",
-      "html": "Farron considers giving him a portent of doom for fun – but a passing protester in the street outside reminds him what happens to seers who don’t satisfy."
+      "html": "Farron considers giving him a portent of doom for fun – but a passing protester in the street outside reminds him what happens to seers who don’t satisfy.",
+      "t": 142.89
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "Let me take a look… hmm…"
+      "html": "Let me take a look… hmm…",
+      "t": 154.69
      },
      {
       "who": "figure",
       "name": "Niyam",
-      "html": "(grumbles)"
+      "html": "(grumbles)",
+      "t": 158.24
      },
      {
       "who": "narrator",
-      "html": "Damn it, of all the times for a cloudy reading. That clump could be a cloud, or an axe?"
+      "html": "Damn it, of all the times for a cloudy reading. That clump could be a cloud, or an axe?",
+      "t": 162.3
      },
      {
       "who": "narrator",
-      "html": "Farron could spin a yarn so Niyam’ll leave smiling, but the man asked for the real deal. Farron reaches for his symbol cards."
+      "html": "Farron could spin a yarn so Niyam’ll leave smiling, but the man asked for the real deal. Farron reaches for his symbol cards.",
+      "t": 170.25
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "(sighing) … Listen, buddy."
+      "html": "(sighing) … Listen, buddy.",
+      "t": 181.57
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "I promise I wouldn’t do this if I didn’t have to."
+      "html": "I promise I wouldn’t do this if I didn’t have to.",
+      "t": 182.16
      },
      {
       "who": "figure",
       "name": "Niyam",
-      "html": "Send that shit to the Fae Realms! You want me to pay more for your rottin’ seer lies?"
+      "html": "Send that shit to the Fae Realms! You want me to pay more for your rottin’ seer lies?",
+      "t": 185.09
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "I’m not running an illegal underground charity here, Niyam."
+      "html": "I’m not running an illegal underground charity here, Niyam.",
+      "t": 190.56
      },
      {
       "who": "figure",
       "name": "Niyam",
-      "html": "Fine."
+      "html": "Fine.",
+      "t": 194.24
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "Thank you."
+      "html": "Thank you.",
+      "t": 196.7
      }
     ],
     "prompt": null,
@@ -280,94 +324,113 @@ export const STORIES = [
      {
       "who": "figure",
       "name": "Farron",
-      "html": "(flipping the first card) Oh."
+      "html": "(flipping the first card) Oh.",
+      "t": 0
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "(flipping the second card) Hmm...."
+      "html": "(flipping the second card) Hmm....",
+      "t": 6.66
      },
      {
       "who": "narrator",
-      "html": "…So much for sending him home smiling."
+      "html": "…So much for sending him home smiling.",
+      "t": 6.66
      },
      {
       "who": "figure",
       "name": "Niyam",
-      "html": "There’s fire on that one."
+      "html": "There’s fire on that one.",
+      "t": 9.63
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "Niyam Renashandran, soon you will lose all you have. Let it be known this is no one’s fault but your own."
+      "html": "Niyam Renashandran, soon you will lose all you have. Let it be known this is no one’s fault but your own.",
+      "t": 13.44
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "Take no fe-"
+      "html": "Take no fe-",
+      "t": 21.32
      },
      {
       "who": "figure",
       "name": "Niyam",
-      "html": "Screw you!"
+      "html": "Screw you!",
+      "t": 22.4
      },
      {
       "who": "figure",
       "name": "Lerato",
-      "html": "Woah hey! That’s enough!"
+      "html": "Woah hey! That’s enough!",
+      "t": 25.89
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "haha-whoa!"
+      "html": "haha-whoa!",
+      "t": 26.06
      },
      {
       "who": "narrator",
-      "html": "The man’s face contorts into a grim rictus as he hefts our young seer by his collar."
+      "html": "The man’s face contorts into a grim rictus as he hefts our young seer by his collar.",
+      "t": 27.07
      },
      {
       "who": "figure",
       "name": "Niyam",
-      "html": "I’m not the only one tired of your kind, your empty promises to protect us while you fuck with the future behind our backs. Laresveila won’t ever forget."
+      "html": "I’m not the only one tired of your kind, your empty promises to protect us while you fuck with the future behind our backs. Laresveila won’t ever forget.",
+      "t": 34.3
      },
      {
       "who": "figure",
       "name": "Lerato",
-      "html": "Enjoy your ban, buddy. Don’t EVER come back here…"
+      "html": "Enjoy your ban, buddy. Don’t EVER come back here…",
+      "t": 44.19
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "Easy, easy."
+      "html": "Easy, easy.",
+      "t": 48.54
      },
      {
       "who": "figure",
       "name": "Lerato",
-      "html": "Are you okay?"
+      "html": "Are you okay?",
+      "t": 52.38
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "<span info=\"Lerato Limone works as a coffee witch at the Pick-You-Up Café. She helps Farron hide his seer business out of friendship and a deep unrequited love.\">Lerato</span>, I’m fine. I’ll clean this up, and then – agh, I’m supposed to meet <span info=\"Thea (short for Orothea), like their older brother Farron, comes from a family of oracles. However, Thea holds resentment and a bitterness about their gift, wishing they could live a normal life.\">Thea</span> in the park."
+      "html": "<span info=\"Lerato Limone works as a coffee witch at the Pick-You-Up Café. She helps Farron hide his seer business out of friendship and a deep unrequited love.\">Lerato</span>, I’m fine. I’ll clean this up, and then – agh, I’m supposed to meet <span info=\"Thea (short for Orothea), like their older brother Farron, comes from a family of oracles. However, Thea holds resentment and a bitterness about their gift, wishing they could live a normal life.\">Thea</span> in the park.",
+      "t": 53.28
      },
      {
       "who": "figure",
       "name": "Farron",
-      "html": "Could I grab a tea to go?"
+      "html": "Could I grab a tea to go?",
+      "t": 58.87
      },
      {
       "who": "figure",
       "name": "Lerato",
-      "html": "Sure. You know, it’s about time for my break anyway."
+      "html": "Sure. You know, it’s about time for my break anyway.",
+      "t": 61.34
      },
      {
       "who": "figure",
       "name": "Lerato",
-      "html": "Why don’t I walk with you?"
+      "html": "Why don’t I walk with you?",
+      "t": 64.36
      },
      {
       "who": "narrator",
-      "html": "Lerato tosses her apron behind the counter, and offers Farron a large to-go cup of tea."
+      "html": "Lerato tosses her apron behind the counter, and offers Farron a large to-go cup of tea.",
+      "t": 66.75
      }
     ],
     "prompt": null,
