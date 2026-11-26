@@ -189,12 +189,15 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   overflow: visible;
 }
 .pin.selected { z-index: 3; }
-/* Selected = approved-ui library roller glow (no ring) */
+/* Selected = gem-coloured glow (no ring); --pin-glow set per pin */
 .pin.selected .pin-gem,
 .pin.selected .pin-gem-wrap,
 .pin.selected img,
 .pin.selected svg {
-  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent, #00c2ff) 55%, transparent));
+  filter:
+    drop-shadow(0 0 6px color-mix(in srgb, var(--pin-glow, #ffffff) 95%, transparent))
+    drop-shadow(0 0 14px color-mix(in srgb, var(--pin-glow, #ffffff) 80%, transparent))
+    drop-shadow(0 0 22px color-mix(in srgb, var(--pin-glow, #ffffff) 55%, transparent));
 }
 .glow-rare { filter: drop-shadow(0 0 4px var(--glow)); }
 .glow-mythical { filter: drop-shadow(0 0 6px var(--glow)) drop-shadow(0 0 12px var(--glow)); }
@@ -436,18 +439,12 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   overflow: visible;
 }
 .gbox.is-layout-disc-haze .disc-arc-glow {
-  opacity: 1;
-  stroke-width: 7;
-  filter:
-    blur(3.5px)
-    drop-shadow(0 0 5px var(--disc-tint))
-    drop-shadow(0 0 14px color-mix(in srgb, var(--disc-tint) 70%, transparent));
+  opacity: 0.32;
+  filter: blur(5px) drop-shadow(0 0 12px color-mix(in srgb, var(--disc-tint) 50%, transparent));
 }
 .gbox.is-layout-disc-haze .disc-arc-tint {
-  opacity: 0.95;
-  filter:
-    blur(1.2px)
-    drop-shadow(0 0 6px color-mix(in srgb, var(--disc-tint) 60%, transparent));
+  opacity: 0.7;
+  filter: blur(2.5px) drop-shadow(0 0 6px color-mix(in srgb, var(--disc-tint) 35%, transparent));
 }
 
 /* Corner — same disc arc, slight rotate into top-left (Figma); Disc colour untouched */

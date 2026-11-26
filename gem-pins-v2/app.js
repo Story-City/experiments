@@ -279,6 +279,12 @@ function colourOf(g) {
   if (g.mine) return GEM_COLOUR.mine;
   return GEM_COLOUR[g.tags[0]] || GEM_COLOUR.nature;
 }
+function pinGlowOf(g) {
+  if (g.roller === 'all') return PUBLIC_GEM_FILL;
+  if (g.roller === 'liked') return LIKE_PINK_HOT;
+  if (g.roller === 'wishlist') return '#e8e4ff';
+  return colourOf(g);
+}
 function categoryMark(tagId, size) {
   const src = GEM_SRC[tagId] || GEM_SRC.nature;
   const s = size || 28;
@@ -411,6 +417,7 @@ function drawPins(animate) {
     b.style.marginTop = `${-size / 2}px`;
     b.classList.toggle('selected', g.id === openId);
     b.classList.remove('is-out');
+    b.style.setProperty('--pin-glow', pinGlowOf(g));
     const html = pinFor(g);
     if (b.innerHTML !== html) b.innerHTML = html;
     b.setAttribute('aria-label', `${g.name}, ${RARITY[rarityOf(g)].label}`);
