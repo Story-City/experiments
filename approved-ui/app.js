@@ -1,4 +1,4 @@
-/** Approved UI library — APPROVED-UI-v25
+/** Approved UI library — APPROVED-UI-v26
  * Tools + opens location-gems edition-rail (same Look/Move tools). Category selector + gem-pins.
  * GEM-CAT-SELECTOR-v22 · LOCATION-GEMS tools=1
  */
@@ -296,7 +296,7 @@ const toolsPlus = document.getElementById('toolsPlus');
 const toolsDrawer = document.getElementById('toolsDrawer');
 const toolsDrawerClose = document.getElementById('toolsDrawerClose');
 const toolsFrame = document.getElementById('toolsFrame');
-const LOOK_TOOLS_SRC = '../location-gems/?tools=1&v=111';
+const LOOK_TOOLS_SRC = '../location-gems/?tools=1&v=114';
 /** Local Look snapshot — filled by location-gems tools iframe postMessage */
 let lookTools = {
   accent: '#00c2ff',
