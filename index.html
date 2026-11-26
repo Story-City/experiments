@@ -241,10 +241,10 @@
   <button class="tab" type="button" role="tab" id="tab-polls" data-tab="polls" aria-controls="panel-polls" aria-selected="false" tabindex="-1">Polls <span class="n" id="n-polls"></span></button>
   <button class="tab" type="button" role="tab" id="tab-timeline" data-tab="timeline" aria-controls="panel-timeline" aria-selected="false" tabindex="-1">Timeline</button>
 </div>
-<!-- Stage tabs inside Experiments, in flow order: Drafts, Experiments, Ready for Dev. ?stage=drafts / ?stage=ready opens one. -->
+<!-- Stage tabs inside Experiments, in flow order: Drafts, Ready for Feedback, Ready for Dev. ?stage=drafts / ?stage=ready opens one. -->
 <div class="stages" role="tablist" aria-label="Stage">
   <button type="button" role="tab" id="stage-drafts" data-stage="drafts" aria-controls="sub-drafts" aria-selected="false" tabindex="-1">Drafts <span class="n" id="n-drafts"></span></button>
-  <button type="button" role="tab" id="stage-live" data-stage="live" aria-controls="sub-live" aria-selected="true">Experiments <span class="n" id="n-live"></span></button>
+  <button type="button" role="tab" id="stage-live" data-stage="live" aria-controls="sub-live" aria-selected="true">Ready for Feedback <span class="n" id="n-live"></span></button>
   <button type="button" role="tab" id="stage-ready" data-stage="ready" aria-controls="sub-ready" aria-selected="false" tabindex="-1">Ready for Dev <span class="n" id="n-ready"></span></button>
 </div>
 <div class="filters" role="group" aria-label="Filter by author"></div>
@@ -607,7 +607,7 @@
       show(tabs[i].dataset.tab, true);
     });
   }
-  // Drafts › Experiments › Ready for Dev, inside the Experiments tab
+  // Drafts › Ready for Feedback › Ready for Dev, inside the Experiments tab
   const stageTabs = [...document.querySelectorAll('.stages [role="tab"]')];
   const STAGE_KEYS = ['drafts', 'live', 'ready'];
   function showStage(name, focus) {
