@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v113 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v114 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -499,6 +499,7 @@ const designCenterBoth = document.getElementById('designCenterBoth');
 const designLock = document.getElementById('designLock');
 const designUnlock = document.getElementById('designUnlock');
 const designClearStudio = document.getElementById('designClearStudio');
+const designSaveStudio = document.getElementById('designSaveStudio');
 const designSaveNote = document.getElementById('designSaveNote');
 const designUndo = document.getElementById('designUndo');
 const designRedo = document.getElementById('designRedo');
@@ -2439,8 +2440,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v113 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v113 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v114 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v114 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -3110,6 +3111,39 @@ function scheduleDesignStudioSave() {
   }, 180);
 }
 
+/** Explicit Save: write current look; keep the prior saved look under Undo. */
+function saveDesignStudioLook() {
+  window.clearTimeout(designSaveTimer);
+  const previous = readDesignStudio();
+  const current = captureDesignStudio();
+  designHistory = designHistory.slice(0, designHistoryIndex + 1);
+  if (previous && !studioSnapshotsEqual(previous, current)) {
+    const tip = designHistory[designHistory.length - 1];
+    if (tip && studioSnapshotsEqual(tip, current)) {
+      designHistory.pop();
+    }
+    const after = designHistory[designHistory.length - 1];
+    if (!after || !studioSnapshotsEqual(after, previous)) {
+      designHistory.push(previous);
+    }
+  }
+  const tip = designHistory[designHistory.length - 1];
+  if (!tip || !studioSnapshotsEqual(tip, current)) {
+    designHistory.push(current);
+  }
+  if (designHistory.length > DESIGN_HISTORY_MAX) {
+    designHistory = designHistory.slice(-DESIGN_HISTORY_MAX);
+  }
+  designHistoryIndex = designHistory.length - 1;
+  syncDesignHistoryButtons();
+  writeDesignStudio(current);
+  if (designSaveNote) {
+    designSaveNote.textContent =
+      designHistoryIndex > 0 ? 'Saved · previous under Undo' : 'Saved in this browser';
+  }
+  publishLookToolsToParent();
+}
+
 function undoDesignStudio() {
   if (designHistoryIndex <= 0) return;
   designHistoryIndex -= 1;
@@ -3558,6 +3592,7 @@ if (designCenterY) designCenterY.addEventListener('click', () => centerDesignSel
 if (designCenterBoth) designCenterBoth.addEventListener('click', () => centerDesignSelection('both'));
 if (designLock) designLock.addEventListener('click', () => setDesignLocked(true));
 if (designUnlock) designUnlock.addEventListener('click', () => setDesignLocked(false));
+if (designSaveStudio) designSaveStudio.addEventListener('click', saveDesignStudioLook);
 if (designClearStudio) designClearStudio.addEventListener('click', clearDesignStudio);
 if (designUndo) designUndo.addEventListener('click', undoDesignStudio);
 if (designRedo) designRedo.addEventListener('click', redoDesignStudio);
