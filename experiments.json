@@ -122,11 +122,11 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=19",
+    "path": "approved-ui/?v=20",
     "area": "design",
     "frame": "wide",
     "title": "Approved UI library",
-    "what": "End-story badges popup contained (no CTA scroll). Bounce clocks fixed. Tales cover + 4 badges.",
+    "what": "Disc colour filter from gem-pins V2. End-story badges, map mode card, likes, tips, rarities.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

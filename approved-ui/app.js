@@ -1,6 +1,6 @@
-/** Approved UI library — APPROVED-UI-v19
- * EndStoryInlineBadges WAAPI bounce; map chapter card; likes corner+stack.
- * END-STORY-BADGES-POPUP-v19 · MAP-MODE-CARD-v19
+/** Approved UI library — APPROVED-UI-v20
+ * Gem Disc colour filter from gem-pins-v2; EndStory badges; map chapter card; likes.
+ * GEM-DISC-FILTER-v20 · END-STORY-BADGES-POPUP-v19 · MAP-MODE-CARD-v19
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -208,6 +208,14 @@ const ELEMENT_DEFS = [
     ux: 'When: map tip asks for a response (share location / steps). Tip stays until the glass reply bubble is tapped. Try: Summons / Knight accent · tap reply.',
     stage: 'tip-reply',
     mount: mountTipWithReply,
+  },
+  {
+    id: 'gem-disc-filter',
+    title: 'Disc colour filter',
+    source: 'gem-pins-v2 Disc · Figma U arc',
+    ux: 'When: map gems filter. Selected gem at bottom centre; soft tinted arc (mid shine, soft mask); ≤5 gems on the rim; solid liked heart + wishlist bookmark. Try: drag · tap a gem · Spin next.',
+    stage: 'disc',
+    mount: mountGemDiscFilter,
   },
   {
     id: 'map-mode-switch',
@@ -1448,6 +1456,251 @@ function mountTipWithReply(stage, actions) {
   apply(active);
   addPlay(actions, 'Show tip', show);
   addGhost(actions, 'Dismiss', dismiss);
+}
+
+/** Disc colour filter — geometry + marks from gem-pins-v2 v33 (no reinvent). */
+function mountGemDiscFilter(stage, actions) {
+  const DISC_PATH = { x0: 68, y0: 36, cx: 200, cy: 112, x1: 332, y1: 36 };
+  const DISC_VB_W = 400;
+  const DISC_VB_H = 100;
+  const DISC_STAGE_H = 104;
+  const DISC_STEP = 18;
+  const DISC_PX_PER_DEG = 2.6;
+  const DISC_SCALE_MIN = 0.82;
+  const DISC_SCALE_MAX = 1.12;
+  const DISC_FADE_DEG = 36;
+  const DISC_ANIM_MS = 520;
+  const LIKE_PINK_HOT = '#ff7aab';
+  const WISHLIST_FILL = '#e8e4ff';
+  const HEART_PATH =
+    'M15.0007 10.0002C16.2423 8.7835 17.5007 7.32516 17.5007 5.41683C17.5007 4.20125 17.0178 3.03547 16.1582 2.17592C15.2987 1.31638 14.1329 0.833496 12.9173 0.833496C11.4507 0.833496 10.4173 1.25016 9.16732 2.50016C7.91732 1.25016 6.88398 0.833496 5.41732 0.833496C4.20174 0.833496 3.03595 1.31638 2.17641 2.17592C1.31687 3.03547 0.833984 4.20125 0.833984 5.41683C0.833984 7.3335 2.08398 8.79183 3.33398 10.0002L9.16732 15.8335L15.0007 10.0002Z';
+  const BOOKMARK_PATH = 'M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z';
+  const GEM_SRC = {
+    nature: '../gem-pins-v2/assets/gems/nature.svg',
+    eat: '../gem-pins-v2/assets/gems/eat-drink.svg',
+    culture: '../gem-pins-v2/assets/gems/art.svg',
+    play: '../gem-pins-v2/assets/gems/play.svg',
+    landmark: '../gem-pins-v2/assets/gems/landmarks.svg',
+    curio: '../gem-pins-v2/assets/gems/curiosities.svg',
+  };
+  const GEM_COLOUR = {
+    nature: '#00CD9D',
+    eat: '#FF4F79',
+    culture: '#41C7D8',
+    play: '#F7C85C',
+    landmark: '#F1A638',
+    curio: '#B36BFF',
+  };
+  const STOPS = [
+    { id: 'all', label: 'All gems', note: '[every gem nearby]', kind: 'all' },
+    { id: 'nature', label: 'Nature', note: '[explain nature finds]', kind: 'cat', art: 'nature' },
+    { id: 'eatshop', label: 'Eat & Drink', note: '[explain eat, drink and shop finds]', kind: 'cat', art: 'eat' },
+    { id: 'culture', label: 'Culture', note: '[explain culture finds]', kind: 'cat', art: 'culture' },
+    { id: 'play', label: 'Play', note: '[explain play finds]', kind: 'cat', art: 'play' },
+    { id: 'landmark', label: 'Landmarks', note: '[explain landmark finds]', kind: 'cat', art: 'landmark' },
+    { id: 'curio', label: 'Curiosities', note: '[explain curiosity finds]', kind: 'cat', art: 'curio' },
+    { id: 'liked', label: 'Liked', note: '[explain liked gems]', kind: 'liked' },
+    { id: 'wishlist', label: 'Wishlist', note: '[explain saved for later]', kind: 'wishlist' },
+  ];
+
+  const markHtml = (stop) => {
+    if (stop.kind === 'all') return gemSvg(PUBLIC_GEM_FILL);
+    if (stop.kind === 'liked') {
+      return `<svg class="pin-gem is-heart" viewBox="0 0 19 17" aria-hidden="true"><path d="${HEART_PATH}" fill="${LIKE_PINK_HOT}"/><path d="${HEART_PATH}" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    }
+    if (stop.kind === 'wishlist') {
+      return `<svg class="pin-gem is-bookmark" viewBox="0 0 24 24" aria-hidden="true"><path d="${BOOKMARK_PATH}" fill="${WISHLIST_FILL}" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    }
+    const src = GEM_SRC[stop.art] || GEM_SRC.nature;
+    return `<img class="pin-gem" src="${src}" width="26" height="26" alt="" decoding="async">`;
+  };
+
+  const stopTint = (id) => {
+    if (id === 'all') return PUBLIC_GEM_FILL;
+    if (id === 'liked') return LIKE_PINK_HOT;
+    if (id === 'wishlist') return WISHLIST_FILL;
+    const stop = STOPS.find((s) => s.id === id);
+    if (stop?.art) return GEM_COLOUR[stop.art] || PUBLIC_GEM_FILL;
+    return PUBLIC_GEM_FILL;
+  };
+
+  const host = document.createElement('div');
+  host.className = 'gem-disc-host';
+  host.innerHTML = `
+    <div class="gem-disc-stage" id="gemDiscStage">
+      <svg class="gem-disc-arc" id="gemDiscArc" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
+        <path class="gem-disc-arc-glow" d="M 68 36 Q 200 112 332 36" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity="0.22"/>
+        <path class="gem-disc-arc-tint" d="M 68 36 Q 200 112 332 36" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" opacity="0.92"/>
+      </svg>
+      <div class="gem-disc-wheel" id="gemDiscWheel" role="listbox" aria-label="Filter gems on disc"></div>
+      <div class="gem-disc-caption">
+        <p class="gem-disc-title" id="gemDiscTitle"></p>
+        <p class="gem-disc-note" id="gemDiscNote"></p>
+      </div>
+    </div>
+  `;
+  stage.appendChild(host);
+
+  const discStage = host.querySelector('#gemDiscStage');
+  const discArc = host.querySelector('#gemDiscArc');
+  const wheel = host.querySelector('#gemDiscWheel');
+  const titleEl = host.querySelector('#gemDiscTitle');
+  const noteEl = host.querySelector('#gemDiscNote');
+  let discAngle = 0;
+  let discAnim = 0;
+  let stopId = 'all';
+
+  const n = () => STOPS.length;
+  const period = () => n() * DISC_STEP;
+  const wrapDeg = (deg) => {
+    const p = period();
+    return ((deg % p) + p * 1.5) % p - p / 2;
+  };
+  const angleForIndex = (index) => -index * DISC_STEP;
+  const nearestIndex = (angle) => {
+    let idx = Math.round(-angle / DISC_STEP) % n();
+    if (idx < 0) idx += n();
+    return idx;
+  };
+  const shortestDelta = (from, to) => {
+    const p = period();
+    let d = to - from;
+    return ((d % p) + p * 1.5) % p - p / 2;
+  };
+  const pointOnArc = (t) => {
+    const u = (t + 1) / 2;
+    const omu = 1 - u;
+    const a = omu * omu;
+    const b = 2 * omu * u;
+    const c = u * u;
+    const xSvg = a * DISC_PATH.x0 + b * DISC_PATH.cx + c * DISC_PATH.x1;
+    const ySvg = a * DISC_PATH.y0 + b * DISC_PATH.cy + c * DISC_PATH.y1;
+    return { leftPct: (xSvg / DISC_VB_W) * 100, topPx: (ySvg / DISC_VB_H) * DISC_STAGE_H };
+  };
+
+  const paint = (angle) => {
+    const nearest = nearestIndex(angle);
+    const buttons = [...wheel.querySelectorAll('button[data-stop]')];
+    buttons.forEach((b, i) => {
+      const deg = wrapDeg(angle + i * DISC_STEP);
+      const t = Math.max(-1, Math.min(1, deg / DISC_FADE_DEG));
+      const { leftPct, topPx } = pointOnArc(t);
+      const abs = Math.abs(deg);
+      const stepsOut = Math.round(abs / DISC_STEP);
+      const proximity = Math.max(0, 1 - abs / DISC_FADE_DEG);
+      const scale = DISC_SCALE_MIN + (DISC_SCALE_MAX - DISC_SCALE_MIN) * proximity;
+      const on = i === nearest;
+      const visible = stepsOut <= 2;
+      b.style.left = `${leftPct}%`;
+      b.style.top = `${topPx}px`;
+      b.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      b.style.opacity = visible ? String(0.45 + 0.55 * proximity) : '0';
+      b.style.pointerEvents = visible ? 'auto' : 'none';
+      b.style.zIndex = String(on ? 5 : 1 + Math.round(proximity * 3));
+      b.setAttribute('aria-selected', String(on));
+      b.classList.toggle('is-front', on);
+    });
+    const front = STOPS[nearest];
+    if (!front) return;
+    const tint = stopTint(front.id);
+    discStage.style.setProperty('--disc-tint', tint);
+    discStage.style.color = tint;
+    discArc.style.color = tint;
+    discArc.style.setProperty('--disc-tint', tint);
+    titleEl.textContent = front.label;
+    noteEl.textContent = front.note;
+    stopId = front.id;
+  };
+
+  const snapTo = (id, animate) => {
+    const idx = Math.max(0, STOPS.findIndex((s) => s.id === id));
+    const target = angleForIndex(idx);
+    cancelAnimationFrame(discAnim);
+    discAnim = 0;
+    if (!animate) {
+      discAngle = target;
+      paint(discAngle);
+      return;
+    }
+    const from = discAngle;
+    const delta = shortestDelta(from, target);
+    const t0 = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - t0) / DISC_ANIM_MS);
+      const eased = 1 - ((1 - t) ** 3);
+      discAngle = from + delta * eased;
+      paint(discAngle);
+      if (t < 1) {
+        discAnim = requestAnimationFrame(tick);
+        return;
+      }
+      discAnim = 0;
+      discAngle = wrapDeg(target);
+      paint(discAngle);
+    };
+    discAnim = requestAnimationFrame(tick);
+  };
+
+  const commitNearest = (animate) => {
+    const next = STOPS[nearestIndex(discAngle)];
+    if (!next) return;
+    snapTo(next.id, animate);
+  };
+
+  wheel.replaceChildren();
+  STOPS.forEach((stop) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.stop = stop.id;
+    b.setAttribute('role', 'option');
+    b.setAttribute('aria-label', stop.label);
+    b.innerHTML = markHtml(stop);
+    wheel.append(b);
+  });
+
+  let drag = null;
+  discStage.addEventListener('pointerdown', (e) => {
+    cancelAnimationFrame(discAnim);
+    discAnim = 0;
+    drag = {
+      id: e.pointerId,
+      x: e.clientX,
+      startAngle: discAngle,
+      moved: false,
+      btn: e.target.closest('button[data-stop]'),
+    };
+    try { discStage.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+  });
+  discStage.addEventListener('pointermove', (e) => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const dx = e.clientX - drag.x;
+    if (Math.abs(dx) > 4) drag.moved = true;
+    if (!drag.moved) return;
+    discAngle = drag.startAngle - dx / DISC_PX_PER_DEG;
+    paint(discAngle);
+  });
+  const endDrag = (e) => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const { moved, btn } = drag;
+    drag = null;
+    if (!moved && btn?.dataset.stop) {
+      snapTo(btn.dataset.stop, true);
+      return;
+    }
+    commitNearest(true);
+  };
+  discStage.addEventListener('pointerup', endDrag);
+  discStage.addEventListener('pointercancel', endDrag);
+
+  discAngle = angleForIndex(0);
+  paint(discAngle);
+
+  addPlay(actions, 'Spin next', () => {
+    const idx = (nearestIndex(discAngle) + 1) % n();
+    snapTo(STOPS[idx].id, true);
+  });
+  addGhost(actions, 'Liked', () => snapTo('liked', true));
+  addGhost(actions, 'Wishlist', () => snapTo('wishlist', true));
 }
 
 function mountMapModeSwitch(stage, actions) {

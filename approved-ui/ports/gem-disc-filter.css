@@ -1,0 +1,156 @@
+/* Gem Disc colour filter — pulled from gem-pins-v2 v33 (Figma U, soft mid glow).
+   Scoped under .gem-disc-host. GEM-DISC-FILTER-v20 */
+.gem-disc-host {
+  --disc-tint: var(--brand-accent, #00c2ff);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, color-mix(in srgb, var(--brand-accent, #00c2ff) 12%, transparent), transparent 70%),
+    var(--bg, #170c35);
+}
+.gem-disc-stage {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  height: 104px;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+  color: var(--disc-tint);
+}
+.gem-disc-stage:active { cursor: grabbing; }
+.gem-disc-arc {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  height: 104px;
+  pointer-events: none;
+  overflow: visible;
+  color: var(--disc-tint);
+  transition: color 420ms var(--ease-out);
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 8%,
+    rgba(0, 0, 0, 0.12) 22%,
+    rgba(0, 0, 0, 0.45) 34%,
+    rgba(0, 0, 0, 0.85) 44%,
+    #000 50%,
+    rgba(0, 0, 0, 0.85) 56%,
+    rgba(0, 0, 0, 0.45) 66%,
+    rgba(0, 0, 0, 0.12) 78%,
+    transparent 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 8%,
+    rgba(0, 0, 0, 0.12) 22%,
+    rgba(0, 0, 0, 0.45) 34%,
+    rgba(0, 0, 0, 0.85) 44%,
+    #000 50%,
+    rgba(0, 0, 0, 0.85) 56%,
+    rgba(0, 0, 0, 0.45) 66%,
+    rgba(0, 0, 0, 0.12) 78%,
+    transparent 92%,
+    transparent 100%
+  );
+}
+.gem-disc-arc-glow {
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--disc-tint) 35%, transparent));
+  transition: stroke 420ms var(--ease-out), color 420ms var(--ease-out), opacity 420ms var(--ease-out);
+}
+.gem-disc-arc-tint {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--disc-tint) 40%, transparent));
+  transition: stroke 420ms var(--ease-out), color 420ms var(--ease-out), opacity 420ms var(--ease-out);
+}
+.gem-disc-wheel {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: auto;
+}
+.gem-disc-wheel button {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+  opacity: 0.5;
+  z-index: 1;
+  touch-action: manipulation;
+  pointer-events: auto;
+  will-change: left, top, transform, opacity;
+  cursor: pointer;
+}
+.gem-disc-wheel button img,
+.gem-disc-wheel button .pin-gem,
+.gem-disc-wheel button svg {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 5px rgba(0, 0, 0, 0.45));
+}
+.gem-disc-wheel button.is-front img,
+.gem-disc-wheel button.is-front .pin-gem,
+.gem-disc-wheel button.is-front svg {
+  width: 30px;
+  height: 30px;
+  filter:
+    drop-shadow(0 0 5px color-mix(in srgb, var(--disc-tint) 45%, transparent))
+    drop-shadow(0 1px 5px rgba(0, 0, 0, 0.45));
+}
+.gem-disc-caption {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 3;
+  transform: translateX(-50%);
+  margin: 0;
+  width: min(72%, 240px);
+  padding: 0 4px;
+  text-align: center;
+  pointer-events: none;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.75);
+}
+.gem-disc-title {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gem-disc-note {
+  margin: 5px 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
