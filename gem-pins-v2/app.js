@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v32 — Wishlist filter mark uses solid bookmark. */
+/* GEM-PINS-V2-v33 — Disc arc soft mid glow, gentler mask. */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';

@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=32">
+<link rel="stylesheet" href="app.css?v=33">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -52,24 +52,24 @@
           </div>
           <div class="disc-stage" id="discStage" hidden>
             <svg class="disc-arc" id="discArc" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
-              <!-- In-view U; tint = selected gem; CSS mask fades ears so shine sits in the middle -->
+              <!-- Soft mid glow + thin tint; long mask fade avoids a hard cut on the bloom -->
               <path
                 class="disc-arc-glow"
                 d="M 68 36 Q 200 112 332 36"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="10"
+                stroke-width="5"
                 stroke-linecap="round"
-                opacity="0.42"
+                opacity="0.22"
               />
               <path
                 class="disc-arc-tint"
                 d="M 68 36 Q 200 112 332 36"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="3"
+                stroke-width="2.25"
                 stroke-linecap="round"
-                opacity="1"
+                opacity="0.92"
               />
             </svg>
             <div class="disc-wheel" id="discWheel" role="listbox" aria-label="Filter gems on disc"></div>
@@ -164,8 +164,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v32 — Wishlist filter mark uses solid bookmark.</p>
-  <script src="../location-gems/corner-ribbon.js?v=32"></script>
-  <script type="module" src="app.js?v=32"></script>
+  <p class="meta">GEM-PINS-V2-v33 — Disc arc soft mid glow, gentler mask.</p>
+  <script src="../location-gems/corner-ribbon.js?v=33"></script>
+  <script type="module" src="app.js?v=33"></script>
 </body>
 </html>

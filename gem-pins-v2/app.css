@@ -425,7 +425,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   color: var(--disc-tint);
 }
 .disc-stage:active { cursor: grabbing; }
-/* GEM-PINS-V2-v30-DISC-MID-SHINE */
+/* GEM-PINS-V2-v33-DISC-SOFT-GLOW — long soft mask; no hard plateau / bloom cut */
 .disc-arc {
   position: absolute;
   left: 0;
@@ -441,19 +441,29 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.15) 18%,
-    #000 40%,
-    #000 60%,
-    rgba(0, 0, 0, 0.15) 82%,
+    transparent 8%,
+    rgba(0, 0, 0, 0.12) 22%,
+    rgba(0, 0, 0, 0.45) 34%,
+    rgba(0, 0, 0, 0.85) 44%,
+    #000 50%,
+    rgba(0, 0, 0, 0.85) 56%,
+    rgba(0, 0, 0, 0.45) 66%,
+    rgba(0, 0, 0, 0.12) 78%,
+    transparent 92%,
     transparent 100%
   );
   mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.15) 18%,
-    #000 40%,
-    #000 60%,
-    rgba(0, 0, 0, 0.15) 82%,
+    transparent 8%,
+    rgba(0, 0, 0, 0.12) 22%,
+    rgba(0, 0, 0, 0.45) 34%,
+    rgba(0, 0, 0, 0.85) 44%,
+    #000 50%,
+    rgba(0, 0, 0, 0.85) 56%,
+    rgba(0, 0, 0, 0.45) 66%,
+    rgba(0, 0, 0, 0.12) 78%,
+    transparent 92%,
     transparent 100%
   );
 }
@@ -462,12 +472,10 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   transition: stroke 420ms var(--ease-out), color 420ms var(--ease-out), opacity 420ms var(--ease-out);
 }
 .disc-arc-glow {
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--disc-tint) 55%, transparent));
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--disc-tint) 35%, transparent));
 }
 .disc-arc-tint {
-  filter:
-    drop-shadow(0 0 3px color-mix(in srgb, var(--disc-tint) 90%, #fff))
-    drop-shadow(0 0 10px color-mix(in srgb, var(--disc-tint) 65%, transparent));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--disc-tint) 40%, transparent));
 }
 .disc-wheel {
   position: absolute;
