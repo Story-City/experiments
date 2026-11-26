@@ -24,10 +24,11 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   <section class="tool-block">
     <h2 class="edition-title">Versioning</h2>
     <div class="edition-bar" role="group" aria-label="Version">
-      <button type="button" data-edition="v1" aria-pressed="true">V1</button>
-      <button type="button" data-edition="v2" aria-pressed="false">V2</button>
-      <button type="button" data-edition="v3" aria-pressed="false">V3</button>
+      <button type="button" data-edition="v1" aria-pressed="true" data-note="The options lab: try every gem look, preset and filter side by side.">V1</button>
+      <button type="button" data-edition="v2" aria-pressed="false" data-note="Victoria's build: Text and Image slide-outs, white map gems, Disc haze.">V2</button>
+      <button type="button" data-edition="v3" aria-pressed="false" data-note="Melissa's copy of V2 (26 Nov): gems in category colours, Navigate first, visited ✓, ＋ opens the camera.">V3</button>
     </div>
+    <p class="version-note" id="versionNote" aria-live="polite"></p>
     <div class="edition-extra" id="editionExtra">
       <p class="edition-label">Slide-out</p>
       <div class="edition-sheets" role="group" aria-label="Slide-out">
@@ -240,7 +241,9 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
       frame.classList.remove('is-shown');
     }
     document.querySelectorAll('[data-edition]').forEach((b) => {
-      b.setAttribute('aria-pressed', String(b.dataset.edition === (src ? edition : 'v1')));
+      const on = b.dataset.edition === (src ? edition : 'v1');
+      b.setAttribute('aria-pressed', String(on));
+      if (on && b.tagName === 'BUTTON') document.getElementById('versionNote').textContent = b.dataset.note || '';
     });
   }
   frame.addEventListener('load', () => { showFrame(); sendSheet(); sendFilterLayout(); });

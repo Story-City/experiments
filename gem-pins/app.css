@@ -448,9 +448,18 @@ body.is-settings-hidden .settings-eye .eye-shut { display: block; }
   font: 800 22px/1 var(--f-app);
   color: #fff;
 }
+.version-note {
+  margin: -4px 0 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-wrap: balance;
+}
+.version-note:empty { display: none; }
 .edition-bar {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
   gap: 4px;
   padding: 4px;
   border-radius: 12px;
