@@ -79,7 +79,7 @@
   },
   {
     "slug": "gem-pins",
-    "path": "gem-pins/?v=54",
+    "path": "gem-pins/?v=56",
     "area": "gems",
     "frame": "wide",
     "title": "Gem map pins",
@@ -95,7 +95,7 @@
   },
   {
     "slug": "gem-pins-v2",
-    "path": "gem-pins-v2/?v=55",
+    "path": "gem-pins-v2/?v=56",
     "area": "gems",
     "title": "Gem map pins V2",
     "what": "Victoria's gem art on Melissa's Edmonton map. Filter turns the top bar into a legend plus a gem roller. Slide-outs: Melissa original, Prompt, Image, Corner. Navigate and save for later stay on the Victoria versions.",
