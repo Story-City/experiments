@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v130 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v131 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -138,7 +138,6 @@ const ROTATE_MS = 2200;
 const PAGE_ANCHOR_DEFAULT = 'camera';
 const PAGE_ANCHOR_VARIANTS = new Set(['camera', 'mist', 'drift', 'bloom']);
 const PAGE_ANCHOR_FLOWY = new Set(['mist', 'drift', 'bloom']);
-const PAGE_ANCHOR_GEM_FILLS = ['#00c2ff', '#7aa7ff', '#b9a0ff', '#9fe8ff', '#c9b6ff'];
 const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
 const PAGE_ANCHOR_ENTER_MS = 1300;
 /** Heading debug default must stay Original. Never boot to slash/erode/soft. */
@@ -1825,16 +1824,39 @@ function setHeadingLook(variant) {
 }
 
 let pageAnchorEnterTimer = 0;
+let pageAnchorDriftRo = null;
 
 function fillPageAnchorGems() {
   const gems = document.getElementById('pageAnchorGems');
   if (!gems || gems.childElementCount) return;
-  PAGE_ANCHOR_GEM_FILLS.forEach((fill) => {
+  /* All jam crystal categories — same art as hub / RN gems */
+  JAM_CATS.forEach((cat) => {
     const wrap = document.createElement('span');
     wrap.className = 'page-anchor-gem';
-    wrap.innerHTML = gemSvg(fill, { softOutline: true });
+    wrap.dataset.cat = cat.id;
+    wrap.innerHTML = categoryGemMark(cat);
     gems.appendChild(wrap);
   });
+}
+
+/** RN-adaptive travel: layout width → --pa-drift-travel (maps to onLayout in RN). */
+function syncPageAnchorDriftTravel() {
+  const layer = document.getElementById('pageAnchorLayer');
+  if (!layer) return;
+  const travel = Math.round(layer.getBoundingClientRect().width + 56);
+  layer.style.setProperty('--pa-drift-travel', `${Math.max(280, travel)}px`);
+}
+
+function ensurePageAnchorDriftObserver() {
+  const layer = document.getElementById('pageAnchorLayer');
+  if (!layer || pageAnchorDriftRo) return;
+  syncPageAnchorDriftTravel();
+  if (typeof ResizeObserver === 'function') {
+    pageAnchorDriftRo = new ResizeObserver(() => syncPageAnchorDriftTravel());
+    pageAnchorDriftRo.observe(layer);
+  } else {
+    window.addEventListener('resize', syncPageAnchorDriftTravel);
+  }
 }
 
 function setPageAnchor(variant) {
@@ -1848,6 +1870,8 @@ function setPageAnchor(variant) {
     hub.classList.remove('is-page-anchor-enter');
     window.clearTimeout(pageAnchorEnterTimer);
     if (flowy) {
+      ensurePageAnchorDriftObserver();
+      syncPageAnchorDriftTravel();
       void hub.offsetWidth;
       hub.classList.add('is-page-anchor-enter');
       pageAnchorEnterTimer = window.setTimeout(() => {

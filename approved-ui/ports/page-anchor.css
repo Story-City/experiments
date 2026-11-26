@@ -82,19 +82,50 @@
 .page-anchor-host[data-page-anchor="mist"] .page-anchor-gem {
   animation: pageAnchorMistBob 8.8s ease-in-out infinite;
 }
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-layer {
+  --pa-drift-travel: 340px;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 38%,
+    rgba(0, 0, 0, 0.55) 68%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 38%,
+    rgba(0, 0, 0, 0.55) 68%,
+    transparent 100%
+  );
+}
 .page-anchor-host[data-page-anchor="drift"] .page-anchor-mist {
-  opacity: 0.85;
+  opacity: 0.78;
 }
 .page-anchor-host[data-page-anchor="drift"] .page-anchor-stream {
-  opacity: 0.9;
-  animation: pageAnchorStreamFlow 7.2s linear infinite;
+  left: -30%;
+  width: 58%;
+  right: auto;
+  opacity: 0;
+  filter: blur(8px);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--pa-accent) 18%, transparent) 45%,
+    rgba(255, 255, 255, 0.12) 50%,
+    color-mix(in srgb, var(--pa-accent) 16%, transparent) 55%,
+    transparent 100%
+  );
+  background-size: 100% 100%;
+  animation: pageAnchorStreamSlide 16s linear infinite;
 }
 .page-anchor-host[data-page-anchor="drift"] .page-anchor-gem {
   top: 50%;
-  left: -12%;
+  left: -14%;
   margin-top: -10px;
-  animation: pageAnchorDriftGem 9.5s linear infinite;
+  animation: pageAnchorDriftGem 18s linear infinite;
   opacity: 0;
+  filter: blur(0.8px) drop-shadow(0 0 6px color-mix(in srgb, var(--pa-accent) 18%, transparent));
 }
 .page-anchor-host[data-page-anchor="bloom"] .page-anchor-mist {
   opacity: 1;
@@ -115,13 +146,15 @@
   opacity: 0.16;
   filter: blur(1.1px) drop-shadow(0 0 8px color-mix(in srgb, var(--pa-accent) 24%, transparent));
 }
-.page-anchor-gem svg {
+.page-anchor-gem svg,
+.page-anchor-gem .cat-gem-art {
   width: 100%;
   height: 100%;
   display: block;
+  object-fit: contain;
 }
 .page-anchor-gem:nth-child(1) {
-  left: 12%;
+  left: 10%;
   width: 15px;
   height: 15px;
   margin-top: -7px;
@@ -130,7 +163,7 @@
   opacity: 0.13;
 }
 .page-anchor-gem:nth-child(2) {
-  left: 34%;
+  left: 26%;
   width: 22px;
   height: 22px;
   margin-top: -11px;
@@ -139,7 +172,7 @@
   opacity: 0.18;
 }
 .page-anchor-gem:nth-child(3) {
-  left: 56%;
+  left: 42%;
   width: 17px;
   height: 17px;
   margin-top: -8px;
@@ -148,7 +181,7 @@
   opacity: 0.15;
 }
 .page-anchor-gem:nth-child(4) {
-  left: 74%;
+  left: 58%;
   width: 19px;
   height: 19px;
   margin-top: -9px;
@@ -157,19 +190,29 @@
   opacity: 0.14;
 }
 .page-anchor-gem:nth-child(5) {
-  left: 88%;
-  width: 14px;
-  height: 14px;
-  margin-top: -7px;
+  left: 74%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
   animation-duration: 8.6s;
   animation-delay: -3.7s;
   opacity: 0.12;
 }
-.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(1) { animation-duration: 10.2s; animation-delay: 0s; top: 42%; }
-.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(2) { animation-duration: 11.6s; animation-delay: -2.4s; top: 58%; }
-.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(3) { animation-duration: 9.4s; animation-delay: -4.8s; top: 36%; }
-.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(4) { animation-duration: 12.2s; animation-delay: -1.6s; top: 64%; }
-.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(5) { animation-duration: 10.8s; animation-delay: -6.1s; top: 48%; }
+.page-anchor-gem:nth-child(6) {
+  left: 88%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  animation-duration: 10.2s;
+  animation-delay: -5.4s;
+  opacity: 0.11;
+}
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(1) { animation-duration: 18s; animation-delay: 0s; top: 40%; }
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(2) { animation-duration: 20.5s; animation-delay: -3.2s; top: 56%; }
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(3) { animation-duration: 17.2s; animation-delay: -6.8s; top: 34%; }
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(4) { animation-duration: 22s; animation-delay: -2.1s; top: 62%; }
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(5) { animation-duration: 19.4s; animation-delay: -9.4s; top: 46%; }
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(6) { animation-duration: 21.2s; animation-delay: -12.6s; top: 52%; }
 
 @keyframes pageAnchorMistBreath {
   0%, 100% { opacity: 0.82; filter: blur(0); }
@@ -179,16 +222,19 @@
   0%, 100% { transform: translate3d(0, 2px, 0); }
   50% { transform: translate3d(0, -4px, 0); }
 }
-@keyframes pageAnchorStreamFlow {
-  0% { background-position: 120% 0; }
-  100% { background-position: -40% 0; }
+@keyframes pageAnchorStreamSlide {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  14% { opacity: 0.55; }
+  55% { opacity: 0.4; }
+  88% { opacity: 0.18; }
+  100% { transform: translate3d(var(--pa-drift-travel, 340px), 0, 0); opacity: 0; }
 }
 @keyframes pageAnchorDriftGem {
   0% { transform: translate3d(0, 0, 0); opacity: 0; }
-  12% { opacity: 0.22; }
-  55% { opacity: 0.16; }
-  88% { opacity: 0.1; }
-  100% { transform: translate3d(340px, -3px, 0); opacity: 0; }
+  10% { opacity: 0.2; }
+  55% { opacity: 0.14; }
+  90% { opacity: 0.08; }
+  100% { transform: translate3d(var(--pa-drift-travel, 340px), -2px, 0); opacity: 0; }
 }
 @keyframes pageAnchorBloomWash {
   0% { transform: scale(0.18); opacity: 0.55; }

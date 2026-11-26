@@ -1607,7 +1607,6 @@ const PAGE_ANCHOR_PLACES = [
 const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
 const PAGE_ANCHOR_ROTATE_MS = 2200;
 const PAGE_ANCHOR_FLOWY = new Set(['mist', 'drift', 'bloom']);
-const PAGE_ANCHOR_GEM_FILLS = ['#00c2ff', '#7aa7ff', '#b9a0ff', '#9fe8ff', '#c9b6ff'];
 const PAGE_ANCHOR_ENTER_MS = 1300;
 
 function mountPageAnchor(stage, actions) {
@@ -1634,14 +1633,25 @@ function mountPageAnchor(stage, actions) {
     </div>
   `;
   stage.appendChild(host);
+  const layer = host.querySelector('.page-anchor-layer');
   const gems = host.querySelector('.page-anchor-gems');
   const word = host.querySelector('.page-anchor-word');
-  PAGE_ANCHOR_GEM_FILLS.forEach((fill) => {
+  JAM_CATS.forEach((cat) => {
     const gem = document.createElement('span');
     gem.className = 'page-anchor-gem';
-    gem.innerHTML = gemSvg(fill, { softOutline: true });
+    gem.dataset.cat = cat.id;
+    gem.innerHTML = `<img class="cat-gem-art" src="${cat.art}" alt="" decoding="async">`;
     gems.appendChild(gem);
   });
+  const syncDriftTravel = () => {
+    if (!layer) return;
+    const travel = Math.round(layer.getBoundingClientRect().width + 56);
+    layer.style.setProperty('--pa-drift-travel', `${Math.max(260, travel)}px`);
+  };
+  syncDriftTravel();
+  if (typeof ResizeObserver === 'function') {
+    new ResizeObserver(syncDriftTravel).observe(layer);
+  }
   let idx = 0;
   let enterTimer = 0;
   const setAnchor = (id) => {
@@ -1652,6 +1662,7 @@ function mountPageAnchor(stage, actions) {
     host.classList.remove('is-page-anchor-enter');
     window.clearTimeout(enterTimer);
     if (flowy) {
+      syncDriftTravel();
       void host.offsetWidth;
       host.classList.add('is-page-anchor-enter');
       enterTimer = window.setTimeout(() => {
