@@ -425,10 +425,27 @@ function drawPins(animate) {
     const nowSelected = g.id === openId;
     const wasSelected = b.classList.contains('selected');
     if (nowSelected && !wasSelected) {
+      b.classList.remove('is-sparkle-out');
+      if (b._sparkleOutTimer) {
+        clearTimeout(b._sparkleOutTimer);
+        b._sparkleOutTimer = 0;
+      }
       b.classList.remove('selected');
       void b.offsetWidth;
+      b.classList.add('selected');
+    } else if (!nowSelected && wasSelected) {
+      b.classList.remove('selected');
+      b.classList.add('is-sparkle-out');
+      if (b._sparkleOutTimer) clearTimeout(b._sparkleOutTimer);
+      const pinEl = b;
+      b._sparkleOutTimer = setTimeout(() => {
+        if (pinEl.isConnected) pinEl.classList.remove('is-sparkle-out');
+        pinEl._sparkleOutTimer = 0;
+      }, 480);
+    } else {
+      b.classList.toggle('selected', nowSelected);
+      if (nowSelected) b.classList.remove('is-sparkle-out');
     }
-    b.classList.toggle('selected', nowSelected);
     b.classList.remove('is-out');
     const html = pinFor(g);
     if (b.innerHTML !== html) b.innerHTML = html;
