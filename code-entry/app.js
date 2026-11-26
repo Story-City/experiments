@@ -7,7 +7,6 @@ const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 // Unknown or retired variants (an old ?v=digits link) fall back to Glow.
 const pick = () => { const q = new URLSearchParams(location.search).get('v') || location.hash.slice(1); return VARIANTS[q] ? q : 'glow'; };
-const JUMP = /code/.test(location.hash);   // testers' shortcut: #code jumps straight to the keypad
 let vKey = pick();
 let V = VARIANTS[vKey];
 
@@ -192,18 +191,20 @@ function buzz(pattern){
   try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(pattern); } catch (e) {}
 }
 
-// ---------- start: just the list of versions ----------
-$('startKicker').textContent = STORY.start.kicker;
-setText($('startTitle'), STORY.start.title);
-setText($('startSub'), STORY.start.sub);
+// ---------- versions: chips on the code screen, tap one to switch to it ----------
 for (const k of Object.keys(VARIANTS)) {
   const b = document.createElement('button');
-  b.className = 'version';
-  b.innerHTML = '<b></b><span></span>';
-  b.querySelector('b').textContent = VARIANTS[k].label;
-  setText(b.querySelector('span'), VARIANTS[k].blurb);
-  b.onclick = () => { audio(); setVariant(k); openCode(); };
-  $('versions').appendChild(b);
+  b.type = 'button'; b.dataset.v = k; b.textContent = VARIANTS[k].chip; b.title = VARIANTS[k].blurb;
+  b.onclick = () => { if (k === vKey && !busy) return; setVariant(k); openCode(); };
+  $('vpick').appendChild(b);
+}
+function markVersion(){
+  const row = $('vpick');
+  row.querySelectorAll('button').forEach(b => {
+    const on = b.dataset.v === vKey;
+    b.setAttribute('aria-pressed', on);
+    if (on) { const r = row.getBoundingClientRect(), c = b.getBoundingClientRect(); row.scrollLeft += c.left + c.width / 2 - (r.left + r.width / 2); }   // the chosen chip slides to the middle
+  });
 }
 function setVariant(k){
   vKey = k; V = VARIANTS[k];
@@ -217,10 +218,9 @@ $('codeTitle').textContent = STORY.chapter;
 $('helpBtn').setAttribute('aria-label', STORY.help);
 
 let runId = 0;
-function show(id){ ['start', 'chat', 'code', 'win'].forEach(s => $(s).hidden = s !== id); }
-function toStart(){ runId++; show('start'); }
-$('chatBack').onclick = toStart;
-$('codeBack').onclick = toStart;
+function show(id){ ['chat', 'code', 'win'].forEach(s => $(s).hidden = s !== id); }
+$('chatBack').onclick = () => openCode();
+$('codeBack').onclick = () => openCode();   // restarts the current version
 
 // ---------- chat ----------
 const thread = $('thread'), choicesEl = $('choices');
@@ -411,22 +411,10 @@ function bowSlot(hw, top, bot, rr, tTop, tBot){
     ` L${R} ${B(bot - rr, R)} Q${R} ${B(bot, R)} ${R - rr} ${B(bot, R - rr)} Q${m} ${(bot - bowY(tBot, a)).toFixed(2)} ${L + rr} ${B(bot, L + rr)}` +
     ` Q${L} ${B(bot, L)} ${L} ${B(bot - rr, L)} L${L} ${T(top + rr, L)} Q${L} ${T(top, L)} ${L + rr} ${T(top, L + rr)} Z`;
 }
-// words dials: how far the outline reaches past the top and bottom lines (?slot=a sits on them, b and c cover more);
-// the lines are hidden where the outline overlaps them. FLAT_TOP_ROOM leaves room above the top line for c and its glow.
-const SLOT_COVER = { a: 0, b: 6, c: 12 };
+// words dials: how far the outline reaches past the top and bottom lines, which are hidden where it overlaps them;
+// FLAT_TOP_ROOM leaves room above the top line for the outline and its glow
+const SLOT_COVER = 6;
 const FLAT_TOP_ROOM = 18;
-const slotParam = new URLSearchParams(location.search).get('slot');
-let slotPos = slotParam in SLOT_COVER ? slotParam : 'a';
-let slotGeo = null;   // the words dial's outline size, so picking a position redraws only the outline
-function flatSlotPath(){
-  const c = SLOT_COVER[slotPos], g = slotGeo;
-  return bowSlot(g.hw, DIAL.cy - DIAL.outer - c, DIAL.cy - DIAL.inner + c, g.r, -c / g.bandW, g.n + c / g.bandW);
-}
-function placeSlot(){
-  const d = flatSlotPath();
-  keypadEl.querySelectorAll('.slot, .slot-hole').forEach(p => p.setAttribute('d', d));
-  keypadEl.querySelectorAll('.slot-pick button').forEach(b => b.setAttribute('aria-pressed', b.dataset.pos === slotPos));
-}
 const DIAL_FONT = `system-ui, -apple-system, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif`;   // matches .dial .ring text
 const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 let rings = [];           // { g, syms, M, r, deg, K, texts, step, p, raf } — step: whole turns clockwise (any integer); p: where it's drawn (eases to step)
@@ -473,12 +461,13 @@ function buildDial(){
     while (curve.drumR && warp(g) - squash(g) * m / 2 < clear && g < curve.drumR * QUARTER_TURN) g++;   // the drum pulls neighbours in: push them back out
     return g;
   });
-  const slotR = Math.round(Math.min(slotW, fs * 1.45) * 0.28);
-  slotGeo = { hw: slotW / 2, r: slotR, bandW, n };
+  const slotR = Math.round(Math.min(slotW, fs * 1.45) * 0.28), inset = flat ? -SLOT_COVER : 3;
+  const slotTop = cy - DIAL.outer + inset, slotBot = cy - DIAL.inner - inset;
+  const flatSlot = flat ? bowSlot(slotW / 2, slotTop, slotBot, slotR, inset / bandW, n - inset / bandW) : '';
   const vbTop = flat ? -FLAT_TOP_ROOM : 0, vbH = DIAL.crop - vbTop;
   let svg = `<svg viewBox="0 ${vbTop} 360 ${vbH}" aria-hidden="true"${flat ? ' data-flat' : ''}>`;
   if (flat) svg += `<defs><mask id="slotHole" maskUnits="userSpaceOnUse" x="-20" y="${vbTop - 20}" width="400" height="${vbH + 40}">` +
-    `<rect x="-20" y="${vbTop - 20}" width="400" height="${vbH + 40}" fill="#fff"/><path class="slot-hole" fill="#000"/></mask></defs>`;
+    `<rect x="-20" y="${vbTop - 20}" width="400" height="${vbH + 40}" fill="#fff"/><path fill="#000" d="${flatSlot}"/></mask></defs>`;
   for (let i = 0; i <= n; i++) {
     const R = DIAL.outer - i * bandW, cls = i ? 'sep' : 'sep rim', hole = i === 0 || i === n ? ' mask="url(#slotHole)"' : '';
     svg += flat ? `<path class="${cls}"${hole} d="${bowPath(0, 360, cy - R, i)}"/>` : `<circle class="${cls}" cx="${cx}" cy="${cy}" r="${R}"/>`;
@@ -510,25 +499,10 @@ function buildDial(){
            `<path class="row-arrow" transform="rotate(${tilt} ${rx} ${y.toFixed(1)})" d="M${rx - aw} ${y - ah} L${rx + aw} ${y} L${rx - aw} ${y + ah}"/>`;
   }
   // the outline round the lined-up column: this replaces the code field on the dial
-  const slotTop = cy - DIAL.outer + 3, slotBot = cy - DIAL.inner - 3;
-  svg += flat ? `<path class="slot"/>`
+  svg += flat ? `<path class="slot" d="${flatSlot}"/>`
     : `<rect class="slot" x="${cx - slotW / 2}" y="${slotTop}" width="${slotW}" height="${slotBot - slotTop}" rx="${slotR}"/>`;
   svg += `</svg>`;
   keypadEl.innerHTML = svg;
-  if (flat) {   // a small A · B · C switch under the words dials for comparing where the outline sits
-    const pick = document.createElement('div');
-    pick.className = 'slot-pick'; pick.setAttribute('role', 'group'); pick.setAttribute('aria-label', STORY.slotPick);
-    pick.innerHTML = `<span>${STORY.slotPick}</span><div class="seg">` +
-      Object.keys(SLOT_COVER).map(k => `<button type="button" data-pos="${k}">${k.toUpperCase()}</button>`).join('') + `</div>`;
-    pick.addEventListener('click', e => {
-      const b = e.target.closest('button'); if (!b) return;
-      slotPos = b.dataset.pos;
-      const u = new URL(location.href); u.searchParams.set('slot', slotPos); history.replaceState(null, '', u);
-      placeSlot();
-    });
-    keypadEl.appendChild(pick);
-    placeSlot();
-  }
   rings = [...keypadEl.querySelectorAll('.ring')].map((g, i) => ({ g, syms: lists[i], M: lists[i].length, ...geo[i], texts: [...g.children], step: 0, p: 0, raf: 0 }));
   activeRing = 0; dialWon = false;
   // each ring starts a random number of places away from its answer, never on it
@@ -675,7 +649,7 @@ function idle(){ clearTimeout(idleTimer); idleTimer = setTimeout(() => { if (!$(
 function openCode(){
   runId++;
   entry = ''; busy = false; tier = 0; hintsUsed = 0; wrongs = 0;
-  show('code');
+  show('code'); markVersion();
   // The clue: Victoria's art when the variant names an image, otherwise the drawn envelope with the answer on its seal.
   const clue = V.image
     ? `<img class="clue" src="${V.image}" alt="${V.imageAlt || V.sealLabel}" draggable="false">` +
@@ -794,4 +768,4 @@ function sparks(){
 }
 $('againBtn').onclick = () => openCode();
 
-if (JUMP) openCode();
+openCode();

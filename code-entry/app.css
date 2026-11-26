@@ -32,19 +32,14 @@ h1, p, .bub, .me, .start-sub, .solve, .eyebrow { text-wrap: balance; }
 .ava { flex: none; width: 34px; height: 34px; border-radius: 17px; background: var(--raised-2); display: grid; place-items: center; overflow: hidden; }
 .ava svg { width: 30px; height: 30px; }
 
-/* ---------- start: just the list of versions ---------- */
-.start { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
-  background: radial-gradient(120% 60% at 50% 0%, #2a1a5e 0%, var(--bg) 60%); }
-.start-body { padding: 0 24px calc(28px + env(safe-area-inset-bottom)); text-align: center; }
-.kicker { font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
-.start h1 { margin: 6px 0 0; font-size: 46px; font-weight: 900; line-height: 1; }
-.start-sub { margin: 8px auto 26px; max-width: 320px; color: var(--muted); font-size: 20px; }
-.versions { display: flex; flex-direction: column; gap: 10px; max-width: 340px; margin: 0 auto; }
-.version { display: flex; flex-direction: column; align-items: center; min-height: 68px; padding: 8px 18px 12px;
-  border-radius: 20px; background: var(--raised); transition: background 0.12s; }
-.version:active { background: var(--raised-2); }
-.version b { font-size: 25px; font-weight: 800; line-height: 1.1; }
-.version span { font-size: 17px; color: var(--muted); line-height: 1.1; text-wrap: balance; }
+/* ---------- versions: a row of small chips under the code screen's top bar (scrolls sideways when it doesn't fit) ---------- */
+.vpick { flex: none; display: flex; gap: 4px; padding: 0 16px 6px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.vpick::-webkit-scrollbar { display: none; }
+.vpick button { flex: none; height: 28px; padding: 0 12px; border-radius: 6px; font-family: system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px; font-weight: 600; white-space: nowrap; color: var(--muted); background: var(--raised); border: 1px solid rgba(255,255,255,0.06); }
+.vpick button:first-child { border-radius: 14px 6px 6px 14px; }
+.vpick button:last-child { border-radius: 6px 14px 14px 6px; }
+.vpick button[aria-pressed="true"] { color: #fff; background: rgba(179,107,255,0.22); border-color: #c49bff; box-shadow: 0 0 10px rgba(179,107,255,0.65); }
 .go { width: 100%; height: 54px; border-radius: 27px; font-size: 22px; font-weight: 800; background: linear-gradient(90deg, var(--accent-deep), var(--accent)); }
 
 /* ---------- shared top bar ---------- */
@@ -231,15 +226,6 @@ h1, p, .bub, .me, .start-sub, .solve, .eyebrow { text-wrap: balance; }
   filter: drop-shadow(0 0 4px rgba(63,180,255,0.55)); }
 .dial .ring text.top { fill: var(--vault-hot); opacity: 1; filter: drop-shadow(0 0 3px rgba(255,255,255,0.7)) drop-shadow(0 0 9px rgba(63,180,255,0.9)); }
 .keypad.glow.won .ring text { fill: #8ff0bb; filter: drop-shadow(0 0 6px rgba(61,220,132,0.8)); }
-/* A · B · C under the words dials: where the outline sits over the top and bottom lines (for comparing) */
-.slot-pick { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 6px;
-  font-family: system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
-.slot-pick .seg { display: flex; gap: 4px; }
-.slot-pick button { min-width: 34px; height: 28px; padding: 0 10px; border-radius: 6px; font-size: 13px; font-weight: 700; letter-spacing: 0;
-  color: var(--vault); background: rgba(63,180,255,0.06); border: 1px solid rgba(63,180,255,0.25); }
-.slot-pick button:first-child { border-radius: 14px 6px 6px 14px; }
-.slot-pick button:last-child { border-radius: 6px 14px 14px 6px; }
-.slot-pick button[aria-pressed="true"] { color: #fff; background: rgba(179,107,255,0.2); border-color: #c49bff; box-shadow: 0 0 10px rgba(179,107,255,0.7); }
 
 /* ---------- win: the staircase ---------- */
 .win { position: absolute; inset: 0; z-index: 10; background: #06030f; display: flex; flex-direction: column; animation: fade 0.5s ease-out both; }

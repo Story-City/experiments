@@ -1,21 +1,15 @@
 // Every word the player sees lives here, so a wording change is a one-line edit.
-// Pick a version on the start list or with ?v=glow (numbers keypad with Victoria's envelope art, the default),
-// ?v=letters (QWERTY), ?v=dial (dial, 5 letters), ?v=dial7 (dial, 7 letters), ?v=dialwords (dial of words) ?v=dialdrum (dial of words on a drum) or ?v=dialbigdrum (a bigger drum). All use the glowing blue style.
+// Switch versions with the chips at the top of the code screen, or link one with ?v=glow (numbers keypad with Victoria's envelope art, the default),
+// ?v=letters (QWERTY), ?v=dial (dial, 5 letters), ?v=dial7 (dial, 7 letters), ?v=dialwords (dial of words), ?v=dialdrum (dial of words on a drum) or ?v=dialbigdrum (a bigger drum). All use the glowing blue style.
 // image: the clue picture (swap the file to change it). Without it, the drawn envelope shows the answer on its seal.
 
 export const STORY = {
   title: 'The Summons',
   chapter: 'The Drop Spot',
   sender: 'Unknown number',
-  start: {
-    kicker: 'The Summons · The Drop Spot',
-    title: 'Code Entry',
-    sub: 'Enter the code from the letter’s wax seal. Pick a version to try.',
-  },
   soundOn: 'Sound on',
   soundOff: 'Sound off',
   help: 'Get a hint',
-  slotPick: 'Outline',   // the A · B · C switch under the words dials
   loupeHint: 'Press and drag to look closer',
   hintsUsed: n => `Hints used: ${n}`,
   win: {
@@ -31,6 +25,7 @@ export const STORY = {
 export const VARIANTS = {
   glow: {
     label: 'Glow',
+    chip: 'Glow',
     blurb: 'Glowing numbers keypad',
     answer: '786666',
     keypad: 'numbers',
@@ -58,6 +53,7 @@ export const VARIANTS = {
   },
   letters: {
     label: 'Word',
+    chip: 'Word',
     blurb: 'Type the word on glowing keys',
     answer: 'BISCUIT',
     keypad: 'letters',
@@ -83,6 +79,7 @@ export const VARIANTS = {
   },
   dial: {
     label: 'Dial · 5 letters',
+    chip: '5 letters',
     blurb: 'Turn five rings of letters to line up the word',
     answer: 'CRUMB',
     keypad: 'dial',
@@ -110,6 +107,7 @@ export const VARIANTS = {
   },
   dial7: {
     label: 'Dial · 7 letters',
+    chip: '7 letters',
     blurb: 'Turn seven rings of letters to line up the word',
     answer: 'BISCUIT',
     keypad: 'dial',
@@ -137,6 +135,7 @@ export const VARIANTS = {
   },
   dialwords: {
     label: 'Dial · words',
+    chip: 'Words',
     blurb: 'Turn five rings of words to line up a name',
     answer: 'THE GREEN-EYE SHARP-TOOTH FIRE DRAKE',
     words: true,
@@ -172,5 +171,5 @@ export const VARIANTS = {
 
 // The same dial of words on a drum that bulges toward you: the top row bows down, the bottom row bows up, the sides squeeze in.
 // Big drum: the same, exaggerated (bigger bows, sides squeezed narrower and shorter). Strengths are DRUMS in app.js.
-VARIANTS.dialdrum = { ...VARIANTS.dialwords, label: 'Dial · drum', blurb: 'The dial of words on a drum that bulges toward you', drum: 'gentle' };
-VARIANTS.dialbigdrum = { ...VARIANTS.dialwords, label: 'Dial · big drum', blurb: 'The drum again, with the perspective pushed further', drum: 'big' };
+VARIANTS.dialdrum = { ...VARIANTS.dialwords, label: 'Dial · drum', chip: 'Drum', blurb: 'The dial of words on a drum that bulges toward you', drum: 'gentle' };
+VARIANTS.dialbigdrum = { ...VARIANTS.dialwords, label: 'Dial · big drum', chip: 'Big drum', blurb: 'The drum again, with the perspective pushed further', drum: 'big' };

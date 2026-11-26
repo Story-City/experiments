@@ -16,15 +16,6 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 <body>
 <div class="phone" id="phone">
 
-  <!-- Start: just the list of versions; tapping one opens its code screen -->
-  <section class="start" id="start">
-    <div class="start-body">
-      <div class="kicker" id="startKicker"></div>
-      <h1 id="startTitle"></h1>
-      <p class="start-sub" id="startSub"></p>
-      <div class="versions" id="versions" role="group" aria-label="Versions"></div>
-    </div>
-  </section>
 
   <!-- Chat: the drop spot -->
   <section class="chat" id="chat" hidden>
@@ -52,6 +43,8 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
       </button>
       <button class="icon round help" id="helpBtn">?</button>
     </header>
+    <!-- Versions: tap one to switch the code screen to it -->
+    <nav class="vpick" id="vpick" aria-label="Versions"></nav>
 
     <div class="lens" id="lens"></div>
 
