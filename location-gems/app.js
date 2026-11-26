@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v103 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v104 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -516,6 +516,7 @@ const DESIGN_TARGET_SEL = [
   '.tab-bar',
   '.snapshot-section',
 ].join(', ');
+const DESIGN_DRAG_THRESHOLD_PX = 5;
 const BTN_RADIUS_PILL = 24;
 const DESIGN_STUDIO_KEY = 'location-gems-design-studio-v1';
 const DESIGN_HISTORY_MAX = 40;
@@ -541,11 +542,10 @@ let subcatsMode = false;
 let designMoveMode = false;
 /** @type {Set<HTMLElement>} */
 let designSelection = new Set();
-/** Group that was entered by double-click (Figma drill-in). */
-/** @type {HTMLElement | null} */
-let designEditContext = null;
 /** @type {{ els: HTMLElement[], startX: number, startY: number, origins: { el: HTMLElement, x: number, y: number }[] } | null} */
 let designDrag = null;
+/** @type {{ target: HTMLElement, startX: number, startY: number, pointerId: number } | null} */
+let designDragPending = null;
 let designSaveTimer = 0;
 /** @type {any[]} */
 let designHistory = [];
@@ -2411,8 +2411,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v103 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v103 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v104 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v104 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2735,7 +2735,7 @@ function clearDesignSelection() {
   });
   designSelection.clear();
   designDrag = null;
-  designEditContext = null;
+  designDragPending = null;
   syncDesignSelectionUi();
 }
 
@@ -2780,7 +2780,7 @@ function setDesignMoveMode(on) {
     return;
   }
   markDesignTargets(true);
-  if (hint) hint.textContent = '[click group · double-click child · Shift adds · drag]';
+  if (hint) hint.textContent = '[1st click = group · next click digs into child · Shift adds]';
 }
 
 function resetDesignPosition() {
@@ -2823,27 +2823,37 @@ function applyElementPadToSelection(px) {
   scheduleDesignStudioSave();
 }
 
-/** Outermost selectable group under a node (Figma click). */
+function designNodeFromEventTarget(start) {
+  if (!start) return null;
+  let el = start.nodeType === 1 ? /** @type {HTMLElement} */ (start) : start.parentElement;
+  if (!el) return null;
+  if (el.tagName === 'PATH' && el.ownerSVGElement) {
+    el = /** @type {HTMLElement} */ (/** @type {unknown} */ (el.ownerSVGElement));
+  }
+  return el;
+}
+
+/** Outermost selectable group under a node. */
 function resolveDesignGroup(start) {
   if (!phone || !start) return null;
-  const el = start.nodeType === 1 ? start : start.parentElement;
+  const el = designNodeFromEventTarget(start);
   if (!el || !phone.contains(el)) return null;
   return /** @type {HTMLElement | null} */ (el.closest(DESIGN_TARGET_SEL));
 }
 
-/** Child under cursor inside a group (Figma double-click). */
-function resolveDesignChild(start, group) {
-  if (!phone || !start || !group) return null;
-  let el = start.nodeType === 1 ? /** @type {HTMLElement} */ (start) : start.parentElement;
-  if (!el || !group.contains(el) || el === group) return null;
-  if (el.tagName === 'PATH' && el.ownerSVGElement) el = el.ownerSVGElement;
-  while (el && el !== group && el.parentElement !== group) {
-    if (!group.contains(el)) return null;
-    /* Prefer direct meaningful child of the group when possible */
-    if (el.parentElement === group) break;
+/**
+ * Figma dig: one level deeper from `selected` toward the node under the cursor.
+ * Walks up from the hit until the parent is the current selection.
+ */
+function digDesignOneLevel(selected, start) {
+  if (!selected || !start) return null;
+  let el = designNodeFromEventTarget(start);
+  if (!el || !selected.contains(el) || el === selected) return null;
+  while (el.parentElement && el.parentElement !== selected) {
     el = el.parentElement;
+    if (!selected.contains(el)) return null;
   }
-  if (!el || el === group || !group.contains(el)) return null;
+  if (!el || el === selected || el.parentElement !== selected) return null;
   return el;
 }
 
@@ -3130,13 +3140,16 @@ function clearDesignStudio() {
   syncDesignHistoryButtons();
 }
 
-function beginDesignDrag(target, clientX, clientY, pointerId) {
+function beginDesignDragFromPending() {
+  if (!designDragPending) return;
+  const { target, startX, startY, pointerId } = designDragPending;
+  designDragPending = null;
   const movers = [...designSelection].filter((el) => !isDesignLocked(el));
   if (!movers.length) return;
   designDrag = {
     els: movers,
-    startX: clientX,
-    startY: clientY,
+    startX,
+    startY,
     origins: movers.map((el) => {
       const off = designOffsetOf(el);
       return { el, x: off.x, y: off.y };
@@ -3152,47 +3165,49 @@ function onDesignPointerDown(e) {
   e.preventDefault();
   e.stopPropagation();
   if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-  /* Figma: single click selects the group. Double-click drills to child. */
-  const group = resolveDesignGroup(/** @type {Node} */ (e.target));
-  if (!group || !phone.contains(group)) {
-    designEditContext = null;
+
+  const hit = designNodeFromEventTarget(/** @type {Node} */ (e.target));
+  const group = resolveDesignGroup(hit);
+  const additive = e.shiftKey || e.metaKey || e.ctrlKey;
+
+  if (!group || !hit || !phone.contains(group)) {
+    designDragPending = null;
     clearDesignSelection();
     return;
   }
-  const additive = e.shiftKey || e.metaKey || e.ctrlKey;
+
   let target = group;
-  if (
-    !additive &&
-    designEditContext &&
-    designEditContext.contains(/** @type {Node} */ (e.target))
-  ) {
-    const child = resolveDesignChild(/** @type {Node} */ (e.target), designEditContext);
-    if (child) target = child;
+  if (!additive && designSelection.size === 1) {
+    const selected = [...designSelection][0];
+    /* Same container still selected → next click digs one child level (Figma). */
+    if (selected === group || selected.contains(hit)) {
+      const dug = digDesignOneLevel(selected, hit);
+      if (dug) target = dug;
+      else if (selected !== group && !selected.contains(hit)) target = group;
+      else target = selected;
+    }
+  } else if (additive && designSelection.size === 1) {
+    /* Shift still adds groups for multi-edit */
+    target = group;
   }
+
   designKeyFor(target);
   target.classList.add('is-design-target');
   selectDesignTarget(target, { additive });
-  beginDesignDrag(target, e.clientX, e.clientY, e.pointerId);
-}
-
-function onDesignDoubleClick(e) {
-  if (!designMoveMode || !phone) return;
-  if (e.target.closest('.edition-rail, .tool-rail')) return;
-  e.preventDefault();
-  e.stopPropagation();
-  const group = resolveDesignGroup(/** @type {Node} */ (e.target));
-  if (!group) return;
-  const child = resolveDesignChild(/** @type {Node} */ (e.target), group);
-  if (!child) {
-    designEditContext = group;
-    selectDesignTarget(group, { additive: false });
-    return;
+  if (hint && !additive) {
+    hint.textContent =
+      target === group
+        ? `[group · ${designLabelFor(target)} · click again to dig]`
+        : `[child · ${designLabelFor(target)} · click again to dig]`;
   }
-  designEditContext = group;
-  designKeyFor(child);
-  child.classList.add('is-design-target');
-  selectDesignTarget(child, { additive: false });
-  if (hint) hint.textContent = `[child · ${designLabelFor(child)}]`;
+
+  designDragPending = {
+    target,
+    startX: e.clientX,
+    startY: e.clientY,
+    pointerId: e.pointerId,
+  };
+  target.setPointerCapture?.(e.pointerId);
 }
 
 function onDesignClickBlock(e) {
@@ -3204,17 +3219,29 @@ function onDesignClickBlock(e) {
 }
 
 function onDesignPointerMove(e) {
+  if (designDragPending && !designDrag) {
+    const dx = e.clientX - designDragPending.startX;
+    const dy = e.clientY - designDragPending.startY;
+    if (Math.hypot(dx, dy) >= DESIGN_DRAG_THRESHOLD_PX) {
+      beginDesignDragFromPending();
+    } else {
+      return;
+    }
+  }
   if (!designDrag) return;
   const dx = e.clientX - designDrag.startX;
   const dy = e.clientY - designDrag.startY;
   designDrag.origins.forEach(({ el, x, y }) => {
     el.dataset.designX = String(Math.round(x + dx));
     el.dataset.designY = String(Math.round(y + dy));
-    applyDesignOffset(el);
+    applyDesignTransform(el);
   });
 }
 
 function onDesignPointerUp(e) {
+  if (designDragPending) {
+    designDragPending = null;
+  }
   if (!designDrag) return;
   designDrag.els.forEach((el) => el.classList.remove('is-design-dragging'));
   try {
@@ -3439,7 +3466,6 @@ if (phone) {
   phone.addEventListener('pointerup', onDesignPointerUp);
   phone.addEventListener('pointercancel', onDesignPointerUp);
   phone.addEventListener('click', onDesignClickBlock, true);
-  phone.addEventListener('dblclick', onDesignDoubleClick, true);
   phone.addEventListener('auxclick', onDesignClickBlock, true);
 }
 window.addEventListener('keydown', (e) => {
