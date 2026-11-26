@@ -1,0 +1,86 @@
+/* Gem map pins: the one bottom bar every version uses. Floating bar from mobile-rn FloatingTabBar. */
+.gtb {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 8;
+  transform: translateX(-50%);
+  display: flex;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  padding: 4px;
+  border-radius: var(--btn-radius, 999px);
+  background: rgba(42, 47, 92, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-family: inherit;
+}
+.gtb[hidden] { display: none; }
+.gtb-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 48px;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: var(--btn-radius, 999px);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.62);
+  font: inherit;
+  font-weight: 700;
+  font-size: calc(12px * var(--type-scale, 1));
+  line-height: 12px;
+  cursor: pointer;
+}
+.gtb-tab.is-active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.gtb-ico { width: 23px; height: 23px; display: block; }
+.gtb-gem { width: 23px; height: 21px; }
+/* Emphasised + in the middle, raised a little above the bar */
+.gtb-tab.gtb-add { min-width: 56px; padding: 0 6px; }
+.gtb-add-plus {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -14px 0 -2px;
+  border-radius: 50%;
+  color: #fff;
+  background: radial-gradient(circle at 35% 30%, #4fd2ff, var(--accent, #00c2ff) 55%, #0a6fd6);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 16px rgba(179, 107, 255, 0.55), 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+.gtb-add-plus svg { width: 22px; height: 22px; }
+.gtb-tab.gtb-add:active .gtb-add-plus { transform: scale(0.94); }
+
+/* Hunt mode camera (mobile-rn CameraSheet + ConfirmScreen) */
+.gtb-cam { position: absolute; inset: 0; z-index: 40; background: #000; overflow: hidden; font-family: inherit; }
+.gtb-cam[hidden], .gtb-cam [hidden] { display: none; }
+.gtb-cam-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.gtb-cam-video.is-front { transform: scaleX(-1); }
+.gtb-cam-hint { position: absolute; left: 24px; right: 24px; top: 46%; margin: 0; text-align: center; color: rgba(255, 255, 255, 0.6); font-weight: 600; font-size: 14px; }
+.gtb-cam-back { position: absolute; top: 58px; left: 12px; z-index: 2; width: 36px; height: 36px; display: grid; place-items: center; border: 0; background: none; padding: 0; cursor: pointer; }
+.gtb-cam-back svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.gtb-cam-bar { position: absolute; left: 0; right: 0; bottom: 36px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; }
+.gtb-cam-spacer { width: 72px; display: flex; justify-content: center; }
+.gtb-cam-shutter { width: 72px; height: 72px; border-radius: 50%; border: 5px solid #fff; background: transparent; padding: 0; cursor: pointer; }
+.gtb-cam-shutter:active { background: rgba(255, 255, 255, 0.35); }
+.gtb-cam-flip { width: 50px; height: 50px; border-radius: 50%; border: 0; background: #fff; display: grid; place-items: center; padding: 0; cursor: pointer; }
+.gtb-cam-flip svg { width: 22px; height: 26px; fill: #1fa4f4; }
+.gtb-cam-flip svg path { fill: #1fa4f4; }
+.gtb-cam-confirm { position: absolute; inset: 0; z-index: 3; background: #000; }
+.gtb-cam-shot { position: absolute; left: 0; right: 0; top: 92px; bottom: 164px; border-radius: 16px; overflow: hidden; box-shadow: 0 0 24px rgba(0, 194, 255, 0.35); background: #111; }
+.gtb-cam-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gtb-cam-actions { position: absolute; left: 20px; right: 20px; bottom: 30px; display: grid; gap: 12px; }
+.gtb-cam-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.gtb-btn { height: 50px; border-radius: 999px; font: inherit; font-weight: 800; font-size: 16px; color: #fff; padding: 0 12px; cursor: pointer; }
+.gtb-btn-primary { border: 0; background: linear-gradient(90deg, var(--accent-deep, #0259a1), var(--accent, #00c2ff)); box-shadow: 0 0 18px rgba(0, 194, 255, 0.35); }
+.gtb-btn-outline { border: 2px solid rgba(255, 255, 255, 0.75); background: transparent; }
+.gtb-btn:active { filter: brightness(1.15); }
+.gtb-cam.is-flash::after { content: ''; position: absolute; inset: 0; z-index: 5; background: #fff; animation: gtbflash 0.22s ease-out forwards; }
+@keyframes gtbflash { from { opacity: 0.9; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .gtb-cam.is-flash::after { animation: none; opacity: 0; } }

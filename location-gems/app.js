@@ -3884,3 +3884,27 @@ window.addEventListener('message', (event) => {
 });
 
 init();
+
+// A photo handed over by the + camera in Gem map pins V3: "later" puts it on top of the unsorted
+// pile; "now" also opens the publish sheet on it, the same as swiping it right.
+const CAMERA_HANDOFF_KEY = 'gem-pins-camera-photo';
+function takeCameraHandoff() {
+  let shot = null;
+  try {
+    shot = JSON.parse(sessionStorage.getItem(CAMERA_HANDOFF_KEY) || 'null');
+    sessionStorage.removeItem(CAMERA_HANDOFF_KEY);
+  } catch (e) {
+    return;
+  }
+  if (!shot || !shot.photo) return;
+  if (!snapshotTip.hidden) dismissTip();
+  pendingSort.unshift({ id: `find-camera-${Date.now()}`, user: MY_USER, photo: shot.photo, text: '', place: shot.place || '', pending: true });
+  renderSortStack();
+  sortInlineEl.scrollIntoView({ block: 'start' });
+  if (shot.action !== 'now' || !sortStack.lastElementChild) return;
+  // The first-visit tips (already scheduled by init) would land on top of the publish sheet, so this
+  // visit skips them; they still show on the next normal visit.
+  runOnboardingTips = () => {};
+  openPublishSheet(sortStack.lastElementChild);
+}
+takeCameraHandoff();

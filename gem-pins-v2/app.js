@@ -1398,27 +1398,4 @@ setSheet(sheet);
 setFilterLayout(filterLayout);
 drawPins();
 window.addEventListener('resize', drawPins);
-$('tabBar').addEventListener('click', (e) => {
-  const tab = e.target.closest('[data-tab]');
-  if (!tab) return;
-  if (tab.dataset.tab === 'gems') {
-    window.parent.postMessage({ type: 'gem-pins-open-gems' }, '*');
-    return;
-  }
-  if (tab.dataset.tab === 'map') {
-    for (const b of $('tabBar').querySelectorAll('[data-tab]')) {
-      const on = b.dataset.tab === 'map';
-      b.classList.toggle('is-active', on);
-      b.setAttribute('aria-pressed', String(on));
-      if (on) b.setAttribute('aria-current', 'page');
-      else b.removeAttribute('aria-current');
-    }
-    return;
-  }
-  for (const b of $('tabBar').querySelectorAll('[data-tab]')) {
-    const on = b === tab;
-    b.classList.toggle('is-active', on);
-    b.setAttribute('aria-pressed', String(on));
-    b.removeAttribute('aria-current');
-  }
-});
+
