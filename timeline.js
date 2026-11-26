@@ -16,6 +16,12 @@ const typeOf = (id) => TYPES.find((t) => t[0] === id) || TYPES[4];
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 const fmt = (d, o) => new Date(d + 'T12:00').toLocaleDateString('en', o);
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const validDate = (d) => typeof d === 'string' && DATE.test(d) && !Number.isNaN(new Date(d + 'T12:00').getTime());
+// Anyone can write to the database directly, so a saved link could be javascript: or similar.
+const safeUrl = (u) => { try { const p = new URL(u); return p.protocol === 'https:' || p.protocol === 'http:' ? p.href : ''; } catch (e) { return ''; } };
+const localToday = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
 
 // Only the live site talks to the database, so local copies and tests never write to it.
 const LIVE = location.pathname.includes('/experiments/');
@@ -31,7 +37,14 @@ let show = new Set(TYPES.map((t) => t[0]));
 export async function initTimeline() {
   const root = $('panel-timeline');
   if (!root) return;
-  seeded = ((await store.loadJson('timeline.json')) || []).map((e, i) => ({ ...e, id: 's' + i, seeded: true }));
+  // Ids come from the date and title, not the list position, so a #tl- link survives new dates being added.
+  const seen = new Set();
+  seeded = ((await store.loadJson('timeline.json')) || []).map((e) => {
+    let id = `s-${e.date}-${slug(e.title)}`;
+    while (seen.has(id)) id += '-';
+    seen.add(id);
+    return { ...e, id, seeded: true };
+  });
   buildShell(root);
   render();
   try {
@@ -68,7 +81,7 @@ function form() {
   f.id = 'tlForm';
   f.hidden = true;
   const field = (label, input) => { const l = el('label', 'tl-field'); l.append(el('span', null, label), input); return l; };
-  const date = Object.assign(el('input'), { type: 'date', id: 'tlDate', required: true, value: new Date().toISOString().slice(0, 10) });
+  const date = Object.assign(el('input'), { type: 'date', id: 'tlDate', required: true, value: localToday() });
   const type = el('select'); type.id = 'tlType';
   for (const [id, label] of TYPES) { const o = el('option', null, label); o.value = id; type.append(o); }
   const title = Object.assign(el('input'), { id: 'tlTitle', required: true, maxLength: 80, placeholder: 'e.g. Halloween ghost tour ads went live' });
@@ -103,7 +116,7 @@ function kpiCard() {
   return c;
 }
 
-const all = () => [...seeded, ...added].filter((e) => e.date).sort((a, b) => b.date.localeCompare(a.date) || (b.ts || 0) - (a.ts || 0));
+const all = () => [...seeded, ...added].filter((e) => validDate(e.date) && e.title).sort((a, b) => b.date.localeCompare(a.date) || (b.ts || 0) - (a.ts || 0));
 
 function render() {
   if (!$('tlList')) return;
@@ -128,6 +141,7 @@ function render() {
   // the list, newest first, by month
   const box = $('tlList');
   box.replaceChildren();
+  const today = localToday();
   let month = '';
   let ul = null;
   for (const e of shown) {
@@ -139,11 +153,13 @@ function render() {
     li.style.setProperty('--c', colour);
     const when = el('span', 'tl-date', fmt(e.date, { month: 'short', day: 'numeric' }) + (e.approx ? ' ≈' : ''));
     const body = el('div', 'tl-body');
-    const t = e.link ? Object.assign(el('a', 'tl-title', e.title), { href: e.link, target: '_blank', rel: 'noopener' }) : el('span', 'tl-title', e.title);
+    const link = e.link ? safeUrl(e.link) : '';
+    const t = link ? Object.assign(el('a', 'tl-title', e.title), { href: link, target: '_blank', rel: 'noopener' }) : el('span', 'tl-title', e.title);
     body.append(t);
     if (e.note) body.append(el('p', 'tl-note', e.note));
     const meta = el('p', 'tl-meta');
     meta.append(el('span', 'tl-type', label));
+    if (e.date > today) meta.append(' · coming up');
     if (e.by) meta.append(` · added by ${e.by}`);
     if (e.source) { meta.append(' · '); meta.append(Object.assign(el('a', null, 'source'), { href: e.source, target: '_blank', rel: 'noopener' })); }
     if (!e.seeded && me && e.uid === me) {
@@ -168,7 +184,8 @@ function drawStrip(list) {
   strip.replaceChildren();
   if (!list.length) return;
   const t = (d) => new Date(d + 'T12:00').getTime();
-  const end = Date.now();
+  const now = Date.now();
+  const end = Math.max(now, ...list.map((e) => t(e.date)));
   const start = Math.min(...list.map((e) => t(e.date)));
   const first = new Date(start); first.setDate(1);
   const span = end - first.getTime() || 1;
@@ -185,7 +202,7 @@ function drawStrip(list) {
     const d = el('a', 'tl-dot');
     d.href = '#tl-' + e.id;
     d.style.left = x(t(e.date)) + '%';
-    d.style.top = 8 + rows[e.type] * 14 + 'px';
+    d.style.top = 8 + rows[typeOf(e.type)[0]] * 14 + 'px';
     d.style.background = typeOf(e.type)[2];
     d.title = `${fmt(e.date, { month: 'short', day: 'numeric' })}: ${e.title}`;
     d.setAttribute('aria-label', d.title);
@@ -193,7 +210,7 @@ function drawStrip(list) {
     lane.append(d);
   }
   const today = el('span', 'tl-today', 'Today');
-  today.style.left = '100%';
+  today.style.left = x(now) + '%';
   lane.append(today);
   strip.append(lane, axis);
 }

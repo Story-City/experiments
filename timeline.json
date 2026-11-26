@@ -16,12 +16,12 @@
     "source": "https://app.notion.com/p/Story-City-Decision-Log-3fb66b1071fa8153ace3eb3d8f852764"
   },
   {
-    "date": "2026-11-17",
-    "type": "release",
-    "title": "App 5.0.0 out",
-    "note": "First day it reached real installs (PostHog); not in the Notion deployments list.",
-    "approx": true,
-    "source": "https://us.posthog.com/project/291954"
+    "date": "2026-11-20",
+    "type": "milestone",
+    "title": "Release 5.0.0 goes to staging QA",
+    "note": "Not out to players yet: PostHog shows only test and staging builds of 5.0.0.",
+    "approx": false,
+    "source": "https://app.notion.com/p/November-2026-2-41e66b1071fa81c78388ec9928da6160"
   },
   {
     "date": "2026-11-15",
@@ -30,6 +30,14 @@
     "note": "Based on the Nov 5 test round. Steps still bank for non-members.",
     "approx": false,
     "source": "https://app.notion.com/p/Story-City-Decision-Log-3fb66b1071fa8153ace3eb3d8f852764"
+  },
+  {
+    "date": "2026-11-12",
+    "type": "marketing",
+    "title": "The Balthazar Job campaign goes live",
+    "note": "Runs to Nov 30.",
+    "approx": false,
+    "source": "https://app.notion.com/p/The-Balthazar-Job-40c66b1071fa8033a92dd76a4e618828"
   },
   {
     "date": "2026-11-07",
