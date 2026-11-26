@@ -8,6 +8,8 @@ const $ = (id) => document.getElementById(id);
 const DENSITY = 40;
 /** V1 rarityBy none — every pin the same size; keep uploaded category gems */
 const PIN_SIZE = 28;
+const PIN_SIZE_PLAY = 24;
+const PIN_SIZE_LANDMARK = 32;
 const SHEETS = ['original', 'prompt', 'image', 'bar'];
 /*
  * Lessons: gems must sample the same Q path as the SVG (not a free parabola);
@@ -268,7 +270,10 @@ function rarityOf(g) {
   if (levels.includes(g.rarity)) return g.rarity;
   return g.rarity === 'mythical' ? 'mythical' : 'rare';
 }
-function sizeOf() {
+function sizeOf(g) {
+  const tag = g && g.tags && g.tags[0];
+  if (tag === 'play') return PIN_SIZE_PLAY;
+  if (tag === 'landmark') return PIN_SIZE_LANDMARK;
   return PIN_SIZE;
 }
 function glowOf() {
@@ -412,11 +417,9 @@ function drawPins(animate) {
     const nowSelected = g.id === openId;
     const wasSelected = b.classList.contains('selected');
     if (nowSelected && !wasSelected) {
-      b.classList.remove('is-select-bounce');
+      b.classList.remove('selected');
       void b.offsetWidth;
-      b.classList.add('is-select-bounce');
     }
-    if (!nowSelected) b.classList.remove('is-select-bounce');
     b.classList.toggle('selected', nowSelected);
     b.classList.remove('is-out');
     const html = pinFor(g);
