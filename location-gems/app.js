@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v104 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v105 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -498,6 +498,7 @@ const designSaveNote = document.getElementById('designSaveNote');
 const designUndo = document.getElementById('designUndo');
 const designRedo = document.getElementById('designRedo');
 /** Pieces designers can select + drag in Move mode (groups / components). */
+/** Top-level groups only — not layout chrome like overlay/info-row (those stole dig clicks). */
 const DESIGN_TARGET_SEL = [
   '.camera-button',
   '.tagline-block',
@@ -507,14 +508,29 @@ const DESIGN_TARGET_SEL = [
   '.feed-dock',
   '.feed-chip',
   '.detail-actions',
-  '.detail-overlay',
-  '.detail-info-row',
   '.ov-chip',
+  '.like-btn',
+  '.detail-gem-title',
+  '.detail-author',
   '.detail-body',
   '.publish-sheet-card',
   '.publish-cat-btn',
   '.tab-bar',
   '.snapshot-section',
+].join(', ');
+/** Prefer these when digging so the gem wins over empty wrappers. */
+const DESIGN_CONTENT_SEL = [
+  '.ov-chip-gem',
+  '.cat-gem-art',
+  '.gem-card-gem',
+  '.feed-chip-corner-gem',
+  '.publish-cat-gem',
+  '.like-heart',
+  '.bookmark-btn',
+  '.icon-act',
+  '.nav-btn',
+  'img',
+  'svg',
 ].join(', ');
 const DESIGN_DRAG_THRESHOLD_PX = 5;
 const BTN_RADIUS_PILL = 24;
@@ -2411,8 +2427,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v104 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v104 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v105 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v105 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2843,12 +2859,26 @@ function resolveDesignGroup(start) {
 
 /**
  * Figma dig: one level deeper from `selected` toward the node under the cursor.
- * Walks up from the hit until the parent is the current selection.
+ * If the hit is a real content piece (gem/img), jump to the content node that is
+ * a direct child of `selected` when possible — skip empty bg wrappers.
  */
 function digDesignOneLevel(selected, start) {
   if (!selected || !start) return null;
-  let el = designNodeFromEventTarget(start);
-  if (!el || !selected.contains(el) || el === selected) return null;
+  let hit = designNodeFromEventTarget(start);
+  if (!hit || !selected.contains(hit) || hit === selected) return null;
+
+  const content = /** @type {HTMLElement | null} */ (hit.closest(DESIGN_CONTENT_SEL));
+  if (content && selected.contains(content) && content !== selected) {
+    /* Walk content up until its parent is selected — that is the dig target */
+    let el = content;
+    while (el.parentElement && el.parentElement !== selected) {
+      el = el.parentElement;
+      if (!selected.contains(el)) break;
+    }
+    if (el.parentElement === selected) return el;
+  }
+
+  let el = hit;
   while (el.parentElement && el.parentElement !== selected) {
     el = el.parentElement;
     if (!selected.contains(el)) return null;
