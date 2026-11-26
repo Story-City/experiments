@@ -186,8 +186,8 @@ function mountA(el) {
       : `<button class="a-card" data-opt="${o.id}" aria-pressed="false" style="--c:${o.color}"><span class="a-emo">${icon(o.id)}</span><span class="a-lab">${nw(o.label)}</span></button>`).join('');
     pile.innerHTML = S.picked.length
       ? S.picked.map((id, i) => `<button class="a-mini" data-opt="${id}" aria-pressed="true" aria-label="Put back: ${esc(byId[id].label)}" style="--r:${((i * 37) % 13) - 6}deg;--c:${byId[id].color}">${icon(id)}</button>`).join('')
-      : `<div class="a-empty">${nw('Your pile · tap cards to add them')}</div>`;
-    cap.innerHTML = S.picked.length ? nw(`${S.picked.length} in your pile · tap one to put it back`) : '';
+      : `<div class="a-empty">${nw('Your hand · tap cards to add them')}</div>`;
+    cap.innerHTML = S.picked.length ? nw(`${S.picked.length} in your hand · tap one to put it back`) : '';
   };
   draw();
   return {
