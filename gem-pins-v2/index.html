@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=46">
+<link rel="stylesheet" href="app.css?v=47">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -86,32 +86,34 @@
         </div>
       </div>
     </header>
-    <!-- Corner = own disc copy (does not restyle Disc colour) -->
-    <div class="corner-disc-stage" id="cornerDiscStage" hidden>
-      <svg class="disc-arc" id="cornerDiscArc" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
-        <path
-          class="disc-arc-glow"
-          d="M 68 36 Q 200 112 332 36"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="5"
-          stroke-linecap="round"
-          opacity="0.22"
-        />
-        <path
-          class="disc-arc-tint"
-          d="M 68 36 Q 200 112 332 36"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.25"
-          stroke-linecap="round"
-          opacity="0.92"
-        />
-      </svg>
-      <div class="disc-wheel" id="cornerDiscWheel" role="listbox" aria-label="Filter gems on corner disc"></div>
-      <div class="disc-caption" id="cornerDiscCaption">
+    <!-- Corner = same disc arc rotated into top-left (Figma); Disc colour untouched -->
+    <div class="corner-disc-wrap" id="cornerDiscWrap" hidden>
+      <div class="corner-disc-caption">
         <p class="disc-title" id="cornerDiscTitle"></p>
         <p class="disc-note" id="cornerDiscNote"></p>
+      </div>
+      <div class="corner-disc-stage" id="cornerDiscStage">
+        <svg class="disc-arc" id="cornerDiscArc" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
+          <path
+            class="disc-arc-glow"
+            d="M 68 36 Q 200 112 332 36"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="5"
+            stroke-linecap="round"
+            opacity="0.22"
+          />
+          <path
+            class="disc-arc-tint"
+            d="M 68 36 Q 200 112 332 36"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.25"
+            stroke-linecap="round"
+            opacity="0.92"
+          />
+        </svg>
+        <div class="disc-wheel" id="cornerDiscWheel" role="listbox" aria-label="Filter gems on corner disc"></div>
       </div>
     </div>
     <!-- Tab icons pulled from mobile-rn FloatingTabBar + GemIcon (assets/app-icons/*.tsx) -->
@@ -207,8 +209,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v46 — Disc haze + Corner disc copy.</p>
+  <p class="meta">GEM-PINS-V2-v47 — Soft disc haze; Corner = rotated disc arc.</p>
   <script src="../location-gems/corner-ribbon.js?v=36"></script>
-  <script type="module" src="app.js?v=46"></script>
+  <script type="module" src="app.js?v=47"></script>
 </body>
 </html>

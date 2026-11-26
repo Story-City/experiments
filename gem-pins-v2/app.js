@@ -484,8 +484,8 @@ function paintBar() {
   $('rollerWrap').hidden = !rollerVisible || topDisc || cornerDisc;
   const discStage = $('discStage');
   if (discStage) discStage.hidden = !topDisc;
-  const cornerStage = $('cornerDiscStage');
-  if (cornerStage) cornerStage.hidden = !cornerDisc;
+  const cornerWrap = $('cornerDiscWrap');
+  if (cornerWrap) cornerWrap.hidden = !cornerDisc;
   /* Disc: no separate legend — title sits under the selected gem on the arc */
   const showLegend = !topDisc && !cornerDisc && (filterOn || filterLayout === 'inline' || filterLayout === 'always');
   legend.hidden = !showLegend;
@@ -734,6 +734,7 @@ function bindOneDiscStage(stage) {
     drag = {
       id: e.pointerId,
       x: e.clientX,
+      y: e.clientY,
       startAngle: discAngle,
       moved: false,
       btn,
@@ -745,10 +746,11 @@ function bindOneDiscStage(stage) {
     if (!drag || drag.id !== e.pointerId || !usesDiscMotion()) return;
     if (isCornerDiscLayout() && stage.id !== 'cornerDiscStage') return;
     if (isTopDiscLayout() && stage.id !== 'discStage') return;
-    const dx = e.clientX - drag.x;
-    if (Math.abs(dx) > 4) drag.moved = true;
+    /* Corner disc is rotated 90deg — drag along the visible arc uses Y */
+    const delta = isCornerDiscLayout() ? (e.clientY - drag.y) : (e.clientX - drag.x);
+    if (Math.abs(delta) > 4) drag.moved = true;
     if (!drag.moved) return;
-    discAngle = drag.startAngle - dx / DISC_PX_PER_DEG;
+    discAngle = drag.startAngle - delta / DISC_PX_PER_DEG;
     discDragAngle = discAngle;
     paintDiscAngle(discAngle);
     const list = stops();
