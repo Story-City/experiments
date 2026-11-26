@@ -23,6 +23,8 @@
   --like-pink-hot: #ff7aab;
   --like-pink-bg: rgba(255, 105, 160, 0.28);
   --indigo-glow: rgba(99, 78, 180, 0.45);
+  /* palette.alpha.indigo70 — readable chrome on photos */
+  --indigo-70: rgba(28, 27, 66, 0.7);
   --space-xs: 4px;
   --space-s: 8px;
   --space-m: 16px;
@@ -857,7 +859,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   overflow: hidden;
 }
 .detail[hidden] { display: none !important; }
-/* Story Overview back / fav chrome */
+/* Story Overview back / menu — library indigo70, not washed white */
 .detail-back,
 .detail-menu {
   position: absolute;
@@ -867,7 +869,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   height: 32px;
   border: 0;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.28);
+  background: var(--indigo-70);
   color: #fff;
   font: inherit;
   cursor: pointer;
