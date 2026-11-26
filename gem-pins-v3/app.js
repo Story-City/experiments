@@ -1375,6 +1375,31 @@ setSheet(sheet);
 setFilterLayout(filterLayout);
 drawPins();
 window.addEventListener('resize', drawPins);
+// V3 (Melissa, 26 Nov): + in the tab bar opens the camera to add a gem. Live camera when the browser
+// allows it; otherwise the viewfinder alone. The shutter is a mockup: it only says what would happen.
+let camStream = null;
+async function openCamera() {
+  $('cam').hidden = false;
+  $('camHint').textContent = 'Point at something worth finding';
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    $('camVideo').srcObject = camStream;
+  } catch (err) {
+    $('camHint').textContent = 'Camera preview (no camera allowed here)';
+  }
+}
+function closeCamera() {
+  if (camStream) camStream.getTracks().forEach((t) => t.stop());
+  camStream = null;
+  $('camVideo').srcObject = null;
+  $('cam').hidden = true;
+}
+$('addGemBtn').addEventListener('click', openCamera);
+$('camClose').addEventListener('click', closeCamera);
+$('camShutter').addEventListener('click', () => {
+  $('cam').classList.add('is-flash');
+  setTimeout(() => { $('cam').classList.remove('is-flash'); closeCamera(); toast(displayCopy('[would add this as a gem]')); }, 220);
+});
 $('tabBar').addEventListener('click', (e) => {
   const tab = e.target.closest('[data-tab]');
   if (!tab) return;
