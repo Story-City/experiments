@@ -10,6 +10,9 @@
   --accent-deep: #0259a1;
   --glow: #c49bff;
   --love: #e84aa8;
+  --btn-radius: 999px;
+  --space-scale: 1;
+  --type-scale: 1;
   --f-app: 'Darker Grotesque', system-ui, sans-serif;
   --f-ui: 'Karla', system-ui, sans-serif;
   --ease-out: cubic-bezier(0.33, 0, 0.2, 1);
@@ -23,7 +26,25 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 
 /* ---------- layout: options panel left of the phone on wide screens ---------- */
 .layout { min-height: 100dvh; }
-.phone { position: relative; height: 100dvh; overflow: hidden; background: var(--bg); font-family: var(--f-app); }
+.phone {
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: var(--f-app);
+  font-size: calc(15px * var(--type-scale));
+}
+.phone .btn,
+.phone .options-btn,
+.phone .filter-btn,
+.phone .colour-btn,
+.phone .key-btn,
+.phone .app-main-tab,
+.phone .layer button {
+  border-radius: var(--btn-radius);
+}
+.phone .map-top { padding: calc(14px * var(--space-scale)) calc(12px * var(--space-scale)) calc(10px * var(--space-scale)); }
+.phone .key { right: calc(12px * var(--space-scale)); bottom: calc(14px * var(--space-scale)); }
 @media (min-width: 820px) {
   .layout { display: grid; grid-template-columns: minmax(300px, 380px) 390px; justify-content: center; align-items: start; gap: 28px; padding: 20px; }
   .phone { height: min(844px, calc(100dvh - 40px)); border-radius: 36px; border: 1px solid var(--line); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8); position: sticky; top: 20px; }
@@ -405,6 +426,13 @@ body.is-settings-hidden .settings-eye .eye-shut { display: block; }
 .debug-rail .accent-pick span { flex: 1; }
 .debug-rail .accent-pick input[type="color"] { width: 28px; height: 22px; padding: 0; border: 0; background: transparent; }
 .debug-rail .accent-pick input[type="range"] { width: 72px; }
+.debug-rail .tool-value {
+  min-width: 36px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
 .edition-title {
   margin: 0;
   font: 800 22px/1 var(--f-app);
@@ -564,15 +592,15 @@ body.is-v2 .options-btn { z-index: 26; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 56px;
-  padding: 5px 16px;
+  min-width: 48px;
+  padding: 5px 10px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--btn-radius, 999px);
   background: transparent;
   color: rgba(255, 255, 255, 0.62);
   font: inherit;
   font-weight: 700;
-  font-size: 12px;
+  font-size: calc(12px * var(--type-scale, 1));
   line-height: 12px;
   cursor: pointer;
 }

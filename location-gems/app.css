@@ -3215,8 +3215,8 @@ body.is-embed .phone {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 56px;
-  padding: 5px 16px;
+  min-width: 48px;
+  padding: 5px 10px;
   border: 0;
   border-radius: 999px;
   background: transparent;
