@@ -442,7 +442,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   filter: blur(0.8px);
 }
 
-/* Disc haze 2 — hazier still: fainter colour, wider blur, arc edges melt into the map */
+/* Disc haze 2 — the same wide blur as before, with stronger colour so it reads clearly */
 .gbox.is-layout-disc-haze-2 .map-bar {
   position: relative;
   grid-template-columns: minmax(0, 1fr);
@@ -456,12 +456,12 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .gbox.is-layout-disc-haze-2 .legend { display: none !important; }
 .gbox.is-layout-disc-haze-2 .disc-stage { grid-area: disc; display: block; }
 .gbox.is-layout-disc-haze-2 .disc-arc-glow {
-  opacity: 0.07;
+  opacity: 0.45;
   filter: blur(4px);
 }
 .gbox.is-layout-disc-haze-2 .disc-arc-tint {
-  opacity: 0.3;
-  filter: blur(2.6px) drop-shadow(0 0 10px color-mix(in srgb, var(--disc-tint) 30%, transparent));
+  opacity: 0.9;
+  filter: blur(2.6px) drop-shadow(0 0 10px color-mix(in srgb, var(--disc-tint) 75%, transparent));
 }
 
 /* Corner — same disc arc, slight rotate into top-left (Figma); Disc colour untouched */
