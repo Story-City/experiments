@@ -154,20 +154,19 @@
   .area-nav a { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-muted); font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap; }
   .area-nav a[hidden], .area[hidden] { display: none; }
   .area-nav a:hover { border-color: var(--glow); color: var(--text); }
-  /* Drafts › Experiments › Ready for Dev */
-  .stages { display: flex; align-items: center; gap: 6px; margin: 0 0 18px; flex-wrap: wrap; }
-  .stages [role="tab"] { height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font: 700 14px var(--f-body); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-  .stages [role="tab"]:hover { border-color: var(--glow); color: var(--text); }
-  .stages [role="tab"][aria-selected="true"] { background: var(--glow); border-color: var(--glow); color: var(--ink); }
-  .stages [role="tab"][data-stage="ready"][aria-selected="true"] { background: #00CD9D; border-color: #00CD9D; }
-  .stages [role="tab"]:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
-  .stages .n { font-weight: 500; opacity: .8; }
-  .stages .flow { color: var(--lilac); font-size: 18px; line-height: 1; }
+  /* stage tabs inside Experiments: folder tabs, the picked one joined to the page */
+  .stages { display: flex; gap: 4px; margin: -8px 0 16px; border-bottom: 1px solid var(--border); }
+  .stages[hidden] { display: none; }
+  .stages [role="tab"] { position: relative; height: 40px; padding: 0 16px; margin-bottom: -1px; border: 1px solid transparent; border-bottom: 0; border-radius: 12px 12px 0 0; background: transparent; color: var(--text-muted); font: 700 15px var(--f-body); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+  .stages [role="tab"]:hover { color: var(--text); background: color-mix(in srgb, var(--surface) 45%, transparent); }
+  .stages [role="tab"][aria-selected="true"] { color: var(--text); background: var(--surface); border-color: var(--border); box-shadow: inset 0 3px 0 var(--glow); }
+  .stages [role="tab"][data-stage="ready"][aria-selected="true"] { box-shadow: inset 0 3px 0 #00CD9D; }
+  .stages [role="tab"]:focus-visible { outline: 2px solid var(--glow); outline-offset: -2px; }
+  .stages .n { font-size: 13px; font-weight: 500; color: var(--lilac); }
   #sub-drafts > .sub, #sub-ready > .sub { margin: 0 0 16px; }
   @media (max-width: 520px) {
-    .stages { flex-wrap: nowrap; gap: 2px; padding: 3px; border: 1px solid var(--border); border-radius: 999px; }
-    .stages .flow { display: none; }
-    .stages [role="tab"] { flex: 1 1 auto; min-width: 0; justify-content: center; padding: 0 6px; border: 0; font-size: 13px; gap: 4px; overflow: hidden; text-overflow: ellipsis; }
+    .stages { gap: 2px; }
+    .stages [role="tab"] { flex: 1 1 auto; min-width: 0; padding: 0 8px; font-size: 14px; gap: 4px; }
   }
   .area-nav a span, .area-h span { color: var(--lilac); font-weight: 400; }
   .area { scroll-margin-top: 16px; }
@@ -236,17 +235,15 @@
   <button class="tab" type="button" role="tab" id="tab-polls" data-tab="polls" aria-controls="panel-polls" aria-selected="false" tabindex="-1">Polls <span class="n" id="n-polls"></span></button>
   <button class="tab" type="button" role="tab" id="tab-timeline" data-tab="timeline" aria-controls="panel-timeline" aria-selected="false" tabindex="-1">Timeline</button>
 </div>
+<!-- Stage tabs inside Experiments, in flow order: Drafts, Experiments, Ready for Dev. ?stage=drafts / ?stage=ready opens one. -->
+<div class="stages" role="tablist" aria-label="Stage">
+  <button type="button" role="tab" id="stage-drafts" data-stage="drafts" aria-controls="sub-drafts" aria-selected="false" tabindex="-1">Drafts <span class="n" id="n-drafts"></span></button>
+  <button type="button" role="tab" id="stage-live" data-stage="live" aria-controls="sub-live" aria-selected="true">Experiments <span class="n" id="n-live"></span></button>
+  <button type="button" role="tab" id="stage-ready" data-stage="ready" aria-controls="sub-ready" aria-selected="false" tabindex="-1">Ready for Dev <span class="n" id="n-ready"></span></button>
+</div>
 <div class="filters" role="group" aria-label="Filter by author"></div>
 
 <section id="panel-experiments" role="tabpanel" aria-labelledby="tab-experiments">
-<!-- An experiment's stages, in order: Drafts › Experiments › Ready for Dev. ?stage=drafts / ?stage=ready opens one. -->
-<div class="stages" role="tablist" aria-label="Stage">
-  <button type="button" role="tab" id="stage-drafts" data-stage="drafts" aria-controls="sub-drafts" aria-selected="false" tabindex="-1">Drafts <span class="n" id="n-drafts"></span></button>
-  <span class="flow" aria-hidden="true">›</span>
-  <button type="button" role="tab" id="stage-live" data-stage="live" aria-controls="sub-live" aria-selected="true">Experiments <span class="n" id="n-live"></span></button>
-  <span class="flow" aria-hidden="true">›</span>
-  <button type="button" role="tab" id="stage-ready" data-stage="ready" aria-controls="sub-ready" aria-selected="false" tabindex="-1">Ready for Dev <span class="n" id="n-ready"></span></button>
-</div>
 
 <section id="sub-drafts" role="tabpanel" aria-labelledby="stage-drafts" hidden>
 <p class="sub">New experiments wait here until the person who asked for them approves.</p>
@@ -513,6 +510,7 @@
       if (on && focus) b.focus();
     }
     document.querySelector('.filters').hidden = name === 'timeline'; // authors don't apply to the timeline
+    document.querySelector('.stages').hidden = name !== 'experiments';
     const url = new URL(location.href);
     name !== 'experiments' ? url.searchParams.set('tab', name) : url.searchParams.delete('tab');
     history.replaceState(null, '', url);
