@@ -3193,7 +3193,7 @@ body.is-embed .phone {
   box-shadow: none;
 }
 
-/* Approved UI Tools + — only the gems-management edition-rail (Look / Move) */
+/* Approved UI Tools + — phone + edition-rail so Look / Move (select+drag) work */
 body.is-tools-embed {
   margin: 0;
   padding: 12px;
@@ -3203,24 +3203,45 @@ body.is-tools-embed {
 }
 body.is-tools-embed > header,
 body.is-tools-embed > .workspace > .tool-rail,
-body.is-tools-embed > .workspace > .stage {
+body.is-tools-embed > .workspace > .stage > .meta,
+body.is-tools-embed .hint {
   display: none !important;
 }
 body.is-tools-embed > .workspace {
-  display: block;
+  display: grid;
+  grid-template-columns: minmax(0, 376px) minmax(200px, 260px);
+  gap: 12px;
   width: 100%;
   max-width: none;
   margin: 0;
-  gap: 0;
+  align-items: start;
+}
+body.is-tools-embed > .workspace > .stage {
+  display: block !important;
+  min-width: 0;
+}
+body.is-tools-embed > .workspace > .stage .phone {
+  width: 100%;
+  max-width: 376px;
+  margin: 0;
 }
 body.is-tools-embed > .workspace > .edition-rail {
   display: flex !important;
-  position: static;
-  top: auto;
-  max-height: none;
+  position: sticky;
+  top: 0;
+  max-height: calc(100vh - 24px);
   width: 100%;
   padding: 0;
-  overflow: visible;
+  overflow-y: auto;
+}
+@media (max-width: 640px) {
+  body.is-tools-embed > .workspace {
+    grid-template-columns: 1fr;
+  }
+  body.is-tools-embed > .workspace > .edition-rail {
+    position: static;
+    max-height: none;
+  }
 }
 
 /* Debug: app FloatingTabBar from gem-pins-v2 / mobile-rn (toggle off to remove) */
