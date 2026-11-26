@@ -1,0 +1,285 @@
+import { STORIES } from './stories.js';
+
+const MODES = ['before', 'after'];
+const BALANCE_MAX_LINES = 6;
+const MIN_EVEN_RATIO = 0.6;
+const MIN_FIT_FRACTION = 0.5;
+const FIT_STEP_PX = 2;
+const TICKET_STOCK = ['#C5D1E2', '#E3D1BC', '#C1D5D0'];
+const SERIAL_BASE = 214;
+const SERIAL_STEP = 97;
+const CHOICE_HEADER = 'Where to next?';
+const AUDIO_BUTTON_TEXT = 'Tap To Play Audio';
+const BLOCK_SELECTOR = 'p, li, h1, h2, h3, h4, h5, h6, blockquote';
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+const $ = (id) => document.getElementById(id);
+const phone = $('phone');
+
+const params = new URLSearchParams(location.search);
+const state = {
+  story: clamp((parseInt(params.get('s'), 10) || 1) - 1, 0, STORIES.length - 1),
+  chapter: 0,
+  mode: MODES.includes(params.get('m')) ? params.get('m') : 'after',
+};
+state.chapter = clamp((parseInt(params.get('c'), 10) || 1) - 1, 0, STORIES[state.story].chapters.length - 1);
+
+function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
+
+// ---------- icons copied from webview/reader/Injected*Icon.js ----------
+function svgEl(w, h, paths, cls) {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.setAttribute('fill', 'none');
+  for (const p of paths) {
+    const path = document.createElementNS(SVG_NS, 'path');
+    for (const [k, v] of Object.entries(p)) path.setAttribute(k, v);
+    svg.appendChild(path);
+  }
+  svg.classList.add(cls);
+  return svg;
+}
+const AUDIO_FILL = '#B9E5FF';
+const audioIcon = () => svgEl(42, 34, [
+  { d: 'M21.1994 16.9999C21.1994 20.9843 21.1994 24.8358 21.1994 28.8202C21.1994 29.0858 21.1994 29.3515 21.1994 29.6171C21.0669 30.1483 20.6694 30.414 20.1395 30.2812C19.8745 30.2812 19.742 30.1483 19.477 30.0155C16.4297 28.5546 13.3824 26.9608 10.4675 25.4999C9.01012 24.8358 8.34766 23.6405 8.34766 22.1796C8.34766 18.8593 8.34766 15.4062 8.34766 12.0858C8.34766 10.4921 9.01012 9.4296 10.4675 8.76553C13.5148 7.3046 16.4297 5.84366 19.477 4.24991C19.6095 4.1171 19.8745 3.98428 20.1395 3.85147C20.6694 3.71866 21.0669 3.98428 21.1994 4.51553C21.1994 4.78116 21.1994 5.04678 21.1994 5.31241C21.1994 9.16397 21.1994 13.1483 21.1994 16.9999Z', fill: AUDIO_FILL },
+  { d: 'M38.1575 17.3985C38.1575 12.3516 36.7001 8.23443 33.9178 4.51568C33.5203 3.98443 33.1228 3.45318 32.7254 2.92193C32.3279 2.39068 32.4604 2.12505 32.8579 1.5938C33.2553 1.19536 33.6528 0.664115 34.1828 0.265677C34.5803 -0.132761 34.9777 -0.265573 35.3752 0.265677C36.1702 1.06255 36.8326 1.85943 37.4951 2.78911C39.8799 6.10943 41.3374 9.82818 41.8673 13.9454C42.3973 18.1954 41.8673 22.3126 40.2774 26.1641C39.2175 28.6876 37.7601 31.0782 35.9052 33.0704C35.7727 33.336 35.5077 33.4688 35.2427 33.7344C34.8452 34 34.4478 34 34.1828 33.7344C33.6528 33.2032 33.1228 32.8047 32.7254 32.2735C32.3279 31.8751 32.3279 31.6094 32.5929 31.211C32.7254 30.9454 32.9904 30.6797 33.1228 30.5469C35.9052 27.3594 37.4951 23.7735 38.0251 19.6563C38.1576 18.7266 38.1575 17.7969 38.1575 17.3985Z', fill: AUDIO_FILL },
+  { d: 'M0 17C0 15.2734 0 13.4141 0 11.6875C0 10.4922 0.794953 9.69531 1.98738 9.69531C2.78233 9.69531 3.57729 9.69531 4.23975 9.69531C5.29968 9.69531 6.09464 10.4922 6.09464 11.5547C6.09464 15.1406 6.09464 18.7266 6.09464 22.4453C6.09464 23.5078 5.29968 24.3047 4.23975 24.3047C3.44479 24.3047 2.64984 24.3047 1.85489 24.3047C0.794953 24.3047 0 23.5078 0 22.4453C0 20.5859 0 18.8594 0 17Z', fill: AUDIO_FILL },
+  { d: 'M32.8572 16.7344C32.8572 19.5234 32.3272 21.9141 31.1348 24.0391C30.6048 25.1016 29.8098 26.0312 29.1474 26.9609C29.0149 27.0937 28.8824 27.2266 28.7499 27.3594C28.4849 27.625 28.0874 27.625 27.8225 27.3594C27.16 26.8281 26.63 26.1641 25.9676 25.6328C25.7026 25.3672 25.7026 25.1016 25.8351 24.8359C25.9676 24.5703 26.1001 24.4375 26.2325 24.1719C28.0874 21.9141 28.8824 19.2578 28.7499 16.3359C28.6174 13.9453 27.69 11.6875 26.2325 9.82813C26.1001 9.69531 25.9676 9.5625 25.9676 9.42969C25.7026 9.03125 25.8351 8.76563 26.1001 8.5C26.63 7.96875 27.16 7.4375 27.69 6.90625C27.9549 6.64063 28.4849 6.64063 28.7499 6.90625C29.2799 7.30469 29.6773 7.83594 30.0748 8.36719C31.3997 10.3594 32.3272 12.4844 32.5922 14.7422C32.7247 15.5391 32.7247 16.3359 32.8572 16.7344Z', fill: AUDIO_FILL },
+], 'audio-icon');
+const infoIcon = () => svgEl(16, 16, [{ 'fill-rule': 'evenodd', 'clip-rule': 'evenodd', fill: '#fff', d: 'M15.7345 8.26603C15.7345 12.4082 12.3766 15.7661 8.23441 15.7661C4.09226 15.7661 0.734375 12.4082 0.734375 8.26603C0.734375 4.12388 4.09226 0.765991 8.23441 0.765991C12.3766 0.765991 15.7345 4.12388 15.7345 8.26603ZM9.22905 5.07378C9.22905 5.64036 8.78368 6.09966 8.23428 6.09966C7.68488 6.09966 7.2395 5.64036 7.2395 5.07378C7.2395 4.5072 7.68488 4.04789 8.23428 4.04789C8.78368 4.04789 9.22905 4.5072 9.22905 5.07378ZM8.2343 7.81019C7.6849 7.81019 7.23953 8.25556 7.23953 8.80496V12.1202C7.23953 12.6696 7.6849 13.115 8.2343 13.115C8.7837 13.115 9.22908 12.6696 9.22908 12.1202V8.80496C9.22908 8.25556 8.7837 7.81019 8.2343 7.81019Z' }], 'link-image');
+const linkIcon = () => svgEl(18, 10, [{ fill: '#fff', d: 'M2.48446 4.99217C2.48446 3.56717 3.64279 2.40883 5.06779 2.40883H7.60946C8.04668 2.40883 8.40112 2.05439 8.40112 1.61717V1.61717C8.40112 1.17994 8.04668 0.8255 7.60946 0.8255H5.06779C2.76779 0.8255 0.901123 2.69217 0.901123 4.99217C0.901123 7.29217 2.76779 9.15883 5.06779 9.15883H7.60946C8.04668 9.15883 8.40112 8.80439 8.40112 8.36717V8.36717C8.40112 7.92994 8.04668 7.5755 7.60946 7.5755H5.06779C3.64279 7.5755 2.48446 6.41717 2.48446 4.99217ZM5.90112 4.99217C5.90112 5.4524 6.27422 5.8255 6.73446 5.8255H11.7345C12.1947 5.8255 12.5678 5.4524 12.5678 4.99217V4.99217C12.5678 4.53193 12.1947 4.15883 11.7345 4.15883H6.73446C6.27422 4.15883 5.90112 4.53193 5.90112 4.99217V4.99217ZM13.4011 0.8255H10.8595C10.4222 0.8255 10.0678 1.17994 10.0678 1.61717V1.61717C10.0678 2.05439 10.4222 2.40883 10.8595 2.40883H13.4011C14.8261 2.40883 15.9845 3.56717 15.9845 4.99217C15.9845 6.41717 14.8261 7.5755 13.4011 7.5755H10.8595C10.4222 7.5755 10.0678 7.92994 10.0678 8.36717V8.36717C10.0678 8.80439 10.4222 9.15883 10.8595 9.15883H13.4011C15.7011 9.15883 17.5678 7.29217 17.5678 4.99217C17.5678 2.69217 15.7011 0.8255 13.4011 0.8255Z' }], 'link-image');
+
+// ---------- the app's WebView injection, minus the native bridge ----------
+function injectLikeApp(root) {
+  root.querySelectorAll('audio').forEach((audio) => {
+    const content = document.createElement('div');
+    content.classList.add('button-content');
+    const label = document.createElement('h1');
+    label.classList.add('audio-text');
+    label.innerText = AUDIO_BUTTON_TEXT;
+    content.append(audioIcon(), label);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.classList.add('audio-button');
+    btn.append(content);
+    audio.controls = false;
+    audio.hidden = true;
+    audio.querySelectorAll('source').forEach((s) => s.removeAttribute('src'));
+    audio.removeAttribute('src');
+    audio.parentNode.insertBefore(btn, audio);
+  });
+  root.querySelectorAll('span[info]').forEach((el) => {
+    el.classList.add('link-wrapper');
+    el.removeAttribute('src');
+    el.appendChild(infoIcon());
+  });
+  root.querySelectorAll('a').forEach((el) => {
+    el.classList.add('link-wrapper');
+    el.appendChild(linkIcon());
+    el.setAttribute('target', '_blank');
+    el.addEventListener('click', (e) => e.preventDefault());
+  });
+  root.querySelectorAll('img').forEach((img) => { img.loading = 'lazy'; });
+  root.querySelectorAll('button:not(.audio-button)').forEach((b) => {
+    b.parentNode.insertBefore(document.createTextNode(b.textContent), b);
+    b.style.display = 'none';
+  });
+}
+
+// ---------- the new style ----------
+const isSpace = (ch) => ch === ' ' || ch === '\n' || ch === '\t' || ch === '\r' || ch === ' ';
+const isBreakable = (ch) => ch === ' ' || ch === '\n' || ch === '\t' || ch === '\r';
+
+function textSegments(el) {
+  const segments = [[]];
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
+    acceptNode(n) {
+      if (n.nodeType === Node.TEXT_NODE) return NodeFilter.FILTER_ACCEPT;
+      if (n.namespaceURI === SVG_NS || n.hidden) return NodeFilter.FILTER_REJECT;
+      if (n.tagName === 'BR') return NodeFilter.FILTER_ACCEPT;
+      return NodeFilter.FILTER_SKIP;
+    },
+  });
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    if (n.nodeType === Node.ELEMENT_NODE) segments.push([]);
+    else segments[segments.length - 1].push(n);
+  }
+  return segments;
+}
+
+// Glue the last two words of each run of text together with a no-break space,
+// deleting any other breakable spaces in that gap so the line can't split there.
+function joinLastTwoWords(nodes) {
+  let phase = 'trailing';
+  for (let ni = nodes.length - 1; ni >= 0; ni--) {
+    const node = nodes[ni];
+    const chars = node.data.split('');
+    let changed = false;
+    for (let i = chars.length - 1; i >= 0; i--) {
+      const ch = chars[i];
+      if (phase === 'trailing') { if (!isSpace(ch)) phase = 'lastWord'; continue; }
+      if (phase === 'lastWord') {
+        if (isSpace(ch)) {
+          phase = 'gap';
+          if (isBreakable(ch)) { chars[i] = ' '; changed = true; }
+        }
+        continue;
+      }
+      if (phase === 'gap') {
+        if (isSpace(ch)) { if (isBreakable(ch)) { chars[i] = ''; changed = true; } continue; }
+        if (changed) node.data = chars.join('');
+        return;
+      }
+    }
+    if (changed) node.data = chars.join('');
+  }
+}
+
+function lineWidths(el) {
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const lines = [];
+  for (const r of range.getClientRects()) {
+    if (r.width === 0) continue;
+    const line = lines.find((l) => Math.abs(l.top - r.top) < r.height / 2);
+    if (line) { line.left = Math.min(line.left, r.left); line.right = Math.max(line.right, r.right); }
+    else lines.push({ top: r.top, left: r.left, right: r.right });
+  }
+  return lines.map((l) => l.right - l.left);
+}
+
+const lineCount = (el) => lineWidths(el).length;
+
+// text-wrap: balance is skipped by some engines (e.g. around inline pills); narrow
+// the block to the smallest width that keeps its line count, which evens the lines.
+function evenOut(el) {
+  const widths = lineWidths(el);
+  if (widths.length < 2 || widths.length > BALANCE_MAX_LINES) return;
+  if (Math.min(...widths) / Math.max(...widths) >= MIN_EVEN_RATIO) return;
+  const lines = widths.length;
+  let hi = el.getBoundingClientRect().width;
+  let lo = hi * MIN_FIT_FRACTION;
+  while (hi - lo > FIT_STEP_PX) {
+    const mid = (hi + lo) / 2;
+    el.style.maxWidth = `${mid}px`;
+    if (lineCount(el) === lines) hi = mid; else lo = mid;
+  }
+  el.style.maxWidth = `${Math.ceil(hi)}px`;
+}
+
+function applyNewStyle(blocks) {
+  for (const el of blocks) for (const seg of textSegments(el)) joinLastTwoWords(seg);
+  for (const el of blocks) if (lineCount(el) <= BALANCE_MAX_LINES) el.classList.add('bal');
+  for (const el of blocks) if (el.classList.contains('bal')) evenOut(el);
+}
+
+// ---------- rendering ----------
+function renderControls() {
+  const seg = $('storySeg');
+  seg.innerHTML = '';
+  STORIES.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = String(i + 1);
+    b.title = `${s.name} (${s.style.toLowerCase()})`;
+    b.setAttribute('aria-label', `Story ${i + 1}: ${s.name}`);
+    b.setAttribute('aria-pressed', String(i === state.story));
+    b.addEventListener('click', () => { state.story = i; state.chapter = 0; render(true); });
+    seg.appendChild(b);
+  });
+  document.querySelectorAll('#modeSeg button').forEach((b) => {
+    b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode));
+  });
+  const total = STORIES[state.story].chapters.length;
+  $('count').textContent = `${state.chapter + 1}/${total}`;
+  $('prev').disabled = state.chapter === 0;
+  $('next').disabled = state.chapter === total - 1;
+}
+
+function ticket(label, index, onPress) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'ticket';
+  btn.style.setProperty('--stock', TICKET_STOCK[index % TICKET_STOCK.length]);
+  const serial = String(SERIAL_BASE + SERIAL_STEP * index).padStart(4, '0');
+  btn.innerHTML = `
+    <span class="ticket-body"><span class="ticket-title"></span></span>
+    <span class="ticket-stub"><span class="ticket-serial">Nº${serial}</span>
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="rgba(44,44,44,.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>`;
+  btn.querySelector('.ticket-title').textContent = label.trim();
+  btn.addEventListener('click', onPress);
+  return btn;
+}
+
+function render(scrollTop) {
+  const story = STORIES[state.story];
+  const ch = story.chapters[state.chapter];
+  phone.classList.toggle('after', state.mode === 'after');
+  $('navTitle').textContent = story.name;
+
+  const featured = $('featured');
+  featured.innerHTML = '';
+  if (ch.img) {
+    const img = document.createElement('img');
+    img.src = ch.img;
+    img.alt = '';
+    featured.appendChild(img);
+  }
+  $('chapterName').textContent = ch.title;
+
+  const web = $('webview');
+  web.innerHTML = ch.html;
+  injectLikeApp(web);
+
+  const nc = $('nextChapters');
+  nc.innerHTML = '';
+  const isLast = state.chapter === story.chapters.length - 1;
+  const header = document.createElement('h2');
+  header.className = 'nc-header';
+  header.textContent = ch.choices.length ? (ch.endLabel || CHOICE_HEADER) : (ch.endLabel || 'The End');
+  nc.appendChild(header);
+  if (ch.choices.length) {
+    const list = document.createElement('div');
+    list.className = 'choice-list';
+    ch.choices.forEach((label, i) => list.appendChild(ticket(label, i, () => {
+      if (!isLast) { state.chapter += 1; render(true); }
+    })));
+    nc.appendChild(list);
+  }
+
+  if (state.mode === 'after') {
+    const blocks = [
+      ...web.querySelectorAll(BLOCK_SELECTOR),
+      ...[...web.children].filter((el) => el.matches('div') && el.textContent.trim()),
+      $('chapterName'),
+      header,
+      ...nc.querySelectorAll('.ticket-title'),
+    ].filter((el) => el.textContent.trim() && !el.closest('.audio-button'));
+    applyNewStyle(blocks);
+  }
+
+  renderControls();
+  const url = new URL(location.href);
+  url.searchParams.set('s', state.story + 1);
+  url.searchParams.set('c', state.chapter + 1);
+  url.searchParams.set('m', state.mode);
+  history.replaceState(null, '', url);
+  if (scrollTop) window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('#modeSeg button').forEach((b) => b.addEventListener('click', () => {
+  state.mode = b.dataset.mode;
+  const y = window.scrollY;
+  render(false);
+  window.scrollTo(0, y);
+}));
+$('prev').addEventListener('click', () => { state.chapter -= 1; render(true); });
+$('next').addEventListener('click', () => { state.chapter += 1; render(true); });
+
+render(false);
+// Line counts depend on the web font; re-run once it has loaded.
+document.fonts.ready.then(() => render(false));
+window.__balancedStories = { state, render, STORIES };

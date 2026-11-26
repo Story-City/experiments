@@ -1,0 +1,265 @@
+/* App values: mobile-rn src/theme.ts (dark), ReaderView.tsx, NavigationHeader.js,
+   TextStyles.js, TicketChoiceButtonConstants.ts and the reader WebView CSS in
+   webview/reader/ReaderWebViewInjection.ts. */
+:root {
+  --bg: #170c35;
+  --raised: #241b46;
+  --text: #ffffff;
+  --reader-text: #E8E8EA;
+  --primary: #1FA4F4;
+  --primary-accent: #1879B5;
+  --ticket-ink: #2C2C2C;
+  --amethyst: #9b6bd6;
+  --amethyst-glow: rgba(155, 107, 214, .55);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #0d0720; color: var(--text); }
+body { font-family: 'Darker Grotesque', sans-serif; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+
+.phone {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+/* Mockup controls: sit in the status-bar band above the nav header */
+.demo {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  height: 44px;
+  padding: 0 10px;
+  background: var(--bg);
+}
+.seg { display: flex; background: var(--raised); border-radius: 17px; padding: 2px; }
+.seg button {
+  height: 28px;
+  min-width: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  color: #c9c2e6;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.seg button[aria-pressed="true"] {
+  background: var(--amethyst);
+  color: #fff;
+  box-shadow: 0 0 10px var(--amethyst-glow);
+}
+.pager { display: flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 700; color: #c9c2e6; }
+.pager button {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 14px;
+  background: var(--raised);
+  cursor: pointer;
+}
+.pager button:disabled { opacity: .35; cursor: default; }
+.pager span { min-width: 28px; text-align: center; }
+
+/* NavigationHeader: 100px, items on the bottom edge, 20px sides, 10px bottom */
+.nav {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 20px 10px;
+}
+.nav-back, .nav-menu {
+  flex: 0 0 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 20px;
+  background: var(--raised);
+  padding: 0;
+}
+.nav-menu { background: transparent; }
+.nav-title {
+  flex: 1;
+  margin: 0 5px;
+  font-size: 24px;
+  line-height: 29px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ScrollView content: marginHorizontal/top theme.spacing.m (16) */
+.content { margin: 16px 16px 0; padding-bottom: 40px; }
+
+/* Featured image: FEATURED_IMAGE_WIDTH = width - 2 x DEFAULT_PADDING(20), radius 20, contain */
+.featured { margin-bottom: 20px; }
+.featured:empty { display: none; }
+.featured img {
+  display: block;
+  width: calc(100% - 8px);
+  height: auto;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 20px;
+}
+
+/* TextStyles.primaryHeader: 28 / 33.6 bold, marginBottom 10 */
+.chapter-name { font-size: 28px; line-height: 33.6px; font-weight: 700; margin-bottom: 10px; }
+.chapter-name:empty { display: none; }
+
+/* ---- Reader WebView CSS, copied from injectedReaderStyle('dark') ---- */
+.webview {
+  font-family: 'Darker Grotesque', sans-serif;
+  font-weight: 400;
+  color: var(--reader-text);
+  background-color: var(--bg);
+  font-size: 18px;
+  display: flow-root;
+}
+.webview h1 { font-weight: bold; }
+.webview span[info] {
+  font-weight: 400;
+  text-decoration: none;
+  color: #ffffff;
+  user-select: none;
+  font-size: 18px;
+}
+.webview video { border-radius: 20px; max-width: 100%; margin: 10px 0; }
+.webview .audio-button {
+  width: 100%;
+  height: 70px;
+  border-radius: 10px;
+  padding: 15px;
+  background: linear-gradient(45deg, var(--primary-accent), var(--primary));
+  border-style: none;
+  outline: none;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.webview .audio-text {
+  font-size: 22px;
+  font-family: "Darker Grotesque", sans-serif;
+  font-weight: bold;
+  color: #FFFFFF;
+  width: 100%;
+  text-align: center;
+  user-select: none;
+  margin: 0;
+}
+.webview .audio-icon { display: block; }
+.webview .button-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  max-height: 100%;
+}
+.webview img { max-width: 100%; height: auto; }
+.webview figure { width: auto; margin: 0; }
+.webview a {
+  font-family: 'Darker Grotesque', sans-serif;
+  font-weight: 400;
+  color: #FFF;
+  text-decoration: none;
+  user-select: none;
+  white-space: nowrap;
+}
+.webview a, .webview .link-wrapper {
+  padding: 2px 5px;
+  background: linear-gradient(45deg, var(--primary-accent), var(--primary));
+  line-height: 1;
+  border-radius: 5px;
+}
+.webview .link-wrapper > a { background: none; padding: 0; border-radius: 0; }
+.webview .link-wrapper {
+  display: inline-flex;
+  width: fit-content;
+  justify-content: center;
+  align-items: center;
+}
+.webview .link-image { margin-left: 5px; width: 15px; }
+
+/* ---- The new style (After): no lone last word, even lines ---- */
+.after .webview :is(p, li, h1, h2, h3, h4, blockquote) { text-wrap: pretty; }
+.after .webview .bal { text-wrap: balance; }
+.after .nc-header, .after .ticket-title { text-wrap: balance; }
+
+/* ---- NextChapters: header (TextStyles.secondaryHeader 24 / 28.8) + ticket buttons ---- */
+.nc-header { font-size: 24px; line-height: 28.8px; font-weight: 700; margin: 20px 0 0; }
+.choice-list { margin-top: 16px; display: grid; gap: 8px; }
+.ticket {
+  position: relative;
+  display: flex;
+  height: 88px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: var(--ticket-ink);
+}
+.ticket-body, .ticket-stub {
+  position: relative;
+  background: var(--stock);
+  height: 100%;
+}
+.ticket-body {
+  flex: 1;
+  border-radius: 12px 0 0 12px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px 0 18px;
+  min-width: 0;
+}
+.ticket-stub {
+  flex: 0 0 72px;
+  border-radius: 0 12px 12px 0;
+  display: grid;
+  place-items: center;
+  border-left: 2px dotted var(--bg);
+}
+.ticket-body::before, .ticket-stub::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1.5px solid rgba(44, 44, 44, .6);
+  border-radius: 9px;
+  pointer-events: none;
+}
+.ticket-body::before { right: 6px; }
+.ticket-stub::before { left: 6px; }
+.ticket-title {
+  font-size: 20px;
+  line-height: 22px;
+  font-weight: 700;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ticket-serial {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  font-size: 10px;
+  line-height: 12px;
+  color: rgba(44, 44, 44, .45);
+}
+.ticket:focus-visible { outline: 2px solid var(--amethyst); outline-offset: 3px; border-radius: 12px; }
+.end-label { font-size: 24px; line-height: 28.8px; font-weight: 700; margin-top: 20px; }
