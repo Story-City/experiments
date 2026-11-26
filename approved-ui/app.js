@@ -1,4 +1,4 @@
-/** Approved UI library — APPROVED-UI-v23
+/** Approved UI library — APPROVED-UI-v24
  * Tools + opens location-gems edition-rail (same Look/Move tools). Category selector + gem-pins.
  * GEM-CAT-SELECTOR-v22 · LOCATION-GEMS tools=1
  */
@@ -428,8 +428,10 @@ function setToolsOpen(open) {
   if (toolsPlus) toolsPlus.setAttribute('aria-expanded', String(on));
   if (toolsDrawer) toolsDrawer.hidden = !on;
   if (toolsSideNote) toolsSideNote.hidden = !on;
-  if (on && toolsFrame && !toolsFrame.src) {
-    toolsFrame.src = toolsFrame.dataset.src || LOOK_TOOLS_SRC;
+  if (on && toolsFrame) {
+    const want = toolsFrame.dataset.src || LOOK_TOOLS_SRC;
+    const hasTools = /[?&]tools=1(?:&|$)/.test(toolsFrame.src || '');
+    if (!hasTools) toolsFrame.src = want;
   }
 }
 
