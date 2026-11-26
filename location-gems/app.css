@@ -582,6 +582,42 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   animation: pageAnchorBloomPulse 9.2s ease-in-out infinite;
 }
 
+/* Braid — two opposing crystal lanes (even/odd) */
+.hub[data-page-anchor="braid"] .page-anchor-layer {
+  --pa-drift-travel: 420px;
+}
+.hub[data-page-anchor="braid"] .page-anchor-mist {
+  opacity: 0.74;
+  animation: pageAnchorMistBreath 8s ease-in-out infinite;
+}
+.hub[data-page-anchor="braid"] .page-anchor-gem {
+  top: 42%;
+  left: -14%;
+  margin-top: -10px;
+  opacity: 0;
+  animation: pageAnchorDriftGem 20s linear infinite;
+}
+.hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(even) {
+  top: 62%;
+  left: auto;
+  right: -14%;
+  animation-name: pageAnchorBraidBack;
+}
+
+/* Pulse — soft heartbeat wash + crystal glow */
+.hub[data-page-anchor="pulse"] .page-anchor-mist {
+  opacity: 0.8;
+  animation: pageAnchorPulseMist 4.8s ease-in-out infinite;
+}
+.hub[data-page-anchor="pulse"] .page-anchor-wash {
+  opacity: 0.35;
+  transform: scale(1);
+  animation: pageAnchorPulseWash 4.8s ease-in-out infinite;
+}
+.hub[data-page-anchor="pulse"] .page-anchor-gem {
+  animation: pageAnchorBloomPulse 4.8s ease-in-out infinite;
+}
+
 .page-anchor-gem {
   position: absolute;
   top: 50%;
@@ -677,6 +713,18 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(4) { animation-duration: 14.4s; animation-delay: -1.7s; left: 62%; }
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(5) { animation-duration: 12.9s; animation-delay: -8.4s; left: 76%; }
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(6) { animation-duration: 13.8s; animation-delay: -10.9s; left: 90%; }
+.hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(1) { animation-duration: 19s; animation-delay: 0s; }
+.hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(2) { animation-duration: 21s; animation-delay: -3.5s; }
+.hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(3) { animation-duration: 18.2s; animation-delay: -7s; }
+.hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(4) { animation-duration: 22.4s; animation-delay: -1.8s; }
+.hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(5) { animation-duration: 20.1s; animation-delay: -9.6s; }
+.hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(6) { animation-duration: 21.8s; animation-delay: -12.2s; }
+.hub[data-page-anchor="pulse"] .page-anchor-gem:nth-child(1) { animation-delay: 0s; }
+.hub[data-page-anchor="pulse"] .page-anchor-gem:nth-child(2) { animation-delay: -0.6s; }
+.hub[data-page-anchor="pulse"] .page-anchor-gem:nth-child(3) { animation-delay: -1.2s; }
+.hub[data-page-anchor="pulse"] .page-anchor-gem:nth-child(4) { animation-delay: -1.8s; }
+.hub[data-page-anchor="pulse"] .page-anchor-gem:nth-child(5) { animation-delay: -2.4s; }
+.hub[data-page-anchor="pulse"] .page-anchor-gem:nth-child(6) { animation-delay: -3s; }
 
 @keyframes pageAnchorMistBreath {
   0%, 100% { opacity: 0.82; filter: blur(0); }
@@ -738,6 +786,21 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   22% { opacity: 0.55; }
   55% { opacity: 0.35; }
   100% { transform: translate3d(85%, 0, 0); opacity: 0; }
+}
+@keyframes pageAnchorBraidBack {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  10% { opacity: 0.2; }
+  55% { opacity: 0.14; }
+  90% { opacity: 0.08; }
+  100% { transform: translate3d(calc(var(--pa-drift-travel, 420px) * -1), -2px, 0); opacity: 0; }
+}
+@keyframes pageAnchorPulseMist {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.92; transform: scale(1.04); }
+}
+@keyframes pageAnchorPulseWash {
+  0%, 100% { transform: scale(0.7); opacity: 0.12; }
+  50% { transform: scale(1.35); opacity: 0.4; }
 }
 .snapshot-hero {
   position: relative;
