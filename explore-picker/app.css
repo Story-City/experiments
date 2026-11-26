@@ -157,7 +157,7 @@ button:focus-visible{outline:2px solid var(--tq); outline-offset:2px}
 .c-wisp{animation:wisp 18s ease-in-out infinite alternate}
 @keyframes wisp{to{transform:translate(40px, 24px)}}
 .c-grid{position:absolute; inset:0; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr)}
-.c-tile{position:relative; border:0; background:none; padding:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
+.c-tile{position:relative; border:0; background:none; padding:6px; border-radius:28px; outline-offset:-10px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
 .c-lab{font-size:15.5px; line-height:1.22; font-weight:700; color:#2a1f55; text-shadow:0 0 10px rgba(235,230,255,.8); transition:opacity .35s}
 .c-tile.on .c-lab{opacity:0}
 .c-pin,.c-short{position:absolute; left:50%; opacity:0; transition:opacity .4s .25s, transform .45s cubic-bezier(.3,1.6,.5,1) .25s}
@@ -318,8 +318,7 @@ button:focus-visible{outline:2px solid var(--tq); outline-offset:2px}
 .i-b.typing i:nth-child(2){animation-delay:.15s} .i-b.typing i:nth-child(3){animation-delay:.3s}
 @keyframes dots{50%{opacity:.3; transform:translateY(-2px)}}
 @keyframes bubIn{from{opacity:0; transform:translateY(8px)}}
-.i-chips{flex:none; padding-top:10px; border-top:1px solid rgba(59,48,112,.5); gap:6px}
-.i-chips .chip{font-size:13px; padding:0 11px}
+.i-chips{flex:none; padding-top:10px; border-top:1px solid rgba(59,48,112,.5)}
 
 /* ---------- J · Passport ---------- */
 .j-pass{position:relative; border-radius:10px 18px 18px 10px; padding:12px 12px 12px 22px; border:1px solid #4a3c86;
@@ -391,8 +390,10 @@ button:focus-visible{outline:2px solid var(--tq); outline-offset:2px}
 @keyframes badge{from{transform:scale(0) rotate(-40deg)}}
 .l-empty{font-size:12.5px; color:var(--muted)}
 .l-add{font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--tq); font-weight:700; margin:16px 0 8px}
-.l-chips{gap:6px}
-.l-chips .chip{font-size:13px; padding:0 11px}
+/* two to a row, the odd one out centred on its own */
+.i-chips,.l-chips{display:grid; grid-template-columns:1fr 1fr; gap:6px}
+.i-chips .chip,.l-chips .chip{font-size:13.5px; padding:0 12px; width:100%}
+.i-chips .chip:last-child:nth-child(odd),.l-chips .chip:last-child:nth-child(odd){grid-column:1 / -1; justify-self:center; width:calc(50% - 3px)}
 
 /* ---------- J · Living street ---------- */
 .picker.v-m{display:flex; flex-direction:column}

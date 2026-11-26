@@ -1,10 +1,10 @@
 // All copy for the explore picker lives here. Each line is a one-line edit.
 
 export const COPY = {
-  pageTitle: 'Explore picker · 10 ways to pick',
+  pageTitle: 'Explore picker · 9 ways to pick',
   stepLabel: 'Step 2 of 3',
   // Heading options, switched with 1–4 in the bar (?h=1…4)
-  titles: ['How do you like to explore?', 'How would you like to explore?', 'How can we help you explore?', 'How do you want to explore?'],
+  titles: ['How do you want to explore?', 'How do you like to explore?', 'How would you like to explore?', 'How can we help you explore?'],
   headingLabel: 'Heading',
   sub: 'Pick all that apply. Each pick changes what you see next.',
   skip: 'Skip',
@@ -85,7 +85,7 @@ export const EXPLORER = {
 };
 
 // The versions of the picking mechanic. hint = one line inside the phone (false = no subhead); why / risk = the note under the switcher.
-// Ruled out 25 Nov (Melissa): Pack your bag, Bubbles, Trail of lanterns, Signpost. Letters are re-assigned in order.
+// Ruled out 25 Nov (Melissa): Pack your bag, Bubbles, Trail of lanterns, Signpost, Swipe deck. Letters are re-assigned in order.
 export const VERSIONS = [
   { key: 'a', name: 'Card shuffle',      hint: false,
     why: 'Physical, tactile and quick; the hand makes choices feel owned.', risk: 'Nine text cards is a lot to read on a couch.' },
@@ -95,8 +95,6 @@ export const VERSIONS = [
     why: 'Previews fog clearing on the map before the first walk.', risk: 'Players may think unpicked tiles stay locked.' },
   { key: 'd', name: 'Constellation',     hint: 'Tap stars to light them and join them up.',
     why: 'Feels like making something personal and mysterious.', risk: 'Short star labels can hide what each pick means.' },
-  { key: 'f', name: 'Swipe deck',        hint: 'Swipe right or tap Yes. Left for not for me.',
-    why: 'Familiar, one decision at a time, fast to finish.', risk: 'Nine cards in a row can feel like a survey.' },
   { key: 'i', name: 'Bookerton chat',    hint: '',
     why: 'Meets Bookerton early and feels like a conversation.', risk: 'Chat can feel slow if the reactions lag.' },
   { key: 'j', name: 'Passport stamps',   hint: 'Tap a page to stamp it.',

@@ -221,6 +221,8 @@ function mountB(el) {
 }
 
 /* ---------- C · Map tiles unfog ---------- */
+// The 3×3 grid of cleared squares is blurred, then sharpened back (a "goo" filter): the fog edge follows a smooth curve,
+// so leftover fog shrinks to round puffs and clearings never show corners. Border squares extend past the edge so clearings reach it.
 // A real street map (OpenStreetMap tiles, darkened and tinted to the app's dark map palette) under one continuous fog bank.
 // Centred on the player only if location is already allowed (never prompts), otherwise the app's own default, downtown Edmonton.
 const MAP_HOME = { lat: 53.5461, lon: -113.4938 };
@@ -243,9 +245,12 @@ const FOG_SVG = `<svg class="c-fogsvg" viewBox="0 0 300 300" preserveAspectRatio
   <defs>
     <filter id="cWisp" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".014" numOctaves="4" seed="11"/>
       <feColorMatrix values="0 0 0 0 1  0 0 0 0 .97  0 0 0 0 1  0 0 0 1.5 -.55"/></filter>
-    <filter id="cSoft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="8"/></filter>
-    <mask id="cMask" maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="300"><rect width="300" height="300" fill="#fff"/>
-      ${OPTIONS.map((o, i) => `<rect class="c-hole" data-hole="${o.id}" x="${(i % 3) * 100 - 10}" y="${Math.floor(i / 3) * 100 - 10}" width="120" height="120" rx="44" fill="#000" filter="url(#cSoft)"/>`).join('')}</mask>
+    <filter id="cGoo" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="32"/>
+      <feComponentTransfer><feFuncR type="linear" slope="3.2" intercept="-1.35"/><feFuncG type="linear" slope="3.2" intercept="-1.35"/><feFuncB type="linear" slope="3.2" intercept="-1.35"/></feComponentTransfer>
+      <feGaussianBlur stdDeviation="2"/></filter>
+    <mask id="cMask" maskUnits="userSpaceOnUse" x="-60" y="-60" width="420" height="420"><g filter="url(#cGoo)"><rect x="-60" y="-60" width="420" height="420" fill="#fff"/>
+      ${OPTIONS.map((o, i) => { const c = i % 3, r = Math.floor(i / 3), x0 = c ? c * 100 : -60, y0 = r ? r * 100 : -60, x1 = c < 2 ? (c + 1) * 100 : 360, y1 = r < 2 ? (r + 1) * 100 : 360;
+        return `<rect class="c-hole" data-hole="${o.id}" x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" fill="#000"/>`; }).join('')}</g></mask>
   </defs>
   <g mask="url(#cMask)"><rect width="300" height="300" fill="#a99ed6"/><rect class="c-wisp" x="-60" y="-60" width="420" height="420" filter="url(#cWisp)"/>
     <rect width="300" height="300" fill="url(#cShade)"/></g>
@@ -454,7 +459,7 @@ function mountI(el) {
       <div class="i-row me" id="iMeRow" hidden><div class="i-b me" id="iMe"></div></div>
       <div class="i-row bot" id="iReactRow" hidden>${BOOK_AV}<div class="i-b bot" id="iReact"></div></div>
     </div>
-    <div class="i-chips chips">${OPTIONS.map(o => `<button class="chip" data-opt="${o.id}"><span>${icon(o.id)}</span><span>${esc(o.label)}</span></button>`).join('')}</div>`;
+    <div class="i-chips chips">${OPTIONS.map(o => `<button class="chip" data-opt="${o.id}" aria-label="${esc(o.label)}"><span>${icon(o.id)}</span><span>${esc(o.short)}</span></button>`).join('')}</div>`;
   const chat = $('#iChat', el), me = $('#iMe', el), meRow = $('#iMeRow', el), react = $('#iReact', el), reactRow = $('#iReactRow', el);
   let timer;
   const drawMe = () => {
@@ -542,7 +547,7 @@ function mountL(el) {
         <span class="l-who"><span class="l-name">${esc(EXPLORER.name)}</span><b class="l-title" id="lTitle"></b><span class="l-meta">${esc(EXPLORER.meta)}</span></span></div>
       <div class="l-badges" id="lBadges"></div></div>
     <p class="l-add">${esc(EXPLORER.addLabel)}</p>
-    <div class="chips l-chips">${OPTIONS.map(o => `<button class="chip" data-opt="${o.id}"><span>${icon(o.id)}</span><span>${esc(o.label)}</span></button>`).join('')}</div>`;
+    <div class="chips l-chips">${OPTIONS.map(o => `<button class="chip" data-opt="${o.id}" aria-label="${esc(o.label)}"><span>${icon(o.id)}</span><span>${esc(o.short)}</span></button>`).join('')}</div>`;
   const title = $('#lTitle', el), badges = $('#lBadges', el), card = $('#lCard', el);
   const drawBadges = newId => {
     badges.innerHTML = S.picked.length
