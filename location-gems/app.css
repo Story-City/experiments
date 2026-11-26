@@ -137,6 +137,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   gap: 6px;
 }
 .design-actions[hidden] { display: none !important; }
+.design-actions .design-scale-pick {
+  grid-column: 1 / -1;
+}
 .edition-rail .design-actions .play {
   width: 100%;
   text-align: center;
@@ -637,14 +640,14 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .gem-card-gem {
   flex: none;
-  width: 38px;
-  height: 38px;
+  width: 30px;
+  height: 30px;
   filter: drop-shadow(0 0 12px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
 }
 .gem-card-gem.is-diamond,
 .gem-card-gem.is-hollow {
-  width: 38px;
-  height: 38px;
+  width: 30px;
+  height: 30px;
 }
 .gem-card-gem.is-hollow {
   filter: drop-shadow(0 0 12px color-mix(in srgb, #9370c4 85%, transparent));
@@ -855,8 +858,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   background: color-mix(in srgb, var(--cat-fill, #00c2ff) 18%, rgba(7, 5, 18, 0.4));
 }
 .ov-chip-cat .ov-chip-gem {
-  width: 18px;
-  height: 16px;
+  width: 22px;
+  height: 24px;
+  overflow: visible;
+  flex: none;
 }
 .ov-chip-cat .ov-chip-gem .cat-gem-art,
 .ov-chip-cat .ov-chip-gem svg {
@@ -952,6 +957,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   font-size: 14px;
   font-weight: 700;
   line-height: 1.2;
+  overflow: hidden;
 }
 .ov-chip[hidden] { display: none !important; }
 .ov-chip-rarity {
@@ -3022,11 +3028,13 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   display: block;
   object-fit: contain;
 }
+/* Circle-ish card gems stay in the smaller frame; oval Culture reads larger */
 .publish-cat-btn[data-cat-id="culture"] .publish-cat-gem .cat-gem-art,
 .gem-card-gem .cat-gem-art[src*="art.svg"],
 .feed-chip-corner-gem .cat-gem-art[src*="art.svg"],
-.sort-card-gem .cat-gem-art[src*="art.svg"] {
-  transform: scale(0.78);
+.sort-card-gem .cat-gem-art[src*="art.svg"],
+.ov-chip-cat .ov-chip-gem .cat-gem-art[src*="art.svg"] {
+  transform: scale(1.2);
   transform-origin: center;
 }
 .publish-cat-label {

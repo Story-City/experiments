@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v101 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v102 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -475,6 +475,7 @@ const debugDragMode = document.getElementById('debugDragMode');
 const debugLikesStack = document.getElementById('debugLikesStack');
 const debugSubcats = document.getElementById('debugSubcats');
 const debugDesignMove = document.getElementById('debugDesignMove');
+const debugDesignDeep = document.getElementById('debugDesignDeep');
 const btnRadius = document.getElementById('btnRadius');
 const btnRadiusValue = document.getElementById('btnRadiusValue');
 const spaceScale = document.getElementById('spaceScale');
@@ -483,6 +484,8 @@ const typeScale = document.getElementById('typeScale');
 const typeScaleValue = document.getElementById('typeScaleValue');
 const designSelectionLabel = document.getElementById('designSelectionLabel');
 const designActions = document.getElementById('designActions');
+const designElementScale = document.getElementById('designElementScale');
+const designElementScaleValue = document.getElementById('designElementScaleValue');
 const designResetPos = document.getElementById('designResetPos');
 const designCenterX = document.getElementById('designCenterX');
 const designCenterY = document.getElementById('designCenterY');
@@ -533,6 +536,7 @@ let likesStackMode = false;
 let dragMode = false;
 let subcatsMode = false;
 let designMoveMode = false;
+let designDeepPick = false;
 /** @type {Set<HTMLElement>} */
 let designSelection = new Set();
 /** @type {{ els: HTMLElement[], startX: number, startY: number, origins: { el: HTMLElement, x: number, y: number }[] } | null} */
@@ -2402,8 +2406,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v101 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v101 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v102 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v102 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2629,10 +2633,24 @@ function designOffsetOf(el) {
   return { x: Number.isFinite(x) ? x : 0, y: Number.isFinite(y) ? y : 0 };
 }
 
-function applyDesignOffset(el) {
+function designScaleOf(el) {
+  const s = Number(el.dataset.designScale || 100);
+  return Number.isFinite(s) && s > 0 ? s : 100;
+}
+
+function applyDesignTransform(el) {
   const { x, y } = designOffsetOf(el);
-  if (x || y) el.style.transform = `translate(${x}px, ${y}px)`;
-  else el.style.transform = '';
+  const scale = designScaleOf(el) / 100;
+  const parts = [];
+  if (x || y) parts.push(`translate(${x}px, ${y}px)`);
+  if (scale !== 1) parts.push(`scale(${scale})`);
+  el.style.transform = parts.length ? parts.join(' ') : '';
+  el.style.transformOrigin = 'center center';
+}
+
+/** @deprecated use applyDesignTransform */
+function applyDesignOffset(el) {
+  applyDesignTransform(el);
 }
 
 function designKeyFor(el) {
@@ -2676,6 +2694,14 @@ function syncDesignSelectionUi() {
     else designSelectionLabel.textContent = `[${list.length} selected]`;
   }
   if (designActions) designActions.hidden = list.length === 0;
+  if (designElementScale && list.length) {
+    const scales = list.map((el) => designScaleOf(el));
+    const same = scales.every((s) => s === scales[0]);
+    designElementScale.value = String(same ? scales[0] : 100);
+    if (designElementScaleValue) {
+      designElementScaleValue.textContent = same ? `${scales[0]}%` : 'mix';
+    }
+  }
 }
 
 function clearDesignSelection() {
@@ -2728,7 +2754,7 @@ function setDesignMoveMode(on) {
     return;
   }
   markDesignTargets(true);
-  if (hint) hint.textContent = '[tap a piece, shift+tap for more, then drag]';
+  if (hint) hint.textContent = '[tap a piece · Shift/Ctrl+tap adds · drag to nudge]';
 }
 
 function resetDesignPosition() {
@@ -2736,9 +2762,54 @@ function resetDesignPosition() {
   designSelection.forEach((el) => {
     delete el.dataset.designX;
     delete el.dataset.designY;
-    applyDesignOffset(el);
+    delete el.dataset.designScale;
+    applyDesignTransform(el);
   });
+  syncDesignSelectionUi();
   scheduleDesignStudioSave();
+}
+
+function applyElementScaleToSelection(pct) {
+  const n = Number(pct);
+  const scale = Number.isFinite(n) ? Math.max(40, Math.min(220, n)) : 100;
+  designSelection.forEach((el) => {
+    if (isDesignLocked(el)) return;
+    if (scale === 100) delete el.dataset.designScale;
+    else el.dataset.designScale = String(Math.round(scale));
+    applyDesignTransform(el);
+  });
+  if (designElementScaleValue) designElementScaleValue.textContent = `${Math.round(scale)}%`;
+  scheduleDesignStudioSave();
+}
+
+function setDesignDeepPick(on) {
+  designDeepPick = on;
+  setSwitch(debugDesignDeep, on);
+}
+
+function resolveDesignPickTarget(start, deep) {
+  if (!phone || !start) return null;
+  let el = start.nodeType === 1 ? start : start.parentElement;
+  if (!el || !phone.contains(el)) return null;
+  if (deep) {
+    while (el && phone.contains(el)) {
+      if (
+        el === phone ||
+        el.id === 'hub' ||
+        el.classList?.contains('hub-scroll') ||
+        el.classList?.contains('detail-scroll')
+      ) {
+        return null;
+      }
+      if (el.tagName === 'IMG' || el.tagName === 'SVG' || el.tagName === 'PATH' || el.tagName === 'SPAN' || el.tagName === 'BUTTON' || el.tagName === 'P' || el.tagName === 'DIV') {
+        if (el.tagName === 'PATH' && el.ownerSVGElement) return el.ownerSVGElement;
+        return /** @type {HTMLElement} */ (el);
+      }
+      el = el.parentElement;
+    }
+    return null;
+  }
+  return /** @type {HTMLElement | null} */ (el.closest(DESIGN_TARGET_SEL));
 }
 
 function setDesignLocked(on) {
@@ -2777,15 +2848,22 @@ function centerDesignSelection(axis) {
 }
 
 function collectDesignPositions() {
-  /** @type {Record<string, { x: number, y: number, locked?: boolean }>} */
+  /** @type {Record<string, { x: number, y: number, scale?: number, locked?: boolean }>} */
   const positions = {};
   if (!phone) return positions;
-  phone.querySelectorAll(DESIGN_TARGET_SEL).forEach((el) => {
+  const nodes = new Set([
+    ...phone.querySelectorAll(DESIGN_TARGET_SEL),
+    ...phone.querySelectorAll('[data-design-x], [data-design-y], [data-design-scale], [data-design-locked]'),
+  ]);
+  nodes.forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
     const key = designKeyFor(el);
     const off = designOffsetOf(el);
+    const scale = designScaleOf(el);
     const locked = isDesignLocked(el);
-    if (!off.x && !off.y && !locked) return;
+    if (!off.x && !off.y && scale === 100 && !locked) return;
     positions[key] = { x: off.x, y: off.y };
+    if (scale !== 100) positions[key].scale = scale;
     if (locked) positions[key].locked = true;
   });
   return positions;
@@ -2793,19 +2871,25 @@ function collectDesignPositions() {
 
 function applyDesignPositions(positions) {
   if (!phone || !positions) return;
-  phone.querySelectorAll(DESIGN_TARGET_SEL).forEach((el) => {
-    const key = designKeyFor(el);
+  Object.keys(positions).forEach((key) => {
     const saved = positions[key];
     if (!saved) return;
+    let el =
+      phone.querySelector(`[data-design-key="${CSS.escape(key)}"]`) ||
+      [...phone.querySelectorAll(DESIGN_TARGET_SEL)].find((node) => designKeyFor(node) === key) ||
+      null;
+    if (!el) return;
     if (saved.x) el.dataset.designX = String(saved.x);
     else delete el.dataset.designX;
     if (saved.y) el.dataset.designY = String(saved.y);
     else delete el.dataset.designY;
+    if (saved.scale && saved.scale !== 100) el.dataset.designScale = String(saved.scale);
+    else delete el.dataset.designScale;
     if (saved.locked) {
       el.dataset.designLocked = '1';
       el.classList.add('is-design-locked');
     }
-    applyDesignOffset(el);
+    applyDesignTransform(el);
   });
 }
 
@@ -2824,6 +2908,17 @@ function captureDesignStudio() {
     btnRadius: btnRadius ? Number(btnRadius.value) : BTN_RADIUS_PILL,
     spaceScale: spaceScale ? Number(spaceScale.value) : 100,
     typeScale: typeScale ? Number(typeScale.value) : 100,
+    accent: accentColor ? accentColor.value : '#00c2ff',
+    accentAlpha: accentAlpha ? Number(accentAlpha.value) : 100,
+    radialColor: radialColor ? radialColor.value : '#b36bff',
+    radialAmount: radialAmount ? Number(radialAmount.value) : 55,
+    radialImpact: radialImpact ? Number(radialImpact.value) : 60,
+    bgColor: bgColor ? bgColor.value : '#170c35',
+    bgDepth: bgDepth ? Number(bgDepth.value) : 100,
+    midToneOn: midToneEnabled(),
+    midToneColor: midToneColor ? midToneColor.value : MID_TONE_DEFAULT,
+    sortFrame: sortFrameColor ? sortFrameColor.value : SORT_FRAME_DEFAULT,
+    sortCardText: sortCardTextColor ? sortCardTextColor.value : SORT_CARD_TEXT_DEFAULT,
     positions: collectDesignPositions(),
     savedAt: Date.now(),
   };
@@ -2869,16 +2964,33 @@ function applyDesignStudioData(data, { note } = {}) {
   if (btnRadius && data.btnRadius != null) btnRadius.value = String(data.btnRadius);
   if (spaceScale && data.spaceScale != null) spaceScale.value = String(data.spaceScale);
   if (typeScale && data.typeScale != null) typeScale.value = String(data.typeScale);
+  if (accentColor && data.accent) accentColor.value = data.accent;
+  if (accentAlpha && data.accentAlpha != null) accentAlpha.value = String(data.accentAlpha);
+  if (radialColor && data.radialColor) radialColor.value = data.radialColor;
+  if (radialAmount && data.radialAmount != null) radialAmount.value = String(data.radialAmount);
+  if (radialImpact && data.radialImpact != null) radialImpact.value = String(data.radialImpact);
+  if (bgColor && data.bgColor) bgColor.value = data.bgColor;
+  if (bgDepth && data.bgDepth != null) bgDepth.value = String(data.bgDepth);
+  if (midToneColor && data.midToneColor) midToneColor.value = data.midToneColor;
+  if (typeof data.midToneOn === 'boolean') setMidTone(data.midToneOn);
+  if (sortFrameColor && data.sortFrame) sortFrameColor.value = data.sortFrame;
+  if (sortCardTextColor && data.sortCardText) sortCardTextColor.value = data.sortCardText;
   applyBtnRadius();
   applySpaceScale();
   applyTypeScale();
+  applyAccent();
+  applyRadial();
+  applyBg();
+  applyMidTone();
+  applySortCardText();
   if (phone) {
     phone.querySelectorAll(DESIGN_TARGET_SEL).forEach((el) => {
       delete el.dataset.designX;
       delete el.dataset.designY;
+      delete el.dataset.designScale;
       delete el.dataset.designLocked;
       el.classList.remove('is-design-locked');
-      applyDesignOffset(el);
+      applyDesignTransform(el);
     });
   }
   applyDesignPositions(data.positions || {});
@@ -2952,9 +3064,19 @@ function clearDesignStudio() {
     phone.querySelectorAll(DESIGN_TARGET_SEL).forEach((el) => {
       delete el.dataset.designX;
       delete el.dataset.designY;
+      delete el.dataset.designScale;
       delete el.dataset.designLocked;
       el.classList.remove('is-design-locked');
-      applyDesignOffset(el);
+      applyDesignTransform(el);
+    });
+    phone.querySelectorAll('[data-design-scale], [data-design-x], [data-design-y]').forEach((el) => {
+      if (!(el instanceof HTMLElement)) return;
+      delete el.dataset.designX;
+      delete el.dataset.designY;
+      delete el.dataset.designScale;
+      delete el.dataset.designLocked;
+      el.classList.remove('is-design-locked');
+      applyDesignTransform(el);
     });
   }
   clearDesignSelection();
@@ -2969,14 +3091,20 @@ function clearDesignStudio() {
 function onDesignPointerDown(e) {
   if (!designMoveMode || !phone || e.button !== 0) return;
   if (e.target.closest('.edition-rail, .tool-rail')) return;
-  const target = e.target.closest(DESIGN_TARGET_SEL);
+  e.preventDefault();
+  e.stopPropagation();
+  if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+  const deep = designDeepPick || e.altKey;
+  const target = resolveDesignPickTarget(/** @type {Node} */ (e.target), deep);
   if (!target || !phone.contains(target)) {
     clearDesignSelection();
     return;
   }
-  e.preventDefault();
-  e.stopPropagation();
-  selectDesignTarget(target, { additive: e.shiftKey });
+  designKeyFor(target);
+  target.classList.add('is-design-target');
+  /* Figma-like: Shift or Ctrl/Cmd adds to selection */
+  const additive = e.shiftKey || e.metaKey || e.ctrlKey;
+  selectDesignTarget(target, { additive });
   const movers = [...designSelection].filter((el) => !isDesignLocked(el));
   if (!movers.length) return;
   designDrag = {
@@ -2990,6 +3118,14 @@ function onDesignPointerDown(e) {
   };
   movers.forEach((el) => el.classList.add('is-design-dragging'));
   target.setPointerCapture?.(e.pointerId);
+}
+
+function onDesignClickBlock(e) {
+  if (!designMoveMode) return;
+  if (e.target.closest('.edition-rail, .tool-rail')) return;
+  e.preventDefault();
+  e.stopPropagation();
+  if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
 }
 
 function onDesignPointerMove(e) {
@@ -3132,22 +3268,39 @@ detail.addEventListener('click', (e) => {
   setDetailMenuOpen(false);
 });
 detailLikeBtn.addEventListener('click', toggleDetailLike);
-accentColor.addEventListener('input', applyAccent);
-accentAlpha.addEventListener('input', applyAccent);
-if (radialColor) radialColor.addEventListener('input', applyRadial);
-if (radialAmount) radialAmount.addEventListener('input', applyRadial);
-if (radialImpact) radialImpact.addEventListener('input', applyRadial);
-if (bgColor) bgColor.addEventListener('input', applyBg);
-if (bgDepth) bgDepth.addEventListener('input', applyBg);
-if (midToneColor) midToneColor.addEventListener('input', applyMidTone);
-if (sortFrameColor) {
-  sortFrameColor.addEventListener('input', () => {
-    document.documentElement.style.setProperty('--sort-frame', sortFrameColor.value || SORT_FRAME_DEFAULT);
-  });
+function onLookToolInput(fn) {
+  return () => {
+    fn();
+    if (!designHistoryMuted) scheduleDesignStudioSave();
+  };
 }
-if (sortCardTextColor) sortCardTextColor.addEventListener('input', applySortCardText);
+accentColor.addEventListener('input', onLookToolInput(applyAccent));
+accentAlpha.addEventListener('input', onLookToolInput(applyAccent));
+if (radialColor) radialColor.addEventListener('input', onLookToolInput(applyRadial));
+if (radialAmount) radialAmount.addEventListener('input', onLookToolInput(applyRadial));
+if (radialImpact) radialImpact.addEventListener('input', onLookToolInput(applyRadial));
+if (bgColor) bgColor.addEventListener('input', onLookToolInput(applyBg));
+if (bgDepth) bgDepth.addEventListener('input', onLookToolInput(applyBg));
+if (midToneColor) midToneColor.addEventListener('input', onLookToolInput(applyMidTone));
+if (sortFrameColor) {
+  sortFrameColor.addEventListener(
+    'input',
+    onLookToolInput(() => {
+      document.documentElement.style.setProperty(
+        '--sort-frame',
+        sortFrameColor.value || SORT_FRAME_DEFAULT,
+      );
+    }),
+  );
+}
+if (sortCardTextColor) {
+  sortCardTextColor.addEventListener('input', onLookToolInput(applySortCardText));
+}
 if (midToneOn) {
-  midToneOn.addEventListener('click', () => setMidTone(!midToneEnabled()));
+  midToneOn.addEventListener(
+    'click',
+    onLookToolInput(() => setMidTone(!midToneEnabled())),
+  );
 }
 resetHub.addEventListener('click', resetState);
 debugLikes.addEventListener('click', () => playLikesBanner());
@@ -3167,6 +3320,14 @@ if (debugSubcats) {
 }
 if (debugDesignMove) {
   debugDesignMove.addEventListener('click', () => setDesignMoveMode(!designMoveMode));
+}
+if (debugDesignDeep) {
+  debugDesignDeep.addEventListener('click', () => setDesignDeepPick(!designDeepPick));
+}
+if (designElementScale) {
+  designElementScale.addEventListener('input', () => {
+    applyElementScaleToSelection(designElementScale.value);
+  });
 }
 if (btnRadius) {
   btnRadius.addEventListener('input', () => {
@@ -3200,6 +3361,8 @@ if (phone) {
   phone.addEventListener('pointermove', onDesignPointerMove);
   phone.addEventListener('pointerup', onDesignPointerUp);
   phone.addEventListener('pointercancel', onDesignPointerUp);
+  phone.addEventListener('click', onDesignClickBlock, true);
+  phone.addEventListener('auxclick', onDesignClickBlock, true);
 }
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && designMoveMode) clearDesignSelection();
