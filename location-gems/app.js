@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v114 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v115 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -132,6 +132,9 @@ const CHALLENGE_FINDS = [
 ];
 
 const ROTATE_MS = 2200;
+const ROLL_MS = 320;
+const PAGE_ANCHOR_VARIANTS = new Set(['cta', 'camera', 'haze', 'outline', 'yellow']);
+const PAGE_ANCHOR_OUTLINE_FILLS = ['#00c2ff', '#ffc448', '#b36bff'];
 const TIP_OUT_MS = 360;
 const TIP_SWIPE_DISMISS_PX = 72;
 const FEED_SWIPE_DISMISS_PX = 72;
@@ -331,7 +334,14 @@ const emptyState = document.getElementById('emptyState');
 const emptyTitle = document.getElementById('emptyTitle');
 const emptyBody = document.getElementById('emptyBody');
 const emptyIcon = document.getElementById('emptyIcon');
+const snapshotSection = document.getElementById('snapshotSection');
 const snapshotBtn = document.getElementById('snapshotBtn');
+const snapshotPrefix = document.getElementById('snapshotPrefix');
+const rotatingReel = document.getElementById('rotatingReel');
+const rotatingIdle = document.getElementById('rotatingIdle');
+const rotatingOut = document.getElementById('rotatingOut');
+const rotatingIn = document.getElementById('rotatingIn');
+const pageAnchorOutline = document.getElementById('pageAnchorOutline');
 const cameraButton = document.getElementById('cameraButton');
 const rotatingWord = document.getElementById('rotatingWord');
 const snapshotTip = document.getElementById('snapshotTip');
@@ -401,8 +411,10 @@ const feedDismiss = document.getElementById('feedDismiss');
 const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'banner';
+let pageAnchor = 'cta';
 let hubEdition = 'v1';
 let sortCardLook = 'polaroid';
+let placeRollBusy = false;
 let pendingPublish = null;
 const FEED_VARIANTS = new Set([
   'banner',
@@ -1750,8 +1762,59 @@ function handleSnapshot() {
 }
 
 function tickPlaces() {
-  placeIndex = (placeIndex + 1) % SNAPSHOT_PLACES.length;
-  rotatingWord.textContent = SNAPSHOT_PLACES[placeIndex];
+  if (!rotatingWord || SNAPSHOT_PLACES.length < 2) return;
+  if (placeRollBusy) return;
+  const next = (placeIndex + 1) % SNAPSHOT_PLACES.length;
+  const outgoing = SNAPSHOT_PLACES[placeIndex];
+  const incoming = SNAPSHOT_PLACES[next];
+  if (!rotatingReel || !rotatingOut || !rotatingIn || !rotatingIdle) {
+    placeIndex = next;
+    rotatingWord.textContent = incoming;
+    return;
+  }
+  placeRollBusy = true;
+  rotatingIdle.hidden = true;
+  rotatingOut.hidden = false;
+  rotatingIn.hidden = false;
+  rotatingOut.textContent = outgoing;
+  rotatingIn.textContent = incoming;
+  rotatingReel.classList.remove('is-rolling');
+  void rotatingReel.offsetWidth;
+  rotatingReel.classList.add('is-rolling');
+  window.setTimeout(() => {
+    placeIndex = next;
+    rotatingWord.textContent = incoming;
+    rotatingIdle.hidden = false;
+    rotatingOut.hidden = true;
+    rotatingIn.hidden = true;
+    rotatingReel.classList.remove('is-rolling');
+    placeRollBusy = false;
+  }, ROLL_MS);
+}
+
+function fillPageAnchorOutline() {
+  if (!pageAnchorOutline) return;
+  pageAnchorOutline.replaceChildren();
+  PAGE_ANCHOR_OUTLINE_FILLS.forEach((fill) => {
+    const wrap = document.createElement('span');
+    wrap.className = 'page-anchor-gem';
+    wrap.innerHTML = gemSvg(fill, { softOutline: true });
+    pageAnchorOutline.appendChild(wrap);
+  });
+}
+
+function setPageAnchor(variant) {
+  const next = PAGE_ANCHOR_VARIANTS.has(variant) ? variant : 'cta';
+  pageAnchor = next;
+  if (snapshotSection) snapshotSection.dataset.pageAnchor = next;
+  document.querySelectorAll('[data-page-anchor]').forEach((btn) => {
+    if (!btn.classList.contains('variant-btn')) return;
+    const on = btn.getAttribute('data-page-anchor') === next;
+    btn.classList.toggle('is-on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  if (snapshotPrefix) snapshotPrefix.textContent = '[post a snapshot jam]';
+  if (snapshotBtn) snapshotBtn.setAttribute('aria-label', '[post a snapshot jam]');
 }
 
 function tipTargetEl(kind) {
@@ -2440,8 +2503,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v114 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v114 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v115 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v115 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -3376,7 +3439,9 @@ function init() {
   seedGems();
   seedPendingSort();
   setupSnapshotArc();
+  fillPageAnchorOutline();
   applyStaticCopy();
+  setPageAnchor(pageAnchor);
   setHubEdition(hubEdition);
   setSortCardLook(sortCardLook);
   setSection('public');
@@ -3629,6 +3694,11 @@ if (publishCatNext) {
 document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
   btn.addEventListener('click', () => {
     setFeedVariant(btn.getAttribute('data-feed-variant') || 'banner');
+  });
+});
+document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    setPageAnchor(btn.getAttribute('data-page-anchor') || 'cta');
   });
 });
 document.querySelectorAll('[data-hub-edition]').forEach((btn) => {

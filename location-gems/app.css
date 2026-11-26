@@ -363,8 +363,82 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .hub-scroll::-webkit-scrollbar { display: none; }
 
-.snapshot-section { margin-bottom: 0; }
+.snapshot-section {
+  position: relative;
+  margin-bottom: 0;
+  overflow: hidden;
+}
+.snapshot-section[data-page-anchor]:not([data-page-anchor="camera"]) .arc-stage {
+  display: none;
+}
+.snapshot-section[data-page-anchor="cta"] .tagline-block,
+.snapshot-section[data-page-anchor="haze"] .tagline-block,
+.snapshot-section[data-page-anchor="outline"] .tagline-block,
+.snapshot-section[data-page-anchor="yellow"] .tagline-block {
+  padding-top: 18px;
+  padding-bottom: 8px;
+}
+.page-anchor-haze,
+.page-anchor-outline {
+  display: none;
+  pointer-events: none;
+}
+.snapshot-section[data-page-anchor="haze"] .page-anchor-haze {
+  display: block;
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  top: -28%;
+  height: 120%;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 0%, color-mix(in srgb, var(--brand-accent) 34%, transparent) 0%, transparent 62%),
+    radial-gradient(ellipse 70% 50% at 50% 18%, rgba(255, 255, 255, 0.1) 0%, transparent 55%);
+  animation: pageAnchorHaze 4.8s ease-in-out infinite alternate;
+}
+.snapshot-section[data-page-anchor="outline"] .page-anchor-outline {
+  display: flex;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4px;
+  height: 72px;
+  z-index: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  opacity: 0.55;
+}
+.page-anchor-outline .page-anchor-gem {
+  width: 36px;
+  height: 36px;
+  opacity: 0.35;
+  animation: pageAnchorOutline 5.6s ease-in-out infinite;
+}
+.page-anchor-outline .page-anchor-gem:nth-child(2) { animation-delay: 0.9s; width: 44px; height: 44px; }
+.page-anchor-outline .page-anchor-gem:nth-child(3) { animation-delay: 1.8s; }
+.snapshot-section[data-page-anchor="yellow"] {
+  background:
+    radial-gradient(ellipse 100% 80% at 50% -10%, color-mix(in srgb, #ffc448 28%, transparent) 0%, transparent 58%);
+}
+.snapshot-section[data-page-anchor="yellow"] .title-prefix,
+.snapshot-section[data-page-anchor="yellow"] .rotating-line {
+  color: #ffe29a;
+}
+.snapshot-section[data-page-anchor="yellow"] .rotating-line {
+  color: #ffc448;
+}
+@keyframes pageAnchorHaze {
+  from { opacity: 0.72; transform: scale(1); }
+  to { opacity: 1; transform: scale(1.04); }
+}
+@keyframes pageAnchorOutline {
+  0%, 100% { opacity: 0.22; transform: translateY(0) scale(1); }
+  50% { opacity: 0.55; transform: translateY(-4px) scale(1.06); }
+}
 .snapshot-hero {
+  position: relative;
+  z-index: 1;
   width: 100%;
   border: 0;
   padding: 0;
@@ -435,7 +509,43 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   font-weight: 800;
   color: var(--text);
 }
-.rotating-line { margin-top: -5px; color: var(--brand-accent); }
+.rotating-reel {
+  --roll-slot: calc(30px * var(--type-scale));
+  position: relative;
+  width: 100%;
+  height: var(--roll-slot);
+  margin-top: -5px;
+  overflow: hidden;
+}
+.rotating-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--roll-slot);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-accent);
+  margin: 0;
+}
+.rotating-line[hidden] { display: none !important; }
+.rotating-reel.is-rolling .rotating-line.is-out {
+  animation: placeRollOut 320ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+.rotating-reel.is-rolling .rotating-line.is-in {
+  animation: placeRollIn 320ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+@keyframes placeRollOut {
+  0% { transform: translateY(0) scaleY(1); opacity: 1; filter: blur(0); }
+  50% { transform: translateY(-50%) scaleY(1.15); opacity: 0.6; filter: blur(0.4px); }
+  100% { transform: translateY(-100%) scaleY(1); opacity: 0; filter: blur(0); }
+}
+@keyframes placeRollIn {
+  0% { transform: translateY(100%) scaleY(1); opacity: 0; filter: blur(0); }
+  50% { transform: translateY(50%) scaleY(1.15); opacity: 0.6; filter: blur(0.4px); }
+  100% { transform: translateY(0) scaleY(1); opacity: 1; filter: blur(0); }
+}
 .snapshot-arc-fill { stroke: var(--brand-accent); }
 
 .tab-bar {
