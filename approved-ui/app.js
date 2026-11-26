@@ -221,7 +221,7 @@ const ELEMENT_DEFS = [
     id: 'page-anchor',
     title: 'Page anchor',
     source: 'location-gems hub top · Original kept',
-    ux: 'When: top of gems hub. Original is the real camera + arc. CTA / Haze / Outline / Yellow only layer on — tap Original to restore. Try: switch anchors.',
+    ux: 'When: top of gems hub. Original is the real camera + arc. Haze soft-fades a 50px mist with faint gems on top — layout stays. Try: Haze, then Original.',
     stage: 'page-anchor',
     mount: mountPageAnchor,
   },
@@ -1605,8 +1605,8 @@ const PAGE_ANCHOR_PLACES = [
   'a waterfront',
 ];
 const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
-const PAGE_ANCHOR_COPY_CTA = '[post a snapshot jam]';
 const PAGE_ANCHOR_ROTATE_MS = 2200;
+const PAGE_ANCHOR_HAZE_FILLS = ['#00c2ff', '#7aa7ff', '#b9a0ff', '#9fe8ff'];
 
 function mountPageAnchor(stage, actions) {
   const host = document.createElement('div');
@@ -1614,7 +1614,6 @@ function mountPageAnchor(stage, actions) {
   host.dataset.pageAnchor = PAGE_ANCHOR_DEFAULT;
   host.innerHTML = `
     <div class="page-anchor-haze" aria-hidden="true"></div>
-    <div class="page-anchor-outline" aria-hidden="true"></div>
     <div class="page-anchor-hero" role="img" aria-label="Take a snapshot gem">
       <div class="page-anchor-arc" aria-hidden="true">
         <div class="page-anchor-cam">
@@ -1628,18 +1627,9 @@ function mountPageAnchor(stage, actions) {
     </div>
   `;
   stage.appendChild(host);
-  const outline = host.querySelector('.page-anchor-outline');
   const haze = host.querySelector('.page-anchor-haze');
-  const prefix = host.querySelector('.page-anchor-prefix');
-  const hero = host.querySelector('.page-anchor-hero');
   const word = host.querySelector('.page-anchor-word');
-  ['#00c2ff', '#ffc448', '#b36bff'].forEach((fill) => {
-    const gem = document.createElement('span');
-    gem.className = 'page-anchor-gem';
-    gem.innerHTML = gemSvg(fill, { softOutline: true });
-    outline.appendChild(gem);
-  });
-  ['#00c2ff', '#ffc448', '#b36bff', '#7dffd8', '#ff7ab6'].forEach((fill) => {
+  PAGE_ANCHOR_HAZE_FILLS.forEach((fill) => {
     const gem = document.createElement('span');
     gem.className = 'page-anchor-haze-gem';
     gem.innerHTML = gemSvg(fill, { softOutline: true });
@@ -1647,15 +1637,7 @@ function mountPageAnchor(stage, actions) {
   });
   let idx = 0;
   const setAnchor = (id) => {
-    host.dataset.pageAnchor = id;
-    const label = id === 'cta' ? PAGE_ANCHOR_COPY_CTA : PAGE_ANCHOR_COPY_ORIGINAL;
-    if (prefix) prefix.textContent = label;
-    if (hero) {
-      hero.setAttribute(
-        'aria-label',
-        id === 'cta' ? label : 'Take a snapshot gem',
-      );
-    }
+    host.dataset.pageAnchor = id === 'haze' ? 'haze' : PAGE_ANCHOR_DEFAULT;
   };
   const tick = () => {
     idx = (idx + 1) % PAGE_ANCHOR_PLACES.length;
@@ -1668,10 +1650,7 @@ function mountPageAnchor(stage, actions) {
     { once: true },
   );
   addPlay(actions, 'Original', () => setAnchor(PAGE_ANCHOR_DEFAULT));
-  addGhost(actions, 'CTA', () => setAnchor('cta'));
   addGhost(actions, 'Haze', () => setAnchor('haze'));
-  addGhost(actions, 'Outline', () => setAnchor('outline'));
-  addGhost(actions, 'Yellow', () => setAnchor('yellow'));
 }
 
 function mountGemCategorySelector(stage, actions) {
