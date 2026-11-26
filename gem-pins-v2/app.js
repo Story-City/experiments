@@ -959,14 +959,14 @@ function nearbyPromptGems(g) {
     .slice(0, 12);
 }
 
-/** Same markup as location-gems buildFeedChip('prompt') */
+/** Same markup as location-gems buildFeedChip('text') */
 function buildPromptChip(g) {
   const fill = GEM_COLOUR[g.tags[0]] || colourOf(g);
   const rid = rarityOf(g);
   const rarity = RARITY[rid];
   const showRarity = rid !== 'common' && !!(rarity && rarity.label);
   const chip = document.createElement('article');
-  chip.className = 'feed-chip is-prompt';
+  chip.className = 'feed-chip is-text';
   chip.dataset.id = String(g.id);
   chip.style.setProperty('--gem-line', fill);
   chip.innerHTML = `

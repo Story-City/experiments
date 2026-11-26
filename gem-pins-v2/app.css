@@ -1073,7 +1073,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   background: rgba(255, 255, 255, 0.22);
   border-radius: 999px;
 }
-/* Exact copy: location-gems .feed-chip.is-prompt (swipe strip width) */
+/* Exact copy: location-gems .feed-chip.is-text (Nearby cards · Text) */
 .slide .feed-chip {
   --feed-chip-ink: #170c35;
   flex: none;
@@ -1119,11 +1119,22 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.slide .feed-chip.is-prompt .feed-chip-prompt-kicker {
-  font-size: 15px;
+.slide .feed-chip.is-text .feed-chip-prompt-kicker {
+  font-size: 19px;
   letter-spacing: -0.02em;
   text-transform: none;
-  color: #fff;
+  font-weight: 900;
+  line-height: 1.1;
+  background: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--gem-line, #00c2ff) 42%, #fff) 0%,
+    var(--gem-line, #00c2ff) 48%,
+    color-mix(in srgb, var(--gem-line, #00c2ff) 65%, #ffe08a) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 .slide .feed-chip-prompt {
   margin: 0;
@@ -1189,6 +1200,14 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   width: 38px;
   height: 38px;
   filter: drop-shadow(0 0 10px color-mix(in srgb, var(--gem-line, #00c2ff) 85%, transparent));
+}
+.slide .feed-chip.is-text .feed-chip-corner-art {
+  width: 50%;
+  height: 45%;
+}
+.slide .feed-chip.is-text .feed-chip-corner-gem {
+  width: calc(38px * 0.8);
+  height: calc(38px * 0.8);
 }
 .slide .feed-chip-corner-gem svg,
 .slide .feed-chip-corner-gem .cat-gem-art {
