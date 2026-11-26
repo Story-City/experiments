@@ -584,7 +584,16 @@ $('compose-form').addEventListener('submit', async e => {
 });
 
 $('show-resolved').addEventListener('change', e => { showResolved = e.target.checked; render(); });
-$('fab').addEventListener('click', () => document.body.classList.add('open'));
+// Minimise (computers): hide the panel and give the experiment the room; the 💬 button brings it back.
+// Remembered in this browser. On phones the panel already slides away, so this only shows on wide screens.
+const PANEL_MIN_KEY = 'hub-panel-min';
+const setPanelMin = (on) => {
+  document.body.classList.toggle('panel-min', on);
+  try { if (on) localStorage.setItem(PANEL_MIN_KEY, '1'); else localStorage.removeItem(PANEL_MIN_KEY); } catch (e) { /* private window: this visit only */ }
+};
+try { if (localStorage.getItem(PANEL_MIN_KEY)) document.body.classList.add('panel-min'); } catch (e) { /* fine */ }
+$('minimise').addEventListener('click', () => setPanelMin(true));
+$('fab').addEventListener('click', () => { document.body.classList.add('open'); setPanelMin(false); });
 $('close').addEventListener('click', () => document.body.classList.remove('open'));
 
 let lastUrl = '';
