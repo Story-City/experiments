@@ -429,7 +429,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   color: var(--disc-tint);
 }
 .disc-stage:active { cursor: grabbing; }
-/* GEM-PINS-V2-v36-DISC-SOFT-GLOW — long soft mask; no hard plateau / bloom cut */
+/* GEM-PINS-V2-v37-DISC-SOFT-GLOW — long soft mask; no hard plateau / bloom cut */
 .disc-arc {
   position: absolute;
   left: 0;
@@ -689,7 +689,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   width: max-content;
   max-width: calc(100% - 24px);
   padding: 4px;
-  border-radius: 999px;
+  border-radius: var(--btn-radius);
   background: rgba(42, 47, 92, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -1029,7 +1029,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
 .tag {
   height: 28px;
   padding: 0 11px;
-  border-radius: 999px;
+  border-radius: var(--btn-radius);
   display: inline-flex;
   align-items: center;
   font-weight: 700;
@@ -1071,7 +1071,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   margin-top: 4px;
   padding: 0 8px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--btn-radius);
   background: rgba(255, 255, 255, 0.12);
   color: var(--like-pink);
   font-weight: 800;
@@ -1085,7 +1085,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   height: 40px;
   padding: 0 14px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--btn-radius);
   font-weight: 800;
   font-size: 14px;
   flex: 1;

@@ -36,11 +36,16 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 }
 .phone .btn,
 .phone .options-btn,
-.phone .filter-btn,
-.phone .colour-btn,
+.phone .filter-btn:not(.icon),
 .phone .key-btn,
 .phone .app-main-tab,
-.phone .layer button {
+.phone .app-main-tabs,
+.phone .layer button,
+.phone .chip,
+.phone .nav-btn,
+.phone .like-btn,
+.phone .tag,
+.phone .toast-act {
   border-radius: var(--btn-radius);
 }
 .phone .map-top { padding: calc(14px * var(--space-scale)) calc(12px * var(--space-scale)) calc(10px * var(--space-scale)); }
