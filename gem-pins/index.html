@@ -405,5 +405,22 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   });
 })();
 </script>
+<!-- Move tools (select, drag, size, lock, undo) for V1, V2 and V3: shared/figma-light-studio -->
+<script src="../shared/figma-light-studio/studio.js?v=1"></script>
+<script>
+FigmaLightStudio.mount({
+  rail: '.debug-rail',
+  storage: 'gem-pins-studio',
+  look: '.debug-rail .tool-block input[id]',
+  target() {
+    const frame = document.getElementById('editionFrame');
+    if (document.body.classList.contains('is-v2') && frame && frame.dataset.edition) {
+      const root = frame.contentDocument && frame.contentDocument.getElementById('phone');
+      return { key: frame.dataset.edition, root };
+    }
+    return { key: 'v1', root: document.getElementById('phone') };
+  },
+});
+</script>
 </body>
 </html>
