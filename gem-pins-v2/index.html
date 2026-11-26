@@ -7,7 +7,7 @@
 <title>Gem map pins V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=42">
+<link rel="stylesheet" href="app.css?v=43">
 <meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
@@ -151,21 +151,13 @@
         </div>
       </div>
       <div class="tags" id="slideTags" hidden></div>
-      <!-- Prompt = exact location-gems feed-chip.is-prompt -->
-      <article class="feed-chip is-prompt" id="slidePrompt" hidden>
-        <div class="feed-chip-prompt-panel">
-          <p class="feed-chip-prompt-kicker" id="slidePromptKicker"></p>
-          <p class="feed-chip-prompt" id="slidePromptLine"></p>
-          <div class="feed-chip-prompt-foot">
-            <p class="feed-chip-rarity-word" id="slidePromptRarity" hidden></p>
-          </div>
-          <div class="feed-chip-actions" id="slidePromptActions">
-            <button type="button" class="icon-act bookmark-btn" id="saveBtnPrompt" aria-pressed="false" aria-label="[save for later]"></button>
-            <button type="button" class="nav-btn is-compact" id="navBtnPrompt">[navigate]</button>
-          </div>
-        </div>
-        <div class="feed-chip-corner" id="slidePromptCorner" aria-hidden="true"></div>
-      </article>
+      <!-- Prompt = location-gems feed-chip.is-prompt in a swipe strip -->
+      <div class="slide-prompt-dock" id="slidePromptDock" hidden>
+        <button type="button" class="slide-expand" id="slideExpand" aria-label="[open fuller page]">
+          <span aria-hidden="true">↑</span>
+        </button>
+        <section class="feed-strip slide-prompt-strip" id="slidePromptStrip" aria-label="[nearby prompts]"></section>
+      </div>
       <div class="slide-glass" id="slideGlass">
         <p class="slide-user" id="slideUser"></p>
         <h2 id="slideName"></h2>
@@ -185,8 +177,8 @@
     </section>
   </main>
 
-  <p class="meta">GEM-PINS-V2-v42 — Prompt slide-out = location-gems feed-chip.is-prompt.</p>
+  <p class="meta">GEM-PINS-V2-v43 — Prompt slide-out swipe strip + expand.</p>
   <script src="../location-gems/corner-ribbon.js?v=36"></script>
-  <script type="module" src="app.js?v=42"></script>
+  <script type="module" src="app.js?v=43"></script>
 </body>
 </html>

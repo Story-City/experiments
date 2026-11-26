@@ -855,6 +855,114 @@ function feedPromptCornerHtml(g) {
     </div>`;
 }
 
+function promptDist(g) {
+  const minutes = Number(g.minutesAway);
+  if (Number.isFinite(minutes) && minutes >= 0) return `${minutes} min away`;
+  return spoofWording ? 'Nearby' : '[nearby]';
+}
+
+function promptLineOf(g) {
+  return displayCopy(g.caption || g.tagline || g.title || g.name || '');
+}
+
+function nearbyPromptGems(g) {
+  const list = GEMS.slice(0, DENSITY).filter(shown);
+  return list
+    .sort((a, b) => {
+      const da = Math.hypot(a.at[0] - g.at[0], (a.at[1] - g.at[1]) * 1.6);
+      const db = Math.hypot(b.at[0] - g.at[0], (b.at[1] - g.at[1]) * 1.6);
+      return da - db;
+    })
+    .slice(0, 12);
+}
+
+/** Same markup as location-gems buildFeedChip('prompt') */
+function buildPromptChip(g) {
+  const fill = GEM_COLOUR[g.tags[0]] || colourOf(g);
+  const rid = rarityOf(g);
+  const rarity = RARITY[rid];
+  const showRarity = rid !== 'common' && !!(rarity && rarity.label);
+  const chip = document.createElement('article');
+  chip.className = 'feed-chip is-prompt';
+  chip.dataset.id = String(g.id);
+  chip.style.setProperty('--gem-line', fill);
+  chip.innerHTML = `
+    <div class="feed-chip-prompt-panel">
+      <p class="feed-chip-prompt-kicker">${promptDist(g)}</p>
+      <p class="feed-chip-prompt">${promptLineOf(g)}</p>
+      <div class="feed-chip-prompt-foot">
+        <p class="feed-chip-rarity-word${showRarity ? ` is-${rid}` : ''}" ${showRarity ? '' : 'hidden'}>${showRarity ? rarity.label : ''}</p>
+      </div>
+      <div class="feed-chip-actions">
+        <button type="button" class="icon-act bookmark-btn" aria-pressed="false" aria-label="${displayCopy(btnCopy('save'))}"></button>
+        <button type="button" class="nav-btn is-compact">${displayCopy(btnCopy('navigate'))}</button>
+      </div>
+    </div>
+    <div class="feed-chip-corner" aria-hidden="true">${feedPromptCornerHtml(g)}</div>`;
+  const save = chip.querySelector('.bookmark-btn');
+  const nav = chip.querySelector('.nav-btn');
+  paintSaveButton(save, g);
+  save.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (saved.has(g.id)) saved.delete(g.id);
+    else saved.add(g.id);
+    paintSaveButton(save, g);
+    if (filterOn && stopId === 'wishlist') drawPins(true);
+  });
+  nav.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toast(displayCopy('[would open navigate]'));
+  });
+  return chip;
+}
+
+let promptStripSilent = false;
+let promptStripTimer = 0;
+
+function scrollPromptStripTo(id, behavior) {
+  const strip = $('slidePromptStrip');
+  if (!strip) return;
+  const chip = strip.querySelector(`.feed-chip[data-id="${id}"]`);
+  if (!chip) return;
+  promptStripSilent = true;
+  chip.scrollIntoView({ inline: 'center', block: 'nearest', behavior: behavior || 'instant' });
+  requestAnimationFrame(() => { promptStripSilent = false; });
+}
+
+function paintPromptStrip(centerGem) {
+  const strip = $('slidePromptStrip');
+  if (!strip || !centerGem) return;
+  const near = nearbyPromptGems(centerGem);
+  strip.replaceChildren();
+  for (const g of near) strip.appendChild(buildPromptChip(g));
+  requestAnimationFrame(() => scrollPromptStripTo(centerGem.id, 'instant'));
+}
+
+function syncPromptStripSelection() {
+  const strip = $('slidePromptStrip');
+  if (!strip || !strip.children.length) return;
+  const mid = strip.scrollLeft + strip.clientWidth / 2;
+  let best = null;
+  let bestDist = Infinity;
+  for (const chip of strip.children) {
+    const center = chip.offsetLeft + chip.offsetWidth / 2;
+    const d = Math.abs(center - mid);
+    if (d < bestDist) {
+      bestDist = d;
+      best = chip;
+    }
+  }
+  if (!best) return;
+  const id = Number(best.dataset.id);
+  if (id === openId) return;
+  openId = id;
+  drawPins();
+  const g = GEMS[openId];
+  if (!g) return;
+  const fill = GEM_COLOUR[g.tags[0]] || colourOf(g);
+  $('slide').style.setProperty('--gem-line', fill);
+}
+
 function whoLine(g) {
   return (g.mine ? `${COPY.yours} · ${g.private ? COPY.private : COPY.public}` : COPY.by(g.owner))
     + (g.visited ? ` · ${COPY.visited}` : '');
@@ -887,9 +995,9 @@ function paintActs(g) {
     b.addEventListener('click', (e) => { e.stopPropagation(); fn(); });
     return b;
   };
-  /* Image/Bar/Prompt: bookmark+hide live in the action row — never over the corner */
-  if (sheet !== 'original') return;
-  /* Melissa original keeps heart / hide / visited */
+  /* Image/Bar/Prompt peek: bookmark+hide live in the action row — never over the corner */
+  if (sheet !== 'original' && !(sheet === 'prompt' && sheetFull)) return;
+  /* Melissa original / prompt full keeps heart / hide / visited */
   if (g.mine) {
     box.append(mk('hide', ICON.hide, COPY.hideLong || 'Hide', null, () => hideGem(g)));
     return;
@@ -921,14 +1029,11 @@ function paintSaveButton(el, g) {
 
 function paintActionIcons(g) {
   paintSaveButton($('saveBtn'), g);
-  paintSaveButton($('saveBtnPrompt'), g);
   const hide = $('hideBtn');
   if (hide) {
     hide.innerHTML = ICON.hide;
     hide.setAttribute('aria-label', COPY.hideLong || 'Hide');
   }
-  const navPrompt = $('navBtnPrompt');
-  if (navPrompt) navPrompt.textContent = displayCopy(btnCopy('navigate'));
 }
 
 function paintTags(g) {
@@ -958,13 +1063,15 @@ function paintSlide() {
   const isPrompt = sheet === 'prompt';
   const isImage = sheet === 'image';
   const isBar = sheet === 'bar';
+  const promptPeek = isPrompt && !sheetFull;
+  const promptFull = isPrompt && sheetFull;
   /* Image + Bar hold together: same small photo + corner; Image texts on photo, Bar texts under */
-  const hasMedia = isImage || isBar || (isOriginal && sheetFull);
+  const hasMedia = isImage || isBar || ((isOriginal || isPrompt) && sheetFull);
   slide.classList.toggle('is-original', isOriginal);
   slide.classList.toggle('is-prompt', isPrompt);
   slide.classList.toggle('is-image', isImage);
   slide.classList.toggle('is-bar', isBar);
-  slide.classList.toggle('is-full', isOriginal && sheetFull);
+  slide.classList.toggle('is-full', sheetFull && (isOriginal || isPrompt));
 
   const media = $('slideMedia');
   media.hidden = !hasMedia;
@@ -975,28 +1082,28 @@ function paintSlide() {
   /* Overlay only on Image — Bar keeps text in the glass bar under the photo */
   $('slideOverlay').hidden = !isImage;
 
-  /* Prompt = exact location-gems feed-chip.is-prompt */
-  const promptEl = $('slidePrompt');
-  if (promptEl) promptEl.hidden = !isPrompt;
-  $('slideHead').hidden = !isOriginal;
-  $('slideTags').hidden = !isOriginal;
+  const promptDock = $('slidePromptDock');
+  if (promptDock) promptDock.hidden = !promptPeek;
+  const expandBtn = $('slideExpand');
+  if (expandBtn) expandBtn.hidden = !promptPeek;
+  $('slideHead').hidden = !(isOriginal || promptFull);
+  $('slideTags').hidden = !(isOriginal || promptFull);
   $('slideGlass').hidden = !isBar;
   $('slideMore').hidden = !(isOriginal && !sheetFull);
-  $('slideStatus').hidden = !(isOriginal && sheetFull);
+  $('slideStatus').hidden = !((isOriginal || promptFull) && sheetFull);
   /* Bookmark + hide stay in the action row (beside navigate) — never over the corner */
-  $('slideActions').hidden = isPrompt ? true : (isOriginal ? !sheetFull : false);
+  $('slideActions').hidden = promptPeek ? true : ((isOriginal || isPrompt) ? !sheetFull : false);
   $('hideBtn').hidden = false;
-  $('slideActs').hidden = !isOriginal;
+  $('slideActs').hidden = !(isOriginal || promptFull);
   $('slideActs').classList.toggle('is-on-media', false);
   $('slideActs').classList.toggle('is-on-prompt', false);
-  $('slideActs').classList.toggle('is-on-head', isOriginal);
+  $('slideActs').classList.toggle('is-on-head', isOriginal || promptFull);
   $('navBtn').classList.toggle('is-compact', false);
 
   const fill = GEM_COLOUR[g.tags[0]] || colourOf(g);
   slide.style.setProperty('--gem-line', fill);
-  if (promptEl) promptEl.style.setProperty('--gem-line', fill);
 
-  if (isOriginal) {
+  if (isOriginal || promptFull) {
     $('slideArt').innerHTML = pinFor(g);
     $('slideNameHead').textContent = g.name;
     $('slideLineHead').textContent = whoLine(g);
@@ -1004,25 +1111,7 @@ function paintSlide() {
     $('slideStatus').textContent = `${COPY.likes(g.likes + (g.liked ? 1 : 0))} · ${g.mine || g.visited ? COPY.visited : COPY.notVisited}`;
   }
 
-  if (isPrompt) {
-    const rid = rarityOf(g);
-    const rarity = RARITY[rid];
-    /* Exact location-gems buildFeedChip('prompt') fields */
-    const minutes = Number(g.minutesAway);
-    const dist =
-      Number.isFinite(minutes) && minutes >= 0
-        ? `${minutes} min away`
-        : (spoofWording ? 'Nearby' : '[nearby]');
-    const promptLine = g.caption || g.tagline || g.title || g.name || '';
-    $('slidePromptKicker').textContent = dist;
-    $('slidePromptLine').textContent = displayCopy(promptLine);
-    const rarityEl = $('slidePromptRarity');
-    const showRarityWord = rid !== 'common' && !!(rarity && rarity.label);
-    rarityEl.hidden = !showRarityWord;
-    rarityEl.textContent = showRarityWord ? rarity.label : '';
-    rarityEl.className = 'feed-chip-rarity-word' + (showRarityWord ? ` is-${rid}` : '');
-    $('slidePromptCorner').innerHTML = feedPromptCornerHtml(g);
-  }
+  if (promptPeek) paintPromptStrip(g);
   paintActs(g);
   paintActionIcons(g);
 
@@ -1037,7 +1126,7 @@ function paintSlide() {
   $('slideNameOv').textContent = g.name;
   paintLike('likeBtn', 'likeHeart', 'likeCount', g);
   paintLike('likeBtnOv', 'likeHeartOv', 'likeCountOv', g);
-  $('likeBtn').hidden = isPrompt;
+  $('likeBtn').hidden = isPrompt && !sheetFull;
   $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
 
@@ -1137,7 +1226,6 @@ function toggleSave(e) {
   if (filterOn && stopId === 'wishlist') drawPins(true);
 }
 $('saveBtn').addEventListener('click', toggleSave);
-$('saveBtnPrompt').addEventListener('click', toggleSave);
 $('hideBtn').addEventListener('click', (e) => {
   e.stopPropagation();
   if (openId == null) return;
@@ -1148,10 +1236,26 @@ function onNavigate(e) {
   toast(displayCopy('[would open navigate]'));
 }
 $('navBtn').addEventListener('click', onNavigate);
-$('navBtnPrompt').addEventListener('click', onNavigate);
+$('slideExpand').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (openId == null || sheet !== 'prompt' || sheetFull) return;
+  sheetFull = true;
+  paintSlide();
+});
+const promptStripEl = $('slidePromptStrip');
+if (promptStripEl) {
+  promptStripEl.addEventListener('scroll', () => {
+    if (promptStripSilent || sheet !== 'prompt' || sheetFull) return;
+    clearTimeout(promptStripTimer);
+    promptStripTimer = setTimeout(syncPromptStripSelection, 80);
+  }, { passive: true });
+  promptStripEl.addEventListener('pointerdown', (e) => e.stopPropagation());
+}
 document.querySelector('.map-top').addEventListener('pointerdown', (e) => e.stopPropagation());
+$('slide').addEventListener('pointerdown', (e) => e.stopPropagation());
 $('slide').addEventListener('click', (e) => {
-  if (sheet !== 'original' || sheetFull || e.target.closest('button')) return;
+  if (sheetFull || e.target.closest('button') || e.target.closest('.feed-chip')) return;
+  if (sheet !== 'original') return;
   sheetFull = true;
   paintSlide();
 });
