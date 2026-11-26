@@ -521,10 +521,35 @@ const debugDragMode = document.getElementById('debugDragMode');
 const debugLikesStack = document.getElementById('debugLikesStack');
 const debugSubcats = document.getElementById('debugSubcats');
 const debugAppPages = document.getElementById('debugAppPages');
-const appPagesNav = document.getElementById('appPagesNav');
+// The same bottom bar as every Gem map pins version (shared/gem-tabbar). Its + camera hands a photo
+// to this page: Gems re-reads the hand-off, Map goes back to the version you came from.
+const appPagesNav = GemTabBar.mount({
+  host: phone,
+  active: 'gems',
+  onGems: () => takeCameraHandoff(),
+  onTab(page) {
+    if (page === 'map') {
+      location.href = appPagesMapHref();
+      return false;
+    }
+    if (hint) hint.textContent = `[${page} — not in this prototype]`;
+    return true;
+  },
+}).nav;
+appPagesNav.hidden = true;
 const debugDesignMove = document.getElementById('debugDesignMove');
 /** Map page experiment — gated by debug “Gems / Map pages”. */
 const APP_PAGES_MAP_HREF = '../gem-pins/?v=36&edition=v2&appPages=1';
+const APP_PAGES_EDITION_KEY = 'gem-pins-edition';
+function appPagesMapHref() {
+  let edition = null;
+  try { edition = sessionStorage.getItem(APP_PAGES_EDITION_KEY); } catch (e) { /* private window */ }
+  if (!edition) return APP_PAGES_MAP_HREF;
+  const url = new URL(APP_PAGES_MAP_HREF, location.href);
+  if (edition === 'v1') url.searchParams.delete('edition');
+  else url.searchParams.set('edition', edition);
+  return url.href;
+}
 const APP_PAGES_PARAM = 'appPages';
 const btnRadius = document.getElementById('btnRadius');
 const btnRadiusValue = document.getElementById('btnRadiusValue');
@@ -3711,20 +3736,6 @@ function initAppPagesDebug() {
   if (debugAppPages) {
     debugAppPages.addEventListener('click', () => {
       setAppPagesMode(debugAppPages.getAttribute('aria-checked') !== 'true');
-    });
-  }
-  if (appPagesNav) {
-    appPagesNav.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-app-page]');
-      if (!btn || btn.classList.contains('is-active')) return;
-      const page = btn.dataset.appPage;
-      if (page === 'map') {
-        location.href = APP_PAGES_MAP_HREF;
-        return;
-      }
-      if (hint && (page === 'explore' || page === 'feed' || page === 'library')) {
-        hint.textContent = `[${page} — not in this prototype]`;
-      }
     });
   }
 }

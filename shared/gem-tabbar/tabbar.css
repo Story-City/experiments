@@ -1,4 +1,5 @@
 /* Gem map pins: the one bottom bar every version uses. Floating bar from mobile-rn FloatingTabBar. */
+@import url('https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@600;700&display=swap');
 .gtb {
   position: absolute;
   left: 50%;
@@ -77,10 +78,12 @@
 .gtb-cam-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .gtb-cam-actions { position: absolute; left: 20px; right: 20px; bottom: 30px; display: grid; gap: 12px; }
 .gtb-cam-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.gtb-btn { height: 50px; border-radius: 999px; font: inherit; font-weight: 800; font-size: 16px; color: #fff; padding: 0 12px; cursor: pointer; }
-.gtb-btn-primary { border: 0; background: linear-gradient(90deg, var(--accent-deep, #0259a1), var(--accent, #00c2ff)); box-shadow: 0 0 18px rgba(0, 194, 255, 0.35); }
-.gtb-btn-outline { border: 2px solid rgba(255, 255, 255, 0.75); background: transparent; }
-.gtb-btn:active { filter: brightness(1.15); }
+/* Buttons as in the app: GradientButton Primary + Button Outline, Medium (mobile-rn StoryCity) */
+.gtb-btn { min-height: 54px; padding: 16px 12px; border-radius: 12px; font-family: "Darker Grotesque", system-ui, sans-serif; font-weight: 700; font-size: 18px; line-height: 22px; cursor: pointer; }
+.gtb-btn-primary { border: 0; color: #fff; background: linear-gradient(182deg, #0259a1, #009eff); }
+.gtb-btn-primary:active { background: linear-gradient(182deg, #009eff, #0259a1); }
+.gtb-btn-outline { padding: 14px 12px; border: 2px solid #1fa4f4; color: #1fa4f4; background: #170c35; }
+.gtb-btn-outline:active { background: #241b46; }
 .gtb-cam.is-flash::after { content: ''; position: absolute; inset: 0; z-index: 5; background: #fff; animation: gtbflash 0.22s ease-out forwards; }
 @keyframes gtbflash { from { opacity: 0.9; } to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .gtb-cam.is-flash::after { animation: none; opacity: 0; } }

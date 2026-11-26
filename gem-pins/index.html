@@ -12,7 +12,7 @@
 window.CACHE_V = '?v=' + Date.now();
 document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
-<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=1">
+<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=2">
 </head>
 <body>
 <!-- GEM-PINS-EDITION-v29: Disc Figma calm U ≤5 gems -->
@@ -176,7 +176,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   </main>
 </div>
 <script type="module">import(`./app.js${window.CACHE_V}`);</script>
-<script src="../shared/gem-tabbar/tabbar.js?v=1"></script>
+<script src="../shared/gem-tabbar/tabbar.js?v=2"></script>
 <script>
 (function () {
   const frame = document.getElementById('editionFrame');
@@ -197,7 +197,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   }
   // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
   // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
-const FRAMES = { v2: '../gem-pins-v2/?v=63', v3: '../gem-pins-v3/?v=6' };
+const FRAMES = { v2: '../gem-pins-v2/?v=64', v3: '../gem-pins-v3/?v=7' };
   function apply(edition) {
     const src = FRAMES[edition];
     document.body.classList.toggle('is-v2', !!src);
@@ -407,12 +407,16 @@ const FRAMES = { v2: '../gem-pins-v2/?v=63', v3: '../gem-pins-v3/?v=6' };
   });
   frame.addEventListener('load', () => { publishSpoof(); sendFilterLayout(); });
 
-  const APP_PAGES_GEMS_HREF = '../location-gems/?v=110&appPages=1';
+  const APP_PAGES_GEMS_HREF = '../location-gems/?v=111&appPages=1';
   const APP_PAGES_PARAM = 'appPages';
   const debugAppPages = document.getElementById('debugAppPages');
   const phone = document.getElementById('phone');
   // The one bottom bar every version uses (shared/gem-tabbar); V2 and V3 mount the same bar in their frame.
-  const appPagesNav = GemTabBar.mount({ host: phone, active: 'map', gemsHref: APP_PAGES_GEMS_HREF }).nav;
+  function openGemsPage(edition) {
+    try { sessionStorage.setItem('gem-pins-edition', edition); } catch (e) { /* private window */ }
+    location.href = APP_PAGES_GEMS_HREF;
+  }
+  const appPagesNav = GemTabBar.mount({ host: phone, active: 'map', onGems: () => openGemsPage('v1') }).nav;
   appPagesNav.hidden = true;
   function setAppPagesMode(on) {
     if (debugAppPages) debugAppPages.setAttribute('aria-checked', on ? 'true' : 'false');
@@ -432,7 +436,7 @@ const FRAMES = { v2: '../gem-pins-v2/?v=63', v3: '../gem-pins-v3/?v=6' };
   }
   window.addEventListener('message', (e) => {
     if (!e.data || e.data.type !== 'gem-pins-open-gems') return;
-    location.href = APP_PAGES_GEMS_HREF;
+    openGemsPage(document.getElementById('editionFrame').dataset.edition || 'v1');
   });
 })();
 </script>

@@ -2,6 +2,7 @@
 // version changes. Feed, Library, + (Hunt mode camera to add a gem), Map, Gems.
 // After a photo: Create gem now opens the publish sheet on Victoria's Gems page (location-gems),
 // Create gem later puts the photo on top of its unsorted pile. The photo travels in sessionStorage.
+// mount({ host, active, gemsHref | onGems, onTab(id) }): onTab returning false keeps the bar as it is.
 (function () {
   const HANDOFF_KEY = 'gem-pins-camera-photo';
   const SHOT_W = 600;
@@ -140,7 +141,7 @@
       const id = b.dataset.gtb;
       if (id === 'add') openCamera();
       else if (id === 'gems') openGems();
-      else setActive(id);
+      else if (!opts.onTab || opts.onTab(id) !== false) setActive(id);
     });
     q('.gtb-cam-back').addEventListener('click', () => { if (!confirm.hidden) confirm.hidden = true; else closeCamera(); });
     q('.gtb-cam-flip').addEventListener('click', () => { facing = facing === 'environment' ? 'user' : 'environment'; startCamera(); });

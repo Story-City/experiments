@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
 <link rel="stylesheet" href="app.css?v=62">
 <meta http-equiv="Cache-Control" content="no-cache">
-<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=1">
+<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=2">
 </head>
 <body>
   <header class="page-head">
@@ -176,14 +176,14 @@
   <script src="../location-gems/corner-ribbon.js?v=36"></script>
   <script type="module" src="app.js?v=63"></script>
   <!-- The one bottom bar every Gem map pins version uses: shared/gem-tabbar -->
-  <script src="../shared/gem-tabbar/tabbar.js?v=1"></script>
+  <script src="../shared/gem-tabbar/tabbar.js?v=2"></script>
   <script>
   GemTabBar.mount({
     host: document.getElementById('phone'),
     active: 'map',
     onGems() {
       if (window.parent !== window) window.parent.postMessage({ type: 'gem-pins-open-gems' }, '*');
-      else location.href = '../location-gems/?v=110&appPages=1';
+      else location.href = '../location-gems/?v=111&appPages=1';
     },
   });
   </script>
