@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v105 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v106 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -518,7 +518,7 @@ const DESIGN_TARGET_SEL = [
   '.tab-bar',
   '.snapshot-section',
 ].join(', ');
-/** Prefer these when digging so the gem wins over empty wrappers. */
+/** Prefer these when digging so the gem wins over empty wrappers / photo bg. */
 const DESIGN_CONTENT_SEL = [
   '.ov-chip-gem',
   '.cat-gem-art',
@@ -529,8 +529,15 @@ const DESIGN_CONTENT_SEL = [
   '.bookmark-btn',
   '.icon-act',
   '.nav-btn',
-  'img',
-  'svg',
+].join(', ');
+/** One-level dig skips these and lands on content inside them. */
+const DESIGN_WRAPPER_SEL = [
+  '.gem-card-corner',
+  '.gem-card-corner-stack',
+  '.gem-card-corner-art',
+  '.feed-chip-corner',
+  '.gem-card-scrim',
+  '.detail-media-scrim',
 ].join(', ');
 const DESIGN_DRAG_THRESHOLD_PX = 5;
 const BTN_RADIUS_PILL = 24;
@@ -2427,8 +2434,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v105 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v105 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v106 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v106 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -2859,8 +2866,7 @@ function resolveDesignGroup(start) {
 
 /**
  * Figma dig: one level deeper from `selected` toward the node under the cursor.
- * If the hit is a real content piece (gem/img), jump to the content node that is
- * a direct child of `selected` when possible — skip empty bg wrappers.
+ * Gems/art win immediately — never stop on corner/scrim “bg” wrappers.
  */
 function digDesignOneLevel(selected, start) {
   if (!selected || !start) return null;
@@ -2869,13 +2875,7 @@ function digDesignOneLevel(selected, start) {
 
   const content = /** @type {HTMLElement | null} */ (hit.closest(DESIGN_CONTENT_SEL));
   if (content && selected.contains(content) && content !== selected) {
-    /* Walk content up until its parent is selected — that is the dig target */
-    let el = content;
-    while (el.parentElement && el.parentElement !== selected) {
-      el = el.parentElement;
-      if (!selected.contains(el)) break;
-    }
-    if (el.parentElement === selected) return el;
+    return content;
   }
 
   let el = hit;
@@ -2884,6 +2884,12 @@ function digDesignOneLevel(selected, start) {
     if (!selected.contains(el)) return null;
   }
   if (!el || el === selected || el.parentElement !== selected) return null;
+
+  if (el.matches(DESIGN_WRAPPER_SEL)) {
+    const nested = /** @type {HTMLElement | null} */ (el.querySelector(DESIGN_CONTENT_SEL));
+    if (nested) return nested;
+    return null;
+  }
   return el;
 }
 
