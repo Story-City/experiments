@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v124 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v125 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -185,6 +185,7 @@ const COPY_LEAD_MS = 160;
 const RARITY_PROMOTE_MS = 720;
 const TEXT_SWIPE_MS = 900;
 const FLY_MS = 720;
+const SORT_PEEL_MS = 720;
 const LIKES_DEMO = 12;
 const LIKES_STACK_SECOND = 8;
 const LIKES_STACK_SHUFFLE_MS = 560;
@@ -2483,22 +2484,27 @@ async function finishPublishWithWords() {
 async function settleSort(card, action, opts = {}) {
   const find = pendingSort[0];
   if (!find) return;
+  if (action === 'delete') {
+    card.classList.remove('is-dragging', 'is-enter');
+    card.style.transition = '';
+    card.style.transform = '';
+    card.style.opacity = '';
+    card.classList.add('is-peeling');
+    await wait(SORT_PEEL_MS);
+    pendingSort.shift();
+    hint.textContent = t('railDelete');
+    refreshHub();
+    return;
+  }
   const fly =
     action === 'public'
       ? 'translate(120%, -6%) rotate(16deg)'
-      : action === 'private'
-        ? 'translate(-120%, -6%) rotate(-16deg)'
-        : 'translate(0, 120%) rotate(3deg)';
+      : 'translate(-120%, -6%) rotate(-16deg)';
   card.style.transition = `transform ${SWIPE_SETTLE_MS}ms ${EASE_POPULAR}, opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
   card.style.transform = fly;
   card.style.opacity = '0';
   await wait(SWIPE_FADE_MS);
   pendingSort.shift();
-  if (action === 'delete') {
-    hint.textContent = t('railDelete');
-    refreshHub();
-    return;
-  }
   const gem = findToGem(find, {
     isPublic: action === 'public',
     owned: true,
