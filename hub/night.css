@@ -25,3 +25,4 @@
 }
 html { background: radial-gradient(120% 60% at 50% 0%, #2A1658 0%, var(--midnight) 55%, var(--ink) 100%) fixed var(--ink); }
 html body { background: transparent; font-family: 'Karla', system-ui, sans-serif; }
+html body iframe { background: var(--midnight); } /* every experiment paints its own background (checked 26 Nov); this only shows while one loads */
