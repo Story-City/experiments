@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v107 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v108 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -477,8 +477,8 @@ const debugSubcats = document.getElementById('debugSubcats');
 const debugAppPages = document.getElementById('debugAppPages');
 const appPagesNav = document.getElementById('appPagesNav');
 const debugDesignMove = document.getElementById('debugDesignMove');
-/** Sibling Map experiment — gated by debug “Gems / Map pages”. */
-const APP_PAGES_MAP_HREF = '../gem-pins/?v=34&edition=v2&appPages=1';
+/** Explore (map) experiment — gated by debug “Gems / Map pages”. */
+const APP_PAGES_EXPLORE_HREF = '../gem-pins/?v=35&edition=v2&appPages=1';
 const APP_PAGES_PARAM = 'appPages';
 const btnRadius = document.getElementById('btnRadius');
 const btnRadiusValue = document.getElementById('btnRadiusValue');
@@ -2439,8 +2439,8 @@ function setHubEdition(edition) {
   if (hubMeta) {
     hubMeta.textContent =
       hubEdition === 'v1'
-        ? 'LOCATION-GEMS-HUB-v107 · V1. Figma gems, no rarity.'
-        : 'LOCATION-GEMS-HUB-v107 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
+        ? 'LOCATION-GEMS-HUB-v108 · V1. Figma gems, no rarity.'
+        : 'LOCATION-GEMS-HUB-v108 · V2. Rarity = aquamarine/moonstone/topaz/opal/diamond.';
   }
   refreshHub();
   renderFeed();
@@ -3484,7 +3484,14 @@ function initAppPagesDebug() {
     appPagesNav.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-app-page]');
       if (!btn || btn.classList.contains('is-active')) return;
-      if (btn.dataset.appPage === 'map') location.href = APP_PAGES_MAP_HREF;
+      const page = btn.dataset.appPage;
+      if (page === 'explore') {
+        location.href = APP_PAGES_EXPLORE_HREF;
+        return;
+      }
+      if (hint && (page === 'feed' || page === 'library')) {
+        hint.textContent = `[${page} — not in this prototype]`;
+      }
     });
   }
 }

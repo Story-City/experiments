@@ -542,42 +542,60 @@ body.is-v2 .options-btn { z-index: 26; }
 }
 .edition-frame.is-shown { opacity: 1; pointer-events: auto; }
 
-/* Debug: Gems / Map app pages (toggle off to remove) */
-.app-pages {
+/* Debug: app FloatingTabBar from gem-pins-v2 / mobile-rn (toggle off to remove) */
+.app-main-tabs {
   position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
+  left: 50%;
+  bottom: 14px;
   z-index: 70;
+  transform: translateX(-50%);
   display: flex;
-  gap: 4px;
+  width: max-content;
+  max-width: calc(100% - 24px);
   padding: 4px;
   border-radius: 999px;
-  background: rgba(20, 14, 40, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  background: rgba(42, 47, 92, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
-.app-pages[hidden] { display: none !important; }
-.app-pages-btn {
-  flex: 1;
+.app-main-tabs[hidden] { display: none !important; }
+.app-main-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 5px 16px;
   border: 0;
   border-radius: 999px;
-  padding: 10px 12px;
   background: transparent;
   color: rgba(255, 255, 255, 0.62);
   font: inherit;
-  font-size: 14px;
-  font-weight: 800;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 12px;
   cursor: pointer;
 }
-.app-pages-btn.is-active {
-  background: rgba(255, 255, 255, 0.12);
+.app-main-tab.is-active {
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
+}
+.app-main-tab-ico {
+  width: 23px;
+  height: 23px;
+  display: block;
+}
+.app-main-tab-gem {
+  width: 23px;
+  height: 21px;
 }
 .phone.has-app-pages .key,
 .phone.has-app-pages .options-btn {
-  bottom: 64px;
+  bottom: 72px;
 }
 .phone.has-app-pages .toast {
   bottom: 108px;
+}
+body.is-v2 .app-main-tabs {
+  display: none !important;
 }

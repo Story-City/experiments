@@ -1140,6 +1140,10 @@ window.addEventListener('resize', drawPins);
 $('tabBar').addEventListener('click', (e) => {
   const tab = e.target.closest('[data-tab]');
   if (!tab) return;
+  if (tab.dataset.tab === 'gems') {
+    window.parent.postMessage({ type: 'gem-pins-open-gems' }, '*');
+    return;
+  }
   for (const b of $('tabBar').querySelectorAll('[data-tab]')) {
     const on = b === tab;
     b.classList.toggle('is-active', on);
