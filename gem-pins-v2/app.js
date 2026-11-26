@@ -826,6 +826,19 @@ function cornerHtml(g) {
   return `<div class="gem-card-corner" style="--gem-line:${fill}"><div class="gem-card-corner-art" aria-hidden="true">${ribbon}</div><div class="gem-card-corner-stack"><span class="gem-card-gem">${categoryMark(tagId, 46)}</span></div></div>`;
 }
 
+/** Exact location-gems feedCornerHtml for prompt card */
+function feedPromptCornerHtml(g) {
+  const tagId = g.tags[0];
+  const fill = GEM_COLOUR[tagId] || colourOf(g);
+  const ribbon = cornerRibbonHtml(fill, `feed-${g.id}`);
+  if (!ribbon) return '';
+  return `
+    <div class="feed-chip-corner-art">${ribbon}</div>
+    <div class="feed-chip-corner-stack">
+      <span class="feed-chip-corner-gem">${categoryMark(tagId, 38)}</span>
+    </div>`;
+}
+
 function whoLine(g) {
   return (g.mine ? `${COPY.yours} · ${g.private ? COPY.private : COPY.public}` : COPY.by(g.owner))
     + (g.visited ? ` · ${COPY.visited}` : '');
@@ -882,15 +895,24 @@ function paintActs(g) {
   );
 }
 
-function paintActionIcons(g) {
-  const save = $('saveBtn');
-  const hide = $('hideBtn');
+function paintSaveButton(el, g) {
+  if (!el) return;
   const on = saved.has(g.id);
-  save.innerHTML = ICON.bookmark;
-  save.setAttribute('aria-pressed', String(on));
-  save.setAttribute('aria-label', displayCopy(btnCopy(on ? 'saved' : 'save')));
-  hide.innerHTML = ICON.hide;
-  hide.setAttribute('aria-label', COPY.hideLong || 'Hide');
+  el.innerHTML = ICON.bookmark;
+  el.setAttribute('aria-pressed', String(on));
+  el.setAttribute('aria-label', displayCopy(btnCopy(on ? 'saved' : 'save')));
+}
+
+function paintActionIcons(g) {
+  paintSaveButton($('saveBtn'), g);
+  paintSaveButton($('saveBtnPrompt'), g);
+  const hide = $('hideBtn');
+  if (hide) {
+    hide.innerHTML = ICON.hide;
+    hide.setAttribute('aria-label', COPY.hideLong || 'Hide');
+  }
+  const navPrompt = $('navBtnPrompt');
+  if (navPrompt) navPrompt.textContent = displayCopy(btnCopy('navigate'));
 }
 
 function paintTags(g) {
@@ -937,7 +959,7 @@ function paintSlide() {
   /* Overlay only on Image — Bar keeps text in the glass bar under the photo */
   $('slideOverlay').hidden = !isImage;
 
-  /* Prompt = location-gems nearby prompt chip (panel + corner gem) */
+  /* Prompt = exact location-gems feed-chip.is-prompt */
   const promptEl = $('slidePrompt');
   if (promptEl) promptEl.hidden = !isPrompt;
   $('slideHead').hidden = !isOriginal;
@@ -946,16 +968,17 @@ function paintSlide() {
   $('slideMore').hidden = !(isOriginal && !sheetFull);
   $('slideStatus').hidden = !(isOriginal && sheetFull);
   /* Bookmark + hide stay in the action row (beside navigate) — never over the corner */
-  $('slideActions').hidden = isOriginal ? !sheetFull : false;
-  $('hideBtn').hidden = isPrompt;
+  $('slideActions').hidden = isPrompt ? true : (isOriginal ? !sheetFull : false);
+  $('hideBtn').hidden = false;
   $('slideActs').hidden = !isOriginal;
   $('slideActs').classList.toggle('is-on-media', false);
   $('slideActs').classList.toggle('is-on-prompt', false);
   $('slideActs').classList.toggle('is-on-head', isOriginal);
-  $('navBtn').classList.toggle('is-compact', isPrompt);
+  $('navBtn').classList.toggle('is-compact', false);
 
   const fill = GEM_COLOUR[g.tags[0]] || colourOf(g);
   slide.style.setProperty('--gem-line', fill);
+  if (promptEl) promptEl.style.setProperty('--gem-line', fill);
 
   if (isOriginal) {
     $('slideArt').innerHTML = pinFor(g);
@@ -964,25 +987,19 @@ function paintSlide() {
     paintTags(g);
     $('slideStatus').textContent = `${COPY.likes(g.likes + (g.liked ? 1 : 0))} · ${g.mine || g.visited ? COPY.visited : COPY.notVisited}`;
   }
-  const actions = $('slideActions');
-  const promptPanel = document.querySelector('.slide-prompt-panel');
-  if (isPrompt && promptPanel && actions.parentElement !== promptPanel) {
-    promptPanel.appendChild(actions);
-  } else if (!isPrompt && actions.parentElement !== slide) {
-    slide.appendChild(actions);
-  }
 
   if (isPrompt) {
     const rid = rarityOf(g);
     const rarity = RARITY[rid];
-    $('slidePromptKicker').textContent = whoLine(g);
+    /* Same fields as location-gems buildFeedChip('prompt'): dist kicker + title line */
+    $('slidePromptKicker').textContent = spoofWording ? 'Nearby' : '[nearby]';
     $('slidePromptLine').textContent = g.name;
     const rarityEl = $('slidePromptRarity');
     const showRarityWord = rid !== 'common' && !!(rarity && rarity.label);
     rarityEl.hidden = !showRarityWord;
     rarityEl.textContent = showRarityWord ? rarity.label : '';
-    rarityEl.className = 'slide-prompt-rarity' + (showRarityWord ? ` is-${rid}` : '');
-    $('slidePromptCorner').innerHTML = cornerHtml(g);
+    rarityEl.className = 'feed-chip-rarity-word' + (showRarityWord ? ` is-${rid}` : '');
+    $('slidePromptCorner').innerHTML = feedPromptCornerHtml(g);
   }
   paintActs(g);
   paintActionIcons(g);
@@ -1089,20 +1106,27 @@ for (const b of document.querySelectorAll('#layoutSwitch [data-filter-layout]'))
 }
 $('likeBtn').addEventListener('click', (e) => { e.stopPropagation(); toggleLike(); });
 $('likeBtnOv').addEventListener('click', (e) => { e.stopPropagation(); toggleLike(); });
-$('saveBtn').addEventListener('click', (e) => {
+function toggleSave(e) {
   e.stopPropagation();
   if (openId == null) return;
   if (saved.has(openId)) saved.delete(openId);
   else saved.add(openId);
   paintSlide();
   if (filterOn && stopId === 'wishlist') drawPins(true);
-});
+}
+$('saveBtn').addEventListener('click', toggleSave);
+$('saveBtnPrompt').addEventListener('click', toggleSave);
 $('hideBtn').addEventListener('click', (e) => {
   e.stopPropagation();
   if (openId == null) return;
   hideGem(GEMS[openId]);
 });
-$('navBtn').addEventListener('click', (e) => { e.stopPropagation(); toast(displayCopy('[would open navigate]')); });
+function onNavigate(e) {
+  e.stopPropagation();
+  toast(displayCopy('[would open navigate]'));
+}
+$('navBtn').addEventListener('click', onNavigate);
+$('navBtnPrompt').addEventListener('click', onNavigate);
 document.querySelector('.map-top').addEventListener('pointerdown', (e) => e.stopPropagation());
 $('slide').addEventListener('click', (e) => {
   if (sheet !== 'original' || sheetFull || e.target.closest('button')) return;
