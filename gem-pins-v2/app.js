@@ -950,8 +950,8 @@ function buildPromptChip(g) {
         <p class="feed-chip-rarity-word${showRarity ? ` is-${rid}` : ''}" ${showRarity ? '' : 'hidden'}>${showRarity ? rarity.label : ''}</p>
       </div>
       <div class="feed-chip-actions">
-        <button type="button" class="icon-act bookmark-btn" aria-pressed="false" aria-label="${displayCopy(btnCopy('save'))}"></button>
         <button type="button" class="nav-btn is-compact">${displayCopy(btnCopy('navigate'))}</button>
+        <button type="button" class="icon-act bookmark-btn" aria-pressed="false" aria-label="${displayCopy(btnCopy('save'))}"></button>
       </div>
     </div>
     <div class="feed-chip-corner" aria-hidden="true">${feedPromptCornerHtml(g)}</div>`;

@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v118 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v119 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -1184,8 +1184,8 @@ function buildFeedChip(g, variant) {
       : '';
   const actions = `
     <div class="feed-chip-actions">
-      <button type="button" class="icon-act bookmark-btn" aria-pressed="false" aria-label="${t('saveLater')}"></button>
       <button type="button" class="nav-btn is-compact">${t('detailNav')}</button>
+      <button type="button" class="icon-act bookmark-btn" aria-pressed="false" aria-label="${t('saveLater')}"></button>
     </div>`;
   const corner = feedCornerHtml(g, rarity, `feed-${g.id || rarity.id}`);
   const copyBlock = `

@@ -95,7 +95,7 @@
   },
   {
     "slug": "gem-pins-v2",
-    "path": "gem-pins-v2/?v=54",
+    "path": "gem-pins-v2/?v=55",
     "area": "gems",
     "title": "Gem map pins V2",
     "what": "Victoria's gem art on Melissa's Edmonton map. Filter turns the top bar into a legend plus a gem roller. Slide-outs: Melissa original, Prompt, Image, Corner. Navigate and save for later stay on the Victoria versions.",
@@ -176,10 +176,10 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=118",
+    "path": "location-gems/?v=119",
     "area": "gems",
     "title": "Location Gems hub",
-    "what": "Page anchor overlays (Original default kept). Rarity + sort hub, spotlight, likes.",
+    "what": "Navigate first on cards + detail. Page anchor Original kept. Rarity + sort hub.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",
