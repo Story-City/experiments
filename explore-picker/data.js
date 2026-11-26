@@ -84,10 +84,10 @@ export const EXPLORER = {
   emptyBadges: 'Badges appear as you pick',
 };
 
-// The versions of the picking mechanic. hint = one line inside the phone; why / risk = the note under the switcher.
+// The versions of the picking mechanic. hint = one line inside the phone (false = no subhead); why / risk = the note under the switcher.
 // Ruled out 25 Nov (Melissa): Pack your bag, Bubbles, Trail of lanterns. Letters are re-assigned in order.
 export const VERSIONS = [
-  { key: 'a', name: 'Card shuffle',      hint: 'Tap a card to add it to your hand.',
+  { key: 'a', name: 'Card shuffle',      hint: false,
     why: 'Physical, tactile and quick; the hand makes choices feel owned.', risk: 'Nine text cards is a lot to read on a couch.' },
   { key: 'b', name: 'Gems light up',     hint: 'Tap a gem to light it up.',
     why: 'Ties straight into gem pins, so it teaches the world.', risk: 'Glowing gems may read as rewards, not preferences.' },

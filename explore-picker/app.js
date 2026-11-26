@@ -64,12 +64,12 @@ function render() {
 
 function renderPick(V) {
   const scr = $('#scr');
-  const sub = V.hint || COPY.sub;
+  const sub = V.hint === false ? '' : V.hint || COPY.sub;
   scr.innerHTML = `
   <div class="pk">
     <div class="pk-top"><span class="pk-step">${esc(COPY.stepLabel)}</span><button class="sbtn ghost" id="skip">${esc(COPY.skip)}</button></div>
     <h1 class="pk-h">${nw(COPY.titles[S.h])}</h1>
-    <p class="pk-sub">${nw(sub)}</p>
+    ${sub ? `<p class="pk-sub">${nw(sub)}</p>` : ''}
     <div class="picker v-${V.key}" id="picker"></div>
     <div class="pk-foot"><button class="btn-primary" id="continue" disabled></button></div>
   </div>`;
