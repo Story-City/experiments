@@ -172,7 +172,7 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   object-fit: contain;
   overflow: visible;
   pointer-events: none;
-  filter: brightness(0) invert(1);
+  /* V3 (Melissa, 26 Nov): gems keep their category colours on the map, never white */
 }
 .legend-ico .pin-gem,
 .legend-ico .pin-gem-wrap,
