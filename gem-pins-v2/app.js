@@ -1,4 +1,4 @@
-/* GEM-PINS-V2-v34 — Category ids align with location-gems (eat). */
+/* GEM-PINS-V2-v36 — Category ids align with location-gems (eat). */
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('is-embed');
 import { CATS, COPY, LOVE, NAMES, OWNERS, PHOTOS, RARITY } from '../gem-pins/data.js';
 import { pinSvg } from '../gem-pins/gems.js';

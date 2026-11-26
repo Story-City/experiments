@@ -1,6 +1,6 @@
-/** Approved UI library — APPROVED-UI-v21
- * Gem-pins V2: Disc, Always/Classic/Inline filters, tab bar; EndStory; map mode; likes.
- * GEM-PINS-CHROME-v21 · GEM-DISC-FILTER-v20 · END-STORY-BADGES-POPUP-v19 · MAP-MODE-CARD-v19
+/** Approved UI library — APPROVED-UI-v22
+ * Elements | Tools tabs; jam category selector; gem-pins filters; Look tools rail.
+ * GEM-CAT-SELECTOR-v22 · GEM-PINS-CHROME-v21 · GEM-DISC-FILTER-v20
  */
 
 /** Same faceted gem as location-gems — StoryCity design, not AI */
@@ -210,6 +210,14 @@ const ELEMENT_DEFS = [
     mount: mountTipWithReply,
   },
   {
+    id: 'gem-category-selector',
+    title: 'Gem category selector',
+    source: 'location-gems publish cats · Figma Component 22',
+    ux: 'When: publishing a jam — pick the category that fits. Six Figma gems in a 3×2 grid; primary outline. Try: tap a category.',
+    stage: 'gem-cats',
+    mount: mountGemCategorySelector,
+  },
+  {
     id: 'gem-disc-filter',
     title: 'Disc colour filter',
     source: 'gem-pins-v2 Disc · Figma U arc',
@@ -282,7 +290,9 @@ const ELEMENT_DEFS = [
 ];
 
 const library = document.getElementById('library');
+const toolsPanel = document.getElementById('toolsPanel');
 const catalogNav = document.getElementById('catalogNav');
+const toolsSideNote = document.getElementById('toolsSideNote');
 const accentColor = document.getElementById('accentColor');
 const accentAlpha = document.getElementById('accentAlpha');
 const radialEnabled = document.getElementById('radialEnabled');
@@ -291,6 +301,15 @@ const radialColor = document.getElementById('radialColor');
 const radialAmount = document.getElementById('radialAmount');
 const bgColor = document.getElementById('bgColor');
 const bgDepth = document.getElementById('bgDepth');
+const midToneOn = document.getElementById('midToneOn');
+const midTonePick = document.getElementById('midTonePick');
+const midToneColor = document.getElementById('midToneColor');
+const btnRadius = document.getElementById('btnRadius');
+const btnRadiusValue = document.getElementById('btnRadiusValue');
+const spaceScale = document.getElementById('spaceScale');
+const spaceScaleValue = document.getElementById('spaceScaleValue');
+const typeScale = document.getElementById('typeScale');
+const typeScaleValue = document.getElementById('typeScaleValue');
 
 function gemSvg(fill, opts = {}) {
   const soft = !!opts.softOutline;
@@ -387,6 +406,46 @@ function applyBg() {
 
 function applyMotion(name) {
   document.documentElement.style.setProperty('--motion', MOTION_VARS[name] || MOTION_VARS.swoosh);
+}
+
+function applyMidTone() {
+  const on = midToneOn && midToneOn.getAttribute('aria-checked') === 'true';
+  if (midTonePick) midTonePick.hidden = !on;
+  const hex = (midToneColor && midToneColor.value) || '#241b46';
+  document.documentElement.style.setProperty('--raised', on ? hex : '#241b46');
+  document.documentElement.style.setProperty('--mid-tone', on ? hex : 'transparent');
+}
+
+function applyBtnRadius() {
+  const n = btnRadius ? Number(btnRadius.value) : 24;
+  const pill = n >= 24;
+  document.documentElement.style.setProperty('--btn-radius', pill ? '999px' : `${n}px`);
+  if (btnRadiusValue) btnRadiusValue.textContent = pill ? 'pill' : `${n}px`;
+}
+
+function applySpaceScale() {
+  const n = spaceScale ? Number(spaceScale.value) : 100;
+  document.documentElement.style.setProperty('--space-scale', String(n / 100));
+  if (spaceScaleValue) spaceScaleValue.textContent = `${n}%`;
+}
+
+function applyTypeScale() {
+  const n = typeScale ? Number(typeScale.value) : 100;
+  document.documentElement.style.setProperty('--type-scale', String(n / 100));
+  if (typeScaleValue) typeScaleValue.textContent = `${n}%`;
+}
+
+function setLibraryTab(tab) {
+  const next = tab === 'tools' ? 'tools' : 'elements';
+  document.body.dataset.libTab = next;
+  document.querySelectorAll('.lib-tab').forEach((b) => {
+    const on = b.dataset.libTab === next;
+    b.setAttribute('aria-selected', String(on));
+  });
+  if (library) library.hidden = next !== 'elements';
+  if (toolsPanel) toolsPanel.hidden = next !== 'tools';
+  if (catalogNav) catalogNav.hidden = next !== 'elements';
+  if (toolsSideNote) toolsSideNote.hidden = next !== 'tools';
 }
 
 function repaintTintedElements() {
@@ -1491,15 +1550,26 @@ function mountTipWithReply(stage, actions) {
 }
 
 /** Shared stops/marks for gem-pins filter ports (from gem-pins-v2). */
+/** Same six cats as location-gems JAM_CATS (eat covers shop). */
+const JAM_CATS = [
+  { id: 'nature', label: 'Nature', colour: '#00CD9D', art: '../gem-pins-v2/assets/gems/nature.svg' },
+  { id: 'eat', label: 'Eat & Drink', colour: '#FF4F79', art: '../gem-pins-v2/assets/gems/eat-drink.svg' },
+  { id: 'culture', label: 'Culture', colour: '#41C7D8', art: '../gem-pins-v2/assets/gems/art.svg' },
+  { id: 'play', label: 'Play', colour: '#F7C85C', art: '../gem-pins-v2/assets/gems/play.svg' },
+  { id: 'landmark', label: 'Landmarks', colour: '#F1A638', art: '../gem-pins-v2/assets/gems/landmarks.svg' },
+  { id: 'curio', label: 'Curiosities', colour: '#B36BFF', art: '../gem-pins-v2/assets/gems/curiosities.svg' },
+];
+
 function gemPinsFilterStops() {
   return [
     { id: 'all', label: 'All gems', note: '[every gem nearby]', kind: 'all' },
-    { id: 'nature', label: 'Nature', note: '[explain nature finds]', kind: 'cat', art: 'nature' },
-    { id: 'eatshop', label: 'Eat & Drink', note: '[explain eat, drink and shop finds]', kind: 'cat', art: 'eat' },
-    { id: 'culture', label: 'Culture', note: '[explain culture finds]', kind: 'cat', art: 'culture' },
-    { id: 'play', label: 'Play', note: '[explain play finds]', kind: 'cat', art: 'play' },
-    { id: 'landmark', label: 'Landmarks', note: '[explain landmark finds]', kind: 'cat', art: 'landmark' },
-    { id: 'curio', label: 'Curiosities', note: '[explain curiosity finds]', kind: 'cat', art: 'curio' },
+    ...JAM_CATS.map((c) => ({
+      id: c.id,
+      label: c.label,
+      note: `[explain ${c.label.toLowerCase()} finds]`,
+      kind: 'cat',
+      art: c.id === 'eat' ? 'eat' : c.id === 'culture' ? 'culture' : c.id,
+    })),
     { id: 'liked', label: 'Liked', note: '[explain liked gems]', kind: 'liked' },
     { id: 'wishlist', label: 'Wishlist', note: '[explain saved for later]', kind: 'wishlist' },
   ];
@@ -1528,6 +1598,57 @@ function gemPinsMarkHtml(stop) {
   }
   const src = GEM_SRC[stop.art] || GEM_SRC.nature;
   return `<img class="pin-gem" src="${src}" width="28" height="28" alt="" decoding="async">`;
+}
+
+function mountGemCategorySelector(stage, actions) {
+  const host = document.createElement('div');
+  host.className = 'gem-cat-host';
+  host.innerHTML = `
+    <p class="gem-cat-prompt">[what best describes your jam]</p>
+    <div class="gem-cat-grid" role="listbox" aria-label="Jam categories"></div>
+    <p class="gem-cat-picked" id="gemCatPicked">[pick a category]</p>
+  `;
+  stage.appendChild(host);
+  const grid = host.querySelector('.gem-cat-grid');
+  const picked = host.querySelector('#gemCatPicked');
+  let primary = null;
+
+  const paint = () => {
+    grid.querySelectorAll('.gem-cat-btn').forEach((btn) => {
+      const on = btn.dataset.cat === primary;
+      btn.classList.toggle('is-on', on);
+      btn.classList.toggle('is-primary', on);
+      btn.setAttribute('aria-selected', String(on));
+    });
+    const cat = JAM_CATS.find((c) => c.id === primary);
+    picked.textContent = cat ? cat.label : '[pick a category]';
+  };
+
+  JAM_CATS.forEach((cat) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'gem-cat-btn';
+    btn.dataset.cat = cat.id;
+    btn.setAttribute('role', 'option');
+    btn.style.setProperty('--cat-fill', cat.colour);
+    btn.innerHTML = `
+      <span class="gem-cat-gem" aria-hidden="true"><img class="cat-gem-art" src="${cat.art}" alt="" decoding="async"></span>
+      <span class="gem-cat-label">${cat.label}</span>`;
+    btn.addEventListener('click', () => {
+      primary = cat.id;
+      paint();
+    });
+    grid.appendChild(btn);
+  });
+  paint();
+  addPlay(actions, 'Pick Nature', () => {
+    primary = 'nature';
+    paint();
+  });
+  addGhost(actions, 'Clear', () => {
+    primary = null;
+    paint();
+  });
 }
 
 function mountGemTabBar(stage, actions) {
@@ -1726,7 +1847,7 @@ function mountGemDiscFilter(stage, actions) {
   const STOPS = [
     { id: 'all', label: 'All gems', note: '[every gem nearby]', kind: 'all' },
     { id: 'nature', label: 'Nature', note: '[explain nature finds]', kind: 'cat', art: 'nature' },
-    { id: 'eatshop', label: 'Eat & Drink', note: '[explain eat, drink and shop finds]', kind: 'cat', art: 'eat' },
+    { id: 'eat', label: 'Eat & Drink', note: '[explain eat, drink and shop finds]', kind: 'cat', art: 'eat' },
     { id: 'culture', label: 'Culture', note: '[explain culture finds]', kind: 'cat', art: 'culture' },
     { id: 'play', label: 'Play', note: '[explain play finds]', kind: 'cat', art: 'play' },
     { id: 'landmark', label: 'Landmarks', note: '[explain landmark finds]', kind: 'cat', art: 'landmark' },
@@ -2447,8 +2568,27 @@ document.querySelectorAll('input[name="motion"]').forEach((input) => {
     if (input.checked) applyMotion(input.value);
   });
 });
+if (midToneOn) {
+  midToneOn.addEventListener('click', () => {
+    const next = midToneOn.getAttribute('aria-checked') !== 'true';
+    midToneOn.setAttribute('aria-checked', String(next));
+    applyMidTone();
+  });
+}
+if (midToneColor) midToneColor.addEventListener('input', applyMidTone);
+if (btnRadius) btnRadius.addEventListener('input', applyBtnRadius);
+if (spaceScale) spaceScale.addEventListener('input', applySpaceScale);
+if (typeScale) typeScale.addEventListener('input', applyTypeScale);
+document.querySelectorAll('.lib-tab').forEach((btn) => {
+  btn.addEventListener('click', () => setLibraryTab(btn.dataset.libTab));
+});
 
 applyBg();
 applyMotion('swoosh');
+applyMidTone();
+applyBtnRadius();
+applySpaceScale();
+applyTypeScale();
 buildLibrary();
 applyAccent();
+setLibraryTab('elements');

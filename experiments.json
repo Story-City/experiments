@@ -183,8 +183,10 @@
     "authorName": "Victoria",
     "date": "2026-11",
     "archived": false,
-    "notionPageId": null,
-    "jira": "SC-3526"
+    "notionPageId": "41066b10-71fa-80de-8c1e-f88f7218f02f",
+    "jira": "SC-3985",
+    "stage": "ready",
+    "spec": "day-reached-overlay/spec.json"
   },
   {
     "slug": "golden-path-nov13",

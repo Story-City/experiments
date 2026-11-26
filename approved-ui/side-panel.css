@@ -1,7 +1,149 @@
-/* Side panel (Melissa, 19 Nov): on wide screens the title, Accent / Radial / Background / Motion
-   and the jump links sit in a panel left of the cards and stay put while the cards scroll.
-   Narrow screens keep the original stacked layout. */
+/* Side panel: title, Elements|Tools tabs, jump links. Tools live in #toolsPanel.
+   Narrow screens stack. side-panel.css?v=2 */
 .side-panel { display: contents; }
+.tools-side-note {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.tools-side-note[hidden] { display: none !important; }
+
+.lib-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.lib-tab {
+  flex: 1;
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font: inherit;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+}
+.lib-tab[aria-selected="true"] {
+  background: color-mix(in srgb, var(--brand-accent, #00c2ff) 28%, rgba(255, 255, 255, 0.1));
+  color: #fff;
+}
+
+.tools-panel {
+  width: min(920px, 100%);
+  margin-inline: auto;
+  padding: 8px 0 32px;
+}
+.tools-panel[hidden] { display: none !important; }
+.tools-head {
+  margin: 0 0 16px;
+}
+.tools-head h2 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.tools-head p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  max-width: 42em;
+}
+.toolbar.is-tools {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.toolbar.is-tools .accent-pick,
+.toolbar.is-tools .motion-pick,
+.toolbar.is-tools .tool-toggle {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+.toolbar.is-tools .accent-pick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.toolbar.is-tools .accent-pick > span:first-child {
+  flex: 0 0 100%;
+  font-weight: 800;
+  font-size: 13px;
+}
+.toolbar.is-tools .accent-pick input[type="range"] { flex: 1 1 120px; min-width: 0; }
+.toolbar.is-tools .motion-pick {
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.tool-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 800;
+  font-size: 13px;
+}
+.tool-value {
+  min-width: 3.2em;
+  text-align: right;
+  font-weight: 800;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+}
+.switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+}
+.switch[aria-checked="true"] {
+  background: color-mix(in srgb, var(--brand-accent, #00c2ff) 70%, #fff);
+}
+.switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 180ms ease;
+}
+.switch[aria-checked="true"] .switch-knob {
+  transform: translateX(18px);
+}
+
+body[data-lib-tab="tools"] .library,
+body[data-lib-tab="tools"] #catalogNav { display: none !important; }
+body[data-lib-tab="elements"] .tools-panel { display: none !important; }
+body[data-lib-tab="elements"] .tools-side-note { display: none !important; }
+body[data-lib-tab="tools"] .tools-side-note { display: block; }
 
 @media (min-width: 700px) {
   body {
@@ -14,7 +156,7 @@
   }
   .side-panel {
     grid-column: 1;
-    grid-row: 1 / span 2;
+    grid-row: 1 / span 3;
     position: sticky;
     top: 20px;
     max-height: calc(100vh - 40px);
@@ -28,17 +170,15 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     scrollbar-width: thin;
   }
-  .library, .meta { grid-column: 2; }
-  .library { grid-row: 1; }
+  .library,
+  .tools-panel,
+  .meta { grid-column: 2; }
+  .library,
+  .tools-panel { grid-row: 1; }
   .meta { grid-row: 2; }
 
   .side-panel h1 { font-size: 36px; }
   .side-panel .lede { font-size: 15px; }
-  .side-panel .toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
-  .side-panel .toolbar > * { width: 100%; max-width: 100%; min-width: 0; min-inline-size: 0; }
-  .side-panel .accent-pick { display: flex; }
-  .side-panel .accent-pick input[type="range"] { flex: 1 1 0; min-width: 0; width: 0; }
-  .side-panel .motion-pick { flex-wrap: wrap; gap: 6px 12px; border-radius: 16px; }
   .side-panel .catalog-nav { flex-direction: column; flex-wrap: nowrap; gap: 4px; margin: 0; }
   .side-panel .catalog-nav a { height: 30px; justify-content: flex-start; }
 }
