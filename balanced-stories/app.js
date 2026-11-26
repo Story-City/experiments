@@ -10,15 +10,33 @@ const SERIAL_STEP = 97;
 const CHOICE_HEADER = 'Where to next?';
 const AUDIO_BUTTON_TEXT = 'Tap To Play Audio';
 const END_LABEL = 'The End';
+const CAST_VERSIONS = [
+  { key: 'a', name: 'Names above' },
+  { key: 'b', name: 'Profile circles' },
+  { key: 'c', name: 'Colour-coded' },
+  { key: 'd', name: 'Quote line' },
+  { key: 'e', name: 'Back and forth' },
+];
+// The app's map-choice colours (theme.ts muted slate / amber / teal), lifted for a dark screen, plus amethyst.
+const CHARACTER_COLOURS = ['#5B86C9', '#C98A3E', '#4E9C86', '#9B6BD6'];
+// Narrated reader's timing when there's no audio to follow: 0.75 s per line + 0.36 s per word.
+const LINE_BASE_SECS = 0.75;
+const SECS_PER_WORD = 0.36;
+const TICK_MS = 100;
+const AUDIO_START_TIMEOUT_MS = 3000;
+const FOLLOW_SLACK_PX = 120;
+const OWN_SCROLL_MS = 700;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 const $ = (id) => document.getElementById(id);
 const phone = $('phone');
 
 const params = new URLSearchParams(location.search);
+const FAST = Math.max(0, +params.get('fast') || 0);   // hidden: fake audio at N× for headless tests
 const state = {
   story: clamp((parseInt(params.get('s'), 10) || 1) - 1, 0, STORIES.length - 1),
   chapter: 0,
+  cast: CAST_VERSIONS.some((v) => v.key === params.get('ch')) ? params.get('ch') : 'a',
 };
 state.chapter = clamp((parseInt(params.get('c'), 10) || 1) - 1, 0, STORIES[state.story].chapters.length - 1);
 
@@ -62,10 +80,9 @@ function injectLikeApp(root) {
     btn.type = 'button';
     btn.classList.add('audio-button');
     btn.append(content);
+    btn.addEventListener('click', togglePlayback);
     audio.controls = false;
     audio.hidden = true;
-    audio.querySelectorAll('source').forEach((s) => s.removeAttribute('src'));
-    audio.removeAttribute('src');
     audio.parentNode.insertBefore(btn, audio);
   });
   root.querySelectorAll('span[info]').forEach((el) => {
@@ -199,6 +216,21 @@ function renderControls() {
     b.addEventListener('click', () => { state.story = i; state.chapter = 0; render(true); });
     seg.appendChild(b);
   });
+  const hasCast = storyCast(STORIES[state.story]).length > 0;
+  $('castRow').hidden = !hasCast;
+  const castSeg = $('castSeg');
+  castSeg.innerHTML = '';
+  CAST_VERSIONS.forEach((v) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = v.key.toUpperCase();
+    b.title = v.name;
+    b.setAttribute('aria-label', `${v.key.toUpperCase()}: ${v.name}`);
+    b.setAttribute('aria-pressed', String(v.key === state.cast));
+    b.addEventListener('click', () => { state.cast = v.key; render(false); });
+    castSeg.appendChild(b);
+  });
+  $('castName').textContent = CAST_VERSIONS.find((v) => v.key === state.cast).name;
   const total = STORIES[state.story].chapters.length;
   $('count').textContent = `${state.chapter + 1}/${total}`;
   $('prev').disabled = state.chapter === 0;
@@ -222,6 +254,7 @@ function ticket(label, index, onPress) {
 }
 
 function render(scrollTop) {
+  stopPlayback();
   const story = STORIES[state.story];
   const ch = story.chapters[state.chapter];
   $('navTitle').textContent = story.title;
@@ -240,6 +273,11 @@ function render(scrollTop) {
   const narration = document.createElement('div');
   narration.className = 'narration';
   let lastSpeaker = null;
+  const cast = storyCast(story);
+  const chapterSpeakers = [...new Set(ch.lines.filter((l) => l.name).map((l) => l.name))];
+  const seen = new Set();
+  phone.classList.remove(...CAST_VERSIONS.map((v) => `cv-${v.key}`));
+  phone.classList.add(`cv-${state.cast}`);
   for (const line of ch.lines) {
     const d = document.createElement('div');
     if (line.who === 'narrator') {
@@ -248,18 +286,32 @@ function render(scrollTop) {
       lastSpeaker = null;
     } else {
       d.className = 'say';
-      if (line.name !== lastSpeaker) {
+      d.style.setProperty('--c', CHARACTER_COLOURS[cast.indexOf(line.name) % CHARACTER_COLOURS.length]);
+      const newRun = line.name !== lastSpeaker;
+      const firstTime = !seen.has(line.name);
+      seen.add(line.name);
+      if (!newRun) d.classList.add('cont');
+      if (chapterSpeakers.indexOf(line.name) === 1) d.classList.add('right');
+      const showName = state.cast === 'a' ? newRun : firstTime;
+      if (showName && state.cast !== 'b') {
         const who = document.createElement('div');
         who.className = 'who';
         who.textContent = line.name;
         d.appendChild(who);
       }
+      const avatar = document.createElement('span');
+      avatar.className = 'avatar';
+      avatar.textContent = line.name.charAt(0);
+      avatar.title = line.name;
+      avatar.setAttribute('aria-label', line.name);
+      d.appendChild(avatar);
       const bub = document.createElement('div');
       bub.className = 'bub';
       bub.innerHTML = line.html;
       d.appendChild(bub);
       lastSpeaker = line.name;
     }
+    d.hidden = true;
     narration.appendChild(d);
   }
   web.appendChild(narration);
@@ -267,6 +319,7 @@ function render(scrollTop) {
 
   const nc = $('nextChapters');
   nc.innerHTML = '';
+  nc.hidden = true;
   const isLast = state.chapter === story.chapters.length - 1;
   const header = document.createElement('h2');
   header.className = 'nc-header';
@@ -281,14 +334,15 @@ function render(scrollTop) {
     nc.appendChild(list);
   }
 
-  applyNewStyle([...narration.querySelectorAll('.narr, .bub'), header, ...nc.querySelectorAll('.ticket-title')]);
-  narration.querySelectorAll('.bub').forEach(fitBubble);
+  for (const el of narration.querySelectorAll('.narr, .bub')) for (const seg of textSegments(el)) joinLastTwoWords(seg);
+  setupPlayback(ch, [...narration.children], narration, nc);
 
   renderControls();
   const url = new URL(location.href);
   url.searchParams.set('s', state.story + 1);
   url.searchParams.set('c', state.chapter + 1);
   url.searchParams.delete('m');
+  if (cast.length) url.searchParams.set('ch', state.cast); else url.searchParams.delete('ch');
   history.replaceState(null, '', url);
   if (scrollTop) window.scrollTo(0, 0);
 }
@@ -296,7 +350,163 @@ function render(scrollTop) {
 $('prev').addEventListener('click', () => { state.chapter -= 1; render(true); });
 $('next').addEventListener('click', () => { state.chapter += 1; render(true); });
 
+function storyCast(story) {
+  return [...new Set(story.chapters.flatMap((c) => c.lines.filter((l) => l.name).map((l) => l.name)))];
+}
+
+// ---------- voiceover sync: lines appear as they're spoken ----------
+let pb = null;
+const wordsOf = (html) => html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+
+function setupPlayback(ch, lineEls, narration, nc) {
+  const words = ch.lines.map((l) => wordsOf(l.html));
+  const total = words.reduce((a, b) => a + b, 0) || 1;
+  const fakeSecs = words.map((w) => LINE_BASE_SECS + w * SECS_PER_WORD);
+  const share = [];
+  let acc = 0;
+  for (const w of words) { share.push(acc / total); acc += w; }
+  const fakeStarts = [];
+  acc = 0;
+  for (const s2 of fakeSecs) { fakeStarts.push(acc); acc += s2; }
+  pb = { ch, lineEls, narration, nc, share, fakeStarts, fakeTotal: acc, revealed: 0, playing: false, ended: false,
+    audio: null, fake: !ch.audio || FAST > 0, clock: 0, lastTick: 0, timer: null, startGuard: null };
+  if (!ch.lines.length) finishPlayback();
+  else startPlayback();   // like the app with autoplay on; a blocked autoplay waits for a tap on the button
+}
+
+const pbDuration = () => (!pb.fake && pb.audio && isFinite(pb.audio.duration) ? pb.audio.duration : pb.fakeTotal);
+const pbTime = () => (!pb.fake && pb.audio ? pb.audio.currentTime : pb.clock);
+const lineStart = (i) => (!pb.fake && pb.audio && isFinite(pb.audio.duration) ? pb.share[i] * pb.audio.duration : pb.fakeStarts[i]);
+
+function startPlayback() {
+  if (!pb || pb.ended) return;
+  pb.playing = true;
+  pb.narration.classList.add('playing');
+  if (!pb.fake) {
+    if (!pb.audio) {
+      pb.audio = new Audio(pb.ch.audio);
+      pb.audio.preload = 'auto';
+      pb.audio.addEventListener('ended', finishPlayback);
+      pb.audio.addEventListener('error', switchToFake);
+    }
+    const mine = pb;
+    pb.audio.play().catch(() => { if (mine === pb && pb.audio.paused) pausePlayback(); });
+    clearTimeout(pb.startGuard);
+    pb.startGuard = setTimeout(() => { if (mine === pb && pb.playing && pb.audio.currentTime === 0) switchToFake(); }, AUDIO_START_TIMEOUT_MS);
+  }
+  pb.lastTick = performance.now();
+  clearInterval(pb.timer);
+  pb.timer = setInterval(tick, TICK_MS);
+  tick();
+}
+
+function switchToFake() {
+  if (!pb || pb.fake) return;
+  const t = pb.audio ? pb.audio.currentTime : 0;
+  if (pb.audio) pb.audio.pause();
+  pb.fake = true;
+  pb.clock = pb.fakeStarts[Math.max(0, pb.revealed - 1)] || t;
+}
+
+function pausePlayback() {
+  if (!pb) return;
+  pb.playing = false;
+  if (pb.audio) pb.audio.pause();
+  clearInterval(pb.timer);
+}
+
+function stopPlayback() {
+  if (!pb) return;
+  pausePlayback();
+  clearTimeout(pb.startGuard);
+  if (pb.audio) { pb.audio.removeAttribute('src'); pb.audio.load(); }
+  pb = null;
+}
+
+function togglePlayback() {
+  if (!pb) return;
+  if (pb.ended) { render(true); return; }
+  if (pb.playing) pausePlayback(); else startPlayback();
+}
+
+function tick() {
+  if (!pb || !pb.playing) return;
+  const now = performance.now();
+  if (pb.fake) pb.clock += ((now - pb.lastTick) / 1000) * Math.max(1, FAST);
+  pb.lastTick = now;
+  const t = pbTime();
+  let target = 1;
+  while (target < pb.lineEls.length && lineStart(target) <= t) target++;
+  revealTo(target);
+  if (pb.fake && t >= pb.fakeTotal) finishPlayback();
+}
+
+function revealTo(n) {
+  for (let i = pb.revealed; i < Math.min(n, pb.lineEls.length); i++) {
+    const el = pb.lineEls[i];
+    el.hidden = false;
+    el.classList.add('enter');
+    styleLine(el);
+  }
+  if (n > pb.revealed) {
+    pb.revealed = Math.min(n, pb.lineEls.length);
+    pb.lineEls.forEach((el, i) => el.classList.toggle('now', i === pb.revealed - 1));
+    followNewest(pb.lineEls[pb.revealed - 1]);
+  }
+}
+
+function styleLine(el) {
+  const blocks = el.matches('.narr') ? [el] : [...el.querySelectorAll('.bub')];
+  for (const b of blocks) {
+    b.classList.remove('bal');
+    b.style.maxWidth = '';
+    if (lineCount(b) <= BALANCE_MAX_LINES) { b.classList.add('bal'); evenOut(b); }
+    if (b.matches('.bub')) fitBubble(b);
+  }
+}
+
+function finishPlayback() {
+  if (!pb || pb.ended) return;
+  revealTo(pb.lineEls.length);
+  pausePlayback();
+  pb.ended = true;
+  pb.narration.classList.remove('playing');
+  pb.lineEls.forEach((el) => el.classList.remove('now'));
+  pb.nc.hidden = false;
+  applyNewStyle([...pb.nc.querySelectorAll('.nc-header, .ticket-title')]);
+  followNewest(pb.nc);
+}
+
+// Tap the story text to jump to the next line (and the voiceover with it).
+$('webview').addEventListener('click', (e) => {
+  if (!pb || pb.ended || e.target.closest('button, .link-wrapper')) return;
+  if (pb.revealed >= pb.lineEls.length) { finishPlayback(); return; }
+  const next = pb.revealed;
+  if (!pb.fake && pb.audio && isFinite(pb.audio.duration)) pb.audio.currentTime = lineStart(next);
+  else pb.clock = pb.fakeStarts[next];
+  revealTo(next + 1);
+});
+
+// Follow the voice unless the reader has scrolled up to look back.
+let follow = true;
+let ownScrollUntil = 0;
+addEventListener('scroll', () => {
+  if (performance.now() < ownScrollUntil) return;
+  follow = window.scrollY + innerHeight >= document.documentElement.scrollHeight - FOLLOW_SLACK_PX;
+}, { passive: true });
+function followNewest(el) {
+  if (!follow || !el) return;
+  const r = el.getBoundingClientRect();
+  if (r.bottom <= innerHeight - 16) return;
+  ownScrollUntil = performance.now() + OWN_SCROLL_MS;
+  window.scrollBy({ top: r.bottom - innerHeight + 24, behavior: 'smooth' });
+}
+
 render(false);
-// Line counts depend on the web font; re-run once it has loaded.
-document.fonts.ready.then(() => render(false));
-window.__balancedStories = { state, render, STORIES };
+// Line counts depend on the web font; restyle what's showing once it has loaded.
+document.fonts.ready.then(() => { if (pb) pb.lineEls.filter((el) => !el.hidden).forEach(styleLine); });
+window.__balancedStories = {
+  state, render, STORIES,
+  finishNow: () => finishPlayback(),
+  get playback() { return pb && { revealed: pb.revealed, total: pb.lineEls.length, playing: pb.playing, ended: pb.ended, fake: pb.fake }; },
+};

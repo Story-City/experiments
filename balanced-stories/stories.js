@@ -10,7 +10,7 @@ export const STORIES = [
   "chapters": [
    {
     "img": "https://creator.storycity.app/media/6a83490836b76_Cafe%20Intro%20-%206.jpg",
-    "audio": true,
+    "audio": "https://creator.storycity.app/media/6ae8c982a507d_StoryCity_Tales_intro-a-Update_20261030_Master%20REV%20(1).mp3",
     "lines": [
      {
       "who": "narrator",
@@ -49,7 +49,7 @@ export const STORIES = [
    },
    {
     "img": "https://creator.storycity.app/media/6a83496774278_Cafe%20Intro%20-%204.jpg",
-    "audio": true,
+    "audio": "https://creator.storycity.app/media/6a7dfc12afc2e_StoryCity_Tales_Intro-b_20260714_WebMaster.mp3",
     "lines": [
      {
       "who": "narrator",
@@ -76,7 +76,7 @@ export const STORIES = [
    },
    {
     "img": "https://creator.storycity.app/media/6a83497b7e478_Cafe%20Intro%20-%205.jpg",
-    "audio": true,
+    "audio": "https://creator.storycity.app/media/6a7dfcabb348c_StoryCity_Tales_Intro-d_20260714_WebMaster.mp3",
     "lines": [
      {
       "who": "narrator",
@@ -112,7 +112,7 @@ export const STORIES = [
    },
    {
     "img": "https://creator.storycity.app/media/6a83498e29680_Cafe%20Intro%20-%201.jpg",
-    "audio": true,
+    "audio": "https://creator.storycity.app/media/6a7dfe06bc97d_StoryCity_Tales_Intro-e_20260714_WebMaster.mp3",
     "lines": [
      {
       "who": "narrator",
@@ -135,7 +135,7 @@ export const STORIES = [
    },
    {
     "img": "https://creator.storycity.app/media/6a7f89cfe626f_FIFarron%20and%20Nyam.jpg",
-    "audio": true,
+    "audio": "https://creator.storycity.app/media/6a7dfeda2a918_StoryCity_Tales_Loc1-1a_20260714_WebMaster.mp3",
     "lines": [
      {
       "who": "narrator",
@@ -275,7 +275,7 @@ export const STORIES = [
    },
    {
     "img": "https://creator.storycity.app/media/6a7f8a1165eee_1-1b%201.png",
-    "audio": true,
+    "audio": "https://creator.storycity.app/media/6a7e0e9501f3c_StoryCity_Tales_Loc1-1b_20260714_WebMaster.mp3",
     "lines": [
      {
       "who": "figure",
@@ -386,7 +386,7 @@ export const STORIES = [
   "chapters": [
    {
     "img": "https://creator.storycity.app/media/69151e955a10e_CH1a_welcome_Just%20logo.jpg",
-    "audio": true,
+    "audio": "https://storycity.app/media/6917b37895404_The%20Dictator's%20Laundromat.wav",
     "lines": [
      {
       "who": "narrator",
@@ -425,7 +425,7 @@ export const STORIES = [
    },
    {
     "img": "https://creator.storycity.app/media/690fcdd7492a6_Laundromat_Hub1.jpg",
-    "audio": true,
+    "audio": "https://storycity.app/media/6917b3bb3961c_CH%201b%20-%20HUB%201.wav",
     "lines": [
      {
       "who": "narrator",
@@ -479,7 +479,7 @@ export const STORIES = [
    },
    {
     "img": "https://creator.storycity.app/media/690fd11bd6a5a_Change%20reputation.jpg",
-    "audio": true,
+    "audio": "https://storycity.app/media/6917b7b95fc36_CH%208a%20-%20QUIZ%20INTRO.wav",
     "lines": [
      {
       "who": "narrator",
@@ -500,7 +500,7 @@ export const STORIES = [
    },
    {
     "img": "https://creator.storycity.app/media/6914f7a3e1077_CH1c_Hub2.jpg",
-    "audio": true,
+    "audio": "https://storycity.app/media/6917b3dd244f2_CH%201c%20-%20HUB%202.wav",
     "lines": [
      {
       "who": "narrator",
@@ -538,7 +538,7 @@ export const STORIES = [
    },
    {
     "img": "https://creator.storycity.app/media/6914fc2437951_CH5a_Private%20Firms.jpg",
-    "audio": true,
+    "audio": "https://storycity.app/media/6917b591ed451_CH%205a%20-%20PRIVATE%20FIRMS.wav",
     "lines": [
      {
       "who": "narrator",
@@ -581,7 +581,7 @@ export const STORIES = [
    },
    {
     "img": "https://creator.storycity.app/media/691e169e2e3bd_CH5b_ride%20shares.jpg",
-    "audio": true,
+    "audio": "https://storycity.app/media/6917b5a64a76d_CH%205b%20-%20Invest%20in%20ride%20share%20services.wav",
     "lines": [
      {
       "who": "narrator",

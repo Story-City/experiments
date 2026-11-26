@@ -16,12 +16,18 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </head>
 <body>
 <div class="phone after" id="phone">
-  <div class="demo" role="toolbar" aria-label="Mockup controls">
-    <div class="seg" id="storySeg" role="group" aria-label="Story"></div>
-    <div class="pager">
-      <button type="button" id="prev" aria-label="Previous chapter"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <span id="count">1/6</span>
-      <button type="button" id="next" aria-label="Next chapter"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <div class="demo-wrap">
+    <div class="demo" role="toolbar" aria-label="Mockup controls">
+      <div class="seg" id="storySeg" role="group" aria-label="Story"></div>
+      <div class="pager">
+        <button type="button" id="prev" aria-label="Previous chapter"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span id="count">1/6</span>
+        <button type="button" id="next" aria-label="Next chapter"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+    <div class="demo demo-cast" id="castRow" role="group" aria-label="How characters show">
+      <div class="seg" id="castSeg"></div>
+      <span class="cast-name" id="castName"></span>
     </div>
   </div>
 
