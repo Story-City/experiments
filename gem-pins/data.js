@@ -60,6 +60,9 @@ export const LOVE = '#e84aa8'; // liked
 // The 15 toggles, in the thread's order. `start` is the "Start with" column.
 // Ruled out by Melissa (20 Nov): hidden from the dropdowns, letters of the rest stay the same.
 export const RULED_OUT = { liked: ['colour', 'outline'], art: ['double'], rarityBy: ['colour'] };
+// Settled by Melissa (26 Nov): gem art is always Victoria's, colour and shape always show the category.
+// Links, presets and saved presets can't change these.
+export const LOCKED = { art: 'victoria', curio: 'nugget', colour: 'category', shape: 'category' };
 
 export const OPTIONS = [
   { id: 'colour', n: 1, label: 'Colour shows', start: 'category', opts: [['whose', 'Creator'], ['rarity', 'Rarity'], ['category', 'Category'], ['picked', 'Creator’s picked colour'], ['none', 'Nothing (one colour)']] },
@@ -100,12 +103,10 @@ export const OPTIONS = [
 // Preset combos (Melissa, 19 Nov): six full setups, one tap each. Density and colour-blind stay as
 // they are, so each preset can be run at 10 / 40 / 100 gems and with the colour-blind view.
 // The options panel, grouped by what a gem has to show (Melissa, 19 Nov): the thing down the left,
-// how it's shown on the right. Colour comes first because Creator, Rarity and Category all compete for it.
+// how it's shown on the right. Gem art, colour and shape are settled (26 Nov, see LOCKED), so they have no rows.
 export const GROUPS = [
-  ['Gem art', [['art', 'Style'], ['curio', 'Curiosities']]],
-  ['Colour', [['colour', 'Colour shows']]],
   ['Rarity', [['rarityBy', 'Shown by'], ['sparkStyle', 'Sparkle style'], ['levels', 'Levels'], ['sizes', 'Sizes'], ['glowOn', 'Glow on'], ['rarityColours', 'Colours']]],
-  ['Category', [['shape', 'Shape'], ['tagMode', 'Tags per gem'], ['tags', 'Which tags'], ['filter', 'Filter']]],
+  ['Category', [['tagMode', 'Tags per gem'], ['tags', 'Which tags'], ['filter', 'Filter']]],
   ['Private vs public', [['mine', 'Shown by']]],
   ['Liked', [['liked', 'Shown by']]],
   ['Visited', [['visited', 'Shown by'], ['show', 'Show']]],
@@ -135,7 +136,7 @@ export const QUALITIES = [
 ];
 // Creator left with its dropdown section (25 Nov). Liked lost Outline and Tint when 7B and 7D were ruled out.
 export const THINGS = [
-  { id: 'rarity', label: 'Rarity', uses: ['colour', 'size', 'glow', 'sparkle'], many: true },
+  { id: 'rarity', label: 'Rarity', uses: ['size', 'glow', 'sparkle'], many: true },
   { id: 'category', label: 'Category', uses: ['colour', 'shape'], many: true },
   { id: 'mine', label: 'Private vs public', uses: ['hollow', 'frame', 'badge', 'outline', 'base', 'ring', 'shape'], many: false },
   { id: 'liked', label: 'Liked', uses: ['badge', 'ring'], many: false },
@@ -150,9 +151,7 @@ export const PRESETS = [
   { id: 'brett', label: 'Brett’s pick', desc: 'Every kind of place has its own gem in Victoria’s style. Yours are the white diamond: solid when public, hollow when private. Rarer gems are bigger and glow.', tests: 'Can you tell what a gem is, and how rare, before you tap?',
     what: 'Victoria’s gem art · category gems · size + glow · yours = the diamond (hollow = private) · heart badge.',
     set: { art: 'victoria', visited: 'mapcolour', colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'own', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
-  { id: 'neon', label: 'Neon', desc: 'The same category gems as glowing outlines, like a sign in a dark window. Yours are the white diamond.', tests: 'Is neon the most “sleek mystery”, and does it still read on a busy map?',
-    what: 'Neon gem art · category gems · size + glow · yours = the diamond (hollow = private).',
-    set: { art: 'neon', visited: 'mapcolour', colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'own', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
+  // P3 Neon went on 26 Nov: with gem art always Victoria's it was the same as Brett's pick.
 ];
 export const MATCHUP = []; // the Explorer ⇄ Treasure Hunt switch went with those presets (20 Nov) // the most useful head-to-head: does colour show whose, or how rare?
 
@@ -164,7 +163,7 @@ export const NOTES = {
   sparkUnused: 'Only used when rarity sparkles (3E, 3G, 3H or 3I).',
   ownSame: 'Looks like 6A until colour or shape shows the category (1C or 2B).',
   glowUnused: 'Only used when rarity glows (3B, 3C, 3E or 3I).',
-  coloursUnused: 'Only used when colour shows rarity (1B).',
+  coloursUnused: 'Colours the rarity tag in gem details.',
   colourTaken: 'Colour is showing rarity (3D), so this has no effect right now.',
   sizesUnused: 'Only used when rarity is shown by size (3A, 3C, 3E or 3H).',
   seesUnused: 'Only matters when you can pick a colour (9B or 9C).',
@@ -189,7 +188,7 @@ export const COPY = {
   copied: 'Link copied',
   options: 'Options',
   done: 'Done',
-  artSwitched: 'Gem art switched to drawn shapes (25A) so this shows on the map.',
+  categoryLocked: 'Colour and shape always show the category now.',
   mapTitle: 'Gems near you',
   all: 'All',
   filter: (n, total) => (n === total ? 'Filter' : `Filter · ${n}`),

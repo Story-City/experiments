@@ -5,7 +5,7 @@ const V = window.CACHE_V || '';
 const D = await import(`./data.js${V}`);
 const { pinSvg, hourglassArt } = await import(`./gems.js${V}`);
 const { ART } = await import(`./gem-art.js${V}`);
-const { CATS, RARITY, RARITY_SETS, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS, PHOTOS, MATCHUP, GROUPS, RULED_OUT } = D;
+const { CATS, RARITY, RARITY_SETS, PALETTE, OPTIONS, NOTES, COPY, OWNERS, NAMES, PRESETS, PHOTOS, MATCHUP, GROUPS, RULED_OUT, LOCKED } = D;
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
@@ -44,6 +44,8 @@ function readHash() {
     }
     else if (o.opts.some(([k]) => k === v) && !(RULED_OUT[o.id] || []).includes(v)) opt[o.id] = v;
   }
+  Object.assign(opt, LOCKED); // older links may still carry art / colour / shape
+
   if (PALETTE.some((p) => p.id === q.get('my'))) myColour = q.get('my');
   // new attributes: "Bounce:rarity.liked|Halo:" (name, then the rows it's on)
   ideas = (q.get('na') || '').split('|').filter(Boolean).map((part) => {
@@ -826,7 +828,7 @@ $('panelClose').addEventListener('click', () => document.body.classList.remove('
 /* ---------- preset combos ---------- */
 // A preset sets everything except density and colour-blind, so you can run it at 10 / 40 / 100 and with CB.
 const KEEP = ['density', 'cb'];
-const presetOpts = (p) => ({ ...START, ...p.set, density: opt.density, cb: opt.cb });
+const presetOpts = (p) => ({ ...START, ...p.set, ...LOCKED, density: opt.density, cb: opt.cb });
 const same = (a, b) => OPTIONS.every((o) => KEEP.includes(o.id) || JSON.stringify(a[o.id]) === JSON.stringify(b[o.id]));
 // Presets people save (team-wide on the experiments site, this device elsewhere)
 let saved = []; // { id, label, set, ideas, by, uid, ts }
@@ -862,11 +864,7 @@ function specOf(o) {
   const lv = { 2: 'Common, Rare', 3: 'Common, Rare, Mythical', 4: 'Common, Rare, Epic, Mythical' }[o.levels];
   const sized = SIZE_BY.includes(o.rarityBy);
   const glows = GLOW_BY.includes(o.rarityBy);
-  const colourIsRarity = o.colour === 'rarity' || o.rarityBy === 'colour';
   const rows = [
-    ['Gem art', optLabel('art', o.art)],
-    ['Colour', colourIsRarity ? `Rarity (${o.rarityColours === 'treasure' ? 'quartz, sapphire, amethyst, gold' : 'moonstone, aquamarine, topaz'})` : optLabel('colour', o.colour)],
-    ['Shape', optLabel('shape', o.shape)],
     ['Size', sized ? `Rarity (${o.sizes.replace(/-/g, ' / ')} px)` : 'Same for all'],
     ['Glow', glows ? (o.glowOn === 'mythical' ? 'Mythical only' : 'Rare and up') : 'None'],
   ];
@@ -1000,13 +998,7 @@ function setQualities(thing, qs) {
   }
   if (QMAP[thing]) setOne(thing, qs);
 }
-// Gem art (25B–E) draws category colour and shape itself. When drag & drop gives colour or shape to
-// something else, switch to drawn shapes (25A) so the change shows on the map.
-function artFollows(before) {
-  if (before === 'drawn' || (opt.colour === 'category' && opt.shape === 'category')) return '';
-  opt.art = 'drawn';
-  return COPY.artSwitched;
-}
+const leavesCategory = (q, from, to) => from === 'category' && to !== 'category' && (q === 'colour' || q === 'shape');
 const isIdea = (id) => id.startsWith('c-');
 const qLabel = (id) => (isIdea(id) ? ideas.find((a) => a.id === id)?.label || id : D.QUALITIES.find((q) => q.id === id).label);
 const tLabel = (id) => D.THINGS.find((t) => t.id === id).label;
@@ -1020,8 +1012,8 @@ function dropQuality(q, thingId, fromThing) {
   if (isIdea(q)) return dropIdea(q, thingId, fromThing);
   const t = D.THINGS.find((x) => x.id === thingId);
   if (!t.uses.includes(q)) { toast(COPY.cantUse(t.label, qLabel(q))); return false; }
+  if (leavesCategory(q, fromThing, thingId)) { toast(COPY.categoryLocked); drawDnd(); return false; }
   const now = qualitiesOf(opt);
-  const artBefore = opt.art;
   if (fromThing && fromThing !== thingId) setQualities(fromThing, now[fromThing].filter((x) => x !== q));
   const msgs = [];
   if (q === 'colour') { // colour belongs to one thing: take it from whoever has it
@@ -1030,7 +1022,6 @@ function dropQuality(q, thingId, fromThing) {
   }
   const cur = qualitiesOf(opt)[thingId];
   setQualities(thingId, t.many ? [...new Set([...cur, q])] : [q]);
-  msgs.push(artFollows(artBefore));
   writeHash(); closeDetails(); drawAll();
   const msg = msgs.filter(Boolean).join(' ');
   if (msg) toast(msg);
@@ -1038,11 +1029,9 @@ function dropQuality(q, thingId, fromThing) {
 }
 function removeQuality(q, thingId) {
   if (isIdea(q)) { const a = ideas.find((x) => x.id === q); if (a) a.on = a.on.filter((t) => t !== thingId); writeHash(); drawDnd(); return; }
-  const artBefore = opt.art;
+  if (leavesCategory(q, thingId, null)) { toast(COPY.categoryLocked); return; }
   setQualities(thingId, qualitiesOf(opt)[thingId].filter((x) => x !== q));
-  const msg = artFollows(artBefore);
   writeHash(); drawAll();
-  if (msg) toast(msg);
 }
 
 let panelMode = 'dropdowns';
