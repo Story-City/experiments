@@ -16,6 +16,7 @@
   --btn-radius: 999px;
   --space-scale: 1;
   --type-scale: 1;
+  --card-text: #fff;
   --font: "Darker Grotesque", system-ui, sans-serif;
   --ease-out: cubic-bezier(0.33, 0, 0.2, 1);
   --phone-w: 390px;
