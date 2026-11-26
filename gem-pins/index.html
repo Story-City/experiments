@@ -108,6 +108,10 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
       <input type="range" id="typeScale" min="80" max="130" value="100" aria-label="Type size scale">
       <span class="tool-value" id="typeScaleValue">100%</span>
     </label>
+    <label class="accent-pick is-rail" title="Text colour on Prompt and Image cards (from Location Gems)">
+      <span>Card text</span>
+      <input type="color" id="cardTextColor" value="#ffffff" aria-label="Card text color">
+    </label>
   </section>
 </aside>
 <!-- red-green colour-blind simulation (option 15) -->
@@ -226,7 +230,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   }
   // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
   // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
-const FRAMES = { v2: '../gem-pins-v2/?v=60', v3: '../gem-pins-v3/?v=4' };
+const FRAMES = { v2: '../gem-pins-v2/?v=61', v3: '../gem-pins-v3/?v=4' };
   function apply(edition) {
     const src = FRAMES[edition];
     document.body.classList.toggle('is-v2', !!src);
@@ -350,7 +354,9 @@ const FRAMES = { v2: '../gem-pins-v2/?v=60', v3: '../gem-pins-v3/?v=4' };
   const spaceScaleValue = document.getElementById('spaceScaleValue');
   const typeScale = document.getElementById('typeScale');
   const typeScaleValue = document.getElementById('typeScaleValue');
+  const cardTextColor = document.getElementById('cardTextColor');
   const BTN_RADIUS_PILL = 24;
+  const CARD_TEXT_DEFAULT = '#ffffff';
   function hexToRgb(hex) {
     const h = String(hex || '').replace('#', '');
     const n = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
@@ -384,6 +390,7 @@ const FRAMES = { v2: '../gem-pins-v2/?v=60', v3: '../gem-pins-v3/?v=4' };
     if (spaceScaleValue) spaceScaleValue.textContent = `${spacePct}%`;
     const typePct = Number(typeScale && typeScale.value) || 100;
     if (typeScaleValue) typeScaleValue.textContent = `${typePct}%`;
+    const cardText = (cardTextColor && cardTextColor.value) || CARD_TEXT_DEFAULT;
     const vars = {
       '--accent': solid,
       '--accent-deep': deep,
@@ -396,11 +403,13 @@ const FRAMES = { v2: '../gem-pins-v2/?v=60', v3: '../gem-pins-v3/?v=4' };
       '--btn-radius': radiusPx,
       '--space-scale': String(spacePct / 100),
       '--type-scale': String(typePct / 100),
+      '--card-text': cardText,
+      '--sort-card-text': cardText,
     };
     for (const [k, v] of Object.entries(vars)) document.documentElement.style.setProperty(k, v);
     if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'gem-pins-look', vars: vars }, '*');
   }
-  [accentColor, accentAlpha, radialColor, radialAmount, radialImpact, bgColor, bgDepth, midToneColor, btnRadius, spaceScale, typeScale].forEach((el) => {
+  [accentColor, accentAlpha, radialColor, radialAmount, radialImpact, bgColor, bgDepth, midToneColor, btnRadius, spaceScale, typeScale, cardTextColor].forEach((el) => {
     if (el) el.addEventListener('input', publishLook);
   });
   midToneOn.addEventListener('click', () => {
