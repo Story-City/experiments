@@ -59,7 +59,8 @@ export const LOVE = '#e84aa8'; // liked
 
 // The 15 toggles, in the thread's order. `start` is the "Start with" column.
 // Ruled out by Melissa (20 Nov): hidden from the dropdowns, letters of the rest stay the same.
-export const RULED_OUT = { liked: ['colour', 'outline'], art: ['double'], rarityBy: ['colour'] };
+// mine 'own' drew the white diamond, which only ever means "all gems" (Melissa, 26 Nov), so it's off the map
+export const RULED_OUT = { liked: ['colour', 'outline'], art: ['double'], rarityBy: ['colour'], mine: ['own'] };
 // Settled by Melissa (26 Nov): gem art is always Victoria's, colour and shape always show the category.
 // Links, presets and saved presets can't change these.
 export const LOCKED = { art: 'victoria', curio: 'nugget', colour: 'category', shape: 'category' };
@@ -149,9 +150,9 @@ export const THINGS = [
 export const PRESETS = [
   { id: 'jewel', desc: 'Each kind of place has its own colour and its own gem cut, so you can tell a café from a mural before you tap.', label: 'Jewel Box', tests: 'Is “what is it” at a glance worth the sorting pain?', what: 'Category colour · a shape per category · size + glow · dashed / solid frame · heart badge · one type per gem.',
     set: { colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'dashed', liked: 'heart', tagMode: 'one', filter: 'chips', others: 'full', pick: 'off' } },
-  { id: 'brett', label: 'Brett’s pick', desc: 'Every kind of place has its own gem in Victoria’s style. Yours are the white diamond: solid when public, hollow when private. Rarer gems are bigger and glow.', tests: 'Can you tell what a gem is, and how rare, before you tap?',
-    what: 'Victoria’s gem art · category gems · size + glow · yours = the diamond (hollow = private) · heart badge.',
-    set: { art: 'victoria', visited: 'mapcolour', colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'own', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
+  { id: 'brett', label: 'Brett’s pick', desc: 'Every kind of place has its own gem in Victoria’s style. Yours are your category gem: solid when public, hollow when private. Rarer gems are bigger and glow.', tests: 'Can you tell what a gem is, and how rare, before you tap?',
+    what: 'Victoria’s gem art · category gems · size + glow · yours = your category gem (hollow = private) · heart badge.',
+    set: { art: 'victoria', visited: 'mapcolour', colour: 'category', shape: 'category', rarityBy: 'sizeGlow', mine: 'hollow', liked: 'heart', tagMode: 'multi', filter: 'chips', pick: 'off', others: 'full' } },
   // P3 Neon went on 26 Nov: with gem art always Victoria's it was the same as Brett's pick.
 ];
 export const MATCHUP = []; // the Explorer ⇄ Treasure Hunt switch went with those presets (20 Nov) // the most useful head-to-head: does colour show whose, or how rare?

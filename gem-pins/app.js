@@ -222,7 +222,8 @@ function artFor(g) {
   }
   if (opt.art === 'drawn' || (g.seasonal && opt.seasonal === 'shape')) return null;
   const tag = tagsOf(g)[0];
-  const key = g.mine && opt.mine === 'own' ? 'mine' : tag === 'curio' ? opt.curio : ART_KEY[tag] || 'nature';
+  // never the white diamond on the map: that shape means all gems, so yours use their category gem too
+  const key = tag === 'curio' ? opt.curio : ART_KEY[tag] || 'nature';
   const hollow = g.mine && (opt.mine === 'outline' || (g.private && ['hollow', 'own'].includes(opt.mine)));
   // liked by you with 7E: the pink double outline (Branding session) around the category gem
   const set = hollow ? 'hollow' : g.liked && !g.mine && opt.liked === 'outline' ? 'pink' : opt.art;

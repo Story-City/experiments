@@ -227,12 +227,15 @@ for (let tries = 0; PTS.length < 100 && tries < 20000; tries++) {
   const y = 30 + r() * 580;
   if (PTS.every(([a, b]) => Math.hypot(a - x, b - y) > 31)) PTS.push([x, y]);
 }
-/* Keep hidden (private mine). Drop seasonal stars + public uncategorized mine pins. */
+/* Keep hidden (private mine): one of each category, drawn as its outline gem (Melissa, 26 Nov).
+   Drop seasonal stars + public uncategorized mine pins. */
 const SPECIAL = [
-  { mine: true, private: true }, { liked: true }, { mythical: true },
-  { mine: true, private: true }, { liked: true }, { liked: true },
+  { mine: true, private: true, tag: 'nature' }, { liked: true }, { mythical: true },
+  { mine: true, private: true, tag: 'eat' }, { liked: true }, { liked: true },
   { expiring: '2h', left: '2 hours', from: 'Whimsy Walk' },
   { expiring: '1d', left: '1 day', from: 'challenge' },
+  { mine: true, private: true, tag: 'culture' }, { mine: true, private: true, tag: 'play' },
+  { mine: true, private: true, tag: 'landmark' }, { mine: true, private: true, tag: 'curio' },
 ];
 const order = PTS.map((p, i) => i).sort((a, b) => {
   const d = ([x, y]) => Math.hypot(x - 195, (y - 330) * 0.8);
@@ -254,7 +257,8 @@ const PROMPT_LINES = [
 const PROMPT_MINUTES = [2, 4, 6, 1, 3, 5, 8, 7, 9, 11, 10, 12];
 const GEMS = [...centre, ...rest].map((pi, i) => {
   const sp = SPECIAL[i] || {};
-  const tags = [i < 10 ? FIRST10[i] : pickOne(CATS).id];
+  const base = i < 10 ? FIRST10[i] : pickOne(CATS).id;
+  const tags = [sp.tag || base];
   const extra = r();
   if (extra > 0.45) tags.push(pickOne(CATS.filter((c) => !tags.includes(c.id))).id);
   if (extra > 0.85) tags.push(pickOne(CATS.filter((c) => !tags.includes(c.id))).id);
@@ -326,7 +330,8 @@ function pinFor(g) {
   }
   if (g.mine || g.seasonal) {
     const hollow = g.mine && g.private;
-    const markup = g.seasonal ? null : ART[hollow ? 'hollow' : 'victoria'].mine;
+    // never the white diamond on the map (it means all gems): yours use their category gem, outline when hidden
+    const markup = g.seasonal ? null : ART[hollow ? 'hollow' : 'victoria'][HOLLOW_ART_KEY[g.tags[0]] || 'nature'];
     return pinSvg({
       art: markup,
       shape: g.seasonal ? 'winter' : 'classic',
