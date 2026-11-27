@@ -422,20 +422,20 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .hub.is-page-anchor-flow .page-anchor-layer {
   opacity: var(--pa-opacity, 1);
-  /* Soft fade out — no layer filter (that drew an ugly blurred box) */
-  -webkit-mask-image: linear-gradient(
-    to bottom,
+  /* Fade every edge (top, sides, bottom) so it melts into the page — no box */
+  -webkit-mask-image: radial-gradient(
+    130% 150% at 50% -20%,
     #000 0%,
-    #000 38%,
-    rgba(0, 0, 0, 0.45) 68%,
-    transparent 100%
+    #000 40%,
+    rgba(0, 0, 0, 0.4) 66%,
+    transparent 86%
   );
-  mask-image: linear-gradient(
-    to bottom,
+  mask-image: radial-gradient(
+    130% 150% at 50% -20%,
     #000 0%,
-    #000 38%,
-    rgba(0, 0, 0, 0.45) 68%,
-    transparent 100%
+    #000 40%,
+    rgba(0, 0, 0, 0.4) 66%,
+    transparent 86%
   );
 }
 .hub.is-page-anchor-flow .page-anchor-mist,
@@ -480,14 +480,9 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .page-anchor-mist {
   opacity: 0;
-  /* Light veil only — no dark slab that reads as a card/container */
+  /* Single soft glow centred up top — no edges, no slab */
   background:
-    radial-gradient(90% 120% at 50% 0%, rgba(0, 158, 255, 0.16), transparent 70%),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--brand-accent) 10%, transparent) 0%,
-      transparent 100%
-    );
+    radial-gradient(70% 110% at 50% -10%, rgba(0, 158, 255, 0.18), transparent 72%);
 }
 .page-anchor-stream {
   opacity: 0;
