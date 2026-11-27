@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v152 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v153 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -1914,6 +1914,8 @@ function setPlaceMotion(variant) {
   const next = PLACE_MOTION_VARIANTS.has(variant) ? variant : PLACE_MOTION_DEFAULT;
   placeMotion = next;
   resetPlaceRollerTrack();
+  /* Motion only — keep live accent/type; leave Heading font trials on Original */
+  if (headingLook !== HEADING_DEFAULT) setHeadingLook(HEADING_DEFAULT);
   if (taglineBlock) taglineBlock.dataset.placeMotion = next;
   document.querySelectorAll('.variant-btn[data-place-motion]').forEach((btn) => {
     const on = btn.getAttribute('data-place-motion') === next;

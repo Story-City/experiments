@@ -1022,15 +1022,31 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .tagline-block[data-place-motion="shine"] .place-roller.is-shining .place-roller-item.is-current {
   animation: placeWordShineIn 720ms ease-out both;
 }
+/* Place motion never restyles type or accent — only transform/opacity */
+.tagline-block[data-place-motion="roller"] .rotating-line,
+.tagline-block[data-place-motion="shine"] .rotating-line,
+.tagline-block[data-place-motion="swap"] .rotating-line {
+  color: var(--brand-accent) !important;
+  font-family: inherit !important;
+  font-weight: 800 !important;
+  font-style: normal !important;
+  letter-spacing: normal !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+.tagline-block[data-place-motion="roller"],
+.tagline-block[data-place-motion="shine"],
+.tagline-block[data-place-motion="swap"] {
+  filter: none;
+}
 @keyframes placeWordShine {
   0% { transform: translate3d(-120%, 0, 0); opacity: 0; }
-  25% { opacity: 0.85; }
+  25% { opacity: 0.7; }
   100% { transform: translate3d(120%, 0, 0); opacity: 0; }
 }
 @keyframes placeWordShineIn {
-  0% { opacity: 0.35; filter: brightness(1.15); }
-  45% { opacity: 1; filter: brightness(1.35); }
-  100% { opacity: 1; filter: brightness(1); }
+  0% { opacity: 0; transform: translate3d(0, 5px, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 /* Heading debug — Original has no extra styles (live tagline stays intact) */
 .tagline-block[data-heading="slash"],
