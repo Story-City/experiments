@@ -556,7 +556,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   animation: pageAnchorMistBreath 6.8s ease-in-out infinite;
 }
 .hub[data-page-anchor="orbit"] .page-anchor-gem {
-  animation: pageAnchorOrbit 11s ease-in-out infinite;
+  animation: pageAnchorOrbit 15s ease-in-out infinite;
 }
 
 /* Cascade — crystals settle downward through haze */
@@ -644,6 +644,19 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .hub[data-page-anchor="loom"] .page-anchor-gem {
   animation: pageAnchorLoom 13s ease-in-out infinite;
+}
+
+/* Wake — soft edge fade-in; crystals gently appear then breathe */
+.hub[data-page-anchor="wake"] .page-anchor-mist {
+  opacity: 0.7;
+  animation: pageAnchorMistBreath 9.2s ease-in-out infinite;
+}
+.hub[data-page-anchor="wake"].is-page-anchor-enter .page-anchor-gem {
+  animation: pageAnchorWakeIn 1600ms ease-out both;
+}
+.hub[data-page-anchor="wake"]:not(.is-page-anchor-enter) .page-anchor-gem {
+  animation: pageAnchorMistBob 13s ease-in-out infinite;
+  opacity: 0.16;
 }
 
 .page-anchor-gem {
@@ -849,6 +862,10 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   35% { transform: translate3d(-10px, 3px, 0); opacity: 0.2; }
   70% { transform: translate3d(5px, 1px, 0); opacity: 0.14; }
   100% { transform: translate3d(8px, -3px, 0); opacity: 0.08; }
+}
+@keyframes pageAnchorWakeIn {
+  0% { transform: translate3d(0, 6px, 0) scale(0.86); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.16; }
 }
 .snapshot-hero {
   position: relative;

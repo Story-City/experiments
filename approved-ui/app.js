@@ -1618,6 +1618,7 @@ const PAGE_ANCHOR_FLOWY = new Set([
   'braid',
   'pulse',
   'loom',
+  'wake',
 ]);
 const PAGE_ANCHOR_ENTER_MS = 1300;
 
@@ -1709,6 +1710,7 @@ function mountPageAnchor(stage, actions) {
   addGhost(actions, 'Braid', () => setAnchor('braid'));
   addGhost(actions, 'Pulse', () => setAnchor('pulse'));
   addGhost(actions, 'Loom', () => setAnchor('loom'));
+  addGhost(actions, 'Wake', () => setAnchor('wake'));
 }
 
 function mountGemCategorySelector(stage, actions) {

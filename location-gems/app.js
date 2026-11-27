@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v150 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v151 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -149,6 +149,7 @@ const PAGE_ANCHOR_VARIANTS = new Set([
   'braid',
   'pulse',
   'loom',
+  'wake',
 ]);
 const PAGE_ANCHOR_FLOWY = new Set([
   'mist',
@@ -162,6 +163,7 @@ const PAGE_ANCHOR_FLOWY = new Set([
   'braid',
   'pulse',
   'loom',
+  'wake',
 ]);
 const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
 const PAGE_ANCHOR_ENTER_MS = 1300;
