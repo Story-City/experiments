@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=167">
+<link rel="stylesheet" href="app.css?v=168">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=15">
 <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
@@ -634,7 +634,7 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=13"></script>
-  <script src="app.js?v=167"></script>
+  <script src="app.js?v=168"></script>
   <script type="module">
     import { mountVersions } from '../shared/versions/versions.js?v=2';
     mountVersions({
@@ -644,15 +644,14 @@
         { id: 'v1', label: 'V1', note: 'Crystals, no rarity.' },
         { id: 'v2', label: 'V2', note: 'Keeps rarity: aquamarine, moonstone, topaz, opal, diamond.' },
         { id: 'v3', label: 'V3', note: 'Melissa’s' },
-        { id: 'v4', label: 'V4', note: 'Starred Cascade + Polaroid; Melissa’s no-camera top; subcategories on.' },
+        { id: 'v4', label: 'V4', note: 'Full page-anchor list (Melissa included); Cascade + Polaroid seeds; subcategories on.' },
       ],
-      // V3 (Melissa, 27 Nov) is V1 with no camera or arc up top, a big "Sort your gems" heading and card sizes
-      // V4 carries Melissa’s no-camera top, then Victoria’s sparkle favorites + subcategories on
+      // V3 (Melissa, 27 Nov) locks her no-camera top. V4 keeps Victoria’s full haze list —
+      // Melissa is one pickable option, not a forced layout.
       onPick: (base) => {
-        const melissaTop = base === 'v3' || base === 'v4';
-        document.body.classList.toggle('is-v3', melissaTop);
+        document.body.classList.toggle('is-v3', base === 'v3');
         document.body.classList.toggle('is-v4', base === 'v4');
-        setHubEdition(melissaTop ? 'v1' : base);
+        setHubEdition(base === 'v3' || base === 'v4' ? 'v1' : base);
         if (base === 'v4' && typeof window.applyV4Defaults === 'function') {
           window.applyV4Defaults();
         }
