@@ -873,3 +873,5 @@ body:not(.is-v3) .v3-only-group { display: none; }
 .panel .presets-wrap.is-folded .presets-title::after { transform: rotate(-45deg); }
 .panel .presets-wrap.is-folded > :not(.presets-title) { display: none; }
 .is-v2 #phone > .gtb-feed { display: none; }
+.is-v2 #phone > .gtb-you { display: none; }
+@media (max-width: 819px) { body:has(#phone.gtb-you-right) .settings-eye { right: 58px; } }

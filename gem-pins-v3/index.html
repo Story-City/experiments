@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
 <link rel="stylesheet" href="app.css?v=64">
 <meta http-equiv="Cache-Control" content="no-cache">
-<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=10">
+<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=11">
 <link rel="stylesheet" href="../shared/gem-hub-rail/rail.css?v=1">
 </head>
 <body>
@@ -208,6 +208,14 @@
       </div>
     </section>
     <section class="gh-block">
+      <h2 class="gh-title">You</h2>
+      <div class="gh-pick is-3" role="group" aria-label="You">
+        <button type="button" data-you="tab" aria-pressed="false">A · Tab</button>
+        <button type="button" data-you="right" aria-pressed="false">B · Top right</button>
+        <button type="button" data-you="left" aria-pressed="false">C · Top left</button>
+      </div>
+    </section>
+    <section class="gh-block">
       <h2 class="gh-title">Create button</h2>
       <div class="gh-pick" role="group" aria-label="Create button">
         <button type="button" data-create-look="subtle" aria-pressed="false">Subtle plus</button>
@@ -235,7 +243,7 @@
   <script src="../location-gems/corner-ribbon.js?v=36"></script>
   <script type="module" src="app.js?v=60"></script>
   <!-- The one bottom bar every Gem map pins version uses: shared/gem-tabbar -->
-  <script src="../shared/gem-tabbar/tabbar.js?v=11"></script>
+  <script src="../shared/gem-tabbar/tabbar.js?v=12"></script>
   <script>
   GemTabBar.mount({
     host: document.getElementById('phone'),
@@ -245,11 +253,12 @@
       else location.href = '../location-gems/?v=112&appPages=1';
     },
   });
-  [['tabHome', 'getHome', 'setHome'], ['createLook', 'getCreateLook', 'setCreateLook'], ['tabLabels', 'getLabels', 'setLabels'], ['tabWidth', 'getWidth', 'setWidth']].forEach(([data, get, set]) => {
+  [['tabHome', 'getHome', 'setHome'], ['you', 'getYou', 'setYou'], ['createLook', 'getCreateLook', 'setCreateLook'], ['tabLabels', 'getLabels', 'setLabels'], ['tabWidth', 'getWidth', 'setWidth']].forEach(([data, get, set]) => {
     const btns = document.querySelectorAll('.gh-rail [data-' + data.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()) + ']');
     const paint = () => btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[data] === GemTabBar[get]())));
     btns.forEach((b) => b.addEventListener('click', () => { GemTabBar[set](b.dataset[data]); paint(); }));
     window.addEventListener('storage', paint);
+    window.addEventListener('gem-tabbar-change', paint);
     paint();
   });
   </script>

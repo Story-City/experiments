@@ -13,7 +13,7 @@ window.CACHE_V = '?v=' + Date.now();
 document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CACHE_V}">`);
 </script>
-<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=10">
+<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=11">
 </head>
 <body>
 <!-- GEM-PINS-EDITION-v29: Disc Figma calm U ≤5 gems -->
@@ -73,6 +73,12 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
       <div class="edition-sheets" role="group" aria-label="Home">
         <button type="button" data-tab-home="feed" aria-pressed="false">Feed</button>
         <button type="button" data-tab-home="map" aria-pressed="true">Map</button>
+      </div>
+      <p class="edition-label">You</p>
+      <div class="edition-sheets" role="group" aria-label="You">
+        <button type="button" data-you="tab" aria-pressed="false">A · Tab</button>
+        <button type="button" data-you="right" aria-pressed="true">B · Top right</button>
+        <button type="button" data-you="left" aria-pressed="false">C · Top left</button>
       </div>
       <p class="edition-label">Create button</p>
       <div class="edition-sheets" role="group" aria-label="Create button" id="createLookPick">
@@ -206,7 +212,7 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
   </main>
 </div>
 <script type="module">import(`./app.js${window.CACHE_V}`);</script>
-<script src="../shared/gem-tabbar/tabbar.js?v=11"></script>
+<script src="../shared/gem-tabbar/tabbar.js?v=12"></script>
 <script>
 (function () {
   const frame = document.getElementById('editionFrame');
@@ -230,7 +236,7 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
   }
   // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
   // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
-const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=22' };
+const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=23' };
   function apply(edition) {
     const src = FRAMES[edition];
     document.body.classList.toggle('is-v2', !!src);
@@ -409,10 +415,12 @@ const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=22' };
   }));
   paintCreateLookPick();
   // Tab titles and bar width: same pattern, one shared setting each
-  [['tabHome', 'getHome', 'setHome'], ['tabLabels', 'getLabels', 'setLabels'], ['tabWidth', 'getWidth', 'setWidth']].forEach(([data, get, set]) => {
+  [['tabHome', 'getHome', 'setHome'], ['you', 'getYou', 'setYou'], ['tabLabels', 'getLabels', 'setLabels'], ['tabWidth', 'getWidth', 'setWidth']].forEach(([data, get, set]) => {
     const btns = document.querySelectorAll('[data-' + data.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()) + ']');
     const paint = () => btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[data] === GemTabBar[get]())));
     btns.forEach((b) => b.addEventListener('click', () => { GemTabBar[set](b.dataset[data]); paint(); }));
+    window.addEventListener('storage', paint);
+    window.addEventListener('gem-tabbar-change', paint);
     paint();
   });
   function setAppPagesMode(on) {
