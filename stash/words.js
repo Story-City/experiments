@@ -4,6 +4,7 @@ export const VERSIONS = {
   b: { label: 'B', name: 'Separate ✓', note: 'B · Separate (chosen Nov 26): Gems keep their own tab, Victoria’s Gem Hub. The Stash links over to it.' },
   c: { label: 'C', name: 'Split', note: 'C · Split by job: + Gem takes the photo, your gems live in the Stash, other people’s gems live on the Map.' },
   d: { label: 'D', name: 'You', note: 'D · You, organized (proposal): builds on B. The tab says You, the page is Priya’s Stash, and your walks, finds and stories each get a picture, not just a number.' },
+  e: { label: 'E', name: 'Galleries', note: 'E · Galleries (proposal): the You tab as three swipeable rows: Progress, Collections, History. Swipe through the newest, or tap See all to open everything at once.' },
   notes: { label: 'Notes', name: '', note: 'Names, what lives here today, what we want, and A vs B vs C.' },
   research: { label: 'Research', name: '', note: 'How other apps do it, and the rules a profile has to follow.' },
 };
@@ -195,4 +196,41 @@ export const YOU = {
     { big: '1 of 3', line: 'Frightnight endings found. Going back for the others?' },
   ],
   yearT: 'Your Story City year', yearSub: 'A preview. Tap to flip through. Share any card.',
+};
+
+// Version E: three swipeable galleries
+export const GALLERY = {
+  progress: { t: 'Progress', sub: 'Your walks in pictures' },
+  collections: { t: 'Collections', sub: 'Newest first' },
+  history: { t: 'History', sub: 'Your walks, day by day' },
+  seeAll: 'See all',
+  swipe: 'Swipe',
+  storiesCard: 'Stories on the go',
+  endingsCard: 'Endings found',
+  kinds: { gem: 'Gem', badge: 'Badge', stamp: 'Stamp', postcard: 'Postcard' },
+  groups: [['gem', 'Gems'], ['badge', 'Badges'], ['stamp', 'Passport stamps'], ['postcard', 'Postcards']],
+  items: [
+    { kind: 'gem', img: 'find-d.jpg', type: 'nature', title: 'Heron at the pond', when: '2 days ago' },
+    { kind: 'badge', badge: 5, when: '3 days ago' },
+    { kind: 'postcard', route: 0, when: 'Mon' },
+    { kind: 'gem', img: 'find-c.jpg', type: 'art', title: 'Mural behind the bakery', when: 'Last week' },
+    { kind: 'stamp', city: 'Calgary', date: 'Nov 8', when: 'Nov 8' },
+    { kind: 'badge', badge: 2, when: 'Nov 21' },
+    { kind: 'gem', img: 'find-b.jpg', type: 'landmarks', title: 'The old clock', when: 'Nov 2' },
+    { kind: 'postcard', route: 2, when: 'Nov 21' },
+    { kind: 'gem', img: 'find-c.jpg', type: 'nature', title: 'My bench', when: 'Oct 30', hidden: true },
+    { kind: 'badge', badge: 3, when: 'Oct 29' },
+    { kind: 'stamp', city: 'Edmonton', date: 'Jul 14', when: 'Jul 14' },
+    { kind: 'postcard', route: 3, when: 'Oct 20' },
+  ],
+  hidden: 'Hidden',
+  walks: [
+    { day: 'Tue Nov 24', title: 'The Coronet Caper, chapter 5', route: 1, bits: ['2,240 steps', '1 gem kept'] },
+    { day: 'Mon Nov 23', title: 'Whimsy Walk to the river', route: 0, bits: ['4,400 steps', '6% more fog cleared'] },
+    { day: 'Sat Nov 21', title: 'Finished Frightnight', route: 2, bits: ['5,200 steps', 'Ending 1 of 3', 'Fright Night badge'] },
+    { day: 'Thu Nov 19', title: 'Morning loop', route: 3, bits: ['3,100 steps'] },
+    { day: 'Tue Nov 17', title: 'Tales from the Incident, chapter 3', route: 1, bits: ['2,800 steps', 'Puzzle solved'] },
+    { day: 'Sun Nov 15', title: 'Rainy day: The Coronet Caper, chapter 4', route: null, bits: ['1,200 indoor steps'] },
+  ],
+  indoor: 'Played indoors',
 };

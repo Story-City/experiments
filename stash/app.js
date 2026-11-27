@@ -1,7 +1,7 @@
 import * as W from './words.js';
 import { NOTES } from './notes.js';
 import { RESEARCH } from './research.js';
-import { youHome, yearScreen } from './you.js';
+import { youHome, yearScreen, youGalleries, seeAll } from './you.js';
 
 const params = new URLSearchParams(location.search);
 const startV = (params.get('v') || location.hash.slice(1) || 'b').toLowerCase();
@@ -212,8 +212,9 @@ function mapNearby() {
 }
 
 const H = { topbar, emblem, ICON };
-const SCREENS = { home, gems: gemsScreen, stories, badges, steps, friends, journal, settings, year: () => yearScreen(S, H) };
-const isB = () => S.v === 'b' || S.v === 'd';
+const SCREENS = { home, gems: gemsScreen, stories, badges, steps, friends, journal, settings, year: () => yearScreen(S, H), 'all-progress': () => seeAll('progress', H), 'all-collections': () => seeAll('collections', H), 'all-history': () => seeAll('history', H) };
+const isB = () => ['b', 'd', 'e'].includes(S.v);
+const isYou = () => S.v === 'd' || S.v === 'e';
 
 function render() {
   const notes = S.v === 'notes' || S.v === 'research';
@@ -226,7 +227,7 @@ function render() {
 
   let html;
   const top = S.stack.at(-1);
-  if (S.tab === 'stash') html = top === 'home' && S.v === 'd' ? youHome(S, H) : (SCREENS[top] || home)();
+  if (S.tab === 'stash') html = top === 'home' && S.v === 'd' ? youHome(S, H) : top === 'home' && S.v === 'e' ? youGalleries(S, H) : (SCREENS[top] || home)();
   else if (S.tab === 'gem') html = isB() ? gemHub() : captureOnly();
   else html = S.tab === 'map' && S.v === 'c' ? mapNearby() : standIn(S.tab);
   $('screen').innerHTML = html;
@@ -236,11 +237,20 @@ function render() {
     if (t.id === 'gem' && isB()) return `<button class="tab" data-tab="gem" aria-current="${S.tab === 'gem'}">${ICON.gems}<small>${W.GEMS_TAB}</small></button>`;
     if (t.id === 'gem') return `<button class="tab tab-gem" data-tab="gem" aria-label="New Gem" aria-current="${S.tab === 'gem'}"><span>+</span></button>`;
     const dot = t.id === 'stash' && !isB() && S.toSort ? '<i class="tab-dot"></i>' : '';
-    const you = t.id === 'stash' && S.v === 'd';
+    const you = t.id === 'stash' && isYou();
     const icon = you ? `<span class="tab-av">${esc(W.PLAYER.name[0])}</span>` : ICON[t.id];
     return `<button class="tab" data-tab="${t.id}" aria-current="${S.tab === t.id}">${icon}${dot}<small>${you ? W.YOU.tab : t.label}</small></button>`;
   }).join('');
 }
+
+document.addEventListener('scroll', e => {
+  const t = e.target;
+  if (!t.dataset || !t.dataset.track) return;
+  const slides = [...t.children].filter(c => !c.classList.contains('gmore'));
+  const step = slides[1] ? slides[1].offsetLeft - slides[0].offsetLeft : 1;
+  const i = Math.min(slides.length - 1, Math.round(t.scrollLeft / step));
+  document.querySelectorAll(`[data-dots="${t.dataset.track}"] i`).forEach((d, k) => d.classList.toggle('on', k === i));
+}, true);
 
 let toastT;
 function toast(msg) {

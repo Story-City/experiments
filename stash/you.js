@@ -212,3 +212,82 @@ export function yearScreen(S, h) {
     <button class="btn btn-ghost wide" data-toast="Share card (mockup)">Share This Card</button>
   </div>`;
 }
+
+// Version E: three swipeable galleries, each with a See all page
+const G = W.GALLERY;
+const PREVIEW = 6;
+
+function routeSvg(i, cls = 'yroute') {
+  if (i === null || i === undefined) return `<svg class="${cls}" viewBox="0 0 64 50" role="img" aria-label="${esc(G.indoor)}"><rect width="64" height="50" rx="4" fill="#1a0b3d"/><path d="M20 30 L32 20 L44 30 V40 H20Z" fill="none" stroke="#5b8cff" stroke-width="2" stroke-linejoin="round"/><text x="32" y="48" text-anchor="middle" class="ytx">${esc(G.indoor)}</text></svg>`;
+  const r = Y.routes[i];
+  return `<svg class="${cls}" viewBox="0 0 64 50" role="img" aria-label="${esc(r.name)}"><rect width="64" height="50" rx="4" fill="#1a0b3d"/><path d="${r.d}" fill="none" stroke="#c49bff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="0 .06 .88 .06"/></svg>`;
+}
+
+function progressCards() {
+  return [
+    [Y.patch.t, patch()],
+    [Y.trail.t, trail()],
+    [Y.sky.t, sky()],
+    [Y.week.t, week()],
+    [Y.clock.t, clock()],
+    [Y.gemWheel.t, gemFlower()],
+    [G.storiesCard, shelf()],
+    [G.endingsCard, storyPath()],
+  ];
+}
+
+function item(it, h) {
+  const kind = `<span class="gk gk-${it.kind}">${esc(G.kinds[it.kind])}</span>`;
+  let body = '';
+  if (it.kind === 'gem') body = `<figure class="pol gpol"><img src="img/${it.img}" alt=""><figcaption><img class="gt" src="img/gem-${it.type}.svg" alt=""><span>${esc(it.title)}${it.hidden ? `<small>${esc(G.hidden)}</small>` : ''}</span></figcaption></figure>`;
+  if (it.kind === 'badge') body = `<div class="gbadge">${h.emblem(W.BADGES[it.badge])}</div>`;
+  if (it.kind === 'stamp') body = `<div class="gstamp"><span class="gstamp-in"><b>${esc(it.city)}</b><small>${esc(it.date)}</small></span></div>`;
+  if (it.kind === 'postcard') body = `<figure class="gpost">${routeSvg(it.route, 'yroute')}<figcaption>${esc(Y.routes[it.route].name)}</figcaption></figure>`;
+  return `<div class="gitem">${kind}${body}<small class="gwhen">${esc(it.when)}</small></div>`;
+}
+
+function walk(w) {
+  return `<div class="gwalk">${routeSvg(w.route)}<span><small>${esc(w.day)}</small><b>${esc(w.title)}</b><span class="gbits">${w.bits.map(b => `<i>${esc(b)}</i>`).join('')}</span></span></div>`;
+}
+
+function rail(id, title, sub, slides, cls) {
+  return `<section class="grail">
+    <div class="grail-h"><span><b>${esc(title)}</b><small>${esc(sub)}</small></span><button class="glink" data-go="all-${id}">${esc(G.seeAll)} ›</button></div>
+    <div class="gtrack ${cls}" data-track="${id}">${slides.map(sl => `<div class="gslide">${sl}</div>`).join('')}<button class="gslide gmore" data-go="all-${id}">${esc(G.seeAll)}<small>${slides.length}+</small></button></div>
+    <div class="gdots" data-dots="${id}">${slides.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>
+  </section>`;
+}
+
+export function youGalleries(S, h) {
+  const header = `<div class="yhead">
+    <span class="yav">${esc(W.PLAYER.name[0])}</span>
+    <span class="yhead-t"><h2>${esc(W.PLAYER.name)}’s Stash</h2><small>${esc(Y.since)}</small>
+      <span class="yhead-chips"><button class="chip chip-member" data-go="settings">${esc(W.PLAYER.status)}</button><button class="chip" data-go="friends">${esc(Y.friendsChip)}</button></span></span>
+  </div>
+  <div class="yhl">${Y.headline.map(([n, l]) => `<span><b>${n}</b><small>${esc(l)}</small></span>`).join('')}</div>`;
+  const prog = progressCards().map(([t, b]) => `<div class="ycard gcard"><span class="ycard-h"><b>${esc(t)}</b></span>${b}</div>`);
+  const coll = G.items.slice(0, PREVIEW).map(it => item(it, h));
+  const hist = G.walks.slice(0, 4).map(walk);
+  const rows = `<div class="rows">${Y.rows.filter(([id]) => id !== 'journal').map(([id, t, s]) => {
+    const go = ['year', 'settings'].includes(id) ? id : '';
+    return `<button class="row" data-go="${go}" data-toast="${go ? '' : esc(t) + ' (mockup)'}"><span><b>${esc(t)}</b><small>${esc(s)}</small></span>${h.ICON.next}</button>`;
+  }).join('')}</div>`;
+  return `${h.topbar('', { gear: true })}${header}
+    ${rail('progress', G.progress.t, G.progress.sub, prog, 'gtrack-wide')}
+    ${rail('collections', G.collections.t, G.collections.sub, coll, 'gtrack-small')}
+    ${rail('history', G.history.t, G.history.sub, hist, 'gtrack-mid')}
+    ${rows}`;
+}
+
+export function seeAll(which, h) {
+  if (which === 'progress') {
+    return `${h.topbar(G.progress.t)}<div class="pad">${progressCards().map(([t, b]) => `<div class="ycard"><span class="ycard-h"><b>${esc(t)}</b></span>${b}</div>`).join('')}</div>`;
+  }
+  if (which === 'collections') {
+    return `${h.topbar(G.collections.t)}<div class="pad">${G.groups.map(([k, l]) => {
+      const list = G.items.filter(it => it.kind === k);
+      return `<p class="label">${esc(l)} · ${list.length}</p><div class="gall gall-${k}">${list.map(it => item(it, h)).join('')}</div>`;
+    }).join('')}</div>`;
+  }
+  return `${h.topbar(G.history.t)}<div class="pad">${G.walks.map(walk).join('')}</div>`;
+}
