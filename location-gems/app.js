@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v155 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v156 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -134,39 +134,14 @@ const CHALLENGE_FINDS = [
 ];
 
 const ROTATE_MS = 2200;
-/** Page-anchor default must stay Original (camera). Never persist or boot to another look. */
+/** Page-anchor keepers: Original + Loom / Cascade / Tide (Save look persists these). */
 const PAGE_ANCHOR_DEFAULT = 'camera';
-const PAGE_ANCHOR_VARIANTS = new Set([
-  'camera',
-  'mist',
-  'drift',
-  'bloom',
-  'tide',
-  'orbit',
-  'cascade',
-  'sheer',
-  'shimmer',
-  'braid',
-  'pulse',
-  'loom',
-  'wake',
-]);
-const PAGE_ANCHOR_FLOWY = new Set([
-  'mist',
-  'drift',
-  'bloom',
-  'tide',
-  'orbit',
-  'cascade',
-  'sheer',
-  'shimmer',
-  'braid',
-  'pulse',
-  'loom',
-  'wake',
-]);
-const PAGE_ANCHOR_COPY_ORIGINAL = 'Share gems of:';
+const PAGE_ANCHOR_VARIANTS = new Set(['camera', 'tide', 'cascade', 'loom']);
+const PAGE_ANCHOR_FLOWY = new Set(['tide', 'cascade', 'loom']);
+const PAGE_ANCHOR_COPY_ORIGINAL = '[share gems of:]';
 const PAGE_ANCHOR_ENTER_MS = 1300;
+const PAGE_ANCHOR_BLUR_DEFAULT = 0;
+const PAGE_ANCHOR_OPACITY_DEFAULT = 100;
 /** Heading debug default must stay Original. Never boot to slash/erode/soft. */
 const HEADING_DEFAULT = 'original';
 const HEADING_VARIANTS = new Set(['original', 'slash', 'erode', 'soft']);
@@ -462,6 +437,10 @@ const feedDockLabel = document.getElementById('feedDockLabel');
 let feedDismissed = false;
 let feedVariant = 'banner';
 let pageAnchor = PAGE_ANCHOR_DEFAULT;
+const pageAnchorBlur = document.getElementById('pageAnchorBlur');
+const pageAnchorBlurValue = document.getElementById('pageAnchorBlurValue');
+const pageAnchorOpacity = document.getElementById('pageAnchorOpacity');
+const pageAnchorOpacityValue = document.getElementById('pageAnchorOpacityValue');
 let headingLook = HEADING_DEFAULT;
 let placeMotion = PLACE_MOTION_DEFAULT;
 let hubEdition = 'v1';
@@ -2022,8 +2001,24 @@ function setPageAnchor(variant) {
     btn.classList.toggle('is-on', on);
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
-  if (snapshotPrefix) snapshotPrefix.textContent = PAGE_ANCHOR_COPY_ORIGINAL;
-  if (snapshotBtn) snapshotBtn.setAttribute('aria-label', 'Take a snapshot gem');
+  if (snapshotPrefix) snapshotPrefix.textContent = displayCopy(PAGE_ANCHOR_COPY_ORIGINAL);
+  if (snapshotBtn) snapshotBtn.setAttribute('aria-label', displayCopy(PAGE_ANCHOR_COPY_ORIGINAL));
+  applyPageAnchorFx();
+}
+
+function applyPageAnchorFx() {
+  const blur = pageAnchorBlur
+    ? Math.max(0, Math.min(12, Number(pageAnchorBlur.value) || 0))
+    : PAGE_ANCHOR_BLUR_DEFAULT;
+  const opacityPct = pageAnchorOpacity
+    ? Math.max(10, Math.min(100, Number(pageAnchorOpacity.value) || 100))
+    : PAGE_ANCHOR_OPACITY_DEFAULT;
+  if (pageAnchorBlurValue) pageAnchorBlurValue.textContent = String(blur);
+  if (pageAnchorOpacityValue) pageAnchorOpacityValue.textContent = `${opacityPct}%`;
+  const layer = document.getElementById('pageAnchorLayer');
+  if (!layer) return;
+  layer.style.setProperty('--pa-blur', `${blur}px`);
+  layer.style.setProperty('--pa-opacity', String(opacityPct / 100));
 }
 
 function tipTargetEl(kind) {
@@ -2951,6 +2946,8 @@ function setSpoofWording(on) {
   spoofWording = on;
   setSwitch(debugSpoof, on);
   refreshHub();
+  if (snapshotPrefix) snapshotPrefix.textContent = displayCopy(PAGE_ANCHOR_COPY_ORIGINAL);
+  if (snapshotBtn) snapshotBtn.setAttribute('aria-label', displayCopy(PAGE_ANCHOR_COPY_ORIGINAL));
   if (openGemId) openDetail(openGemId);
 }
 
@@ -3356,6 +3353,9 @@ function captureDesignStudio() {
     sortTintA: sortTintShadeA ? sortTintShadeA.value : SORT_TINT_SHADE_A_DEFAULT,
     sortTintB: sortTintShadeB ? sortTintShadeB.value : SORT_TINT_SHADE_B_DEFAULT,
     sortCardText: sortCardTextColor ? sortCardTextColor.value : SORT_CARD_TEXT_DEFAULT,
+    pageAnchor: PAGE_ANCHOR_VARIANTS.has(pageAnchor) ? pageAnchor : PAGE_ANCHOR_DEFAULT,
+    paBlur: pageAnchorBlur ? Number(pageAnchorBlur.value) : PAGE_ANCHOR_BLUR_DEFAULT,
+    paOpacity: pageAnchorOpacity ? Number(pageAnchorOpacity.value) : PAGE_ANCHOR_OPACITY_DEFAULT,
     positions: collectDesignPositions(),
     savedAt: Date.now(),
   };
@@ -3414,6 +3414,8 @@ function applyDesignStudioData(data, { note } = {}) {
   if (sortTintShadeA && data.sortTintA) sortTintShadeA.value = data.sortTintA;
   if (sortTintShadeB && data.sortTintB) sortTintShadeB.value = data.sortTintB;
   if (sortCardTextColor && data.sortCardText) sortCardTextColor.value = data.sortCardText;
+  if (pageAnchorBlur && data.paBlur != null) pageAnchorBlur.value = String(data.paBlur);
+  if (pageAnchorOpacity && data.paOpacity != null) pageAnchorOpacity.value = String(data.paOpacity);
   applyBtnRadius();
   applySpaceScale();
   applyTypeScale();
@@ -3423,6 +3425,8 @@ function applyDesignStudioData(data, { note } = {}) {
   applyMidTone();
   applySortTintShades();
   applySortCardText();
+  if (data.pageAnchor) setPageAnchor(data.pageAnchor);
+  else applyPageAnchorFx();
   if (phone) {
     phone.querySelectorAll(DESIGN_TARGET_SEL).forEach((el) => {
       delete el.dataset.designX;
@@ -3557,6 +3561,9 @@ function clearDesignStudio() {
     });
   }
   clearDesignSelection();
+  if (pageAnchorBlur) pageAnchorBlur.value = String(PAGE_ANCHOR_BLUR_DEFAULT);
+  if (pageAnchorOpacity) pageAnchorOpacity.value = String(PAGE_ANCHOR_OPACITY_DEFAULT);
+  setPageAnchor(PAGE_ANCHOR_DEFAULT);
   const data = captureDesignStudio();
   designHistory = [data];
   designHistoryIndex = 0;
@@ -3729,6 +3736,7 @@ function init() {
   setupSnapshotArc();
   fillPageAnchorGems();
   applyStaticCopy();
+  applyPageAnchorFx();
   setPageAnchor(PAGE_ANCHOR_DEFAULT);
   setHeadingLook(HEADING_DEFAULT);
   setPlaceMotion(PLACE_MOTION_DEFAULT);
@@ -3981,8 +3989,15 @@ document.querySelectorAll('[data-feed-variant]').forEach((btn) => {
 document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
   btn.addEventListener('click', () => {
     setPageAnchor(btn.getAttribute('data-page-anchor') || PAGE_ANCHOR_DEFAULT);
+    if (!designHistoryMuted) scheduleDesignStudioSave();
   });
 });
+if (pageAnchorBlur) {
+  pageAnchorBlur.addEventListener('input', onLookToolInput(applyPageAnchorFx));
+}
+if (pageAnchorOpacity) {
+  pageAnchorOpacity.addEventListener('input', onLookToolInput(applyPageAnchorFx));
+}
 document.querySelectorAll('.variant-btn[data-heading]').forEach((btn) => {
   btn.addEventListener('click', () => {
     setHeadingLook(btn.getAttribute('data-heading') || HEADING_DEFAULT);

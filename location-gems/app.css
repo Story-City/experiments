@@ -392,7 +392,8 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   transition: opacity 520ms ease;
 }
 .hub.is-page-anchor-flow .page-anchor-layer {
-  opacity: 1;
+  opacity: var(--pa-opacity, 1);
+  filter: blur(var(--pa-blur, 0px));
   /* Soft bottom transparency on every flowy look */
   -webkit-mask-image: linear-gradient(
     to bottom,

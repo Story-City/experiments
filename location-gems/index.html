@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=155">
+<link rel="stylesheet" href="app.css?v=156">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=15">
 <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
@@ -75,22 +75,23 @@
 
       <section class="tool-block">
         <h2 class="tool-title">Page anchor</h2>
-        <p class="tool-note">Original keeps camera + arc. Twelve soft crystal flows in the top ~50px with a bottom fade — layout stays.</p>
+        <p class="tool-note">Keepers: Original, Tide, Cascade, Loom — top haze only. Blur / opacity tune the soft layer. Save look stores these.</p>
         <div class="variant-pick is-rail is-wrap" role="group" aria-label="Page anchor">
           <button type="button" class="variant-btn is-on" data-page-anchor="camera" aria-pressed="true">Original</button>
-          <button type="button" class="variant-btn" data-page-anchor="mist" aria-pressed="false">Mist</button>
-          <button type="button" class="variant-btn" data-page-anchor="drift" aria-pressed="false">Drift</button>
-          <button type="button" class="variant-btn" data-page-anchor="bloom" aria-pressed="false">Bloom</button>
           <button type="button" class="variant-btn" data-page-anchor="tide" aria-pressed="false">Tide</button>
-          <button type="button" class="variant-btn" data-page-anchor="orbit" aria-pressed="false">Orbit</button>
           <button type="button" class="variant-btn" data-page-anchor="cascade" aria-pressed="false">Cascade</button>
-          <button type="button" class="variant-btn" data-page-anchor="sheer" aria-pressed="false">Sheer</button>
-          <button type="button" class="variant-btn" data-page-anchor="shimmer" aria-pressed="false">Shimmer</button>
-          <button type="button" class="variant-btn" data-page-anchor="braid" aria-pressed="false">Braid</button>
-          <button type="button" class="variant-btn" data-page-anchor="pulse" aria-pressed="false">Pulse</button>
           <button type="button" class="variant-btn" data-page-anchor="loom" aria-pressed="false">Loom</button>
-          <button type="button" class="variant-btn" data-page-anchor="wake" aria-pressed="false">Wake</button>
         </div>
+        <label class="accent-pick is-rail" title="Softness of the page-anchor haze">
+          <span>Blur</span>
+          <input type="range" id="pageAnchorBlur" min="0" max="12" value="0" aria-label="Page anchor blur">
+          <span class="tool-value" id="pageAnchorBlurValue">0</span>
+        </label>
+        <label class="accent-pick is-rail" title="Strength of the page-anchor haze">
+          <span>Opacity</span>
+          <input type="range" id="pageAnchorOpacity" min="10" max="100" value="100" aria-label="Page anchor opacity">
+          <span class="tool-value" id="pageAnchorOpacityValue">100%</span>
+        </label>
       </section>
 
       <section class="tool-block">
@@ -204,7 +205,7 @@
             </div>
             <div class="tagline-block" id="taglineBlock" data-heading="original" data-place-motion="swap">
               <span class="heading-slash" aria-hidden="true"></span>
-              <p class="title-prefix" id="snapshotPrefix">Share gems of:</p>
+              <p class="title-prefix" id="snapshotPrefix">[share gems of:]</p>
               <p class="rotating-line">
                 <span class="place-roller" id="placeRoller" aria-hidden="false">
                   <span class="place-roller-track" id="placeRollerTrack">
@@ -617,7 +618,7 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=13"></script>
-  <script src="app.js?v=155"></script>
+  <script src="app.js?v=156"></script>
   <script type="module">
     import { mountVersions } from '../shared/versions/versions.js?v=2';
     mountVersions({
