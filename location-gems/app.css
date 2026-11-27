@@ -377,35 +377,45 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   position: relative;
   margin-bottom: 0;
 }
-/* Top haze lives inside snapshot-section only — scrolls with CTA, never
-   pinned to hub chrome or Public / Hidden / Liked. */
+/* Soft top strip only (~56px) inside snapshot CTA — not a full-bleed panel. */
 .page-anchor-layer {
   position: absolute;
-  inset: 0;
-  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  z-index: 0;
   overflow: hidden;
   pointer-events: none;
   opacity: 0;
   transition: opacity 520ms ease;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
 }
 .hub.is-page-anchor-flow .page-anchor-layer {
   opacity: var(--pa-opacity, 1);
-  filter: blur(var(--pa-blur, 0px));
-  /* Soft bottom transparency on every flowy look */
+  /* Soft fade out — no layer filter (that drew an ugly blurred box) */
   -webkit-mask-image: linear-gradient(
     to bottom,
     #000 0%,
-    #000 42%,
-    rgba(0, 0, 0, 0.5) 72%,
+    #000 38%,
+    rgba(0, 0, 0, 0.45) 68%,
     transparent 100%
   );
   mask-image: linear-gradient(
     to bottom,
     #000 0%,
-    #000 42%,
-    rgba(0, 0, 0, 0.5) 72%,
+    #000 38%,
+    rgba(0, 0, 0, 0.45) 68%,
     transparent 100%
   );
+}
+.hub.is-page-anchor-flow .page-anchor-mist,
+.hub.is-page-anchor-flow .page-anchor-sheer,
+.hub.is-page-anchor-flow .page-anchor-stream {
+  filter: blur(var(--pa-blur, 0px));
 }
 .hub.is-page-anchor-flow .arc-stage {
   opacity: 0;
@@ -444,13 +454,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .page-anchor-mist {
   opacity: 0;
+  /* Light veil only — no dark slab that reads as a card/container */
   background:
-    radial-gradient(90% 130% at 50% 0%, rgba(0, 158, 255, 0.14), transparent 72%),
-    radial-gradient(120% 150% at 50% 10%, rgba(8, 3, 22, 0.58), transparent 74%),
+    radial-gradient(90% 120% at 50% 0%, rgba(0, 158, 255, 0.16), transparent 70%),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--haze-deep) 72%, transparent) 0%,
-      color-mix(in srgb, var(--haze-mid) 42%, transparent) 48%,
+      color-mix(in srgb, var(--brand-accent) 10%, transparent) 0%,
       transparent 100%
     );
 }

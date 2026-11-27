@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v159 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v160 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -2036,7 +2036,7 @@ function applyPageAnchorFx() {
   const gemBlur =
     blurSigned < 0
       ? Math.max(0, PAGE_ANCHOR_GEM_BLUR_BASE + blurSigned * (PAGE_ANCHOR_GEM_BLUR_BASE / 12))
-      : PAGE_ANCHOR_GEM_BLUR_BASE;
+      : PAGE_ANCHOR_GEM_BLUR_BASE + layerBlur;
   /* − fades the whole layer; + multiplies crystal/mist opacity in keyframes (brightness was invisible) */
   const layerOpacity = opacitySigned < 0 ? Math.max(0, 1 + opacitySigned / 100) : 1;
   const gemGain = opacitySigned > 0 ? 1 + (opacitySigned / 100) * 5 : 1;
