@@ -4051,21 +4051,25 @@ body.is-v3.sort-layout-right .sort-rail-icon,
 body.is-v3.sort-layout-right .sort-rail-gem { width: 30px; height: 28px; }
 body.is-v3.sort-layout-right .sort-rail-chip { font-size: 10px; }
 
-/* V3 opal band under "Sort your gems": faceted, multicolour, fading out downward and at the sides */
+/* V3 opal behind "Sort your gems": faceted, multicolour, edge to edge from the very top of the screen, fading down */
 .v3-opal { display: none; }
 body.is-v3 .v3-opal {
   display: block;
-  height: 64px;
-  margin: 8px calc(-1 * var(--space-m)) 0;
-  opacity: 0.85;
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 100%), linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 100%), linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
-  mask-composite: intersect;
+  position: absolute;
+  z-index: 0;
+  top: calc(-20px * var(--space-scale));
+  left: calc(-1 * var(--space-l) * var(--space-scale));
+  right: calc(-1 * var(--space-l) * var(--space-scale));
+  height: 190px;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 35%, rgba(0, 0, 0, 0.45) 65%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 35%, rgba(0, 0, 0, 0.45) 65%, transparent 100%);
   filter: saturate(1.15);
   animation: opalShimmer 9s ease-in-out infinite alternate;
 }
 body.is-v3 .v3-opal svg { display: block; width: 100%; height: 100%; }
+body.is-v3 .snapshot-hero { position: relative; z-index: 1; }
+body.is-v3 .v3-heading { text-shadow: 0 2px 14px rgba(13, 8, 36, 0.75), 0 1px 2px rgba(13, 8, 36, 0.6); }
 @keyframes opalShimmer {
   0% { filter: saturate(1.15) hue-rotate(0deg); }
   100% { filter: saturate(1.3) hue-rotate(28deg); }

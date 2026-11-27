@@ -4154,11 +4154,11 @@ function setSortLayout(layout) {
 document.querySelectorAll('[data-sort-layout]').forEach((b) => b.addEventListener('click', () => setSortLayout(b.dataset.sortLayout)));
 setSortLayout((() => { try { return localStorage.getItem(SORT_LAYOUT_KEY); } catch (e) { return null; } })());
 
-// V3 opal band under the heading: faceted low-poly triangles in opal colours, drawn once with a fixed seed
-const OPAL_COLS = 16;
-const OPAL_ROWS = 4;
+// V3 opal behind the heading: faceted low-poly triangles in opal colours, drawn once with a fixed seed
+const OPAL_COLS = 12;
+const OPAL_ROWS = 7;
 const OPAL_W = 320;
-const OPAL_H = 84;
+const OPAL_H = 190;
 const OPAL_JITTER = 0.38;
 const OPAL_SEED = 27;
 const OPAL_FIRE_CHANCE = 0.08;
