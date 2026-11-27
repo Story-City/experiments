@@ -424,6 +424,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   inset: 0;
   pointer-events: none;
 }
+.page-anchor-gems {
+  transform: scale(var(--pa-gem-scale, 1));
+  transform-origin: 50% 40%;
+  /* +opacity side: brighter crystals; − side handled by layer --pa-opacity */
+  filter: brightness(var(--pa-gem-gain, 1));
+}
 .page-anchor-sheer {
   opacity: 0;
   background:
@@ -687,7 +693,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   height: 20px;
   margin-top: -10px;
   opacity: 0.16;
-  filter: blur(1.1px) drop-shadow(0 0 8px color-mix(in srgb, var(--brand-accent) 24%, transparent));
+  filter: blur(var(--pa-gem-blur, 1.1px)) drop-shadow(0 0 8px color-mix(in srgb, var(--brand-accent) 24%, transparent));
   will-change: transform, opacity;
 }
 .page-anchor-gem svg,
@@ -4142,6 +4148,9 @@ body.is-v3.card-size-big .sort-stage { height: 540px; }
 body.is-v3.card-size-big .sort-stack { width: 286px; height: 416px; }
 body.is-v3.card-size-full .sort-stage { height: 680px; }
 body.is-v3.card-size-full .sort-stack { top: 24px; width: calc(100% - 2 * var(--space-l) - 8px); height: 620px; }
+/* Melissa V3 big polaroid size — unsorted Polaroid look (any edition) */
+body.is-sort-look-polaroid .sort-stage { height: 540px; }
+body.is-sort-look-polaroid .sort-stack { width: 286px; height: 416px; }
 
 /* V3 publish audience + delete undo (Melissa, 27 Nov test notes) */
 .publish-audience { display: grid; gap: 6px; margin-top: 4px; }

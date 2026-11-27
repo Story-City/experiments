@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v156 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v157 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -141,7 +141,9 @@ const PAGE_ANCHOR_FLOWY = new Set(['tide', 'cascade', 'loom']);
 const PAGE_ANCHOR_COPY_ORIGINAL = '[share gems of:]';
 const PAGE_ANCHOR_ENTER_MS = 1300;
 const PAGE_ANCHOR_BLUR_DEFAULT = 0;
-const PAGE_ANCHOR_OPACITY_DEFAULT = 100;
+const PAGE_ANCHOR_OPACITY_DEFAULT = 0;
+const PAGE_ANCHOR_SIZE_DEFAULT = 100;
+const PAGE_ANCHOR_GEM_BLUR_BASE = 1.1;
 /** Heading debug default must stay Original. Never boot to slash/erode/soft. */
 const HEADING_DEFAULT = 'original';
 const HEADING_VARIANTS = new Set(['original', 'slash', 'erode', 'soft']);
@@ -441,6 +443,8 @@ const pageAnchorBlur = document.getElementById('pageAnchorBlur');
 const pageAnchorBlurValue = document.getElementById('pageAnchorBlurValue');
 const pageAnchorOpacity = document.getElementById('pageAnchorOpacity');
 const pageAnchorOpacityValue = document.getElementById('pageAnchorOpacityValue');
+const pageAnchorSize = document.getElementById('pageAnchorSize');
+const pageAnchorSizeValue = document.getElementById('pageAnchorSizeValue');
 let headingLook = HEADING_DEFAULT;
 let placeMotion = PLACE_MOTION_DEFAULT;
 let hubEdition = 'v1';
@@ -1567,6 +1571,7 @@ function applySortLookFrameDefaults(look) {
 function setSortCardLook(look) {
   const next = SORT_CARD_LOOKS.has(look) ? look : 'polaroid';
   sortCardLook = next;
+  document.body.classList.toggle('is-sort-look-polaroid', next === 'polaroid');
   document.querySelectorAll('[data-sort-look]').forEach((btn) => {
     const on = btn.getAttribute('data-sort-look') === next;
     btn.classList.toggle('is-on', on);
@@ -2006,19 +2011,39 @@ function setPageAnchor(variant) {
   applyPageAnchorFx();
 }
 
+function formatSigned(n, suffix = '') {
+  const v = Math.round(n);
+  return `${v > 0 ? '+' : ''}${v}${suffix}`;
+}
+
 function applyPageAnchorFx() {
-  const blur = pageAnchorBlur
-    ? Math.max(0, Math.min(12, Number(pageAnchorBlur.value) || 0))
+  const blurSigned = pageAnchorBlur
+    ? Math.max(-12, Math.min(12, Number(pageAnchorBlur.value) || 0))
     : PAGE_ANCHOR_BLUR_DEFAULT;
-  const opacityPct = pageAnchorOpacity
-    ? Math.max(10, Math.min(100, Number(pageAnchorOpacity.value) || 100))
+  const opacitySigned = pageAnchorOpacity
+    ? Math.max(-100, Math.min(100, Number(pageAnchorOpacity.value) || 0))
     : PAGE_ANCHOR_OPACITY_DEFAULT;
-  if (pageAnchorBlurValue) pageAnchorBlurValue.textContent = String(blur);
-  if (pageAnchorOpacityValue) pageAnchorOpacityValue.textContent = `${opacityPct}%`;
+  const sizePct = pageAnchorSize
+    ? Math.max(40, Math.min(220, Number(pageAnchorSize.value) || 100))
+    : PAGE_ANCHOR_SIZE_DEFAULT;
+  if (pageAnchorBlurValue) pageAnchorBlurValue.textContent = formatSigned(blurSigned);
+  if (pageAnchorOpacityValue) pageAnchorOpacityValue.textContent = formatSigned(opacitySigned);
+  if (pageAnchorSizeValue) pageAnchorSizeValue.textContent = `${Math.round(sizePct)}%`;
   const layer = document.getElementById('pageAnchorLayer');
   if (!layer) return;
-  layer.style.setProperty('--pa-blur', `${blur}px`);
-  layer.style.setProperty('--pa-opacity', String(opacityPct / 100));
+  /* Center 0 = current look; + blur softens layer; − unblurs crystal base soft */
+  const layerBlur = blurSigned > 0 ? blurSigned : 0;
+  const gemBlur =
+    blurSigned < 0
+      ? Math.max(0, PAGE_ANCHOR_GEM_BLUR_BASE + blurSigned * (PAGE_ANCHOR_GEM_BLUR_BASE / 12))
+      : PAGE_ANCHOR_GEM_BLUR_BASE;
+  const layerOpacity = opacitySigned < 0 ? Math.max(0, 1 + opacitySigned / 100) : 1;
+  const gemGain = opacitySigned > 0 ? 1 + opacitySigned / 100 : 1;
+  layer.style.setProperty('--pa-blur', `${layerBlur}px`);
+  layer.style.setProperty('--pa-gem-blur', `${gemBlur.toFixed(2)}px`);
+  layer.style.setProperty('--pa-opacity', String(layerOpacity));
+  layer.style.setProperty('--pa-gem-gain', String(gemGain));
+  layer.style.setProperty('--pa-gem-scale', String(sizePct / 100));
 }
 
 function tipTargetEl(kind) {
@@ -3356,6 +3381,7 @@ function captureDesignStudio() {
     pageAnchor: PAGE_ANCHOR_VARIANTS.has(pageAnchor) ? pageAnchor : PAGE_ANCHOR_DEFAULT,
     paBlur: pageAnchorBlur ? Number(pageAnchorBlur.value) : PAGE_ANCHOR_BLUR_DEFAULT,
     paOpacity: pageAnchorOpacity ? Number(pageAnchorOpacity.value) : PAGE_ANCHOR_OPACITY_DEFAULT,
+    paSize: pageAnchorSize ? Number(pageAnchorSize.value) : PAGE_ANCHOR_SIZE_DEFAULT,
     positions: collectDesignPositions(),
     savedAt: Date.now(),
   };
@@ -3416,6 +3442,7 @@ function applyDesignStudioData(data, { note } = {}) {
   if (sortCardTextColor && data.sortCardText) sortCardTextColor.value = data.sortCardText;
   if (pageAnchorBlur && data.paBlur != null) pageAnchorBlur.value = String(data.paBlur);
   if (pageAnchorOpacity && data.paOpacity != null) pageAnchorOpacity.value = String(data.paOpacity);
+  if (pageAnchorSize && data.paSize != null) pageAnchorSize.value = String(data.paSize);
   applyBtnRadius();
   applySpaceScale();
   applyTypeScale();
@@ -3563,6 +3590,7 @@ function clearDesignStudio() {
   clearDesignSelection();
   if (pageAnchorBlur) pageAnchorBlur.value = String(PAGE_ANCHOR_BLUR_DEFAULT);
   if (pageAnchorOpacity) pageAnchorOpacity.value = String(PAGE_ANCHOR_OPACITY_DEFAULT);
+  if (pageAnchorSize) pageAnchorSize.value = String(PAGE_ANCHOR_SIZE_DEFAULT);
   setPageAnchor(PAGE_ANCHOR_DEFAULT);
   const data = captureDesignStudio();
   designHistory = [data];
@@ -3997,6 +4025,9 @@ if (pageAnchorBlur) {
 }
 if (pageAnchorOpacity) {
   pageAnchorOpacity.addEventListener('input', onLookToolInput(applyPageAnchorFx));
+}
+if (pageAnchorSize) {
+  pageAnchorSize.addEventListener('input', onLookToolInput(applyPageAnchorFx));
 }
 document.querySelectorAll('.variant-btn[data-heading]').forEach((btn) => {
   btn.addEventListener('click', () => {

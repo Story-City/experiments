@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=156">
+<link rel="stylesheet" href="app.css?v=157">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=15">
 <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
@@ -82,15 +82,20 @@
           <button type="button" class="variant-btn" data-page-anchor="cascade" aria-pressed="false">Cascade</button>
           <button type="button" class="variant-btn" data-page-anchor="loom" aria-pressed="false">Loom</button>
         </div>
-        <label class="accent-pick is-rail" title="Softness of the page-anchor haze">
+        <label class="accent-pick is-rail" title="Center = current. Left unblurs crystals; right softens the haze">
           <span>Blur</span>
-          <input type="range" id="pageAnchorBlur" min="0" max="12" value="0" aria-label="Page anchor blur">
+          <input type="range" id="pageAnchorBlur" min="-12" max="12" value="0" aria-label="Page anchor blur">
           <span class="tool-value" id="pageAnchorBlurValue">0</span>
         </label>
-        <label class="accent-pick is-rail" title="Strength of the page-anchor haze">
+        <label class="accent-pick is-rail" title="Center = current. Left fades the haze; right boosts crystal strength">
           <span>Opacity</span>
-          <input type="range" id="pageAnchorOpacity" min="10" max="100" value="100" aria-label="Page anchor opacity">
-          <span class="tool-value" id="pageAnchorOpacityValue">100%</span>
+          <input type="range" id="pageAnchorOpacity" min="-100" max="100" value="0" aria-label="Page anchor opacity">
+          <span class="tool-value" id="pageAnchorOpacityValue">0</span>
+        </label>
+        <label class="accent-pick is-rail" title="Crystal size in the top haze">
+          <span>Size</span>
+          <input type="range" id="pageAnchorSize" min="40" max="220" value="100" aria-label="Page anchor crystal size">
+          <span class="tool-value" id="pageAnchorSizeValue">100%</span>
         </label>
       </section>
 
@@ -618,7 +623,7 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=13"></script>
-  <script src="app.js?v=156"></script>
+  <script src="app.js?v=157"></script>
   <script type="module">
     import { mountVersions } from '../shared/versions/versions.js?v=2';
     mountVersions({
