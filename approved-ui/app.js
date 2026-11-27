@@ -1604,7 +1604,7 @@ const PAGE_ANCHOR_PLACES = [
   'a town square',
   'a waterfront',
 ];
-const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
+const PAGE_ANCHOR_COPY_ORIGINAL = 'Share gems of:';
 const PAGE_ANCHOR_ROTATE_MS = 2200;
 const PAGE_ANCHOR_FLOWY = new Set([
   'mist',

@@ -165,7 +165,7 @@ const PAGE_ANCHOR_FLOWY = new Set([
   'loom',
   'wake',
 ]);
-const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
+const PAGE_ANCHOR_COPY_ORIGINAL = 'Share gems of:';
 const PAGE_ANCHOR_ENTER_MS = 1300;
 /** Heading debug default must stay Original. Never boot to slash/erode/soft. */
 const HEADING_DEFAULT = 'original';
