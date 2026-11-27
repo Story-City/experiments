@@ -152,7 +152,7 @@
 .gtb-you {
   position: absolute;
   top: 16px;
-  right: 9px;
+  right: 16px;
   z-index: 32;
   padding: 0;
   border: 0;
@@ -160,12 +160,12 @@
   border-radius: 50%;
   cursor: pointer;
 }
-.gtb-you.is-left { right: auto; left: 9px; }
+.gtb-you.is-left { right: auto; left: 16px; }
 .gtb-you[hidden], .gtb[hidden] ~ .gtb-you { display: none; }
 .gtb-you .gtb-av { width: 34px; height: 34px; font-size: 20px; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85), 0 2px 8px rgba(0, 0, 0, 0.35); }
 /* Keep the map's own top controls clear of the photo */
-.gtb-you-right > .map-top { right: 44px; }
-.gtb-you-left > .map-top { left: 44px; }
+.gtb-you-right > .map-top { right: 50px; }
+.gtb-you-left > .map-top { left: 50px; }
 .gtb-you-right > .quarter-wrap:not(.is-left),
 .gtb-you-left > .quarter-wrap.is-left { top: 50px; }
 .gtb-you-left > #cornerDiscWrap { top: 50px; }
