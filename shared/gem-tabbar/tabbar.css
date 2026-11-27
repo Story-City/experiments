@@ -91,6 +91,10 @@
   color: rgba(36, 27, 70, 0.42);
 }
 .gtb.is-hunt .gtb-add-plus svg { width: 14px; height: 14px; }
+/* With titles, Hunt drops its title and fills icon + gap + title height (23 + 2 + 12) */
+.gtb.is-hunt:not(.is-no-labels) .gtb-add-label { display: none; }
+.gtb.is-hunt:not(.is-no-labels) .gtb-add-plus { width: 37px; height: 37px; margin: 0; padding: 2.5px; border-width: 2.5px; }
+.gtb.is-hunt:not(.is-no-labels) .gtb-add-plus svg { width: 17px; height: 17px; }
 .gtb-tab.gtb-add:active .gtb-add-plus { transform: scale(0.94); }
 
 /* Hunt mode camera (mobile-rn CameraSheet + ConfirmScreen) */
