@@ -4149,16 +4149,23 @@ body.is-tools-embed > .workspace > .edition-rail {
   padding-bottom: calc(72px * var(--space-scale));
 }
 
-/* V3 (Melissa, 27 Nov): no camera or arc at the top, a big "Sort your gems" heading, card sizes */
+/* V3 (Melissa, 27 Nov) + V4 carry-over: no camera or arc at the top, a big "Sort your gems" heading, card sizes */
 .v3-heading { display: none; }
-body:not(.is-v3) .v3-only { display: none !important; }
+body:not(.is-v3):not(.is-v4) .v3-only { display: none !important; }
 body.is-v3 .arc-stage,
+body.is-v4 .arc-stage,
 body.is-v3 .title-prefix,
+body.is-v4 .title-prefix,
 body.is-v3 .rotating-line,
-body.is-v3 .sort-inline-title { display: none; }
-body.is-v3 .snapshot-hero { cursor: default; align-items: stretch; }
-body.is-v3 .tagline-block { text-align: left; padding: var(--space-m) 2px 4px; }
-body.is-v3 .v3-heading {
+body.is-v4 .rotating-line,
+body.is-v3 .sort-inline-title,
+body.is-v4 .sort-inline-title { display: none; }
+body.is-v3 .snapshot-hero,
+body.is-v4 .snapshot-hero { cursor: default; align-items: stretch; }
+body.is-v3 .tagline-block,
+body.is-v4 .tagline-block { text-align: left; padding: var(--space-m) 2px 4px; }
+body.is-v3 .v3-heading,
+body.is-v4 .v3-heading {
   display: block;
   margin: 0;
   font-size: calc(40px * var(--type-scale));

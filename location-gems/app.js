@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v165 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v166 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -642,7 +642,7 @@ let likesBusy = false;
 let spoofWording = false;
 let likesStackMode = false;
 let dragMode = false;
-let subcatsMode = false;
+let subcatsMode = true;
 let designMoveMode = false;
 /** @type {Set<HTMLElement>} */
 let designSelection = new Set();
@@ -3880,6 +3880,7 @@ function applyV4Defaults() {
   writeDebugLikes(liked);
   applyDebugLikes();
   [...liked].forEach((key) => applyDebugLikeKey(key));
+  setSubcatsMode(true);
 }
 
 window.applyV4Defaults = applyV4Defaults;
@@ -3910,6 +3911,7 @@ function init() {
   refreshHub();
   loadDesignStudio();
   bindDebugLikes();
+  setSubcatsMode(true);
   showTip(!storageGet(TIP_KEY));
   window.setInterval(tickPlaces, ROTATE_MS);
   if (!storageGet(ONBOARD_KEY)) {

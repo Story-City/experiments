@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=165">
+<link rel="stylesheet" href="app.css?v=166">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=15">
 <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
@@ -61,7 +61,7 @@
         </div>
         <div class="tool-toggle">
           <span>Subcategories</span>
-          <button type="button" class="switch" id="debugSubcats" role="switch" aria-checked="false" aria-label="Subcategories">
+          <button type="button" class="switch is-on" id="debugSubcats" role="switch" aria-checked="true" aria-label="Subcategories">
             <span class="switch-knob" aria-hidden="true"></span>
           </button>
         </div>
@@ -624,7 +624,7 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=13"></script>
-  <script src="app.js?v=165"></script>
+  <script src="app.js?v=166"></script>
   <script type="module">
     import { mountVersions } from '../shared/versions/versions.js?v=2';
     mountVersions({
@@ -634,14 +634,15 @@
         { id: 'v1', label: 'V1', note: 'Crystals, no rarity.' },
         { id: 'v2', label: 'V2', note: 'Keeps rarity: aquamarine, moonstone, topaz, opal, diamond.' },
         { id: 'v3', label: 'V3', note: 'Melissa’s' },
-        { id: 'v4', label: 'V4', note: 'Starred look: Cascade haze + Polaroid. Opens on sparkle favorites.' },
+        { id: 'v4', label: 'V4', note: 'Starred Cascade + Polaroid; Melissa’s no-camera top; subcategories on.' },
       ],
       // V3 (Melissa, 27 Nov) is V1 with no camera or arc up top, a big "Sort your gems" heading and card sizes
-      // V4 keeps the V1 hub and turns on only the sparkle-favorited defaults
+      // V4 carries Melissa’s no-camera top, then Victoria’s sparkle favorites + subcategories on
       onPick: (base) => {
-        document.body.classList.toggle('is-v3', base === 'v3');
+        const melissaTop = base === 'v3' || base === 'v4';
+        document.body.classList.toggle('is-v3', melissaTop);
         document.body.classList.toggle('is-v4', base === 'v4');
-        setHubEdition(base === 'v3' || base === 'v4' ? 'v1' : base);
+        setHubEdition(melissaTop ? 'v1' : base);
         if (base === 'v4' && typeof window.applyV4Defaults === 'function') {
           window.applyV4Defaults();
         }
