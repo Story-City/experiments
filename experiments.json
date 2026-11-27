@@ -166,7 +166,7 @@
   },
   {
     "slug": "approved-ui",
-    "path": "approved-ui/?v=34",
+    "path": "approved-ui/?v=35",
     "area": "design",
     "frame": "wide",
     "title": "Approved UI library",
@@ -206,10 +206,10 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=140",
+    "path": "location-gems/?v=150",
     "area": "gems",
     "title": "Location Gems hub",
-    "what": "Page anchor: Original + Mist/Drift/Bloom flowy overlays. Dual shade on Tinted.",
+    "what": "Page anchor: 11 flowy crystal overlays (Mist→Loom). Dual shade on Tinted.",
     "author": "victoria",
     "authorName": "Victoria",
     "date": "2026-11",

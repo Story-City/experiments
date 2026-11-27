@@ -1,5 +1,4 @@
-/* Page anchor — Original + Mist / Drift / Bloom overlays.
-   Soft gem mist in top ~50px; camera fades only; layout untouched. */
+﻿/* Page anchor — Original + flowy overlays (synced from location-gems). */
 .page-anchor-host {
   --pa-accent: var(--brand-accent, #00c2ff);
   --pa-deep: var(--brand-primary-deep, #0259a1);
@@ -13,6 +12,59 @@
   color: var(--pa-text);
   font-family: "Darker Grotesque", system-ui, sans-serif;
 }
+.page-anchor-host.is-page-anchor-flow .page-anchor-arc {
+  opacity: 0;
+  pointer-events: none;
+}
+.page-anchor-hero {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.page-anchor-arc {
+  position: relative;
+  width: 240px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  transition: opacity 420ms ease;
+}
+.page-anchor-cam {
+  position: absolute;
+  top: 4px;
+  z-index: 2;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--pa-accent), var(--pa-deep));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  border: 3px solid rgba(12, 18, 48, 0.85);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--pa-accent) 55%, transparent);
+}
+.page-anchor-cam svg { width: 34px; height: 34px; }
+.page-anchor-copy { align-self: stretch; text-align: center; padding: 0 16px; }
+.page-anchor-prefix,
+.page-anchor-word {
+  margin: 0;
+  font-size: 22px;
+  line-height: 26px;
+  font-weight: 800;
+  color: var(--pa-text);
+}
+.page-anchor-word { display: block; margin-top: -5px; color: var(--pa-accent); }
+/* Page anchor — Original + flowy overlays (Mist/Drift/Bloom/Tide/Orbit/Cascade).
+   Soft gem mist in top ~50px; camera fades only; layout untouched. */
 .page-anchor-layer {
   position: absolute;
   top: 0;
@@ -27,18 +79,52 @@
 }
 .page-anchor-host.is-page-anchor-flow .page-anchor-layer {
   opacity: 1;
+  /* Soft bottom transparency on every flowy look */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 42%,
+    rgba(0, 0, 0, 0.5) 72%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 42%,
+    rgba(0, 0, 0, 0.5) 72%,
+    transparent 100%
+  );
 }
-.page-anchor-host.is-page-anchor-flow .page-anchor-arc {
+.page-anchor-host.is-page-anchor-flow .arc-stage {
   opacity: 0;
   pointer-events: none;
 }
 .page-anchor-mist,
+.page-anchor-sheer,
 .page-anchor-stream,
 .page-anchor-wash,
+.page-anchor-glow,
 .page-anchor-gems {
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+.page-anchor-sheer {
+  opacity: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 55%),
+    linear-gradient(105deg, transparent 20%, rgba(0, 194, 255, 0.1) 48%, transparent 76%);
+  filter: blur(5px);
+}
+.page-anchor-glow {
+  opacity: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 28%,
+    rgba(255, 255, 255, 0.34) 48%,
+    transparent 68%
+  );
+  transform: translate3d(-40%, 0, 0);
 }
 .page-anchor-mist {
   opacity: 0;
@@ -75,29 +161,19 @@
   transform: scale(0.2);
   transform-origin: 50% 30%;
 }
+
+/* Mist — slower breathing veil + gentle bob */
 .page-anchor-host[data-page-anchor="mist"] .page-anchor-mist {
   opacity: 1;
-  animation: pageAnchorMistBreath 5.6s ease-in-out infinite;
+  animation: pageAnchorMistBreath 8.4s ease-in-out infinite;
 }
 .page-anchor-host[data-page-anchor="mist"] .page-anchor-gem {
-  animation: pageAnchorMistBob 8.8s ease-in-out infinite;
+  animation: pageAnchorMistBob 12s ease-in-out infinite;
 }
+
+/* Drift — slow current; travel = --pa-drift-travel (RN: onLayout width) */
 .page-anchor-host[data-page-anchor="drift"] .page-anchor-layer {
-  --pa-drift-travel: 340px;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 38%,
-    rgba(0, 0, 0, 0.55) 68%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 38%,
-    rgba(0, 0, 0, 0.55) 68%,
-    transparent 100%
-  );
+  --pa-drift-travel: 420px;
 }
 .page-anchor-host[data-page-anchor="drift"] .page-anchor-mist {
   opacity: 0.78;
@@ -117,7 +193,22 @@
     transparent 100%
   );
   background-size: 100% 100%;
-  animation: pageAnchorStreamSlide 16s linear infinite;
+  animation: pageAnchorStreamSlide 20s linear infinite;
+}
+.page-anchor-host[data-page-anchor="drift"] .page-anchor-sheer {
+  left: auto;
+  right: -28%;
+  width: 48%;
+  opacity: 0;
+  filter: blur(10px);
+  background: linear-gradient(
+    270deg,
+    transparent 0%,
+    color-mix(in srgb, #b36bff 14%, transparent) 50%,
+    transparent 100%
+  );
+  animation: pageAnchorStreamSlide 24s linear infinite;
+  animation-delay: -8s;
 }
 .page-anchor-host[data-page-anchor="drift"] .page-anchor-gem {
   top: 50%;
@@ -127,6 +218,8 @@
   opacity: 0;
   filter: blur(0.8px) drop-shadow(0 0 6px color-mix(in srgb, var(--pa-accent) 18%, transparent));
 }
+
+/* Bloom — reveal-style wash, then soft settled glow + pulse */
 .page-anchor-host[data-page-anchor="bloom"] .page-anchor-mist {
   opacity: 1;
   animation: pageAnchorMistBreath 6.4s ease-in-out infinite;
@@ -137,6 +230,113 @@
 .page-anchor-host[data-page-anchor="bloom"] .page-anchor-gem {
   animation: pageAnchorBloomPulse 7.4s ease-in-out infinite;
 }
+
+/* Tide — crystals rise slowly through a soft veil */
+.page-anchor-host[data-page-anchor="tide"] .page-anchor-mist {
+  opacity: 0.88;
+  animation: pageAnchorMistBreath 7.2s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="tide"] .page-anchor-gem {
+  animation: pageAnchorTideRise 18s ease-in-out infinite;
+  opacity: 0;
+}
+
+/* Orbit — crystals weave small soft loops in place */
+.page-anchor-host[data-page-anchor="orbit"] .page-anchor-mist {
+  opacity: 0.8;
+  animation: pageAnchorMistBreath 6.8s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="orbit"] .page-anchor-gem {
+  animation: pageAnchorOrbit 11s ease-in-out infinite;
+}
+
+/* Cascade — crystals settle downward through haze */
+.page-anchor-host[data-page-anchor="cascade"] .page-anchor-mist {
+  opacity: 0.84;
+  animation: pageAnchorMistBreath 6.2s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="cascade"] .page-anchor-gem {
+  animation: pageAnchorCascade 16s linear infinite;
+  opacity: 0;
+}
+
+/* Sheer — thin layered sheets with barely-there crystals */
+.page-anchor-host[data-page-anchor="sheer"] .page-anchor-mist {
+  opacity: 0.55;
+  animation: pageAnchorMistBreath 9s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="sheer"] .page-anchor-sheer {
+  opacity: 0.85;
+  animation: pageAnchorSheerSway 10.5s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="sheer"] .page-anchor-gem {
+  animation: pageAnchorMistBob 14s ease-in-out infinite;
+  opacity: 0.1;
+  filter: blur(1.6px) drop-shadow(0 0 5px color-mix(in srgb, var(--pa-accent) 14%, transparent));
+}
+
+/* Shimmer — soft shine sweep over quiet category crystals */
+.page-anchor-host[data-page-anchor="shimmer"] .page-anchor-mist {
+  opacity: 0.72;
+  animation: pageAnchorMistBreath 7.6s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="shimmer"] .page-anchor-glow {
+  opacity: 0;
+  animation: pageAnchorShimmerSweep 5.8s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="shimmer"] .page-anchor-gem {
+  animation: pageAnchorBloomPulse 9.2s ease-in-out infinite;
+}
+
+/* Braid — two opposing crystal lanes (even/odd) */
+.page-anchor-host[data-page-anchor="braid"] .page-anchor-layer {
+  --pa-drift-travel: 420px;
+}
+.page-anchor-host[data-page-anchor="braid"] .page-anchor-mist {
+  opacity: 0.74;
+  animation: pageAnchorMistBreath 8s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="braid"] .page-anchor-gem {
+  top: 42%;
+  left: -14%;
+  margin-top: -10px;
+  opacity: 0;
+  animation: pageAnchorDriftGem 20s linear infinite;
+}
+.page-anchor-host[data-page-anchor="braid"] .page-anchor-gem:nth-child(even) {
+  top: 62%;
+  left: auto;
+  right: -14%;
+  animation-name: pageAnchorBraidBack;
+}
+
+/* Pulse — soft heartbeat wash + crystal glow */
+.page-anchor-host[data-page-anchor="pulse"] .page-anchor-mist {
+  opacity: 0.8;
+  animation: pageAnchorPulseMist 4.8s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="pulse"] .page-anchor-wash {
+  opacity: 0.35;
+  transform: scale(1);
+  animation: pageAnchorPulseWash 4.8s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="pulse"] .page-anchor-gem {
+  animation: pageAnchorBloomPulse 4.8s ease-in-out infinite;
+}
+
+/* Loom — crossed soft paths, crystals weaving past each other */
+.page-anchor-host[data-page-anchor="loom"] .page-anchor-mist {
+  opacity: 0.76;
+  animation: pageAnchorMistBreath 8.8s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="loom"] .page-anchor-sheer {
+  opacity: 0.7;
+  animation: pageAnchorSheerSway 12s ease-in-out infinite;
+}
+.page-anchor-host[data-page-anchor="loom"] .page-anchor-gem {
+  animation: pageAnchorLoom 13s ease-in-out infinite;
+}
+
 .page-anchor-gem {
   position: absolute;
   top: 50%;
@@ -145,6 +345,7 @@
   margin-top: -10px;
   opacity: 0.16;
   filter: blur(1.1px) drop-shadow(0 0 8px color-mix(in srgb, var(--pa-accent) 24%, transparent));
+  will-change: transform, opacity;
 }
 .page-anchor-gem svg,
 .page-anchor-gem .cat-gem-art {
@@ -213,6 +414,44 @@
 .page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(4) { animation-duration: 22s; animation-delay: -2.1s; top: 62%; }
 .page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(5) { animation-duration: 19.4s; animation-delay: -9.4s; top: 46%; }
 .page-anchor-host[data-page-anchor="drift"] .page-anchor-gem:nth-child(6) { animation-duration: 21.2s; animation-delay: -12.6s; top: 52%; }
+.page-anchor-host[data-page-anchor="tide"] .page-anchor-gem:nth-child(1) { animation-duration: 13.2s; animation-delay: 0s; left: 12%; }
+.page-anchor-host[data-page-anchor="tide"] .page-anchor-gem:nth-child(2) { animation-duration: 15.4s; animation-delay: -2.6s; left: 28%; }
+.page-anchor-host[data-page-anchor="tide"] .page-anchor-gem:nth-child(3) { animation-duration: 12.6s; animation-delay: -5.1s; left: 44%; }
+.page-anchor-host[data-page-anchor="tide"] .page-anchor-gem:nth-child(4) { animation-duration: 16.2s; animation-delay: -1.4s; left: 60%; }
+.page-anchor-host[data-page-anchor="tide"] .page-anchor-gem:nth-child(5) { animation-duration: 14.1s; animation-delay: -7.8s; left: 74%; }
+.page-anchor-host[data-page-anchor="tide"] .page-anchor-gem:nth-child(6) { animation-duration: 15.8s; animation-delay: -10.2s; left: 88%; }
+.page-anchor-host[data-page-anchor="orbit"] .page-anchor-gem:nth-child(1) { animation-duration: 10.4s; animation-delay: 0s; }
+.page-anchor-host[data-page-anchor="orbit"] .page-anchor-gem:nth-child(2) { animation-duration: 12.2s; animation-delay: -2.1s; }
+.page-anchor-host[data-page-anchor="orbit"] .page-anchor-gem:nth-child(3) { animation-duration: 11.1s; animation-delay: -4.4s; }
+.page-anchor-host[data-page-anchor="orbit"] .page-anchor-gem:nth-child(4) { animation-duration: 13s; animation-delay: -1.2s; }
+.page-anchor-host[data-page-anchor="orbit"] .page-anchor-gem:nth-child(5) { animation-duration: 10.8s; animation-delay: -6.3s; }
+.page-anchor-host[data-page-anchor="orbit"] .page-anchor-gem:nth-child(6) { animation-duration: 12.6s; animation-delay: -8.1s; }
+.page-anchor-host[data-page-anchor="cascade"] .page-anchor-gem:nth-child(1) { animation-duration: 11.8s; animation-delay: 0s; left: 14%; }
+.page-anchor-host[data-page-anchor="cascade"] .page-anchor-gem:nth-child(2) { animation-duration: 13.6s; animation-delay: -2.8s; left: 30%; }
+.page-anchor-host[data-page-anchor="cascade"] .page-anchor-gem:nth-child(3) { animation-duration: 12.2s; animation-delay: -5.6s; left: 46%; }
+.page-anchor-host[data-page-anchor="cascade"] .page-anchor-gem:nth-child(4) { animation-duration: 14.4s; animation-delay: -1.7s; left: 62%; }
+.page-anchor-host[data-page-anchor="cascade"] .page-anchor-gem:nth-child(5) { animation-duration: 12.9s; animation-delay: -8.4s; left: 76%; }
+.page-anchor-host[data-page-anchor="cascade"] .page-anchor-gem:nth-child(6) { animation-duration: 13.8s; animation-delay: -10.9s; left: 90%; }
+.page-anchor-host[data-page-anchor="braid"] .page-anchor-gem:nth-child(1) { animation-duration: 19s; animation-delay: 0s; }
+.page-anchor-host[data-page-anchor="braid"] .page-anchor-gem:nth-child(2) { animation-duration: 21s; animation-delay: -3.5s; }
+.page-anchor-host[data-page-anchor="braid"] .page-anchor-gem:nth-child(3) { animation-duration: 18.2s; animation-delay: -7s; }
+.page-anchor-host[data-page-anchor="braid"] .page-anchor-gem:nth-child(4) { animation-duration: 22.4s; animation-delay: -1.8s; }
+.page-anchor-host[data-page-anchor="braid"] .page-anchor-gem:nth-child(5) { animation-duration: 20.1s; animation-delay: -9.6s; }
+.page-anchor-host[data-page-anchor="braid"] .page-anchor-gem:nth-child(6) { animation-duration: 21.8s; animation-delay: -12.2s; }
+.page-anchor-host[data-page-anchor="pulse"] .page-anchor-gem:nth-child(1) { animation-delay: 0s; }
+.page-anchor-host[data-page-anchor="pulse"] .page-anchor-gem:nth-child(2) { animation-delay: -0.6s; }
+.page-anchor-host[data-page-anchor="pulse"] .page-anchor-gem:nth-child(3) { animation-delay: -1.2s; }
+.page-anchor-host[data-page-anchor="pulse"] .page-anchor-gem:nth-child(4) { animation-delay: -1.8s; }
+.page-anchor-host[data-page-anchor="pulse"] .page-anchor-gem:nth-child(5) { animation-delay: -2.4s; }
+.page-anchor-host[data-page-anchor="pulse"] .page-anchor-gem:nth-child(6) { animation-delay: -3s; }
+.page-anchor-host[data-page-anchor="loom"] .page-anchor-gem:nth-child(odd) { animation-name: pageAnchorLoom; }
+.page-anchor-host[data-page-anchor="loom"] .page-anchor-gem:nth-child(even) { animation-name: pageAnchorLoomMirror; }
+.page-anchor-host[data-page-anchor="loom"] .page-anchor-gem:nth-child(1) { animation-duration: 12.4s; animation-delay: 0s; }
+.page-anchor-host[data-page-anchor="loom"] .page-anchor-gem:nth-child(2) { animation-duration: 14s; animation-delay: -2.2s; }
+.page-anchor-host[data-page-anchor="loom"] .page-anchor-gem:nth-child(3) { animation-duration: 13.1s; animation-delay: -4.5s; }
+.page-anchor-host[data-page-anchor="loom"] .page-anchor-gem:nth-child(4) { animation-duration: 15.2s; animation-delay: -1.1s; }
+.page-anchor-host[data-page-anchor="loom"] .page-anchor-gem:nth-child(5) { animation-duration: 12.8s; animation-delay: -6.7s; }
+.page-anchor-host[data-page-anchor="loom"] .page-anchor-gem:nth-child(6) { animation-duration: 14.6s; animation-delay: -8.3s; }
 
 @keyframes pageAnchorMistBreath {
   0%, 100% { opacity: 0.82; filter: blur(0); }
@@ -222,19 +461,20 @@
   0%, 100% { transform: translate3d(0, 2px, 0); }
   50% { transform: translate3d(0, -4px, 0); }
 }
+/* RN-adaptive: transform + opacity only (no background-position scrub) */
 @keyframes pageAnchorStreamSlide {
   0% { transform: translate3d(0, 0, 0); opacity: 0; }
   14% { opacity: 0.55; }
   55% { opacity: 0.4; }
   88% { opacity: 0.18; }
-  100% { transform: translate3d(var(--pa-drift-travel, 340px), 0, 0); opacity: 0; }
+  100% { transform: translate3d(var(--pa-drift-travel, 420px), 0, 0); opacity: 0; }
 }
 @keyframes pageAnchorDriftGem {
   0% { transform: translate3d(0, 0, 0); opacity: 0; }
   10% { opacity: 0.2; }
   55% { opacity: 0.14; }
   90% { opacity: 0.08; }
-  100% { transform: translate3d(var(--pa-drift-travel, 340px), -2px, 0); opacity: 0; }
+  100% { transform: translate3d(var(--pa-drift-travel, 420px), -2px, 0); opacity: 0; }
 }
 @keyframes pageAnchorBloomWash {
   0% { transform: scale(0.18); opacity: 0.55; }
@@ -245,62 +485,59 @@
   0%, 100% { transform: translate3d(0, 1px, 0) scale(0.94); opacity: 0.12; }
   45% { transform: translate3d(0, -3px, 0) scale(1.06); opacity: 0.22; }
 }
-
-.page-anchor-hero {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  cursor: default;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+@keyframes pageAnchorTideRise {
+  0% { transform: translate3d(0, 16px, 0); opacity: 0; }
+  18% { opacity: 0.2; }
+  62% { opacity: 0.14; }
+  100% { transform: translate3d(0, -20px, 0); opacity: 0; }
 }
-.page-anchor-arc {
-  position: relative;
-  width: 240px;
-  height: 100px;
-  display: flex;
-  justify-content: center;
-  transition: opacity 420ms ease;
+@keyframes pageAnchorOrbit {
+  0% { transform: translate3d(0, 2px, 0) rotate(0deg); opacity: 0.12; }
+  25% { transform: translate3d(5px, -3px, 0) rotate(5deg); opacity: 0.2; }
+  50% { transform: translate3d(0, -5px, 0) rotate(0deg); opacity: 0.16; }
+  75% { transform: translate3d(-5px, -2px, 0) rotate(-5deg); opacity: 0.2; }
+  100% { transform: translate3d(0, 2px, 0) rotate(0deg); opacity: 0.12; }
 }
-.page-anchor-cam {
-  position: absolute;
-  top: 4px;
-  z-index: 2;
-  width: 72px;
-  height: 72px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, var(--pa-accent), var(--pa-deep));
-  color: #fff;
-  display: grid;
-  place-items: center;
-  border: 3px solid rgba(12, 18, 48, 0.85);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--pa-accent) 55%, transparent);
+@keyframes pageAnchorCascade {
+  0% { transform: translate3d(0, -14px, 0); opacity: 0; }
+  16% { opacity: 0.18; }
+  70% { opacity: 0.12; }
+  100% { transform: translate3d(3px, 26px, 0); opacity: 0; }
 }
-.page-anchor-cam svg {
-  width: 34px;
-  height: 34px;
+@keyframes pageAnchorSheerSway {
+  0%, 100% { transform: translate3d(-4%, 0, 0); opacity: 0.55; }
+  50% { transform: translate3d(5%, 0, 0); opacity: 0.9; }
 }
-.page-anchor-copy {
-  align-self: stretch;
-  text-align: center;
-  padding: 0 16px;
+@keyframes pageAnchorShimmerSweep {
+  0% { transform: translate3d(-55%, 0, 0); opacity: 0; }
+  22% { opacity: 0.55; }
+  55% { opacity: 0.35; }
+  100% { transform: translate3d(85%, 0, 0); opacity: 0; }
 }
-.page-anchor-prefix,
-.page-anchor-word {
-  margin: 0;
-  font-size: 22px;
-  line-height: 26px;
-  font-weight: 800;
-  color: var(--pa-text);
+@keyframes pageAnchorBraidBack {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  10% { opacity: 0.2; }
+  55% { opacity: 0.14; }
+  90% { opacity: 0.08; }
+  100% { transform: translate3d(calc(var(--pa-drift-travel, 420px) * -1), -2px, 0); opacity: 0; }
 }
-.page-anchor-word {
-  display: block;
-  margin-top: -5px;
-  color: var(--pa-accent);
+@keyframes pageAnchorPulseMist {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.92; transform: scale(1.04); }
+}
+@keyframes pageAnchorPulseWash {
+  0%, 100% { transform: scale(0.7); opacity: 0.12; }
+  50% { transform: scale(1.35); opacity: 0.4; }
+}
+@keyframes pageAnchorLoom {
+  0% { transform: translate3d(-8px, 4px, 0); opacity: 0.08; }
+  35% { transform: translate3d(10px, -4px, 0); opacity: 0.2; }
+  70% { transform: translate3d(-4px, -2px, 0); opacity: 0.14; }
+  100% { transform: translate3d(-8px, 4px, 0); opacity: 0.08; }
+}
+@keyframes pageAnchorLoomMirror {
+  0% { transform: translate3d(8px, -3px, 0); opacity: 0.08; }
+  35% { transform: translate3d(-10px, 3px, 0); opacity: 0.2; }
+  70% { transform: translate3d(5px, 1px, 0); opacity: 0.14; }
+  100% { transform: translate3d(8px, -3px, 0); opacity: 0.08; }
 }

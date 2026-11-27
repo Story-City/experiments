@@ -221,7 +221,7 @@ const ELEMENT_DEFS = [
     id: 'page-anchor',
     title: 'Page anchor',
     source: 'location-gems hub top · Original kept',
-    ux: 'When: top of gems hub. Original is camera + arc. Mist / Drift / Bloom are soft animated overlays in the top ~50px. Try each, then Original.',
+    ux: 'When: top of gems hub. Original is camera + arc. Ten soft flowy overlays (Mist→Pulse) in the top ~50px. Try each, then Original.',
     stage: 'page-anchor',
     mount: mountPageAnchor,
   },
@@ -1606,7 +1606,19 @@ const PAGE_ANCHOR_PLACES = [
 ];
 const PAGE_ANCHOR_COPY_ORIGINAL = 'Take a snapshot gem of';
 const PAGE_ANCHOR_ROTATE_MS = 2200;
-const PAGE_ANCHOR_FLOWY = new Set(['mist', 'drift', 'bloom']);
+const PAGE_ANCHOR_FLOWY = new Set([
+  'mist',
+  'drift',
+  'bloom',
+  'tide',
+  'orbit',
+  'cascade',
+  'sheer',
+  'shimmer',
+  'braid',
+  'pulse',
+  'loom',
+]);
 const PAGE_ANCHOR_ENTER_MS = 1300;
 
 function mountPageAnchor(stage, actions) {
@@ -1616,8 +1628,10 @@ function mountPageAnchor(stage, actions) {
   host.innerHTML = `
     <div class="page-anchor-layer" aria-hidden="true">
       <div class="page-anchor-mist" aria-hidden="true"></div>
+      <div class="page-anchor-sheer" aria-hidden="true"></div>
       <div class="page-anchor-stream" aria-hidden="true"></div>
       <div class="page-anchor-wash" aria-hidden="true"></div>
+      <div class="page-anchor-glow" aria-hidden="true"></div>
       <div class="page-anchor-gems" aria-hidden="true"></div>
     </div>
     <div class="page-anchor-hero" role="img" aria-label="Take a snapshot gem">
@@ -1687,6 +1701,14 @@ function mountPageAnchor(stage, actions) {
   addGhost(actions, 'Mist', () => setAnchor('mist'));
   addGhost(actions, 'Drift', () => setAnchor('drift'));
   addGhost(actions, 'Bloom', () => setAnchor('bloom'));
+  addGhost(actions, 'Tide', () => setAnchor('tide'));
+  addGhost(actions, 'Orbit', () => setAnchor('orbit'));
+  addGhost(actions, 'Cascade', () => setAnchor('cascade'));
+  addGhost(actions, 'Sheer', () => setAnchor('sheer'));
+  addGhost(actions, 'Shimmer', () => setAnchor('shimmer'));
+  addGhost(actions, 'Braid', () => setAnchor('braid'));
+  addGhost(actions, 'Pulse', () => setAnchor('pulse'));
+  addGhost(actions, 'Loom', () => setAnchor('loom'));
 }
 
 function mountGemCategorySelector(stage, actions) {

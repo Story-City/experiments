@@ -502,7 +502,22 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
     transparent 100%
   );
   background-size: 100% 100%;
-  animation: pageAnchorStreamSlide 16s linear infinite;
+  animation: pageAnchorStreamSlide 20s linear infinite;
+}
+.hub[data-page-anchor="drift"] .page-anchor-sheer {
+  left: auto;
+  right: -28%;
+  width: 48%;
+  opacity: 0;
+  filter: blur(10px);
+  background: linear-gradient(
+    270deg,
+    transparent 0%,
+    color-mix(in srgb, #b36bff 14%, transparent) 50%,
+    transparent 100%
+  );
+  animation: pageAnchorStreamSlide 24s linear infinite;
+  animation-delay: -8s;
 }
 .hub[data-page-anchor="drift"] .page-anchor-gem {
   top: 50%;
@@ -531,7 +546,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   animation: pageAnchorMistBreath 7.2s ease-in-out infinite;
 }
 .hub[data-page-anchor="tide"] .page-anchor-gem {
-  animation: pageAnchorTideRise 14s ease-in-out infinite;
+  animation: pageAnchorTideRise 18s ease-in-out infinite;
   opacity: 0;
 }
 
@@ -550,7 +565,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   animation: pageAnchorMistBreath 6.2s ease-in-out infinite;
 }
 .hub[data-page-anchor="cascade"] .page-anchor-gem {
-  animation: pageAnchorCascade 12.5s linear infinite;
+  animation: pageAnchorCascade 16s linear infinite;
   opacity: 0;
 }
 
@@ -616,6 +631,19 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .hub[data-page-anchor="pulse"] .page-anchor-gem {
   animation: pageAnchorBloomPulse 4.8s ease-in-out infinite;
+}
+
+/* Loom — crossed soft paths, crystals weaving past each other */
+.hub[data-page-anchor="loom"] .page-anchor-mist {
+  opacity: 0.76;
+  animation: pageAnchorMistBreath 8.8s ease-in-out infinite;
+}
+.hub[data-page-anchor="loom"] .page-anchor-sheer {
+  opacity: 0.7;
+  animation: pageAnchorSheerSway 12s ease-in-out infinite;
+}
+.hub[data-page-anchor="loom"] .page-anchor-gem {
+  animation: pageAnchorLoom 13s ease-in-out infinite;
 }
 
 .page-anchor-gem {
@@ -725,6 +753,14 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .hub[data-page-anchor="pulse"] .page-anchor-gem:nth-child(4) { animation-delay: -1.8s; }
 .hub[data-page-anchor="pulse"] .page-anchor-gem:nth-child(5) { animation-delay: -2.4s; }
 .hub[data-page-anchor="pulse"] .page-anchor-gem:nth-child(6) { animation-delay: -3s; }
+.hub[data-page-anchor="loom"] .page-anchor-gem:nth-child(odd) { animation-name: pageAnchorLoom; }
+.hub[data-page-anchor="loom"] .page-anchor-gem:nth-child(even) { animation-name: pageAnchorLoomMirror; }
+.hub[data-page-anchor="loom"] .page-anchor-gem:nth-child(1) { animation-duration: 12.4s; animation-delay: 0s; }
+.hub[data-page-anchor="loom"] .page-anchor-gem:nth-child(2) { animation-duration: 14s; animation-delay: -2.2s; }
+.hub[data-page-anchor="loom"] .page-anchor-gem:nth-child(3) { animation-duration: 13.1s; animation-delay: -4.5s; }
+.hub[data-page-anchor="loom"] .page-anchor-gem:nth-child(4) { animation-duration: 15.2s; animation-delay: -1.1s; }
+.hub[data-page-anchor="loom"] .page-anchor-gem:nth-child(5) { animation-duration: 12.8s; animation-delay: -6.7s; }
+.hub[data-page-anchor="loom"] .page-anchor-gem:nth-child(6) { animation-duration: 14.6s; animation-delay: -8.3s; }
 
 @keyframes pageAnchorMistBreath {
   0%, 100% { opacity: 0.82; filter: blur(0); }
@@ -801,6 +837,18 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 @keyframes pageAnchorPulseWash {
   0%, 100% { transform: scale(0.7); opacity: 0.12; }
   50% { transform: scale(1.35); opacity: 0.4; }
+}
+@keyframes pageAnchorLoom {
+  0% { transform: translate3d(-8px, 4px, 0); opacity: 0.08; }
+  35% { transform: translate3d(10px, -4px, 0); opacity: 0.2; }
+  70% { transform: translate3d(-4px, -2px, 0); opacity: 0.14; }
+  100% { transform: translate3d(-8px, 4px, 0); opacity: 0.08; }
+}
+@keyframes pageAnchorLoomMirror {
+  0% { transform: translate3d(8px, -3px, 0); opacity: 0.08; }
+  35% { transform: translate3d(-10px, 3px, 0); opacity: 0.2; }
+  70% { transform: translate3d(5px, 1px, 0); opacity: 0.14; }
+  100% { transform: translate3d(8px, -3px, 0); opacity: 0.08; }
 }
 .snapshot-hero {
   position: relative;
