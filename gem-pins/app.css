@@ -829,3 +829,14 @@ body:not(.is-v3) .v3-only-group { display: none; }
 .panel .qchip { border-radius: 10px; font-family: var(--f-app); font-weight: 800; }
 .panel .cloud { background: linear-gradient(180deg, rgba(36, 27, 70, 0.9), rgba(36, 27, 70, 0.98) 30%); border-radius: 0 0 16px 16px; margin: 12px -12px -12px; padding: 10px 12px 12px; }
 .panel .try-at > :not(button) { font: 800 11px/1.2 var(--f-app); letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.62); }
+/* Same width as the Versioning panel (230px) on wide screens; narrow-friendly insides */
+@media (min-width: 820px) {
+  body:not(.is-settings-hidden) .layout { grid-template-columns: 230px 390px; }
+  .panel h1 { font-size: 20px; }
+  .panel .try-at { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .panel .try-at button:last-child { grid-column: 1 / -1; }
+  .panel .presets { grid-template-columns: minmax(0, 1fr); }
+  .panel .presets .preset { justify-content: flex-start; padding: 8px 10px; }
+  .panel .dnd-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .panel .opt-select { padding-left: 10px; padding-right: 28px; background-position: right 10px center; }
+}
