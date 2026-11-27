@@ -23,8 +23,10 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
-  min-width: 48px;
-  padding: 5px 10px;
+  flex: none;
+  box-sizing: border-box;
+  width: 52px;
+  padding: 5px 0;
   border: 0;
   border-radius: var(--btn-radius, 999px);
   background: transparent;
@@ -42,7 +44,8 @@
 .gtb-ico { width: 23px; height: 23px; display: block; }
 .gtb-gem { width: 23px; height: 21px; }
 /* The create button: emphasised, in the middle, raised a little above the bar */
-.gtb-tab.gtb-add { min-width: 56px; padding: 0 6px 5px; }
+/* Every tab is the same width, so the create button sits in the exact middle and icons are evenly spaced */
+.gtb-tab.gtb-add { padding: 0 0 5px; }
 .gtb-add-plus {
   display: grid;
   place-items: center;
@@ -56,36 +59,19 @@
   box-shadow: 0 0 16px rgba(179, 107, 255, 0.55), 0 4px 10px rgba(0, 0, 0, 0.35);
 }
 .gtb-add-plus svg { width: 22px; height: 22px; }
-.gtb.is-capture .gtb-add-plus svg { width: 26px; height: 26px; }
+/* Medium: halfway between compact and spread, tabs evenly spaced */
+.gtb.is-medium { box-sizing: border-box; width: calc(50% + 123px); max-width: none; justify-content: space-between; padding: 4px 6px; }
 /* Spread: the bar runs nearly edge to edge with the tabs evenly spaced */
 .gtb.is-spread { width: auto; left: 12px; right: 12px; transform: none; max-width: none; justify-content: space-between; padding: 4px 10px; }
-/* Tab: rises from the bottom edge, rounded top corners only, room for the home indicator */
-.gtb.is-shape-tab { bottom: 0; padding: 6px 10px 22px; border-radius: 24px 24px 0 0; border-bottom: 0; }
-.gtb.is-shape-tab.is-spread { left: 8px; right: 8px; }
-/* Full: a flat bar across the whole bottom */
-.gtb.is-shape-full {
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: auto;
-  max-width: none;
-  transform: none;
-  justify-content: space-around;
-  padding: 6px 8px 24px;
-  border-radius: 0;
-  border: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.25);
-}
 /* Every look of the create button carries the Create title, so titles are all on or all off */
 .gtb-add-label { display: block; }
 /* No titles: icons only, a little more room around each */
 .gtb.is-no-labels .gtb-tab > span:not(.gtb-add-plus) { display: none; }
-.gtb.is-no-labels .gtb-tab { min-width: 50px; padding: 10px 12px; }
-.gtb.is-no-labels .gtb-tab.gtb-add { padding: 0 6px; }
+.gtb.is-no-labels .gtb-tab { padding: 10px 0; }
+.gtb.is-no-labels .gtb-tab.gtb-add { padding: 0; }
 .gtb.is-no-labels .gtb-add-plus { margin: -14px 0 -2px; }
 /* Subtle: a thin circled plus that looks like the other tabs */
-.gtb.is-subtle .gtb-tab.gtb-add { min-width: 48px; padding: 5px 10px; }
+.gtb.is-subtle .gtb-tab.gtb-add { padding: 5px 0; }
 .gtb.is-subtle .gtb-add-plus {
   width: 26px;
   height: 26px;
@@ -97,9 +83,9 @@
 }
 .gtb.is-subtle .gtb-add-plus svg { width: 15px; height: 15px; }
 .gtb.is-subtle .gtb-add-plus path { stroke-width: 2.2; }
-/* Camera: an outline camera, no circle, like the other tabs */
-.gtb.is-camera .gtb-tab.gtb-add { min-width: 48px; padding: 5px 10px; }
-.gtb.is-camera .gtb-add-plus {
+/* Camera: an outline camera, no circle, like the other tabs. Capture: the same with viewfinder corners */
+.gtb.is-camera .gtb-tab.gtb-add, .gtb.is-capture .gtb-tab.gtb-add { padding: 5px 0; }
+.gtb.is-camera .gtb-add-plus, .gtb.is-capture .gtb-add-plus {
   width: 26px;
   height: 26px;
   margin: 0;
@@ -108,7 +94,7 @@
   box-shadow: none;
   color: rgba(255, 255, 255, 0.78);
 }
-.gtb.is-camera .gtb-add-plus svg { width: 26px; height: 26px; }
+.gtb.is-camera .gtb-add-plus svg, .gtb.is-capture .gtb-add-plus svg { width: 26px; height: 26px; }
 /* Hunt: the app's Hunt mode shutter (mobile-rn HuntCameraButton), scaled from 66px to sit in the bar */
 .gtb.is-hunt .gtb-add-plus {
   width: 44px;

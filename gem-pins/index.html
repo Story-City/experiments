@@ -12,7 +12,7 @@
 window.CACHE_V = '?v=' + Date.now();
 document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
-<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=5">
+<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=7">
 </head>
 <body>
 <!-- GEM-PINS-EDITION-v29: Disc Figma calm U ≤5 gems -->
@@ -89,13 +89,8 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
       <p class="edition-label">Bar width</p>
       <div class="edition-sheets" role="group" aria-label="Bar width">
         <button type="button" data-tab-width="compact" aria-pressed="true">Compact</button>
+        <button type="button" data-tab-width="medium" aria-pressed="false">Medium</button>
         <button type="button" data-tab-width="spread" aria-pressed="false">Spread</button>
-      </div>
-      <p class="edition-label">Bar shape</p>
-      <div class="edition-sheets" role="group" aria-label="Bar shape">
-        <button type="button" data-tab-shape="float" aria-pressed="true">Floating</button>
-        <button type="button" data-tab-shape="tab" aria-pressed="false">Tab</button>
-        <button type="button" data-tab-shape="full" aria-pressed="false">Full</button>
       </div>
     </div>
   </section>
@@ -211,7 +206,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   </main>
 </div>
 <script type="module">import(`./app.js${window.CACHE_V}`);</script>
-<script src="../shared/gem-tabbar/tabbar.js?v=5"></script>
+<script src="../shared/gem-tabbar/tabbar.js?v=7"></script>
 <script>
 (function () {
   const frame = document.getElementById('editionFrame');
@@ -235,7 +230,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   }
   // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
   // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
-const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=16' };
+const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=17' };
   function apply(edition) {
     const src = FRAMES[edition];
     document.body.classList.toggle('is-v2', !!src);
@@ -480,7 +475,7 @@ const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=16' };
   }));
   paintCreateLookPick();
   // Tab titles and bar width: same pattern, one shared setting each
-  [['tabLabels', 'getLabels', 'setLabels'], ['tabWidth', 'getWidth', 'setWidth'], ['tabShape', 'getShape', 'setShape']].forEach(([data, get, set]) => {
+  [['tabLabels', 'getLabels', 'setLabels'], ['tabWidth', 'getWidth', 'setWidth']].forEach(([data, get, set]) => {
     const btns = document.querySelectorAll('[data-' + data.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()) + ']');
     const paint = () => btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[data] === GemTabBar[get]())));
     btns.forEach((b) => b.addEventListener('click', () => { GemTabBar[set](b.dataset[data]); paint(); }));
