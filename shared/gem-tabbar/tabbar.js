@@ -2,7 +2,7 @@
 // version changes. Feed, Library, the create button (Hunt mode camera to add a gem), Map, Gems.
 // The create button has three looks: plus (raised blue circle), capture (corner marks around a gem) and
 // subtle (a thin circled plus like the other tabs), camera (an outline camera like the other tabs) and hunt
-// (the app's Hunt mode shutter: purple ring, white disc, faint camera, titled Create).
+// (the app's Hunt mode shutter: purple ring, white disc, faint camera). Every look is titled Create.
 // The choice is shared by every page via
 // localStorage; GemTabBar.setCreateLook(look) switches them. Tab titles can be hidden the same way
 // (GemTabBar.setLabels('on' | 'off')), the bar spread nearly edge to edge (setWidth('spread')), and its

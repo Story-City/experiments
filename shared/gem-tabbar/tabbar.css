@@ -42,13 +42,13 @@
 .gtb-ico { width: 23px; height: 23px; display: block; }
 .gtb-gem { width: 23px; height: 21px; }
 /* The create button: emphasised, in the middle, raised a little above the bar */
-.gtb-tab.gtb-add { min-width: 56px; padding: 0 6px; }
+.gtb-tab.gtb-add { min-width: 56px; padding: 0 6px 5px; }
 .gtb-add-plus {
   display: grid;
   place-items: center;
   width: 44px;
   height: 44px;
-  margin: -14px 0 -2px;
+  margin: -16px 0 1px;
   border-radius: 50%;
   color: #fff;
   background: radial-gradient(circle at 35% 30%, #4fd2ff, var(--accent, #00c2ff) 55%, #0a6fd6);
@@ -77,10 +77,13 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.25);
 }
+/* Every look of the create button carries the Create title, so titles are all on or all off */
+.gtb-add-label { display: block; }
 /* No titles: icons only, a little more room around each */
 .gtb.is-no-labels .gtb-tab > span:not(.gtb-add-plus) { display: none; }
 .gtb.is-no-labels .gtb-tab { min-width: 50px; padding: 10px 12px; }
 .gtb.is-no-labels .gtb-tab.gtb-add { padding: 0 6px; }
+.gtb.is-no-labels .gtb-add-plus { margin: -14px 0 -2px; }
 /* Subtle: a thin circled plus that looks like the other tabs */
 .gtb.is-subtle .gtb-tab.gtb-add { min-width: 48px; padding: 5px 10px; }
 .gtb.is-subtle .gtb-add-plus {
@@ -107,13 +110,9 @@
 }
 .gtb.is-camera .gtb-add-plus svg { width: 26px; height: 26px; }
 /* Hunt: the app's Hunt mode shutter (mobile-rn HuntCameraButton), scaled from 66px to sit in the bar */
-.gtb-add-label { display: none; }
-.gtb.is-hunt .gtb-add-label { display: block; color: #fff; }
-.gtb.is-hunt .gtb-tab.gtb-add { min-width: 56px; padding: 0 6px 5px; }
 .gtb.is-hunt .gtb-add-plus {
   width: 44px;
   height: 44px;
-  margin: -16px 0 1px;
   padding: 3px;
   box-sizing: border-box;
   background: #fff content-box;
@@ -122,7 +121,6 @@
   color: rgba(36, 27, 70, 0.42);
 }
 .gtb.is-hunt .gtb-add-plus svg { width: 19px; height: 19px; }
-.gtb.is-hunt.is-no-labels .gtb-add-plus { margin: -14px 0 -2px; }
 .gtb-tab.gtb-add:active .gtb-add-plus { transform: scale(0.94); }
 
 /* Hunt mode camera (mobile-rn CameraSheet + ConfirmScreen) */
