@@ -1,7 +1,7 @@
 // Every word on screen. Edit lines here.
 export const VERSIONS = {
   a: { label: 'A', name: 'Combined', note: 'A · Combined: the whole gem hub lives in the Stash, nearby gems included. + Gem only takes the photo.' },
-  b: { label: 'B', name: 'Separate', note: 'B · Separate: + Gem opens its own Gem Hub (Victoria’s). The Stash links over to it.' },
+  b: { label: 'B', name: 'Separate ✓', note: 'B · Separate (chosen Nov 26): Gems keep their own tab, Victoria’s Gem Hub. The Stash links over to it.' },
   c: { label: 'C', name: 'Split', note: 'C · Split by job: + Gem takes the photo, your gems live in the Stash, other people’s gems live on the Map.' },
   notes: { label: 'Notes', name: '', note: 'Names, what lives here today, what we want, and A vs B vs C.' },
   research: { label: 'Research', name: '', note: 'How other apps do it, and the rules a profile has to follow.' },

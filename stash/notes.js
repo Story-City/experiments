@@ -67,6 +67,7 @@ export const NOTES = `
 
 <section>
   <h2>Gems: combined or separate?</h2>
+  <p><b>Decided (Melissa, Nov 26): B. Gems keep their own tab.</b> A and C stay below for the record.</p>
   <p>Victoria's <a href="https://story-city.github.io/experiments/view.html?e=location-gems" target="_blank" rel="noopener">Location Gems hub</a> is a gem-only screen: take a snapshot, sort each find (keep hidden, publish, delete), then Public, Hidden and Liked, plus nearby public gems.</p>
   <div class="tbl">
   <table>
@@ -96,7 +97,7 @@ export const NOTES = `
     <li>− "My gems" end up in two places, or players hunt for them.</li>
     <li>− + Gem does two jobs: take a photo and manage a collection.</li>
   </ul>
-  <h3>C · Split by job (my lean)</h3>
+  <h3>C · Split by job</h3>
   <ul>
     <li>+ Each place does one job, and the Stash stays about you.</li>
     <li>+ Nearby gems sit where you'd walk to them.</li>
@@ -109,7 +110,7 @@ export const NOTES = `
   <h2>Questions for you</h2>
   <ol>
     <li>Name: A Stash, B Hideout, C Treasure Chest, D Satchel, E keep You?</li>
-    <li>Gems: A combined, B separate, C split by job?</li>
+    <li><s>Gems: A combined, B separate, C split by job?</s> Decided: B, its own tab.</li>
     <li>Settings: A a gear at the top of the Stash, B a row at the bottom, C both?</li>
     <li>Does the chest fill up as you keep gems? A yes, B no, C later.</li>
   </ol>

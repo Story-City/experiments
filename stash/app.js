@@ -3,10 +3,10 @@ import { NOTES } from './notes.js';
 import { RESEARCH } from './research.js';
 
 const params = new URLSearchParams(location.search);
-const startV = (params.get('v') || location.hash.slice(1) || 'a').toLowerCase();
+const startV = (params.get('v') || location.hash.slice(1) || 'b').toLowerCase();
 
 const S = {
-  v: W.VERSIONS[startV] ? startV : 'a',
+  v: W.VERSIONS[startV] ? startV : 'b',
   tab: 'stash',
   stack: ['home'],
   seg: 'public',

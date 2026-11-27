@@ -99,7 +99,7 @@ export const RESEARCH = `
   <ol>
     <li>Catalogue name: A keep "Library", B Stories, C Explore, D test it with players.</li>
     <li>Tab label: A Stash + chest, B You + avatar with "Stash" inside, C You only.</li>
-    <li>Gems: A combined, B separate, C split (research leans C: a preview in the Stash, the full gallery behind it).</li>
+    <li><s>Gems: A combined, B separate, C split.</s> Decided Nov 26: B, gems keep their own tab (the game pattern: a separate bag).</li>
   </ol>
 </section>
 `;
