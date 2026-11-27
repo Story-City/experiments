@@ -319,6 +319,32 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   background: rgba(255, 255, 255, 0.14);
   color: #fff;
 }
+/* Liked debug options — same fave spark as gem-pins */
+.variant-btn.is-fav,
+.tool-rail .play.is-fav,
+.edition-rail .play.is-fav,
+.tool-rail .tool-toggle.is-fav {
+  position: relative;
+  padding-right: 22px;
+}
+.variant-btn.is-fav::after,
+.tool-rail .play.is-fav::after,
+.edition-rail .play.is-fav::after,
+.tool-rail .tool-toggle.is-fav::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  margin-top: -5.5px;
+  background: url(assets/pin-sparkle.svg) center / contain no-repeat;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.55));
+  pointer-events: none;
+}
+.tool-rail .tool-toggle.is-fav {
+  padding-right: 28px;
+}
 @media (max-width: 980px) {
   .workspace {
     grid-template-columns: 200px minmax(0, 1fr) 150px;

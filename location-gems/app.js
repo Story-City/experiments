@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v160 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v161 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -144,6 +144,7 @@ const PAGE_ANCHOR_BLUR_DEFAULT = 0;
 const PAGE_ANCHOR_OPACITY_DEFAULT = 0;
 const PAGE_ANCHOR_SIZE_DEFAULT = 100;
 const PAGE_ANCHOR_GEM_BLUR_BASE = 1.1;
+const DEBUG_LIKES_KEY = 'location-gems-debug-likes-v1';
 /** Heading debug default must stay Original. Never boot to slash/erode/soft. */
 const HEADING_DEFAULT = 'original';
 const HEADING_VARIANTS = new Set(['original', 'slash', 'erode', 'soft']);
@@ -3752,6 +3753,89 @@ function initIcons() {
   if (tabLikedIcon) tabLikedIcon.innerHTML = heartSvg();
 }
 
+function debugLikeKey(el) {
+  if (!(el instanceof HTMLElement)) return '';
+  if (el.id) return `id:${el.id}`;
+  const attrs = [
+    'data-page-anchor',
+    'data-heading',
+    'data-place-motion',
+    'data-feed-variant',
+    'data-sort-look',
+    'data-sort-layout',
+    'data-card-size',
+    'data-hub-edition',
+  ];
+  for (const attr of attrs) {
+    const v = el.getAttribute(attr);
+    if (v) return `${attr}:${v}`;
+  }
+  if (el.classList.contains('tool-toggle')) {
+    const sw = el.querySelector('.switch');
+    if (sw && sw.id) return `toggle:${sw.id}`;
+    const label = el.querySelector('span');
+    if (label) return `toggle:${label.textContent.trim()}`;
+  }
+  return `txt:${(el.textContent || '').trim()}`;
+}
+
+function readDebugLikes() {
+  try {
+    const raw = localStorage.getItem(DEBUG_LIKES_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr.filter((x) => typeof x === 'string') : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function writeDebugLikes(set) {
+  try {
+    localStorage.setItem(DEBUG_LIKES_KEY, JSON.stringify([...set]));
+  } catch {
+    /* private window */
+  }
+}
+
+function debugLikeTargets() {
+  return document.querySelectorAll(
+    '.tool-rail .variant-btn, .edition-rail .variant-btn, .tool-rail .play.secondary, .tool-rail .tool-toggle',
+  );
+}
+
+function applyDebugLikes() {
+  const liked = readDebugLikes();
+  debugLikeTargets().forEach((el) => {
+    const key = debugLikeKey(el);
+    const on = key && liked.has(key);
+    el.classList.toggle('is-fav', on);
+    if (on) el.title = 'Liked · double-click to unlike';
+    else if (el.title === 'Liked · double-click to unlike') el.removeAttribute('title');
+  });
+}
+
+function toggleDebugLike(el) {
+  const key = debugLikeKey(el);
+  if (!key) return;
+  const liked = readDebugLikes();
+  if (liked.has(key)) liked.delete(key);
+  else liked.add(key);
+  writeDebugLikes(liked);
+  applyDebugLikes();
+}
+
+function bindDebugLikes() {
+  debugLikeTargets().forEach((el) => {
+    el.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleDebugLike(el);
+    });
+  });
+  applyDebugLikes();
+}
+
 function init() {
   initIcons();
   applyAccent();
@@ -3777,6 +3861,7 @@ function init() {
   setSection('public');
   refreshHub();
   loadDesignStudio();
+  bindDebugLikes();
   showTip(!storageGet(TIP_KEY));
   window.setInterval(tickPlaces, ROTATE_MS);
   if (!storageGet(ONBOARD_KEY)) {
