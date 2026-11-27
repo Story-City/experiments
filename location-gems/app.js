@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v166 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v167 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -136,8 +136,36 @@ const CHALLENGE_FINDS = [
 const ROTATE_MS = 2200;
 /** Page-anchor keepers: Original + Loom / Cascade / Tide (Save look persists these). */
 const PAGE_ANCHOR_DEFAULT = 'camera';
-const PAGE_ANCHOR_VARIANTS = new Set(['camera', 'tide', 'cascade', 'loom']);
-const PAGE_ANCHOR_FLOWY = new Set(['tide', 'cascade', 'loom']);
+const PAGE_ANCHOR_VARIANTS = new Set([
+  'camera',
+  'mist',
+  'drift',
+  'bloom',
+  'tide',
+  'orbit',
+  'cascade',
+  'sheer',
+  'shimmer',
+  'braid',
+  'pulse',
+  'loom',
+  'wake',
+  'melissa',
+]);
+const PAGE_ANCHOR_FLOWY = new Set([
+  'mist',
+  'drift',
+  'bloom',
+  'tide',
+  'orbit',
+  'cascade',
+  'sheer',
+  'shimmer',
+  'braid',
+  'pulse',
+  'loom',
+  'wake',
+]);
 const PAGE_ANCHOR_COPY_ORIGINAL = '[share gems of:]';
 const PAGE_ANCHOR_ENTER_MS = 1300;
 const PAGE_ANCHOR_BLUR_DEFAULT = 0;
@@ -1984,11 +2012,13 @@ function ensurePageAnchorDriftObserver() {
 function setPageAnchor(variant) {
   const next = PAGE_ANCHOR_VARIANTS.has(variant) ? variant : PAGE_ANCHOR_DEFAULT;
   const flowy = PAGE_ANCHOR_FLOWY.has(next);
+  const melissaTop = next === 'melissa';
   pageAnchor = next;
   if (flowy) fillPageAnchorGems();
   if (hub) {
     hub.dataset.pageAnchor = next;
     hub.classList.toggle('is-page-anchor-flow', flowy);
+    hub.classList.toggle('is-page-anchor-melissa', melissaTop);
     hub.classList.remove('is-page-anchor-enter');
     window.clearTimeout(pageAnchorEnterTimer);
     if (flowy) {
@@ -2008,7 +2038,12 @@ function setPageAnchor(variant) {
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
   if (snapshotPrefix) snapshotPrefix.textContent = displayCopy(PAGE_ANCHOR_COPY_ORIGINAL);
-  if (snapshotBtn) snapshotBtn.setAttribute('aria-label', displayCopy(PAGE_ANCHOR_COPY_ORIGINAL));
+  if (snapshotBtn) {
+    snapshotBtn.setAttribute(
+      'aria-label',
+      melissaTop ? 'Sort your gems' : displayCopy(PAGE_ANCHOR_COPY_ORIGINAL),
+    );
+  }
   applyPageAnchorFx();
 }
 

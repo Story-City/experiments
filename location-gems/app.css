@@ -4149,6 +4149,27 @@ body.is-tools-embed > .workspace > .edition-rail {
   padding-bottom: calc(72px * var(--space-scale));
 }
 
+/* Melissa page-anchor option — same no-camera top as V3, pickable from the haze list */
+.hub.is-page-anchor-melissa .arc-stage,
+.hub.is-page-anchor-melissa .title-prefix,
+.hub.is-page-anchor-melissa .rotating-line,
+.hub.is-page-anchor-melissa .page-anchor-layer { display: none; }
+.hub.is-page-anchor-melissa .snapshot-hero { cursor: default; align-items: stretch; }
+.hub.is-page-anchor-melissa .tagline-block { text-align: left; padding: var(--space-m) 2px 4px; }
+.hub.is-page-anchor-melissa .v3-heading {
+  display: block;
+  margin: 0;
+  font-size: calc(40px * var(--type-scale));
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-wrap: balance;
+  text-shadow: 0 2px 14px rgba(13, 8, 36, 0.75), 0 1px 2px rgba(13, 8, 36, 0.6);
+}
+.hub.is-page-anchor-melissa .v3-opal { display: block; }
+.hub.is-page-anchor-melissa .snapshot-hero { position: relative; z-index: 1; }
+
 /* V3 (Melissa, 27 Nov) + V4 carry-over: no camera or arc at the top, a big "Sort your gems" heading, card sizes */
 .v3-heading { display: none; }
 body:not(.is-v3):not(.is-v4) .v3-only { display: none !important; }

@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=166">
+<link rel="stylesheet" href="app.css?v=167">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=15">
 <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
@@ -76,12 +76,22 @@
 
       <section class="tool-block">
         <h2 class="tool-title">Page top haze</h2>
-        <p class="tool-note">Original, Tide, Cascade, Loom — soft mist over the CTA only. Never pins to Public / Hidden / Liked. Blur / opacity / size; Save look stores these.</p>
+        <p class="tool-note">Victoria’s full list, plus Melissa’s no-camera top. Soft mist over the CTA only — never pins to Public / Hidden / Liked. Blur / opacity / size; Save look stores these.</p>
         <div class="variant-pick is-rail is-wrap" role="group" aria-label="Page top haze">
           <button type="button" class="variant-btn is-on" data-page-anchor="camera" aria-pressed="true">Original</button>
+          <button type="button" class="variant-btn" data-page-anchor="melissa" aria-pressed="false">Melissa</button>
+          <button type="button" class="variant-btn" data-page-anchor="mist" aria-pressed="false">Mist</button>
+          <button type="button" class="variant-btn" data-page-anchor="drift" aria-pressed="false">Drift</button>
+          <button type="button" class="variant-btn" data-page-anchor="bloom" aria-pressed="false">Bloom</button>
           <button type="button" class="variant-btn" data-page-anchor="tide" aria-pressed="false">Tide</button>
+          <button type="button" class="variant-btn" data-page-anchor="orbit" aria-pressed="false">Orbit</button>
           <button type="button" class="variant-btn" data-page-anchor="cascade" aria-pressed="false">Cascade</button>
+          <button type="button" class="variant-btn" data-page-anchor="sheer" aria-pressed="false">Sheer</button>
+          <button type="button" class="variant-btn" data-page-anchor="shimmer" aria-pressed="false">Shimmer</button>
+          <button type="button" class="variant-btn" data-page-anchor="braid" aria-pressed="false">Braid</button>
+          <button type="button" class="variant-btn" data-page-anchor="pulse" aria-pressed="false">Pulse</button>
           <button type="button" class="variant-btn" data-page-anchor="loom" aria-pressed="false">Loom</button>
+          <button type="button" class="variant-btn" data-page-anchor="wake" aria-pressed="false">Wake</button>
         </div>
         <label class="accent-pick is-rail" title="Center = current. Left unblurs crystals; right softens the haze">
           <span>Blur</span>
@@ -624,7 +634,7 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=13"></script>
-  <script src="app.js?v=166"></script>
+  <script src="app.js?v=167"></script>
   <script type="module">
     import { mountVersions } from '../shared/versions/versions.js?v=2';
     mountVersions({
