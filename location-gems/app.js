@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v168 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v170 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -135,7 +135,7 @@ const CHALLENGE_FINDS = [
 
 const ROTATE_MS = 2200;
 /** Page-anchor keepers: Original + Loom / Cascade / Tide (Save look persists these). */
-const PAGE_ANCHOR_DEFAULT = 'camera';
+const PAGE_ANCHOR_DEFAULT = 'cascade';
 const PAGE_ANCHOR_VARIANTS = new Set([
   'camera',
   'mist',
