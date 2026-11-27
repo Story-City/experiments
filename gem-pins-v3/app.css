@@ -1003,11 +1003,23 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+/* "N min away" in the gem's colour, as in Victoria's V2 Text slide-out (Melissa, 26 Nov) */
 .slide .feed-chip.is-prompt .feed-chip-prompt-kicker {
-  font-size: 15px;
+  font-size: 19px;
   letter-spacing: -0.02em;
   text-transform: none;
-  color: #fff;
+  font-weight: 900;
+  line-height: 1.1;
+  background: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--gem-line, #00c2ff) 42%, #fff) 0%,
+    var(--gem-line, #00c2ff) 48%,
+    color-mix(in srgb, var(--gem-line, #00c2ff) 65%, #ffe08a) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 .slide .feed-chip-prompt {
   margin: 0;
