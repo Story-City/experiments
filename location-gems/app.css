@@ -403,16 +403,17 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   position: relative;
   margin-bottom: 0;
 }
-/* Soft top strip inside snapshot CTA — not a full-bleed panel. Extra height
-   + no overflow clip so crystals are never cut hard; the mask does the fade. */
+/* Bleeds through .hub-scroll padding to the phone edges; inside that padding
+   its edges drew a visible inset box. The mask must reach transparent at every
+   edge (closest-side), or the edge shows as a hard line. */
 .page-anchor-layer {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 72px;
+  top: calc(-20px * var(--space-scale));
+  left: calc(-1 * var(--space-l) * var(--space-scale));
+  right: calc(-1 * var(--space-l) * var(--space-scale));
+  height: calc(96px + 20px * var(--space-scale));
   z-index: 0;
-  overflow: visible;
+  overflow: hidden;
   pointer-events: none;
   opacity: 0;
   transition: opacity 520ms ease;
@@ -423,20 +424,19 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 }
 .hub.is-page-anchor-flow .page-anchor-layer {
   opacity: var(--pa-opacity, 1);
-  /* Fade is inset from every edge — top included — so nothing is cropped hard */
   -webkit-mask-image: radial-gradient(
-    120% 140% at 50% 45%,
+    closest-side ellipse at 50% 42%,
     #000 0%,
-    #000 42%,
-    rgba(0, 0, 0, 0.35) 70%,
-    transparent 92%
+    #000 35%,
+    rgba(0, 0, 0, 0.45) 68%,
+    transparent 100%
   );
   mask-image: radial-gradient(
-    120% 140% at 50% 45%,
+    closest-side ellipse at 50% 42%,
     #000 0%,
-    #000 42%,
-    rgba(0, 0, 0, 0.35) 70%,
-    transparent 92%
+    #000 35%,
+    rgba(0, 0, 0, 0.45) 68%,
+    transparent 100%
   );
 }
 .hub.is-page-anchor-flow .page-anchor-mist,
@@ -457,10 +457,6 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   position: absolute;
   inset: 0;
   pointer-events: none;
-}
-.page-anchor-gems {
-  transform: scale(var(--pa-gem-scale, 1));
-  transform-origin: 50% 40%;
 }
 .page-anchor-sheer {
   opacity: 0;
@@ -719,6 +715,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   height: 20px;
   margin-top: -10px;
   opacity: 0.16;
+  scale: var(--pa-gem-scale, 1);
   filter: blur(var(--pa-gem-blur, 1.1px)) drop-shadow(0 0 8px color-mix(in srgb, var(--brand-accent) 24%, transparent));
   will-change: transform, opacity;
 }
@@ -790,12 +787,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .hub[data-page-anchor="drift"] .page-anchor-gem:nth-child(5) { animation-duration: 19.4s; animation-delay: -9.4s; top: 46%; }
 .hub[data-page-anchor="drift"] .page-anchor-gem:nth-child(6) { animation-duration: 21.2s; animation-delay: -12.6s; top: 52%; }
 /* Tide — free drift, not column-pinned over Public/Hidden/Liked */
-.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(1) { animation-duration: 13.2s; animation-delay: 0s; left: -8%; top: 62%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(1) { animation-duration: 13.2s; animation-delay: 0s; left: 10%; top: 62%; }
 .hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(2) { animation-duration: 15.4s; animation-delay: -2.6s; left: 18%; top: 50%; }
 .hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(3) { animation-duration: 12.6s; animation-delay: -5.1s; left: 38%; top: 66%; }
 .hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(4) { animation-duration: 16.2s; animation-delay: -1.4s; left: 55%; top: 46%; }
 .hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(5) { animation-duration: 14.1s; animation-delay: -7.8s; left: 72%; top: 56%; }
-.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(6) { animation-duration: 15.8s; animation-delay: -10.2s; left: 88%; top: 52%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(6) { animation-duration: 15.8s; animation-delay: -10.2s; left: 82%; top: 52%; }
 .hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(1) { animation-duration: 10.4s; animation-delay: 0s; }
 .hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(2) { animation-duration: 12.2s; animation-delay: -2.1s; }
 .hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(3) { animation-duration: 11.1s; animation-delay: -4.4s; }
@@ -805,7 +802,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 /* Cascade — soft fall + sideways drift; no fixed columns over the tab bar */
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(1),
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(1)::after { animation-duration: 11.8s; animation-delay: 0s; }
-.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(1) { left: -6%; top: 40%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(1) { left: 10%; top: 40%; }
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(2),
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(2)::after { animation-duration: 13.6s; animation-delay: -2.8s; }
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(2) { left: 22%; top: 32%; }
@@ -820,7 +817,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(5) { left: 78%; top: 46%; }
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(6),
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(6)::after { animation-duration: 13.8s; animation-delay: -10.9s; }
-.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(6) { left: 92%; top: 36%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(6) { left: 82%; top: 36%; }
 .hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(1) { animation-duration: 19s; animation-delay: 0s; }
 .hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(2) { animation-duration: 21s; animation-delay: -3.5s; }
 .hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(3) { animation-duration: 18.2s; animation-delay: -7s; }
