@@ -32,7 +32,19 @@
   const YOU_KEY = 'gem-pins-you';
   const YOUS = ['right', 'left', 'tab'];
   const AVATAR_INITIAL = 'M';
-  const SETTINGS_ROWS = ['[notifications]', '[location &amp; permissions]', '[account]', '[help]'];
+  const PRIVACY_ROW = 'privacy';
+  const SETTINGS_ROWS = ['[notifications]', PRIVACY_ROW, '[account]', '[help]'];
+  // The Gems page publish flow reads gem-pins-gem-audience as its default audience: keep the key and values
+  const PRIVACY_CHOICES = [
+    { key: 'gem-pins-gem-audience', title: 'Who sees my new gems', note: 'Where each new gem starts when you&nbsp;publish',
+      values: ['me', 'friends', 'everyone'], labels: ['Only me', 'Friends', 'Everyone'] },
+    { key: 'gem-pins-share-address', title: 'Share the address when I&nbsp;publish', note: 'Off shows the area, not the&nbsp;street',
+      values: ['off', 'on'], toggle: true },
+    { key: 'gem-pins-profile-audience', title: 'Who can see my profile', note: 'Your name, photo and public&nbsp;gems',
+      values: ['friends', 'everyone'], labels: ['Friends', 'Everyone'] },
+  ];
+  const LOCATION_VALUE = 'While using the app';
+  const LOCATION_NOTE = 'Finds gems and story steps near&nbsp;you';
   const settingsSheets = [];
   const bars = [];
   const homeHandlers = [];
@@ -73,7 +85,25 @@
     '<p class="gtb-set-note">When you open Story City, start&nbsp;on</p>' +
     '<div class="gtb-seg" role="group" aria-label="Home page">' +
     '<button type="button" data-gtb-home="feed">Feed</button><button type="button" data-gtb-home="map">Map</button></div></div></div>' +
-    '<div class="gtb-set-group">' + SETTINGS_ROWS.map((r) => '<p class="gtb-set-row">' + r + '</p>').join('') + '</div>';
+    '<div class="gtb-set-group">' + SETTINGS_ROWS.map((r) => (r === PRIVACY_ROW
+      ? '<button type="button" class="gtb-set-row gtb-set-link" data-gtb-open="privacy">Privacy</button>'
+      : '<p class="gtb-set-row">' + r + '</p>')).join('') + '</div>';
+
+  function privacyChoiceHtml(c) {
+    const head = '<p class="gtb-set-label">' + c.title + '</p><p class="gtb-set-note">' + c.note + '</p>';
+    if (c.toggle) {
+      return '<div class="gtb-set-home"><p class="gtb-set-label">' + c.title + '</p><div class="gtb-set-switchrow"><p class="gtb-set-note">' + c.note + '</p>' +
+        '<button type="button" class="gtb-switch" role="switch" data-gtb-key="' + c.key + '" aria-label="' + c.title.replace('&nbsp;', ' ') + '"></button></div></div>';
+    }
+    return '<div class="gtb-set-home">' + head + '<div class="gtb-seg' + (c.values.length === 3 ? ' is-3' : '') + '" role="group" aria-label="' + c.title + '">' +
+      c.values.map((v, i) => '<button type="button" data-gtb-key="' + c.key + '" data-gtb-val="' + v + '">' + c.labels[i] + '</button>').join('') + '</div></div>';
+  }
+  const PRIVACY_HTML =
+    '<header class="gtb-set-top"><button type="button" class="gtb-set-back" aria-label="Back">' + BACK + '</button><h2>Privacy</h2></header>' +
+    '<div class="gtb-set-group">' + privacyChoiceHtml(PRIVACY_CHOICES[0]) + privacyChoiceHtml(PRIVACY_CHOICES[1]) + '</div>' +
+    '<div class="gtb-set-group"><div class="gtb-set-home"><div class="gtb-set-switchrow"><p class="gtb-set-label">Location</p>' +
+    '<p class="gtb-set-value">' + LOCATION_VALUE + '</p></div><p class="gtb-set-note">' + LOCATION_NOTE + '</p></div></div>' +
+    '<div class="gtb-set-group">' + privacyChoiceHtml(PRIVACY_CHOICES[2]) + '</div>';
 
   const CAM_HTML =
     '<video class="gtb-cam-video" playsinline muted autoplay></video>' +
@@ -110,12 +140,19 @@
     settings.setAttribute('aria-label', 'Settings');
     settings.innerHTML = SETTINGS_HTML;
     settingsSheets.push(settings);
+    const privacy = document.createElement('section');
+    privacy.className = 'gtb-set gtb-priv';
+    privacy.hidden = true;
+    privacy.setAttribute('aria-label', 'Privacy');
+    privacy.innerHTML = PRIVACY_HTML;
+    privacySheets.push(privacy);
+    paintPrivacy(privacy);
     const cam = document.createElement('section');
     cam.className = 'gtb-cam';
     cam.hidden = true;
     cam.setAttribute('aria-label', 'Add a gem');
     cam.innerHTML = CAM_HTML;
-    host.append(nav, feed, youBtn, settings, cam);
+    host.append(nav, feed, youBtn, settings, privacy, cam);
     bars.push(nav);
     paintHome(nav, readHome());
     paintSettingsHome(settings, readHome());
@@ -133,6 +170,16 @@
     settings.addEventListener('click', (e) => {
       const b = e.target.closest('[data-gtb-home]');
       if (b) setHome(b.dataset.gtbHome);
+      if (e.target.closest('[data-gtb-open="privacy"]')) privacy.hidden = false;
+    });
+    privacy.querySelector('.gtb-set-back').addEventListener('click', () => { privacy.hidden = true; });
+    privacy.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-gtb-key]');
+      if (!b) return;
+      const choice = PRIVACY_CHOICES.find((c) => c.key === b.dataset.gtbKey);
+      const next = choice.toggle ? (readSetting(choice.key, choice.values) === 'on' ? 'off' : 'on') : b.dataset.gtbVal;
+      writeSetting(choice.key, next);
+      privacySheets.forEach(paintPrivacy);
     });
     paintLook(nav, readLook());
     paintLabels(nav, readLabels());
@@ -276,6 +323,16 @@
   }
   const readHome = () => readSetting(HOME_KEY, HOMES);
   const youPainters = [];
+  const privacySheets = [];
+  function paintPrivacy(sheet) {
+    PRIVACY_CHOICES.forEach((c) => {
+      const v = readSetting(c.key, c.values);
+      sheet.querySelectorAll('[data-gtb-key="' + c.key + '"]').forEach((b) => {
+        if (c.toggle) b.setAttribute('aria-checked', String(v === 'on'));
+        else b.setAttribute('aria-pressed', String(b.dataset.gtbVal === v));
+      });
+    });
+  }
   const readYou = () => readSetting(YOU_KEY, YOUS);
   function setYou(you) {
     if (!YOUS.includes(you)) return;
@@ -335,6 +392,7 @@
     if (e.key === WIDTH_KEY) bars.forEach((nav) => paintWidth(nav, readWidth()));
     if (e.key === HOME_KEY) applyHome(readHome());
     if (e.key === YOU_KEY) youPainters.forEach((fn) => fn(readYou()));
+    if (PRIVACY_CHOICES.some((c) => c.key === e.key)) privacySheets.forEach(paintPrivacy);
   });
 
   window.GemTabBar = { mount, setCreateLook, getCreateLook: readLook, setLabels, getLabels: readLabels, setWidth, getWidth: readWidth, setHome, getHome: readHome, setYou, getYou: readYou };
