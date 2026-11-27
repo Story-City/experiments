@@ -1,5 +1,6 @@
 import * as W from './words.js';
 import { NOTES } from './notes.js';
+import { RESEARCH } from './research.js';
 
 const params = new URLSearchParams(location.search);
 const startV = (params.get('v') || location.hash.slice(1) || 'a').toLowerCase();
@@ -58,7 +59,7 @@ function tile(c) {
   const badge = c.id === 'gems' && S.toSort ? `<span class="dot" aria-label="${S.toSort} to sort"></span>` : '';
   const sub = c.id === 'gems' ? `${S.kept} kept${S.toSort ? ` · ${S.toSort} to sort` : ''}` : c.sub;
   return `<button class="tile" data-go="${c.id}" style="--accent:${c.accent}">
-    <span class="tile-t">${esc(c.title)}${badge}</span><span class="tile-s">${esc(sub)}</span></button>`;
+    <span class="tile-t">${esc(c.title)}${badge}</span><span class="tile-s">${esc(sub).replace(/(\d) /g, '$1&nbsp;')}</span></button>`;
 }
 
 function home() {
@@ -209,13 +210,13 @@ function mapNearby() {
 const SCREENS = { home, gems: gemsScreen, stories, badges, steps, friends, journal, settings };
 
 function render() {
-  const notes = S.v === 'notes';
+  const notes = S.v === 'notes' || S.v === 'research';
   $('phone').hidden = notes;
   $('notes').hidden = !notes;
   $('versionPick').innerHTML = Object.entries(W.VERSIONS).map(([k, v]) =>
     `<button role="tab" aria-selected="${S.v === k}" data-v="${k}">${esc(v.label)}${v.name ? `<span class="vn"> · ${esc(v.name)}</span>` : ''}</button>`).join('');
   $('versionNote').textContent = W.VERSIONS[S.v].note;
-  if (notes) { $('notes').innerHTML = NOTES; return; }
+  if (notes) { $('notes').innerHTML = S.v === 'notes' ? NOTES : RESEARCH; return; }
 
   let html;
   if (S.tab === 'stash') html = (SCREENS[S.stack.at(-1)] || home)();

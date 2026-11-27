@@ -4,6 +4,7 @@ export const VERSIONS = {
   b: { label: 'B', name: 'Separate', note: 'B · Separate: + Gem opens its own Gem Hub (Victoria’s). The Stash links over to it.' },
   c: { label: 'C', name: 'Split', note: 'C · Split by job: + Gem takes the photo, your gems live in the Stash, other people’s gems live on the Map.' },
   notes: { label: 'Notes', name: '', note: 'Names, what lives here today, what we want, and A vs B vs C.' },
+  research: { label: 'Research', name: '', note: 'How other apps do it, and the rules a profile has to follow.' },
 };
 
 export const PLAYER = { name: 'Priya', status: 'Member', week: '3 walks · 2 chapters · 1 new gem this week' };

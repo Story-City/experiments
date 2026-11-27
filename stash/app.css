@@ -57,7 +57,7 @@ p, small, li { text-wrap: pretty; }
 .tile::before { content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px; border-radius: 3px; background: var(--accent); }
 .tile:hover { box-shadow: var(--halo); }
 .tile-t { display: flex; align-items: center; gap: 6px; font: 600 17px var(--f-head); color: var(--starlight); }
-.tile-s { display: block; margin-top: 4px; font-size: 13px; color: var(--lilac); }
+.tile-s { display: block; text-wrap: balance; margin-top: 4px; font-size: 13px; color: var(--lilac); }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--glow); box-shadow: 0 0 8px var(--glow); }
 .rows { padding: 8px 16px 0; }
 .row { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 11px 2px; border-bottom: 1px solid rgba(70,51,126,.6); color: var(--lilac); }
@@ -160,4 +160,4 @@ p, small, li { text-wrap: pretty; }
 /* version C */
 .minimap { width: 100%; height: auto; display: block; border-radius: 14px; border: 1px solid var(--line); margin-top: 4px; }
 .hop-map { width: 100%; margin: 16px 0 0; background: rgba(91,140,255,.08); border-color: rgba(91,140,255,.4); color: var(--sapphire); }
-@media (max-width: 459px) { .rig-picks .vn { display: none; } .rig-picks button { padding: 0 12px; } }
+@media (max-width: 459px) { .rig-picks .vn { display: none; } .rig-picks button { padding: 0 10px; } .rig-name { display: none; } .rig-picks { flex: 1; justify-content: space-between; } }
