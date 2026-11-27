@@ -166,6 +166,16 @@
 /* Keep the map's own top controls clear of the photo */
 .gtb-you-right > .map-top { right: 50px; }
 .gtb-you-left > .map-top { left: 50px; }
+/* Disc arcs need the full phone width — photo sits on top, must not shove the arc off-centre */
+.gtb-you-right:has(.is-layout-disc) > .map-top,
+.gtb-you-right:has(.is-layout-disc-haze) > .map-top,
+.gtb-you-right:has(.is-layout-disc-haze-2) > .map-top,
+.gtb-you-left:has(.is-layout-disc) > .map-top,
+.gtb-you-left:has(.is-layout-disc-haze) > .map-top,
+.gtb-you-left:has(.is-layout-disc-haze-2) > .map-top {
+  left: 0;
+  right: 0;
+}
 .gtb-you-right > .quarter-wrap:not(.is-left),
 .gtb-you-left > .quarter-wrap.is-left { top: 50px; }
 .gtb-you-left > #cornerDiscWrap { top: 50px; }
