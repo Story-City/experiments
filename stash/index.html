@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>The Stash</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:wght@400..800&display=swap">
+<script>
+window.CACHE_V = '?v=' + Date.now();
+document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
+</script>
+</head>
+<body>
+<header class="rig" aria-label="Mockup controls">
+  <span class="rig-name">The Stash</span>
+  <div class="rig-picks" role="tablist" id="versionPick"></div>
+</header>
+<p class="rig-note" id="versionNote"></p>
+<main class="stage">
+  <div class="phone" id="phone">
+    <div class="screen" id="screen"></div>
+    <nav class="tabs" id="tabs" aria-label="Bottom tabs"></nav>
+    <div class="toast" id="toast" role="status" hidden></div>
+  </div>
+  <article class="notes" id="notes" hidden></article>
+</main>
+<script type="module">import(`./app.js${window.CACHE_V}`);</script>
+</body>
+</html>

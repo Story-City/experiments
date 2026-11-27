@@ -1,5 +1,20 @@
 [
   {
+    "slug": "stash",
+    "path": "stash/",
+    "area": "gems",
+    "title": "The Stash: profile as a treasure chest",
+    "what": "Where everything that is yours lives once Library means the story shelf: gems, my stories, badges and stamps, steps, friends, walk journal, settings. Two ways (switch inside): A gems inside the Stash, B a separate Gem Hub (Victoria’s). Notes tab: names, what is there today, A vs B.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null,
+    "draft": true,
+    "reviewer": "Melissa"
+  },
+  {
     "slug": "everyday-app",
     "path": "everyday-app/",
     "title": "Everyday Story City",
