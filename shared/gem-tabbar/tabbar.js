@@ -1,6 +1,6 @@
 // Gem map pins: the one bottom bar every version uses (V1, V2, V3). Change it here and every
 // version changes. Feed, Library, the create button (Hunt mode camera to add a gem), Map, Gems.
-// The create button has five looks: plus (raised blue circle), capture (the outline camera inside viewfinder corners),
+// The create button has four looks: capture (the outline camera inside viewfinder corners),
 // subtle (a thin circled plus like the other tabs), camera (an outline camera like the other tabs) and hunt
 // (the app's Hunt mode shutter: purple ring, white disc, faint camera). Every look is titled Create.
 // The choice is shared by every page via
@@ -16,7 +16,7 @@
   const SHOT_PLACE = '[where you took it]';
   const FLASH_MS = 220;
   const LOOK_KEY = 'gem-pins-create-look';
-  const LOOKS = ['plus', 'capture', 'subtle', 'camera', 'hunt'];
+  const LOOKS = ['subtle', 'capture', 'camera', 'hunt'];
   const LABELS_KEY = 'gem-pins-tab-labels';
   const LABELS = ['on', 'off'];
   const WIDTH_KEY = 'gem-pins-tab-width';

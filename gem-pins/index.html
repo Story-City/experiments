@@ -12,7 +12,7 @@
 window.CACHE_V = '?v=' + Date.now();
 document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 </script>
-<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=7">
+<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=8">
 </head>
 <body>
 <!-- GEM-PINS-EDITION-v29: Disc Figma calm U ≤5 gems -->
@@ -75,9 +75,8 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
     <div class="create-look">
       <p class="edition-label">Create button</p>
       <div class="edition-sheets" role="group" aria-label="Create button" id="createLookPick">
-        <button type="button" data-create-look="plus" aria-pressed="true">Plus</button>
+        <button type="button" data-create-look="subtle" aria-pressed="true">Subtle plus</button>
         <button type="button" data-create-look="capture" aria-pressed="false">Capture</button>
-        <button type="button" data-create-look="subtle" aria-pressed="false">Subtle</button>
         <button type="button" data-create-look="camera" aria-pressed="false">Camera</button>
         <button type="button" data-create-look="hunt" aria-pressed="false">Hunt</button>
       </div>
@@ -206,7 +205,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   </main>
 </div>
 <script type="module">import(`./app.js${window.CACHE_V}`);</script>
-<script src="../shared/gem-tabbar/tabbar.js?v=7"></script>
+<script src="../shared/gem-tabbar/tabbar.js?v=8"></script>
 <script>
 (function () {
   const frame = document.getElementById('editionFrame');
@@ -230,7 +229,7 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
   }
   // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
   // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
-const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=17' };
+const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=18' };
   function apply(edition) {
     const src = FRAMES[edition];
     document.body.classList.toggle('is-v2', !!src);
