@@ -1,5 +1,5 @@
 import * as store from './store.js';
-import { stageOf, normalizeSpec, specMarkdown, notionUrl, applyStatusChanges, STATUS_SLUG } from './handoff.js';
+import { stageOf, normalizeSpec, specMarkdown, notionUrl, applyStatusChanges, STATUS_SLUG, STATES, stateKey, notionIdFrom } from './handoff.js';
 
 const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -111,6 +111,43 @@ function showStageBadge(st) {
   if (st.blocked) b.dataset.blocked = 'true'; else delete b.dataset.blocked;
 }
 showStageBadge(stage);
+
+// Status picker at the top of the panel: the same change as "Change status or archive" on the listing.
+// It saves for everyone (live site only) and moves the card to the matching tab.
+let current = entry;
+const pick = $('status-pick');
+for (const [k, label] of STATES) { const o = el('option', null, label); o.value = k; pick.append(o); }
+pick.value = stateKey(current);
+function statusSaved(text) { const p = $('status-saved'); p.textContent = text; p.hidden = !text; }
+pick.addEventListener('change', async () => {
+  const to = pick.value;
+  const undo = () => { pick.value = stateKey(current); };
+  if (!location.pathname.includes('/experiments/')) { statusSaved('Status changes save on the live site only.'); return undo(); }
+  let notionPageId = null;
+  if (to === 'ready' && !current.notionPageId) {
+    notionPageId = notionIdFrom(prompt('Ready for Dev needs its Notion task. Paste the Notion task link:'));
+    if (!notionPageId) { statusSaved('No Notion task link, so it stays as it is.'); return undo(); }
+  }
+  let name = lsGet('hubName');
+  if (!name) {
+    name = (prompt('Your name (saved with the change):') || '').trim().slice(0, 60);
+    if (!name) return undo();
+    lsSet('hubName', name);
+  }
+  pick.disabled = true;
+  try {
+    await store.init();
+    const u = store.user();
+    await store.addComment({
+      slug: STATUS_SLUG,
+      text: JSON.stringify({ target: slug, from: stateKey(entry), to, notionPageId, by: name }),
+      url: null, x: null, y: null, sha: null, screenshot: null,
+      author: { uid: u.uid, name, guest: !u.email },
+    });
+    statusSaved(`Saved: ${STATES.find(([k]) => k === to)[1]}`);
+  } catch (err) { statusSaved(`Could not save: ${err.message}`); undo(); }
+  pick.disabled = false;
+});
 
 // "spec": "<folder>/spec.json" in experiments.json: the UX spec devs build from, in a Spec tab beside the questions.
 const spec = entry.spec ? normalizeSpec(await store.loadJson(new URL(entry.spec, root))) : null;
@@ -612,7 +649,7 @@ try {
   } else {
     store.onUser(renderMe);
     renderMe();
-    store.watchComments(STATUS_SLUG, docs => showStageBadge(stageOf(applyStatusChanges([entry], docs)[0])));
+    store.watchComments(STATUS_SLUG, docs => { current = applyStatusChanges([entry], docs)[0]; showStageBadge(stageOf(current)); if (!pick.disabled) pick.value = stateKey(current); });
     store.watchComments(slug, (list, err) => {
       if (err) notice(`Could not load comments: ${err.message}`);
       comments = list;

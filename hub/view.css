@@ -264,3 +264,8 @@ body.wide-frame .panel { max-width: 340px; }
   body.panel-min.wide-frame .stage { grid-template-columns: minmax(0, 1fr) minmax(412px, 1240px) minmax(0, 1fr); }
 }
 @media (max-width: 820px) { .minimise { display: none; } }
+
+/* status picker at the top of the panel */
+.status-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 0; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.status-row select { flex: 1; max-width: 220px; height: 32px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--accent); background: var(--bg); color: var(--text); font: 600 14px inherit; }
+.status-saved { margin: 6px 0 0; font-size: 13px; color: var(--text-muted); }

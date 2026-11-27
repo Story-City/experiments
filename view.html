@@ -39,6 +39,8 @@ document.write(`<link rel="stylesheet" href="hub/view.css${CACHE_V}">`);
       <button id="minimise" class="minimise" type="button" aria-label="Minimise comments" title="Minimise">–</button>
       <button id="close" class="icon" type="button" aria-label="Close panel">×</button>
     </div>
+    <label class="status-row" id="status-row"><span>Status</span><select id="status-pick" aria-label="Status of this experiment"></select></label>
+    <p class="status-saved" id="status-saved" role="status" hidden></p>
     <div id="links" class="links"></div>
     <section id="pane-spec" class="spec" role="tabpanel" aria-labelledby="tab-spec" hidden></section>
     <section id="pane-questions" role="tabpanel" aria-labelledby="tab-questions">
