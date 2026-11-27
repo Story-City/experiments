@@ -254,7 +254,7 @@ const COPY = {
   sortTitle: '[sort your finds]',
   sortIntro: '[hold the photo — left hidden, right public, down delete]',
   sortIntroDrag: '[hold the photo — drag onto Hidden or Public]',
-  sortIntroRight: '[hold the photo — drag it to Share, Hide or Delete]',
+  sortIntroRight: '[hold the photo — drag right to publish, keep hidden or delete]',
   publicIntroTitle: '[public]',
   publicIntroBody: '[on the map for other people]',
   hiddenIntroTitle: '[hidden]',
@@ -316,7 +316,7 @@ const SPOOF_COPY = {
   sortTitle: 'Sort your finds',
   sortIntro: 'Hold the photo — left hidden, right public, down delete.',
   sortIntroDrag: 'Hold the photo — drag onto Hidden or Public.',
-  sortIntroRight: 'Hold the photo — drag it to Share, Hide or Delete.',
+  sortIntroRight: 'Hold the photo — drag right to publish, keep hidden or delete.',
   publicIntroTitle: 'Public',
   publicIntroBody: 'On the map for other people.',
   hiddenIntroTitle: 'Hidden',
@@ -2188,7 +2188,7 @@ function bindSortDrag(card) {
       card.style.animation = 'none';
       hub.classList.add('is-sorting-focus');
       if (hubScroll) hubScroll.style.overflowY = 'hidden';
-      if (!isSortRight()) setTargets(null, true);
+      setTargets(null, true);
       drag = {
         card,
         id: e.pointerId,
@@ -2213,27 +2213,25 @@ function bindSortDrag(card) {
       drag.dx = e.clientX - drag.x0;
       drag.dy = e.clientY - drag.y0;
       moveCard(drag.dx, drag.dy);
-      if (isSortRight()) paintSortRightZone(sortRightZoneAt(e.clientX, e.clientY));
-      else setTargets(railModeFromDelta(drag.dx, drag.dy, targetsMode), true);
+      setTargets(isSortRight() ? sortRightModeAt(e.clientY, drag.dx) : railModeFromDelta(drag.dx, drag.dy, targetsMode), true);
     },
     { passive: false },
   );
 
-  const finishRightDrag = (zone) => {
+  const finishRightDrag = (mode) => {
     drag = null;
-    paintSortRightZone(null);
+    setTargets(null, false);
     setSortingFocus(false);
     if (hubScroll) hubScroll.style.overflowY = '';
-    if (zone === 'share') openPublishSheet(card);
-    else if (zone === 'hide') settleSort(card, 'private');
-    else if (zone === 'delete') settleSort(card, 'delete');
+    if (mode === 'public') openPublishSheet(card);
+    else if (mode === 'private' || mode === 'delete') settleSort(card, mode);
     else snapBack();
   };
 
   const up = (e) => {
     if (!drag || drag.id !== e.pointerId) return;
     if (isSortRight()) {
-      finishRightDrag(sortRightZoneAt(e.clientX, e.clientY));
+      finishRightDrag(targetsMode);
       return;
     }
     const { dx, dy } = drag;
@@ -4121,21 +4119,21 @@ if (detailDelete) {
   });
 }
 
-// V3 Sort layout: swipe (default) or drag right, a big photo dropped on Share, Hide or Delete (Melissa, 27 Nov)
+// V3 Sort layout: swipe (default) or drag right, a big photo dragged onto the publish, hidden or delete rail stacked on the right (Melissa, 27 Nov)
 const SORT_LAYOUT_KEY = 'location-gems-sort-layout';
 const SORT_LAYOUTS = ['swipe', 'right'];
 function isSortRight() {
   return isV3() && document.body.classList.contains('sort-layout-right');
 }
-function sortRightZoneAt(x, y) {
-  const zone = [...document.querySelectorAll('#sortRightZones [data-srz]')].find((z) => {
-    const r = z.getBoundingClientRect();
-    return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-  });
-  return zone ? zone.dataset.srz : null;
-}
-function paintSortRightZone(active) {
-  document.querySelectorAll('#sortRightZones [data-srz]').forEach((z) => z.classList.toggle('is-hot', z.dataset.srz === active));
+// Once the photo moves right, the rail nearest the finger's height lights up
+function sortRightModeAt(y, dx) {
+  if (dx < RAIL_ENTER_X) return null;
+  const rails = [[railPublic, 'public'], [railPrivate, 'private'], [railDelete, 'delete']];
+  const dist = ([rail]) => {
+    const r = rail.getBoundingClientRect();
+    return Math.abs(y - (r.top + r.height / 2));
+  };
+  return rails.reduce((best, cur) => (dist(cur) < dist(best) ? cur : best))[1];
 }
 function setSortLayout(layout) {
   const next = SORT_LAYOUTS.includes(layout) ? layout : SORT_LAYOUTS[0];
