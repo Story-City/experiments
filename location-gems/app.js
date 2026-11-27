@@ -2137,7 +2137,7 @@ function bindSortDrag(card) {
   const snapBack = () => {
     card.classList.remove('is-dragging');
     card.style.transition = `transform ${SWIPE_SETTLE_MS}ms ${EASE_POPULAR}, opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
-    card.style.transform = 'rotate(-4deg)';
+    card.style.transform = `rotate(${sortCardTilt()}deg)`;
     card.style.opacity = '1';
     window.setTimeout(() => {
       card.style.transition = '';
@@ -2171,7 +2171,7 @@ function bindSortDrag(card) {
   };
 
   const moveCard = (dx, dy) => {
-    const rot = -4 + dx * 0.08;
+    const rot = isSortRight() ? 0 : -4 + dx * 0.08;
     const lift = 1.03;
     card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg) scale(${lift})`;
   };
@@ -2472,7 +2472,7 @@ function openPublishSheet(card) {
   card.classList.remove('is-dragging');
   card.classList.add('is-publishing');
   card.style.transition = `opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
-  card.style.transform = 'rotate(-4deg)';
+  card.style.transform = `rotate(${sortCardTilt()}deg)`;
   card.style.opacity = '0';
   setTargets(null, false);
   setSortingFocus(false);
@@ -2514,7 +2514,7 @@ function closePublishSheet({ restoreCard = true } = {}) {
   if (restoreCard && card) {
     card.classList.remove('is-publishing');
     card.style.transition = `transform ${SWIPE_SETTLE_MS}ms ${EASE_POPULAR}, opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
-    card.style.transform = 'rotate(-4deg)';
+    card.style.transform = `rotate(${sortCardTilt()}deg)`;
     card.style.opacity = '1';
     window.setTimeout(() => {
       card.style.transition = '';
@@ -2641,8 +2641,9 @@ async function settleSort(card, action, opts = {}) {
     if (isV3()) offerUndoDelete(deleted);
     return;
   }
-  const fly =
-    action === 'public'
+  const fly = isSortRight()
+    ? 'translate(130%, 0)'
+    : action === 'public'
       ? 'translate(120%, -6%) rotate(16deg)'
       : 'translate(-120%, -6%) rotate(-16deg)';
   card.style.transition = `transform ${SWIPE_SETTLE_MS}ms ${EASE_POPULAR}, opacity ${SWIPE_FADE_MS}ms ${EASE_IN}`;
@@ -4122,6 +4123,10 @@ if (detailDelete) {
 // V3 Sort layout: swipe (default) or drag right, a big photo dragged onto the publish, hidden or delete rail stacked on the right (Melissa, 27 Nov)
 const SORT_LAYOUT_KEY = 'location-gems-sort-layout';
 const SORT_LAYOUTS = ['swipe', 'right'];
+const SORT_CARD_TILT_DEG = -4;
+function sortCardTilt() {
+  return isSortRight() ? 0 : SORT_CARD_TILT_DEG;
+}
 function isSortRight() {
   return isV3() && document.body.classList.contains('sort-layout-right');
 }
@@ -4148,3 +4153,53 @@ function setSortLayout(layout) {
 }
 document.querySelectorAll('[data-sort-layout]').forEach((b) => b.addEventListener('click', () => setSortLayout(b.dataset.sortLayout)));
 setSortLayout((() => { try { return localStorage.getItem(SORT_LAYOUT_KEY); } catch (e) { return null; } })());
+
+// V3 opal band under the heading: faceted low-poly triangles in opal colours, drawn once with a fixed seed
+const OPAL_COLS = 16;
+const OPAL_ROWS = 4;
+const OPAL_W = 320;
+const OPAL_H = 84;
+const OPAL_JITTER = 0.38;
+const OPAL_SEED = 27;
+const OPAL_FIRE_CHANCE = 0.08;
+const OPAL_PALETTE = ['#7dffd8', '#5fd3ff', '#8f9bff', '#c58bff', '#ff8fc8', '#ffc98a', '#9dffb0', '#6fe7ff'];
+function drawOpal(host) {
+  if (!host) return;
+  let seed = OPAL_SEED;
+  const rand = () => {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+  const cw = OPAL_W / OPAL_COLS;
+  const rh = OPAL_H / OPAL_ROWS;
+  const pts = [];
+  for (let r = 0; r <= OPAL_ROWS; r += 1) {
+    const row = [];
+    for (let c = 0; c <= OPAL_COLS; c += 1) {
+      const edgeX = c === 0 || c === OPAL_COLS;
+      const edgeY = r === 0 || r === OPAL_ROWS;
+      row.push([
+        c * cw + (edgeX ? 0 : (rand() - 0.5) * cw * OPAL_JITTER * 2),
+        r * rh + (edgeY ? 0 : (rand() - 0.5) * rh * OPAL_JITTER * 2),
+      ]);
+    }
+    pts.push(row);
+  }
+  const tri = (a, b, c, i) => {
+    const fire = rand() < OPAL_FIRE_CHANCE;
+    const fill = fire ? '#fffbe8' : OPAL_PALETTE[(i + Math.floor(rand() * 3)) % OPAL_PALETTE.length];
+    const op = (fire ? 0.9 : 0.35 + rand() * 0.55).toFixed(2);
+    return `<polygon points="${[a, b, c].map((p) => p.map((n) => n.toFixed(1)).join(',')).join(' ')}" fill="${fill}" fill-opacity="${op}"/>`;
+  };
+  let polys = '';
+  for (let r = 0; r < OPAL_ROWS; r += 1) {
+    for (let c = 0; c < OPAL_COLS; c += 1) {
+      const band = Math.floor((c / OPAL_COLS) * OPAL_PALETTE.length);
+      const [a, b, d, e] = [pts[r][c], pts[r][c + 1], pts[r + 1][c], pts[r + 1][c + 1]];
+      if ((r + c) % 2) polys += tri(a, b, e, band) + tri(a, e, d, band + 1);
+      else polys += tri(a, b, d, band) + tri(b, e, d, band + 1);
+    }
+  }
+  host.innerHTML = `<svg viewBox="0 0 ${OPAL_W} ${OPAL_H}" preserveAspectRatio="none">${polys}</svg>`;
+}
+drawOpal(document.getElementById('v3Opal'));

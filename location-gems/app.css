@@ -4008,16 +4008,66 @@ body.is-v3.card-size-full .sort-stack { top: 24px; width: calc(100% - 2 * var(--
 .detail-menu-item.is-danger { color: #ff8fa3; }
 .detail-menu-item[hidden] { display: none !important; }
 
-/* V3 Sort layout: Drag right. A big photo on the left; the swipe rails stack on the right edge. */
+/* V3 Sort layout: Drag right. A straight photo on the left; three glowing circles on the right take the drop. */
 body.is-v3.sort-layout-right .sort-stage { height: 470px; }
-body.is-v3.sort-layout-right .sort-stack { left: 18px; top: 34px; width: calc(100% - 128px); height: 400px; transform: none; }
-body.is-v3.sort-layout-right .sort-rail { --sort-rail-pod-w: 76px; --sort-rail-pod-h: 136px; left: auto; right: 0; bottom: auto; transform: none; }
-body.is-v3.sort-layout-right .sort-rail-right { top: 16px; }
-body.is-v3.sort-layout-right .sort-rail-left { top: 166px; }
-body.is-v3.sort-layout-right .sort-rail-down { top: 316px; }
-body.is-v3.sort-layout-right .sort-rail .sort-rail-pod { border-radius: 22px 0 0 22px; padding: 12px 4px 12px 10px; gap: 6px; border-right: 0; border-bottom: 1px solid transparent; border-left: 1px solid transparent; }
-body.is-v3.sort-layout-right .sort-rail-left.is-on .sort-rail-pod,
-body.is-v3.sort-layout-right .sort-rail-left.is-hot .sort-rail-pod { background-image: linear-gradient(270deg, rgba(147, 112, 196, 0.55) 0%, rgba(147, 112, 196, 0.22) 100%); }
-body.is-v3.sort-layout-right .sort-rail-left.is-hot .sort-rail-pod { background-image: linear-gradient(270deg, rgba(147, 112, 196, 0.82) 0%, rgba(147, 112, 196, 0.4) 100%); }
-body.is-v3.sort-layout-right .sort-rail-down.is-on .sort-rail-pod { background-image: linear-gradient(270deg, rgba(255, 90, 90, 0.55) 0%, rgba(255, 90, 90, 0.22) 100%); }
-body.is-v3.sort-layout-right .sort-rail-down.is-hot .sort-rail-pod { background-image: linear-gradient(270deg, rgba(255, 90, 90, 0.82) 0%, rgba(255, 90, 90, 0.4) 100%); }
+body.is-v3.sort-layout-right .sort-stack { left: 18px; top: 34px; width: calc(100% - 144px); height: 400px; transform: none; }
+body.is-v3.sort-layout-right .sort-card { transform: none; }
+body.is-v3.sort-layout-right .sort-card.is-under { transform: scale(0.95) translateY(12px); opacity: 0.55; }
+body.is-v3.sort-layout-right .sort-card.is-enter { animation: sortRightDrop 700ms var(--ease-out) both; }
+@keyframes sortRightDrop {
+  0% { opacity: 0; transform: scale(1.04) translateY(-3%); }
+  100% { opacity: 1; transform: none; }
+}
+body.is-v3.sort-layout-right .sort-rail {
+  --rail-rgb: 0, 194, 255;
+  --sort-rail-pod-w: 88px;
+  --sort-rail-pod-h: 88px;
+  left: auto;
+  right: 20px;
+  bottom: auto;
+  transform: none;
+  opacity: 0.45;
+}
+body.is-v3.sort-layout-right .sort-rail-left { --rail-rgb: 179, 107, 255; top: 186px; }
+body.is-v3.sort-layout-right .sort-rail-down { --rail-rgb: 255, 90, 90; top: 324px; }
+body.is-v3.sort-layout-right .sort-rail-right { top: 48px; }
+body.is-v3.sort-layout-right .sort-rail.is-on { opacity: 1; }
+body.is-v3.sort-layout-right .sort-rail .sort-rail-pod,
+body.is-v3.sort-layout-right .sort-rail.is-on .sort-rail-pod {
+  border-radius: 50%;
+  padding: 0;
+  gap: 2px;
+  border: 1.5px solid rgba(var(--rail-rgb), 0.55);
+  background: radial-gradient(circle at 50% 38%, rgba(var(--rail-rgb), 0.38) 0%, rgba(var(--rail-rgb), 0.1) 62%, rgba(var(--rail-rgb), 0.04) 100%);
+  box-shadow: 0 0 18px rgba(var(--rail-rgb), 0.35), inset 0 0 14px rgba(var(--rail-rgb), 0.2);
+}
+body.is-v3.sort-layout-right .sort-rail.is-hot .sort-rail-pod {
+  border-color: rgba(var(--rail-rgb), 1);
+  background: radial-gradient(circle at 50% 38%, rgba(var(--rail-rgb), 0.85) 0%, rgba(var(--rail-rgb), 0.4) 62%, rgba(var(--rail-rgb), 0.18) 100%);
+  box-shadow: 0 0 34px rgba(var(--rail-rgb), 0.85), 0 0 70px rgba(var(--rail-rgb), 0.35), inset 0 0 18px rgba(255, 255, 255, 0.25);
+  transform: scale(1.14);
+}
+body.is-v3.sort-layout-right .sort-rail-icon,
+body.is-v3.sort-layout-right .sort-rail-gem { width: 30px; height: 28px; }
+body.is-v3.sort-layout-right .sort-rail-chip { font-size: 10px; }
+
+/* V3 opal band under "Sort your gems": faceted, multicolour, fading out downward and at the sides */
+.v3-opal { display: none; }
+body.is-v3 .v3-opal {
+  display: block;
+  height: 64px;
+  margin: 8px calc(-1 * var(--space-m)) 0;
+  opacity: 0.85;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 100%), linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 100%), linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+  mask-composite: intersect;
+  filter: saturate(1.15);
+  animation: opalShimmer 9s ease-in-out infinite alternate;
+}
+body.is-v3 .v3-opal svg { display: block; width: 100%; height: 100%; }
+@keyframes opalShimmer {
+  0% { filter: saturate(1.15) hue-rotate(0deg); }
+  100% { filter: saturate(1.3) hue-rotate(28deg); }
+}
+@media (prefers-reduced-motion: reduce) { body.is-v3 .v3-opal { animation: none; } }
