@@ -254,7 +254,7 @@ const COPY = {
   sortTitle: '[sort your finds]',
   sortIntro: '[hold the photo — left hidden, right public, down delete]',
   sortIntroDrag: '[hold the photo — drag onto Hidden or Public]',
-  sortIntroRight: '[hold the photo — drag right to publish, keep hidden or delete]',
+  sortIntroRight: '[hold the photo — up to publish, right to keep hidden, down to delete]',
   publicIntroTitle: '[public]',
   publicIntroBody: '[on the map for other people]',
   hiddenIntroTitle: '[hidden]',
@@ -316,7 +316,7 @@ const SPOOF_COPY = {
   sortTitle: 'Sort your finds',
   sortIntro: 'Hold the photo — left hidden, right public, down delete.',
   sortIntroDrag: 'Hold the photo — drag onto Hidden or Public.',
-  sortIntroRight: 'Hold the photo — drag right to publish, keep hidden or delete.',
+  sortIntroRight: 'Hold the photo — up to publish, right to keep hidden, down to delete.',
   publicIntroTitle: 'Public',
   publicIntroBody: 'On the map for other people.',
   hiddenIntroTitle: 'Hidden',
@@ -2213,7 +2213,7 @@ function bindSortDrag(card) {
       drag.dx = e.clientX - drag.x0;
       drag.dy = e.clientY - drag.y0;
       moveCard(drag.dx, drag.dy);
-      setTargets(isSortRight() ? sortRightModeAt(e.clientY, drag.dx) : railModeFromDelta(drag.dx, drag.dy, targetsMode), true);
+      setTargets(isSortRight() ? sortRightModeFromDelta(drag.dx, drag.dy) : railModeFromDelta(drag.dx, drag.dy, targetsMode), true);
     },
     { passive: false },
   );
@@ -4130,15 +4130,14 @@ function sortCardTilt() {
 function isSortRight() {
   return isV3() && document.body.classList.contains('sort-layout-right');
 }
-// Once the photo moves right, the rail nearest the finger's height lights up
-function sortRightModeAt(y, dx) {
-  if (dx < RAIL_ENTER_X) return null;
-  const rails = [[railPublic, 'public'], [railPrivate, 'private'], [railDelete, 'delete']];
-  const dist = ([rail]) => {
-    const r = rail.getBoundingClientRect();
-    return Math.abs(y - (r.top + r.height / 2));
-  };
-  return rails.reduce((best, cur) => (dist(cur) < dist(best) ? cur : best))[1];
+// The slightest move up lights publish and down lights delete; a move to the right that stays level lights hidden
+const SORT_RIGHT_NUDGE_Y = 10;
+const SORT_RIGHT_NUDGE_X = 14;
+function sortRightModeFromDelta(dx, dy) {
+  if (dy <= -SORT_RIGHT_NUDGE_Y) return 'public';
+  if (dy >= SORT_RIGHT_NUDGE_Y) return 'delete';
+  if (dx >= SORT_RIGHT_NUDGE_X) return 'private';
+  return null;
 }
 function setSortLayout(layout) {
   const next = SORT_LAYOUTS.includes(layout) ? layout : SORT_LAYOUTS[0];
