@@ -77,10 +77,11 @@ const FILTER_CATS = [
   { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
   { id: 'curio', label: 'Curiosities', match: ['curio'], art: 'curio' },
 ];
-const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc', 'disc-haze', 'disc-haze-2', 'quarter-haze', 'corner'];
+const FILTER_LAYOUTS = ['always', 'classic', 'inline', 'disc', 'disc-haze', 'disc-haze-2', 'quarter-haze', 'quarter-left', 'corner'];
 const isTopDiscLayout = () => filterLayout === 'disc' || filterLayout === 'disc-haze' || filterLayout === 'disc-haze-2';
 const isCornerDiscLayout = () => filterLayout === 'corner';
-const isQuarterLayout = () => filterLayout === 'quarter-haze';
+const isQuarterLeft = () => filterLayout === 'quarter-left';
+const isQuarterLayout = () => filterLayout === 'quarter-haze' || isQuarterLeft();
 const usesDiscMotion = () => isTopDiscLayout() || isCornerDiscLayout() || isQuarterLayout();
 
 function activeDiscRefs() {
@@ -543,7 +544,7 @@ function paintBar() {
   $('filterGbox').classList.toggle('is-layout-disc-haze', filterLayout === 'disc-haze');
   $('filterGbox').classList.toggle('is-layout-disc-haze-2', filterLayout === 'disc-haze-2');
   $('filterGbox').classList.toggle('is-layout-corner', filterLayout === 'corner');
-  $('filterGbox').classList.toggle('is-layout-quarter-haze', filterLayout === 'quarter-haze');
+  $('filterGbox').classList.toggle('is-layout-quarter-haze', isQuarterLayout());
   $('filterBtn').hidden = !showToggle;
   $('filterBtn').setAttribute('aria-pressed', String(filterOn));
   nearby.textContent = displayCopy(btnCopy('nearby'));
@@ -557,6 +558,7 @@ function paintBar() {
   const cornerWrap = $('cornerDiscWrap');
   if (cornerWrap) cornerWrap.hidden = !isCornerDiscLayout();
   $('quarterWrap').hidden = !isQuarterLayout();
+  $('quarterWrap').classList.toggle('is-left', isQuarterLeft());
   /* Disc: no separate legend — title sits under the selected gem on the arc */
   const showLegend = !topDisc && !cornerDisc && (filterOn || filterLayout === 'inline' || filterLayout === 'always');
   legend.hidden = !showLegend;
@@ -629,8 +631,9 @@ function wrapDiscDeg(deg, n) {
 /** t −1…1 runs from the right edge, through the diagonal, to the top edge. */
 function quarterPoint(t) {
   const rad = ((QUARTER_MID_DEG + QUARTER_SPREAD_DEG * t) * Math.PI) / 180;
+  const fromRight = ((QUARTER_SIZE + QUARTER_R * Math.cos(rad)) / QUARTER_SIZE) * 100;
   return {
-    leftPct: ((QUARTER_SIZE + QUARTER_R * Math.cos(rad)) / QUARTER_SIZE) * 100,
+    leftPct: isQuarterLeft() ? 100 - fromRight : fromRight,
     topPx: QUARTER_R * Math.sin(rad),
   };
 }
@@ -830,6 +833,7 @@ function bindOneDiscStage(stage) {
     const dy = e.clientY - drag.y;
     let delta = dx;
     if (isCornerDiscLayout()) delta = dx * 0.55 + dy * 0.85;
+    else if (isQuarterLeft()) delta = (dy - dx) * QUARTER_DRAG;
     else if (isQuarterLayout()) delta = (dx + dy) * QUARTER_DRAG;
     if (Math.abs(delta) > 4) drag.moved = true;
     if (!drag.moved) return;

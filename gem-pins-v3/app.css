@@ -474,6 +474,12 @@ h1 { margin: 4px 0; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; 
   white-space: normal;
   text-wrap: balance;
 }
+/* Quarter left: the same quarter circle mirrored onto the top-left corner */
+.quarter-wrap.is-left { right: auto; left: 0; }
+.quarter-wrap.is-left .quarter-stage { clip-path: circle(190px at 0 0); }
+.quarter-wrap.is-left .quarter-arc { transform: scaleX(-1); }
+.quarter-wrap.is-left .quarter-caption { right: auto; left: 14px; text-align: left; }
+.quarter-wrap.is-left .quarter-caption .disc-note { margin-left: 0; }
 
 /* Corner — same disc arc, slight rotate into top-left (Figma); Disc colour untouched */
 .gbox.is-layout-corner .map-bar { display: none !important; }
