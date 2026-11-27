@@ -1,5 +1,5 @@
 // Gem map pins: the one bottom bar every version uses (V1, V2, V3). Change it here and every
-// version changes. Feed, Library, the create button (Hunt mode camera to add a gem), Map, Gems.
+// version changes. Feed, Stories, the create button (Hunt mode camera to add a gem), Map, Gems.
 // The create button has four looks: capture (the outline camera inside viewfinder corners),
 // subtle (a thin circled plus like the other tabs), camera (an outline camera like the other tabs) and hunt
 // (the app's Hunt mode shutter: purple ring, white disc, faint camera). Every look is titled Create.
@@ -24,14 +24,14 @@
   const bars = [];
   const TABS = [
     { id: 'feed', label: 'Feed' },
-    { id: 'library', label: 'Library' },
+    { id: 'stories', label: 'Stories' },
     { id: 'add' },
     { id: 'map', label: 'Map' },
     { id: 'gems', label: 'Gems' },
   ];
   const ICONS = {
     "feed": "<svg class=\"gtb-ico\" viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M3.85714 2C2.83417 2 1.85309 2.39509 1.12973 3.09835C0.406376 3.80161 0 4.75544 0 5.75V18.25C0 19.2446 0.406376 20.1984 1.12973 20.9016C1.85309 21.6049 2.83417 22 3.85714 22H20.1429C21.1658 22 22.1469 21.6049 22.8703 20.9016C23.5936 20.1984 24 19.2446 24 18.25V5.75C24 4.75544 23.5936 3.80161 22.8703 3.09835C22.1469 2.39509 21.1658 2 20.1429 2H3.85714ZM1.71429 5.75C1.71429 5.19747 1.94005 4.66756 2.34191 4.27686C2.74378 3.88616 3.28882 3.66667 3.85714 3.66667H20.1429C20.7112 3.66667 21.2562 3.88616 21.6581 4.27686C22.0599 4.66756 22.2857 5.19747 22.2857 5.75V18.25C22.2857 18.8025 22.0599 19.3324 21.6581 19.7231C21.2562 20.1138 20.7112 20.3333 20.1429 20.3333H3.85714C3.28882 20.3333 2.74378 20.1138 2.34191 19.7231C1.94005 19.3324 1.71429 18.8025 1.71429 18.25V5.75ZM8.57143 8.6675V15.3333C8.57153 15.4771 8.6099 15.6185 8.68283 15.7436C8.75575 15.8687 8.86074 15.9734 8.98758 16.0474C9.11442 16.1213 9.25879 16.1622 9.40666 16.1658C9.55453 16.1695 9.70086 16.1359 9.83143 16.0683L16.2583 12.7358C16.3952 12.6647 16.5097 12.5588 16.5895 12.4293C16.6693 12.2999 16.7115 12.1518 16.7115 12.0008C16.7115 11.8499 16.6693 11.7018 16.5895 11.5724C16.5097 11.4429 16.3952 11.337 16.2583 11.2658L9.83229 7.9325C9.70163 7.86468 9.55513 7.83093 9.40706 7.83454C9.259 7.83815 9.11442 7.87901 8.98743 7.95312C8.86044 8.02723 8.75537 8.13207 8.68246 8.25742C8.60955 8.38276 8.5713 8.5235 8.57143 8.6675Z\" fill=\"currentColor\"/></svg>",
-    "library": "<svg class=\"gtb-ico\" viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><rect x=\"6.5\" y=\"4\" width=\"13\" height=\"17\" rx=\"2\" stroke=\"currentColor\" stroke-width=\"2\"/><path d=\"M15.5 10V8\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M4.5 9H8.5\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M4.5 13H8.5\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M4.5 17H8.5\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>",
+    "stories": "<svg class=\"gtb-ico\" viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><rect x=\"6.5\" y=\"4\" width=\"13\" height=\"17\" rx=\"2\" stroke=\"currentColor\" stroke-width=\"2\"/><path d=\"M15.5 10V8\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M4.5 9H8.5\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M4.5 13H8.5\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M4.5 17H8.5\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>",
     "map": "<svg class=\"gtb-ico\" viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM10 5.47l4 1.4v11.66l-4-1.4V5.47zm-5 .99l3 1.01v11.7l-3-1.16V6.46zm14 11.08l-3 1.16V7.18l3-1.16v11.52z\" fill=\"currentColor\"/></svg>",
     "gems": "<svg class=\"gtb-ico gtb-gem\" viewBox=\"0 0 24 22\" fill=\"none\" aria-hidden=\"true\"><path d=\"M7 1.5H17L22.5 7.5L12 20.5L1.5 7.5Z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/><path d=\"M1.5 7.5H22.5M7 1.5L9 7.5L12 20.5L15 7.5L17 1.5\" stroke=\"currentColor\" stroke-width=\"1\" stroke-linejoin=\"round\" opacity=\"0.55\"/></svg>"
   };
