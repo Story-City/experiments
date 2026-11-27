@@ -8,7 +8,8 @@ const $ = (id) => document.getElementById(id);
 const DENSITY = 40;
 /** V1 rarityBy none — every pin the same size; keep uploaded category gems */
 const PIN_SIZE = 28;
-const SHEETS = ['original', 'prompt', 'image', 'bar'];
+// Original slide-out removed from V3 (Melissa, 26 Nov); a link asking for it gets Text
+const SHEETS = ['prompt', 'image', 'bar'];
 /*
  * Lessons: gems must sample the same Q path as the SVG (not a free parabola);
  * unselected scale stays readable; fade = 2×step → 5 gems max.

@@ -687,6 +687,7 @@ body.is-v2 .app-main-tabs {
 
 /* Debug buttons for layouts only V3 has */
 body:not(.is-v3) .edition-sheets button.v3-only { display: none; }
+body.is-v3 .edition-sheets button.not-v3 { display: none; }
 
 /* Versioning menu in Victoria's Gem Hub rail style (location-gems variant-pick / variant-btn; shared/gem-hub-rail):
    small-caps titles, choices in a two-column grid, the picked one a lighter tile */

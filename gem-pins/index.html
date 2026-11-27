@@ -29,7 +29,7 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
     <div class="edition-extra" id="editionExtra">
       <p class="edition-label">Slide-out</p>
       <div class="edition-sheets" role="group" aria-label="Slide-out">
-        <button type="button" data-sheet="original" aria-pressed="false">Original</button>
+        <button type="button" data-sheet="original" aria-pressed="false" class="not-v3">Original</button>
         <button type="button" data-sheet="prompt" aria-pressed="true" class="is-fav" title="Favourite">Text</button>
         <button type="button" data-sheet="prompt-glow" aria-pressed="false" class="v3-only" title="V3 only">Text glow</button>
         <button type="button" data-sheet="prompt-left" aria-pressed="false" class="v3-only" title="V3 only">Text gem left</button>
@@ -221,7 +221,14 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
   function sendSheet() {
     if (!frame.contentWindow) return;
     // Text glow and Text gem left exist only in V3; other versions show plain Text.
-    const shown = (sheet === 'prompt-glow' || sheet === 'prompt-left') && frame.dataset.edition !== 'v3' ? 'prompt' : sheet;
+    const v3 = frame.dataset.edition === 'v3';
+    const v3Only = sheet === 'prompt-glow' || sheet === 'prompt-left';
+    // V3 has no Original slide-out, so it switches to Text
+    if (sheet === 'original' && v3) {
+      sheet = 'prompt';
+      document.querySelectorAll('[data-sheet]').forEach((n) => n.setAttribute('aria-pressed', String(n.dataset.sheet === sheet)));
+    }
+    const shown = v3Only && !v3 ? 'prompt' : sheet;
     frame.contentWindow.postMessage({ type: 'gem-pins-sheet', sheet: shown }, '*');
   }
   function sendFilterLayout() {
