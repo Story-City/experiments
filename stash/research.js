@@ -3,6 +3,51 @@ const a = (href, text) => `<a href="${href}" target="_blank" rel="noopener">${te
 
 export const RESEARCH = `
 <section>
+  <h2>How You tabs are organized (added Nov 26)</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>App</th><th>Order, top to bottom</th><th>Worth copying</th></tr></thead>
+    <tbody>
+      <tr><td>Strava (You)</td><td>Profile, then Progress and Activities</td><td>A switch splits progress from history</td></tr>
+      <tr><td>Pokémon GO</td><td>Avatar + level, level tasks, Journal, walking, medals</td><td>Profile and Friends share one screen</td></tr>
+      <tr><td>Pikmin Bloom</td><td>Lifelog card (map, steps, week), then profile and badges</td><td>Friends top left, Settings top right</td></tr>
+      <tr><td>Apple Fitness</td><td>Rings, sessions, Trends, Awards</td><td>Every section is a preview card that opens</td></tr>
+      <tr><td>Geocaching</td><td>Header, challenges, finds, stats, souvenirs (last 3)</td><td>Header shrinks as you scroll</td></tr>
+      <tr><td>Google Maps (You)</td><td>Your places, saved, Visited (cities, countries), lists</td><td>Places visited count as a stat</td></tr>
+      <tr><td>YouTube (You)</td><td>Account, History, Playlists, Liked, Your videos</td><td>Library and account merged in 2023</td></tr>
+      <tr><td>Duolingo</td><td>Name, Personal / Friends switch, Statistics, Achievements</td><td>Year in Review stays under Statistics</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li><b>Header is who you are:</b> avatar, name, one big lifetime number.</li>
+    <li><b>Order:</b> progress, then collections, then history. Settings behind a corner gear.</li>
+    <li><b>Preview + See all:</b> newest 3 or 4, tap for the full list.</li>
+    <li><b>A switch at the top</b> splits it in two or three (Strava, Duolingo). D uses Walks / Finds / Stories.</li>
+    <li><b>Friends live inside</b> the profile in game-like apps, not in a tab.</li>
+    <li><b>Year recap</b> shows on Home when it's new, with a lasting entry in the profile.</li>
+  </ul>
+  <p class="muted">Sources: ${a('https://support.strava.com/hc/en-us/articles/28437860016141-Progress-Summary-Chart', 'Strava')}, ${a('https://scopelyexplore.helpshift.com/hc/faq/1087-viewing-your-trainer-profile-progress/', 'Pokémon GO')}, ${a('https://www.pikminwiki.com/Pikmin_Bloom_interface', 'Pikmin Bloom')}, ${a('https://support.apple.com/en-lamr/guide/iphone/iph4c34a8a95/16.0/ios', 'Apple Fitness')}, ${a('https://www.geocaching.com/blog/?p=98016', 'Geocaching')}, ${a('https://support.google.com/maps/answer/9948049', 'Google Maps')}, ${a('https://support.google.com/youtube/answer/9209643', 'YouTube')}, ${a('https://blog.duolingo.com/achievement-badges', 'Duolingo')}.</p>
+</section>
+
+<section>
+  <h2>Data displays worth borrowing</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Example</th><th>What it shows</th><th>Idea for us</th></tr></thead>
+    <tbody>
+      <tr><td>Pikmin Bloom Lifelog</td><td>Weekly map of your walk, flower trail, photo of the week</td><td>Weekly postcard: route + gem of the week</td></tr>
+      <tr><td>Strava personal heatmap</td><td>All your routes glowing where you walk most</td><td>Glow paths on the fog map</td></tr>
+      <tr><td>Snap Map Footsteps, Fog of World, Wandrer</td><td>% of your city explored</td><td><b>Your patch</b>: % of neighbourhood uncovered</td></tr>
+      <tr><td>Google Timeline recap</td><td>Distance as times around the Earth</td><td><b>How far</b>: Edmonton almost to Red Deer</td></tr>
+      <tr><td>Spotify Wrapped 2025</td><td>Playful "clubs", magazine-style cards</td><td>"You're a Nature Seeker", <b>Your year</b> cards</td></tr>
+      <tr><td>Pokémon medals, Apple Awards</td><td>Tiered pins on a shelf</td><td>Badges & stamps preview</td></tr>
+      <tr><td>Feltron reports, Dear Data</td><td>Hand-drawn personal data art</td><td><b>When you walk</b> clock, walking sky</td></tr>
+      <tr><td>Pedometer++</td><td>Confetti at your goal</td><td>A small celebration beats a big chart</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>Avoid:</b> day-by-day calendar grids (empty squares read as missed days), comparisons with other people (percentiles, "top 10%"), and down arrows. Steam, Duolingo and Snap's newer badges all lean on streaks or rankings.</p>
+  <p class="muted">Sources: ${a('https://www.pikminwiki.com/Lifelog', 'Pikmin Lifelog')}, ${a('https://support.strava.com/hc/en-us/articles/216918467', 'Strava heatmap')}, ${a('https://techcrunch.com/2024/09/30/snapchats-new-footsteps-feature-tracks-your-location-history', 'Snap Footsteps')}, ${a('https://wandrer.earth', 'Wandrer')}, ${a('https://newsroom.spotify.com/2025-wrapped-user-experience/', 'Spotify Wrapped')}, ${a('https://www.david-smith.org/blog/2022/12/09/design-notes-6/', 'Pedometer++')}, ${a('https://en.wikipedia.org/wiki/Dear_Data', 'Dear Data')}.</p>
+</section>
+
+<section>
   <h2>Three things to know first</h2>
   <ol>
     <li><b>Most apps use "Library" for your own things, not the catalogue.</b> Apple Books, Audible, Kindle and Spotify all do this, and so did YouTube's old Library tab. Players may look in Library for their stories in progress. Either test it, or call the catalogue something else (Stories, Explore, Discover).</li>

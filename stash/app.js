@@ -1,6 +1,7 @@
 import * as W from './words.js';
 import { NOTES } from './notes.js';
 import { RESEARCH } from './research.js';
+import { youHome, yearScreen } from './you.js';
 
 const params = new URLSearchParams(location.search);
 const startV = (params.get('v') || location.hash.slice(1) || 'b').toLowerCase();
@@ -13,6 +14,8 @@ const S = {
   toSort: W.FINDS.length,
   sortIdx: 0,
   kept: 12,
+  ysub: 'walks',
+  yearIdx: 0,
 };
 
 const $ = id => document.getElementById(id);
@@ -101,7 +104,7 @@ function gemsBody() {
     : `<p class="sorted balance">All finds sorted. Snap a new one with + Gem.</p>`;
   const segs = S.v === 'c' ? ['public', 'hidden', 'liked'] : ['public', 'hidden', 'liked', 'nearby'];
   const segLabel = { public: 'Public', hidden: 'Hidden', liked: 'Liked', nearby: 'Nearby' };
-  const note = S.seg === 'nearby' && S.v !== 'b'
+  const note = S.seg === 'nearby' && !isB()
     ? '<p class="reviewer balance">Other people’s gems. Option C moves these to the Map.</p>' : '';
   const sum = `<div class="gem-types">${W.GEM_TYPES.map(g => `<span><img src="img/gem-${g.id}.svg" alt="">${g.n}<small>${esc(g.label)}</small></span>`).join('')}</div>`;
   return `${sorter}${sum}
@@ -185,7 +188,7 @@ function standIn(tab) {
       ${[...W.STORIES.progress, ...W.STORIES.wish, ...W.STORIES.finished].map(storyRow).join('')}</div>`;
   }
   const t = { today: 'Today', map: 'Map' }[tab];
-  const where = tab === 'map' && S.v === 'a' ? ' Nearby gems are in Stash → Gems in this version.' : tab === 'map' && S.v === 'b' ? ' Nearby gems are in the Gem Hub in this version.' : '';
+  const where = tab === 'map' && S.v === 'a' ? ' Nearby gems are in Stash → Gems in this version.' : tab === 'map' && isB() ? ' Nearby gems are in the Gem Hub in this version.' : '';
   return `${topbar(t)}<div class="pad"><p class="muted balance">${t} is a stand-in here. See Everyday Story City for the full ${t} tab.${where}</p></div>`;
 }
 
@@ -208,7 +211,9 @@ function mapNearby() {
   </div>`;
 }
 
-const SCREENS = { home, gems: gemsScreen, stories, badges, steps, friends, journal, settings };
+const H = { topbar, emblem, ICON };
+const SCREENS = { home, gems: gemsScreen, stories, badges, steps, friends, journal, settings, year: () => yearScreen(S, H) };
+const isB = () => S.v === 'b' || S.v === 'd';
 
 function render() {
   const notes = S.v === 'notes' || S.v === 'research';
@@ -220,17 +225,20 @@ function render() {
   if (notes) { $('notes').innerHTML = S.v === 'notes' ? NOTES : RESEARCH; return; }
 
   let html;
-  if (S.tab === 'stash') html = (SCREENS[S.stack.at(-1)] || home)();
-  else if (S.tab === 'gem') html = S.v === 'b' ? gemHub() : captureOnly();
+  const top = S.stack.at(-1);
+  if (S.tab === 'stash') html = top === 'home' && S.v === 'd' ? youHome(S, H) : (SCREENS[top] || home)();
+  else if (S.tab === 'gem') html = isB() ? gemHub() : captureOnly();
   else html = S.tab === 'map' && S.v === 'c' ? mapNearby() : standIn(S.tab);
   $('screen').innerHTML = html;
   $('screen').scrollTop = 0;
 
   $('tabs').innerHTML = W.TABS.map(t => {
-    if (t.id === 'gem' && S.v === 'b') return `<button class="tab" data-tab="gem" aria-current="${S.tab === 'gem'}">${ICON.gems}<small>${W.GEMS_TAB}</small></button>`;
+    if (t.id === 'gem' && isB()) return `<button class="tab" data-tab="gem" aria-current="${S.tab === 'gem'}">${ICON.gems}<small>${W.GEMS_TAB}</small></button>`;
     if (t.id === 'gem') return `<button class="tab tab-gem" data-tab="gem" aria-label="New Gem" aria-current="${S.tab === 'gem'}"><span>+</span></button>`;
-    const dot = t.id === 'stash' && S.v !== 'b' && S.toSort ? '<i class="tab-dot"></i>' : '';
-    return `<button class="tab" data-tab="${t.id}" aria-current="${S.tab === t.id}">${ICON[t.id]}${dot}<small>${t.label}</small></button>`;
+    const dot = t.id === 'stash' && !isB() && S.toSort ? '<i class="tab-dot"></i>' : '';
+    const you = t.id === 'stash' && S.v === 'd';
+    const icon = you ? `<span class="tab-av">${esc(W.PLAYER.name[0])}</span>` : ICON[t.id];
+    return `<button class="tab" data-tab="${t.id}" aria-current="${S.tab === t.id}">${icon}${dot}<small>${you ? W.YOU.tab : t.label}</small></button>`;
   }).join('');
 }
 
@@ -259,6 +267,8 @@ document.addEventListener('click', e => {
   if (d.go) { S.tab = 'stash'; S.stack.push(d.go); return render(); }
   if (d.act === 'back') { S.stack.pop(); return render(); }
   if (d.seg) { S.seg = d.seg; return render(); }
+  if (d.ysub) { S.ysub = d.ysub; return render(); }
+  if (d.act === 'yearNext') { S.yearIdx += 1; return render(); }
   if (d.sort) {
     S.toSort -= 1; S.sortIdx += 1;
     if (d.sort !== 'delete') S.kept += 1;
@@ -267,7 +277,7 @@ document.addEventListener('click', e => {
   }
   if (d.act === 'snap') {
     S.toSort += 1;
-    toast(S.v === 'b' ? 'Snapped. It’s at the top of your finds.' : 'Snapped. It’s waiting in Stash → Gems.');
+    toast(isB() ? 'Snapped. It’s at the top of your finds.' : 'Snapped. It’s waiting in Stash → Gems.');
     return render();
   }
   if (d.toast) toast(d.toast);

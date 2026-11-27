@@ -3,6 +3,7 @@ export const VERSIONS = {
   a: { label: 'A', name: 'Combined', note: 'A · Combined: the whole gem hub lives in the Stash, nearby gems included. + Gem only takes the photo.' },
   b: { label: 'B', name: 'Separate ✓', note: 'B · Separate (chosen Nov 26): Gems keep their own tab, Victoria’s Gem Hub. The Stash links over to it.' },
   c: { label: 'C', name: 'Split', note: 'C · Split by job: + Gem takes the photo, your gems live in the Stash, other people’s gems live on the Map.' },
+  d: { label: 'D', name: 'You', note: 'D · You, organized (proposal): builds on B. The tab says You, the page is Priya’s Stash, and your walks, finds and stories each get a picture, not just a number.' },
   notes: { label: 'Notes', name: '', note: 'Names, what lives here today, what we want, and A vs B vs C.' },
   research: { label: 'Research', name: '', note: 'How other apps do it, and the rules a profile has to follow.' },
 };
@@ -135,3 +136,63 @@ export const SETTINGS = [
   ['Privacy policy and terms', ''],
   ['Sign out', ''],
 ];
+
+// Version D: the You tab, organized, with data displays
+export const YOU = {
+  tab: 'You',
+  since: 'Walking with Story City since July',
+  friendsChip: '3 friends',
+  headline: [['142', 'km walked'], ['23', 'walks'], ['47', 'chapters'], ['12', 'gems']],
+  subs: [['walks', 'Walks'], ['finds', 'Finds'], ['stories', 'Stories']],
+  patch: { t: 'Your patch', pct: 38, line: '38% of your neighbourhood uncovered', sub: 'Your home stays blurred. Tap to open the map.' },
+  trail: {
+    t: 'How far you’ve walked',
+    km: 142,
+    line: '142 km. That’s walking from Edmonton almost to Red Deer.',
+    stops: [['Edmonton', 0], ['Leduc', 33], ['Wetaskiwin', 70], ['Ponoka', 103], ['Lacombe', 126], ['Red Deer', 150]],
+    kid: 'Or 1,580 hockey rinks end to end.',
+  },
+  sky: { t: 'Your walking sky', right: '23 walks', sub: 'Every walk lights a star, and bigger walks shine brighter. Red rings are story endings you found.', walks: 23, endings: [[212, 30]] },
+  week: { t: 'This week', story: 'in stories', everyday: 'everyday' },
+  clock: { t: 'When you walk', line: 'You’re a dusk walker', sub: 'Most of your steps happen between 5 and 8 pm.', hours: [0,0,0,0,0,0,1,3,4,2,1,2,3,2,1,2,4,9,12,10,5,2,1,0] },
+  gemWheel: { club: 'You’re a Nature Seeker 🌿', t: 'Your gems', made: 'made', visited: 'visited', liked: 'liked', link: 'Open the Gem Hub' },
+  gemRings: { nature: [4, 3, 11], art: [2, 3, 6], landmarks: [3, 2, 4], 'eat-drink': [2, 1, 7], curiosities: [1, 0, 3] },
+  ripples: {
+    t: 'Gems you shared',
+    sub: 'Just yours to see. No rankings.',
+    list: [
+      { type: 'nature', title: 'Heron at the pond', n: 34, line: 'has welcomed 34 explorers' },
+      { type: 'art', title: 'Mural behind the bakery', n: 9, line: 'has welcomed 9 explorers' },
+    ],
+  },
+  postcards: { t: 'Postcards', sub: 'The shape of each walk. Your start and end are trimmed.' },
+  routes: [
+    { name: 'Whimsy Walk to the river', d: 'M8 40 C14 20 30 18 34 30 S50 44 56 20' },
+    { name: 'Coronet Caper ch. 5', d: 'M10 14 L24 14 L24 34 L44 34 L44 18 L56 18' },
+    { name: 'Frightnight', d: 'M8 30 C8 10 30 6 34 22 C38 38 56 38 56 16' },
+    { name: 'Morning loop', d: 'M32 8 C52 8 56 40 32 42 C10 42 10 10 30 10' },
+  ],
+  badgesT: 'Badges & stamps', badgesSub: '7 of 20 · newest first',
+  storiesT: 'Your stories',
+  shelf: [
+    { title: 'Tales from the Incident', img: 'incident.jpg', ch: [3, 6], endings: null, tag: 'Continue' },
+    { title: 'The Coronet Caper', img: 'coronet.jpg', ch: [5, 9], endings: null, tag: 'Continue' },
+    { title: 'Frightnight', img: 'frightnight.jpg', ch: [7, 7], endings: [1, 3], tag: 'Finished' },
+  ],
+  pathT: 'Your path through Frightnight',
+  pathSub: 'You found ending 1 of 3. Two more are still out there.',
+  rows: [
+    ['journal', 'Walk Journal', 'Every walk, day by day'],
+    ['year', 'Your Story City year', 'Opens Dec 20'],
+    ['settings', 'Settings', 'Membership, account, privacy, step goal'],
+    ['help', 'Help & Feedback', 'Ask us, or tell Bookerton an idea'],
+  ],
+  year: [
+    { big: '142 km', line: 'You walked almost to Red Deer.' },
+    { big: 'Dusk', line: 'Your favourite time to walk. The ghosts noticed.' },
+    { big: 'Nature', line: 'Your top gem type. 4 kept, 11 liked.' },
+    { big: '38%', line: 'of your neighbourhood out of the fog.' },
+    { big: '1 of 3', line: 'Frightnight endings found. Going back for the others?' },
+  ],
+  yearT: 'Your Story City year', yearSub: 'A preview. Tap to flip through. Share any card.',
+};
