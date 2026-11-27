@@ -1,8 +1,9 @@
 // Every word on screen. Edit lines here.
 export const VERSIONS = {
-  a: { label: 'A · Combined', note: 'Gems are a compartment of the Stash. + Gem captures; finds land in Stash → Gems to sort.' },
-  b: { label: 'B · Separate', note: 'The Gem Hub is its own place behind + Gem. The Stash shows a gem count that hops over to it.' },
-  notes: { label: 'Notes', note: 'Names, what lives here today, what we want, and A vs B.' },
+  a: { label: 'A', name: 'Combined', note: 'A · Combined: the whole gem hub lives in the Stash, nearby gems included. + Gem only takes the photo.' },
+  b: { label: 'B', name: 'Separate', note: 'B · Separate: + Gem opens its own Gem Hub (Victoria’s). The Stash links over to it.' },
+  c: { label: 'C', name: 'Split', note: 'C · Split by job: + Gem takes the photo, your gems live in the Stash, other people’s gems live on the Map.' },
+  notes: { label: 'Notes', name: '', note: 'Names, what lives here today, what we want, and A vs B vs C.' },
 };
 
 export const PLAYER = { name: 'Priya', status: 'Member', week: '3 walks · 2 chapters · 1 new gem this week' };
@@ -65,6 +66,11 @@ export const GEMS = {
     { img: 'find-c.jpg', title: 'Little free library', type: 'curiosities', likes: 6, by: '6 min away' },
   ],
 };
+
+export const NEARBY_PINS = [
+  { type: 'landmarks', x: 62, y: 30 }, { type: 'curiosities', x: 30, y: 58 }, { type: 'nature', x: 74, y: 70 },
+  { type: 'art', x: 46, y: 18 }, { type: 'eat-drink', x: 18, y: 32 },
+];
 
 export const STORIES = {
   progress: [

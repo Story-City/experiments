@@ -62,7 +62,7 @@ function tile(c) {
 }
 
 function home() {
-  const comps = W.COMPARTMENTS.filter(c => S.v === 'a' || c.id !== 'gems');
+  const comps = W.COMPARTMENTS.filter(c => S.v !== 'b' || c.id !== 'gems');
   const hop = S.v === 'b'
     ? `<button class="hop" data-tab="gem"><span class="hop-gems">${W.GEM_TYPES.slice(0, 3).map(g => `<img src="img/gem-${g.id}.svg" alt="">`).join('')}</span>
         <span class="hop-t">Your gems are in the Gem Hub<small>${S.kept} kept${S.toSort ? ` · ${S.toSort} to sort` : ''}</small></span>${ICON.next}</button>`
@@ -97,15 +97,16 @@ function gemsBody() {
         <p class="hint balance">In Victoria's hub this is press, hold and swipe. Buttons here for clicking through.</p>
       </div>`
     : `<p class="sorted balance">All finds sorted. Snap a new one with + Gem.</p>`;
-  const segs = ['public', 'hidden', 'liked', 'nearby'];
+  const segs = S.v === 'c' ? ['public', 'hidden', 'liked'] : ['public', 'hidden', 'liked', 'nearby'];
   const segLabel = { public: 'Public', hidden: 'Hidden', liked: 'Liked', nearby: 'Nearby' };
-  const note = S.seg === 'nearby' && S.v === 'a'
+  const note = S.seg === 'nearby' && S.v !== 'b'
     ? '<p class="reviewer balance">Other people’s gems. Option C moves these to the Map.</p>' : '';
   const sum = `<div class="gem-types">${W.GEM_TYPES.map(g => `<span><img src="img/gem-${g.id}.svg" alt="">${g.n}<small>${esc(g.label)}</small></span>`).join('')}</div>`;
   return `${sorter}${sum}
     <div class="seg" role="tablist">${segs.map(s => `<button role="tab" aria-selected="${S.seg === s}" data-seg="${s}">${segLabel[s]}</button>`).join('')}</div>
     ${note}
-    <div class="grid">${W.GEMS[S.seg].map(polaroid).join('')}</div>`;
+    <div class="grid">${W.GEMS[S.seg].map(polaroid).join('')}</div>
+    ${S.v === 'c' ? `<button class="hop hop-map" data-tab="map">${ICON.map}<span class="hop-t">Gems other people found<small>Nearby gems are on the Map</small></span>${ICON.next}</button>` : ''}`;
 }
 
 function gemsScreen() { return `${topbar('Gems')}<div class="pad">${gemsBody()}</div>`; }
@@ -182,7 +183,27 @@ function standIn(tab) {
       ${[...W.STORIES.progress, ...W.STORIES.wish, ...W.STORIES.finished].map(storyRow).join('')}</div>`;
   }
   const t = { today: 'Today', map: 'Map' }[tab];
-  return `${topbar(t)}<div class="pad"><p class="muted balance">${t} is a stand-in here. See Everyday Story City for the full ${t} tab.</p></div>`;
+  const where = tab === 'map' && S.v === 'a' ? ' Nearby gems are in Stash → Gems in this version.' : tab === 'map' && S.v === 'b' ? ' Nearby gems are in the Gem Hub in this version.' : '';
+  return `${topbar(t)}<div class="pad"><p class="muted balance">${t} is a stand-in here. See Everyday Story City for the full ${t} tab.${where}</p></div>`;
+}
+
+function mapNearby() {
+  const pins = W.NEARBY_PINS.map(p => `<image href="img/gem-${p.type}.svg" x="${p.x - 4}" y="${p.y - 4}" width="8" height="8"/>`).join('');
+  return `${topbar('Map')}
+  <div class="pad">
+    <svg class="minimap" viewBox="0 0 100 90" role="img" aria-label="Map with five gems near you">
+      <rect width="100" height="90" rx="6" fill="#1a0b3d"/>
+      <path d="M0 62 C25 54 40 74 60 66 S90 50 100 56" stroke="#1b3fa8" stroke-width="6" fill="none" opacity=".7"/>
+      <path d="M0 24 H100 M0 44 H100 M22 0 V90 M52 0 V90 M80 0 V90" stroke="#46337e" stroke-width="1.6"/>
+      <rect x="60" y="74" width="18" height="12" rx="3" fill="#00cd9d" opacity=".18"/>
+      <circle cx="50" cy="45" r="14" fill="#c49bff" opacity=".12"/>
+      <circle cx="50" cy="45" r="2.6" fill="#fbf7ff" stroke="#c49bff" stroke-width="1"/>
+      ${pins}
+    </svg>
+    <p class="label">Gems near you</p>
+    <div class="grid">${W.GEMS.nearby.map(polaroid).join('')}</div>
+    <p class="reviewer balance">C: other people’s gems live here. Your own are in Stash → Gems.</p>
+  </div>`;
 }
 
 const SCREENS = { home, gems: gemsScreen, stories, badges, steps, friends, journal, settings };
@@ -192,20 +213,20 @@ function render() {
   $('phone').hidden = notes;
   $('notes').hidden = !notes;
   $('versionPick').innerHTML = Object.entries(W.VERSIONS).map(([k, v]) =>
-    `<button role="tab" aria-selected="${S.v === k}" data-v="${k}">${esc(v.label)}</button>`).join('');
+    `<button role="tab" aria-selected="${S.v === k}" data-v="${k}">${esc(v.label)}${v.name ? `<span class="vn"> · ${esc(v.name)}</span>` : ''}</button>`).join('');
   $('versionNote').textContent = W.VERSIONS[S.v].note;
   if (notes) { $('notes').innerHTML = NOTES; return; }
 
   let html;
   if (S.tab === 'stash') html = (SCREENS[S.stack.at(-1)] || home)();
   else if (S.tab === 'gem') html = S.v === 'b' ? gemHub() : captureOnly();
-  else html = standIn(S.tab);
+  else html = S.tab === 'map' && S.v === 'c' ? mapNearby() : standIn(S.tab);
   $('screen').innerHTML = html;
   $('screen').scrollTop = 0;
 
   $('tabs').innerHTML = W.TABS.map(t => {
     if (t.id === 'gem') return `<button class="tab tab-gem" data-tab="gem" aria-label="${S.v === 'b' ? 'Gem Hub' : 'New Gem'}" aria-current="${S.tab === 'gem'}"><span>+</span></button>`;
-    const dot = t.id === 'stash' && S.v === 'a' && S.toSort ? '<i class="tab-dot"></i>' : '';
+    const dot = t.id === 'stash' && S.v !== 'b' && S.toSort ? '<i class="tab-dot"></i>' : '';
     return `<button class="tab" data-tab="${t.id}" aria-current="${S.tab === t.id}">${ICON[t.id]}${dot}<small>${t.label}</small></button>`;
   }).join('');
 }

@@ -68,6 +68,20 @@ export const NOTES = `
 <section>
   <h2>Gems: combined or separate?</h2>
   <p>Victoria's <a href="https://story-city.github.io/experiments/view.html?e=location-gems" target="_blank" rel="noopener">Location Gems hub</a> is a gem-only screen: take a snapshot, sort each find (keep hidden, publish, delete), then Public, Hidden and Liked, plus nearby public gems.</p>
+  <div class="tbl">
+  <table>
+    <thead><tr><th>Where it lives</th><th>A · Combined</th><th>B · Separate</th><th>C · Split</th></tr></thead>
+    <tbody>
+      <tr><td>Take a photo</td><td>+ Gem</td><td>+ Gem (top of the Gem Hub)</td><td>+ Gem</td></tr>
+      <tr><td>Sort new finds</td><td>Stash → Gems</td><td>Gem Hub</td><td>Stash → Gems</td></tr>
+      <tr><td>Your gems (Public, Hidden, Liked)</td><td>Stash → Gems</td><td>Gem Hub</td><td>Stash → Gems</td></tr>
+      <tr><td>Other people's gems nearby</td><td>Stash → Gems → Nearby</td><td>Gem Hub → Nearby</td><td>Map</td></tr>
+      <tr><td>What the Stash shows</td><td>A Gems compartment</td><td>A link to the Gem Hub</td><td>A Gems compartment</td></tr>
+      <tr><td>Glow when finds wait</td><td>Stash tab</td><td>None on the Stash</td><td>Stash tab</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="muted">A and C look the same on the Stash home. Compare them in Gems and on the Map.</p>
   <h3>A · Combined</h3>
   <ul>
     <li>+ One place for "everything I own". A chest full of gems is the picture itself.</li>
@@ -83,7 +97,12 @@ export const NOTES = `
     <li>− + Gem does two jobs: take a photo and manage a collection.</li>
   </ul>
   <h3>C · Split by job (my lean)</h3>
-  <p>+ Gem only captures. Your gems (sort, Public, Hidden, Liked) live in the Stash. Other people's gems nearby live on the Map. Each place does one job. Option A shows this, with Nearby kept in for comparison.</p>
+  <ul>
+    <li>+ Each place does one job, and the Stash stays about you.</li>
+    <li>+ Nearby gems sit where you'd walk to them.</li>
+    <li>− Gems show up in two places (yours, and the world's).</li>
+  </ul>
+  <p>+ Gem only captures. Your gems (sort, Public, Hidden, Liked) live in the Stash. Other people's gems nearby live on the Map. Each place does one job. Switch to C at the top to try it.</p>
 </section>
 
 <section>

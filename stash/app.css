@@ -156,3 +156,8 @@ p, small, li { text-wrap: pretty; }
 .notes th, .notes td { text-align: left; vertical-align: top; padding: 7px 8px; border-bottom: 1px solid var(--line); }
 .notes th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--lilac); }
 .notes td:first-child { color: var(--starlight); font-weight: 600; }
+
+/* version C */
+.minimap { width: 100%; height: auto; display: block; border-radius: 14px; border: 1px solid var(--line); margin-top: 4px; }
+.hop-map { width: 100%; margin: 16px 0 0; background: rgba(91,140,255,.08); border-color: rgba(91,140,255,.4); color: var(--sapphire); }
+@media (max-width: 459px) { .rig-picks .vn { display: none; } .rig-picks button { padding: 0 12px; } }
