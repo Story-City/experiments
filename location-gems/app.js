@@ -1825,6 +1825,7 @@ function addSampleCreatedGem() {
 }
 
 function handleSnapshot() {
+  if (document.body.classList.contains('is-v3')) return; // V3 has no camera up top
   if (!snapshotTip.hidden) dismissTip();
   addSampleCreatedGem();
 }
@@ -3919,3 +3920,19 @@ function takeCameraHandoff() {
   openPublishSheet(sortStack.lastElementChild);
 }
 takeCameraHandoff();
+
+// V3 card size: standard, big or almost full screen (Melissa, 27 Nov), remembered on this device
+const CARD_SIZE_KEY = 'location-gems-card-size';
+const CARD_SIZES = ['standard', 'big', 'full'];
+function setCardSize(size) {
+  const next = CARD_SIZES.includes(size) ? size : CARD_SIZES[0];
+  CARD_SIZES.forEach((s) => document.body.classList.toggle(`card-size-${s}`, s === next));
+  document.querySelectorAll('[data-card-size]').forEach((b) => {
+    const on = b.dataset.cardSize === next;
+    b.classList.toggle('is-on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+  try { localStorage.setItem(CARD_SIZE_KEY, next); } catch (e) { /* private window */ }
+}
+document.querySelectorAll('[data-card-size]').forEach((b) => b.addEventListener('click', () => setCardSize(b.dataset.cardSize)));
+setCardSize((() => { try { return localStorage.getItem(CARD_SIZE_KEY); } catch (e) { return null; } })());

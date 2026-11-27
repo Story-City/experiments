@@ -3899,3 +3899,27 @@ body.is-tools-embed > .workspace > .edition-rail {
 .phone.has-app-pages .hub-scroll {
   padding-bottom: calc(72px * var(--space-scale));
 }
+
+/* V3 (Melissa, 27 Nov): no camera or arc at the top, a big "Sort your gems" heading, card sizes */
+.v3-heading { display: none; }
+body:not(.is-v3) .v3-only { display: none !important; }
+body.is-v3 .arc-stage,
+body.is-v3 .title-prefix,
+body.is-v3 .rotating-line,
+body.is-v3 .sort-inline-title { display: none; }
+body.is-v3 .snapshot-hero { cursor: default; align-items: stretch; }
+body.is-v3 .tagline-block { text-align: left; padding: var(--space-m) 2px 4px; }
+body.is-v3 .v3-heading {
+  display: block;
+  margin: 0;
+  font-size: calc(40px * var(--type-scale));
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-wrap: balance;
+}
+body.is-v3.card-size-big .sort-stage { height: 540px; }
+body.is-v3.card-size-big .sort-stack { width: 286px; height: 416px; }
+body.is-v3.card-size-full .sort-stage { height: 680px; }
+body.is-v3.card-size-full .sort-stack { top: 24px; width: calc(100% - 2 * var(--space-l) - 8px); height: 620px; }

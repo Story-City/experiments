@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=134">
+<link rel="stylesheet" href="app.css?v=135">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=14">
 <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
@@ -139,6 +139,16 @@
         </label>
       </section>
 
+      <section class="tool-block v3-only">
+        <h2 class="tool-title">Card size</h2>
+        <p class="tool-note">V3 only. How big the unsorted photo cards are.</p>
+        <div class="variant-pick is-rail" role="group" aria-label="Card size">
+          <button type="button" class="variant-btn is-on" data-card-size="standard" aria-pressed="true">Standard</button>
+          <button type="button" class="variant-btn" data-card-size="big" aria-pressed="false">Big</button>
+          <button type="button" class="variant-btn" data-card-size="full" aria-pressed="false">Almost full</button>
+        </div>
+      </section>
+
     </aside>
 
     <div class="stage">
@@ -172,6 +182,7 @@
               <span class="heading-slash" aria-hidden="true"></span>
               <p class="title-prefix" id="snapshotPrefix">Take a snapshot gem of</p>
               <p class="rotating-line"><span id="rotatingWord">a café</span></p>
+              <h2 class="v3-heading">Sort your gems</h2>
             </div>
           </button>
         </section>
@@ -535,7 +546,7 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=12"></script>
-  <script src="app.js?v=137"></script>
+  <script src="app.js?v=138"></script>
   <script type="module">
     import { mountVersions } from '../shared/versions/versions.js?v=2';
     mountVersions({
@@ -544,8 +555,13 @@
       versions: [
         { id: 'v1', label: 'V1', note: 'Crystals, no rarity.' },
         { id: 'v2', label: 'V2', note: 'Keeps rarity: aquamarine, moonstone, topaz, opal, diamond.' },
+        { id: 'v3', label: 'V3', note: 'Melissa’s' },
       ],
-      onPick: (base) => setHubEdition(base),
+      // V3 (Melissa, 27 Nov) is V1 with no camera or arc up top, a big "Sort your gems" heading and card sizes
+      onPick: (base) => {
+        document.body.classList.toggle('is-v3', base === 'v3');
+        setHubEdition(base === 'v3' ? 'v1' : base);
+      },
     });
   </script>
 </body>
