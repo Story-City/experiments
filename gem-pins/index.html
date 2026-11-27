@@ -220,10 +220,10 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
   let filterLayout = 'always';
   function sendSheet() {
     if (!frame.contentWindow) return;
-    // Text glow and Text gem left exist only in V3; other versions show plain Text.
-    const v3 = frame.dataset.edition === 'v3';
+    // Text glow and Text gem left exist only in V3/V4; other versions show plain Text.
+    const v3 = frame.dataset.edition === 'v3' || frame.dataset.edition === 'v4';
     const v3Only = sheet === 'prompt-glow' || sheet === 'prompt-left';
-    // V3 has no Original slide-out, so it switches to Text
+    // V3/V4 have no Original slide-out, so they switch to Text
     if (sheet === 'original' && v3) {
       sheet = 'prompt';
       document.querySelectorAll('[data-sheet]').forEach((n) => n.setAttribute('aria-pressed', String(n.dataset.sheet === sheet)));
@@ -233,9 +233,10 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
   }
   function sendFilterLayout() {
     if (!frame.contentWindow) return;
-    // Disc haze 2 and the Quarter hazes exist only in V3; any other version gets plain Disc haze.
+    // Disc haze 2 and the Quarter hazes exist only in V3/V4; any other version gets plain Disc haze.
     const v3Only = filterLayout === 'disc-haze-2' || filterLayout === 'quarter-haze' || filterLayout === 'quarter-left';
-    const layout = v3Only && frame.dataset.edition !== 'v3' ? 'disc-haze' : filterLayout;
+    const edition = frame.dataset.edition;
+    const layout = v3Only && edition !== 'v3' && edition !== 'v4' ? 'disc-haze' : filterLayout;
     frame.contentWindow.postMessage({ type: 'gem-pins-filter-layout', layout: layout }, '*');
   }
   function showFrame() {
@@ -243,11 +244,11 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
   }
   // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
   // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
-const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=26' };
+const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=26', v4: '../gem-pins-v3/?v=26' };
   function apply(edition) {
     const src = FRAMES[edition];
     document.body.classList.toggle('is-v2', !!src);
-    document.body.classList.toggle('is-v3', edition === 'v3');
+    document.body.classList.toggle('is-v3', edition === 'v3' || edition === 'v4');
     if (src && frame.dataset.edition !== edition) {
       frame.classList.remove('is-shown');
       frame.src = src + '&embed=1&sheet=' + sheet;
@@ -262,10 +263,20 @@ const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=26' };
   }
 
   // Versions, their notes and "+ New version" come from the shared switcher (shared/versions).
-  const VERSIONS = [{"id": "v1", "label": "V1", "note": "The options lab: try every gem look, preset and filter side by side."}, {"id": "v2", "label": "V2", "note": "Victoria's build: Text and Image slide-outs, white map gems, Disc haze."}, {"id": "v3", "label": "V3", "note": "Melissa's copy of V2 (26 Nov): gems in category colours, Navigate first, visited ✓, ＋ opens the camera."}];
+  // V4 is the handoff default: same map build as V3 (category colours) so a bare link never opens the V1 lab.
+  const VERSIONS = [
+    {"id": "v1", "label": "V1", "note": "The options lab: try every gem look, preset and filter side by side."},
+    {"id": "v2", "label": "V2", "note": "Victoria's build: Text and Image slide-outs, white map gems, Disc haze."},
+    {"id": "v3", "label": "V3", "note": "Melissa's copy of V2 (26 Nov): gems in category colours, Navigate first, visited ✓, ＋ opens the camera."},
+    {"id": "v4", "label": "V4", "note": "Handoff default — category-colour map pins (same build as V3). Opens first for developers."},
+  ];
   frame.addEventListener('load', () => { showFrame(); sendSheet(); sendFilterLayout(); });
-  import(`../shared/versions/versions.js${window.CACHE_V}`).then(({ mountVersions }) => mountVersions({
-    el: document.getElementById('versionPick'), slug: 'gem-pins', versions: VERSIONS, onPick: (base) => apply(base),
+  import(`../shared/versions/versions.js?v=3`).then(({ mountVersions }) => mountVersions({
+    el: document.getElementById('versionPick'),
+    slug: 'gem-pins',
+    defaultId: 'v4',
+    versions: VERSIONS,
+    onPick: (base) => apply(base),
   }));
   document.querySelectorAll('[data-sheet]').forEach((b) => {
     b.addEventListener('click', () => {

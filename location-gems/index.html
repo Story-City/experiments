@@ -18,10 +18,10 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=168">
+<link rel="stylesheet" href="app.css?v=169">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=15">
 <meta http-equiv="Cache-Control" content="no-cache">
-  <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
+  <link rel="stylesheet" href="../shared/versions/versions.css?v=3">
 </head>
 <body>
   <header>
@@ -634,17 +634,18 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=13"></script>
-  <script src="app.js?v=168"></script>
+  <script src="app.js?v=169"></script>
   <script type="module">
-    import { mountVersions } from '../shared/versions/versions.js?v=2';
+    import { mountVersions } from '../shared/versions/versions.js?v=3';
     mountVersions({
       el: document.getElementById('versionPick'),
       slug: 'location-gems',
+      defaultId: 'v4',
       versions: [
         { id: 'v1', label: 'V1', note: 'Crystals, no rarity.' },
         { id: 'v2', label: 'V2', note: 'Keeps rarity: aquamarine, moonstone, topaz, opal, diamond.' },
         { id: 'v3', label: 'V3', note: 'Melissa’s' },
-        { id: 'v4', label: 'V4', note: 'Full page-anchor list (Melissa included); Cascade + Polaroid seeds; subcategories on.' },
+        { id: 'v4', label: 'V4', note: 'Full page-anchor list (Melissa included); Cascade + Polaroid seeds; subcategories on. Default for handoff.' },
       ],
       // V3 (Melissa, 27 Nov) locks her no-camera top. V4 keeps Victoria’s full haze list —
       // Melissa is one pickable option, not a forced layout.

@@ -4,10 +4,11 @@
 // On the live site notes and new versions save for the team in the hub database (slug notes:<slug>,
 // newest edit wins); anywhere else they stay in this browser, so local tests never write to the hub.
 //
-// mountVersions({ el, slug, versions: [{ id, label, note }], onPick(baseId, id) })
-//   el       container to fill
-//   versions the versions that exist in code, oldest first
-//   onPick   shows a version: baseId is the code version to render, id the version picked
+// mountVersions({ el, slug, versions: [{ id, label, note }], onPick(baseId, id), defaultId })
+//   el         container to fill
+//   versions   the versions that exist in code, oldest first
+//   onPick     shows a version: baseId is the code version to render, id the version picked
+//   defaultId  version that loads when the URL has no ?edition= (falls back to versions[0])
 
 const NOTE_MAX = 240;
 const PARAM = 'edition';
@@ -45,14 +46,15 @@ const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* pri
 const today = () => new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 const num = (id) => Number(String(id).replace(/\D/g, '')) || 0;
 
-export function mountVersions({ el, slug, versions, onPick }) {
+export function mountVersions({ el, slug, versions, onPick, defaultId }) {
   const noteSlug = 'notes:' + slug;
   const localKey = 'sc-versions:' + slug;
   const coded = new Map(versions.map((v) => [v.id, v]));
+  const fallbackId = (defaultId && coded.has(defaultId)) ? defaultId : versions[0].id;
   let entries = [];
   try { entries = JSON.parse(lsGet(localKey) || '[]'); } catch (e) { entries = []; }
   let db = null;
-  let current = new URLSearchParams(location.search).get(PARAM) || versions[0].id;
+  let current = new URLSearchParams(location.search).get(PARAM) || fallbackId;
 
   el.classList.add('scv');
   el.innerHTML = '<div class="scv-list" role="group" aria-label="Versions"></div>'
@@ -95,7 +97,7 @@ export function mountVersions({ el, slug, versions, onPick }) {
 
   function render() {
     const vs = all();
-    if (!vs.some((v) => v.id === current)) current = versions[0].id;
+    if (!vs.some((v) => v.id === current)) current = fallbackId;
     list.innerHTML = '';
     vs.forEach((v) => {
       const row = document.createElement('div');
@@ -138,7 +140,7 @@ export function mountVersions({ el, slug, versions, onPick }) {
   function pick(id) {
     current = id;
     const url = new URL(location.href);
-    if (id === versions[0].id) url.searchParams.delete(PARAM); else url.searchParams.set(PARAM, id);
+    if (id === fallbackId) url.searchParams.delete(PARAM); else url.searchParams.set(PARAM, id);
     history.replaceState(null, '', url);
     render();
     onPick(baseOf(id), id);
