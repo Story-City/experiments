@@ -306,6 +306,29 @@ function colourOf(g) {
 }
 // Optical balance between the category gems (Melissa, 26 Nov): Play read large and heavy, Landmarks small
 const CAT_SCALE = { play: 0.88, landmark: 1.12 };
+// A hidden (private) gem: the outline of its own public gem, drawn in the same box at the same scale,
+// so hidden and shared gems match in size and shape (Melissa, 26 Nov). The outline comes from the
+// public art's silhouette with an SVG filter, so each category keeps its exact cut.
+function hiddenMark(tagId, size) {
+  const src = GEM_SRC[tagId] || GEM_SRC.nature;
+  const colour = GEM_COLOUR[tagId] || GEM_COLOUR.nature;
+  const s = size || 28;
+  const k = CAT_SCALE[tagId];
+  const line = Math.max(1, Math.round(s * 0.06 * 10) / 10);
+  const id = `hid-${tagId}-${s}`;
+  const style = k ? ` style="scale:${k}"` : '';
+  return `<svg class="cat-gem-art cat-gem-hidden" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" aria-hidden="true"${style}>`
+    + `<defs><filter id="${id}" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">`
+    + `<feMorphology in="SourceAlpha" operator="erode" radius="${line}" result="inner"/>`
+    + `<feComposite in="SourceAlpha" in2="inner" operator="out" result="ring"/>`
+    + `<feFlood flood-color="${colour}" result="c"/>`
+    + `<feComposite in="c" in2="ring" operator="in" result="stroke"/>`
+    + `<feFlood flood-color="${colour}" flood-opacity="0.14" result="c2"/>`
+    + `<feComposite in="c2" in2="inner" operator="in" result="fill"/>`
+    + `<feGaussianBlur in="stroke" stdDeviation="${line * 0.9}" result="glow"/>`
+    + `<feMerge><feMergeNode in="glow"/><feMergeNode in="fill"/><feMergeNode in="stroke"/></feMerge>`
+    + `</filter></defs><image href="${src}" width="${s}" height="${s}" filter="url(#${id})"/></svg>`;
+}
 function categoryMark(tagId, size) {
   const src = GEM_SRC[tagId] || GEM_SRC.nature;
   const s = size || 28;
@@ -327,6 +350,10 @@ function pinFor(g) {
   }
   if (g.roller === 'wishlist') {
     return `<span class="pin-gem-wrap" style="width:${size}px;height:${size}px">${bookmarkMark()}</span>`;
+  }
+  if (g.mine && !g.seasonal && !g.expiring) {
+    const mark = g.private ? hiddenMark(g.tags[0], size) : categoryMark(g.tags[0], size);
+    return mark.replace('cat-gem-art', `pin-gem${glowClass}`);
   }
   if (g.mine || g.seasonal) {
     const hollow = g.mine && g.private;
@@ -357,9 +384,14 @@ let sheetFull = false;
 const TEXT_GLOW_SHEET = 'prompt-glow';
 const HOLLOW_ART_KEY = { nature: 'nature', eat: 'eatshop', shop: 'eatshop', culture: 'art', play: 'activities', landmark: 'landmarks', curio: 'nugget' };
 const startSheet = new URLSearchParams(location.search).get('sheet');
+// Text gem left (Melissa, 26 Nov): a smaller gem in the left corner, centred on the "min away" line
+const TEXT_LEFT_SHEET = 'prompt-left';
+const TEXT_LEFT_GEM = 22;
 let textGlow = startSheet === TEXT_GLOW_SHEET;
+let textLeft = startSheet === TEXT_LEFT_SHEET;
 let sheet = SHEETS.includes(startSheet) ? startSheet : 'prompt';
 document.body.classList.toggle('is-text-glow', textGlow);
+document.body.classList.toggle('is-text-left', textLeft);
 let toastTimer = 0;
 let lockScroll = false;
 let discAngle = 0;
@@ -947,7 +979,7 @@ function feedPromptCornerHtml(g) {
 }
 
 function hollowMark(tagId) {
-  return `<span class="cat-gem-hollow">${ART.hollow[HOLLOW_ART_KEY[tagId] || 'nature']}</span>`;
+  return `<span class="cat-gem-hollow">${hiddenMark(tagId, 30)}</span>`;
 }
 
 function promptDist(g) {
@@ -983,7 +1015,9 @@ function buildPromptChip(g) {
   chip.style.setProperty('--gem-line', fill);
   chip.innerHTML = `
     <div class="feed-chip-prompt-panel">
-      <p class="feed-chip-prompt-kicker">${promptDist(g)}</p>
+      ${textLeft
+        ? `<div class="feed-chip-kicker-row"><span class="feed-chip-kicker-gem">${categoryMark(g.tags[0], TEXT_LEFT_GEM)}</span><p class="feed-chip-prompt-kicker">${promptDist(g)}</p></div>`
+        : `<p class="feed-chip-prompt-kicker">${promptDist(g)}</p>`}
       <p class="feed-chip-prompt">${promptLineOf(g)}</p>
       <div class="feed-chip-prompt-foot">
         <p class="feed-chip-rarity-word${showRarity ? ` is-${rid}` : ''}" ${showRarity ? '' : 'hidden'}>${showRarity ? rarity.label : ''}</p>
@@ -993,7 +1027,7 @@ function buildPromptChip(g) {
         <button type="button" class="icon-act bookmark-btn" aria-pressed="false" aria-label="${displayCopy(btnCopy('save'))}"></button>
       </div>
     </div>
-    <div class="feed-chip-corner" aria-hidden="true">${feedPromptCornerHtml(g)}</div>`;
+    ${textLeft ? '' : `<div class="feed-chip-corner" aria-hidden="true">${feedPromptCornerHtml(g)}</div>`}`;
   const save = chip.querySelector('.bookmark-btn');
   const nav = chip.querySelector('.nav-btn');
   paintSaveButton(save, g);
@@ -1285,7 +1319,8 @@ function setSheet(next) {
   const url = new URL(location.href);
   url.searchParams.set('sheet', next);
   history.replaceState(null, '', url);
-  const pressed = textGlow && sheet === 'prompt' ? TEXT_GLOW_SHEET : sheet;
+  const variant = textGlow ? TEXT_GLOW_SHEET : textLeft ? TEXT_LEFT_SHEET : 'prompt';
+  const pressed = sheet === 'prompt' ? variant : sheet;
   for (const b of $('sheetSwitch').querySelectorAll('button')) {
     b.setAttribute('aria-pressed', String(b.dataset.sheet === pressed));
   }
@@ -1386,10 +1421,13 @@ $('screen').addEventListener('click', () => {
 });
 function chooseSheet(name) {
   const glow = name === TEXT_GLOW_SHEET;
-  const next = glow ? 'prompt' : name;
+  const left = name === TEXT_LEFT_SHEET;
+  const next = glow || left ? 'prompt' : name;
   if (!SHEETS.includes(next)) return;
   textGlow = glow;
+  textLeft = left;
   document.body.classList.toggle('is-text-glow', glow);
+  document.body.classList.toggle('is-text-left', left);
   setSheet(next);
 }
 for (const b of $('sheetSwitch').querySelectorAll('button')) {

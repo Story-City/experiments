@@ -1478,3 +1478,13 @@ body.is-text-glow .feed-chip.is-prompt .feed-chip-prompt-kicker::before {
 
 /* In the rail layout the phone sits in an auto-width column, so give it its own width */
 body:not(.is-embed) .gh-workspace > .phone { width: var(--phone-w); max-width: calc(100vw - 32px); }
+
+/* Text gem left: smaller gem in the left corner, centred with the "min away" line; glow moves left too */
+body.is-text-left .slide .feed-chip-prompt-panel {
+  background:
+    radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--gem-line, #00c2ff) 22%, transparent) 0%, transparent 55%),
+    var(--feed-chip-ink);
+}
+.slide .feed-chip-kicker-row { display: flex; align-items: center; gap: 8px; }
+.slide .feed-chip-kicker-gem { flex: none; display: grid; place-items: center; width: 22px; height: 22px; }
+.slide .feed-chip-kicker-gem .cat-gem-art { width: 22px; height: 22px; display: block; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--gem-line, #00c2ff) 45%, transparent)); }

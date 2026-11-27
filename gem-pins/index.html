@@ -32,6 +32,7 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
         <button type="button" data-sheet="original" aria-pressed="false">Original</button>
         <button type="button" data-sheet="prompt" aria-pressed="true" class="is-fav" title="Favourite">Text</button>
         <button type="button" data-sheet="prompt-glow" aria-pressed="false" class="v3-only" title="V3 only">Text glow</button>
+        <button type="button" data-sheet="prompt-left" aria-pressed="false" class="v3-only" title="V3 only">Text gem left</button>
         <button type="button" data-sheet="image" aria-pressed="false" class="is-fav" title="Favourite">Image</button>
         <button type="button" data-sheet="bar" aria-pressed="false">Bar</button>
       </div>
@@ -213,8 +214,8 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
   let filterLayout = 'always';
   function sendSheet() {
     if (!frame.contentWindow) return;
-    // Text glow exists only in V3; other versions show plain Text.
-    const shown = sheet === 'prompt-glow' && frame.dataset.edition !== 'v3' ? 'prompt' : sheet;
+    // Text glow and Text gem left exist only in V3; other versions show plain Text.
+    const shown = (sheet === 'prompt-glow' || sheet === 'prompt-left') && frame.dataset.edition !== 'v3' ? 'prompt' : sheet;
     frame.contentWindow.postMessage({ type: 'gem-pins-sheet', sheet: shown }, '*');
   }
   function sendFilterLayout() {
@@ -229,7 +230,7 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
   }
   // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
   // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
-const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=21' };
+const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=22' };
   function apply(edition) {
     const src = FRAMES[edition];
     document.body.classList.toggle('is-v2', !!src);
