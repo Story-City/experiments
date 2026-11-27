@@ -255,6 +255,8 @@ const COPY = {
   sortIntro: '[hold the photo — left hidden, right public, down delete]',
   sortIntroDrag: '[hold the photo — drag onto Hidden or Public]',
   sortIntroRight: '[hold the photo — up to publish, right to keep hidden, down to delete]',
+  sortIntroRightMid: '[hold the photo — up to publish, right to delete, down to keep hidden]',
+  sortIntroSplit: '[hold the photo — up right to publish, down right to keep hidden, left to delete]',
   publicIntroTitle: '[public]',
   publicIntroBody: '[on the map for other people]',
   hiddenIntroTitle: '[hidden]',
@@ -317,6 +319,8 @@ const SPOOF_COPY = {
   sortIntro: 'Hold the photo — left hidden, right public, down delete.',
   sortIntroDrag: 'Hold the photo — drag onto Hidden or Public.',
   sortIntroRight: 'Hold the photo — up to publish, right to keep hidden, down to delete.',
+  sortIntroRightMid: 'Hold the photo — up to publish, right to delete, down to keep hidden.',
+  sortIntroSplit: 'Hold the photo — up right to publish, down right to keep hidden, left to delete.',
   publicIntroTitle: 'Public',
   publicIntroBody: 'On the map for other people.',
   hiddenIntroTitle: 'Hidden',
@@ -916,7 +920,7 @@ function setupSnapshotArc() {
 
 function applyStaticCopy() {
   sortTitle.textContent = t('sortTitle');
-  sortIntro.textContent = isSortRight() ? t('sortIntroRight') : dragMode ? t('sortIntroDrag') : t('sortIntro');
+  sortIntro.textContent = isSortRight() ? t(sortRightIntroKey()) : dragMode ? t('sortIntroDrag') : t('sortIntro');
   document.querySelectorAll('[data-copy]').forEach((el) => {
     const map = {
       private: 'railPrivate',
@@ -944,7 +948,7 @@ function applyStaticCopy() {
   detailSectionLabel.textContent = t('descriptionLabel');
   likesSubtitle.textContent = t('likesSubtitle');
   sortEmpty.textContent = t('sortEmpty');
-  hint.textContent = isSortRight() ? t('sortIntroRight') : dragMode ? t('holdHintDrag') : t('holdHint');
+  hint.textContent = isSortRight() ? t(sortRightIntroKey()) : dragMode ? t('holdHintDrag') : t('holdHint');
   syncDetailNoteCount();
   syncSectionIntro();
 }
@@ -2199,7 +2203,7 @@ function bindSortDrag(card) {
         armed: true,
       };
       moveCard(0, 0);
-      hint.textContent = isSortRight() ? t('sortIntroRight') : dragMode ? t('holdHintDrag') : t('holdHint');
+      hint.textContent = isSortRight() ? t(sortRightIntroKey()) : dragMode ? t('holdHintDrag') : t('holdHint');
     },
     { passive: false },
   );
@@ -3610,7 +3614,7 @@ function resetState() {
   showTip(true);
   setSection('public');
   refreshHub();
-  hint.textContent = isSortRight() ? t('sortIntroRight') : dragMode ? t('holdHintDrag') : t('holdHint');
+  hint.textContent = isSortRight() ? t(sortRightIntroKey()) : dragMode ? t('holdHintDrag') : t('holdHint');
   runOnboardingTips();
 }
 
@@ -4122,7 +4126,13 @@ if (detailDelete) {
 
 // V3 Sort layout: swipe (default) or drag right, a big photo dragged onto the publish, hidden or delete rail stacked on the right (Melissa, 27 Nov)
 const SORT_LAYOUT_KEY = 'location-gems-sort-layout';
-const SORT_LAYOUTS = ['swipe', 'right'];
+const SORT_LAYOUTS = ['swipe', 'right', 'right-mid', 'split'];
+const SORT_DRAG_LAYOUTS = ['right', 'right-mid', 'split'];
+const SORT_INTRO_KEYS = { right: 'sortIntroRight', 'right-mid': 'sortIntroRightMid', split: 'sortIntroSplit' };
+let sortLayout = SORT_LAYOUTS[0];
+function sortRightIntroKey() {
+  return SORT_INTRO_KEYS[sortLayout] || 'sortIntroRight';
+}
 const SORT_CARD_TILT_DEG = -4;
 function sortCardTilt() {
   return isSortRight() ? 0 : SORT_CARD_TILT_DEG;
@@ -4134,14 +4144,25 @@ function isSortRight() {
 const SORT_RIGHT_NUDGE_Y = 10;
 const SORT_RIGHT_NUDGE_X = 14;
 function sortRightModeFromDelta(dx, dy) {
+  if (sortLayout === 'split') {
+    if (dx <= -SORT_RIGHT_NUDGE_X && -dx > Math.abs(dy)) return 'delete';
+    if (dy <= -SORT_RIGHT_NUDGE_Y) return 'public';
+    if (dy >= SORT_RIGHT_NUDGE_Y) return 'private';
+    return null;
+  }
+  const level = sortLayout === 'right-mid' ? 'delete' : 'private';
+  const down = sortLayout === 'right-mid' ? 'private' : 'delete';
   if (dy <= -SORT_RIGHT_NUDGE_Y) return 'public';
-  if (dy >= SORT_RIGHT_NUDGE_Y) return 'delete';
-  if (dx >= SORT_RIGHT_NUDGE_X) return 'private';
+  if (dy >= SORT_RIGHT_NUDGE_Y) return down;
+  if (dx >= SORT_RIGHT_NUDGE_X) return level;
   return null;
 }
 function setSortLayout(layout) {
   const next = SORT_LAYOUTS.includes(layout) ? layout : SORT_LAYOUTS[0];
-  SORT_LAYOUTS.forEach((l) => document.body.classList.toggle(`sort-layout-${l}`, l === next));
+  sortLayout = next;
+  document.body.classList.toggle('sort-layout-right', SORT_DRAG_LAYOUTS.includes(next));
+  document.body.classList.toggle('sort-variant-mid', next === 'right-mid');
+  document.body.classList.toggle('sort-variant-split', next === 'split');
   document.querySelectorAll('[data-sort-layout]').forEach((b) => {
     const on = b.dataset.sortLayout === next;
     b.classList.toggle('is-on', on);

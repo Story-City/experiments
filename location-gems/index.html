@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=144">
+<link rel="stylesheet" href="app.css?v=145">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=15">
 <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
@@ -142,9 +142,11 @@
       <section class="tool-block v3-only">
         <h2 class="tool-title">Sort layout</h2>
         <p class="tool-note">V3 only. Swipe the card, or nudge a big photo up, right or down toward glows on the&nbsp;right.</p>
-        <div class="variant-pick is-rail" role="group" aria-label="Sort layout">
+        <div class="variant-pick is-rail is-wrap" role="group" aria-label="Sort layout">
           <button type="button" class="variant-btn is-on" data-sort-layout="swipe" aria-pressed="true">Swipe</button>
           <button type="button" class="variant-btn" data-sort-layout="right" aria-pressed="false">Drag right</button>
+          <button type="button" class="variant-btn" data-sort-layout="right-mid" aria-pressed="false">Delete middle</button>
+          <button type="button" class="variant-btn" data-sort-layout="split" aria-pressed="false">Delete left</button>
         </div>
       </section>
 
@@ -595,7 +597,7 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=13"></script>
-  <script src="app.js?v=148"></script>
+  <script src="app.js?v=149"></script>
   <script type="module">
     import { mountVersions } from '../shared/versions/versions.js?v=2';
     mountVersions({

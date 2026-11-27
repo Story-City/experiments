@@ -4086,3 +4086,12 @@ body.is-v3 .v3-heading { text-shadow: 0 2px 14px rgba(13, 8, 36, 0.75), 0 1px 2p
   100% { filter: saturate(1.3) hue-rotate(28deg); }
 }
 @media (prefers-reduced-motion: reduce) { body.is-v3 .v3-opal { animation: none; } }
+
+/* Drag right variants: Delete middle swaps delete and hidden; Delete left puts delete on the left edge with the photo centred */
+body.is-v3.sort-layout-right.sort-variant-mid .sort-rail-down { top: 158px; }
+body.is-v3.sort-layout-right.sort-variant-mid .sort-rail-left { top: 304px; }
+body.is-v3.sort-layout-right.sort-variant-split .sort-stack { left: 50%; width: calc(100% - 176px); transform: translateX(-50%); }
+body.is-v3.sort-layout-right.sort-variant-split .sort-rail-right { top: 40px; }
+body.is-v3.sort-layout-right.sort-variant-split .sort-rail-left { top: 276px; }
+body.is-v3.sort-layout-right.sort-variant-split .sort-rail-down { top: 158px; left: 0; right: auto; }
+body.is-v3.sort-layout-right.sort-variant-split .sort-rail-down::before { left: auto; right: 0; }
