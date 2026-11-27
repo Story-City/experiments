@@ -840,3 +840,35 @@ body:not(.is-v3) .v3-only-group { display: none; }
   .panel .dnd-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
   .panel .opt-select { padding-left: 10px; padding-right: 28px; background-position: right 10px center; }
 }
+
+/* Tile selectors instead of dropdowns, and sections that fold (Melissa, 26 Nov) */
+.panel .segs.is-pick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.panel .seg { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding: 8px 8px; text-align: left; }
+.panel .seg b { flex: none; font-size: 11px; }
+.panel .seg.start::after { margin-left: auto; flex: none; }
+.panel .group { gap: 0; }
+.panel .group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.panel .group-head .group-name { flex: none; }
+.panel .group-sum { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; color: rgba(255, 255, 255, 0.45); font: 800 11px/1 var(--f-app); }
+.panel .group-chev { flex: none; width: 8px; height: 8px; border-right: 1.8px solid rgba(255, 255, 255, 0.62); border-bottom: 1.8px solid rgba(255, 255, 255, 0.62); transform: rotate(-45deg); transition: transform 200ms var(--ease-out); }
+.panel .group.is-open .group-chev { transform: rotate(45deg) translate(-2px, -2px); }
+.panel .group.is-open .group-sum { visibility: hidden; }
+.panel .group-rows { margin-top: 10px; }
+.panel .group-rows[hidden] { display: none; }
+.panel .presets-title { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 0; }
+.panel .presets-title::after { content: ''; width: 8px; height: 8px; border-right: 1.8px solid rgba(255, 255, 255, 0.62); border-bottom: 1.8px solid rgba(255, 255, 255, 0.62); transform: rotate(45deg) translate(-2px, -2px); transition: transform 200ms var(--ease-out); }
+.panel .presets-wrap:not(.is-folded) .presets-title { margin-bottom: 8px; }
+.panel .presets-wrap.is-folded .presets-title::after { transform: rotate(-45deg); }
+.panel .presets-wrap.is-folded > :not(.presets-title) { display: none; }

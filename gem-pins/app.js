@@ -769,19 +769,24 @@ function optionRow(o, short) {
   head.append(el('span', 'num', String(o.n)), lab);
   row.append(head);
   if (!o.multi) {
-    const sel = el('select', 'opt-select');
-    sel.id = `opt-${o.id}`;
-    lab.htmlFor = sel.id;
-    sel.setAttribute('aria-label', `${o.n}. ${o.label}`);
+    // Victoria's Gem Hub selector: every choice a tile, the picked one lighter (Melissa, 26 Nov)
+    const tiles = el('div', 'segs is-pick');
+    tiles.id = `opt-${o.id}`;
+    tiles.setAttribute('role', 'radiogroup');
+    tiles.setAttribute('aria-label', `${o.n}. ${o.label}`);
     o.opts.forEach(([v, label], i) => {
       if ((RULED_OUT[o.id] || []).includes(v)) return; // ruled out; letters of the rest stay put
-      const op = el('option', null, `${LETTERS[i]} · ${label}${v === o.start ? ' •' : ''}`);
-      op.value = v;
-      op.selected = opt[o.id] === v;
-      sel.append(op);
+      const b = el('button', v === o.start ? 'seg start' : 'seg');
+      b.type = 'button';
+      b.dataset.value = v;
+      b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', String(opt[o.id] === v));
+      b.setAttribute('aria-pressed', String(opt[o.id] === v));
+      b.append(el('b', null, LETTERS[i]), label);
+      b.addEventListener('click', () => { opt[o.id] = v; writeHash(); closeDetails(); drawAll(); });
+      tiles.append(b);
     });
-    sel.addEventListener('change', () => { opt[o.id] = sel.value; writeHash(); closeDetails(); drawAll(); });
-    row.append(sel);
+    row.append(tiles);
   } else {
     // category tags: several at once, so chips
     const segs = el('div', 'segs');
@@ -806,16 +811,64 @@ function optionRow(o, short) {
   if (note) row.append(el('p', 'opt-note', note));
   return row;
 }
+// Sections fold open and shut; which ones are open is remembered on this device
+const OPEN_KEY = 'gem-pins-v1-open';
+let openGroups = (() => { try { return new Set(JSON.parse(localStorage.getItem(OPEN_KEY) || '["Rarity"]')); } catch (e) { return new Set(['Rarity']); } })();
+const saveOpen = () => { try { localStorage.setItem(OPEN_KEY, JSON.stringify([...openGroups])); } catch (e) { /* private window */ } };
+// "3C · 4B": what a folded section is set to, in the letters people use to talk about it
+function groupSummary(rows) {
+  return rows.map(([id]) => {
+    const o = OPTIONS.find((x) => x.id === id);
+    if (o.multi) return null;
+    const i = o.opts.findIndex(([v]) => v === opt[id]);
+    return i < 0 ? null : `${o.n}${LETTERS[i]}`;
+  }).filter(Boolean).join(' · ');
+}
 function drawPanel() {
   const list = $('opts');
   list.replaceChildren();
   for (const [name, rows] of GROUPS) {
-    const li = el('li', 'group');
+    const open = openGroups.has(name);
+    const li = el('li', open ? 'group is-open' : 'group');
+    const head = el('button', 'group-head');
+    head.type = 'button';
+    head.setAttribute('aria-expanded', String(open));
+    head.append(el('h3', 'group-name', name), el('span', 'group-sum', groupSummary(rows)), el('span', 'group-chev'));
     const body = el('div', 'group-rows');
+    body.hidden = !open;
     for (const [id, short] of rows) body.append(optionRow(OPTIONS.find((o) => o.id === id), short));
-    li.append(el('h3', 'group-name', name), body);
+    head.addEventListener('click', () => {
+      const now = !openGroups.has(name);
+      if (now) openGroups.add(name); else openGroups.delete(name);
+      saveOpen();
+      li.classList.toggle('is-open', now);
+      head.setAttribute('aria-expanded', String(now));
+      body.hidden = !now;
+    });
+    li.append(head, body);
     list.append(li);
   }
+}
+{
+  // Preset combos folds too (title is redrawn as text, so the chevron is CSS)
+  const wrap = document.querySelector('.presets-wrap');
+  const title = $('presetsTitle');
+  const KEY = 'Preset combos';
+  const paintPresetsFold = () => {
+    const open = !openGroups.has('!' + KEY);
+    wrap.classList.toggle('is-folded', !open);
+    title.setAttribute('aria-expanded', String(open));
+  };
+  title.setAttribute('role', 'button');
+  title.tabIndex = 0;
+  const togglePresets = () => {
+    if (openGroups.has('!' + KEY)) openGroups.delete('!' + KEY); else openGroups.add('!' + KEY);
+    saveOpen();
+    paintPresetsFold();
+  };
+  title.addEventListener('click', togglePresets);
+  title.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePresets(); } });
+  paintPresetsFold();
 }
 $('resetBtn').addEventListener('click', () => { ideas = []; opt = { ...START }; myColour = PALETTE[0].id; filterOn = new Set(CATS.map((c) => c.id)); writeHash(); drawAll(); });
 $('shareBtn').addEventListener('click', async () => {
