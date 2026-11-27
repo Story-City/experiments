@@ -51,11 +51,11 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
       <div class="edition-sheets" role="group" aria-label="Filter layout">
         <button type="button" data-filter-layout="quarter-left" aria-pressed="false" class="v3-only is-fav" title="Favourite, V3 only">Quarter left</button>
         <button type="button" data-filter-layout="disc-haze-2" aria-pressed="false" class="v3-only is-fav" title="Favourite, V3 only">Disc haze 2</button>
-        <button type="button" data-filter-layout="always" aria-pressed="true">Always on</button>
+        <button type="button" data-filter-layout="always" aria-pressed="false">Always on</button>
         <button type="button" data-filter-layout="classic" aria-pressed="false">Classic top</button>
         <button type="button" data-filter-layout="inline" aria-pressed="false">Inline legend</button>
         <button type="button" data-filter-layout="disc" aria-pressed="false">Disc colour</button>
-        <button type="button" data-filter-layout="disc-haze" aria-pressed="false" class="is-fav" title="Favourite">Disc haze</button>
+        <button type="button" data-filter-layout="disc-haze" aria-pressed="true" class="is-fav" title="Favourite">Disc haze</button>
         <button type="button" data-filter-layout="quarter-haze" aria-pressed="false" class="v3-only" title="V3 only">Quarter haze</button>
         <button type="button" data-filter-layout="corner" aria-pressed="false">Corner</button>
       </div>
@@ -217,7 +217,7 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
 (function () {
   const frame = document.getElementById('editionFrame');
   let sheet = 'prompt';
-  let filterLayout = 'always';
+  let filterLayout = 'disc-haze';
   function sendSheet() {
     if (!frame.contentWindow) return;
     // Text glow and Text gem left exist only in V3/V4; other versions show plain Text.
