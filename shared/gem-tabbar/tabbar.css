@@ -122,3 +122,8 @@
 .gtb-cam.is-flash::after { content: ''; position: absolute; inset: 0; z-index: 5; background: #fff; animation: gtbflash 0.22s ease-out forwards; }
 @keyframes gtbflash { from { opacity: 0.9; } to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .gtb-cam.is-flash::after { animation: none; opacity: 0; } }
+
+.gtb-feed { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; background: #0d0824; margin: 0; }
+.gtb-feed[hidden], .gtb[hidden] + .gtb-feed { display: none; }
+.gtb-feed p { margin: 0; color: rgba(255, 255, 255, 0.55); font-weight: 600; font-size: 14px; }
+.gtb-on-feed > .gtb { z-index: 31; }

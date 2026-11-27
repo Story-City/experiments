@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500;700;800;900&display=swap">
 <link rel="stylesheet" href="app.css?v=62">
 <meta http-equiv="Cache-Control" content="no-cache">
-<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=9">
+<link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=10">
 <link rel="stylesheet" href="../shared/gem-hub-rail/rail.css?v=1">
 </head>
 <body>
@@ -200,6 +200,13 @@
       <p class="gh-note">[more filter layout patterns]</p>
     </section>
     <section class="gh-block">
+      <h2 class="gh-title">Home</h2>
+      <div class="gh-pick" role="group" aria-label="Home">
+        <button type="button" data-tab-home="feed" aria-pressed="false">Feed</button>
+        <button type="button" data-tab-home="map" aria-pressed="false">Map</button>
+      </div>
+    </section>
+    <section class="gh-block">
       <h2 class="gh-title">Create button</h2>
       <div class="gh-pick" role="group" aria-label="Create button">
         <button type="button" data-create-look="subtle" aria-pressed="false">Subtle plus</button>
@@ -227,7 +234,7 @@
   <script src="../location-gems/corner-ribbon.js?v=36"></script>
   <script type="module" src="app.js?v=57"></script>
   <!-- The one bottom bar every Gem map pins version uses: shared/gem-tabbar -->
-  <script src="../shared/gem-tabbar/tabbar.js?v=10"></script>
+  <script src="../shared/gem-tabbar/tabbar.js?v=11"></script>
   <script>
   GemTabBar.mount({
     host: document.getElementById('phone'),
@@ -237,7 +244,7 @@
       else location.href = '../location-gems/?v=112&appPages=1';
     },
   });
-  [['createLook', 'getCreateLook', 'setCreateLook'], ['tabLabels', 'getLabels', 'setLabels'], ['tabWidth', 'getWidth', 'setWidth']].forEach(([data, get, set]) => {
+  [['tabHome', 'getHome', 'setHome'], ['createLook', 'getCreateLook', 'setCreateLook'], ['tabLabels', 'getLabels', 'setLabels'], ['tabWidth', 'getWidth', 'setWidth']].forEach(([data, get, set]) => {
     const btns = document.querySelectorAll('.gh-rail [data-' + data.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()) + ']');
     const paint = () => btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[data] === GemTabBar[get]())));
     btns.forEach((b) => b.addEventListener('click', () => { GemTabBar[set](b.dataset[data]); paint(); }));

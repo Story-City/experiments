@@ -841,6 +841,7 @@ body:not(.is-v3) .v3-only-group { display: none; }
   .panel .opt-select { padding-left: 10px; padding-right: 28px; background-position: right 10px center; }
 }
 
+<<<<<<< Updated upstream
 /* Tile selectors instead of dropdowns, and sections that fold (Melissa, 26 Nov) */
 .panel .segs.is-pick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .panel .seg { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding: 8px 8px; text-align: left; }
@@ -872,3 +873,6 @@ body:not(.is-v3) .v3-only-group { display: none; }
 .panel .presets-wrap:not(.is-folded) .presets-title { margin-bottom: 8px; }
 .panel .presets-wrap.is-folded .presets-title::after { transform: rotate(-45deg); }
 .panel .presets-wrap.is-folded > :not(.presets-title) { display: none; }
+=======
+.is-v2 #phone > .gtb-feed { display: none; }
+>>>>>>> Stashed changes
