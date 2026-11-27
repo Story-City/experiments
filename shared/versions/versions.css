@@ -1,0 +1,65 @@
+.scv { display: grid; gap: 6px; }
+.scv-list { display: grid; gap: 4px; }
+.scv-row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: start;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.scv-row.is-on { background: rgba(167, 139, 250, 0.12); box-shadow: inset 0 0 0 1px rgba(167, 139, 250, 0.35); }
+.scv-pick {
+  height: 30px;
+  border: 0;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  font: 800 12px/1 inherit;
+  font-family: inherit;
+  cursor: pointer;
+}
+.scv-row.is-on .scv-pick {
+  background: linear-gradient(90deg, var(--accent-deep, #0259a1), var(--accent, #00c2ff));
+  color: #fff;
+}
+.scv-note {
+  margin: 0;
+  padding: 6px 6px;
+  min-height: 30px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-wrap: pretty;
+  outline: 1px solid transparent;
+  cursor: text;
+}
+.scv-note:empty::before { content: attr(data-placeholder); color: rgba(255, 255, 255, 0.35); }
+.scv-note:hover { background: rgba(255, 255, 255, 0.05); }
+.scv-note:focus {
+  background: rgba(255, 255, 255, 0.08);
+  outline-color: rgba(167, 139, 250, 0.7);
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.35);
+  color: #fff;
+}
+.scv-new {
+  height: 30px;
+  padding: 0 10px;
+  border: 1px dashed rgba(167, 139, 250, 0.55);
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(214, 200, 255, 0.95);
+  font: 700 12px/1 inherit;
+  font-family: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.scv-new:hover { background: rgba(167, 139, 250, 0.12); box-shadow: 0 0 12px rgba(167, 139, 250, 0.3); }
+.scv-status { margin: 0; color: rgba(167, 139, 250, 0.95); font-size: 12px; font-weight: 700; }
+.scv-status:empty { display: none; }

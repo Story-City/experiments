@@ -79,7 +79,7 @@
   },
   {
     "slug": "gem-pins",
-    "path": "gem-pins/?v=62",
+    "path": "gem-pins/?v=63",
     "area": "gems",
     "frame": "wide",
     "title": "Gem map pins",
@@ -176,7 +176,7 @@
   },
   {
     "slug": "location-gems",
-    "path": "location-gems/?v=134",
+    "path": "location-gems/?v=137",
     "area": "gems",
     "title": "Location Gems hub",
     "what": "Page anchor: Original + Mist/Drift/Bloom flowy overlays. Dual shade on Tinted.",

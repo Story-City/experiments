@@ -11,6 +11,7 @@
 <script>
 window.CACHE_V = '?v=' + Date.now();
 document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
+document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CACHE_V}">`);
 </script>
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=8">
 </head>
@@ -23,14 +24,8 @@ document.write(`<link rel="stylesheet" href="app.css${CACHE_V}">`);
 <button type="button" class="reset-filter" id="resetFilter">Reset filter</button>
 <aside class="debug-rail" aria-label="Debug">
   <section class="tool-block">
-    <h2 class="edition-title">Versioning</h2>
-    <div class="edition-bar" role="group" aria-label="Version">
-      <button type="button" data-edition="v1" aria-pressed="true" data-note="The options lab: try every gem look, preset and filter side by side.">V1</button>
-      <button type="button" data-edition="v2" aria-pressed="false" data-note="Victoria's build: Text and Image slide-outs, white map gems, Disc haze.">V2</button>
-      <button type="button" data-edition="v3" aria-pressed="false" data-note="Melissa's copy of V2 (26 Nov): gems in category colours, Navigate first, visited ✓, ＋ opens the camera.">V3</button>
-    </div>
-    <p class="version-note" id="versionNote" contenteditable="plaintext-only" role="textbox" aria-label="Note for this version" title="Click to edit. Enter saves, Esc cancels." spellcheck="true"></p>
-    <p class="version-note-status" id="versionNoteStatus" aria-live="polite"></p>
+    <h2 class="edition-title">Versions</h2>
+    <div id="versionPick"></div>
     <div class="edition-extra" id="editionExtra">
       <p class="edition-label">Slide-out</p>
       <div class="edition-sheets" role="group" aria-label="Slide-out">
@@ -245,80 +240,14 @@ const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=18' };
     } else {
       frame.classList.remove('is-shown');
     }
-    document.querySelectorAll('[data-edition]').forEach((b) => {
-      const on = b.dataset.edition === (src ? edition : 'v1');
-      b.setAttribute('aria-pressed', String(on));
-    });
-    showNote(src ? edition : 'v1');
   }
 
-  // Version notes: anyone can edit. On the live site they save for the team in the hub database
-  // (slug notes:gem-pins, newest edit per version wins); elsewhere only in this browser.
-  const NOTE_SLUG = 'notes:gem-pins';
-  const NOTE_LOCAL = 'sc-gem-version-notes';
-  const NOTE_MAX = 240;
-  const noteEl = document.getElementById('versionNote');
-  const noteStatus = document.getElementById('versionNoteStatus');
-  const defaultNote = (ed) => document.querySelector('.edition-bar [data-edition="' + ed + '"]')?.dataset.note || '';
-  let notes = {};
-  try { notes = JSON.parse(localStorage.getItem(NOTE_LOCAL) || '{}'); } catch (e) { notes = {}; }
-  let noteDb = null;
-  let noteEdition = 'v1';
-  const noteFor = (ed) => (notes[ed] ? notes[ed].note : defaultNote(ed));
-  function showNote(ed) {
-    noteEdition = ed;
-    if (document.activeElement !== noteEl) noteEl.textContent = noteFor(ed);
-    noteStatus.textContent = '';
-  }
-  function flash(text) {
-    noteStatus.textContent = text;
-    clearTimeout(flash.t);
-    flash.t = setTimeout(() => { noteStatus.textContent = ''; }, 2400);
-  }
-  async function saveNote() {
-    const text = noteEl.textContent.replace(/\s+/g, ' ').trim().slice(0, NOTE_MAX);
-    if (text === noteFor(noteEdition)) { noteEl.textContent = text; return; }
-    const entry = { kind: 'version-note', edition: noteEdition, note: text || defaultNote(noteEdition), ts: Date.now() };
-    notes[noteEdition] = entry;
-    noteEl.textContent = entry.note;
-    if (noteDb) {
-      try { await noteDb.add(JSON.stringify(entry), 'Version note'); flash('Saved for the team'); }
-      catch (e) { flash('Couldn’t save. Try again.'); }
-    } else {
-      try { localStorage.setItem(NOTE_LOCAL, JSON.stringify(notes)); } catch (e) { /* private window */ }
-      flash('Saved in this browser');
-    }
-  }
-  noteEl.addEventListener('keydown', (e) => {
-    e.stopPropagation();
-    if (e.key === 'Enter') { e.preventDefault(); noteEl.blur(); }
-    else if (e.key === 'Escape') { noteEl.textContent = noteFor(noteEdition); noteEl.blur(); }
-  });
-  noteEl.addEventListener('blur', saveNote);
-  import('./preset-store.js').then(({ connect }) => connect(NOTE_SLUG, (docs) => {
-    const latest = {};
-    docs.forEach((d) => {
-      try {
-        const v = JSON.parse(d.text);
-        if (v.kind === 'version-note' && (!latest[v.edition] || v.ts > latest[v.edition].ts)) latest[v.edition] = v;
-      } catch (e) { /* not a note */ }
-    });
-    notes = latest;
-    showNote(noteEdition);
-  }, () => {})).then((db) => { noteDb = db; }).catch(() => {});
+  // Versions, their notes and "+ New version" come from the shared switcher (shared/versions).
+  const VERSIONS = [{"id": "v1", "label": "V1", "note": "The options lab: try every gem look, preset and filter side by side."}, {"id": "v2", "label": "V2", "note": "Victoria's build: Text and Image slide-outs, white map gems, Disc haze."}, {"id": "v3", "label": "V3", "note": "Melissa's copy of V2 (26 Nov): gems in category colours, Navigate first, visited ✓, ＋ opens the camera."}];
   frame.addEventListener('load', () => { showFrame(); sendSheet(); sendFilterLayout(); });
-  const startEdition = new URLSearchParams(location.search).get('edition');
-  apply(FRAMES[startEdition] ? startEdition : 'v1');
-  document.querySelectorAll('[data-edition]').forEach((b) => {
-    b.addEventListener('click', () => {
-      const edition = b.dataset.edition;
-      const url = new URL(location.href);
-      if (FRAMES[edition]) url.searchParams.set('edition', edition);
-      else url.searchParams.delete('edition');
-      history.replaceState(null, '', url);
-      apply(edition);
-    });
-  });
+  import(`../shared/versions/versions.js${window.CACHE_V}`).then(({ mountVersions }) => mountVersions({
+    el: document.getElementById('versionPick'), slug: 'gem-pins', versions: VERSIONS, onPick: (base) => apply(base),
+  }));
   document.querySelectorAll('[data-sheet]').forEach((b) => {
     b.addEventListener('click', () => {
       sheet = b.dataset.sheet;

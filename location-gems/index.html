@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="app.css?v=134">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=8">
 <meta http-equiv="Cache-Control" content="no-cache">
+  <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
 </head>
 <body>
   <header>
@@ -442,12 +443,8 @@
 
     <aside class="edition-rail" aria-label="Design tools">
       <section class="tool-block">
-        <h2 class="tool-title">Edition</h2>
-        <p class="tool-note">V1 = crystals, no rarity. V2 keeps rarity.</p>
-        <div class="variant-pick is-rail" role="group" aria-label="Hub edition">
-          <button type="button" class="variant-btn is-on" data-hub-edition="v1" aria-pressed="true">V1</button>
-          <button type="button" class="variant-btn" data-hub-edition="v2" aria-pressed="false">V2</button>
-        </div>
+        <h2 class="tool-title">Versions</h2>
+        <div id="versionPick"></div>
       </section>
 
       <section class="tool-block">
@@ -538,6 +535,18 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=8"></script>
-  <script src="app.js?v=136"></script>
+  <script src="app.js?v=137"></script>
+  <script type="module">
+    import { mountVersions } from '../shared/versions/versions.js?v=2';
+    mountVersions({
+      el: document.getElementById('versionPick'),
+      slug: 'location-gems',
+      versions: [
+        { id: 'v1', label: 'V1', note: 'Crystals, no rarity.' },
+        { id: 'v2', label: 'V2', note: 'Keeps rarity: aquamarine, moonstone, topaz, opal, diamond.' },
+      ],
+      onPick: (base) => setHubEdition(base),
+    });
+  </script>
 </body>
 </html>
