@@ -26,6 +26,7 @@ const ICON = {
   today: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>',
   map: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>',
   library: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5h4v15H4zM10 5h4v15h-4z"/><path d="M16 6l3.5-1 3 14-3.5 1z"/></svg>',
+  gems: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 4h10l4 5-9 11L3 9z"/><path d="M3 9h18M9 4l3 16 3-16"/></svg>',
   stash: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 11c0-4 4-6 9-6s9 2 9 6z"/><rect x="3" y="11" width="18" height="9" rx="1.5"/><rect x="10" y="9.5" width="4" height="4.5" rx="1"/></svg>',
   heart: '<svg class="ic ic-s" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
 };
@@ -226,7 +227,8 @@ function render() {
   $('screen').scrollTop = 0;
 
   $('tabs').innerHTML = W.TABS.map(t => {
-    if (t.id === 'gem') return `<button class="tab tab-gem" data-tab="gem" aria-label="${S.v === 'b' ? 'Gem Hub' : 'New Gem'}" aria-current="${S.tab === 'gem'}"><span>+</span></button>`;
+    if (t.id === 'gem' && S.v === 'b') return `<button class="tab" data-tab="gem" aria-current="${S.tab === 'gem'}">${ICON.gems}<small>${W.GEMS_TAB}</small></button>`;
+    if (t.id === 'gem') return `<button class="tab tab-gem" data-tab="gem" aria-label="New Gem" aria-current="${S.tab === 'gem'}"><span>+</span></button>`;
     const dot = t.id === 'stash' && S.v !== 'b' && S.toSort ? '<i class="tab-dot"></i>' : '';
     return `<button class="tab" data-tab="${t.id}" aria-current="${S.tab === t.id}">${ICON[t.id]}${dot}<small>${t.label}</small></button>`;
   }).join('');

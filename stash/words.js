@@ -16,6 +16,7 @@ export const TABS = [
   { id: 'library', label: 'Library' },
   { id: 'stash', label: 'Stash' },
 ];
+export const GEMS_TAB = 'Gems';
 
 export const COMPARTMENTS = [
   { id: 'gems', title: 'Gems', sub: '12 kept · 3 to sort', accent: 'var(--emerald)' },
