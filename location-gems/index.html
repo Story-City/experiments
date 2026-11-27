@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=158">
+<link rel="stylesheet" href="app.css?v=159">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=15">
 <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
@@ -74,9 +74,9 @@
       </section>
 
       <section class="tool-block">
-        <h2 class="tool-title">Page anchor</h2>
-        <p class="tool-note">Keepers: Original, Tide, Cascade, Loom — top haze only. Blur / opacity tune the soft layer. Save look stores these.</p>
-        <div class="variant-pick is-rail is-wrap" role="group" aria-label="Page anchor">
+        <h2 class="tool-title">Page top haze</h2>
+        <p class="tool-note">Original, Tide, Cascade, Loom — soft mist over the CTA only. Never pins to Public / Hidden / Liked. Blur / opacity / size; Save look stores these.</p>
+        <div class="variant-pick is-rail is-wrap" role="group" aria-label="Page top haze">
           <button type="button" class="variant-btn is-on" data-page-anchor="camera" aria-pressed="true">Original</button>
           <button type="button" class="variant-btn" data-page-anchor="tide" aria-pressed="false">Tide</button>
           <button type="button" class="variant-btn" data-page-anchor="cascade" aria-pressed="false">Cascade</button>
@@ -183,16 +183,16 @@
     <div class="stage">
   <main class="phone" id="phone" aria-label="Location Gems hub">
     <div class="hub" id="hub" data-page-anchor="camera">
-      <div class="page-anchor-layer" id="pageAnchorLayer" aria-hidden="true">
-        <div class="page-anchor-mist" aria-hidden="true"></div>
-        <div class="page-anchor-sheer" aria-hidden="true"></div>
-        <div class="page-anchor-stream" aria-hidden="true"></div>
-        <div class="page-anchor-wash" aria-hidden="true"></div>
-        <div class="page-anchor-glow" aria-hidden="true"></div>
-        <div class="page-anchor-gems" id="pageAnchorGems" aria-hidden="true"></div>
-      </div>
       <div class="hub-scroll" id="hubScroll">
         <section class="snapshot-section" id="snapshotSection" data-page-anchor="camera">
+          <div class="page-anchor-layer" id="pageAnchorLayer" aria-hidden="true">
+            <div class="page-anchor-mist" aria-hidden="true"></div>
+            <div class="page-anchor-sheer" aria-hidden="true"></div>
+            <div class="page-anchor-stream" aria-hidden="true"></div>
+            <div class="page-anchor-wash" aria-hidden="true"></div>
+            <div class="page-anchor-glow" aria-hidden="true"></div>
+            <div class="page-anchor-gems" id="pageAnchorGems" aria-hidden="true"></div>
+          </div>
           <div class="v3-opal" id="v3Opal" aria-hidden="true"></div>
           <button type="button" class="snapshot-hero" id="snapshotBtn" aria-label="Take a snapshot gem">
             <div class="arc-stage">
@@ -623,7 +623,7 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=13"></script>
-  <script src="app.js?v=158"></script>
+  <script src="app.js?v=159"></script>
   <script type="module">
     import { mountVersions } from '../shared/versions/versions.js?v=2';
     mountVersions({

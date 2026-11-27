@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v158 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v159 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -2348,17 +2348,18 @@ function bindSortDrag(card) {
   card.addEventListener('pointercancel', up);
 }
 
-function flyGemIntoSection(photoSrc, toPublic) {
+/** Soft dismiss in place — never fly into Public / Hidden (not layout anchors). */
+function flyGemIntoSection(photoSrc) {
   return new Promise((resolve) => {
-    const target = toPublic ? tabPublic : tabHidden;
     const stage = document.getElementById('sortStage');
+    if (!stage || !flyLayer || !phone) {
+      resolve();
+      return;
+    }
     const pr = phone.getBoundingClientRect();
     const sr = stage.getBoundingClientRect();
-    const tr = target.getBoundingClientRect();
     const startX = sr.left - pr.left + sr.width / 2 - 70;
     const startY = sr.top - pr.top + 70;
-    const endX = tr.left - pr.left + tr.width / 2 - 35;
-    const endY = tr.top - pr.top + tr.height / 2 - 40;
     const card = document.createElement('div');
     card.className = 'fly-card is-fly';
     card.innerHTML = `<img src="${photoSrc}" alt="">`;
@@ -2368,7 +2369,7 @@ function flyGemIntoSection(photoSrc, toPublic) {
     flyLayer.appendChild(card);
     card.style.transition = `transform ${FLY_MS}ms ${EASE_POPULAR}, opacity ${FLY_MS}ms ${EASE_IN}`;
     requestAnimationFrame(() => {
-      card.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.28)`;
+      card.style.transform = 'translate(0, 12px) scale(0.82)';
       card.style.opacity = '0';
     });
     window.setTimeout(() => {
@@ -2783,7 +2784,7 @@ async function settleSort(card, action, opts = {}) {
   }
   ensureGemCategory(gem);
   gems.unshift(gem);
-  await flyGemIntoSection(find.photo, action === 'public');
+  await flyGemIntoSection(find.photo);
   setSection(action === 'public' ? 'public' : 'hidden');
   if (opts.audience) showSnack(AUDIENCE_DONE[opts.audience]);
   else hint.textContent = action === 'public' ? t('railPublic') : t('railPrivate');

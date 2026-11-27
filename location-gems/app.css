@@ -377,15 +377,12 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   position: relative;
   margin-bottom: 0;
 }
-/* Page anchor — soft top mist only (name ≠ layout-pin). Never attach to
-   Public / Hidden / Liked — those tabs are not spark or crystal targets. */
+/* Top haze lives inside snapshot-section only — scrolls with CTA, never
+   pinned to hub chrome or Public / Hidden / Liked. */
 .page-anchor-layer {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 52px;
-  z-index: 18;
+  inset: 0;
+  z-index: 2;
   overflow: hidden;
   pointer-events: none;
   opacity: 0;
@@ -761,36 +758,38 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .hub[data-page-anchor="drift"] .page-anchor-gem:nth-child(4) { animation-duration: 22s; animation-delay: -2.1s; top: 62%; }
 .hub[data-page-anchor="drift"] .page-anchor-gem:nth-child(5) { animation-duration: 19.4s; animation-delay: -9.4s; top: 46%; }
 .hub[data-page-anchor="drift"] .page-anchor-gem:nth-child(6) { animation-duration: 21.2s; animation-delay: -12.6s; top: 52%; }
-.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(1) { animation-duration: 13.2s; animation-delay: 0s; left: 12%; }
-.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(2) { animation-duration: 15.4s; animation-delay: -2.6s; left: 28%; }
-.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(3) { animation-duration: 12.6s; animation-delay: -5.1s; left: 44%; }
-.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(4) { animation-duration: 16.2s; animation-delay: -1.4s; left: 60%; }
-.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(5) { animation-duration: 14.1s; animation-delay: -7.8s; left: 74%; }
-.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(6) { animation-duration: 15.8s; animation-delay: -10.2s; left: 88%; }
+/* Tide — free drift, not column-pinned over Public/Hidden/Liked */
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(1) { animation-duration: 13.2s; animation-delay: 0s; left: -8%; top: 58%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(2) { animation-duration: 15.4s; animation-delay: -2.6s; left: 18%; top: 42%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(3) { animation-duration: 12.6s; animation-delay: -5.1s; left: 38%; top: 64%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(4) { animation-duration: 16.2s; animation-delay: -1.4s; left: 55%; top: 36%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(5) { animation-duration: 14.1s; animation-delay: -7.8s; left: 72%; top: 52%; }
+.hub[data-page-anchor="tide"] .page-anchor-gem:nth-child(6) { animation-duration: 15.8s; animation-delay: -10.2s; left: 88%; top: 48%; }
 .hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(1) { animation-duration: 10.4s; animation-delay: 0s; }
 .hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(2) { animation-duration: 12.2s; animation-delay: -2.1s; }
 .hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(3) { animation-duration: 11.1s; animation-delay: -4.4s; }
 .hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(4) { animation-duration: 13s; animation-delay: -1.2s; }
 .hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(5) { animation-duration: 10.8s; animation-delay: -6.3s; }
 .hub[data-page-anchor="orbit"] .page-anchor-gem:nth-child(6) { animation-duration: 12.6s; animation-delay: -8.1s; }
+/* Cascade — soft fall + sideways drift; no fixed columns over the tab bar */
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(1),
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(1)::after { animation-duration: 11.8s; animation-delay: 0s; }
-.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(1) { left: 14%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(1) { left: -6%; top: 28%; }
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(2),
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(2)::after { animation-duration: 13.6s; animation-delay: -2.8s; }
-.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(2) { left: 30%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(2) { left: 22%; top: 18%; }
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(3),
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(3)::after { animation-duration: 12.2s; animation-delay: -5.6s; }
-.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(3) { left: 46%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(3) { left: 48%; top: 32%; }
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(4),
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(4)::after { animation-duration: 14.4s; animation-delay: -1.7s; }
-.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(4) { left: 62%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(4) { left: 64%; top: 22%; }
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(5),
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(5)::after { animation-duration: 12.9s; animation-delay: -8.4s; }
-.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(5) { left: 76%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(5) { left: 78%; top: 36%; }
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(6),
 .hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(6)::after { animation-duration: 13.8s; animation-delay: -10.9s; }
-.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(6) { left: 90%; }
+.hub[data-page-anchor="cascade"] .page-anchor-gem:nth-child(6) { left: 92%; top: 24%; }
 .hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(1) { animation-duration: 19s; animation-delay: 0s; }
 .hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(2) { animation-duration: 21s; animation-delay: -3.5s; }
 .hub[data-page-anchor="braid"] .page-anchor-gem:nth-child(3) { animation-duration: 18.2s; animation-delay: -7s; }
@@ -848,7 +847,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   0% { transform: translate3d(0, 16px, 0); opacity: 0; }
   18% { opacity: calc(0.2 * var(--pa-gem-gain, 1)); }
   62% { opacity: calc(0.14 * var(--pa-gem-gain, 1)); }
-  100% { transform: translate3d(0, -20px, 0); opacity: 0; }
+  100% { transform: translate3d(18px, -22px, 0); opacity: 0; }
 }
 @keyframes pageAnchorOrbit {
   0% { transform: translate3d(0, 2px, 0) rotate(0deg); opacity: 0.12; }
@@ -861,7 +860,7 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   0% { transform: translate3d(0, -14px, 0); opacity: 0; }
   16% { opacity: calc(0.18 * var(--pa-gem-gain, 1)); }
   70% { opacity: calc(0.12 * var(--pa-gem-gain, 1)); }
-  100% { transform: translate3d(3px, 26px, 0); opacity: 0; }
+  100% { transform: translate3d(28px, 30px, 0); opacity: 0; }
 }
 /* Same pin-sparkle pop as gem-pins-v2 select / fave mark */
 @keyframes pageAnchorCascadeSpark {
