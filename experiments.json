@@ -1,5 +1,20 @@
 [
   {
+    "slug": "starting-a-story",
+    "path": "starting-a-story/",
+    "area": "map",
+    "title": "Starting a Story",
+    "what": "What happens when a player taps Start Story, three ways (switch inside): A the four-option pop-up (route, walking, treadmill, at home + Remember my choice), B a smart default with Customize, C time first then where to start. Pick the story kind (Play Anywhere, Near You, Passport, one location) in the tester panel; each plays to the chapter 1 map in Steps, Path or Hunt and counts the taps.",
+    "author": "melissa",
+    "authorName": "Melissa",
+    "date": "2026-11",
+    "archived": false,
+    "notionPageId": null,
+    "jira": null,
+    "draft": true,
+    "reviewer": "Melissa"
+  },
+  {
     "slug": "stash",
     "path": "stash/",
     "area": "gems",
