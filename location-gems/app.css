@@ -2596,17 +2596,16 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .sort-rail-down {
   --sort-rail-pod-h: 56px;
   left: 50%;
-  bottom: 0;
+  bottom: 10px;
   transform: translateX(-50%);
 }
 .sort-rail-down.is-hot {
   transform: translateX(-50%);
 }
 .sort-rail-down .sort-rail-pod {
-  border-radius: 22px 22px 0 0;
-  padding: 8px 6px 6px;
+  border-radius: 22px;
+  padding: 8px 6px;
   gap: 4px;
-  border-bottom: 0;
 }
 .sort-rail-down.is-on .sort-rail-pod {
   background:
@@ -2765,11 +2764,11 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
 .hub.is-drag-mode .sort-rail { display: none; }
 .hub:not(.is-drag-mode) .drop-zone { display: none; }
 .sort-rail-chip {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   line-height: 1.15;
   text-align: center;
-  max-width: 56px;
+  max-width: 60px;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
 }
 /* Keep hidden + Publish labels — no text shadow */

@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v164 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v165 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -3835,6 +3835,54 @@ function bindDebugLikes() {
   });
   applyDebugLikes();
 }
+
+/** V4 seeds — only the sparkle favorites (Cascade + Polaroid). Extra likes in this browser join in. */
+const V4_FAV_SEEDS = ['data-page-anchor:cascade', 'data-sort-look:polaroid'];
+
+function applyDebugLikeKey(key) {
+  if (!key || typeof key !== 'string') return;
+  if (key.startsWith('data-page-anchor:')) {
+    setPageAnchor(key.slice('data-page-anchor:'.length));
+    return;
+  }
+  if (key.startsWith('data-heading:')) {
+    setHeadingLook(key.slice('data-heading:'.length));
+    return;
+  }
+  if (key.startsWith('data-place-motion:')) {
+    setPlaceMotion(key.slice('data-place-motion:'.length));
+    return;
+  }
+  if (key.startsWith('data-feed-variant:')) {
+    setFeedVariant(key.slice('data-feed-variant:'.length));
+    return;
+  }
+  if (key.startsWith('data-sort-look:')) {
+    setSortCardLook(key.slice('data-sort-look:'.length));
+    return;
+  }
+  if (key.startsWith('data-sort-layout:')) {
+    setSortLayout(key.slice('data-sort-layout:'.length));
+    return;
+  }
+  if (key.startsWith('data-card-size:')) {
+    setCardSize(key.slice('data-card-size:'.length));
+    return;
+  }
+  if (key.startsWith('data-hub-edition:')) {
+    setHubEdition(key.slice('data-hub-edition:'.length));
+  }
+}
+
+function applyV4Defaults() {
+  const liked = readDebugLikes();
+  V4_FAV_SEEDS.forEach((key) => liked.add(key));
+  writeDebugLikes(liked);
+  applyDebugLikes();
+  [...liked].forEach((key) => applyDebugLikeKey(key));
+}
+
+window.applyV4Defaults = applyV4Defaults;
 
 function init() {
   initIcons();
