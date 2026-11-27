@@ -64,14 +64,15 @@ export const RULED_OUT = { liked: ['colour', 'outline'], art: ['double'], rarity
 // Links, presets and saved presets can't change these.
 export const LOCKED = { art: 'victoria', curio: 'nugget', colour: 'category', shape: 'category' };
 
+// "Not shown" is always option A (Melissa, 26 Nov); notes below quote letters, so keep them in step.
 export const OPTIONS = [
   { id: 'colour', n: 1, label: 'Colour shows', start: 'category', opts: [['whose', 'Creator'], ['rarity', 'Rarity'], ['category', 'Category'], ['picked', 'Creator’s picked colour'], ['none', 'Nothing (one colour)']] },
   { id: 'shape', n: 2, label: 'Gem shape', start: 'category', opts: [['one', 'One shape for all'], ['category', 'A shape per category'], ['crystal', 'Crystal set']] },
-  { id: 'rarityBy', n: 3, label: 'Rarity shown by', start: 'sizeGlow', opts: [['size', 'Size'], ['glow', 'Glow'], ['sizeGlow', 'Size + glow'], ['colour', 'Colour'], ['sizeGlowSparkle', 'Size + glow + sparkle'], ['none', 'Not shown'], ['sparkle', 'Sparkle'], ['sizeSparkle', 'Size + sparkle'], ['glowSparkle', 'Glow + sparkle']] },
+  { id: 'rarityBy', n: 3, label: 'Rarity shown by', start: 'sizeGlow', opts: [['none', 'Not shown'], ['size', 'Size'], ['glow', 'Glow'], ['sizeGlow', 'Size + glow'], ['colour', 'Colour'], ['sizeGlowSparkle', 'Size + glow + sparkle'], ['sparkle', 'Sparkle'], ['sizeSparkle', 'Size + sparkle'], ['glowSparkle', 'Glow + sparkle']] },
   { id: 'levels', n: 4, label: 'Rarity levels', start: '3', opts: [['2', '2: Common, Rare'], ['3', '3: Common, Rare, Mythical'], ['4', '4: + Epic']] },
   { id: 'sizes', n: 5, label: 'Rarity sizes', start: '22-28-34', opts: [['22-28-34', '22 / 28 / 34 px'], ['22-26-30', '22 / 26 / 30 px'], ['18-28-40', '18 / 28 / 40 px (widest)']] },
-  { id: 'mine', n: 6, label: 'Mine: private vs public', start: 'hollow', opts: [['hollow', 'Hollow vs solid'], ['dashed', 'Dashed vs solid frame'], ['lock', 'Lock badge'], ['none', 'Not shown'], ['outline', 'Outline only (dotted = private)'], ['own', 'Own colour + shape'], ['plinth', 'Plinth under the gem (hollow = private)'], ['groundring', 'Ring on the ground (broken = private)'], ['wire', 'Wireframe (neon), hollow = private']] },
-  { id: 'liked', n: 7, label: 'Liked', start: 'heart', opts: [['heart', 'Heart badge'], ['colour', 'Its own colour'], ['ring', 'Double ring'], ['outline', 'Pink outline'], ['none', 'Not shown'], ['single', 'Single ring']] },
+  { id: 'mine', n: 6, label: 'Mine: private vs public', start: 'hollow', opts: [['none', 'Not shown'], ['hollow', 'Hollow vs solid'], ['dashed', 'Dashed vs solid frame'], ['lock', 'Lock badge'], ['outline', 'Outline only (dotted = private)'], ['own', 'Own colour + shape'], ['plinth', 'Plinth under the gem (hollow = private)'], ['groundring', 'Ring on the ground (broken = private)'], ['wire', 'Wireframe (neon), hollow = private']] },
+  { id: 'liked', n: 7, label: 'Liked', start: 'heart', opts: [['none', 'Not shown'], ['heart', 'Heart badge'], ['colour', 'Its own colour'], ['ring', 'Double ring'], ['outline', 'Pink outline'], ['single', 'Single ring']] },
   { id: 'others', n: 8, label: 'Others’ gems', start: 'full', opts: [['quiet', 'Quiet base colour'], ['full', 'Full colour']] },
   { id: 'pick', n: 9, label: 'Pick your gem colour', start: 'off', opts: [['off', 'Off'], ['free', 'Free choice of all'], ['two', '2 free + rest locked']] },
   { id: 'sees', n: 10, label: 'Who sees your colour', start: 'me', opts: [['me', 'Only you'], ['all', 'Everyone']] },
@@ -81,12 +82,12 @@ export const OPTIONS = [
   { id: 'density', n: 14, label: 'Map density', start: '40', opts: [['10', '10'], ['40', '40'], ['100', '100']] },
   { id: 'cb', n: 15, label: 'Colour-blind view', start: 'off', opts: [['off', 'Off'], ['rg', 'Red-green simulation']] },
   // added 19 Nov (Melissa): gems you've already been to
-  { id: 'visited', n: 16, label: 'Visited shown by', start: 'fade', opts: [['fade', 'Faded'], ['check', 'Check badge'], ['small', 'Smaller'], ['none', 'Not shown'], ['mapcolour', 'Map colour (keeps its shape)']] },
+  { id: 'visited', n: 16, label: 'Visited shown by', start: 'fade', opts: [['none', 'Not shown'], ['fade', 'Faded'], ['check', 'Check badge'], ['small', 'Smaller'], ['mapcolour', 'Map colour (keeps its shape)']] },
   { id: 'show', n: 17, label: 'Show', start: 'all', opts: [['all', 'All gems'], ['unvisited', 'Only unvisited']] },
   { id: 'details', n: 18, label: 'Gem details on tap', start: 'sheet', opts: [['sheet', 'Bottom sheet'], ['pop', 'Card by the gem'], ['full', 'Full-screen photo'], ['peek', 'Swipe strip']] },
   // added 19 Nov (Melissa): temporary gems
-  { id: 'expiring', n: 21, label: 'Expiring soon shown by', start: 'clock', opts: [['clock', 'Clock badge'], ['countdown', 'Countdown (“2h”)'], ['ring', 'Pulsing ring'], ['none', 'Not shown'], ['hourglass', 'Hourglass, category colour'], ['hourglassLab', 'Hourglass, Labradorite'], ['shardLab', 'Small shard, orange glow'], ['rays', 'Pulsing rays'], ['warmglow', 'Warm glow behind']] },
-  { id: 'seasonal', n: 22, label: 'Seasonal shown by', start: 'shape', opts: [['shape', 'Season shape'], ['badge', 'Season badge'], ['colour', 'Season colour'], ['none', 'Not shown']] },
+  { id: 'expiring', n: 21, label: 'Expiring soon shown by', start: 'clock', opts: [['none', 'Not shown'], ['clock', 'Clock badge'], ['countdown', 'Countdown (“2h”)'], ['ring', 'Pulsing ring'], ['hourglass', 'Hourglass, category colour'], ['hourglassLab', 'Hourglass, Labradorite'], ['shardLab', 'Small shard, orange glow'], ['rays', 'Pulsing rays'], ['warmglow', 'Warm glow behind']] },
+  { id: 'seasonal', n: 22, label: 'Seasonal shown by', start: 'shape', opts: [['none', 'Not shown'], ['shape', 'Season shape'], ['badge', 'Season badge'], ['colour', 'Season colour']] },
   { id: 'season', n: 23, label: 'Season', start: 'winter', opts: [['autumn', 'Autumn (maple leaf)'], ['winter', 'Winter (snowflake)'], ['spring', 'Spring (flower)'], ['summer', 'Summer (sun)']] },
   // added 19 Nov for the preset combos
   // added 20 Nov: the Branding session's gem art (apps/gem-styles), Victoria's style and Neon
@@ -134,7 +135,7 @@ export const QUALITIES = [
   { id: 'tint', label: 'Tint' },
   { id: 'base', label: 'Base' }, // something under the gem: the plinth (6G)
 ];
-// Creator left with its dropdown section (25 Nov). Liked lost Outline and Tint when 7B and 7D were ruled out.
+// Creator left with its dropdown section (25 Nov). Liked lost Outline and Tint when 7C and 7E were ruled out.
 export const THINGS = [
   { id: 'rarity', label: 'Rarity', uses: ['size', 'glow', 'sparkle'], many: true },
   { id: 'category', label: 'Category', uses: ['colour', 'shape'], many: true },
@@ -160,12 +161,12 @@ export const NOTES = {
   visitedHidden: 'Visited gems are hidden right now (17B).',
   artSets: 'Gem art (25B–E) sets colour and shape by category.',
   curioUnused: 'Only used with gem art (25B–E).',
-  sparkUnused: 'Only used when rarity sparkles (3E, 3G, 3H or 3I).',
-  ownSame: 'Looks like 6A until colour or shape shows the category (1C or 2B).',
-  glowUnused: 'Only used when rarity glows (3B, 3C, 3E or 3I).',
+  sparkUnused: 'Only used when rarity sparkles (3F, 3G, 3H or 3I).',
+  ownSame: 'Looks like 6B until colour or shape shows the category (1C or 2B).',
+  glowUnused: 'Only used when rarity glows (3C, 3D, 3F or 3I).',
   coloursUnused: 'Colours the rarity tag in gem details.',
-  colourTaken: 'Colour is showing rarity (3D), so this has no effect right now.',
-  sizesUnused: 'Only used when rarity is shown by size (3A, 3C, 3E or 3H).',
+  colourTaken: 'Colour is showing rarity (3E), so this has no effect right now.',
+  sizesUnused: 'Only used when rarity is shown by size (3B, 3D, 3F or 3H).',
   seesUnused: 'Only matters when you can pick a colour (9B or 9C).',
   seesNotShown: 'On the map, others’ colours show with 1D. Your own colour always shows to you.',
   pickedSame: 'Looks like 1A until others’ colours are shown to everyone (10B).',

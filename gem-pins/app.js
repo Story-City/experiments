@@ -224,15 +224,15 @@ function artFor(g) {
   const tag = tagsOf(g)[0];
   const key = g.mine && opt.mine === 'own' ? 'mine' : tag === 'curio' ? opt.curio : ART_KEY[tag] || 'nature';
   const hollow = g.mine && (opt.mine === 'outline' || (g.private && ['hollow', 'own'].includes(opt.mine)));
-  // liked by you with 7D: the pink double outline (Branding session) around the category gem
+  // liked by you with 7E: the pink double outline (Branding session) around the category gem
   const set = hollow ? 'hollow' : g.liked && !g.mine && opt.liked === 'outline' ? 'pink' : opt.art;
   let markup = ART[set][key];
   // 6E with gem art: yours are outlines; private ones get a dotted line
   if (g.mine && opt.mine === 'outline' && g.private) markup = markup.replace(/stroke-width="5"/g, 'stroke-width="5" stroke-dasharray="0.1 9" stroke-linecap="round"').replace(/<g filter=[^>]*>.*?<\/g>/s, '');
-  // liked by you with 7B: the same gem, recoloured in pink tones (light facets stay light, dark stay dark)
+  // liked by you with 7C: the same gem, recoloured in pink tones (light facets stay light, dark stay dark)
   if (g.visited && opt.visited === 'mapcolour') return { markup: slateTones(markup), colour: '#6863a0' };
   if (g.liked && !g.mine && opt.liked === 'colour') { markup = pinkTones(markup); return { markup, colour: D.LOVE }; }
-  // seasonal with 22C: the category gem keeps its cut, recoloured in the season's colour
+  // seasonal with 22D: the category gem keeps its cut, recoloured in the season's colour
   if (g.seasonal && opt.seasonal === 'colour') {
     const sc = D.SEASONS[opt.season].colour;
     return { markup: toneTo(markup, [1, 3, 5].map((i) => parseInt(sc.slice(i, i + 2), 16))), colour: sc };

@@ -300,10 +300,15 @@ function colourOf(g) {
   if (g.mine) return GEM_COLOUR.mine;
   return GEM_COLOUR[g.tags[0]] || GEM_COLOUR.nature;
 }
+// Optical balance between the category gems (Melissa, 26 Nov): Play read large and heavy, Landmarks small
+const CAT_SCALE = { play: 0.88, landmark: 1.12 };
 function categoryMark(tagId, size) {
   const src = GEM_SRC[tagId] || GEM_SRC.nature;
   const s = size || 28;
-  return `<img class="cat-gem-art" src="${src}" width="${s}" height="${s}" alt="" decoding="async">`;
+  const k = CAT_SCALE[tagId];
+  // the CSS scale property, so it stacks with any transform the pin, card or disc already uses
+  const style = k ? ` style="scale:${k}"` : '';
+  return `<img class="cat-gem-art" src="${src}" width="${s}" height="${s}" alt="" decoding="async"${style}>`;
 }
 
 function pinFor(g) {
