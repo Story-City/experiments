@@ -2442,6 +2442,7 @@ function beginPublishSheet({ photo, place, card = null, find = null, gemId = nul
   publishSheet.setAttribute('aria-hidden', 'false');
   setPublishStep('cats');
   syncPublishKeyboard();
+  resetPublishAudience();
 }
 
 function openPublishSheet(card) {
@@ -2528,9 +2529,46 @@ function applyPublishCategories(gem, categoryId, extras) {
   gem.categories = [primary, ...extraIds];
 }
 
+// V3 publish safety (Melissa, 27 Nov test notes): pick who sees the gem before it's shared; the
+// confirm button names the result. The default comes from Settings › Privacy (gem-pins-gem-audience).
+const AUDIENCE_KEY = 'gem-pins-gem-audience';
+const ADDRESS_KEY = 'gem-pins-share-address';
+const AUDIENCES = ['me', 'friends', 'everyone'];
+const AUDIENCE_BUTTON = { me: 'Keep hidden', friends: 'Share with friends', everyone: 'Publish to everyone' };
+const AUDIENCE_DONE = { me: 'Kept hidden: only you can see it', friends: 'Shared with your friends', everyone: 'Published: everyone nearby can see it' };
+let publishAudience = 'friends';
+const isV3 = () => document.body.classList.contains('is-v3');
+const readSetting = (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } };
+function paintPublishAudience() {
+  document.querySelectorAll('[data-audience]').forEach((b) => {
+    const on = b.dataset.audience === publishAudience;
+    b.classList.toggle('is-on', on);
+    b.setAttribute('aria-checked', String(on));
+  });
+  const shareAddress = readSetting(ADDRESS_KEY) === 'on';
+  const note = document.getElementById('publishAudienceNote');
+  if (note) {
+    note.textContent = publishAudience === 'me'
+      ? 'It stays in your Hidden gems.'
+      : `${shareAddress ? 'The address is shared.' : 'The address stays private.'} Change it in Settings › Privacy.`;
+  }
+  if (isV3() && publishNext) publishNext.textContent = AUDIENCE_BUTTON[publishAudience];
+}
+function resetPublishAudience() {
+  const saved = readSetting(AUDIENCE_KEY);
+  // a publish is a choice to share, so a saved "Only me" still starts the picker on Friends
+  publishAudience = saved === 'everyone' ? 'everyone' : 'friends';
+  paintPublishAudience();
+}
+document.querySelectorAll('[data-audience]').forEach((b) => b.addEventListener('click', () => {
+  publishAudience = AUDIENCES.includes(b.dataset.audience) ? b.dataset.audience : 'friends';
+  paintPublishAudience();
+}));
+
 async function finishPublishWithWords() {
   const pending = pendingPublish;
   if (!pending || !publishDraft.category) return;
+  const audience = isV3() ? publishAudience : 'everyone';
   const title = (publishTitle?.value || '').trim().slice(0, PUBLISH_TITLE_MAX) || t('publishTitlePh');
   const note = (publishNote?.value || '').trim().slice(0, PUBLISH_NOTE_MAX);
   const categoryId = publishDraft.category;
@@ -2539,7 +2577,8 @@ async function finishPublishWithWords() {
     const gem = findGem(pending.gemId);
     closePublishSheet({ restoreCard: false });
     if (!gem) return;
-    gem.isPublic = true;
+    gem.isPublic = audience !== 'me';
+    gem.audience = audience;
     gem.title = title;
     gem.tagline = note || title;
     gem.caption = note || title;
@@ -2547,9 +2586,10 @@ async function finishPublishWithWords() {
     if (!gem.likes) gem.likes = LIKES_DEMO;
     if (!Array.isArray(gem.entries)) gem.entries = [];
     if (note && !gem.entries.includes(note)) gem.entries.unshift(note);
-    setSection('public');
+    setSection(gem.isPublic ? 'public' : 'hidden');
     refreshHub(gem.id);
     openDetail(gem.id);
+    if (isV3()) showSnack(AUDIENCE_DONE[audience]);
     return;
   }
   const card = pending.card;
@@ -2557,11 +2597,12 @@ async function finishPublishWithWords() {
   if (card) {
     card.classList.remove('is-publishing');
     card.style.opacity = '1';
-    await settleSort(card, 'public', {
+    await settleSort(card, audience === 'me' ? 'private' : 'public', {
       title,
       caption: note || title,
       category: categoryId,
       categories: [categoryId, ...extras],
+      audience: isV3() ? audience : undefined,
     });
   }
 }
@@ -2576,9 +2617,10 @@ async function settleSort(card, action, opts = {}) {
     card.style.opacity = '';
     card.classList.add('is-peeling');
     await wait(SORT_PEEL_MS);
-    pendingSort.shift();
+    const deleted = pendingSort.shift();
     hint.textContent = t('railDelete');
     refreshHub();
+    if (isV3()) offerUndoDelete(deleted);
     return;
   }
   const fly =
@@ -2595,6 +2637,12 @@ async function settleSort(card, action, opts = {}) {
     owned: true,
     category: opts.category,
   });
+  if (opts.audience) gem.audience = opts.audience;
+  if (opts.title && action !== 'public') {
+    gem.title = opts.title;
+    gem.tagline = opts.caption || opts.title;
+    gem.caption = opts.caption || opts.title;
+  }
   if (action === 'public') {
     gem.likes = LIKES_DEMO;
     if (opts.title) {
@@ -2611,7 +2659,8 @@ async function settleSort(card, action, opts = {}) {
   gems.unshift(gem);
   await flyGemIntoSection(find.photo, action === 'public');
   setSection(action === 'public' ? 'public' : 'hidden');
-  hint.textContent = action === 'public' ? t('railPublic') : t('railPrivate');
+  if (opts.audience) showSnack(AUDIENCE_DONE[opts.audience]);
+  else hint.textContent = action === 'public' ? t('railPublic') : t('railPrivate');
   refreshHub(gem.id);
   const cell = gemGrid.querySelector(`[data-id="${gem.id}"]`);
   if (cell) cell.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -3936,3 +3985,40 @@ function setCardSize(size) {
 }
 document.querySelectorAll('[data-card-size]').forEach((b) => b.addEventListener('click', () => setCardSize(b.dataset.cardSize)));
 setCardSize((() => { try { return localStorage.getItem(CARD_SIZE_KEY); } catch (e) { return null; } })());
+
+// V3 safety bar (Melissa, 27 Nov test notes): says what just happened; after a delete it offers Undo
+const UNDO_MS = 5000;
+let undoTimer = 0;
+let undoBar = null;
+function showSnack(text, onUndo) {
+  if (!undoBar) {
+    undoBar = document.createElement('div');
+    undoBar.className = 'undo-bar';
+    undoBar.setAttribute('role', 'status');
+    undoBar.innerHTML = '<span class="undo-text"></span><button type="button" class="undo-btn">Undo</button>';
+    phone.appendChild(undoBar);
+  }
+  undoBar.querySelector('.undo-text').textContent = text;
+  const btn = undoBar.querySelector('.undo-btn');
+  const fresh = btn.cloneNode(true);
+  fresh.hidden = !onUndo;
+  btn.replaceWith(fresh);
+  if (onUndo) {
+    fresh.addEventListener('click', () => {
+      clearTimeout(undoTimer);
+      undoBar.classList.remove('is-on');
+      onUndo();
+    });
+  }
+  undoBar.classList.add('is-on');
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(() => undoBar.classList.remove('is-on'), UNDO_MS);
+}
+function offerUndoDelete(find) {
+  if (!find) return;
+  showSnack('Photo deleted', () => {
+    pendingSort.unshift(find);
+    showSnack('Photo restored');
+    refreshHub();
+  });
+}

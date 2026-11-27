@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=135">
+<link rel="stylesheet" href="app.css?v=136">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=14">
 <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
@@ -435,6 +435,16 @@
                 <textarea class="note-input note-area" id="publishNote" maxlength="160" rows="5" placeholder="[optional note]" autocomplete="off" aria-label="A few words"></textarea>
               </div>
             </div>
+            <!-- V3: who sees it, before anything is shared (Melissa, 27 Nov test notes) -->
+            <div class="publish-audience v3-only" id="publishAudience" role="radiogroup" aria-label="Who can see this">
+              <p class="side-label">Who can see this?</p>
+              <div class="variant-pick is-rail publish-audience-pick">
+                <button type="button" class="variant-btn" data-audience="me" role="radio" aria-checked="false">Only me</button>
+                <button type="button" class="variant-btn" data-audience="friends" role="radio" aria-checked="false">Friends</button>
+                <button type="button" class="variant-btn" data-audience="everyone" role="radio" aria-checked="false">Everyone</button>
+              </div>
+              <p class="publish-audience-note" id="publishAudienceNote"></p>
+            </div>
             <div class="side-actions">
               <button type="button" class="confirm-pill" id="publishNext">[confirm]</button>
             </div>
@@ -546,7 +556,7 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=12"></script>
-  <script src="app.js?v=138"></script>
+  <script src="app.js?v=139"></script>
   <script type="module">
     import { mountVersions } from '../shared/versions/versions.js?v=2';
     mountVersions({
