@@ -726,3 +726,106 @@ body:not(.is-v3) .edition-sheets button.v3-only { display: none; }
 }
 .debug-rail .edition-sheets button.is-fav { padding-right: 20px; }
 body:not(.is-v3) .v3-only-group { display: none; }
+
+/* V1 options panel in the Versioning panel's style (Victoria's Gem Hub rail, shared/gem-hub-rail):
+   Darker Grotesque, small-caps section titles, choices as tiles in a dark box, the picked one a lighter tile */
+.panel {
+  font-family: var(--f-app);
+  background: rgba(36, 27, 70, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 12px;
+}
+.panel .kicker,
+.panel .presets-title,
+.panel .group-name,
+.panel .cloud-title,
+.panel .opt-label {
+  font: 800 11px/1.2 var(--f-app);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+.panel h1 { margin: 6px 0 4px; font: 800 22px/1.05 var(--f-app); }
+.panel .lead,
+.panel .preset-what,
+.panel .opt-note,
+.panel .dnd-help { font-family: var(--f-app); font-size: 13px; font-weight: 600; line-height: 1.3; color: rgba(255, 255, 255, 0.62); }
+.panel .preset-what .p-desc { font-size: 14px; color: rgba(255, 255, 255, 0.85); }
+/* section boxes */
+.panel .presets-wrap,
+.panel .group {
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.panel .group { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.panel .group-name { padding-top: 0; }
+/* tile groups: a dark rounded box holding the choices */
+.panel .panel-actions,
+.panel .presets,
+.panel .try-at,
+.panel .panel-mode,
+.panel .segs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.panel .try-at { grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: stretch; }
+.panel .try-at > :not(button) { grid-column: 1 / -1; padding: 2px 6px 0; }
+.panel .btn,
+.panel .preset,
+.panel .panel-mode button,
+.panel .seg {
+  height: auto;
+  min-height: 32px;
+  max-height: none;
+  padding: 8px 6px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.72);
+  font: 800 13px/1.1 var(--f-app);
+  justify-content: center;
+  white-space: normal;
+  text-align: center;
+}
+.panel .btn:hover,
+.panel .preset:hover,
+.panel .seg:hover { background: rgba(255, 255, 255, 0.06); }
+.panel .preset[aria-pressed="true"],
+.panel .panel-mode button[aria-pressed="true"],
+.panel .seg[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  box-shadow: none;
+}
+.panel .preset b,
+.panel .seg b { color: rgba(255, 255, 255, 0.5); }
+.panel .preset[aria-pressed="true"] b,
+.panel .seg[aria-pressed="true"] b { color: #fff; }
+.panel .preset.saved,
+.panel .preset.add-preset { border: 1px dashed rgba(255, 255, 255, 0.18); }
+.panel .preset.add-preset { color: rgba(255, 255, 255, 0.72); }
+.panel .matchup { border-radius: 10px; font-family: var(--f-app); }
+/* dropdowns as tiles too */
+.panel .opt-select {
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.06);
+  font: 800 13px/1 var(--f-app);
+}
+.panel .opt-select:hover,
+.panel .opt-select:focus-visible { background-color: rgba(255, 255, 255, 0.12); box-shadow: none; }
+.panel .num { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.62); font-family: var(--f-app); font-weight: 800; }
+/* drag & drop */
+.panel .drop { border-radius: 12px; border-color: rgba(255, 255, 255, 0.16); background: rgba(255, 255, 255, 0.04); }
+.panel .qchip { border-radius: 10px; font-family: var(--f-app); font-weight: 800; }
+.panel .cloud { background: linear-gradient(180deg, rgba(36, 27, 70, 0.9), rgba(36, 27, 70, 0.98) 30%); border-radius: 0 0 16px 16px; margin: 12px -12px -12px; padding: 10px 12px 12px; }
+.panel .try-at > :not(button) { font: 800 11px/1.2 var(--f-app); letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.62); }
