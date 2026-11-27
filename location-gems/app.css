@@ -233,6 +233,11 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   font-weight: 800;
   font-size: 16px;
   cursor: pointer;
+  transition: filter 180ms ease, transform 180ms ease;
+}
+.play.is-saved-flash {
+  filter: brightness(1.18);
+  transform: scale(1.02);
 }
 .play.secondary {
   background: transparent;
@@ -947,7 +952,86 @@ h1 { margin: 0 0 8px; font-size: 34px; font-weight: 900; letter-spacing: -0.02em
   font-weight: 800;
   color: var(--text);
 }
-.rotating-line { margin-top: -5px; color: var(--brand-accent); }
+.rotating-line {
+  margin-top: -6px;
+  color: var(--brand-accent);
+  position: relative;
+}
+/* Place word — Swap / Roller / Shine (RN: transform + opacity + mask) */
+.place-roller {
+  position: relative;
+  display: block;
+  height: 1.18em;
+  overflow: hidden;
+  line-height: 1.18em;
+}
+.place-roller-track {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+.place-roller-item {
+  display: block;
+  height: 1.18em;
+  line-height: 1.18em;
+  white-space: nowrap;
+  color: inherit;
+}
+.tagline-block[data-place-motion="roller"] .place-roller {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 28%,
+    #000 72%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 28%,
+    #000 72%,
+    transparent 100%
+  );
+}
+.tagline-block[data-place-motion="roller"] .place-roller.is-rolling .place-roller-track {
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translate3d(0, -50%, 0);
+}
+.place-shine {
+  display: none;
+  pointer-events: none;
+}
+.tagline-block[data-place-motion="shine"] .place-shine {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.55) 48%,
+    transparent 66%
+  );
+  transform: translate3d(-120%, 0, 0);
+  opacity: 0;
+}
+.tagline-block[data-place-motion="shine"] .place-roller.is-shining .place-shine {
+  animation: placeWordShine 720ms ease-out both;
+}
+.tagline-block[data-place-motion="shine"] .place-roller.is-shining .place-roller-item.is-current {
+  animation: placeWordShineIn 720ms ease-out both;
+}
+@keyframes placeWordShine {
+  0% { transform: translate3d(-120%, 0, 0); opacity: 0; }
+  25% { opacity: 0.85; }
+  100% { transform: translate3d(120%, 0, 0); opacity: 0; }
+}
+@keyframes placeWordShineIn {
+  0% { opacity: 0.35; filter: brightness(1.15); }
+  45% { opacity: 1; filter: brightness(1.35); }
+  100% { opacity: 1; filter: brightness(1); }
+}
 /* Heading debug — Original has no extra styles (live tagline stays intact) */
 .tagline-block[data-heading="slash"],
 .tagline-block[data-heading="erode"],

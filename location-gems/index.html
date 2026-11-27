@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=151">
+<link rel="stylesheet" href="app.css?v=152">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=15">
 <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
@@ -101,6 +101,16 @@
           <button type="button" class="variant-btn" data-heading="slash" aria-pressed="false">Slash</button>
           <button type="button" class="variant-btn" data-heading="erode" aria-pressed="false">Erode</button>
           <button type="button" class="variant-btn" data-heading="soft" aria-pressed="false">Soft</button>
+        </div>
+      </section>
+
+      <section class="tool-block">
+        <h2 class="tool-title">Place word</h2>
+        <p class="tool-note">How “a waterfront” rolls — Swap is plain, Roller is a real slot, Shine adds a light sweep.</p>
+        <div class="variant-pick is-rail is-wrap" role="group" aria-label="Place word motion">
+          <button type="button" class="variant-btn is-on" data-place-motion="swap" aria-pressed="true">Swap</button>
+          <button type="button" class="variant-btn" data-place-motion="roller" aria-pressed="false">Roller</button>
+          <button type="button" class="variant-btn" data-place-motion="shine" aria-pressed="false">Shine</button>
         </div>
       </section>
 
@@ -192,10 +202,18 @@
                 </svg>
               </div>
             </div>
-            <div class="tagline-block" id="taglineBlock" data-heading="original">
+            <div class="tagline-block" id="taglineBlock" data-heading="original" data-place-motion="swap">
               <span class="heading-slash" aria-hidden="true"></span>
               <p class="title-prefix" id="snapshotPrefix">Take a snapshot gem of</p>
-              <p class="rotating-line"><span id="rotatingWord">a café</span></p>
+              <p class="rotating-line">
+                <span class="place-roller" id="placeRoller" aria-hidden="false">
+                  <span class="place-roller-track" id="placeRollerTrack">
+                    <span class="place-roller-item is-current" id="rotatingWord">a café</span>
+                    <span class="place-roller-item is-next" id="rotatingWordNext" aria-hidden="true"></span>
+                  </span>
+                  <span class="place-shine" aria-hidden="true"></span>
+                </span>
+              </p>
               <h2 class="v3-heading">Sort your gems</h2>
             </div>
           </button>
@@ -501,7 +519,7 @@
   </main>
 
   <p class="meta" id="hubMeta">
-    LOCATION-GEMS-HUB-v151 · V1. Figma gems, no rarity.
+    LOCATION-GEMS-HUB-v152 · V1. Figma gems, no rarity.
   </p>
     </div>
 
@@ -599,7 +617,7 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=13"></script>
-  <script src="app.js?v=151"></script>
+  <script src="app.js?v=152"></script>
   <script type="module">
     import { mountVersions } from '../shared/versions/versions.js?v=2';
     mountVersions({

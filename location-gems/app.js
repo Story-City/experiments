@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v151 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v152 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -172,6 +172,11 @@ const HEADING_DEFAULT = 'original';
 const HEADING_VARIANTS = new Set(['original', 'slash', 'erode', 'soft']);
 const HEADING_SLASH_MS = 520;
 const HEADING_SOFT_MS = 900;
+/** Place-word motion for the rotating snapshot line. */
+const PLACE_MOTION_DEFAULT = 'swap';
+const PLACE_MOTION_VARIANTS = new Set(['swap', 'roller', 'shine']);
+const PLACE_ROLLER_MS = 620;
+const PLACE_SHINE_MS = 720;
 const TIP_OUT_MS = 360;
 const TIP_SWIPE_DISMISS_PX = 72;
 const FEED_SWIPE_DISMISS_PX = 72;
@@ -384,6 +389,9 @@ const snapshotPrefix = document.getElementById('snapshotPrefix');
 const taglineBlock = document.getElementById('taglineBlock');
 const cameraButton = document.getElementById('cameraButton');
 const rotatingWord = document.getElementById('rotatingWord');
+const rotatingWordNext = document.getElementById('rotatingWordNext');
+const placeRoller = document.getElementById('placeRoller');
+const placeRollerTrack = document.getElementById('placeRollerTrack');
 const snapshotTip = document.getElementById('snapshotTip');
 const snapshotTipOk = document.getElementById('snapshotTipOk');
 const snapshotTipScrim = document.getElementById('snapshotTipScrim');
@@ -455,11 +463,13 @@ let feedDismissed = false;
 let feedVariant = 'banner';
 let pageAnchor = PAGE_ANCHOR_DEFAULT;
 let headingLook = HEADING_DEFAULT;
+let placeMotion = PLACE_MOTION_DEFAULT;
 let hubEdition = 'v1';
 let sortCardLook = 'polaroid';
 let pendingPublish = null;
 let headingSlashTimer = 0;
 let headingSoftTimer = 0;
+let placeRollTimer = 0;
 const FEED_VARIANTS = new Set([
   'banner',
   'overlay',
@@ -1843,9 +1853,73 @@ function handleSnapshot() {
 }
 
 function tickPlaces() {
-  placeIndex = (placeIndex + 1) % SNAPSHOT_PLACES.length;
-  rotatingWord.textContent = SNAPSHOT_PLACES[placeIndex];
+  const nextIndex = (placeIndex + 1) % SNAPSHOT_PLACES.length;
+  const nextText = SNAPSHOT_PLACES[nextIndex];
+  if (placeMotion === 'roller') {
+    playPlaceRoller(nextText);
+  } else if (placeMotion === 'shine') {
+    playPlaceShine(nextText);
+  } else if (rotatingWord) {
+    rotatingWord.textContent = nextText;
+  }
+  placeIndex = nextIndex;
   playHeadingPlaceMotion();
+}
+
+function resetPlaceRollerTrack() {
+  if (!placeRoller || !placeRollerTrack || !rotatingWord) return;
+  placeRoller.classList.remove('is-rolling', 'is-shining');
+  placeRollerTrack.style.transition = 'none';
+  placeRollerTrack.style.transform = 'translate3d(0, 0, 0)';
+  if (rotatingWordNext) rotatingWordNext.textContent = '';
+}
+
+function playPlaceRoller(nextText) {
+  if (!placeRoller || !placeRollerTrack || !rotatingWord || !rotatingWordNext) {
+    if (rotatingWord) rotatingWord.textContent = nextText;
+    return;
+  }
+  window.clearTimeout(placeRollTimer);
+  rotatingWordNext.textContent = nextText;
+  placeRoller.classList.remove('is-rolling');
+  placeRollerTrack.style.transition = 'none';
+  placeRollerTrack.style.transform = 'translate3d(0, 0, 0)';
+  void placeRollerTrack.offsetWidth;
+  placeRoller.classList.add('is-rolling');
+  placeRollTimer = window.setTimeout(() => {
+    rotatingWord.textContent = nextText;
+    rotatingWordNext.textContent = '';
+    placeRoller.classList.remove('is-rolling');
+    placeRollerTrack.style.transition = 'none';
+    placeRollerTrack.style.transform = 'translate3d(0, 0, 0)';
+  }, PLACE_ROLLER_MS);
+}
+
+function playPlaceShine(nextText) {
+  if (!placeRoller || !rotatingWord) {
+    if (rotatingWord) rotatingWord.textContent = nextText;
+    return;
+  }
+  window.clearTimeout(placeRollTimer);
+  rotatingWord.textContent = nextText;
+  placeRoller.classList.remove('is-shining');
+  void placeRoller.offsetWidth;
+  placeRoller.classList.add('is-shining');
+  placeRollTimer = window.setTimeout(() => {
+    placeRoller.classList.remove('is-shining');
+  }, PLACE_SHINE_MS);
+}
+
+function setPlaceMotion(variant) {
+  const next = PLACE_MOTION_VARIANTS.has(variant) ? variant : PLACE_MOTION_DEFAULT;
+  placeMotion = next;
+  resetPlaceRollerTrack();
+  if (taglineBlock) taglineBlock.dataset.placeMotion = next;
+  document.querySelectorAll('.variant-btn[data-place-motion]').forEach((btn) => {
+    const on = btn.getAttribute('data-place-motion') === next;
+    btn.classList.toggle('is-on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
 }
 
 function playHeadingPlaceMotion() {
@@ -3411,6 +3485,10 @@ function saveDesignStudioLook() {
     designSaveNote.textContent =
       designHistoryIndex > 0 ? 'Saved · previous under Undo' : 'Saved in this browser';
   }
+  if (designSaveStudio) {
+    designSaveStudio.classList.add('is-saved-flash');
+    window.setTimeout(() => designSaveStudio.classList.remove('is-saved-flash'), 900);
+  }
   publishLookToolsToParent();
 }
 
@@ -3651,6 +3729,7 @@ function init() {
   applyStaticCopy();
   setPageAnchor(PAGE_ANCHOR_DEFAULT);
   setHeadingLook(HEADING_DEFAULT);
+  setPlaceMotion(PLACE_MOTION_DEFAULT);
   setHubEdition(hubEdition);
   setSortCardLook(sortCardLook);
   setSection('public');
@@ -3905,6 +3984,11 @@ document.querySelectorAll('.variant-btn[data-page-anchor]').forEach((btn) => {
 document.querySelectorAll('.variant-btn[data-heading]').forEach((btn) => {
   btn.addEventListener('click', () => {
     setHeadingLook(btn.getAttribute('data-heading') || HEADING_DEFAULT);
+  });
+});
+document.querySelectorAll('.variant-btn[data-place-motion]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    setPlaceMotion(btn.getAttribute('data-place-motion') || PLACE_MOTION_DEFAULT);
   });
 });
 document.querySelectorAll('[data-hub-edition]').forEach((btn) => {
