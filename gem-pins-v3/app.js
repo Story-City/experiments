@@ -70,7 +70,7 @@ const GEM_COLOUR = {
 /** Filter cats — eat + shop combined into one stop */
 const FILTER_CATS = [
   { id: 'nature', label: 'Nature', match: ['nature'], art: 'nature' },
-  { id: 'eat', label: 'Eat & Drink', match: ['eat', 'shop'], art: 'eat' },
+  { id: 'eat', label: 'Eat & Shop', match: ['eat', 'shop'], art: 'eat' },
   { id: 'culture', label: 'Culture', match: ['culture'], art: 'culture' },
   { id: 'play', label: 'Play', match: ['play'], art: 'play' },
   { id: 'landmark', label: 'Landmarks', match: ['landmark'], art: 'landmark' },
@@ -112,7 +112,7 @@ function activeDiscRefs() {
 const EXPLAIN_DEFAULT = {
   all: '[every gem nearby]',
   nature: '[explain nature finds]',
-  eat: '[explain eat, drink and shop finds]',
+  eat: '[explain eat and shop finds]',
   culture: '[explain culture finds]',
   play: '[explain play finds]',
   landmark: '[explain landmark finds]',
@@ -131,7 +131,7 @@ const SPOOF_LABELS = {
   explain: {
     all: 'Every gem nearby',
     nature: 'Nature finds',
-    eat: 'Eat, drink and shop finds',
+    eat: 'Eat and shop finds',
     culture: 'Culture finds',
     play: 'Play finds',
     landmark: 'Landmark finds',
@@ -139,6 +139,11 @@ const SPOOF_LABELS = {
     liked: 'Gems you hearted',
     wishlist: 'Saved for later',
   },
+};
+// The combined eat + shop filter: which name to try (debug rail A / B)
+const EAT_NAMES = {
+  'eat-shop': { label: 'Eat & Shop', explain: '[explain eat and shop finds]', spoof: 'Eat and shop finds' },
+  'food-shopping': { label: 'Food & Shopping', explain: '[explain food and shopping finds]', spoof: 'Food and shopping finds' },
 };
 const wording = {
   nearby: 'Gems nearby',
@@ -1216,6 +1221,15 @@ function paintSlide() {
   $('navBtn').textContent = displayCopy(btnCopy('navigate'));
 }
 
+function setEatName(id) {
+  const name = EAT_NAMES[id];
+  if (!name) return;
+  filterCat('eat').label = name.label;
+  wording.explain.eat = name.explain;
+  SPOOF_LABELS.explain.eat = name.spoof;
+  setSpoofWording(spoofWording);
+}
+
 function setSpoofWording(on) {
   spoofWording = !!on;
   fillRoller();
@@ -1379,6 +1393,7 @@ window.addEventListener('message', (e) => {
   }
   if (data.type === 'gem-pins-reset-filter') resetFilter();
   if (data.type === 'gem-pins-spoof') setSpoofWording(!!data.spoof);
+  if (data.type === 'gem-pins-eat-name') setEatName(data.name);
   if (data.type === 'gem-pins-filter-layout') setFilterLayout(data.layout);
 });
 

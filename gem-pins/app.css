@@ -725,3 +725,4 @@ body:not(.is-v3) .edition-sheets button.v3-only { display: none; }
   color: #fff;
 }
 .debug-rail .edition-sheets button.is-fav { padding-right: 20px; }
+body:not(.is-v3) .v3-only-group { display: none; }
