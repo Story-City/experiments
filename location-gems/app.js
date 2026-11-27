@@ -1,4 +1,4 @@
-/** Location Gems hub — LOCATION-GEMS-HUB-v170 */
+/** Location Gems hub — LOCATION-GEMS-HUB-v171 */
 const SPOOF_COLLECTED_GEM_ID = 'spoof-collected-gem-prototype';
 const SPOOF_COLLECTED_GEM_AUTHOR = 'RiverWalker';
 const PROTOTYPE_GEM_IMAGE = 'assets/prototype-gem.webp';
@@ -168,9 +168,9 @@ const PAGE_ANCHOR_FLOWY = new Set([
 ]);
 const PAGE_ANCHOR_COPY_ORIGINAL = '[share gems of:]';
 const PAGE_ANCHOR_ENTER_MS = 1300;
-const PAGE_ANCHOR_BLUR_DEFAULT = 0;
-const PAGE_ANCHOR_OPACITY_DEFAULT = 0;
-const PAGE_ANCHOR_SIZE_DEFAULT = 100;
+const PAGE_ANCHOR_BLUR_DEFAULT = -12;
+const PAGE_ANCHOR_OPACITY_DEFAULT = 100;
+const PAGE_ANCHOR_SIZE_DEFAULT = 220;
 const PAGE_ANCHOR_GEM_BLUR_BASE = 1.1;
 const DEBUG_LIKES_KEY = 'location-gems-debug-likes-v1';
 /** Heading debug default must stay Original. Never boot to slash/erode/soft. */
@@ -650,7 +650,7 @@ const DESIGN_WRAPPER_SEL = [
 ].join(', ');
 const DESIGN_DRAG_THRESHOLD_PX = 5;
 const BTN_RADIUS_PILL = 24;
-const DESIGN_STUDIO_KEY = 'location-gems-design-studio-v1';
+const DESIGN_STUDIO_KEY = 'location-gems-design-studio-v2';
 const DESIGN_HISTORY_MAX = 40;
 
 /** @type {'public'|'hidden'|'liked'} */
