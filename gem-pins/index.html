@@ -16,7 +16,7 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=16">
 </head>
 <body>
-<!-- GEM-PINS-EDITION-v32: All-gems disc diamond white like V2 -->
+<!-- GEM-PINS-EDITION-v33: V2 sparkle selection on map gems -->
 <button type="button" class="settings-eye" id="settingsEye" aria-pressed="true" aria-label="Hide settings">
   <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
   <svg class="eye-shut" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M2 12s4-7 10-7c1.7 0 3.2.4 4.5 1.1M22 12s-4 7-10 7c-1.7 0-3.2-.4-4.5-1.1"/><path d="M9.5 9.5a3 3 0 0 0 4.2 4.2"/></svg>
@@ -244,7 +244,7 @@ document.write(`<link rel="stylesheet" href="../shared/versions/versions.css${CA
   }
   // Versions shown in the frame. V3 is Melissa's copy of V2 (26 Nov), so it uses the same
   // V2 controls (the is-v2 class). Bump a ?v= here when that version's files change.
-const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=28', v4: '../gem-pins-v3/?v=28' };
+const FRAMES = { v2: '../gem-pins-v2/?v=65', v3: '../gem-pins-v3/?v=29', v4: '../gem-pins-v3/?v=29' };
   function apply(edition) {
     const src = FRAMES[edition];
     document.body.classList.toggle('is-v2', !!src);
