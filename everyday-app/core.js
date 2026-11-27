@@ -8,12 +8,41 @@ import { APP, SOLVES, GEMS, CARD, WEATHER, WALKMAP, LOOPS } from './words.js';
 // [value, label, source]. The first choice is the default unless def says otherwise.
 export const OPTIONS = [
   { id: 'tabs', label: 'Bottom tabs', q: 'Q1 / C8', choices: [
+    ['nov26', 'Today · Stories · Create · Gems · You', 'Brett chat, Nov 26 (Feed, Stories, Gems, You + one-tap camera); gems keep their own tab — Decision Log, Nov 26'],
     ['five', 'Today · Map · Library · Feed · You', 'Builder’s default: Today feed (Melissa + Victoria, Nov 2) + personal area (Brett, Oct 8)'],
     ['real', 'Home · Feed · Library, Profile drawer', 'What 4.28.0 ships (MainNavigator.tsx, Nov 4)'],
     ['library', 'Library only', 'Brett + Melissa, Oct 8; logged Oct 14'],
     ['sgw', 'Stories · Gems · Whimsy Walks', 'Melissa, design review Oct 7'],
     ['maphome', 'Map as home · Library · You', 'Brett, Nov 3 (“people are just always in it”)'],
     ['go', 'Feed · Library · Go · Map · You', 'day-two and after-ftue mockups (Oct 30 – Nov 2)'],
+  ] },
+  { id: 'treadLook', label: 'Treadmill mode', q: 'SC-3737', choices: [
+    ['dock', 'Walk map dock: tips, treadmill switch, speed sheet, walking figure', 'UX doc “Treadmill mode — walk map dock”, approved by Melissa, Nov 26'],
+    ['screen', 'Its own screen with a belt-speed switch and chase scene', 'Everyday build, Nov 4–5'],
+  ] },
+  { id: 'firstTab', label: 'First tab name', q: 'NSC-2137', choices: [
+    ['today', 'Today', 'Melissa, Nov 26: Today can show the weather and, later, your day (NSC-2137)'],
+    ['feed', 'Feed', 'Brett chat, Nov 26 (Feed, Stories, Gems, You)'],
+  ] },
+  { id: 'youLayout', label: 'You tab layout', q: 'Stash', choices: [
+    ['galleries', 'Three swipeable galleries: Progress · Collections · History', 'Melissa, Nov 26 (The Stash, version E)'],
+    ['tabs', 'Steps · Stories · Stamps switch', 'Melissa, Nov 4'],
+  ] },
+  { id: 'gemPins', label: 'Gem pins on the map', q: 'gem-pins V3', choices: [
+    ['v3', 'V3: category gem art, private gems as a glowing outline', 'gem-pins V3 (Melissa, Nov 26); hollow outline for private — NSC-2123 lead option'],
+    ['flat', 'Flat gem shapes with a ring', 'Everyday build, Nov 4'],
+  ] },
+  { id: 'snapFlow', label: 'After the Create camera', q: 'Gem flow', choices: [
+    ['pile', 'Send It drops the photo in the pile to sort later', 'Location gems app flow (NSC-1116): snapshot pile, then sort; one-tap camera — Brett, Nov 26'],
+    ['details', 'Straight to name, type and who can see it', 'Everyday build, Nov 4'],
+  ] },
+  { id: 'sortLayout', label: 'Sorting gems', q: 'location-gems V3', choices: [
+    ['right', 'Drag right onto Publish · Keep hidden · Delete', 'location-gems V3 (Melissa, Nov 26–27)'],
+    ['buttons', 'Three buttons under the photo', 'Builder’s add: for tapping through'],
+  ] },
+  { id: 'calendar', label: 'Today: your day from the calendar', q: 'NSC-2137', choices: [
+    ['preview', 'Show the opt-in “free window” card (later feature)', 'Melissa, Nov 26 (NSC-2137)'],
+    ['off', 'Off', '—'],
   ] },
   { id: 'modeLock', label: 'Map modes during a story', q: 'Q2 / C1', choices: [
     ['switch', 'Switch any time', 'Melissa, Oct 14 (Decision Log, current rule)'],
@@ -330,6 +359,7 @@ export const BASE_STATE = () => ({
   sealToday: false, walkVer: null, energyNone: false, activity: [], sinceGot: false, doodleCheers: 0, myDoodle: null,
   cheeredD: {}, letterRead: false, qgSpot: null, remindAt: null,
   // ---- loops pass 2 (Nov 5, after the retests)
+  pile: null, trash: [], likedGems: ['g3', 'g7'], calOn: false, treadTips: 0,
   hist: [], bank: 0, outNow: false, doorDone: false, showAllD: false, foundHint: null, wt: null, tripWalks: 0, stickers: {}, cheerBacks: {}, frNow: false,
 });
 export let S = BASE_STATE();
@@ -372,7 +402,7 @@ export const blurShared = () => (O.homeBubble === 'choice' ? hideHome() : true);
 
 
 // ---------------------------------------------------------------- persistence (per-viewer only)
-const LS = 'sc-everyday-v1';
+const LS = 'sc-everyday-v2';   // v2 (Nov 27): new defaults for tabs, You, gems; old saved choices would hide them
 export function saveOpts() { try { localStorage.setItem(LS, JSON.stringify({ O, rev: document.body.classList.contains('reviewer') })); } catch (e) {} }
 export function loadOpts() {
   try { const d = JSON.parse(localStorage.getItem(LS) || 'null'); if (d && d.O) Object.assign(O, d.O); return d; } catch (e) { return null; }
@@ -422,7 +452,7 @@ export function back() {
   else go(homeTab(), {}, { root: true });
 }
 export function rerender() { const y = $('#screen').scrollTop; render(true); $('#screen').scrollTop = y; }
-export function homeTab() { return { five: 'today', real: 'today', library: 'library', sgw: 'library', maphome: 'map', go: 'feed' }[O.tabs] || 'today'; }
+export function homeTab() { return { nov26: 'today', five: 'today', real: 'today', library: 'library', sgw: 'library', maphome: 'map', go: 'feed' }[O.tabs] || 'today'; }
 
 export function render(keepAnim) {
   stopTimers();
@@ -461,11 +491,14 @@ export function openSheet(id, p = {}) {
   if (out.mount) out.mount(sh, p);
   later(() => { const f = sh.querySelector('[autofocus], button, [href], input, select'); if (f && f.focus) try { f.focus({ preventScroll: true }); } catch (e) {} }, 40);
 }
+export const sheetHooks = {};
 export function closeSheet(silent) {
   if (!sheetOpen) return;
   const sh = $('#sheet');
   sh.hidden = true; $('#scrim').hidden = true; sh.innerHTML = '';
+  const was = sheetOpen;
   sheetOpen = null;
+  if (was && sheetHooks[was.id]) sheetHooks[was.id]();
   if (!silent && sheetReturn && sheetReturn.focus && document.contains(sheetReturn)) try { sheetReturn.focus({ preventScroll: true }); } catch (e) {}
 }
 export const sheetIsOpen = () => !!sheetOpen;

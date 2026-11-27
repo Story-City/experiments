@@ -8,7 +8,7 @@ import {
   gemSvg, GEM_TYPES, gemCol, gemVisOf, gemTier, TIER_COL, backBtn, sparkle, $, current, popTo, popWhile, blurShared,
   later, countWalk, pressSeal, tierNext, pronoun, atHome, logAct, firstName,
 } from './core.js';
-import { GEMS, LOOPS } from './words.js';
+import { GEMS, LOOPS, GEMTAB } from './words.js';
 import { chip, toggle } from './ui.js';
 import { gemSpotMap, HOME } from './maps.js';
 import { mapUI, youUI } from './screens-tabs.js';
@@ -116,10 +116,10 @@ reg('gem-upload', {
 reg('gem-snap', {
   jewel: () => '#B36BFF', cls: () => 'camscr',
   html(p) {
-    return `<header class="slim">${backBtn()}<div><b>${esc(GEMS.snapK)}</b><span>${esc(GEMS.start.title)}</span></div></header>
+    return `<header class="slim">${backBtn()}<div><b>${esc(p.quick ? GEMTAB.snapK : GEMS.snapK)}</b><span>${esc(GEMS.start.title)}</span></div></header>
       <div class="viewfinder ${gs.photo ? 'snapped' : ''}"><i class="vf tl"></i><i class="vf tr"></i><i class="vf bl"></i><i class="vf br"></i>${gs.photo ? `<div class="shot gm-shot">${gemSvg(gs.type, 46)}<span>${esc(GEMS.polaroidNote)}</span></div>` : `<p class="vf-hint">${esc(GEMS.snapHint)}</p>`}</div>
       ${hereLine()}
-      <div class="cam">${gs.photo ? `<div class="row2 wide"><button class="btn ghost" data-act="gemRetake">${esc(GEMS.retake)}</button><button class="btn jewel" data-act="gemUsePhoto">${esc(GEMS.usePhoto)}</button></div>` : `<button class="shutter" data-act="gemSnap" aria-label="Take photo"></button>`}</div>
+      <div class="cam">${gs.photo ? (p.quick && O.snapFlow === 'pile' ? `<div class="row2 wide"><button class="btn ghost" data-act="gemRetake">${esc(GEMTAB.retake)}</button><button class="btn jewel" data-act="gemSend">${esc(GEMTAB.sendIt)}</button></div>` : `<div class="row2 wide"><button class="btn ghost" data-act="gemRetake">${esc(GEMS.retake)}</button><button class="btn jewel" data-act="gemUsePhoto">${esc(GEMS.usePhoto)}</button></div>`) : `<button class="shutter" data-act="gemSnap" aria-label="Take photo"></button>`}</div>
       <div class="centre"><button class="link" data-act="gemNoCam">${esc(GEMS.noCam)}</button></div>
       ${src('Camera prompt: “snap a photo, add a short note” — Victoria gem review, Jul 17 (proposed); no-camera fallback — docs/everyday-app.md')}
       ${idea('nudge the pin onto the exact spot (gems brief (d)2); a gem is a point, not a zone — Oct 13 (decided)')}`;

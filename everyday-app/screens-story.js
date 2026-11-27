@@ -8,7 +8,7 @@ import {
 } from './core.js';
 import {
   SUMMONS_END, VICTORY, RECS, TRIAL, ACCOUNT, OVERVIEW, START, ROUTES, PERMISSION, WALKMAP, TREAD, SOFA, CAMERA, READER,
-  BREAK, ENDING, POSTCARD, LOCKIN, GEMS, COMEBACK, TOGETHER, LINKED, CARD, MORE, WEATHER, MAP, BOT, LOOPS, NOHOME, LIVEMAP,
+  BREAK, ENDING, POSTCARD, LOCKIN, GEMS, COMEBACK, TOGETHER, LINKED, CARD, MORE, WEATHER, MAP, BOT, LOOPS, NOHOME, LIVEMAP, TREADDOCK,
 } from './words.js';
 import { storyCard, coverOf, thumb, bubble, modeSwitch, factsRow, chip, toggle } from './ui.js';
 import { storyMap, liveWorld, routePreview, treadMap, postcardRoute, TRACK, ROUTE, along, slice, isRural, W as MAP_W, H as MAP_H } from './maps.js';
@@ -402,6 +402,7 @@ reg('walkmap', {
       <div class="panel">
         ${modeSwitch(m, s, lockedOpt)}
         <div class="readout" id="readout">${readout(m, goal)}</div>
+        ${O.treadLook === 'dock' && m !== 'hunt' ? `<button class="td-jump" data-act="toTreadDock">${ic('tread')} <span>${esc(TREADDOCK.toggle)}</span><i class="td-switch" aria-hidden="true"><i></i></i></button>` : ''}
         <p class="counting">${ic(m === 'hunt' ? 'camera' : 'walk')} <span>${esc(line)}</span></p>
         ${m === 'hunt' ? `<button class="btn jewel" data-act="huntPhoto" id="huntbtn">${ic('camera')} ${esc(WALKMAP.takePhoto)}</button>` : ''}
         <p class="foot">${esc(footer)}</p>
@@ -552,6 +553,7 @@ function liveWalkmap() {
         <div class="lwm-obj"><p class="lwm-objective">${esc(destName())}</p>${hunt ? `<p class="lwm-sub">${esc(LIVEMAP.lookFor(lookFor(ch.thing)))}</p>` : ''}</div>
         <div class="lwm-switch" role="tablist" aria-label="${esc(LIVEMAP.switchLabel)}">${['walk', 'path', 'hunt'].map(seg).join('')}</div>
         <div class="lwm-status" id="lwm-status">${liveStatus(m, goal)}</div>
+        ${O.treadLook === 'dock' && !hunt ? `<button class="td-jump" data-act="toTreadDock">${ic('tread')} <span>${esc(TREADDOCK.toggle)}</span><i class="td-switch" aria-hidden="true"><i></i></i></button>` : ''}
         <p class="lwm-hint">${esc(hunt ? LIVEMAP.huntHint : LIVEMAP.switchHint)}</p>
         <div class="lwm-footer" id="lwm-footer">${liveFooter(m)}</div>
       </div>

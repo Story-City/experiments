@@ -59,6 +59,7 @@ function defs(id) {
   return `<defs>
     <filter id="${id}-fog" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".011" numOctaves="3" seed="7"/><feColorMatrix values="0 0 0 0 .85  0 0 0 0 .81  0 0 0 0 .96  0 0 0 .55 .05"/></filter>
     <filter id="${id}-soft"><feGaussianBlur stdDeviation="9"/></filter>
+    <filter id="${id}-hollow" x="-40%" y="-40%" width="180%" height="180%"><feMorphology in="SourceAlpha" operator="erode" radius="1.6" result="in"/><feComposite in="SourceAlpha" in2="in" operator="out" result="ring"/><feFlood flood-color="#FBF7FF"/><feComposite in2="ring" operator="in" result="line"/><feGaussianBlur in="line" stdDeviation="1.6" result="glow"/><feComponentTransfer in="SourceGraphic" result="faint"><feFuncA type="linear" slope=".16"/></feComponentTransfer><feMerge><feMergeNode in="glow"/><feMergeNode in="faint"/><feMergeNode in="line"/></feMerge></filter>
     <filter id="${id}-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <radialGradient id="${id}-home"><stop offset="0" stop-color="#2A1658"/><stop offset=".62" stop-color="#2A1658" stop-opacity=".96"/><stop offset="1" stop-color="#2A1658" stop-opacity="0"/></radialGradient>
     <linearGradient id="${id}-trail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F5B82E"/><stop offset="1" stop-color="#00CD9D"/></linearGradient>
@@ -125,7 +126,17 @@ function base(id, sat = false) {
 }
 const lab = (x, y, t, rot = 0) => t ? `<text x="${x}" y="${y}" ${rot ? `transform="rotate(${rot} ${x} ${y})"` : ''} fill="#A493D6" font-family="Karla, sans-serif" font-size="9.5" font-weight="700" letter-spacing=".06em" opacity=".75">${esc(t.toUpperCase())}</text>` : '';
 
+// gem-pins V3: Victoria's category gem art at 28px; your private gems as a glowing outline (NSC-2123 lead option)
+const V3_ART = { nature: 'nature', art: 'art', shop: 'eat-drink', landmark: 'landmarks', curio: 'curiosities' };
+const V3_SCALE = { landmark: 1.12 };
+function gemAtV3(g, id) {
+  const priv = g.mine && gemVisOf(g) === 'me';
+  const sz = 28 * (V3_SCALE[g.type] || 1);
+  const sel = S.focusGem === g.id ? `<circle r="${sz * 0.68}" fill="none" stroke="#FBF7FF" stroke-width="2" class="gem-focus"/>` : '';
+  return `<g class="gem-pin v3" data-gem="${g.id}" transform="translate(${g.x} ${g.y})" tabindex="0" role="button" aria-label="${esc(g.name)}">${sel}<image href="gem-art/${V3_ART[g.type] || 'curiosities'}.svg" x="${-sz / 2}" y="${-sz / 2}" width="${sz}" height="${sz}"${priv ? ` filter="url(#${id}-hollow)"` : ''}/><circle r="${sz * 0.8}" fill="transparent"/></g>`;
+}
 function gemAt(g, size = 26, id = 'm') {
+  if (O.gemPins === 'v3') return gemAtV3(g, id);
   const priv = gemVisOf(g) === 'me';
   let ring = (g.mine ? `<circle r="${size * 0.62}" fill="none" stroke="#FBF7FF" stroke-width="1.4" ${priv ? 'stroke-dasharray="3 3"' : ''} opacity=".8"/>` : '') + `<circle r="22" fill="transparent"/>`;
   // rarity as a badge only in the "votes" option; the default keeps it a filter (brainstorm, Oct 29)
@@ -172,10 +183,11 @@ export function pinsFor() {
 // ------------------------------------------------------------ the home map (Map tab)
 // part: 'all' (one SVG, SVG fog), 'base' (streets only) or 'top' (pins, gems, you; no ground),
 // so the full-screen map can put the canvas fog (fog.js) between them.
-export function homeMap({ id = 'hm', fog = true, filter = 'every', frontier = true, home = true, part = 'all', sat = false } = {}) {
+export function homeMap({ id = 'hm', fog = true, filter = 'every', frontier = true, home = true, part = 'all', sat = false, noStories = false } = {}) {
   const rural = isRural();
   const walked = rural ? RURAL_WALKED : WALKED;
-  let gems = S.gems.filter((g) => !g.hidden && (filter === 'mine' ? g.mine : filter === 'rare' ? ((gemTier(g) || { i: 0 }).i >= 2) : true));
+  const cat = filter.startsWith('cat:') ? filter.slice(4) : null;
+  let gems = S.gems.filter((g) => !g.hidden && !(S.trash || []).some((t) => t.gemId === g.id) && (cat ? g.type === cat : filter === 'mine' ? g.mine : filter === 'rare' ? ((gemTier(g) || { i: 0 }).i >= 2) : true));
   if (rural) gems = S.gems.filter((g) => g.mine && !g.hidden).slice(0, 2).map((g, i) => ({ ...g, x: [80, 300][i], y: [300, 110][i] }));
   // other people's gems only where there are players near you: Lagos sees no Edmonton gems (loops brief, lowtech pair)
   else if (!othersNear()) gems = gems.filter((g) => g.mine);
@@ -183,8 +195,8 @@ export function homeMap({ id = 'hm', fog = true, filter = 'every', frontier = tr
   if (part === 'base') return svg + '</svg>';
   if (part === 'top') fog = false;
   // whimsy start ring
-  if (filter === 'every') svg += `<circle cx="${rural ? 300 : 105}" cy="${rural ? 200 : 390}" r="13" fill="none" stroke="#C49BFF" stroke-width="2" stroke-dasharray="2 4" class="whimsy-ring"/>`;
-  if (filter === 'every') pinsFor().forEach((p, i) => { svg += storyPin(p.x, p.y, p.s, i); });
+  if (filter === 'every' && !noStories) svg += `<circle cx="${rural ? 300 : 105}" cy="${rural ? 200 : 390}" r="13" fill="none" stroke="#C49BFF" stroke-width="2" stroke-dasharray="2 4" class="whimsy-ring"/>`;
+  if (filter === 'every' && !noStories) pinsFor().forEach((p, i) => { svg += storyPin(p.x, p.y, p.s, i); });
   if (fog) {
     svg += `<mask id="${id}-mask"><rect width="${W}" height="${H}" fill="#fff"/><g filter="url(#${id}-soft)" stroke="#000" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" fill="none">${walked.map((w) => `<polyline points="${pts(w)}"/>`).join('')}</g></mask>`;
     svg += `<g mask="url(#${id}-mask)" class="fog"><rect width="${W}" height="${H}" fill="#1A0B3D" opacity=".86"/><rect width="${W}" height="${H}" filter="url(#${id}-fog)" opacity=".55"/></g>`;

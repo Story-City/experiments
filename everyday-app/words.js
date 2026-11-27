@@ -1832,3 +1832,137 @@ export const NOHOME = {
   glenLine: '2 pm · snow, −6° · Beverly, Edmonton · step-free stories · Large text',
   comeWalk: 'Walk It Now',
 };
+
+// ---------------------------------------------------------------- Nov 27 overnight: the whole new app
+// Tabs from the Nov 26 chat with Brett (Feed · Stories · Create · Gems · You) and Melissa's Today task (NSC-2137)
+export const NAV26 = {
+  create: 'Create',
+  createAria: 'Take a picture of a gem',
+  first: { today: 'Today', feed: 'Feed' },
+};
+
+// You as three swipeable galleries (The Stash, version E)
+export const YOUG = {
+  seeAll: 'See all',
+  strip: { km: 'km walked', walks: 'walks', chapters: 'chapters', gems: 'gems' },
+  progress: { t: 'Progress', sub: 'Your walks in pictures' },
+  collections: { t: 'Collections', sub: 'Newest first' },
+  history: { t: 'History', sub: 'Your days, newest first' },
+  kinds: { gem: 'Gem', seal: 'Seals', badge: 'Badge', postcard: 'Postcard', stamp: 'Stamp' },
+  groups: [['gem', 'Gems'], ['seal', 'Whimsy seals'], ['badge', 'Badges'], ['postcard', 'Postcards'], ['stamp', 'Passport stamps']],
+  patch: { t: 'Your patch', line: (p) => `${p}% of your neighbourhood uncovered`, sub: 'Your home stays blurred. Tap to open the map.' },
+  far: { t: 'How far you’ve walked', line: (km) => `${km} km walked`, sub: 'Every step counts, story or not.' },
+  compare: [
+    ['rinks', 0.06, (n) => `That’s ${n} hockey rinks end to end.`],
+    ['bridge', 0.777, (n) => `That’s the High Level Bridge ${n} times.`],
+    ['stalbert', 15, (n) => `That’s walking to St. Albert ${n} times.`],
+    ['reddeer', 150, (n) => `That’s walking to Red Deer ${n} times.`],
+  ],
+  week: { t: 'This week', story: 'in stories', every: 'everyday', steps: 'steps' },
+  sky: { t: 'Your walking sky', right: (n) => `${n} walks`, aria: (n) => `${n} walks as stars`, sub: 'Every walk lights a star; bigger walks shine brighter. Red rings are story endings you found.' },
+  clock: { t: 'When you walk', line: 'You’re a dusk walker', sub: 'Most of your steps happen between 5 and 8 pm.', noon: 'noon', midnight: 'midnight' },
+  flower: { t: 'Your gems', club: (type) => `You’re a ${type} seeker`, made: 'made', found: 'found', cheers: 'cheers' },
+  stories: { t: 'Stories on the go', ch: (a, b) => `Chapter ${a} of ${b}`, none: 'Start a story and it shows up here.' },
+  coll: { found: 'Found it', seals: 'Whimsy seals', walk: (i) => `Walk ${i + 1}`, passport: 'Passport', passportSub: 'Walk a Passport story' },
+  hist: { today: 'Today', yesterday: 'Yesterday', ago: (n) => `${n} days ago`, away: 'Away', quiet: 'A quiet day', walk: 'Out for a walk', storyWalk: (t) => `Walked ${t}`, fog: 'Fog cleared' },
+};
+
+// The Gems tab: the gem map (V3 pins) and the Gem Hub (sort, Public / Hidden / Liked, nearby). Decision Log Nov 26.
+export const GEMTAB = {
+  title: 'Gems',
+  views: [['map', 'Map'], ['hub', 'My Gems']],
+  filters: { all: 'All gems', nature: 'Nature', shop: 'Eat & Shop', art: 'Culture', landmark: 'Landmarks', curio: 'Curiosities', mine: 'Mine' },
+  notes: {
+    all: 'Every gem near you', nature: 'Trees, birds, gardens, river views', shop: 'Bakeries, cafés, little shops', art: 'Murals, sculptures, music',
+    landmark: 'Buildings and places with a story', curio: 'Odd, tiny, wonderful things', mine: 'Yours: hollow ones are private',
+  },
+  away: (m) => `${m} min away`,
+  noneHere: 'None near you yet. Be the first.',
+  noneMine: 'Your first gem goes here. Tap Create.',
+  privateMine: 'Yours · Private',
+  open: 'Open Gem',
+  go: 'Take Me There',
+  save: 'Save for Later',
+  saved: 'Saved for later.',
+  close: 'Close',
+  sortH: 'Sort your gems',
+  sortIntro: 'Hold the photo and drag right to publish, keep hidden or delete.',
+  left: (n) => `${n} left`,
+  allSorted: 'All sorted',
+  allSortedSub: 'Snap a new one with the Create button.',
+  rails: { publish: 'Publish', hidden: 'Keep hidden', delete: 'Delete' },
+  railsAria: 'Or tap one:',
+  tabs: [['public', 'Public', 'On the map for other people.'], ['hidden', 'Hidden', 'Just for you.'], ['liked', 'Liked', 'Gems you hearted.']],
+  empty: {
+    public: ['Nothing public yet', 'Publish a find and it’ll show up here.'],
+    hidden: ['No hidden gems', 'Keep one just for yourself and it’ll land here.'],
+    liked: ['No liked gems yet', 'Heart a gem and it’ll show up in Liked.'],
+  },
+  snack: {
+    hidden: 'Kept hidden: only you can see it',
+    friends: 'Shared with your friends',
+    public: 'Published: everyone nearby can see it',
+    deleted: 'Moved to Recently deleted',
+    undo: 'Undo',
+    restored: 'Photo restored to your pile',
+  },
+  publishK: 'Publish',
+  publishH: 'Who can see this?',
+  publishWho: [['friends', 'Friends', 'Share with Friends'], ['all', 'Everyone', 'Publish to Everyone']],
+  publishType: 'What kind of gem?',
+  publishCancel: 'Not Yet',
+  deletedRow: (n) => `Recently deleted · ${n}`,
+  deletedSub: 'Photos stay here for 30 days, then they’re gone for good.',
+  nearbyK: 'Nearby public gems',
+  snapped: 'Snapped. It’s waiting in Gems to sort.',
+  sortNow: 'Sort Now',
+  snapK: 'Create',
+  sendIt: 'Send It',
+  retake: 'Retake',
+  pileFinds: [
+    { id: 'f1', img: 'finds/find-a.jpg', title: 'TV wall on 124 St', where: 'On your walk · 2:14 pm', type: 'art', x: 168, y: 196 },
+    { id: 'f2', img: 'finds/find-b.jpg', title: 'Old clock on Jasper', where: 'The Summons · chapter 3', type: 'landmark', x: 300, y: 160 },
+    { id: 'f3', img: 'finds/find-c.jpg', title: 'Steps by the bakery', where: 'Yesterday · 6:05 pm', type: 'shop', x: 72, y: 196 },
+  ],
+  newFind: (n) => ({ title: `New find ${n}`, where: 'Just now' }),
+};
+
+// Treadmill mode: walk map dock, "Inside the box option two" (UX doc approved by Melissa, Nov 26; copy still NSC-2128)
+export const TREADDOCK = {
+  k: 'Treadmill',
+  tipWinter: 'Too cold out? Treadmill steps count too. Flip the switch and walk this chapter inside.',
+  tipMode: 'This switch turns on treadmill mode. Set your belt speed and we’ll count your steps as you walk.',
+  tipTap: 'Tap anywhere',
+  info: 'Show the tips again',
+  huntNo: 'Hunt does not start treadmill.',
+  toggle: 'Treadmill',
+  speedK: 'Belt speed',
+  speedH: 'How fast is your belt?',
+  kmh: (v) => `${v.toFixed(1)} km/h`,
+  est: (m) => `About ${m} min to the next chapter`,
+  start: 'Start walking',
+  pause: 'Pause walk',
+  resume: 'Resume walking',
+  up: 'Faster',
+  down: 'Slower',
+  steps: (n, g) => `${n} of ${g} steps`,
+  arrived: 'Chapter unlocked',
+  read: 'Read the Chapter',
+  endedToast: 'Treadmill off. Your steps are saved.',
+  placeholder: 'Tip copy is still a placeholder (NSC-2128).',
+};
+
+// Today: weather now, your day later (NSC-2137)
+export const TODAY26 = {
+  calK: 'Your day',
+  calLine: 'You’re free 12:30 – 1:00. That’s a 20-minute chapter.',
+  calSub: 'From your calendar. We only see the gap, never what your plans are.',
+  calBtn: 'Find Me a Time',
+  calAskH: 'Find you a free window?',
+  calAskP: 'We’ll look at your calendar on this phone for gaps long enough for a chapter. Event names and places never leave your phone.',
+  calYes: 'Look for Gaps',
+  calNo: 'Not Now',
+  calOn: 'Calendar on. We’ll only suggest, never nag.',
+  calTeen: 'Calendar suggestions are off for players under 13.',
+  calLater: 'Later: opt-in. Shown here so the team can see it.',
+};

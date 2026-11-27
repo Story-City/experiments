@@ -10,8 +10,9 @@ import {
 } from './core.js';
 import {
   TODAY, WEATHER, FITS, LIBRARY, FEED, MAP, GEMS, YOU, SETTINGS, REMIND, LOCK, WHIMSY, ROULETTE, MISSION, LIVING,
-  SHEETS_W, CARD, GO, TABS, OVERVIEW, LOCKIN, TRIAL, MORE, START, SOFA, BOT, LOOPS, NOHOME,
+  SHEETS_W, CARD, GO, TABS, OVERVIEW, LOCKIN, TRIAL, MORE, START, SOFA, BOT, LOOPS, NOHOME, NAV26, TODAY26,
 } from './words.js';
+import { youGalleries } from './you-gallery.js';
 import { storyCard, thumb, coverOf, shelf, tabHead, weekRow, toggle, selectRow, linkRow, thatsToday, chip, stepPill, dayLabel } from './ui.js';
 import { homeMap, doodle, doorDoodle, isRural, place, pinsFor, WALKED, RURAL_WALKED } from './maps.js';
 import { mountFog, FOG_LOOKS } from './fog.js';
@@ -424,6 +425,7 @@ reg('today', {
   html() {
     const hello = hasName() ? `${TODAY.hello[partOfDay()]}, ${S.name}` : TODAY.hello[partOfDay()];
     const title = O.tabs === 'real' ? TABS.home : hello;
+    const firstName26 = O.tabs === 'nov26' ? NAV26.first[O.firstTab] : null;
     // one door after 3+ days away; on a low day the story stays and one tiny door joins it (pass 2: Tasha, Sky)
     const mode = todayMode(), cur = curStory();
     const oneDoor = mode === 'away' || mode === 'low' || mode === 'duskStory';
@@ -439,9 +441,10 @@ reg('today', {
       else if (O.cadence === 'three') doors += threeDoors();
       else doors += whimsyDoor() + threeDoors();
     }
-    return `${tabHead(title, { kicker: TODAY.kicker(`${S.dow}, ${S.date}`), right: `${bellBtn()}<button class="ibtn" data-go="library" data-p='{"focus":1}' aria-label="Search">${ic('search')}</button>` })}
+    return `${tabHead(title, { kicker: firstName26 ? `${firstName26} · ${S.dow}, ${S.date}` : TODAY.kicker(`${S.dow}, ${S.date}`), right: `${bellBtn()}<button class="ibtn" data-go="library" data-p='{"focus":1}' aria-label="Search">${ic('search')}</button>` })}
       <div class="today-status"><p class="wx">${wxIcon()} ${esc(weatherLine())}</p>
       ${oneDoor || mode === 'dusk' || S.whimsyDone || S.walkedToday ? '' : flipCard()}</div>
+      ${calCard()}
       ${sinceCard()}
       ${S.first ? `<section class="firstwel"><p class="kicker">${esc(TODAY.firstKicker)}</p><p class="big">${esc(TODAY.firstTitle)}</p>${S.tips ? `<p class="tipline">${sparkle(14, 'var(--glow)')} ${esc(TODAY.firstTip)}</p>` : ''}</section>` : ''}
       ${livingLine()}
@@ -454,6 +457,22 @@ reg('today', {
       <div class="tabpad"></div>`;
   },
 });
+
+// Your day from the calendar: a later, opt-in feature, shown so the team can see it (Melissa, Nov 26; NSC-2137).
+// Only the free gap is used; event names never leave the phone; off for under-13s.
+function calCard() {
+  if (O.calendar !== 'preview' || S.away >= 3) return '';
+  const body = S.calOn
+    ? `<p class="big">${esc(TODAY26.calLine)}</p><p class="hint">${ic('lock')} ${esc(TODAY26.calSub)}</p>`
+    : `<p class="hint">${esc(TODAY26.calAskP)}</p><button class="btn ghost small" data-sheet="calAsk">${ic('clock')} ${esc(TODAY26.calBtn)}</button>`;
+  return `<section class="calcard" style="--jewel:#5B8CFF"><p class="kicker">${ic('clock')} ${esc(TODAY26.calK)}</p>${body}${src(TODAY26.calLater + ' — NSC-2137')}</section>`;
+}
+regSheet('calAsk', () => ({
+  jewel: '#5B8CFF', label: TODAY26.calK,
+  html: `<p class="kicker">${ic('clock')} ${esc(TODAY26.calK)}</p><h3>${esc(TODAY26.calAskH)}</h3><p class="more">${esc(TODAY26.calAskP)}</p>
+    <div class="btns"><button class="btn primary" data-act="calYes">${esc(TODAY26.calYes)}</button><button class="btn ghost" data-close>${esc(TODAY26.calNo)}</button></div>
+    ${src('Ask only when the player taps Find Me a Time, never in the first-time experience — NSC-2137')}`,
+}));
 
 // ================================================================== TODAY: CARD OPTIONS (#cards)
 // Every undecided Today card as A / B / C, stacked, each labelled so Melissa can reply "Whimsy B, nudge C" (Nov 5).
@@ -838,7 +857,7 @@ reg('library', {
     }
     const chips = libFilters().map((x) => chip(x.t, libFilter === x.id, `data-act="libFilter" data-v="${x.id}"`)).join('') + LIBRARY.moods.map((m) => chip(m, libQuery === m, `data-act="mood" data-v="${esc(m)}"`)).join('');
     const nextView = O.libView === 'feed' ? 'shelves' : 'feed';   // one icon, top right: switch between Shelves and Feed
-    return `${tabHead(O.tabs === 'sgw' ? TABS.stories : LIBRARY.title, { right: `<button class="ibtn" data-act="libView" data-v="${nextView}" aria-label="Show as ${esc(LIBRARY.view[nextView])}" title="Show as ${esc(LIBRARY.view[nextView])}">${ic(nextView === 'feed' ? 'feed' : 'library')}</button>` })}
+    return `${tabHead(O.tabs === 'sgw' || O.tabs === 'nov26' ? TABS.stories : LIBRARY.title, { right: `<button class="ibtn" data-act="libView" data-v="${nextView}" aria-label="Show as ${esc(LIBRARY.view[nextView])}" title="Show as ${esc(LIBRARY.view[nextView])}">${ic(nextView === 'feed' ? 'feed' : 'library')}</button>` })}
       ${!libQuery ? `<section class="helppick hp2" aria-label="Help me pick"><span class="g-av">${esc(BOT[0])}</span><div class="hp-body"><b>Help Me Pick</b><span>${esc(FITS.energyQ)}</span>${O.energyUi === 'slider' ? `<input type="range" id="enRange" class="en-range" min="0" max="3" step="1" value="2" aria-label="Energy: Some" style="--p:67%"><div class="en-scale" aria-hidden="true">${FITS.energies.map((t) => `<span>${esc(t.t)}</span>`).join('')}</div><button class="btn primary small en-go" data-act="helpPick" data-v="stroll">Pick for Me</button>` : `<div class="hp-btns">${FITS.energies.map((t) => `<button data-act="helpPick" data-v="${t.id}">${esc(t.t)}</button>`).join('')}</div>`}</div></section>${src('Energy on the Help Me Pick card: Low → two quick options; Medium/High → time/steps and company (Melissa, Nov 4)')}` : ''}
       ${O.libView === 'shelves' && !libQuery ? `<div class="viewby" role="group" aria-label="View by"><span>View by</span><div class="seg minis">${[['where', 'Place']].concat(Object.entries(VIEW_BY).map(([k, v]) => [k, v.label])).map(([k, t]) => `<button class="${libBy === k ? 'on' : ''}" data-act="libBy" data-v="${k}" aria-pressed="${libBy === k}">${esc(t)}</button>`).join('')}</div></div>` : ''}
       <label class="search">${ic('search')}<input type="search" id="libq" placeholder="${esc(LIBRARY.search)}" value="${esc(libQuery)}" aria-label="${esc(LIBRARY.search)}" ${p.focus ? 'autofocus' : ''}>${libQuery ? `<button class="link" data-act="libClear">${esc(LIBRARY.clear)}</button>` : ''}</label>
@@ -1016,6 +1035,7 @@ reg('you', {
       ${!S.account ? `<div class="guestbar"><p>${esc(YOU.guest)}</p><button class="btn ghost small" data-go="account" data-p='{"mode":"re","next":"back"}'>${esc(YOU.signUp)}</button></div>` : ''}
       ${S.loc === 'far' ? `<button class="tripcard" data-sheet="trip"><span class="kicker">${ic('map')} ${esc('Trip page')}</span><b>${esc(LOOPS.trip.k(S.city))}</b><small>${esc(LOOPS.trip.line(S.gems.filter((g) => g.mine && !g.hidden).length, S.gems.filter((g) => g.found).length, S.tripWalks || 0))}</small>${ic('chev')}</button>` : ''}
 
+      ${O.youLayout === 'galleries' ? youGalleries() : `
       <div class="seg minis youtabs" role="tablist" aria-label="Profile">${[['steps', 'Steps'], ['stories', 'Stories'], ['stamps', O.gemsTabName]].map(([k, t]) => `<button role="tab" class="${youTab === k ? 'on' : ''}" aria-selected="${youTab === k}" data-act="youTab" data-v="${k}">${t}</button>`).join('')}</div>
       <section id="sec-steps" ${youTab === 'steps' ? '' : 'hidden'}><p class="kicker section">${esc(YOU.steps)}</p>
         ${S.storyOnly ? `<p class="hint">${esc(YOU.storyOnlyLine)}</p>` : `<p class="big">${esc(YOU.stepsWeek(n0(week)))}</p><p class="hint">${esc(YOU.stepsSplit(n0(story), n0(Math.max(0, week - story))))}</p>
@@ -1058,6 +1078,7 @@ reg('you', {
         <button class="mini-pc" data-go="postcard" data-p='{"id":"summons"}'><span>The Summons</span><small>Edmonton · Oct 31 · 0.4 km</small></button>
         ${S.postcards > 1 ? `<p class="hint">${S.postcards} postcards in your journal.</p>` : ''}
       </section>
+`}
       <section class="links">${linkRow(YOU.reminders, remVal, 'reminders')}${linkRow(YOU.lock, '', 'lock')}<button class="lrow" data-sheet="recap"><b>${esc(YOU.recap)}</b><span>${esc(SETTINGS.newTag)}</span>${ic('chev')}</button><button class="lrow" data-sheet="make"><b>${esc(MORE.make.btn)}</b><span>${esc(MORE.make.k)}</span>${ic('chev')}</button><button class="lrow" data-sheet="ideas"><b>Suggest a Feature</b><span>Tell us what you wish Story City did</span>${ic('chev')}</button>${linkRow(YOU.settings, '', 'settings')}</section>
       <div class="tabpad"></div>`;
   },

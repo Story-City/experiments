@@ -6,12 +6,14 @@ import {
   BASE_STATE, DAYS, nextDay, laterToday, whileAway, walkIdFor, walkDef, walkVersion, weatherKind, countWalk, pressSeal, codeName, myCode, pronoun,
   seedHist, logAct, firstName, homeOff, remembered,
 } from './core.js';
-import { APP, RIG, TABS, JOURNEYS, TODAY, MAP, GEMS, WALKMAP, POSTCARD, LOCKIN, TRIAL, ACCOUNT, OVERVIEW, FEED, REMIND, SHEETS_W, YOU, PERMISSION, ROUTES, MORE, MISSION, BREAK, LIBRARY, LOOPS, ROULETTE, NOHOME } from './words.js';
+import { APP, RIG, TABS, JOURNEYS, TODAY, MAP, GEMS, WALKMAP, POSTCARD, LOCKIN, TRIAL, ACCOUNT, OVERVIEW, FEED, REMIND, SHEETS_W, YOU, PERMISSION, ROUTES, MORE, MISSION, BREAK, LIBRARY, LOOPS, ROULETTE, NOHOME, NAV26, TODAY26 } from './words.js';
 import { stepArc } from './ui.js';
 import { fitTrail, lenTrail, storyLen, fmtMins, shoes, coming, ideasUI, fits, lib, feedCheer, whimsy, roulette, mission, doorstep, LOCKIN_TIMES, mapUI, youUI, curStory, stepsFor, missionSteps, frUI, verFor, wpMins, rlTurns, wtUI } from './screens-tabs.js';
 import { F, smartWay, waysFor, arrive, mockGps, walkState, goalFor, tread, cam, together, tips, routesCook } from './screens-story.js';
 import { gemForm, resetGemForm, GEM_ACT, defaultGemName } from './gems.js';
 import { PROBLEMS, probUI } from './problems.js';
+import { G26_ACT } from './gems-tab.js';
+import { TD_ACT, tdReset } from './treadmill-dock.js';
 import { SQUEAKY } from './stories.js';
 
 document.title = APP.title;
@@ -20,6 +22,8 @@ const hasNameLocal = () => (S.account || ['trial', 'member', 'free'].includes(S.
 
 // ---------------------------------------------------------------- shell: tabs + step pill
 const TABSETS = {
+  // Brett chat, Nov 26: Feed (or Today), Stories, one-tap camera, Gems, You
+  nov26: [['today', 'today', null], ['library', 'library', TABS.stories], ['CREATE', 'camera', null], ['gems', 'gem', TABS.gems], ['you', 'you', null]],
   // Feed folded into Today (Melissa, Nov 4): four tabs plus the + Gem button
   five: [['today', 'today', TABS.today], ['map', 'map', TABS.map], ['GEM', 'plus', 'Gem'], ['library', 'library', TABS.library], ['you', 'you', null]],
   real: [['today', 'home', TABS.home], ['feed', 'feed', TABS.feed], ['library', 'library', TABS.library]],
@@ -35,7 +39,8 @@ function drawShell(def) {
   const cur = def && def.tab;
   tabs.style.gridTemplateColumns = `repeat(${set.length}, 1fr)`;
   tabs.innerHTML = set.map(([id, icn, label]) => {
-    const lab = label || YOU.names[O.youName];
+    const lab = label || (id === 'today' ? NAV26.first[O.firstTab] : YOU.names[O.youName]);
+    if (id === 'CREATE') return `<button class="create26" data-act="createSnap" aria-label="${esc(NAV26.createAria)}"><i>${ic('camera')}</i><span>${esc(NAV26.create)}</span></button>`;
     // quick gem: one tap from any tab (Melissa, Nov 4)
     if (id === 'GEM') return `<button class="addgem" data-sheet="quickGem" aria-label="Save a gem here">${ic('plus')}<span>Gem</span></button>`;
     if (id === 'GO') return `<button class="go" data-sheet="go" aria-label="${esc(TABS.go)}">${esc(TABS.go)}</button>`;
@@ -48,7 +53,7 @@ function drawShell(def) {
   document.body.classList.add('pill-floating', 'pill-arc');
   document.body.classList.toggle('arc-dock', dock);
   const pill = $('#pill');
-  const showArc = def && def.tab && def.tab !== 'feed' && def.tab !== 'map';
+  const showArc = def && def.tab && !['feed', 'map', 'gems'].includes(def.tab) && !def.noArc;
   pill.innerHTML = showArc && !dock ? stepArc() : '';
   if (showArc && dock) { const th = $('#screen .tabhead'); const arc = stepArc(); if (th && arc && !$('#screen .arcdock')) th.insertAdjacentHTML('afterend', `<div class="arcdock">${arc}</div>`); }
   pill.classList.remove('hide'); lastY = 0;
@@ -110,7 +115,7 @@ function routeWalk() {
   F.carry = 0; F.carryHome = null;
   S.lastStory = F.id;
   if (w === 'route') return go('routes', F.route ? { id: s.id, cook: 1, len: F.route } : { id: s.id });
-  if (w === 'tread') return go('treadmill');
+  if (w === 'tread') { if (O.treadLook === 'dock') { tdReset(); return go('treadmill-dock'); } return go('treadmill'); }
   if (w === 'sofa' || w === 'home') return go('sofa');
   if (w === 'read') return go('chapter');   // homePlay off: a no-walking story just opens
   F.mode = w === 'there' ? 'path' : s.modes.walk === 'on' ? 'walk' : s.modes.path === 'on' ? 'path' : 'hunt';
@@ -156,7 +161,7 @@ function nextAfter(p) {
 }
 function firstHome() { S.first = true; go(homeTab(), {}, { root: true }); }
 function toRecs() { closeSheet(true); if (O.lockIn === 'replace') return go('lockin'); go('recs', { from: F.id === 'squeaky' ? 'squeaky' : 'squeaky' }); }
-function finishWalkToChapter() { const c = current().id; if (['walkmap', 'camera', 'treadmill', 'sofa', 'gemsave', 'gem-who', 'gem-snap'].includes(c)) go('chapter', {}, { replace: true }); else go('chapter'); }
+function finishWalkToChapter() { const c = current().id; if (['walkmap', 'camera', 'treadmill', 'treadmill-dock', 'sofa', 'gemsave', 'gem-who', 'gem-snap'].includes(c)) go('chapter', {}, { replace: true }); else go('chapter'); }
 const cur = () => curStory() || S.myList[0] || 'incident';
 const indoorWay = () => (S.remember === 'tread' || homeOff() ? 'tread' : O.homeOpt === 'one' ? 'home' : 'sofa');
 const QUIET = { '9 pm – 8 am': [21, 8], '10 pm – 7 am': [22, 7], '8 pm – 9 am': [20, 9], None: null };
@@ -166,6 +171,7 @@ const PAUSE = { '1 Week': 'Nov 11', '2 Weeks': 'Nov 18', 'Until I’m Back': 'yo
 // ---------------------------------------------------------------- actions
 const ACT = {
   toast: (el) => toast(el.dataset.t),
+  calYes: () => { S.calOn = true; closeSheet(true); rerender(); toast(TODAY26.calOn); },
   noop: (el) => toast(el.dataset.t ? `${el.dataset.t}: not in this mockup` : 'Not in this mockup'),
   tip: (el) => showTip(el, el.dataset.tip),
   // first landing
@@ -487,7 +493,7 @@ const ACT = {
   probClose: () => { S.fromProblems = false; go(homeTab(), {}, { root: true }); },
   fixBack: () => openProblems(),
 };
-Object.assign(ACT, GEM_ACT);
+Object.assign(ACT, GEM_ACT, G26_ACT, TD_ACT, { tdRead: () => { tdReset(); finishWalkToChapter(); }, toTreadDock: () => { tdReset(); go('treadmill-dock', {}, { replace: true }); } });
 let pendingWalk = null;
 function doDownload(id) { S.downloads++; S.downloadedIds = (S.downloadedIds || []).concat(id); toast(OVERVIEW.dlDone(S.lowData ? 2 : 42)); rerender(); }
 
@@ -542,7 +548,7 @@ document.addEventListener('click', (e) => {
   if (el.dataset.close !== undefined) return closeSheet();
   if (el.dataset.back !== undefined) return back();
   if (el.dataset.tab) { S.first = S.first && el.dataset.tab === homeTab(); return go(el.dataset.tab, {}, { root: true }); }
-  if (el.dataset.gem) return openSheet('gem', { id: el.dataset.gem });
+  if (el.dataset.gem) return openSheet(current().id === 'gems' ? 'gemStrip' : 'gem', { id: el.dataset.gem });
   if (el.dataset.pin) return openSheet('pin', { id: el.dataset.pin });
   if (el.dataset.act) { const fn = ACT[el.dataset.act]; if (fn) { e.preventDefault(); fn(el, e); } else console.warn('no action', el.dataset.act); if (el.dataset.go === undefined) return; }
   if (el.dataset.sheet) { let p = {}; try { p = el.dataset.p ? JSON.parse(el.dataset.p) : {}; } catch (x) {} return openSheet(el.dataset.sheet, p); }
@@ -645,7 +651,7 @@ regSheet('options', () => ({
 // every screen, reachable
 const JUMPS = {
   recs: ['recs', { from: 'summons' }], trial: ['trial', { next: 'back' }], account: ['account', { mode: 're', next: 'back' }],
-  today: ['today'], 'today: card options': ['cards'], map: ['map'], library: ['library'], feed: ['feed'], you: ['you'], settings: ['settings'], reminders: ['reminders'], lock: ['lock'],
+  today: ['today'], gems: ['gems'], 'gems: sort': ['gems', { hub: 1 }], 'treadmill dock': ['treadmill-dock'], 'you: see all progress': ['you-all', { which: 'progress' }], 'today: card options': ['cards'], map: ['map'], library: ['library'], feed: ['feed'], you: ['you'], settings: ['settings'], reminders: ['reminders'], lock: ['lock'],
   'overview: Squeaky': ['overview', { id: 'squeaky' }], 'overview: Coronet (Edmonton)': ['overview', { id: 'coronet' }], 'overview: Calgary Parable': ['overview', { id: 'parable' }],
   'overview: Adelaide (Passport)': ['overview', { id: 'adelaide' }], 'overview: Chase (Passport)': ['overview', { id: 'chase' }], 'overview: Dictators Laundromat': ['overview', { id: 'laundromat' }],
   'overview: Tips From Your Barista': ['overview', { id: 'barista' }], 'overview: Frightnight (seasonal)': ['overview', { id: 'frightnight' }], 'overview: The Balthazar Job': ['overview', { id: 'balthazar' }],
