@@ -4007,3 +4007,38 @@ body.is-v3.card-size-full .sort-stack { top: 24px; width: calc(100% - 2 * var(--
 .trash-confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .detail-menu-item.is-danger { color: #ff8fa3; }
 .detail-menu-item[hidden] { display: none !important; }
+
+/* V3 Sort layout: Drag right. A big photo on the left, three drop zones stacked on the right. */
+.sort-right-zones { display: none; }
+body.is-v3.sort-layout-right .sort-rail { display: none; }
+body.is-v3.sort-layout-right .sort-stage { height: 470px; }
+body.is-v3.sort-layout-right .sort-stack { left: 18px; top: 34px; width: calc(100% - 136px); height: 400px; transform: none; }
+body.is-v3.sort-layout-right .sort-right-zones {
+  position: absolute;
+  z-index: 2;
+  top: 20px;
+  right: 10px;
+  width: 84px;
+  height: 440px;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 10px;
+}
+.srz {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 6px;
+  border-radius: 18px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 800;
+  font-size: 15px;
+  transition: background 160ms var(--ease-out), border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out), transform 160ms var(--ease-out);
+}
+.srz svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.srz.is-hot { transform: scale(1.04); color: #fff; border-style: solid; }
+.srz-share.is-hot { border-color: #b36bff; background: rgba(179, 107, 255, 0.22); box-shadow: 0 0 16px rgba(179, 107, 255, 0.55); }
+.srz-hide.is-hot { border-color: #8fa3ff; background: rgba(143, 163, 255, 0.18); box-shadow: 0 0 16px rgba(143, 163, 255, 0.45); }
+.srz-delete.is-hot { border-color: #ff6b6b; background: rgba(255, 107, 107, 0.18); box-shadow: 0 0 16px rgba(255, 107, 107, 0.45); }

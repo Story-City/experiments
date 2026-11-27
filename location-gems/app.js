@@ -254,6 +254,7 @@ const COPY = {
   sortTitle: '[sort your finds]',
   sortIntro: '[hold the photo — left hidden, right public, down delete]',
   sortIntroDrag: '[hold the photo — drag onto Hidden or Public]',
+  sortIntroRight: '[hold the photo — drag it to Share, Hide or Delete]',
   publicIntroTitle: '[public]',
   publicIntroBody: '[on the map for other people]',
   hiddenIntroTitle: '[hidden]',
@@ -315,6 +316,7 @@ const SPOOF_COPY = {
   sortTitle: 'Sort your finds',
   sortIntro: 'Hold the photo — left hidden, right public, down delete.',
   sortIntroDrag: 'Hold the photo — drag onto Hidden or Public.',
+  sortIntroRight: 'Hold the photo — drag it to Share, Hide or Delete.',
   publicIntroTitle: 'Public',
   publicIntroBody: 'On the map for other people.',
   hiddenIntroTitle: 'Hidden',
@@ -914,7 +916,7 @@ function setupSnapshotArc() {
 
 function applyStaticCopy() {
   sortTitle.textContent = t('sortTitle');
-  sortIntro.textContent = dragMode ? t('sortIntroDrag') : t('sortIntro');
+  sortIntro.textContent = isSortRight() ? t('sortIntroRight') : dragMode ? t('sortIntroDrag') : t('sortIntro');
   document.querySelectorAll('[data-copy]').forEach((el) => {
     const map = {
       private: 'railPrivate',
@@ -942,7 +944,7 @@ function applyStaticCopy() {
   detailSectionLabel.textContent = t('descriptionLabel');
   likesSubtitle.textContent = t('likesSubtitle');
   sortEmpty.textContent = t('sortEmpty');
-  hint.textContent = dragMode ? t('holdHintDrag') : t('holdHint');
+  hint.textContent = isSortRight() ? t('sortIntroRight') : dragMode ? t('holdHintDrag') : t('holdHint');
   syncDetailNoteCount();
   syncSectionIntro();
 }
@@ -2186,7 +2188,7 @@ function bindSortDrag(card) {
       card.style.animation = 'none';
       hub.classList.add('is-sorting-focus');
       if (hubScroll) hubScroll.style.overflowY = 'hidden';
-      setTargets(null, true);
+      if (!isSortRight()) setTargets(null, true);
       drag = {
         card,
         id: e.pointerId,
@@ -2197,7 +2199,7 @@ function bindSortDrag(card) {
         armed: true,
       };
       moveCard(0, 0);
-      hint.textContent = dragMode ? t('holdHintDrag') : t('holdHint');
+      hint.textContent = isSortRight() ? t('sortIntroRight') : dragMode ? t('holdHintDrag') : t('holdHint');
     },
     { passive: false },
   );
@@ -2211,13 +2213,29 @@ function bindSortDrag(card) {
       drag.dx = e.clientX - drag.x0;
       drag.dy = e.clientY - drag.y0;
       moveCard(drag.dx, drag.dy);
-      setTargets(railModeFromDelta(drag.dx, drag.dy, targetsMode), true);
+      if (isSortRight()) paintSortRightZone(sortRightZoneAt(e.clientX, e.clientY));
+      else setTargets(railModeFromDelta(drag.dx, drag.dy, targetsMode), true);
     },
     { passive: false },
   );
 
+  const finishRightDrag = (zone) => {
+    drag = null;
+    paintSortRightZone(null);
+    setSortingFocus(false);
+    if (hubScroll) hubScroll.style.overflowY = '';
+    if (zone === 'share') openPublishSheet(card);
+    else if (zone === 'hide') settleSort(card, 'private');
+    else if (zone === 'delete') settleSort(card, 'delete');
+    else snapBack();
+  };
+
   const up = (e) => {
     if (!drag || drag.id !== e.pointerId) return;
+    if (isSortRight()) {
+      finishRightDrag(sortRightZoneAt(e.clientX, e.clientY));
+      return;
+    }
     const { dx, dy } = drag;
     finishDrag(dx, dy);
   };
@@ -3593,7 +3611,7 @@ function resetState() {
   showTip(true);
   setSection('public');
   refreshHub();
-  hint.textContent = dragMode ? t('holdHintDrag') : t('holdHint');
+  hint.textContent = isSortRight() ? t('sortIntroRight') : dragMode ? t('holdHintDrag') : t('holdHint');
   runOnboardingTips();
 }
 
@@ -4102,3 +4120,33 @@ if (detailDelete) {
     showSnack('Moved to Recently deleted', () => restoreFromTrash(entry));
   });
 }
+
+// V3 Sort layout: swipe (default) or drag right, a big photo dropped on Share, Hide or Delete (Melissa, 27 Nov)
+const SORT_LAYOUT_KEY = 'location-gems-sort-layout';
+const SORT_LAYOUTS = ['swipe', 'right'];
+function isSortRight() {
+  return isV3() && document.body.classList.contains('sort-layout-right');
+}
+function sortRightZoneAt(x, y) {
+  const zone = [...document.querySelectorAll('#sortRightZones [data-srz]')].find((z) => {
+    const r = z.getBoundingClientRect();
+    return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+  });
+  return zone ? zone.dataset.srz : null;
+}
+function paintSortRightZone(active) {
+  document.querySelectorAll('#sortRightZones [data-srz]').forEach((z) => z.classList.toggle('is-hot', z.dataset.srz === active));
+}
+function setSortLayout(layout) {
+  const next = SORT_LAYOUTS.includes(layout) ? layout : SORT_LAYOUTS[0];
+  SORT_LAYOUTS.forEach((l) => document.body.classList.toggle(`sort-layout-${l}`, l === next));
+  document.querySelectorAll('[data-sort-layout]').forEach((b) => {
+    const on = b.dataset.sortLayout === next;
+    b.classList.toggle('is-on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+  try { localStorage.setItem(SORT_LAYOUT_KEY, next); } catch (e) { /* private window */ }
+  applyStaticCopy();
+}
+document.querySelectorAll('[data-sort-layout]').forEach((b) => b.addEventListener('click', () => setSortLayout(b.dataset.sortLayout)));
+setSortLayout((() => { try { return localStorage.getItem(SORT_LAYOUT_KEY); } catch (e) { return null; } })());
