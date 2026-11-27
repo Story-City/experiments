@@ -1702,6 +1702,8 @@ function openDetail(id) {
   const gem = findGem(id);
   if (!gem) return;
   openGemId = id;
+  const del = document.getElementById('detailDelete');
+  if (del) del.hidden = !gem.owned;
   const rarity = rarityForLikes(gem.likes, gem.isPublic);
   const cat = ensureGemCategory(gem);
   detailPhoto.src = gem.imageUri;
@@ -4016,9 +4018,87 @@ function showSnack(text, onUndo) {
 }
 function offerUndoDelete(find) {
   if (!find) return;
-  showSnack('Photo deleted', () => {
-    pendingSort.unshift(find);
-    showSnack('Photo restored');
+  const entry = addToTrash({ kind: 'find', item: find, photo: find.photo });
+  showSnack('Moved to Recently deleted', () => restoreFromTrash(entry));
+}
+
+// V3 Recently deleted (Melissa, 27 Nov): deleted finds and gems wait here for 30 days
+const TRASH_DAYS = 30;
+const DAY_MS = 86400000;
+const trash = [];
+const trashEl = document.getElementById('trash');
+const trashGrid = document.getElementById('trashGrid');
+const trashRow = document.getElementById('trashRow');
+let trashPending = null;
+function addToTrash(entry) {
+  const e = { ...entry, id: `trash-${Date.now()}-${trash.length}`, deletedAt: Date.now() };
+  trash.unshift(e);
+  paintTrash();
+  return e;
+}
+function restoreFromTrash(entry) {
+  const i = trash.indexOf(entry);
+  if (i < 0) return;
+  trash.splice(i, 1);
+  if (entry.kind === 'find') pendingSort.unshift(entry.item);
+  else gems.unshift(entry.item);
+  showSnack(entry.kind === 'find' ? 'Photo restored to your pile' : 'Gem restored');
+  paintTrash();
+  refreshHub(entry.kind === 'gem' ? entry.item.id : undefined);
+}
+function paintTrash() {
+  if (trashRow) {
+    trashRow.hidden = trash.length === 0;
+    document.getElementById('trashCount').textContent = String(trash.length);
+  }
+  if (!trashGrid) return;
+  trashGrid.replaceChildren();
+  document.getElementById('trashEmpty').hidden = trash.length > 0;
+  trash.forEach((e) => {
+    const left = Math.max(1, TRASH_DAYS - Math.floor((Date.now() - e.deletedAt) / DAY_MS));
+    const tile = document.createElement('div');
+    tile.className = 'trash-tile';
+    tile.innerHTML = `<div class="trash-photo"><img src="${e.photo}" alt=""><span class="trash-days">${left} days</span></div>
+      <div class="trash-actions"><button type="button" class="trash-btn" data-act="restore">Restore</button><button type="button" class="trash-btn is-danger" data-act="delete">Delete</button></div>`;
+    tile.querySelector('[data-act=restore]').addEventListener('click', () => restoreFromTrash(e));
+    tile.querySelector('[data-act=delete]').addEventListener('click', () => { trashPending = e; document.getElementById('trashConfirm').hidden = false; });
+    trashGrid.appendChild(tile);
+  });
+}
+function openTrash() {
+  clearMapTips();
+  paintTrash();
+  trashEl.hidden = false;
+  trashEl.setAttribute('aria-hidden', 'false');
+}
+function closeTrash() {
+  trashEl.hidden = true;
+  trashEl.setAttribute('aria-hidden', 'true');
+}
+if (trashEl) {
+  trashRow.addEventListener('click', openTrash);
+  document.getElementById('trashBack').addEventListener('click', closeTrash);
+  document.getElementById('trashConfirmNo').addEventListener('click', () => { trashPending = null; document.getElementById('trashConfirm').hidden = true; });
+  document.getElementById('trashConfirmYes').addEventListener('click', () => {
+    const i = trash.indexOf(trashPending);
+    if (i >= 0) trash.splice(i, 1);
+    trashPending = null;
+    document.getElementById('trashConfirm').hidden = true;
+    showSnack('Deleted for good');
+    paintTrash();
+  });
+}
+// your own gems can be deleted from the ⋯ menu in V3; they go to Recently deleted too
+const detailDelete = document.getElementById('detailDelete');
+if (detailDelete) {
+  detailDelete.addEventListener('click', () => {
+    const gem = findGem(openGemId);
+    setDetailMenuOpen(false);
+    if (!gem || !gem.owned) return;
+    gems = gems.filter((g) => g !== gem);
+    closeDetail();
     refreshHub();
+    const entry = addToTrash({ kind: 'gem', item: gem, photo: gem.imageUri });
+    showSnack('Moved to Recently deleted', () => restoreFromTrash(entry));
   });
 }

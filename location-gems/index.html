@@ -18,7 +18,7 @@
     size-adjust: 120%;
   }
 </style>
-<link rel="stylesheet" href="app.css?v=136">
+<link rel="stylesheet" href="app.css?v=137">
 <link rel="stylesheet" href="../shared/gem-tabbar/tabbar.css?v=15">
 <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="../shared/versions/versions.css?v=2">
@@ -255,6 +255,13 @@
             <p class="empty-title" id="emptyTitle"></p>
             <p class="empty-body" id="emptyBody"></p>
           </div>
+          <!-- V3: a photo trash can, like Photos' Recently Deleted (Melissa, 27 Nov) -->
+          <button type="button" class="trash-row v3-only" id="trashRow" hidden>
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 7h16M9 7V4.8h6V7M6.5 7l1 12.2h9L17.5 7M10 10.5v5.5M14 10.5v5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="trash-row-label">Recently deleted</span>
+            <span class="trash-row-count" id="trashCount"></span>
+            <svg class="trash-row-chev" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
         </div>
 
         <div class="feed-dock" id="feedDock" hidden>
@@ -331,6 +338,27 @@
       </div>
     </div>
 
+    <div class="trash" id="trash" hidden aria-hidden="true">
+      <button type="button" class="detail-back" id="trashBack" aria-label="Back">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="trash-scroll">
+        <h2 class="trash-title">Recently deleted</h2>
+        <p class="trash-intro">Photos stay here for 30 days, then they’re gone for good.</p>
+        <div class="trash-grid" id="trashGrid"></div>
+        <p class="trash-empty" id="trashEmpty" hidden>Nothing here. Photos you delete wait here for 30 days.</p>
+      </div>
+      <div class="trash-confirm" id="trashConfirm" hidden role="dialog" aria-labelledby="trashConfirmTitle">
+        <div class="trash-confirm-card">
+          <p class="trash-confirm-title" id="trashConfirmTitle">Delete this photo now?</p>
+          <p class="trash-confirm-body">It can’t be brought back.</p>
+          <div class="trash-confirm-actions">
+            <button type="button" class="trash-btn" id="trashConfirmNo">Cancel</button>
+            <button type="button" class="trash-btn is-danger" id="trashConfirmYes">Delete now</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="detail" id="detail" hidden aria-hidden="true">
       <button type="button" class="detail-back" id="detailBack" aria-label="Back">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
@@ -341,6 +369,7 @@
         <button type="button" class="detail-menu" id="detailMenu" aria-label="More" aria-haspopup="menu" aria-expanded="false">⋯</button>
         <div class="detail-menu-pop" id="detailMenuPop" hidden role="menu">
           <button type="button" class="detail-menu-item" id="detailReport" role="menuitem">[report]</button>
+          <button type="button" class="detail-menu-item is-danger v3-only" id="detailDelete" role="menuitem" hidden>Delete gem</button>
         </div>
       </div>
       <div class="detail-scroll">
@@ -556,7 +585,7 @@
   </div>
   <script src="corner-ribbon.js?v=109"></script>
   <script src="../shared/gem-tabbar/tabbar.js?v=13"></script>
-  <script src="app.js?v=139"></script>
+  <script src="app.js?v=140"></script>
   <script type="module">
     import { mountVersions } from '../shared/versions/versions.js?v=2';
     mountVersions({
