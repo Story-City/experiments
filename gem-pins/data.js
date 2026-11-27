@@ -103,10 +103,10 @@ export const OPTIONS = [
 // Preset combos (Melissa, 19 Nov): six full setups, one tap each. Density and colour-blind stay as
 // they are, so each preset can be run at 10 / 40 / 100 gems and with the colour-blind view.
 // The options panel, grouped by what a gem has to show (Melissa, 19 Nov): the thing down the left,
-// how it's shown on the right. Gem art, colour and shape are settled (26 Nov, see LOCKED), so they have no rows.
+// how it's shown on the right. Gem art, colour and shape are settled (26 Nov, see LOCKED), so they have no rows;
+// Melissa took the Category rows (tags per gem, which tags, filter) out of the panel the same day.
 export const GROUPS = [
   ['Rarity', [['rarityBy', 'Shown by'], ['sparkStyle', 'Sparkle style'], ['levels', 'Levels'], ['sizes', 'Sizes'], ['glowOn', 'Glow on'], ['rarityColours', 'Colours']]],
-  ['Category', [['tagMode', 'Tags per gem'], ['tags', 'Which tags'], ['filter', 'Filter']]],
   ['Private vs public', [['mine', 'Shown by']]],
   ['Liked', [['liked', 'Shown by']]],
   ['Visited', [['visited', 'Shown by'], ['show', 'Show']]],
